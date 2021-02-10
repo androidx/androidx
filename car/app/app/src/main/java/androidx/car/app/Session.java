@@ -64,7 +64,6 @@ public abstract class Session implements LifecycleOwner {
      * @param intent the intent that was used to start this app. If the app was started with a
      *               call to {@link CarContext#startCarApp}, this intent will be equal to the
      *               intent passed to that method
-     *
      * @see CarContext#startCarApp
      */
     public void onNewIntent(@NonNull Intent intent) {

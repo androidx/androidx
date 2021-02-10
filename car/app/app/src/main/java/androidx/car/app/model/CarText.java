@@ -63,7 +63,6 @@ import java.util.Objects;
  * <p>The {@link CarText#toString} method can be used to get a string representation of the string,
  * whereas the {@link CarText#toCharSequence()} method returns the reconstructed
  * {@link CharSequence}, with the non{@link CarSpan} spans removed.
- *
  */
 public final class CarText {
     @Keep

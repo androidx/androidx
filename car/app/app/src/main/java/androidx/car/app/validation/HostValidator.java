@@ -16,7 +16,7 @@
 
 package androidx.car.app.validation;
 
-import static androidx.car.app.utils.CommonUtils.TAG_HOST_VALIDATION;
+import static androidx.car.app.utils.LogTags.TAG_HOST_VALIDATION;
 
 import static java.util.Objects.requireNonNull;
 
@@ -375,7 +375,6 @@ public final class HostValidator {
          * package-name formatting.
          *
          * @param allowListedHostsRes string-array resource identifier
-         *
          * @throws IllegalArgumentException if the provided resource doesn't exist or if the entries
          *                                  in the given resource are not formatted as expected
          */

@@ -77,7 +77,6 @@ public final class CarToast {
      *                  text will be set to empty
      * @param duration  how long to display the message. Either {@link #LENGTH_SHORT} or {@link
      *                  #LENGTH_LONG}
-     *
      * @throws NullPointerException if {@code carContext} is {@code null}
      */
     @NonNull
@@ -95,7 +94,6 @@ public final class CarToast {
      * @param text     the text to show
      * @param duration how long to display the message. Either {@link #LENGTH_SHORT} or {@link
      *                 #LENGTH_LONG}
-     *
      * @throws NullPointerException if either the {@code carContext} or the {@code text} are {@code
      *                              null}
      */

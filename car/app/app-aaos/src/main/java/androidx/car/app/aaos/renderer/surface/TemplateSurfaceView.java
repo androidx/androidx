@@ -25,6 +25,7 @@ import static android.view.KeyEvent.KEYCODE_DPAD_RIGHT;
 import static android.view.KeyEvent.KEYCODE_DPAD_UP;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.aaos.LogTags.TAG_AAOS_HOST;
 
 import static java.util.Objects.requireNonNull;
 
@@ -57,7 +58,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.aaos.LogTags;
 import androidx.car.app.aaos.renderer.IProxyInputConnection;
 
 /**
@@ -109,7 +109,7 @@ public final class TemplateSurfaceView extends SurfaceView {
                             mSurfaceControl.onWindowFocusChanged(hasFocus(), isInTouchMode);
                         }
                     } catch (RemoteException e) {
-                        Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+                        Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
                     }
                 }
             };
@@ -173,7 +173,7 @@ public final class TemplateSurfaceView extends SurfaceView {
                 mSurfaceControl.onWindowFocusChanged(gainFocus, isInTouchMode());
             }
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
         }
         enableDirectManipulationMode(this, gainFocus);
     }
@@ -194,7 +194,7 @@ public final class TemplateSurfaceView extends SurfaceView {
             // Clear the input and return null if inputConnectionListener is null or there is no
             // open input connection on the host.
             if (proxyInputConnection == null) {
-                Log.e(LogTags.TAG_AAOS_HOST,
+                Log.e(TAG_AAOS_HOST,
                         "InputConnectionListener has not been received yet. Canceling the input");
                 onStopInput();
                 return null;
@@ -203,7 +203,7 @@ public final class TemplateSurfaceView extends SurfaceView {
             return new RemoteProxyInputConnection(proxyInputConnection);
 
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
         }
 
         return null;
@@ -299,7 +299,7 @@ public final class TemplateSurfaceView extends SurfaceView {
         } else if (surfacePackage instanceof LegacySurfacePackage) {
             setLegacySurfacePackage((LegacySurfacePackage) surfacePackage);
         } else {
-            Log.e(LogTags.TAG_AAOS_HOST, "Unrecognized surface package");
+            Log.e(TAG_AAOS_HOST, "Unrecognized surface package");
         }
     }
 
@@ -315,7 +315,7 @@ public final class TemplateSurfaceView extends SurfaceView {
         try {
             surfaceControl.setSurfaceWrapper(surfaceWrapper);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             return;
         }
         mSurfaceControl = surfaceControl;
@@ -346,7 +346,7 @@ public final class TemplateSurfaceView extends SurfaceView {
                 return true;
             }
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
         }
 
         return false;

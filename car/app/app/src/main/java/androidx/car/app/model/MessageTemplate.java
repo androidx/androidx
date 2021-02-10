@@ -196,7 +196,6 @@ public final class MessageTemplate implements Template {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code title} is {@code null}
-         *
          * @see CarText for details on text handling and span support.
          */
         @NonNull
@@ -338,7 +337,6 @@ public final class MessageTemplate implements Template {
          * Returns a {@link Builder} instance.
          *
          * @param message the text message to display in the template
-         *
          * @throws NullPointerException if the {@code message} is {@code null}
          */
         public Builder(@NonNull CharSequence message) {

@@ -587,7 +587,6 @@ public final class Maneuver {
          * units will not display any information in that case.
          *
          * @param type one of the {@code TYPE_*} static constants defined in this class
-         *
          * @throws IllegalArgumentException if {@code type} is not a valid maneuver type
          */
         public Builder(@Type int type) {

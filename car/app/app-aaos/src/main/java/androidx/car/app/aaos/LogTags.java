@@ -21,13 +21,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.RestrictTo;
 
 /**
- * Assorted tags for logging.
+ * Declares the log tags to use in the library.
  *
  * @hide
  */
 @RestrictTo(LIBRARY)
 public final class LogTags {
-    public static final String TAG_AAOS_HOST = "CarApp.H";
+    public static final String TAG_AAOS_HOST = androidx.car.app.utils.LogTags.TAG + ".AAOS";
 
     private LogTags() {
     }
