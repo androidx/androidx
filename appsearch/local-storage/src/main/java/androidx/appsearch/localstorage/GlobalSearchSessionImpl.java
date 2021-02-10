@@ -19,7 +19,6 @@ package androidx.appsearch.localstorage;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
@@ -28,7 +27,7 @@ import androidx.core.util.Preconditions;
 import java.util.concurrent.ExecutorService;
 
 /**
- * An implementation of {@link AppSearchSession} which stores data locally
+ * An implementation of {@link GlobalSearchSession} which stores data locally
  * in the app's storage space using a bundled version of the search native library.
  *
  * <p>Queries are executed multi-threaded, but a single thread is used for mutate requests (put,

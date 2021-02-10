@@ -2,6 +2,7 @@
 package androidx.appsearch.platformstorage {
 
   @RequiresApi(android.os.Build.VERSION_CODES.S) public class PlatformStorage {
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GlobalSearchSession!> createGlobalSearchSession(android.content.Context);
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchSession!> createSearchSession(androidx.appsearch.platformstorage.PlatformStorage.SearchContext);
   }
 

@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.platformstorage.converter.SearchContextToPlatformConverter;
 import androidx.concurrent.futures.ResolvableFuture;
@@ -164,6 +165,30 @@ public class PlatformStorage {
                 result -> {
                     if (result.isSuccess()) {
                         future.set(new SearchSessionImpl(result.getResultValue(), executor));
+                    } else {
+                        future.setException(
+                                new AppSearchException(
+                                        result.getResultCode(), result.getErrorMessage()));
+                    }
+                });
+        return future;
+    }
+
+    /**
+     * Opens a new {@link GlobalSearchSession} on this storage.
+     */
+    @NonNull
+    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
+            @NonNull Context context) {
+        Preconditions.checkNotNull(context);
+        AppSearchManager appSearchManager = context.getSystemService(AppSearchManager.class);
+        ResolvableFuture<GlobalSearchSession> future = ResolvableFuture.create();
+        appSearchManager.createGlobalSearchSession(
+                EXECUTOR_SERVICE,
+                result -> {
+                    if (result.isSuccess()) {
+                        future.set(new GlobalSearchSessionImpl(
+                                result.getResultValue(), EXECUTOR_SERVICE));
                     } else {
                         future.setException(
                                 new AppSearchException(

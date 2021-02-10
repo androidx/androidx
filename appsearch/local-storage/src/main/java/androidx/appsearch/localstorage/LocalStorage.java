@@ -126,35 +126,6 @@ public class LocalStorage {
         }
     }
 
-    /**
-     * Contains information relevant to creating a global search session.
-     */
-    public static final class GlobalSearchContext {
-        final Context mContext;
-
-        GlobalSearchContext(@NonNull Context context) {
-            mContext = Preconditions.checkNotNull(context);
-        }
-
-        /** Builder for {@link GlobalSearchContext} objects. */
-        public static final class Builder {
-            private final Context mContext;
-            private boolean mBuilt = false;
-
-            public Builder(@NonNull Context context) {
-                mContext = Preconditions.checkNotNull(context);
-            }
-
-            /** Builds a {@link GlobalSearchContext} instance. */
-            @NonNull
-            public GlobalSearchContext build() {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                mBuilt = true;
-                return new GlobalSearchContext(mContext);
-            }
-        }
-    }
-
     // Never call Executor.shutdownNow(), it will cancel the futures it's returned. And since
     // execute() won't return anything, we will hang forever waiting for the execution.
     // AppSearch multi-thread execution is guarded by Read & Write Lock in AppSearchImpl, all
@@ -209,18 +180,14 @@ public class LocalStorage {
      *
      * <p>This process requires a native search library. If it's not created, the initialization
      * process will create one.
-     *
-     * @param context                  The {@link GlobalSearchContext} contains all information
-     *                                 to create a new
-     *                                 {@link GlobalSearchSession}
      * @hide
      */
     @NonNull
     public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
-            @NonNull GlobalSearchContext context) {
+            @NonNull Context context) {
         Preconditions.checkNotNull(context);
         return FutureUtil.execute(EXECUTOR_SERVICE, () -> {
-            LocalStorage instance = getOrCreateInstance(context.mContext);
+            LocalStorage instance = getOrCreateInstance(context);
             return instance.doCreateGlobalSearchSession(context, EXECUTOR_SERVICE);
         });
     }
@@ -272,8 +239,8 @@ public class LocalStorage {
     }
 
     @NonNull
-    private GlobalSearchSession doCreateGlobalSearchSession(@NonNull GlobalSearchContext context,
-            @NonNull ExecutorService executor) {
-        return new GlobalSearchSessionImpl(mAppSearchImpl, executor, context.mContext);
+    private GlobalSearchSession doCreateGlobalSearchSession(
+            @NonNull Context context, @NonNull ExecutorService executor) {
+        return new GlobalSearchSessionImpl(mAppSearchImpl, executor, context);
     }
 }
