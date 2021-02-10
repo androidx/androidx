@@ -21,7 +21,7 @@ import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -47,11 +47,13 @@ public object LocalActivityResultRegistryOwner {
             ?: error("No ActivityResultRegisterOwner has been provided")
 
     /**
-     * Returns a [ProvidableCompositionLocal] which you can use to override the value for the
-     * subtree.
+     * Associates a [LocalActivityResultRegistryOwner] key to a value in a call to
+     * [CompositionLocalProvider].
      */
-    public fun asProvidableCompositionLocal():
-        ProvidableCompositionLocal<ActivityResultRegistryOwner?> = LocalComposition
+    public infix fun provides(registryOwner: ActivityResultRegistryOwner):
+        ProvidedValue<ActivityResultRegistryOwner?> {
+            return LocalComposition.provides(registryOwner)
+        }
 }
 
 /**

@@ -69,8 +69,7 @@ class BackPressedDispatcherOwnerTest {
 
         composeTestRule.setContent {
             CompositionLocalProvider(
-                LocalOnBackPressedDispatcherOwner.asProvidableCompositionLocal()
-                    provides testDispatcherOwner
+                LocalOnBackPressedDispatcherOwner provides testDispatcherOwner
             ) {
                 innerDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
             }
