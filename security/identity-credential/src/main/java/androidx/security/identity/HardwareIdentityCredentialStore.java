@@ -23,27 +23,35 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 @RequiresApi(Build.VERSION_CODES.R)
 class HardwareIdentityCredentialStore extends IdentityCredentialStore {
 
     private static final String TAG = "HardwareIdentityCredentialStore";
 
     private android.security.identity.IdentityCredentialStore mStore = null;
+    private boolean mIsDirectAccess = false;
 
     private HardwareIdentityCredentialStore(
-            @NonNull android.security.identity.IdentityCredentialStore store) {
+            @NonNull android.security.identity.IdentityCredentialStore store,
+            boolean isDirectAccess) {
         mStore = store;
+        mIsDirectAccess = isDirectAccess;
     }
 
     static @Nullable IdentityCredentialStore getInstanceIfSupported(@NonNull Context context) {
         android.security.identity.IdentityCredentialStore store =
                 android.security.identity.IdentityCredentialStore.getInstance(context);
         if (store != null) {
-            return new HardwareIdentityCredentialStore(store);
+            return new HardwareIdentityCredentialStore(store, false);
         }
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     public static @NonNull IdentityCredentialStore getInstance(@NonNull Context context) {
         IdentityCredentialStore instance = getInstanceIfSupported(context);
         if (instance != null) {
@@ -57,11 +65,12 @@ class HardwareIdentityCredentialStore extends IdentityCredentialStore {
         android.security.identity.IdentityCredentialStore store =
                 android.security.identity.IdentityCredentialStore.getDirectAccessInstance(context);
         if (store != null) {
-            return new HardwareIdentityCredentialStore(store);
+            return new HardwareIdentityCredentialStore(store, true);
         }
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     public static @NonNull IdentityCredentialStore getDirectAccessInstance(
             @NonNull Context context) {
         IdentityCredentialStore instance = getDirectAccessInstanceIfSupported(context);
@@ -73,12 +82,22 @@ class HardwareIdentityCredentialStore extends IdentityCredentialStore {
 
     public static boolean isDirectAccessSupported(@NonNull Context context) {
         IdentityCredentialStore directAccessStore = getDirectAccessInstanceIfSupported(context);
-        return directAccessStore != null;
+        if (directAccessStore != null) {
+            return true;
+        }
+        return false;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @NonNull String[] getSupportedDocTypes() {
-        return mStore.getSupportedDocTypes();
+        Set<String> docTypeSet = getCapabilities().getSupportedDocTypes();
+        String[] docTypes = new String[docTypeSet.size()];
+        int n = 0;
+        for (String docType : docTypeSet) {
+            docTypes[n++] = docType;
+        }
+        return docTypes;
     }
 
     @Override
@@ -113,9 +132,32 @@ class HardwareIdentityCredentialStore extends IdentityCredentialStore {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @Nullable byte[] deleteCredentialByName(@NonNull String credentialName) {
         return mStore.deleteCredentialByName(credentialName);
     }
 
+    SimpleIdentityCredentialStoreCapabilities mCapabilities = null;
+
+    @Override
+    public @NonNull
+    IdentityCredentialStoreCapabilities getCapabilities() {
+        LinkedHashSet<String> supportedDocTypesSet =
+                new LinkedHashSet<String>(Arrays.asList(mStore.getSupportedDocTypes()));
+
+        if (mCapabilities == null) {
+            // TODO: update for Android 12 platform APIs when available.
+            mCapabilities = new SimpleIdentityCredentialStoreCapabilities(
+                    mIsDirectAccess,
+                    IdentityCredentialStoreCapabilities.FEATURE_VERSION_202009,
+                    true,
+                    supportedDocTypesSet,
+                    false,
+                    false,
+                    false,
+                    false);
+        }
+        return mCapabilities;
+    }
 }

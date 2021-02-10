@@ -77,5 +77,4 @@ class HardwareWritableIdentityCredential extends WritableIdentityCredential {
 
         return mWritableCredential.personalize(builder.build());
     }
-
 }

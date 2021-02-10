@@ -31,6 +31,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
@@ -198,21 +199,30 @@ class SoftwareWritableIdentityCredential extends WritableIdentityCredential {
     @Override
     public byte[] personalize(@NonNull PersonalizationData personalizationData) {
 
-        ensureCredentialKey(null);
+        try {
+            ensureCredentialKey(null);
 
-        byte[] encodedBytes = buildProofOfProvisioningWithSignature(mDocType,
-                personalizationData,
-                mKeyPair.getPrivate());
+            byte[] encodedBytes = buildProofOfProvisioningWithSignature(mDocType,
+                    personalizationData,
+                    mKeyPair.getPrivate());
 
-        CredentialData.createCredentialData(
-                mContext,
-                mDocType,
-                mCredentialName,
-                CredentialData.getAliasFromCredentialName(mCredentialName),
-                mCertificates,
-                personalizationData);
+            byte[] proofOfProvisioning = Util.coseSign1GetData(encodedBytes);
+            byte[] proofOfProvisioningSha256 = MessageDigest.getInstance("SHA-256").digest(
+                    proofOfProvisioning);
 
-        return encodedBytes;
+            CredentialData.createCredentialData(
+                    mContext,
+                    mDocType,
+                    mCredentialName,
+                    CredentialData.getAliasFromCredentialName(mCredentialName),
+                    mCertificates,
+                    personalizationData,
+                    proofOfProvisioningSha256,
+                    false);
+
+            return encodedBytes;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error digesting ProofOfProvisioning", e);
+        }
     }
-
 }
