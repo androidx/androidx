@@ -300,13 +300,13 @@ public final class MediaRouter {
     @NonNull
     public List<RouteInfo> getRoutes() {
         checkCallingThread();
-        return sGlobal.getRoutes();
+        return sGlobal == null ? Collections.<RouteInfo>emptyList() : sGlobal.getRoutes();
     }
 
     @Nullable
     RouteInfo getRoute(String uniqueId) {
         checkCallingThread();
-        return sGlobal.getRoute(uniqueId);
+        return sGlobal == null ? null : sGlobal.getRoute(uniqueId);
     }
 
     /**
@@ -316,7 +316,7 @@ public final class MediaRouter {
     @NonNull
     public List<ProviderInfo> getProviders() {
         checkCallingThread();
-        return sGlobal.getProviders();
+        return sGlobal == null ? Collections.<ProviderInfo>emptyList() : sGlobal.getProviders();
     }
 
     /**
@@ -341,7 +341,7 @@ public final class MediaRouter {
     @Nullable
     public RouteInfo getBluetoothRoute() {
         checkCallingThread();
-        return sGlobal.getBluetoothRoute();
+        return sGlobal == null ? null : sGlobal.getBluetoothRoute();
     }
 
     /**
@@ -875,7 +875,7 @@ public final class MediaRouter {
 
     @Nullable
     public MediaSessionCompat.Token getMediaSessionToken() {
-        return sGlobal.getMediaSessionToken();
+        return sGlobal == null ? null : sGlobal.getMediaSessionToken();
     }
 
     /**
@@ -885,7 +885,7 @@ public final class MediaRouter {
     @Nullable
     public MediaRouterParams getRouterParams() {
         checkCallingThread();
-        return sGlobal.getRouterParams();
+        return sGlobal == null ? null : sGlobal.getRouterParams();
     }
 
     /**
@@ -938,10 +938,7 @@ public final class MediaRouter {
      * Returns whether transferring media from remote to local is enabled.
      */
     static boolean isTransferToLocalEnabled() {
-        if (sGlobal == null) {
-            return false;
-        }
-        return sGlobal.isTransferToLocalEnabled();
+        return sGlobal == null ? false : sGlobal.isTransferToLocalEnabled();
     }
 
     /**
