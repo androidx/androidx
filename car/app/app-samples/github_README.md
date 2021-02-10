@@ -27,7 +27,7 @@ In order to install and run the apps,
 
 Run From the Command Line
 ---------------------
-Run ./gradlew :sample:assemble to assemble the APKs. E.g.
+1. Run ./gradlew :sample:assemble to assemble the APKs. E.g.
 
 ```bash
 ./gradlew :showcase:assemble
@@ -35,8 +35,19 @@ Run ./gradlew :sample:assemble to assemble the APKs. E.g.
 
 The APK should be generated under your app’s build directory, e.g. your_app/build/outputs/apk/debug.
 
+If you see this error during the build:
 
-Install the APK with ADB:
+    ```shell
+    > SDK location not found. Define location with an ANDROID_SDK_ROOT environment variable or by setting the sdk.dir path in your projects local properties file at <repo_path>/car/car_app_library/local.properties
+    ```
+
+Create `local.properties` file under `car_app_library` directory, and copy the following line:
+
+    ```
+    sdk.dir = <your_home_directory>/Android/Sdk
+    ```
+
+2. Install the APK with ADB:
 
 ```bash
 adb install -t <path_to_your_apk>
