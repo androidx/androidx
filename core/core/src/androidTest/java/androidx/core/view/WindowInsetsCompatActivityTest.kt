@@ -44,6 +44,7 @@ import org.hamcrest.Matchers.`is`
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeThat
 import org.junit.Before
@@ -320,6 +321,15 @@ public class WindowInsetsCompatActivityTest(
         val convertedInsets = WindowInsetsCompat.toWindowInsetsCompat(platformInsets, container)
         assertEquals(originalInsets.getInsets(Type.ime()), convertedInsets.getInsets(Type.ime()))
         assertEquals(originalInsets, convertedInsets)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public fun root_insets_not_null() {
+        val container: View = scenario.withActivity { findViewById(R.id.container) }
+        val rootWindowInsets = ViewCompat.getRootWindowInsets(container)
+        assertNotNull(rootWindowInsets)
+        assertNotEquals(WindowInsetsCompat.CONSUMED, rootWindowInsets)
     }
 
     public companion object {
