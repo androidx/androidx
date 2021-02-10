@@ -943,7 +943,6 @@ Error processing \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kot
 Error processing \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar:META\-INF/versions/[0-9]+/module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
 # > Task :text:text:lintDebug
 # > Task :compose:ui:ui-test-font:lintDebug
-# > Task :compose:runtime:runtime-dispatch:lintDebug
 # > Task :camera:camera-camera2-pipe-testing:lintDebug
 Error processing \$CHECKOUT/prebuilts/androidx/external/org/bouncycastle/bcprov\-jdk[0-9]+on/[0-9]+\.[0-9]+/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar:META\-INF/versions/[0-9]+/org/bouncycastle/jcajce/provider/asymmetric/edec/KeyFactorySpi\.class: broken class file\? \(This feature requires ASM[0-9]+\)
 Error processing \$CHECKOUT/prebuilts/androidx/external/org/bouncycastle/bcprov\-jdk[0-9]+on/[0-9]+\.[0-9]+/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar:META\-INF/versions/[0-9]+/org/bouncycastle/jcajce/provider/asymmetric/edec/KeyFactorySpi\$Ed[0-9]+\.class: broken class file\? \(This feature requires ASM[0-9]+\)
