@@ -98,7 +98,7 @@ class DatabaseRegistry {
     /**
      * Should be called when the inspection code detects a database being open operation.
      * <p> Note that the method should be called before any code has a chance to close the
-     * database, so e.g. in an {@link androidx.inspection.InspectorEnvironment.ExitHook#onExit}
+     * database, so e.g. in an {@link androidx.inspection.ArtTooling.ExitHook#onExit}
      * before the return value is released.
      * Thread-safe.
      */
@@ -250,6 +250,7 @@ class DatabaseRegistry {
      * Consumer of this method must release the reference when done using it.
      * Thread-safe
      */
+    // TODO: rename as can be confused with {@link SQLiteDatabase#acquireReference}.
     @Nullable
     SQLiteDatabase acquireReference(int databaseId) {
         synchronized (mLock) {
@@ -257,6 +258,7 @@ class DatabaseRegistry {
         }
     }
 
+    // TODO: rename as can be confused with {@link SQLiteDatabase#acquireReference}.
     @GuardedBy("mLock")
     private SQLiteDatabase acquireReferenceImpl(int databaseId) {
         KeepOpenReference keepOpenReference = mKeepOpenReferences.get(databaseId);
@@ -265,14 +267,17 @@ class DatabaseRegistry {
         }
 
         final Set<SQLiteDatabase> references = mDatabases.get(databaseId);
-        if (references != null) {
-            for (SQLiteDatabase reference : references) {
-                if (reference.isOpen()) {
-                    return reference;
-                }
+        if (references == null) return null;
+
+        // tries to find an open reference preferring write-enabled over read-only
+        SQLiteDatabase readOnlyReference = null;
+        for (SQLiteDatabase reference : references) {
+            if (reference.isOpen()) {
+                if (!reference.isReadOnly()) return reference; // write-enabled was found: return it
+                readOnlyReference = reference; // remember the read-only reference but keep looking
             }
         }
-        return null;
+        return readOnlyReference; // or null if we did not find an open reference
     }
 
     @GuardedBy("mLock")
