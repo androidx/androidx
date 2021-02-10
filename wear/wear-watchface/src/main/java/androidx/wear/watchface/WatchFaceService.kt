@@ -382,8 +382,6 @@ public abstract class WatchFaceService : WallpaperService() {
                     )
                     keepSerializedDirectBootParamsUpdated(pendingWallpaperInstance.params)
                 }
-
-                interactiveInstanceId = pendingWallpaperInstance.params.instanceId
             }
         }
 
@@ -898,6 +896,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
             val instance = InteractiveWatchFaceImpl(this, params.instanceId, uiThreadHandler)
             InteractiveInstanceManager.addInstance(instance)
+            interactiveInstanceId = params.instanceId
 
             // WatchFace init is async so its possible we have a pending
             // WallpaperInteractiveWatchFaceInstance request.
