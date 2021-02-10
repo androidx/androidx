@@ -4,6 +4,7 @@ package androidx.camera.view {
   public abstract class CameraController {
     method @MainThread public void clearImageAnalysisAnalyzer();
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableTorch(boolean);
+    method @MainThread public androidx.camera.core.CameraInfo? getCameraInfo();
     method @MainThread public androidx.camera.core.CameraSelector getCameraSelector();
     method @MainThread @androidx.camera.core.ImageAnalysis.BackpressureStrategy public int getImageAnalysisBackpressureStrategy();
     method @MainThread public int getImageAnalysisImageQueueDepth();
