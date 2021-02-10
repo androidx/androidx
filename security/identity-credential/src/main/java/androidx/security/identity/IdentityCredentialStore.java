@@ -22,7 +22,6 @@ import android.os.Build;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -65,14 +64,44 @@ import java.security.cert.X509Certificate;
  * </ul>
  *
  * <p>Implementing support for user identity documents in secure storage requires dedicated
- * hardware-backed support and may not always be available.
+ * hardware-backed support and may not always be available. In addition to hardware-backed
+ * Identity Credential support (which is only available in Android 11 and later and only
+ * if the device has support for the <a href="https://android.googlesource.com/platform/hardware/interfaces/+/refs/heads/master/identity/aidl/android/hardware/identity/IIdentityCredentialStore.aidl">Identity Credential HAL</a>),
+ * this Jetpack has an Android Keystore backed implementation (also known as the "software"
+ * implementation) which works on any Android device with API level 24 or later.
  *
- * <p>Two different credential stores exist - the <em>default</em> store and the
- * <em>direct access</em> store. Most often credentials will be accessed through the default
- * store but that requires that the Android device be powered up and fully functional.
- * It is desirable to allow identity credential usage when the Android device's battery is too
- * low to boot the Android operating system, so direct access to the secure hardware via NFC
- * may allow data retrieval, if the secure hardware chooses to implement it.
+ * <p>The Identity Credential API is designed to be able to evolve and change over time
+ * but still provide 100% backwards compatibility. This is complicated by the fact that
+ * there may be a version skew between the API used by the application and the version
+ * implemented in secure hardware. To solve this problem, the API provides for a way
+ * for the application to query for hardware capabilities through
+ * {@link IdentityCredentialStoreCapabilities}. The software-based store is designed
+ * so it implements all capabilities that don't explicitly require hardware features. Each
+ * of the methods in that class will state whether it's implemented in the software-based
+ * implementation.
+ *
+ * <p>When provisioning a document, applications should use {@link #getInstance(Context)} to
+ * obtain an {@link IdentityCredentialStore} instance. This method returns a hardware-backed
+ * store if available and a software-based store if not and the application should use
+ * {@link IdentityCredentialStoreCapabilities} to examine if the store supports the
+ * capabilities required by the application. In the negative, the application can
+ * obtain the software-based store by calling {@link #getSoftwareInstance(Context)}.
+ *
+ * <p>Since it's possible for an OS upgrade on a device to include an updated version of the
+ * drivers used for secure hardware, it's possible that {@link #getInstance(Context)} returns the
+ * software implementation at one point and the hardware implementation at a later point.
+ * Therefore, applications should only use {@link #getInstance(Context)} only when creating a
+ * credential, record whether it's hardware- or software-backed (using
+ * {@link IdentityCredentialStoreCapabilities#isHardwareBacked()}, and then use this information
+ * when retrieving the credential (using either {@link #getSoftwareInstance(Context)} or
+ * {@link #getHardwareInstance(Context)}).
+ *
+ * <p>Apart from hardware- vs software-backed, two different flavors of credential stores exist -
+ * the <em>default</em> store and the <em>direct access</em> store. Most often credentials will
+ * be accessed through the default store but that requires that the Android device be powered up
+ * and fully functional. It is desirable to allow identity credential usage when the Android
+ * device's battery is too low to boot the Android operating system, so direct access to the
+ * secure hardware via NFC may allow data retrieval, if the secure hardware chooses to implement it.
  *
  * <p>Credentials provisioned to the direct access store should <strong>always</strong> use reader
  * authentication to protect data elements. The reason for this is user authentication or user
@@ -131,7 +160,11 @@ public abstract class IdentityCredentialStore {
             Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Context appContext = context.getApplicationContext();
-            return HardwareIdentityCredentialStore.getDirectAccessInstance(appContext);
+            IdentityCredentialStore store = HardwareIdentityCredentialStore.getDirectAccessInstance(
+                    appContext);
+            if (store != null) {
+                return store;
+            }
         }
         throw new RuntimeException("Direct-access IdentityCredential is not supported");
     }
@@ -170,7 +203,9 @@ public abstract class IdentityCredentialStore {
      * credentials. The default store always supports any document type.
      *
      * @return The supported document types or the empty array if any document type is supported.
+     * @deprecated Use {@link IdentityCredentialStoreCapabilities#getSupportedDocTypes()} instead.
      */
+    @Deprecated
     public abstract @NonNull String[] getSupportedDocTypes();
 
     /**
@@ -215,7 +250,9 @@ public abstract class IdentityCredentialStore {
      * @param credentialName the name of the credential to delete.
      * @return {@code null} if the credential was not found, the COSE_Sign1 data structure above
      *     if the credential was found and deleted.
+     * @deprecated Use {@link IdentityCredential#delete(byte[])} instead.
      */
+    @Deprecated
     public abstract @Nullable byte[] deleteCredentialByName(@NonNull String credentialName);
 
     /** @hide */
@@ -225,24 +262,47 @@ public abstract class IdentityCredentialStore {
     public @interface Ciphersuite {
     }
 
-    /** @hide
+    /**
+     * Returns the capabilities of the store.
      *
-     *  See Util.getIdentityCredentialStore() in the tests for why this is made available to tests.
+     * @return the capabilities of the store
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    public static @NonNull IdentityCredentialStore getSoftwareIdentityCredentialStore(@NonNull
+    @NonNull
+    public IdentityCredentialStoreCapabilities getCapabilities() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Gets a {@link IdentityCredentialStore} implemented via Android Keystore. This
+     * is also known as the software implementation.
+     *
+     * @return an implementation of {@link IdentityCredentialStore} implemented on top
+     * of Android Keystore.
+     */
+    @SuppressWarnings("deprecation")
+    public static @NonNull IdentityCredentialStore getSoftwareInstance(@NonNull
             Context context) {
         return SoftwareIdentityCredentialStore.getInstance(context);
     }
 
-    /** @hide
+    /**
+     * Gets a {@link IdentityCredentialStore} implemented via secure hardware using
+     * the
+     * <a href="https://android.googlesource.com/platform/hardware/interfaces/+/refs/heads/master/identity/aidl/android/hardware/identity/IIdentityCredentialStore.aidl">Identity Credential HAL</a>.
      *
-     *  See Util.getIdentityCredentialStore() in the tests for why this is made available to tests.
+     * <p>This only works on devices running Android 11 or later and only if the device has
+     * support for the Identity Credential HAL.
+     *
+     * @return an implementation of {@link IdentityCredentialStore} implemented in
+     * secure hardware or {@code null} if the device doesn't support the Android Identity
+     * Credential HAL.
      */
-    @RequiresApi(api = Build.VERSION_CODES.R)
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    public static @NonNull IdentityCredentialStore getHardwareIdentityCredentialStore(@NonNull
+    @SuppressWarnings("deprecation")
+    public static @Nullable IdentityCredentialStore getHardwareInstance(@NonNull
             Context context) {
-        return HardwareIdentityCredentialStore.getInstance(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return HardwareIdentityCredentialStore.getInstance(context);
+        }
+        return null;
     }
 }
