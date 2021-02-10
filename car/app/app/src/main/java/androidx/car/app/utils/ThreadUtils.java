@@ -16,7 +16,7 @@
 
 package androidx.car.app.utils;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -29,7 +29,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(LIBRARY)
+@RestrictTo(LIBRARY_GROUP)
 public final class ThreadUtils {
     private static final Handler HANDLER = new Handler(Looper.getMainLooper());
 
