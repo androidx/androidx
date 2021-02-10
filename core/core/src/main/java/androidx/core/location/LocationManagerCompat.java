@@ -63,27 +63,34 @@ public final class LocationManagerCompat {
 
     /**
      * Returns the current enabled/disabled state of location.
+     * <p>
+     * Calling this method on API levels prior to 20 <i>may</i> require the
+     * {@link android.Manifest.permission#ACCESS_FINE_LOCATION ACCESS_FINE_LOCATION} or
+     * {@link android.Manifest.permission#ACCESS_COARSE_LOCATION ACCESS_COARSE_LOCATION}
+     * permission.
      *
-     * @return true if location is enabled and false if location is disabled.
+     * @return {@code true} if location is enabled or {@code false} if location is disabled
      */
+    @SuppressWarnings("deprecation")
     public static boolean isLocationEnabled(@NonNull LocationManager locationManager) {
-        if (VERSION.SDK_INT >= VERSION_CODES.P) {
-            return locationManager.isLocationEnabled();
+        if (VERSION.SDK_INT >= 28) {
+            return Api28Impl.isLocationEnabled(locationManager);
         }
 
-        if (VERSION.SDK_INT <= VERSION_CODES.KITKAT) {
-            // kitkat and below have pointless location permission requirements when using
-            // isProviderEnabled(). instead we attempt to reflect a context so that we can query
-            // the underlying setting. if this fails, we fallback to isProviderEnabled() which may
-            // require the caller to hold location permissions
+        if (VERSION.SDK_INT <= 19) {
+            // KitKat and below have pointless location permission requirements when using
+            // isProviderEnabled(). Instead, we attempt to reflect a context so that we can query
+            // the underlying setting. If this fails, we fallback to isProviderEnabled() which may
+            // require the caller to hold location permissions.
             try {
                 if (sContextField == null) {
+                    //noinspection JavaReflectionMemberAccess
                     sContextField = LocationManager.class.getDeclaredField("mContext");
                 }
                 sContextField.setAccessible(true);
                 Context context = (Context) sContextField.get(locationManager);
 
-                if (VERSION.SDK_INT == VERSION_CODES.KITKAT) {
+                if (VERSION.SDK_INT == 19) {
                     return Secure.getInt(context.getContentResolver(), LOCATION_MODE,
                             LOCATION_MODE_OFF) != LOCATION_MODE_OFF;
                 } else {
@@ -529,6 +536,17 @@ public final class LocationManagerCompat {
             } else if (!mHandler.post(Preconditions.checkNotNull(command))) {
                 throw new RejectedExecutionException(mHandler + " is shutting down");
             }
+        }
+    }
+
+    @RequiresApi(28)
+    private static class Api28Impl {
+        private Api28Impl() {
+            // Non-instantiable.
+        }
+
+        public static boolean isLocationEnabled(LocationManager locationManager) {
+            return locationManager.isLocationEnabled();
         }
     }
 }
