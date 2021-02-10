@@ -222,39 +222,48 @@ if [ "$TMPDIR" != "" ]; then
   TMPDIR_ARG="-Djava.io.tmpdir=$TMPDIR"
 fi
 
-# expand the "--ci" flag
-compact="--ci"
-expanded="--stacktrace\
- -Pandroidx.summarizeStderr\
- -Pandroidx.allWarningsAsErrors\
- -Pandroidx.coverageEnabled=true\
- -Pandroidx.enableAffectedModuleDetection\
- -Pandroidx.validateNoUnrecognizedMessages\
- -PverifyUpToDate\
- --no-watch-fs\
- --no-daemon\
- --offline"
-# Make a copy of our list of arguments, and iterate through the copy
-for arg in "$@"; do
-  # Remove this argument from our list of arguments.
-  # By the time we've completed this loop, we will have removed the original copy of
-  # each argument, and potentially re-added a new copy or an expansion of each.
-  shift
-  # Determine whether to expand this argument
-  if [ "$arg" == "$compact" ]; then
-    # Add the expansion to our arguments
-    set -- "$@" $expanded
-    echo "gradlew expanded '$compact' into '$expanded'"
-    echo
-    # We avoid re-adding this argument itself back into the list for two reasons:
-    # 1. This argument might not be directly understood by Gradle
-    # 2. We want to enforce that all behaviors enabled by this flag can be toggled independently,
-    # so we don't want it to be easy to inadvertently check for the presence of this flag
-    # specifically
-  else
-    # Add this argument back into our arguments
-    set -- "$@" "$arg"
+# Expand some arguments
+for compact in "--ci" "--strict"; do
+  if [ "$compact" == "--ci" ]; then
+    expanded="--strict\
+     --stacktrace\
+     -Pandroidx.summarizeStderr\
+     -Pandroidx.coverageEnabled=true\
+     -Pandroidx.enableAffectedModuleDetection\
+     --no-watch-fs"
   fi
+  if [ "$compact" == "--strict" ]; then
+    expanded="-Pandroidx.allWarningsAsErrors\
+     -Pandroidx.validateNoUnrecognizedMessages\
+     -PverifyUpToDate\
+     --no-watch-fs\
+     --no-daemon\
+     --offline"
+  fi
+
+  # Expand an individual argument
+  # Start by making a copy of our list of arguments and iterating through the copy
+  for arg in "$@"; do
+    # Remove this argument from our list of arguments.
+    # By the time we've completed this loop, we will have removed the original copy of
+    # each argument, and potentially re-added a new copy or an expansion of each.
+    shift
+    # Determine whether to expand this argument
+    if [ "$arg" == "$compact" ]; then
+      # Add the expansion to our arguments
+      set -- "$@" $expanded
+      echo "gradlew expanded '$compact' into '$expanded'"
+      echo
+      # We avoid re-adding this argument itself back into the list for two reasons:
+      # 1. This argument might not be directly understood by Gradle
+      # 2. We want to enforce that all behaviors enabled by this flag can be toggled independently,
+      # so we don't want it to be easy to inadvertently check for the presence of this flag
+      # specifically
+    else
+      # Add this argument back into our arguments
+      set -- "$@" "$arg"
+    fi
+  done
 done
 
 function tryToDiagnosePossibleDaemonFailure() {
