@@ -33,12 +33,15 @@ import java.util.Map;
 public final class AppSearchBatchResult<KeyType, ValueType> {
     @NonNull private final Map<KeyType, ValueType> mSuccesses;
     @NonNull private final Map<KeyType, AppSearchResult<ValueType>> mFailures;
+    @NonNull private final Map<KeyType, AppSearchResult<ValueType>> mAll;
 
     AppSearchBatchResult(
             @NonNull Map<KeyType, ValueType> successes,
-            @NonNull Map<KeyType, AppSearchResult<ValueType>> failures) {
+            @NonNull Map<KeyType, AppSearchResult<ValueType>> failures,
+            @NonNull Map<KeyType, AppSearchResult<ValueType>> all) {
         mSuccesses = successes;
         mFailures = failures;
+        mAll = all;
     }
 
     /** Returns {@code true} if this {@link AppSearchBatchResult} has no failures. */
@@ -69,6 +72,16 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
     }
 
     /**
+     * Returns a {@link Map} of all keys mapped to the {@link AppSearchResult}s they produced.
+     *
+     * <p>The values of the {@link Map} will not be {@code null}.
+     */
+    @NonNull
+    public Map<KeyType, AppSearchResult<ValueType>> getAll() {
+        return mAll;
+    }
+
+    /**
      * Asserts that this {@link AppSearchBatchResult} has no failures.
      * @hide
      */
@@ -94,6 +107,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
     public static final class Builder<KeyType, ValueType> {
         private final Map<KeyType, ValueType> mSuccesses = new ArrayMap<>();
         private final Map<KeyType, AppSearchResult<ValueType>> mFailures = new ArrayMap<>();
+        private final Map<KeyType, AppSearchResult<ValueType>> mAll = new ArrayMap<>();
         private boolean mBuilt = false;
 
         /**
@@ -142,6 +156,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
                 mFailures.put(key, result);
                 mSuccesses.remove(key);
             }
+            mAll.put(key, result);
             return this;
         }
 
@@ -150,7 +165,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
         public AppSearchBatchResult<KeyType, ValueType> build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBuilt = true;
-            return new AppSearchBatchResult<>(mSuccesses, mFailures);
+            return new AppSearchBatchResult<>(mSuccesses, mFailures, mAll);
         }
     }
 }
