@@ -150,14 +150,17 @@ public interface AppSearchSession extends Closeable {
     ListenableFuture<AppSearchBatchResult<String, Void>> put(@NonNull PutDocumentsRequest request);
 
     /**
-     * Retrieves {@link GenericDocument}s by URI.
+     * Gets {@link GenericDocument} objects by URIs and namespace from the {@link AppSearchSession}
+     * database.
      *
-     * @param request {@link GetByUriRequest} containing URIs to be retrieved.
-     * @return The pending result of performing this operation. The keys of the returned
-     * {@link AppSearchBatchResult} are the input URIs. The values are the returned
-     * {@link GenericDocument}s on success, or a failed {@link AppSearchResult} otherwise.
-     * URIs that are not found will return a failed {@link AppSearchResult} with a result code
-     * of {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * @param request a request containing URIs and namespace to get documents for.
+     * @return A {@link ListenableFuture} which resolves to an {@link AppSearchBatchResult}.
+     * The keys of the {@link AppSearchBatchResult} represent the input URIs from the
+     * {@link GetByUriRequest} object. The values are either the corresponding
+     * {@link GenericDocument} object for the URI on success, or an {@link AppSearchResult}
+     * object on failure. For example, if a URI is not found, the value for that URI will be set
+     * to an {@link AppSearchResult} object with result code:
+     * {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
     ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByUri(
