@@ -179,6 +179,7 @@ Exception while resolving link to Module: Package:androidx\.compose\.ui\.geometr
 Exception while resolving link to Module: Package:androidx\.compose\.ui\.geometry ExternalClass:kotlin\.Float Function:times Receiver:<this>
 Exception while resolving link to Module: Package:androidx\.compose\.ui\.geometry ExternalClass:kotlin\.Int Function:times Receiver:<this>
 Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:Shader
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.input\.key GroupNode:NativeKeyEvent
 java\.lang\.IllegalStateException: Unsupported GroupNode
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.renderedSignature\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$generatePackage\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
