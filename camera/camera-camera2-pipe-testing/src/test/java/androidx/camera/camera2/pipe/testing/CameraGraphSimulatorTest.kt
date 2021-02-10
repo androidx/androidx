@@ -195,6 +195,7 @@ public class CameraGraphSimulatorTest {
         assertThat(lossEvent.streamId).isEqualTo(stream.id)
     }
 
+    @Ignore // TODO(b/179825103): Ensure test does not flake
     @Test
     fun simulatorCanIssueMultipleFrames() = runBlocking {
         val listener = FakeRequestListener()
