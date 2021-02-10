@@ -28,8 +28,10 @@ from distutils.dir_util import DistutilsFileError
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 FRAMEWORKS_SUPPORT_FP = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
-SAMPLE_OWNERS_FP = os.path.abspath(os.path.join(os.getcwd(), 'groupId', 'OWNERS'))
-SAMPLE_SRC_FP = os.path.abspath(os.path.join(os.getcwd(), 'groupId', 'artifactId'))
+SAMPLE_OWNERS_FP = os.path.abspath(os.path.join(os.getcwd(), 'kotlin-template', 'groupId', 'OWNERS'))
+SAMPLE_JAVA_SRC_FP = os.path.abspath(os.path.join(os.getcwd(), 'java-template', 'groupId', 'artifactId'))
+SAMPLE_KOTLIN_SRC_FP = os.path.abspath(os.path.join(os.getcwd(), 'kotlin-template', 'groupId', 'artifactId'))
+SAMPLE_COMPOSE_SRC_FP = os.path.abspath(os.path.join(os.getcwd(), 'compose-template', 'groupId', 'artifactId'))
 SETTINGS_GRADLE_FP = os.path.abspath(os.path.join(os.getcwd(), '..', '..', "settings.gradle"))
 LIBRARY_VERSIONS_REL = './buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt'
 LIBRARY_VERSIONS_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, LIBRARY_VERSIONS_REL)
@@ -124,8 +126,11 @@ def get_year():
 
 def get_group_id_version_macro(group_id):
     group_id_version_macro = group_id.replace("androidx.", "").replace(".", "_").upper()
-    if group_id.startswith("androidx.compose"):
+    if group_id == "androidx.compose":
         group_id_version_macro = "COMPOSE"
+    elif group_id.startswith("androidx.compose"):
+        group_id_version_macro = group_id.replace("androidx.compose.", "").replace(".",
+                                                  "_").upper()
     return group_id_version_macro
 
 def sed(before, after, file):
@@ -135,6 +140,17 @@ def sed(before, after, file):
     # write back the file
     with open(file,"w") as f:
         f.write(new_file_contents)
+
+def remove_line(line_to_remove, file):
+    with open(file) as f:
+       file_contents = f.readlines()
+    new_file_contents = []
+    for line in file_contents:
+        if line_to_remove not in line:
+            new_file_contents.append(line)
+    # write back the file
+    with open(file,"w") as f:
+        f.write("".join(new_file_contents))
 
 def ask_yes_or_no(question):
     while(True):
@@ -157,6 +173,22 @@ def run_update_api(group_id, artifact_id):
     except subprocess.CalledProcessError:
         print_e('FAIL: Unable run updateApi with command: %s' % gradle_cmd)
         return None
+    return True
+
+def get_library_type(artifact_id):
+    """Returns the appropriate androidx.build.LibraryType for the project.
+    """
+    if "sample" in artifact_id:
+        library_type = "SAMPLES"
+    elif "compiler" in artifact_id:
+        library_type = "ANNOTATION_PROCESSOR"
+    elif "lint" in artifact_id:
+        library_type = "LINT"
+    elif "inspection" in artifact_id:
+        library_type = "IDE_PLUGIN"
+    else:
+        library_type = "PUBLISHED_LIBRARY"
+    return library_type
 
 def get_group_id_path(group_id):
     """Generates the group ID filepath
@@ -220,13 +252,44 @@ def create_directories(group_id, artifact_id):
     if not os.path.exists(group_id_path + "/OWNERS"):
         copyfile(SAMPLE_OWNERS_FP, group_id_path + "/OWNERS")
 
-    # Copy the full src structure
-    cp(SAMPLE_SRC_FP, full_artifact_path)
+    # Copy the full src structure, depending on the project source code
+    if "compose" in group_id or "compose" in artifact_id:
+        print("Auto-detected Compose project.")
+        cp(SAMPLE_COMPOSE_SRC_FP, full_artifact_path)
+    elif ask_yes_or_no("Is this a kotlin project?"):
+        cp(SAMPLE_KOTLIN_SRC_FP, full_artifact_path)
+    else:
+        # Confirm that the user is intentionally using java.
+        ask_yes_or_no("All new androidx projects are expected and encouraged "
+                      "to use Kotlin. Java projects should only be used if "
+                      "there is a business need to do so. "
+                      "Please ack to proceed:")
+        cp(SAMPLE_JAVA_SRC_FP, full_artifact_path)
+
+    # Java only libraries have no dependency on android.
+    # Java-only produces a jar, whereas an android library produces an aar.
+    if (get_library_type(artifact_id) == "LINT" or
+        ask_yes_or_no("Is this a java-only library? Java-only libraries produce"
+                      " JARs, whereas Android produce AARs.")):
+        sed("com.android.library", "java-library",
+            full_artifact_path + "/build.gradle")
+        sed("org.jetbrains.kotlin.android", "kotlin",
+            full_artifact_path + "/build.gradle")
+
+    # Atomic group Ids have their version configured automatically,
+    # so we can remove the version line from the build file.
+    if is_group_id_atomic(group_id):
+        remove_line("mavenVersion = LibraryVersions.",
+                    full_artifact_path + "/build.gradle")
 
     # Rename the package-info directory
     full_package_info_dir = get_package_info_file_dir(group_id, artifact_id)
     full_package_info_path = full_package_info_dir + "/package-info.java"
     mv_dir(full_artifact_path + "/src/main/groupId", full_package_info_dir)
+
+    # Populate the library type
+    library_type = get_library_type(artifact_id)
+    sed("<LIBRARY_TYPE>", library_type, full_artifact_path + "/build.gradle")
 
     # Populate the YEAR
     year = get_year()
@@ -453,6 +516,42 @@ def insert_new_group_id_into_library_groups_kt(group_id, artifact_id):
     with open(LIBRARY_GROUPS_FP, 'w') as f:
         f.writelines(library_groups_lines)
 
+def is_group_id_atomic(group_id):
+    """Checks if a group ID is atomic using the LibraryGroups.kt file.
+
+    If one already exists, then this function evaluates the group id
+    and returns the appropriate amoticity.  Otherwise, it returns
+    False.
+
+    Example of an atomic library group:
+        val WORK = LibraryGroup("androidx.work", LibraryVersions.WORK)
+    Example of a non-atomic library group:
+        val WEAR = LibraryGroup("androidx.wear", null)
+
+    Args:
+        group_id: group_id of the library we're checking.
+    """
+    # Open file for reading and get all lines
+    with open(LIBRARY_GROUPS_FP, 'r') as f:
+        library_groups_lines = f.readlines()
+    num_lines = len(library_groups_lines)
+
+    for i in range(num_lines):
+        cur_line = library_groups_lines[i]
+        # Skip any line that doesn't declare a version.
+        if 'LibraryGroup(' not in cur_line: continue
+        group_id_in_line = cur_line.split('LibraryGroup(')[1].split('"')[1]
+        # Account for Compose group id substitution variable.
+        group_id_in_line = group_id_in_line.replace("$group", "androidx.compose")
+        if group_id_in_line == group_id:
+            # Found the right line.
+            if 'LibraryVersions.' in cur_line and 'null' not in cur_line:
+                return True
+            else:
+                return False
+    # The group id does not exist yet, so just default to false.
+    return False
+
 def main(args):
     # Parse arguments and check for existence of build ID or file
     args = parser.parse_args()
@@ -467,9 +566,12 @@ def main(args):
     insert_new_group_id_into_library_versions_kt(args.group_id,
                                                  args.artifact_id)
     update_docs_tip_of_tree_build_grade(args.group_id, args.artifact_id)
-    print("Success. Running updateApi for the new library, " + \
-          "this may take a minute.")
-    run_update_api(args.group_id, args.artifact_id)
+    print("Created directories. \nRunning updateApi for the new "
+          "library, this may take a minute...", end='')
+    if run_update_api(args.group_id, args.artifact_id):
+        print("done.")
+    else:
+        print("failed.  Please investigate manually.")
 
 if __name__ == '__main__':
     main(sys.argv)
