@@ -33,7 +33,7 @@ import java.io.File
 import java.util.concurrent.Callable
 
 /**
- * RxSharedPreferencesMigrationBuilder class for a DataStore that works on a single process.
+ * Builder for an RxDataStore that works on a single process.
  */
 @SuppressLint("TopLevelBuilder")
 public class RxDataStoreBuilder<T> {
