@@ -72,7 +72,7 @@ fun verifyTraceEnable(enabled: Boolean) {
     verifyWithPolling(
         "Timeout waiting for Trace.isEnabled == $enabled",
         periodMs = 50,
-        timeoutMs = 500
+        timeoutMs = 5000
     ) {
         Trace.isEnabled() == enabled
     }
