@@ -36,5 +36,5 @@ internal interface CompilationTestRunner {
 internal data class TestCompilationParameters(
     val sources: List<Source> = emptyList(),
     val classpath: List<File> = emptyList(),
-    val handler: (XTestInvocation) -> Unit
+    val handlers: List<(XTestInvocation) -> Unit>
 )
