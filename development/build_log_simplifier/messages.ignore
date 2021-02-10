@@ -909,6 +909,8 @@ java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorK
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitVerticalTouchSlopOrCancellation\-qFc19kk\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TapGestureDetectorKt\.waitForUpOrCancel\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, kotlin\.coroutines\.Continuation\)
 Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+ by constraint INT\.
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.TransformableKt\$detectZoom\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+\(\$this\$fastAny\$iv\) by constraint FLOAT\.
 Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
 Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+ by constraint FLOAT\.
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitHorizontalTouchSlopOrCancellation\-jO[0-9]+t[0-9]+\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
