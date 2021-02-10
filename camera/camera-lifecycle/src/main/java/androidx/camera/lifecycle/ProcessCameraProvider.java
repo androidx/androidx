@@ -482,6 +482,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         mLifecycleCameraRepository.unbindAll();
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean hasCamera(@NonNull CameraSelector cameraSelector)
             throws CameraInfoUnavailableException {
