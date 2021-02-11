@@ -137,10 +137,13 @@ public final class TemplateSurfaceView extends SurfaceView {
      * Returns the surface token used to create a {@link android.view.SurfaceControlViewHost}, or
      * null if not available.
      */
-    @SuppressLint({"UnsafeNewApiCall"})
     @Nullable
     public IBinder getSurfaceToken() {
-        return SUPPORTS_SURFACE_CONTROL ? getHostToken() : null;
+        if (SUPPORTS_SURFACE_CONTROL) {
+            return Api30Impl.getHostToken(this);
+        }
+
+        return null;
     }
 
     @Override
@@ -405,6 +408,11 @@ public final class TemplateSurfaceView extends SurfaceView {
     @RequiresApi(Build.VERSION_CODES.R)
     private static class Api30Impl {
         private Api30Impl() {
+        }
+
+        @DoNotInline
+        static IBinder getHostToken(TemplateSurfaceView view) {
+            return view.getHostToken();
         }
 
         @DoNotInline
