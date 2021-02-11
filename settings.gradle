@@ -26,7 +26,8 @@ enum BuildType {
     MAIN,
     COMPOSE,
     FLAN,
-    MEDIA
+    MEDIA,
+    WEAR,
 }
 
 private static Set<BuildType> createRequestedFilter() {
@@ -46,6 +47,8 @@ private static Set<BuildType> createRequestedFilter() {
                 break
             case "MEDIA":
                 filter.add(BuildType.MEDIA)
+            case "WEAR":
+                filter.add(BuildType.WEAR)
                 break
             case "ALL":
                 // Return null so that no filtering is done
@@ -58,7 +61,8 @@ private static Set<BuildType> createRequestedFilter() {
                         "COMPOSE - compose projects\n" +
                         "MAIN    - androidx projects that are not compose\n" +
                         "FLAN    - fragment, lifecycle, activity, and navigation projects\n" +
-                        "MEDIA   - media, media2, and mediarouter projects")
+                        "MEDIA   - media, media2, and mediarouter projects\n" +
+                        "WEAR    - Wear OS projects")
         }
     }
     return filter
@@ -120,12 +124,12 @@ def includeProject(name, filePath, List<BuildType> filter = []) {
 //
 /////////////////////////////
 
-includeProject(":activity:activity", "activity/activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":activity:activity", "activity/activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
 includeProject(":activity:activity-compose", "activity/activity-compose", [BuildType.COMPOSE])
 includeProject(":activity:activity-compose:activity-compose-samples", "activity/activity-compose/samples", [BuildType.COMPOSE])
 includeProject(":activity:activity-compose:integration-tests:activity-demos", "activity/activity-compose/integration-tests/activity-demos", [BuildType.COMPOSE])
 includeProject(":activity:activity-ktx", "activity/activity-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
-includeProject(":activity:activity-lint", "activity/activity-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":activity:activity-lint", "activity/activity-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
 includeProject(":activity:integration-tests:testapp", "activity/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":ads-identifier", "ads/ads-identifier", [BuildType.MAIN])
 includeProject(":ads-identifier-benchmark", "ads/ads-identifier-benchmark", [BuildType.MAIN])
@@ -323,9 +327,9 @@ includeProject(":enterprise-feedback", "enterprise/feedback", [BuildType.MAIN])
 includeProject(":enterprise-feedback-testing", "enterprise/feedback/testing", [BuildType.MAIN])
 includeProject(":exifinterface:exifinterface", "exifinterface/exifinterface", [BuildType.MAIN])
 includeProject(":fakeannotations", "fakeannotations", [BuildType.MAIN])
-includeProject(":fragment:fragment", "fragment/fragment", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":fragment:fragment", "fragment/fragment", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
 includeProject(":fragment:fragment-ktx", "fragment/fragment-ktx", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":fragment:fragment-lint", "fragment/fragment-lint", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":fragment:fragment-lint", "fragment/fragment-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
 includeProject(":fragment:fragment-testing", "fragment/fragment-testing", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":fragment:fragment-testing-lint", "fragment/fragment-testing-lint", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":fragment:fragment-truth", "fragment/fragment-truth", [BuildType.MAIN, BuildType.FLAN])
@@ -358,12 +362,12 @@ includeProject(":leanback:leanback-tab", "leanback/leanback-tab", [BuildType.MAI
 includeProject(":lifecycle:integration-tests:incrementality", "lifecycle/integration-tests/incrementality", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:integration-tests:lifecycle-testapp", "lifecycle/integration-tests/testapp", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:integration-tests:lifecycle-testapp-kotlin", "lifecycle/integration-tests/kotlintestapp", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-common", "lifecycle/lifecycle-common", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":lifecycle:lifecycle-common", "lifecycle/lifecycle-common", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
 includeProject(":lifecycle:lifecycle-common-java8", "lifecycle/lifecycle-common-java8", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-compiler", "lifecycle/lifecycle-compiler", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-extensions", "lifecycle/lifecycle-extensions", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-livedata", "lifecycle/lifecycle-livedata", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-livedata-core", "lifecycle/lifecycle-livedata-core", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":lifecycle:lifecycle-livedata-core", "lifecycle/lifecycle-livedata-core", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
 includeProject(":lifecycle:lifecycle-livedata-core-ktx", "lifecycle/lifecycle-livedata-core-ktx", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-livedata-core-ktx-lint", "lifecycle/lifecycle-livedata-core-ktx-lint", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-livedata-core-truth", "lifecycle/lifecycle-livedata-core-truth", [BuildType.MAIN, BuildType.FLAN])
@@ -371,17 +375,17 @@ includeProject(":lifecycle:lifecycle-livedata-ktx", "lifecycle/lifecycle-livedat
 includeProject(":lifecycle:lifecycle-process", "lifecycle/lifecycle-process", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-reactivestreams", "lifecycle/lifecycle-reactivestreams", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-reactivestreams-ktx", "lifecycle/lifecycle-reactivestreams-ktx", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-runtime", "lifecycle/lifecycle-runtime", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-runtime-ktx", "lifecycle/lifecycle-runtime-ktx", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-runtime-ktx-lint", "lifecycle/lifecycle-runtime-ktx-lint", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-runtime-testing", "lifecycle/lifecycle-runtime-testing", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":lifecycle:lifecycle-runtime", "lifecycle/lifecycle-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
+includeProject(":lifecycle:lifecycle-runtime-ktx", "lifecycle/lifecycle-runtime-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
+includeProject(":lifecycle:lifecycle-runtime-ktx-lint", "lifecycle/lifecycle-runtime-ktx-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
+includeProject(":lifecycle:lifecycle-runtime-testing", "lifecycle/lifecycle-runtime-testing", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
 includeProject(":lifecycle:lifecycle-service", "lifecycle/lifecycle-service", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-viewmodel", "lifecycle/lifecycle-viewmodel", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":lifecycle:lifecycle-viewmodel", "lifecycle/lifecycle-viewmodel", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
 includeProject(":lifecycle:lifecycle-viewmodel-compose", "lifecycle/lifecycle-viewmodel-compose", [BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples", "lifecycle/lifecycle-viewmodel-compose/samples", [BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-viewmodel-compose:integration-tests:lifecycle-viewmodel-demos", "lifecycle/lifecycle-viewmodel-compose/integration-tests/lifecycle-viewmodel-demos", [BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-viewmodel-ktx", "lifecycle/lifecycle-viewmodel-ktx", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-viewmodel-savedstate", "lifecycle/lifecycle-viewmodel-savedstate", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":lifecycle:lifecycle-viewmodel-savedstate", "lifecycle/lifecycle-viewmodel-savedstate", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
 includeProject(":lint-checks", "lint-checks")
 includeProject(":lint-checks:tests", "lint-checks/tests", [BuildType.MAIN])
 includeProject(":lint-demos:lint-demo-appcompat", "lint-demos/lint-demo-appcompat", [BuildType.MAIN])
@@ -461,7 +465,7 @@ includeProject(":room:room-runtime", "room/runtime", [BuildType.MAIN])
 includeProject(":room:room-rxjava2", "room/rxjava2", [BuildType.MAIN])
 includeProject(":room:room-rxjava3", "room/rxjava3", [BuildType.MAIN])
 includeProject(":room:room-testing", "room/testing", [BuildType.MAIN])
-includeProject(":savedstate:savedstate", "savedstate/savedstate", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":savedstate:savedstate", "savedstate/savedstate", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
 includeProject(":savedstate:savedstate-ktx", "savedstate/savedstate-ktx", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":security:security-app-authenticator", "security/security-app-authenticator", [BuildType.MAIN])
 includeProject(":security:security-biometric", "security/security-biometric", [BuildType.MAIN])
@@ -514,35 +518,34 @@ includeProject(":vectordrawable:vectordrawable", "vectordrawable/vectordrawable"
 includeProject(":vectordrawable:vectordrawable-animated", "vectordrawable/vectordrawable-animated", [BuildType.MAIN])
 includeProject(":vectordrawable:vectordrawable-seekable", "vectordrawable/vectordrawable-seekable", [BuildType.MAIN])
 includeProject(":versionedparcelable:versionedparcelable", "versionedparcelable/versionedparcelable", [BuildType.MAIN])
-includeProject(":versionedparcelable:versionedparcelable-compiler", "versionedparcelable/versionedparcelable-compiler", [BuildType.MAIN, BuildType.MEDIA])
+includeProject(":versionedparcelable:versionedparcelable-compiler", "versionedparcelable/versionedparcelable-compiler", [BuildType.MAIN, BuildType.MEDIA, BuildType.WEAR])
 includeProject(":viewpager2:integration-tests:testapp", "viewpager2/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":viewpager2:viewpager2", "viewpager2/viewpager2", [BuildType.MAIN])
 includeProject(":viewpager:viewpager", "viewpager/viewpager", [BuildType.MAIN])
-includeProject(":wear:wear", "wear/wear", [BuildType.MAIN])
-includeProject(":wear:wear-complications-data", "wear/wear-complications-data", [BuildType.MAIN])
-includeProject(":wear:wear-complications-provider", "wear/wear-complications-provider", [BuildType.MAIN])
-includeProject(":wear:wear-complications-provider-samples", "wear/wear-complications-provider/samples", [BuildType.MAIN])
-includeProject(":wear:wear-input", "wear/wear-input", [BuildType.MAIN])
-includeProject(":wear:wear-input-testing", "wear/wear-input-testing", [BuildType.MAIN])
-includeProject(":wear:wear-ongoing", "wear/wear-ongoing", [BuildType.MAIN])
-includeProject(":wear:wear-phone-interactions", "wear/wear-phone-interactions", [BuildType.MAIN])
-includeProject(":wear:wear-remote-interactions", "wear/wear-remote-interactions", [BuildType.MAIN])
-includeProject(":wear:wear-tiles", "wear/wear-tiles", [BuildType.MAIN])
-includeProject(":wear:wear-tiles:wear-tiles-proto", "wear/wear-tiles/wear-tiles-proto",
-        [BuildType.MAIN])
-includeProject(":wear:wear-tiles-data", "wear/wear-tiles-data", [BuildType.MAIN])
-includeProject(":wear:wear-tiles-renderer", "wear/wear-tiles-renderer", [BuildType.MAIN])
-includeProject(":wear:wear-watchface", "wear/wear-watchface", [BuildType.MAIN])
-includeProject(":wear:wear-watchface-complications-rendering", "wear/wear-watchface-complications-rendering", [BuildType.MAIN])
-includeProject(":wear:wear-watchface-client", "wear/wear-watchface-client", [BuildType.MAIN])
-includeProject(":wear:wear-watchface-client-guava", "wear/wear-watchface-client/guava", [BuildType.MAIN])
-includeProject(":wear:wear-watchface-data", "wear/wear-watchface-data", [BuildType.MAIN])
-includeProject(":wear:wear-watchface-editor", "wear/wear-watchface-editor", [BuildType.MAIN])
-includeProject(":wear:wear-watchface-editor-guava", "wear/wear-watchface-editor/guava", [BuildType.MAIN])
-includeProject(":wear:wear-watchface-editor-samples", "wear/wear-watchface-editor/samples", [BuildType.MAIN])
-includeProject(":wear:wear-watchface-guava", "wear/wear-watchface/guava", [BuildType.MAIN])
-includeProject(":wear:wear-watchface-samples", "wear/wear-watchface/samples", [BuildType.MAIN])
-includeProject(":wear:wear-watchface-style", "wear/wear-watchface-style", [BuildType.MAIN])
+includeProject(":wear:wear", "wear/wear", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-complications-data", "wear/wear-complications-data", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-complications-provider", "wear/wear-complications-provider", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-complications-provider-samples", "wear/wear-complications-provider/samples", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-input", "wear/wear-input", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-input-testing", "wear/wear-input-testing", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-ongoing", "wear/wear-ongoing", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-phone-interactions", "wear/wear-phone-interactions", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-remote-interactions", "wear/wear-remote-interactions", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-tiles", "wear/wear-tiles", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-tiles:wear-tiles-proto", "wear/wear-tiles/wear-tiles-proto", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-tiles-data", "wear/wear-tiles-data", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-tiles-renderer", "wear/wear-tiles-renderer", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-watchface", "wear/wear-watchface", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-watchface-complications-rendering", "wear/wear-watchface-complications-rendering", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-watchface-client", "wear/wear-watchface-client", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-watchface-client-guava", "wear/wear-watchface-client/guava", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-watchface-data", "wear/wear-watchface-data", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-watchface-editor", "wear/wear-watchface-editor", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-watchface-editor-guava", "wear/wear-watchface-editor/guava", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-watchface-editor-samples", "wear/wear-watchface-editor/samples", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-watchface-guava", "wear/wear-watchface/guava", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-watchface-samples", "wear/wear-watchface/samples", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-watchface-style", "wear/wear-watchface-style", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":webkit:integration-tests:testapp", "webkit/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":webkit:webkit", "webkit/webkit", [BuildType.MAIN])
 includeProject(":window:window", "window/window", [BuildType.MAIN])
@@ -598,7 +601,7 @@ includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"),
 /////////////////////////////
 
 includeProject(":internal-testutils-common", "testutils/testutils-common", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":internal-testutils-runtime", "testutils/testutils-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.MEDIA])
+includeProject(":internal-testutils-runtime", "testutils/testutils-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.MEDIA, BuildType.WEAR])
 includeProject(":internal-testutils-appcompat", "testutils/testutils-appcompat", [BuildType.MAIN])
 includeProject(":internal-testutils-espresso", "testutils/testutils-espresso", [BuildType.MAIN])
 includeProject(":internal-testutils-truth", "testutils/testutils-truth", [BuildType.MAIN, BuildType.FLAN])
