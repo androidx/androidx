@@ -2586,6 +2586,20 @@ public abstract class FragmentManager implements FragmentResultOwner {
             return false;
         }
 
+        // Assert that all of the transactions use setReorderingAllowed(true)
+        // to ensure that when they are restored, they are restored as a single
+        // atomic operation and intermediate fragments aren't moved all the way
+        // up to the RESUMED state
+        for (int i = index; i < mBackStack.size(); i++) {
+            BackStackRecord record = mBackStack.get(index);
+            if (!record.mReorderingAllowed) {
+                throwException(new IllegalArgumentException("saveBackStack(\"" + name + "\") "
+                        + "included FragmentTransactions must use setReorderingAllowed(true) "
+                        + "to ensure that the back stack can be restored as an atomic operation. "
+                        + "Found " + record + " that did not use setReorderingAllowed(true)."));
+            }
+        }
+
         // Assert that the set of affected fragments are entirely self contained within
         // the set of transactions being saved by ensuring that the first transaction including
         // that fragment includes an OP_ADD
