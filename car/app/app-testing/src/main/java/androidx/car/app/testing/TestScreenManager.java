@@ -16,10 +16,15 @@
 
 package androidx.car.app.testing;
 
+import static java.util.Objects.requireNonNull;
+
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.OnScreenResultListener;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
+import androidx.car.app.utils.CollectionUtils;
 import androidx.lifecycle.Lifecycle.State;
 
 import java.util.ArrayList;
@@ -44,8 +49,7 @@ public class TestScreenManager extends ScreenManager {
     private final List<Screen> mScreensRemoved = new ArrayList<>();
 
     /**
-     * Resets the values tracked by this {@link TestScreenManager}, and the {@link Screen} stack
-     * .
+     * Resets the values tracked by this {@link TestScreenManager} and the {@link Screen} stack.
      */
     public void reset() {
         getScreenStack().clear();
@@ -54,29 +58,31 @@ public class TestScreenManager extends ScreenManager {
     }
 
     /**
-     * Retrieves all the {@link Screen}s pushed via {@link ScreenManager#push}, and {@link
+     * Returns all the {@link Screen}s pushed via {@link ScreenManager#push}, and {@link
      * ScreenManager#pushForResult}.
      *
-     * <p>The screens are stored in order of calls.
+     * <p>The screens are stored in the order in which they were pushed, where the first screen
+     * in the list is the first screen that was pushed.
      *
      * <p>The screens will be stored until {@link #reset} is called.
      */
     @NonNull
     public List<Screen> getScreensPushed() {
-        return mScreensPushed;
+        return CollectionUtils.unmodifiableCopy(mScreensPushed);
     }
 
     /**
-     * Retrieves all the {@link Screen}s removed via {@link ScreenManager#pop}, {@link
+     * Returns all the {@link Screen}s removed via {@link ScreenManager#pop}, {@link
      * ScreenManager#popTo}, and {@link ScreenManager#remove}.
      *
-     * <p>The screens are stored in order of calls.
+     * <p>The screens are stored in the order in which they were removed, where the first screen
+     * in the list, is the first screen that was removed.
      *
      * <p>The screens will be stored until {@link #reset} is called.
      */
     @NonNull
     public List<Screen> getScreensRemoved() {
-        return mScreensRemoved;
+        return CollectionUtils.unmodifiableCopy(mScreensRemoved);
     }
 
     /** Returns {@code true} if the {@link Screen} stack has any screens in it. */
@@ -86,10 +92,11 @@ public class TestScreenManager extends ScreenManager {
 
     @Override
     public void push(@NonNull Screen screen) {
-        mScreensPushed.add(screen);
+        mScreensPushed.add(requireNonNull(screen));
         super.push(screen);
     }
 
+    @SuppressLint("ExecutorRegistration")
     @Override
     public void pushForResult(
             @NonNull Screen screen, @NonNull OnScreenResultListener onScreenResultListener) {

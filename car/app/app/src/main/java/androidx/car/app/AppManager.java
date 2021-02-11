@@ -18,6 +18,8 @@ package androidx.car.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.SuppressLint;
 import android.os.Looper;
 import android.view.Surface;
@@ -28,8 +30,6 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.model.TemplateWrapper;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
-
-import java.util.Objects;
 
 /** Manages the communication between the app and the host. */
 public class AppManager {
@@ -89,8 +89,10 @@ public class AppManager {
      * @param text     the text to show
      * @param duration how long to display the message
      * @throws HostException if the remote call fails
+     * @throws NullPointerException if {@code text} is {@code null}
      */
-    public void showToast(@NonNull CharSequence text, int duration) {
+    public void showToast(@NonNull CharSequence text, @CarToast.Duration int duration) {
+        requireNonNull(text);
         mHostDispatcher.dispatch(
                 CarContext.APP_SERVICE,
                 (IAppHost host) -> {
@@ -108,8 +110,8 @@ public class AppManager {
     /** Creates an instance of {@link AppManager}. */
     static AppManager create(@NonNull CarContext carContext,
             @NonNull HostDispatcher hostDispatcher) {
-        Objects.requireNonNull(carContext);
-        Objects.requireNonNull(hostDispatcher);
+        requireNonNull(carContext);
+        requireNonNull(hostDispatcher);
 
         return new AppManager(carContext, hostDispatcher);
     }

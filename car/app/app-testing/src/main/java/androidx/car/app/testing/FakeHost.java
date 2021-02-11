@@ -46,15 +46,9 @@ import androidx.car.app.serialization.Bundleable;
  */
 public class FakeHost {
     private final ICarHost.Stub mCarHost = new TestCarHost();
-    private final IAppHost mAppHost = new TestAppHost();
-    private final INavigationHost mNavigationHost = new TestNavigationHost();
-    private final TestCarContext mTestCarContext;
-
-    /** Returns the {@link FakeHost} that is associated with the provided {@code TestCarContext}. */
-    @NonNull
-    public static FakeHost getFakeHost(@NonNull TestCarContext testCarContext) {
-        return testCarContext.getFakeHost();
-    }
+    final IAppHost mAppHost = new TestAppHost();
+    final INavigationHost mNavigationHost = new TestNavigationHost();
+    final TestCarContext mTestCarContext;
 
     /**
      * Sends the given pending intent as if the user clicked on a notification action.
@@ -67,6 +61,8 @@ public class FakeHost {
      *
      * <p>You can then test your {@link android.content.BroadcastReceiver} by calling {@link
      * android.content.BroadcastReceiver#onReceive} with the {@link Intent} that was fired.
+     *
+     * @throws NullPointerException if {@code pendingIntent} is {@code null}
      */
     public void performNotificationActionClick(@NonNull PendingIntent pendingIntent) {
         requireNonNull(pendingIntent);
@@ -92,10 +88,16 @@ public class FakeHost {
         return mCarHost;
     }
 
-    private class TestCarHost extends ICarHost.Stub {
-
+    /**
+     * A fake implementation of the host binder.
+     *
+     * <p>Mainly it provides the fake host services {@link TestAppHost} and
+     * {@link TestNavigationHost}.
+     */
+    class TestCarHost extends ICarHost.Stub {
         @Override
         public void startCarApp(Intent intent) {
+            // No-op.
         }
 
         @Override
@@ -112,11 +114,12 @@ public class FakeHost {
 
         @Override
         public void finish() {
+            // No-op.
         }
     }
 
     /** Testing version of the app host. */
-    private class TestAppHost extends IAppHost.Stub {
+    class TestAppHost extends IAppHost.Stub {
         @Override
         public void invalidate() {
             Screen top = mTestCarContext.getCarService(TestScreenManager.class).getTop();
@@ -137,7 +140,7 @@ public class FakeHost {
     }
 
     /** Testing version of the navigation host. */
-    private static class TestNavigationHost extends INavigationHost.Stub {
+    static class TestNavigationHost extends INavigationHost.Stub {
         @Override
         public void navigationStarted() {
             // No-op.

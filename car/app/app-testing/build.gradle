@@ -24,7 +24,17 @@ plugins {
 }
 
 dependencies {
-    // Add dependencies here
+    api(project(":car:app:app"))
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation project(path: ':lifecycle:lifecycle-runtime')
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 23
+        multiDexEnabled = true
+    }
 }
 
 androidx {
