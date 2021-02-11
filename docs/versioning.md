@@ -2,7 +2,7 @@
 
 [TOC]
 
-## Semantic Versioning
+## Semantic versioning
 
 Artifacts follow strict semantic versioning. The version for a finalized release
 will follow the format `<major>.<minor>.<bugfix>` with an optional
@@ -42,9 +42,9 @@ RC (`1.0.0-rcXX`)
 Stable (no-suffix)
 :   Final releases are well-tested, both by internal tests and external clients,
     and their API surface is reviewed and finalized. While APIs may be
-    deprecated and removed in in future versions and removed in subsequent major
-    version bumps,, any APIs added at this stage must remain for at least a
-    year.
+    deprecated in future versions and removed in subsequent major version bumps,
+    any APIs added at this stage should be considered semi-permanent as major
+    version bumps are [strongly discouraged](#major-implications).
 
 ### Major (`x.0.0`) {#major}
 
@@ -54,7 +54,7 @@ without taking any additional action; however, updating from `2.7.3` to `3.0.0`
 may require a complete rewrite of their application or cause conflicts with
 their dependencies.
 
-#### When to increment
+#### When to increment {#major-when}
 
 An artifact *must* increment its major version number in response to breaking
 changes in binary or behavioral compatibility within the library itself _or_ in
@@ -69,7 +69,7 @@ SemVer implications of incrementing the major version are the same as a breaking
 change -- dependent projects _must_ assume the major version change is breaking
 and update their dependency specifications.
 
-#### Ecosystem implications
+#### Ecosystem implications {#major-implications}
 
 When an artifact increases its major version, _all_ artifacts that depended on
 the previous major version are no longer considered compatible and must
@@ -85,7 +85,7 @@ a “core” artifact that is depended upon by other libraries. “Leaf” artif
 those that apps depend upon directly and are not used by other libraries -- have
 a much easier time increasing their major version.
 
-#### Process requirements
+#### Process requirements {#major-process}
 
 If the artifact has dependencies within Jetpack, owners *must* complete the
 assessment before implementing any breaking changes to binary or behavioral
@@ -262,10 +262,12 @@ cannot be made in a future minor version.
 #### Within the `betaXX` cycle
 
 *   API surface
-    *   No new APIs allowed
+    *   May not add, remove, or change APIs unless granted an exception by API
+        Council following the beta API change exception request process
+    *   Must go through the full `@Deprecate` and hard-removal cycle in separate
+        `beta` releases for any exception-approved API removals or changes
     *   May not remove `@Experimental` from experimental APIs, see previous item
         regarding new APIs
-    *   No API removals allowed
 
 ### RC {#rc}
 
