@@ -41,8 +41,8 @@ internal interface NavBackStackEntryViewModelFactoryEntryPoint {
 
 /**
  * Creates a [ViewModelProvider.Factory] to get
- * [dagger.hilt.android.lifecycle.HiltViewModel] annotated `ViewModel` from a
- * [NavBackStackEntry].
+ * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
+ * -annotated `ViewModel` from a [NavBackStackEntry].
  *
  * @param context the activity context.
  * @param navBackStackEntry the navigation back stack entry.
