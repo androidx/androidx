@@ -142,12 +142,12 @@ class StyleParcelableTest {
             "displayName3",
             "description3",
             null,
-            true,
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            true
         )
         val styleSetting4 = CustomValueUserStyleSetting(
-            "default",
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            "default"
         )
 
         val srcSchema = UserStyleSchema(
@@ -267,8 +267,8 @@ class StyleParcelableTest {
             "displayName2",
             "description2",
             null,
-            true,
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            true
         )
         assertTrue(booleanUserStyleSettingDefaultTrue.getDefaultValue())
 
@@ -277,8 +277,8 @@ class StyleParcelableTest {
             "displayName2",
             "description2",
             null,
-            false,
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            false
         )
         assertFalse(booleanUserStyleSettingDefaultFalse.getDefaultValue())
     }
@@ -292,8 +292,8 @@ class StyleParcelableTest {
             null,
             -1.0,
             1.0,
-            -1.0,
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            -1.0
         )
         assertThat(doubleRangeUserStyleSettingDefaultMin.getDefaultValue()).isEqualTo(-1.0)
 
@@ -304,8 +304,8 @@ class StyleParcelableTest {
             null,
             -1.0,
             1.0,
-            0.5,
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            0.5
         )
         assertThat(doubleRangeUserStyleSettingDefaultMid.getDefaultValue()).isEqualTo(0.5)
 
@@ -316,8 +316,8 @@ class StyleParcelableTest {
             null,
             -1.0,
             1.0,
-            1.0,
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            1.0
         )
         assertThat(doubleRangeUserStyleSettingDefaultMax.getDefaultValue()).isEqualTo(1.0)
     }
@@ -331,8 +331,8 @@ class StyleParcelableTest {
             null,
             -1,
             10,
+            listOf(Layer.BASE_LAYER),
             -1,
-            listOf(Layer.BASE_LAYER)
         )
         assertThat(longRangeUserStyleSettingDefaultMin.getDefaultValue()).isEqualTo(-1)
 
@@ -343,8 +343,8 @@ class StyleParcelableTest {
             null,
             -1,
             10,
-            5,
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            5
         )
         assertThat(longRangeUserStyleSettingDefaultMid.getDefaultValue()).isEqualTo(5)
 
@@ -355,8 +355,8 @@ class StyleParcelableTest {
             null,
             -1,
             10,
-            10,
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            10
         )
         assertThat(longRangeUserStyleSettingDefaultMax.getDefaultValue()).isEqualTo(10)
     }
@@ -484,12 +484,12 @@ class StyleParcelableTest {
             "displayName3",
             "description3",
             null,
-            true,
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            true
         )
         val styleSetting4 = CustomValueUserStyleSetting(
-            "default",
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE_LAYER),
+            "default"
         )
 
         val schema = UserStyleSchema(
