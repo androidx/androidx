@@ -6,12 +6,12 @@
 
 Artifacts follow strict semantic versioning. The version for a finalized release
 will follow the format `<major>.<minor>.<bugfix>` with an optional
-`-<alpha|beta><n>` suffix. Internal or nightly releases should use the
+`-<alpha|beta|rc><nn>` suffix. Internal or nightly releases should use the
 `-SNAPSHOT` suffix to indicate that the release bits are subject to change.
 
 Also check out the [Versioning FAQ](faq.md#version).
 
-### Summary
+### Notation
 
 Major (`x.0.0`)
 :   An artifact's major version indicates a guaranteed forward-compatibility
@@ -28,15 +28,15 @@ Bugfix (`1.0.x`)
     taken to ensure that existing clients are not broken, including clients that
     may have been working around long-standing broken behavior.
 
-#### Pre-release
+#### Pre-release cycles
 
-Alpha (`1.0.0-alphaXY`)
+Alpha (`1.0.0-alphaXX`)
 :   Feature development and API stabilization phase.
 
-Beta (`1.0.0-betaXY`)
+Beta (`1.0.0-betaXX`)
 :   Functional stabilization phase.
 
-RC (`1.0.0-rcXY`)
+RC (`1.0.0-rcXX`)
 :   Verification phase.
 
 Stable (no-suffix)
@@ -50,7 +50,9 @@ Stable (no-suffix)
 
 An artifact's major version indicates a guaranteed forward-compatibility window.
 For example, a developer could update an artifact versioned `2.0.0` to `2.7.3`
-without taking any additional action.
+without taking any additional action; however, updating from `2.7.3` to `3.0.0`
+may require a complete rewrite of their application or cause conflicts with
+their dependencies.
 
 #### When to increment
 
@@ -226,9 +228,18 @@ Council review but are expected to have performed a minimum level of validation.
 
 Beta releases are ready for production use but may contain bugs. They are
 expected to be functionally stable and have highly-stable, feature-complete API
-surface. APIs should have been reviewed by API Council at this stage, and new
-APIs may only be added with approval by API Council. Tests must have 100%
-coverage of public API surface and translations must be 100% complete.
+surface. All APIs should have been reviewed by API Council at this stage. Tests
+should have 100% coverage of public API surface and translations must be 100%
+complete.
+
+While beta represents API Freeze, it does not necessarily mean APIs are locked
+down permanently. A limited number of exceptions may be granted by API Council
+in cases where ship-blocking mistakes or significant user experience issues can
+be addressed with minimal changes to the API surface. Exceptions **will not** be
+granted for new features, non-trivial API changes, significant refactorings, or
+any changes likely to introduce additional functional instability. Requests for
+exceptions **must** be accompanied by a justification explaining why the change
+cannot be made in a future minor version.
 
 #### Checklist for moving to `beta01`
 
@@ -251,7 +262,7 @@ coverage of public API surface and translations must be 100% complete.
 #### Within the `betaXX` cycle
 
 *   API surface
-    *   New APIs discouraged unless P0 or P1 (ship-blocking)
+    *   No new APIs allowed
     *   May not remove `@Experimental` from experimental APIs, see previous item
         regarding new APIs
     *   No API removals allowed
