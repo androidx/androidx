@@ -49,9 +49,9 @@ internal class MyBackendService {
 }
 
 @Sampled
-fun pageKeyedPagingSourceSample() {
+fun itemKeyedPagingSourceSample() {
     /**
-     * Sample Page-Keyed PagingSource, which uses String tokens to load pages.
+     * Sample item-keyed [PagingSource], which uses String tokens to load pages.
      *
      * Loads Items from network requests via Retrofit to a backend service.
      */
@@ -86,9 +86,9 @@ fun pageKeyedPagingSourceSample() {
 }
 
 @Sampled
-fun pageIndexedPagingSourceSample() {
+fun pageKeyedPagingSourceSample() {
     /**
-     * Sample Page-Indexed PagingSource, which uses Int page number to load pages.
+     * Sample page-keyed PagingSource, which uses Int page number to load pages.
      *
      * Loads Items from network requests via Retrofit to a backend service.
      *

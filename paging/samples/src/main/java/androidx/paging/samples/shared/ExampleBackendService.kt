@@ -22,5 +22,6 @@ interface ExampleBackendService {
 
 class SearchUserResponse(
     val users: List<User>,
-    val nextKey: String?
+    val nextKey: String?,
+    val nextPageNumber: Int?,
 )

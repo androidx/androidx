@@ -77,7 +77,7 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
  * `RecyclerView`.
  *
  * @sample androidx.paging.samples.pageKeyedPagingSourceSample
- * @sample androidx.paging.samples.pageIndexedPagingSourceSample
+ * @sample androidx.paging.samples.itemKeyedPagingSourceSample
  *
  * @see Pager
  */

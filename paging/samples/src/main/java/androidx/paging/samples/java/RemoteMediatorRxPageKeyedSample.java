@@ -33,6 +33,7 @@ import androidx.paging.samples.shared.UserDao;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
@@ -55,6 +56,25 @@ class RemoteMediatorRxPageKeyedSample extends RxRemoteMediator<Integer, User> {
         mDatabase = database;
         mUserDao = database.userDao();
         mRemoteKeyDao = database.remoteKeyDao();
+    }
+
+    @NotNull
+    @Override
+    public Single<InitializeAction> initializeSingle() {
+        long cacheTimeout = TimeUnit.HOURS.convert(1, TimeUnit.MILLISECONDS);
+        return mUserDao.lastUpdatedSingle()
+                .map(lastUpdatedMillis -> {
+                    if (System.currentTimeMillis() - lastUpdatedMillis >= cacheTimeout) {
+                        // Cached data is up-to-date, so there is no need to re-fetch
+                        // from the network.
+                        return InitializeAction.SKIP_INITIAL_REFRESH;
+                    } else {
+                        // Need to refresh cached data from network; returning
+                        // LAUNCH_INITIAL_REFRESH here will also block RemoteMediator's
+                        // APPEND and PREPEND from running until REFRESH succeeds.
+                        return InitializeAction.LAUNCH_INITIAL_REFRESH;
+                    }
+                });
     }
 
     @NotNull
