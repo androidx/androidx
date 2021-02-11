@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.util.CompilationResult
 import androidx.room.compiler.processing.util.KotlinCompilationUtil
 import androidx.room.compiler.processing.util.KotlinCompileTestingCompilationResult
 import com.tschuchort.compiletesting.KotlinCompilation
+import java.io.ByteArrayOutputStream
 
 internal object KaptCompilationTestRunner : CompilationTestRunner {
 
@@ -32,8 +33,10 @@ internal object KaptCompilationTestRunner : CompilationTestRunner {
 
     override fun compile(params: TestCompilationParameters): CompilationResult {
         val syntheticJavacProcessor = SyntheticJavacProcessor(params.handlers)
+        val outputStream = ByteArrayOutputStream()
         val compilation = KotlinCompilationUtil.prepareCompilation(
             sources = params.sources,
+            outputStream = outputStream,
             classpaths = params.classpath
         )
         compilation.annotationProcessors = listOf(syntheticJavacProcessor)
@@ -43,7 +46,10 @@ internal object KaptCompilationTestRunner : CompilationTestRunner {
             delegate = result,
             processor = syntheticJavacProcessor,
             successfulCompilation = result.exitCode == KotlinCompilation.ExitCode.OK,
-            outputSourceDirs = listOf(compilation.kaptSourceDir, compilation.kaptKotlinGeneratedDir)
+            outputSourceDirs = listOf(
+                compilation.kaptSourceDir, compilation.kaptKotlinGeneratedDir
+            ),
+            rawOutput = outputStream.toString(Charsets.UTF_8),
         )
     }
 }
