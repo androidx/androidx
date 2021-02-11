@@ -226,7 +226,7 @@ public class WatchFaceEditorContractForTest : WatchFaceEditorContract() {
 @MediumTest
 public class EditorSessionTest {
     private val testComponentName = ComponentName("test.package", "test.class")
-    private val testEditorComponentName = ComponentName("test.package", "test.editor.class")
+    private val testEditorPackageName = "test.package"
     private val testInstanceId = "TEST_INSTANCE_ID"
     private var editorDelegate = Mockito.mock(WatchFace.EditorDelegate::class.java)
     private val screenBounds = Rect(0, 0, 400, 400)
@@ -350,7 +350,7 @@ public class EditorSessionTest {
         return ActivityScenario.launch(
             WatchFaceEditorContractForTest().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorComponentName, instanceId, null)
+                EditorRequest(testComponentName, testEditorPackageName, instanceId, null)
             ).apply {
                 component = ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),
@@ -916,12 +916,12 @@ public class EditorSessionTest {
         runBlocking {
             val intent = WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorComponentName, testInstanceId, null)
+                EditorRequest(testComponentName, testEditorPackageName, testInstanceId, null)
             )
-            assertThat(intent.component).isEqualTo(testEditorComponentName)
+            assertThat(intent.getPackage()).isEqualTo(testEditorPackageName)
 
             val editorRequest = EditorRequest.createFromIntent(intent)!!
-            assertThat(editorRequest.editorComponentName).isEqualTo(testEditorComponentName)
+            assertThat(editorRequest.editorPackageName).isEqualTo(testEditorPackageName)
             assertThat(editorRequest.initialUserStyle).isNull()
             assertThat(editorRequest.watchFaceComponentName).isEqualTo(testComponentName)
             assertThat(editorRequest.watchFaceInstanceId).isEqualTo(testInstanceId)

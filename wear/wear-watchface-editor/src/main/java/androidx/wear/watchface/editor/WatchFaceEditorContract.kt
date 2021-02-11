@@ -33,16 +33,13 @@ internal const val COMPONENT_NAME_KEY: String = "COMPONENT_NAME_KEY"
 internal const val USER_STYLE_KEY: String = "USER_STYLE_KEY"
 internal const val USER_STYLE_VALUES: String = "USER_STYLE_VALUES"
 
-/**
- * The request sent by [WatchFaceEditorContract.createIntent]. The editing session's result should
- * be reported via [Activity.setWatchRequestResult].
- */
+/** The request sent by [WatchFaceEditorContract.createIntent]. */
 public class EditorRequest(
     /** The [ComponentName] of the watch face being edited. */
     public val watchFaceComponentName: ComponentName,
 
-    /** The [ComponentName] of the watch face editor. */
-    public val editorComponentName: ComponentName,
+    /** The package name of the watch face editor APK. */
+    public val editorPackageName: String,
 
     /**
      * Unique ID for the instance of the watch face being edited, only defined for Android R and
@@ -64,7 +61,7 @@ public class EditorRequest(
             val componentName =
                 intent.getParcelableExtra<ComponentName>(COMPONENT_NAME_KEY)
                     ?: intent.getParcelableExtra(Constants.EXTRA_WATCH_FACE_COMPONENT)
-            val editorComponentName = intent.component ?: ComponentName("?", "?")
+            val editorPackageName = intent.getPackage() ?: ""
             val instanceId = intent.getStringExtra(INSTANCE_ID_KEY)
             val userStyleKey = intent.getStringArrayExtra(USER_STYLE_KEY)
             val userStyleValue = intent.getStringArrayExtra(USER_STYLE_VALUES)
@@ -74,7 +71,7 @@ public class EditorRequest(
                 ) {
                     EditorRequest(
                         componentName,
-                        editorComponentName,
+                        editorPackageName,
                         instanceId,
                         HashMap<String, String>().apply {
                             for (i in userStyleKey.indices) {
@@ -83,7 +80,7 @@ public class EditorRequest(
                         }
                     )
                 } else {
-                    EditorRequest(componentName, editorComponentName, instanceId, null)
+                    EditorRequest(componentName, editorPackageName, instanceId, null)
                 }
             }
         }
@@ -118,7 +115,7 @@ public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest
             "watchFaceInstanceId must be set from Android R and above"
         }
         return Intent(ACTION_WATCH_FACE_EDITOR).apply {
-            component = input.editorComponentName
+            setPackage(input.editorPackageName)
             putExtra(COMPONENT_NAME_KEY, input.watchFaceComponentName)
             putExtra(INSTANCE_ID_KEY, input.watchFaceInstanceId)
             input.initialUserStyle?.let {
