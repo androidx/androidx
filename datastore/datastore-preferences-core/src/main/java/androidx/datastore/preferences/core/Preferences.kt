@@ -31,10 +31,10 @@ public abstract class Preferences internal constructor() {
      *
      * T must be one of the following: Boolean, Int, Long, Float, String, Set<String>.
      *
-     * Construct Keys for your data type using: [preferencesKey], [preferencesSetKey].
+     * Construct Keys for your data type using: [booleanPreferencesKey], [intPreferencesKey],
+     * [longPreferencesKey], [floatPreferencesKey], [stringPreferencesKey], [stringSetPreferencesKey]
      */
     public class Key<T>
-    @PublishedApi // necessary to use this in the public inline function preferencesKey().
     internal constructor(public val name: String) {
         /**
          * Infix function to create a Preferences.Pair.
@@ -53,6 +53,8 @@ public abstract class Preferences internal constructor() {
         override fun hashCode(): Int {
             return name.hashCode()
         }
+
+        override fun toString(): String = name
     }
 
     /**
