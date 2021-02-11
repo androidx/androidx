@@ -33,16 +33,13 @@ import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class ActivityCompatRecreateFromLifecycleStatesTestCase {
+public class ActivityCompatRecreateFromLifecycleStatesTestCase {
     @get:Rule
-    val activityTestRule = ActivityTestRule(
-        ActivityCompatRecreateLifecycleTestActivity::class.java,
-        false,
-        false
-    )
+    public val activityTestRule: ActivityTestRule<ActivityCompatRecreateLifecycleTestActivity> =
+        ActivityTestRule(ActivityCompatRecreateLifecycleTestActivity::class.java, false, false)
 
     @Test
-    fun testRecreateFromOnResume() {
+    public fun testRecreateFromOnResume() {
         val calledRecreate = CountDownLatch(1)
         lateinit var firstActivity: Activity
 
@@ -76,7 +73,7 @@ class ActivityCompatRecreateFromLifecycleStatesTestCase {
     }
 
     @Test
-    fun testRecreateFromOnStart() {
+    public fun testRecreateFromOnStart() {
         val calledRecreate = CountDownLatch(1)
         lateinit var firstActivity: Activity
 
@@ -110,7 +107,7 @@ class ActivityCompatRecreateFromLifecycleStatesTestCase {
     }
 
     @Test
-    fun testRecreateFromOnStop() {
+    public fun testRecreateFromOnStop() {
         val calledRecreate = CountDownLatch(1)
         lateinit var firstActivity: Activity
 
@@ -135,11 +132,5 @@ class ActivityCompatRecreateFromLifecycleStatesTestCase {
 
         // Make sure that we didn't start a new activity.
         assertEquals(firstActivity, activityTestRule.activity)
-    }
-}
-
-fun runnable(body: Runnable.(Runnable) -> Unit) = object : Runnable {
-    override fun run() {
-        this.body(this)
     }
 }
