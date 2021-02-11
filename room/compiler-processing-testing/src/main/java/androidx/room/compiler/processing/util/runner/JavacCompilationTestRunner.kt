@@ -31,7 +31,7 @@ internal object JavacCompilationTestRunner : CompilationTestRunner {
     }
 
     override fun compile(params: TestCompilationParameters): CompilationResult {
-        val syntheticJavacProcessor = SyntheticJavacProcessor(params.handler)
+        val syntheticJavacProcessor = SyntheticJavacProcessor(params.handlers)
         val sources = if (params.sources.isEmpty()) {
             // synthesize a source to trigger compilation
             listOf(

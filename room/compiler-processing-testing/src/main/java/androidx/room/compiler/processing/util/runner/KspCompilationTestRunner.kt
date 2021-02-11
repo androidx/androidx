@@ -46,7 +46,7 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
         } else {
             params.sources
         }
-        val syntheticKspProcessor = SyntheticKspProcessor(params.handler)
+        val syntheticKspProcessor = SyntheticKspProcessor(params.handlers)
 
         val kspCompilation = KotlinCompilationUtil.prepareCompilation(
             sources,
