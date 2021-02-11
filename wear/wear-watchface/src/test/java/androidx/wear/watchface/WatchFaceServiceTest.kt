@@ -60,6 +60,7 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -2140,5 +2141,30 @@ class WatchFaceServiceTest {
         // At this stage we haven't sent properties such as isAmbient, we expect it to be
         // initialized to false (as opposed to null).
         assertThat(watchState.isAmbient.value).isFalse()
+    }
+
+    @Test
+    fun onDestroy_clearsInstanceRecord() {
+        val instanceId = "interactiveInstanceId"
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                instanceId,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(hashMapOf(colorStyleSetting to blueStyleOption)).toWireFormat(),
+                null
+            )
+        )
+        engineWrapper.onDestroy()
+
+        assertNull(InteractiveInstanceManager.getAndRetainInstance(instanceId))
     }
 }
