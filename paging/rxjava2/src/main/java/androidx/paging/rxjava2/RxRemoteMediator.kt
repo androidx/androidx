@@ -19,6 +19,9 @@ package androidx.paging.rxjava2
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadState
 import androidx.paging.LoadType
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
@@ -78,6 +81,8 @@ abstract class RxRemoteMediator<Key : Any, Value : Any> : RemoteMediator<Key, Va
      * @return [InitializeAction] indicating the action to take after initialization:
      *  * [LAUNCH_INITIAL_REFRESH] to immediately dispatch a [load] asynchronously with load type
      *  [LoadType.REFRESH], to update paginated content when the stream is initialized.
+     *  Note: This also prevents [RemoteMediator] from triggering [PREPEND] or [APPEND] until
+     *  [REFRESH] succeeds.
      *  * [SKIP_INITIAL_REFRESH][InitializeAction.SKIP_INITIAL_REFRESH] to wait for a
      *  refresh request from the UI before dispatching a [load] with load type [LoadType.REFRESH].
      */

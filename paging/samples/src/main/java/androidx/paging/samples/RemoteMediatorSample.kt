@@ -30,11 +30,13 @@ import androidx.paging.samples.shared.User
 import androidx.room.withTransaction
 import retrofit2.HttpException
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 private interface ItemDao {
     fun withTransaction(block: () -> Any)
     fun insertAll(items: List<Item>)
     fun removeAll()
+    fun lastUpdated(): Long
 }
 
 private interface ItemKeyDao {
@@ -62,6 +64,19 @@ fun remoteMediatorItemKeyedSample() {
         private val networkService: ExampleBackendService
     ) : RemoteMediator<Int, User>() {
         val userDao = database.userDao()
+
+        override suspend fun initialize(): InitializeAction {
+            val cacheTimeout = TimeUnit.HOURS.convert(1, TimeUnit.MILLISECONDS)
+            return if (System.currentTimeMillis() - userDao.lastUpdated() >= cacheTimeout) {
+                // Cached data is up-to-date, so there is no need to re-fetch from network.
+                InitializeAction.SKIP_INITIAL_REFRESH
+            } else {
+                // Need to refresh cached data from network; returning LAUNCH_INITIAL_REFRESH here
+                // will also block RemoteMediator's APPEND and PREPEND from running until REFRESH
+                // succeeds.
+                InitializeAction.LAUNCH_INITIAL_REFRESH
+            }
+        }
 
         override suspend fun load(
             loadType: LoadType,
@@ -135,6 +150,19 @@ fun remoteMediatorPageKeyedSample() {
     ) : RemoteMediator<Int, User>() {
         val userDao = database.userDao()
         val remoteKeyDao = database.remoteKeyDao()
+
+        override suspend fun initialize(): InitializeAction {
+            val cacheTimeout = TimeUnit.HOURS.convert(1, TimeUnit.MILLISECONDS)
+            return if (System.currentTimeMillis() - userDao.lastUpdated() >= cacheTimeout) {
+                // Cached data is up-to-date, so there is no need to re-fetch from network.
+                InitializeAction.SKIP_INITIAL_REFRESH
+            } else {
+                // Need to refresh cached data from network; returning LAUNCH_INITIAL_REFRESH here
+                // will also block RemoteMediator's APPEND and PREPEND from running until REFRESH
+                // succeeds.
+                InitializeAction.LAUNCH_INITIAL_REFRESH
+            }
+        }
 
         override suspend fun load(
             loadType: LoadType,
