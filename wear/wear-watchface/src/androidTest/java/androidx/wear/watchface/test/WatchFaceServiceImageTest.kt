@@ -22,6 +22,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
+import android.icu.util.TimeZone
 import android.os.Handler
 import android.os.Looper
 import android.support.wearable.watchface.SharedMemoryImage
@@ -183,6 +184,9 @@ class WatchFaceServiceImageTest {
                         ) {
                             interactiveWatchFaceInstanceWCS = iInteractiveWatchFaceWcs
                             sendComplications()
+                            // Set the timezone so it doesn't matter where the bots are running.
+                            engineWrapper.watchFaceImpl.calendar.timeZone =
+                                TimeZone.getTimeZone("UTC")
                             initLatch.countDown()
                         }
                     }
