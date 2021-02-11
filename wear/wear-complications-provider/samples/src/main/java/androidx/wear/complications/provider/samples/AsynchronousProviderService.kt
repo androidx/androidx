@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.complications.samples
+package androidx.wear.complications.provider.samples
 
 import androidx.wear.complications.ComplicationProviderService
 import androidx.wear.complications.data.ComplicationText
