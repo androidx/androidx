@@ -18,6 +18,7 @@ package androidx.wear.watchface
 
 import android.app.PendingIntent
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Rect
@@ -31,6 +32,7 @@ import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.data.IdAndComplicationData
+import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import org.junit.runners.model.FrameworkMethod
@@ -110,6 +112,17 @@ internal class TestWatchFaceService(
     fun setIsVisible(isVisible: Boolean) {
         watchState.isVisible.value = isVisible
     }
+
+    override fun readDirectBootPrefs(
+        context: Context,
+        fileName: String
+    ) = null
+
+    override fun writeDirectBootPrefs(
+        context: Context,
+        fileName: String,
+        prefs: WallpaperInteractiveWatchFaceInstanceParams
+    ) {}
 }
 
 /**
