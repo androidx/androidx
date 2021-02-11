@@ -456,7 +456,7 @@ public abstract class WatchFaceService : WallpaperService() {
                             it.value.defaultProviderPolicy.systemProviderFallback,
                             it.value.defaultProviderType.asWireComplicationType(),
                             it.value.enabled,
-                            it.value.renderer.idAndData?.complicationData?.type
+                            it.value.renderer.getIdAndData()?.complicationData?.type
                                 ?.asWireComplicationType()
                                 ?: ComplicationType.NO_DATA.asWireComplicationType(),
                             it.value.fixedComplicationProvider
@@ -518,15 +518,19 @@ public abstract class WatchFaceService : WallpaperService() {
 
             val oldComplicationData =
                 watchFaceImpl.complicationsManager.complications.values.map {
-                    it.renderer.idAndData ?: IdAndComplicationData(it.id, NoDataComplicationData())
+                    it.renderer.getIdAndData() ?: IdAndComplicationData(
+                        it.id,
+                        NoDataComplicationData()
+                    )
                 }
             params.idAndComplicationDatumWireFormats?.let {
                 for (idAndData in it) {
                     watchFaceImpl.complicationsManager[idAndData.id]!!.renderer
-                        .setIdComplicationDataSync(
+                        .setIdAndData(
                             IdAndComplicationData(
                                 idAndData.id, idAndData.complicationData.asApiComplicationData()
-                            )
+                            ),
+                            false
                         )
                 }
             }
@@ -546,7 +550,7 @@ public abstract class WatchFaceService : WallpaperService() {
             if (params.idAndComplicationDatumWireFormats != null) {
                 for (idAndData in oldComplicationData) {
                     watchFaceImpl.complicationsManager[idAndData.complicationId]!!.renderer
-                        .setIdComplicationDataSync(idAndData)
+                        .setIdAndData(idAndData, false)
                 }
             }
 
@@ -581,12 +585,13 @@ public abstract class WatchFaceService : WallpaperService() {
                 var prevIdAndComplicationData: IdAndComplicationData? = null
                 var screenshotComplicationData = params.complicationData
                 if (screenshotComplicationData != null) {
-                    prevIdAndComplicationData = it.renderer.idAndData
-                    it.renderer.setIdComplicationDataSync(
+                    prevIdAndComplicationData = it.renderer.getIdAndData()
+                    it.renderer.setIdAndData(
                         IdAndComplicationData(
                             params.complicationId,
                             screenshotComplicationData
-                        )
+                        ),
+                        false
                     )
                 }
 
@@ -599,7 +604,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 // Restore previous ComplicationData & style if required.
                 if (params.complicationData != null) {
-                    it.renderer.setIdComplicationDataSync(prevIdAndComplicationData)
+                    it.renderer.setIdAndData(prevIdAndComplicationData, false)
                 }
 
                 if (newStyle != null) {

@@ -55,8 +55,8 @@ public interface CanvasComplication {
     public fun onDetach()
 
     /**
-     * Draws the complication defined by [idAndData] into the canvas with the specified bounds. This
-     * will usually be called by user watch face drawing code, but the system may also call it
+     * Draws the complication defined by [getIdAndData] into the canvas with the specified bounds.
+     * This will usually be called by user watch face drawing code, but the system may also call it
      * for complication selection UI rendering. The width and height will be the same as that
      * computed by computeBounds but the translation and canvas size may differ.
      *
@@ -82,11 +82,18 @@ public interface CanvasComplication {
     @set:JvmName("setIsHighlighted")
     public var isHighlighted: Boolean
 
-    /** The [IdAndComplicationData] to render. */
-    public var idAndData: IdAndComplicationData?
+    /** Returns the [IdAndComplicationData] to render with. */
+    public fun getIdAndData(): IdAndComplicationData?
 
-    /** @hide */
-    public fun setIdComplicationDataSync(idAndComplicationData: IdAndComplicationData?)
+    /**
+     * Sets the [IdAndComplicationData] to render with.
+     *
+     * @param loadDrawablesAsynchronous Whether or not any drawables should be loaded asynchronously
+     **/
+    public fun setIdAndData(
+        idAndComplicationData: IdAndComplicationData?,
+        loadDrawablesAsynchronous: Boolean
+    )
 }
 
 /**
@@ -165,7 +172,7 @@ public open class CanvasComplicationDrawable(
                 drawable.currentTimeMillis = calendar.timeInMillis
                 val wasHighlighted = drawable.isHighlighted
                 drawable.isHighlighted =
-                    renderParameters.selectedComplicationId == idAndData?.complicationId
+                    renderParameters.selectedComplicationId == getIdAndData()?.complicationId
                 drawable.draw(canvas)
                 drawable.isHighlighted = wasHighlighted
 
@@ -215,24 +222,16 @@ public open class CanvasComplicationDrawable(
 
     private var _idAndData: IdAndComplicationData? = null
 
-    /** The [IdAndComplicationData] to use when rendering the complication. */
-    override var idAndData: IdAndComplicationData?
-        @UiThread
-        get() = _idAndData
-        @UiThread
-        set(value) {
-            drawable.setComplicationData(
-                value?.complicationData?.asWireComplicationData(),
-                true
-            )
-            _idAndData = value
-        }
+    override fun getIdAndData(): IdAndComplicationData? = _idAndData
 
-    override fun setIdComplicationDataSync(idAndComplicationData: IdAndComplicationData?) {
+    override fun setIdAndData(
+        idAndComplicationData: IdAndComplicationData?,
+        loadDrawablesAsynchronous: Boolean
+    ) {
         _idAndData = idAndComplicationData
         drawable.setComplicationData(
             idAndComplicationData?.complicationData?.asWireComplicationData(),
-            false
+            loadDrawablesAsynchronous
         )
     }
 }
@@ -490,7 +489,7 @@ public class Complication internal constructor(
                 return
             }
             renderer.onDetach()
-            value.idAndData = renderer.idAndData
+            value.setIdAndData(renderer.getIdAndData(), true)
             field = value
             value.onAttach(this)
         }
@@ -645,7 +644,7 @@ public class Complication internal constructor(
         // Try the current type if there is one, otherwise fall back to the bounds for the default
         // provider type.
         val unitSquareBounds =
-            renderer.idAndData?.let {
+            renderer.getIdAndData()?.let {
                 complicationBounds.perComplicationTypeBounds[it.complicationData.type]
             } ?: complicationBounds.perComplicationTypeBounds[defaultProviderType]!!
         unitSquareBounds.intersect(unitSquare)

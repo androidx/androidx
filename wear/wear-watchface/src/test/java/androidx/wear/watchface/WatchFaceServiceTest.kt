@@ -161,7 +161,7 @@ class WatchFaceServiceTest {
                 complicationDrawableLeft,
                 watchState.asWatchState()
             ).apply {
-                idAndData = createIdAndComplicationData(LEFT_COMPLICATION_ID)
+                setIdAndData(createIdAndComplicationData(LEFT_COMPLICATION_ID), false)
             },
             listOf(
                 ComplicationType.RANGED_VALUE,
@@ -182,7 +182,7 @@ class WatchFaceServiceTest {
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
-                idAndData = createIdAndComplicationData(RIGHT_COMPLICATION_ID)
+                setIdAndData(createIdAndComplicationData(RIGHT_COMPLICATION_ID), false)
             },
             listOf(
                 ComplicationType.RANGED_VALUE,
@@ -203,7 +203,7 @@ class WatchFaceServiceTest {
                 complicationDrawableBackground,
                 watchState.asWatchState()
             ).apply {
-                idAndData = createIdAndComplicationData(BACKGROUND_COMPLICATION_ID)
+                setIdAndData(createIdAndComplicationData(BACKGROUND_COMPLICATION_ID), false)
             },
             listOf(
                 ComplicationType.PHOTO_IMAGE
@@ -723,7 +723,7 @@ class WatchFaceServiceTest {
                     complicationDrawableLeft,
                     watchState.asWatchState()
                 ).apply {
-                    idAndData = createIdAndComplicationData(LEFT_COMPLICATION_ID)
+                    setIdAndData(createIdAndComplicationData(LEFT_COMPLICATION_ID), false)
                 },
                 listOf(
                     ComplicationType.RANGED_VALUE,
