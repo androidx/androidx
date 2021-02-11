@@ -51,7 +51,7 @@ private const val TIMEOUT_MS = 500L
 @MediumTest
 public class EditorSessionGuavaTest {
     private val testComponentName = ComponentName("test.package", "test.class")
-    private val testEditorComponentName = ComponentName("test.package", "test.editor.class")
+    private val testEditorPackageName = "test.package"
     private val testInstanceId = "TEST_INSTANCE_ID"
     private var editorDelegate = Mockito.mock(WatchFace.EditorDelegate::class.java)
     private val screenBounds = Rect(0, 0, 400, 400)
@@ -109,7 +109,7 @@ public class EditorSessionGuavaTest {
         return ActivityScenario.launch(
             WatchFaceEditorContractForTest().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorComponentName, instanceId, null)
+                EditorRequest(testComponentName, testEditorPackageName, instanceId, null)
             ).apply {
                 component = ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),
