@@ -869,16 +869,6 @@ public class WindowInsetsCompat {
         }
     }
 
-    @Nullable
-    static WindowInsetsCompat getRootInsets(@NonNull View v) {
-        if (SDK_INT >= 23) {
-            return ViewCompat.getRootWindowInsets(v);
-        } else if (SDK_INT >= 21) {
-            return Impl21.getRootWindowInsets(v);
-        }
-        return null;
-    }
-
     @RequiresApi(20)
     private static class Impl20 extends Impl {
 
@@ -1236,53 +1226,7 @@ public class WindowInsetsCompat {
             return mStableInsets;
         }
 
-        private static Field sViewAttachInfoField;
-        private static Field sStableInsets;
-        private static Field sVisibleInsets;
 
-        static {
-            try {
-                sViewAttachInfoField = View.class.getDeclaredField("mAttachInfo");
-                sViewAttachInfoField.setAccessible(true);
-                Class<?> sAttachInfoClass = Class.forName("android.view.View$AttachInfo");
-                sStableInsets = sAttachInfoClass.getDeclaredField("mStableInsets");
-                sStableInsets.setAccessible(true);
-                sVisibleInsets = sAttachInfoClass.getDeclaredField("mVisibleInsets");
-                sVisibleInsets.setAccessible(true);
-            } catch (ReflectiveOperationException e) {
-                Log.e(TAG, "Failed to get visible insets from AttachInfo " + e.getMessage(), e);
-            }
-        }
-
-        @SuppressWarnings("deprecation")
-        @Nullable
-        public static WindowInsetsCompat getRootWindowInsets(@NonNull View v) {
-            if (!v.isAttachedToWindow()) {
-                return null;
-            }
-
-            if (sViewAttachInfoField == null || sStableInsets == null || sVisibleInsets == null) {
-                return null;
-            }
-
-            View rootView = v.getRootView();
-            try {
-                Object attachInfo = sViewAttachInfoField.get(rootView);
-                if (attachInfo != null) {
-                    Rect stableInsets = (Rect) sStableInsets.get(attachInfo);
-                    Rect visibleInsets = (Rect) sVisibleInsets.get(attachInfo);
-                    if (stableInsets != null && visibleInsets != null) {
-                        return new WindowInsetsCompat.Builder()
-                                .setStableInsets(Insets.of(stableInsets))
-                                .setSystemWindowInsets(Insets.of(visibleInsets))
-                                .build();
-                    }
-                }
-            } catch (IllegalAccessException e) {
-                Log.e(TAG, "Failed to get insets from AttachInfo. " + e.getMessage(), e);
-            }
-            return null;
-        }
     }
 
     @RequiresApi(28)
@@ -2134,5 +2078,59 @@ public class WindowInsetsCompat {
 
     void copyRootViewBounds(@NonNull View rootView) {
         mImpl.copyRootViewBounds(rootView);
+    }
+
+    @RequiresApi(21)
+    static class Api21ReflectionHolder {
+
+        private Api21ReflectionHolder() {
+            // privatex
+        }
+
+        private static Field sViewAttachInfoField;
+        private static Field sStableInsets;
+        private static Field sContentInsets;
+        private static boolean sReflectionSucceeded;
+
+        static {
+            try {
+                sViewAttachInfoField = View.class.getDeclaredField("mAttachInfo");
+                sViewAttachInfoField.setAccessible(true);
+                Class<?> sAttachInfoClass = Class.forName("android.view.View$AttachInfo");
+                sStableInsets = sAttachInfoClass.getDeclaredField("mStableInsets");
+                sStableInsets.setAccessible(true);
+                sContentInsets = sAttachInfoClass.getDeclaredField("mContentInsets");
+                sContentInsets.setAccessible(true);
+                sReflectionSucceeded = true;
+            } catch (ReflectiveOperationException e) {
+                Log.w(TAG, "Failed to get visible insets from AttachInfo " + e.getMessage(), e);
+            }
+        }
+
+        @SuppressWarnings("deprecation")
+        @Nullable
+        public static WindowInsetsCompat getRootWindowInsets(@NonNull View v) {
+            if (!sReflectionSucceeded || !v.isAttachedToWindow()) {
+                return null;
+            }
+
+            View rootView = v.getRootView();
+            try {
+                Object attachInfo = sViewAttachInfoField.get(rootView);
+                if (attachInfo != null) {
+                    Rect stableInsets = (Rect) sStableInsets.get(attachInfo);
+                    Rect visibleInsets = (Rect) sContentInsets.get(attachInfo);
+                    if (stableInsets != null && visibleInsets != null) {
+                        return new WindowInsetsCompat.Builder()
+                                .setStableInsets(Insets.of(stableInsets))
+                                .setSystemWindowInsets(Insets.of(visibleInsets))
+                                .build();
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                Log.w(TAG, "Failed to get insets from AttachInfo. " + e.getMessage(), e);
+            }
+            return null;
+        }
     }
 }
