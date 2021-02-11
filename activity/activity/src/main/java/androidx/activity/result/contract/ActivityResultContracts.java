@@ -223,6 +223,7 @@ public final class ActivityResultContracts {
 
         @NonNull
         @Override
+        @SuppressWarnings("MixedMutabilityReturnType")
         public Map<String, Boolean> parseResult(int resultCode,
                 @Nullable Intent intent) {
             if (resultCode != Activity.RESULT_OK) return emptyMap();
@@ -485,6 +486,7 @@ public final class ActivityResultContracts {
         }
 
         @NonNull
+        @SuppressWarnings("MixedMutabilityReturnType")
         static List<Uri> getClipDataUris(@NonNull Intent intent) {
             // Use a LinkedHashSet to maintain any ordering that may be
             // present in the ClipData

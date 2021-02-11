@@ -595,6 +595,7 @@ public class SliceProviderCompat {
      * Compat version of {@link android.app.slice.SliceManager#getSliceDescendants(Uri)}
      */
     @NonNull
+    @SuppressWarnings("MixedMutabilityReturnType")
     public static Collection<Uri> getSliceDescendants(@NonNull Context context, @NonNull Uri uri) {
         ContentResolver resolver = context.getContentResolver();
         try (ProviderHolder holder = acquireClient(resolver, uri)) {
