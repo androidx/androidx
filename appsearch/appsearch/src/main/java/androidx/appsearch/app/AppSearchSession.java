@@ -76,10 +76,14 @@ public interface AppSearchSession extends Closeable {
      *         {@link androidx.appsearch.exceptions.AppSearchException} with the
      *         {@link AppSearchResult#RESULT_INVALID_SCHEMA} error code, all documents which are not
      *         compatible with the new schema will be deleted and the incompatible schema will be
-     *         applied.
+     *         applied. Incompatible types and deleted types will be set into
+     *         {@link SetSchemaResponse#getIncompatibleTypes()} and
+     *         {@link SetSchemaResponse#getDeletedTypes()}, respectively.
      *     <li>Add a {@link androidx.appsearch.app.AppSearchSchema.Migrator} for each incompatible
      *         type and make no deletion. The migrator will migrate documents from it's old schema
-     *         version to the new version. See the migration section below.
+     *         version to the new version. Migrated types will be set into both
+     *         {@link SetSchemaResponse#getIncompatibleTypes()} and
+     *         {@link SetSchemaResponse#getMigratedTypes()}. See the migration section below.
      * </ul>
      *
      * <p>It is a no-op to set the same schema as has been previously set; this is handled
@@ -110,10 +114,9 @@ public interface AppSearchSession extends Closeable {
      * changes.
      *
      * @param  request The schema update request.
-     * @return The pending {@link SetSchemaResponse} of performing this operation. Success if the
-     *         the schema has been set and any migrations has been done. Otherwise, the failure
-     *         {@link androidx.appsearch.app.SetSchemaResponse.MigrationFailure} indicates which
-     *         document is fail to be migrated.
+     * @return A {@link ListenableFuture} with exception if we hit any error. Or the pending
+     *         {@link SetSchemaResponse} of performing this operation, if the schema has been
+     *         successfully set.
      *
      * @see androidx.appsearch.app.AppSearchSchema.Migrator
      * @see androidx.appsearch.app.AppSearchMigrationHelper.Transformer

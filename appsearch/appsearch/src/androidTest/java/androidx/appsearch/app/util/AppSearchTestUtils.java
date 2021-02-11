@@ -25,7 +25,6 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
-import androidx.appsearch.app.SetSchemaResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,14 +39,6 @@ public class AppSearchTestUtils {
         assertWithMessage("AppSearchBatchResult not successful: " + result)
                 .that(result.isSuccess()).isTrue();
         return result;
-    }
-
-    // TODO(b/151178558) check setSchemaResponse.xxxtypes for the test need to verify.
-    public static void checkIsSetSchemaResponseSuccess(Future<SetSchemaResponse> future)
-            throws Exception  {
-        SetSchemaResponse setSchemaResponse = future.get();
-        assertWithMessage("SetSchemaResponse not successful.")
-                .that(setSchemaResponse.isSuccess()).isTrue();
     }
 
     public static List<GenericDocument> doGet(

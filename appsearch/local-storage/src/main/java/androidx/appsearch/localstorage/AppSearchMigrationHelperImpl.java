@@ -119,8 +119,13 @@ class AppSearchMigrationHelperImpl implements AppSearchMigrationHelper {
                 try {
                     mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document);
                 } catch (Throwable t) {
-                    responseBuilder.setFailure(document.getSchemaType(), document.getNamespace(),
-                            document.getUri(), throwableToFailedResult(t));
+                    responseBuilder.addMigrationFailure(
+                            new SetSchemaResponse.MigrationFailure.Builder()
+                                    .setNamespace(document.getNamespace())
+                                    .setSchemaType(document.getSchemaType())
+                                    .setUri(document.getUri())
+                                    .setAppSearchResult(throwableToFailedResult(t))
+                                    .build());
                 }
             }
             mAppSearchImpl.persistToDisk();

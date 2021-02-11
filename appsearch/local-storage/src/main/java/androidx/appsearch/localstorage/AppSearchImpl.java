@@ -32,14 +32,14 @@ import androidx.appsearch.app.GetByUriRequest;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
-import androidx.appsearch.app.SetSchemaResult;
+import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.appsearch.localstorage.converter.ResultCodeToProtoConverter;
 import androidx.appsearch.localstorage.converter.SchemaToProtoConverter;
 import androidx.appsearch.localstorage.converter.SearchResultToProtoConverter;
 import androidx.appsearch.localstorage.converter.SearchSpecToProtoConverter;
-import androidx.appsearch.localstorage.converter.SetSchemaResultToProtoConverter;
+import androidx.appsearch.localstorage.converter.SetSchemaResponseToProtoConverter;
 import androidx.appsearch.localstorage.converter.TypePropertyPathToProtoConverter;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -291,10 +291,15 @@ public final class AppSearchImpl implements Closeable {
      * @param forceOverride                 Whether to force-apply the schema even if it is
      *                                      incompatible. Documents
      *                                      which do not comply with the new schema will be deleted.
-     * @throws AppSearchException on IcingSearchEngine error.
+     *
+     * @throws AppSearchException           On IcingSearchEngine error. If the status code is
+     *                                      FAILED_PRECONDITION for the incompatible change, the
+     *                                      exception will be converted to the SetSchemaResponse.
+     * @return The response contains deleted schema types and incompatible schema types of this
+     *         call.
      */
     @NonNull
-    public SetSchemaResult setSchema(
+    public SetSchemaResponse setSchema(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
@@ -331,10 +336,15 @@ public final class AppSearchImpl implements Closeable {
             try {
                 checkSuccess(setSchemaResultProto.getStatus());
             } catch (AppSearchException e) {
-                if (setSchemaResultProto.getDeletedSchemaTypesCount() > 0
-                        || setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0) {
-                    return SetSchemaResultToProtoConverter
-                            .toSetSchemaResult(setSchemaResultProto, prefix);
+                // Swallow the exception for the incompatible change case. We will propagate
+                // those deleted schemas and incompatible types to the SetSchemaResponse.
+                boolean isFailedPrecondition = setSchemaResultProto.getStatus().getCode()
+                        == StatusProto.Code.FAILED_PRECONDITION;
+                boolean isIncompatible = setSchemaResultProto.getDeletedSchemaTypesCount() > 0
+                        || setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0;
+                if (isFailedPrecondition && isIncompatible) {
+                    return SetSchemaResponseToProtoConverter
+                            .toSetSchemaResponse(setSchemaResultProto, prefix);
                 } else {
                     throw e;
                 }
@@ -360,9 +370,8 @@ public final class AppSearchImpl implements Closeable {
             mVisibilityStoreLocked.setVisibility(prefix,
                     prefixedSchemasNotPlatformSurfaceable, prefixedSchemasPackageAccessible);
 
-
-            return SetSchemaResultToProtoConverter
-                    .toSetSchemaResult(setSchemaResultProto, prefix);
+            return SetSchemaResponseToProtoConverter
+                    .toSetSchemaResponse(setSchemaResultProto, prefix);
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
