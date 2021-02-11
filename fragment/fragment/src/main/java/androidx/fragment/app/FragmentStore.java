@@ -215,6 +215,7 @@ class FragmentStore {
     }
 
     @NonNull
+    @SuppressWarnings("MixedMutabilityReturnType")
     List<Fragment> getFragments() {
         if (mAdded.isEmpty()) {
             return Collections.emptyList();

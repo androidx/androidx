@@ -37,6 +37,7 @@ public final class SerializationRuntime {
             new CollectionFactory<List<?>>() {
                 @NonNull
                 @Override
+                @SuppressWarnings("MixedMutabilityReturnType")
                 public List<?> create(int capacity) {
                     if (capacity == 0) {
                         return Collections.emptyList();
@@ -50,6 +51,7 @@ public final class SerializationRuntime {
             new CollectionFactory<Set<?>>() {
                 @NonNull
                 @Override
+                @SuppressWarnings("MixedMutabilityReturnType")
                 public Set<?> create(int capacity) {
                     if (capacity == 0) {
                         return Collections.emptySet();

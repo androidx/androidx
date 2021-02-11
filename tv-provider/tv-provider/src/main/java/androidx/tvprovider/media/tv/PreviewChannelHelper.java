@@ -188,6 +188,7 @@ public class PreviewChannelHelper {
      * {@link #getPreviewChannel(long) single PreviewChannel by id}, you must get all of
      * your channels at once and then use the returned list as necessary.
      */
+    @SuppressWarnings("MixedMutabilityReturnType")
     public List<PreviewChannel> getAllChannels() {
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
