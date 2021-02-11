@@ -13,32 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// @exportToFramework:skipFile()
+
 package androidx.appsearch.app.cts;
 
 import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
-import androidx.appsearch.localstorage.LocalStorage;
+import androidx.appsearch.platformstorage.PlatformStorage;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-// TODO(b/175801531): Support this test for the platform backend once the global search API is
-//  public.
-public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestBase {
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTestBase {
     @Override
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
-        return LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context).setDatabaseName(dbName).build());
+        return PlatformStorage.createSearchSession(
+                new PlatformStorage.SearchContext.Builder(context).setDatabaseName(dbName).build());
     }
 
     @Override
     protected ListenableFuture<GlobalSearchSession> createGlobalSearchSession() {
         Context context = ApplicationProvider.getApplicationContext();
-        return LocalStorage.createGlobalSearchSession(context);
+        return PlatformStorage.createGlobalSearchSession(context);
     }
 }
