@@ -4717,7 +4717,7 @@ public class ViewCompat {
 
         @Nullable
         public static WindowInsetsCompat getRootWindowInsets(@NonNull View v) {
-            return WindowInsetsCompat.getRootInsets(v);
+            return WindowInsetsCompat.Api21ReflectionHolder.getRootWindowInsets(v);
         }
 
         static WindowInsetsCompat computeSystemWindowInsets(@NonNull View v,
