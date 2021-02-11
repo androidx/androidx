@@ -109,6 +109,36 @@ class CompilationResultSubject(
     }
 
     /**
+     * Asserts free form output from the compilation output.
+     */
+    fun hasRawOutputContaining(expected: String) = chain {
+        val found = compilationResult.rawOutput().contains(expected)
+        if (!found) {
+            failWithActual(
+                simpleFact("Did not find $expected in the output.")
+            )
+        }
+    }
+
+    /**
+     * Checks the compilation didn't have any warnings.
+     */
+    fun hasNoWarnings() = hasDiagnosticCount(Diagnostic.Kind.WARNING, 0)
+
+    /**
+     * Check the compilation had [expected] number of error messages.
+     */
+    fun hasErrorCount(expected: Int) = hasDiagnosticCount(Diagnostic.Kind.ERROR, expected)
+
+    private fun hasDiagnosticCount(kind: Diagnostic.Kind, expected: Int) = chain {
+        val actual = compilationResult.diagnosticsOfKind(kind).size
+        if (actual != expected) {
+            failWithActual(
+                simpleFact("expected $expected $kind messages, found $actual")
+            )
+        }
+    }
+    /**
      * Asserts that compilation has a warning with the given text.
      *
      * @see hasError
@@ -375,6 +405,7 @@ internal class KotlinCompileTestingCompilationResult(
     processor: SyntheticProcessor,
     successfulCompilation: Boolean,
     outputSourceDirs: List<File>,
+    private val rawOutput: String,
 ) : CompilationResult(
     testRunnerName = testRunner.name,
     processor = processor,
@@ -401,7 +432,5 @@ internal class KotlinCompileTestingCompilationResult(
         }
     }
 
-    override fun rawOutput(): String {
-        return delegate.messages
-    }
+    override fun rawOutput() = rawOutput
 }

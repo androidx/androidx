@@ -61,7 +61,7 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
                 public void $setterName(int id) { this.$fieldName = id; }
             """
         ) { entity, invocation ->
-            assertThat(entity.type.toString(), `is`("foo.bar.MyEntity"))
+            assertThat(entity.type.typeName.toString(), `is`("foo.bar.MyEntity"))
             assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
             val intType = invocation.processingEnv.requireType(TypeName.INT)
@@ -79,6 +79,6 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
             )
             assertThat(field.setter, `is`(FieldSetter(setterName, intType, CallType.METHOD)))
             assertThat(field.getter, `is`(FieldGetter(getterName, intType, CallType.METHOD)))
-        }.compilesWithoutError()
+        }
     }
 }

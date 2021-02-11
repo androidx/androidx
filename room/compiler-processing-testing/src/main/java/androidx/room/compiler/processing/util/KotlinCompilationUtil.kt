@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.util
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import java.io.File
+import java.io.OutputStream
 
 /**
  * Helper class for Kotlin Compile Testing library to have common setup for room.
@@ -25,6 +26,7 @@ import java.io.File
 internal object KotlinCompilationUtil {
     fun prepareCompilation(
         sources: List<Source>,
+        outputStream: OutputStream,
         classpaths: List<File> = emptyList()
     ): KotlinCompilation {
         val compilation = KotlinCompilation()
@@ -44,6 +46,7 @@ internal object KotlinCompilationUtil {
         compilation.inheritClassPath = true
         compilation.verbose = false
         compilation.classpaths += classpaths
+        compilation.messageOutputStream = outputStream
         return compilation
     }
 }

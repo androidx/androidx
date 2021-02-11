@@ -51,8 +51,18 @@ class XTypeElementTest {
             class InFooBar
             """.trimIndent()
         )
+        val src3 = Source.java(
+            "foo.bar.Outer",
+            """
+            package foo.bar;
+            public class Outer {
+                public static class Nested {
+                }
+            }
+            """
+        )
         runProcessorTest(
-            sources = listOf(src1, src2)
+            sources = listOf(src1, src2, src3)
         ) { invocation ->
             invocation.processingEnv.requireTypeElement("TopLevel").let {
                 assertThat(it.packageName).isEqualTo("")
@@ -65,6 +75,22 @@ class XTypeElementTest {
                 assertThat(it.name).isEqualTo("InFooBar")
                 assertThat(it.qualifiedName).isEqualTo("foo.bar.InFooBar")
                 assertThat(it.className).isEqualTo(ClassName.get("foo.bar", "InFooBar"))
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.Outer").let {
+                assertThat(it.packageName).isEqualTo("foo.bar")
+                assertThat(it.name).isEqualTo("Outer")
+                assertThat(it.qualifiedName).isEqualTo("foo.bar.Outer")
+                assertThat(it.className).isEqualTo(
+                    ClassName.get("foo.bar", "Outer")
+                )
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.Outer.Nested").let {
+                assertThat(it.packageName).isEqualTo("foo.bar")
+                assertThat(it.name).isEqualTo("Nested")
+                assertThat(it.qualifiedName).isEqualTo("foo.bar.Outer.Nested")
+                assertThat(it.className).isEqualTo(
+                    ClassName.get("foo.bar", "Outer", "Nested")
+                )
             }
             if (invocation.isKsp) {
                 // these are KSP specific tests, typenames are tested elsewhere

@@ -66,12 +66,7 @@ internal sealed class KspTypeElement(
     }
 
     override val qualifiedName: String by lazy {
-        val pkgName = declaration.getNormalizedPackageName()
-        if (pkgName.isBlank()) {
-            declaration.simpleName.asString()
-        } else {
-            "$pkgName.${declaration.simpleName.asString()}"
-        }
+        (declaration.qualifiedName ?: declaration.simpleName).asString()
     }
 
     override val type: KspType by lazy {
