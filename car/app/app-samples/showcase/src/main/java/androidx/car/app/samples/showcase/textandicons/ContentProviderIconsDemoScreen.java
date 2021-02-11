@@ -76,6 +76,7 @@ public final class ContentProviderIconsDemoScreen extends Screen {
     }
 
     @Nullable
+    @SuppressWarnings("CatchAndPrintStackTrace")
     private Uri customIconUri(int resId) {
         Uri uri = null;
         try {

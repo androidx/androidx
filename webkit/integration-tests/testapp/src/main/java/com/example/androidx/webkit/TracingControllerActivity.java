@@ -60,6 +60,7 @@ public class TracingControllerActivity extends AppCompatActivity {
     private String mLogPath;
 
     @Override
+    @SuppressWarnings("CatchAndPrintStackTrace")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tracing_controller);
