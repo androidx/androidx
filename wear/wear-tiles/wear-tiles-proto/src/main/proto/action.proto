@@ -3,8 +3,7 @@ syntax = "proto3";
 
 package androidx.wear.tiles.proto;
 
-
-
+import "state.proto";
 
 option java_package = "androidx.wear.tiles.proto";
 option java_outer_classname = "ActionProto";
@@ -29,7 +28,9 @@ message LaunchAction {
 
 // An action used to load (or reload) the tile contents.
 message LoadAction {
-  // Nothing yet.
+  // The state to load the next tile with. This will be included in the
+  // TileRequest sent after this action is invoked by a Clickable.
+  State request_state = 1;
 }
 
 // An action that can be used by a layout element.

@@ -59,7 +59,7 @@ public final class ResourceBuilders {
     public static final class AndroidImageResourceByResId {
         private final ResourceProto.AndroidImageResourceByResId mImpl;
 
-        AndroidImageResourceByResId(ResourceProto.AndroidImageResourceByResId impl) {
+        private AndroidImageResourceByResId(ResourceProto.AndroidImageResourceByResId impl) {
             this.mImpl = impl;
         }
 
@@ -69,12 +69,16 @@ public final class ResourceBuilders {
             return new Builder();
         }
 
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AndroidImageResourceByResId fromProto(
+                @NonNull ResourceProto.AndroidImageResourceByResId proto) {
+            return new AndroidImageResourceByResId(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ResourceProto.AndroidImageResourceByResId toProto() {
             return mImpl;
@@ -101,7 +105,7 @@ public final class ResourceBuilders {
             /** Builds an instance from accumulated values. */
             @NonNull
             public AndroidImageResourceByResId build() {
-                return new AndroidImageResourceByResId(mImpl.build());
+                return AndroidImageResourceByResId.fromProto(mImpl.build());
             }
         }
     }
@@ -113,7 +117,7 @@ public final class ResourceBuilders {
     public static final class InlineImageResource {
         private final ResourceProto.InlineImageResource mImpl;
 
-        InlineImageResource(ResourceProto.InlineImageResource impl) {
+        private InlineImageResource(ResourceProto.InlineImageResource impl) {
             this.mImpl = impl;
         }
 
@@ -123,12 +127,16 @@ public final class ResourceBuilders {
             return new Builder();
         }
 
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static InlineImageResource fromProto(
+                @NonNull ResourceProto.InlineImageResource proto) {
+            return new InlineImageResource(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ResourceProto.InlineImageResource toProto() {
             return mImpl;
@@ -149,7 +157,10 @@ public final class ResourceBuilders {
                 return this;
             }
 
-            /** Sets the native width of the image, in pixels. */
+            /**
+             * Sets the native width of the image, in pixels. Only required for formats (e.g.
+             * IMAGE_FORMAT_RGB_565) where the image data does not include size.
+             */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setWidthPx(@Dimension(unit = PX) int widthPx) {
@@ -157,7 +168,10 @@ public final class ResourceBuilders {
                 return this;
             }
 
-            /** Sets the native height of the image, in pixels. */
+            /**
+             * Sets the native height of the image, in pixels. Only required for formats (e.g.
+             * IMAGE_FORMAT_RGB_565) where the image data does not include size.
+             */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setHeightPx(@Dimension(unit = PX) int heightPx) {
@@ -165,7 +179,12 @@ public final class ResourceBuilders {
                 return this;
             }
 
-            /** Sets the format of the byte array data representing the image. */
+            /**
+             * Sets the format of the byte array data representing the image. May be left
+             * unspecified or set to IMAGE_FORMAT_UNDEFINED in which case the platform will attempt
+             * to extract this from the raw image data. If the platform does not support the format,
+             * the image will not be decoded or displayed.
+             */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setFormat(@ImageFormat int format) {
@@ -176,7 +195,7 @@ public final class ResourceBuilders {
             /** Builds an instance from accumulated values. */
             @NonNull
             public InlineImageResource build() {
-                return new InlineImageResource(mImpl.build());
+                return InlineImageResource.fromProto(mImpl.build());
             }
         }
     }
@@ -188,7 +207,7 @@ public final class ResourceBuilders {
     public static final class ImageResource {
         private final ResourceProto.ImageResource mImpl;
 
-        ImageResource(ResourceProto.ImageResource impl) {
+        private ImageResource(ResourceProto.ImageResource impl) {
             this.mImpl = impl;
         }
 
@@ -198,12 +217,15 @@ public final class ResourceBuilders {
             return new Builder();
         }
 
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ImageResource fromProto(@NonNull ResourceProto.ImageResource proto) {
+            return new ImageResource(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ResourceProto.ImageResource toProto() {
             return mImpl;
@@ -254,7 +276,7 @@ public final class ResourceBuilders {
             /** Builds an instance from accumulated values. */
             @NonNull
             public ImageResource build() {
-                return new ImageResource(mImpl.build());
+                return ImageResource.fromProto(mImpl.build());
             }
         }
     }
@@ -263,7 +285,7 @@ public final class ResourceBuilders {
     public static final class Resources {
         private final ResourceProto.Resources mImpl;
 
-        Resources(ResourceProto.Resources impl) {
+        private Resources(ResourceProto.Resources impl) {
             this.mImpl = impl;
         }
 
@@ -273,12 +295,15 @@ public final class ResourceBuilders {
             return new Builder();
         }
 
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Resources fromProto(@NonNull ResourceProto.Resources proto) {
+            return new Resources(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ResourceProto.Resources toProto() {
             return mImpl;
@@ -328,7 +353,7 @@ public final class ResourceBuilders {
             /** Builds an instance from accumulated values. */
             @NonNull
             public Resources build() {
-                return new Resources(mImpl.build());
+                return Resources.fromProto(mImpl.build());
             }
         }
     }

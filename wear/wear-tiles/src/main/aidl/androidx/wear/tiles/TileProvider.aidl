@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,11 @@ package androidx.wear.tiles;
 
 import android.widget.RemoteViews;
 import androidx.wear.tiles.TileCallback;
+import androidx.wear.tiles.TileAddEventData;
+import androidx.wear.tiles.TileEnterEventData;
+import androidx.wear.tiles.TileLeaveEventData;
 import androidx.wear.tiles.TileRequestData;
+import androidx.wear.tiles.TileRemoveEventData;
 import androidx.wear.tiles.ResourcesCallback;
 import androidx.wear.tiles.ResourcesRequestData;
 
@@ -66,12 +70,26 @@ interface TileProvider {
      *
      * @since version 1
      */
-    oneway void onTileAdd(int id) = 3;
+    oneway void onTileAddEvent(in TileAddEventData requestData) = 5;
 
     /**
      * Called when the Tile is removed from the carousel.
      *
      * @since version 1
      */
-    oneway void onTileRemove(int id) = 4;
+    oneway void onTileRemoveEvent(in TileRemoveEventData requestData) = 6;
+
+    /**
+     * Called when the Tile is entered (i.e. the user browses to it).
+     *
+     * @since version 1
+     */
+    oneway void onTileEnterEvent(in TileEnterEventData requestData) = 7;
+
+    /**
+     * Called when the Tile is left (i.e. the user browses away from it).
+     *
+     * @since version 1
+     */
+    oneway void onTileLeaveEvent(in TileLeaveEventData requestData) = 8;
 }

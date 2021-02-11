@@ -4,8 +4,6 @@ syntax = "proto3";
 package androidx.wear.tiles.proto;
 
 
-
-
 option java_package = "androidx.wear.tiles.proto";
 option java_outer_classname = "DimensionProto";
 
@@ -18,7 +16,13 @@ message DpProp {
 // A type for font sizes, measured in sp.
 message SpProp {
   // The value, in sp.
-  uint32 value = 1;
+  int32 value = 1;
+}
+
+// A type for font spacing, measured in em.
+message EmProp {
+  // The value, in em.
+  float value = 1;
 }
 
 // A type for angular dimensions, measured in degrees.
@@ -52,14 +56,6 @@ message ProportionalDimensionProp {
   uint32 aspect_ratio_height = 2;
 }
 
-// A dimension that can be linear or angular.
-message LinearOrAngularDimension {
-  oneof inner {
-    DpProp linear_dimension = 1;
-    DegreesProp angular_dimension = 2;
-  }
-}
-
 // A dimension that can be applied to a container.
 message ContainerDimension {
   oneof inner {
@@ -75,5 +71,13 @@ message ImageDimension {
     DpProp linear_dimension = 1;
     ExpandedDimensionProp expanded_dimension = 2;
     ProportionalDimensionProp proportional_dimension = 3;
+  }
+}
+
+// A dimension that can be applied to a spacer.
+message SpacerDimension {
+  oneof inner {
+    DpProp linear_dimension = 1;
+    // TODO(b/169137847): Add ExpandedDimensionProp
   }
 }

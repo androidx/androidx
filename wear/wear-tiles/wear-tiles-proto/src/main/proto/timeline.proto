@@ -4,9 +4,7 @@ syntax = "proto3";
 
 package androidx.wear.tiles.proto;
 
-
 import "layout.proto";
-
 
 option java_package = "androidx.wear.tiles.proto";
 option java_outer_classname = "TimelineProto";
@@ -23,11 +21,13 @@ message TimeInterval {
 
 // One piece of renderable content along with the time that it is valid for.
 message TimelineEntry {
-  // The contents of this timeline entry.
-  LayoutElement content = 1;
-
   // The validity period for this timeline entry.
   TimeInterval validity = 2;
+
+  // The contents of this timeline entry.
+  Layout layout = 3;
+
+  reserved 1;
 }
 
 // A collection of TimelineEntry items.

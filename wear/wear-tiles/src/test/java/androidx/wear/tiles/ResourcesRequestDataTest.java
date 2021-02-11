@@ -35,8 +35,8 @@ public final class ResourcesRequestDataTest {
         RequestProto.ResourcesRequest request =
                 RequestProto.ResourcesRequest.newBuilder().setVersion("v123").build();
         ResourcesRequestData wrapper =
-                new ResourcesRequestData(request.toByteArray(),
-                        ResourcesRequestData.VERSION_PROTOBUF);
+                new ResourcesRequestData(
+                        request.toByteArray(), ResourcesRequestData.VERSION_PROTOBUF);
 
         Parcel parcel = Parcel.obtain();
         wrapper.writeToParcel(parcel, 0);
