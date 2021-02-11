@@ -16,6 +16,8 @@
 
 package androidx.car.app.testing;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.car.app.IOnDoneCallback;
@@ -28,12 +30,11 @@ import androidx.car.app.serialization.Bundleable;
  */
 @RestrictTo(Scope.LIBRARY)
 public class TestOnDoneCallbackStub extends IOnDoneCallback.Stub {
-
     @Override
-    public void onSuccess(Bundleable response) {
+    public void onSuccess(@Nullable Bundleable response) {
     }
 
     @Override
-    public void onFailure(Bundleable failureResponse) {
+    public void onFailure(@NonNull Bundleable failureResponse) {
     }
 }

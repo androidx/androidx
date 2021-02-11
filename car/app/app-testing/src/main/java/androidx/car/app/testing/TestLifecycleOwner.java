@@ -47,6 +47,7 @@ public class TestLifecycleOwner implements LifecycleOwner {
      * androidx.car.app.ScreenManager} APIs, but don't want to setup the {@link
      * androidx.car.app.CarAppService} for testing.
      */
+    @NonNull
     public LifecycleRegistry getRegistry() {
         return mRegistry;
     }
