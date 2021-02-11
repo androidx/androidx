@@ -120,7 +120,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
         return simpleChannelFlow {
             val loadStates = MutableLoadStateCollection()
 
-            suspend fun dispatchIfValid(type: LoadType, state: LoadState) {
+            suspend fun dispatchIfValid(state: LoadState) {
                 // not loading events are sent w/ insert-drop events.
                 if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(
                         state,
@@ -135,6 +135,9 @@ internal class PageFetcher<Key : Any, Value : Any>(
 //                        )
 //                    )
 
+                    println()
+                    println("Valid and dispatched: " + loadStates.snapshot())
+
                     send(
                         PageEvent.LoadStateUpdate(loadStates.snapshot())
                     )
@@ -147,18 +150,20 @@ internal class PageFetcher<Key : Any, Value : Any>(
             launch {
                 var prev = LoadStates.IDLE
                 accessor.state.collect {
+                    // TODO: Can this be simplified to only dispatch once if any updates are valid?
                     if (prev.refresh != it.refresh) {
                         loadStates.set(REFRESH, true, it.refresh)
-                        dispatchIfValid(REFRESH, it.refresh)
+                        dispatchIfValid(it.refresh)
                     }
                     if (prev.prepend != it.prepend) {
                         loadStates.set(PREPEND, true, it.prepend)
-                        dispatchIfValid(PREPEND, it.prepend)
+                        dispatchIfValid(it.prepend)
                     }
                     if (prev.append != it.append) {
                         loadStates.set(APPEND, true, it.append)
-                        dispatchIfValid(APPEND, it.append)
+                        dispatchIfValid(it.append)
                     }
+
                     prev = it
                 }
             }
@@ -188,8 +193,21 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         send(event)
                     }
                     is PageEvent.LoadStateUpdate -> {
-                        loadStates.set(event.combinedLoadStates)
-                        send(event)
+                        // TODO: Load states should not be entirely replaced with event
+                        println()
+                        println("Incoming: \n" + event.combinedLoadStates)
+                        println("Current: \n" + loadStates.snapshot())
+                        // println("Accessor state: \n" + accessor.state.value)
+
+                        loadStates.set(
+                            sourceLoadStates = event.combinedLoadStates.source,
+                            remoteLoadStates = accessor.state.value
+                            // remoteLoadStates = loadStates.snapshot().mediator
+                        )
+
+                        println("Combined: \n" + loadStates.snapshot())
+
+                        send(event.copy(combinedLoadStates = loadStates.snapshot()))
                     }
                 }
             }

@@ -223,7 +223,7 @@ internal sealed class PageEvent<T : Any> {
     data class LoadStateUpdate<T : Any>(
         val combinedLoadStates: CombinedLoadStates
     ) : PageEvent<T>() {
-        // TODO: Add init check?
+        // TODO: Add init checks?
         companion object {
             /**
              * DataSource loads with no more to load must carry LoadState.NotLoading with them,

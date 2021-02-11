@@ -2749,8 +2749,10 @@ class PageFetcherSnapshotTest {
                     )
                 ),
                 LoadStateUpdate(
-                    localLoadStatesOf(
-                        refreshLocal = Loading
+                    remoteLoadStatesOf(
+                        refresh = Loading,
+                        refreshLocal = Loading,
+                        refreshRemote = Loading
                     )
                 ),
                 LoadStateUpdate(
@@ -2907,14 +2909,16 @@ class PageFetcherSnapshotTest {
                 )
             ),
             LoadStateUpdate<Int>(
-                localLoadStatesOf(
-                    refreshLocal = Loading
+                remoteLoadStatesOf(
+                    refresh = Loading,
+                    refreshLocal = Loading,
+                    refreshRemote = Loading
                 )
             ),
             LoadStateUpdate<PageEvent<Int>>(
                 remoteLoadStatesOf(
                     refresh = NotLoading.Complete,
-                    refreshLocal = Loading,
+                    refreshLocal = NotLoading.Incomplete,
                     refreshRemote = NotLoading.Complete
                 )
             ),
@@ -2922,7 +2926,7 @@ class PageFetcherSnapshotTest {
                 remoteLoadStatesOf(
                     refresh = NotLoading.Complete,
                     prepend = NotLoading.Complete,
-                    refreshLocal = Loading,
+                    refreshLocal = NotLoading.Incomplete,
                     refreshRemote = NotLoading.Complete,
                     prependRemote = NotLoading.Complete
                 )
@@ -2932,7 +2936,7 @@ class PageFetcherSnapshotTest {
                     refresh = NotLoading.Complete,
                     prepend = NotLoading.Complete,
                     append = NotLoading.Complete,
-                    refreshLocal = Loading,
+                    refreshLocal = NotLoading.Incomplete,
                     refreshRemote = NotLoading.Complete,
                     prependRemote = NotLoading.Complete,
                     appendRemote = NotLoading.Complete
@@ -2950,15 +2954,15 @@ class PageFetcherSnapshotTest {
                 placeholdersBefore = 0,
                 placeholdersAfter = 0,
                 combinedLoadStates = remoteLoadStatesOf(
-                    refresh = NotLoading(endOfPaginationReached = true),
-                    prepend = NotLoading(endOfPaginationReached = true),
-                    append = NotLoading(endOfPaginationReached = true),
-                    refreshLocal = NotLoading(endOfPaginationReached = false),
-                    prependLocal = NotLoading(endOfPaginationReached = true),
-                    appendLocal = NotLoading(endOfPaginationReached = true),
-                    refreshRemote = NotLoading(endOfPaginationReached = true),
-                    prependRemote = NotLoading(endOfPaginationReached = true),
-                    appendRemote = NotLoading(endOfPaginationReached = true),
+                    refresh = NotLoading.Complete,
+                    prepend = NotLoading.Complete,
+                    append = NotLoading.Complete,
+                    refreshLocal = NotLoading.Incomplete,
+                    prependLocal = NotLoading.Complete,
+                    appendLocal = NotLoading.Complete,
+                    refreshRemote = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete,
+                    appendRemote = NotLoading.Complete,
                 )
             )
         )
@@ -3741,8 +3745,10 @@ class PageFetcherSnapshotTest {
                 )
             ),
             LoadStateUpdate<Int>(
-                localLoadStatesOf(
-                    refreshLocal = Loading
+                remoteLoadStatesOf(
+                    refresh = Loading,
+                    refreshLocal = Loading,
+                    refreshRemote = Loading
                 )
             ),
             Refresh(
