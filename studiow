@@ -23,6 +23,9 @@ function usage() {
   echo " media"
   echo "  Open the project subset media: Media, Media2, and MediaRouter"
   echo
+  echo " w, wear"
+  echo "  Open the project subset for Wear OS libraries"
+  echo
   echo " a, all"
   echo "  Open the project subset all"
   echo
@@ -62,6 +65,9 @@ while [ "$1" != "" ]; do
   fi
   if [ "$subsetArg" == "media" ]; then
     newSubset=media
+  fi
+  if [ "$subsetArg" == "w" -o "$subsetArg" == "wear" ]; then
+    newSubset=wear
   fi
   if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
     newSubset=all
