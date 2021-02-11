@@ -131,7 +131,7 @@ public final class RequestToPlatformConverter {
         android.app.appsearch.GetByUriRequest.Builder platformBuilder =
                 new android.app.appsearch.GetByUriRequest.Builder()
                         .setNamespace(jetpackRequest.getNamespace())
-                        .addUri(jetpackRequest.getUris());
+                        .addUris(jetpackRequest.getUris());
         for (Map.Entry<String, List<String>> projection :
                 jetpackRequest.getProjectionsInternal().entrySet()) {
             platformBuilder.addProjection(projection.getKey(), projection.getValue());
@@ -149,7 +149,7 @@ public final class RequestToPlatformConverter {
         Preconditions.checkNotNull(jetpackRequest);
         return new android.app.appsearch.RemoveByUriRequest.Builder()
                 .setNamespace(jetpackRequest.getNamespace())
-                .addUri(jetpackRequest.getUris())
+                .addUris(jetpackRequest.getUris())
                 .build();
     }
 
