@@ -136,6 +136,7 @@ public class ActionRow extends FrameLayout {
                     addAction(iconItem, tint).setOnClickListener(
                             new OnClickListener() {
                                 @Override
+                                @SuppressWarnings("CatchAndPrintStackTrace")
                                 public void onClick(View v) {
                                     try {
                                         // TODO - should log events here

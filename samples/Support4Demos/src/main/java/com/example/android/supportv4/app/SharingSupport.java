@@ -70,6 +70,7 @@ public class SharingSupport extends Activity {
                 .startChooser();
     }
 
+    @SuppressWarnings("CatchAndPrintStackTrace")
     public void onShareFileClick(View v) {
         try {
             // This file will be accessed by the target of the share through
@@ -90,6 +91,7 @@ public class SharingSupport extends Activity {
         }
     }
 
+    @SuppressWarnings("CatchAndPrintStackTrace")
     public void onShareMultipleFileClick(View v) {
         try {
             // These files will be accessed by the target of the share through
