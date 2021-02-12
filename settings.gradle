@@ -253,6 +253,7 @@ includeProject(":compose:material:material-icons-extended", "compose/material/ma
 includeProject(":compose:material:material-ripple", "compose/material/material-ripple", [BuildType.COMPOSE])
 includeProject(":compose:material:material:icons:generator", "compose/material/material/icons/generator", [BuildType.COMPOSE])
 includeProject(":compose:material:material:integration-tests:material-demos", "compose/material/material/integration-tests/material-demos", [BuildType.COMPOSE])
+includeProject(":compose:material:material:integration-tests:material-catalog", "compose/material/material/integration-tests/material-catalog", [BuildType.COMPOSE])
 includeProject(":compose:material:material:integration-tests:material-studies", "compose/material/material/integration-tests/material-studies", [BuildType.COMPOSE])
 includeProject(":compose:material:material:material-samples", "compose/material/material/samples", [BuildType.COMPOSE])
 includeProject(":compose:runtime", "compose/runtime", [BuildType.COMPOSE])
