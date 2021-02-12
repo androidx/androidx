@@ -103,6 +103,7 @@ public class EnqueueRunnable implements Runnable {
     /**
      * @return The {@link Operation} that encapsulates the state of the {@link EnqueueRunnable}.
      */
+    @NonNull
     public Operation getOperation() {
         return mOperation;
     }
@@ -354,8 +355,18 @@ public class EnqueueRunnable implements Runnable {
         // requiresBatteryNotLow and requiresStorageNotLow require API 26 for JobScheduler.
         // Delegate to ConstraintTrackingWorker between API 23-25.
         Constraints constraints = workSpec.constraints;
-        if (constraints.requiresBatteryNotLow() || constraints.requiresStorageNotLow()) {
-            String workerClassName = workSpec.workerClassName;
+        String workerClassName = workSpec.workerClassName;
+        // Check if the Worker is a ConstraintTrackingWorker already. Otherwise we could end up
+        // wrapping a ConstraintTrackingWorker with another and build a taller stack.
+        // This usually happens when a developer accidentally enqueues() a named WorkRequest
+        // with an ExistingWorkPolicy.KEEP and subsequent inserts no-op (while the state of the
+        // Worker is not ENQUEUED or RUNNING i.e. the Worker probably just got done & the app is
+        // holding on to a reference of WorkSpec which got updated). We end up reusing the
+        // WorkSpec, and get a ConstraintTrackingWorker (instead of the original Worker class).
+        boolean isConstraintTrackingWorker =
+                workerClassName.equals(ConstraintTrackingWorker.class.getName());
+        if (!isConstraintTrackingWorker
+                && (constraints.requiresBatteryNotLow() || constraints.requiresStorageNotLow())) {
             Data.Builder builder = new Data.Builder();
             // Copy all arguments
             builder.putAll(workSpec.input)
