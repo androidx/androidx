@@ -38,11 +38,11 @@ public interface GlobalSearchSession extends Closeable {
      * {@link SetSchemaRequest.Builder#setDocumentClassVisibilityForSystemUi}
      * when building a schema.
      *
-     * <p>See {@link AppSearchSession#search(String, SearchSpec)} for a detailed explanation on
+     * <p>See {@link AppSearchSession#search} for a detailed explanation on
      * forming a query string.
      *
      * <p>This method is lightweight. The heavy work will be done in
-     * {@link SearchResults#getNextPage()}.
+     * {@link SearchResults#getNextPage}.
      *
      * @param queryExpression query string to search.
      * @param searchSpec      spec for setting document filters, adding projection, setting term
