@@ -18,25 +18,37 @@ package androidx.appcompat.demo.receivecontent;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import java.util.concurrent.ExecutorService;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 final class MyExecutors {
     private MyExecutors() {}
 
-    private static final Handler MAIN = new Handler(Looper.getMainLooper());
-    private static final ExecutorService BG = Executors.newSingleThreadExecutor();
+    private static final ListeningScheduledExecutorService BG =
+            MoreExecutors.listeningDecorator(Executors.newSingleThreadScheduledExecutor());
+
+    private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
+    private static final Executor MAIN_EXECUTOR =
+            runnable -> {
+                if (!MAIN_HANDLER.post(runnable)) {
+                    Log.e(Logcat.TAG, "Failed to post runnable on main thread");
+                }
+            };
 
     @NonNull
-    public static Handler main() {
-        return MAIN;
+    public static ListeningScheduledExecutorService bg() {
+        return BG;
     }
 
     @NonNull
-    public static ExecutorService bg() {
-        return BG;
+    public static Executor main() {
+        return MAIN_EXECUTOR;
     }
 }
