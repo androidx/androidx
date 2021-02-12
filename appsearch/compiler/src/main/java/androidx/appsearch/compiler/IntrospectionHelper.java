@@ -17,6 +17,7 @@ package androidx.appsearch.compiler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import com.squareup.javapoet.ClassName;
 
@@ -41,6 +42,9 @@ import javax.lang.model.util.Types;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class IntrospectionHelper {
+    @VisibleForTesting
+    static final String GEN_CLASS_PREFIX = "$$__AppSearch__";
+
     static final String APPSEARCH_PKG = "androidx.appsearch.app";
     static final String APPSEARCH_EXCEPTION_PKG = "androidx.appsearch.exceptions";
     static final String APPSEARCH_EXCEPTION_SIMPLE_NAME = "AppSearchException";
@@ -116,6 +120,24 @@ class IntrospectionHelper {
             ret.put(key, entry.getValue().getValue());
         }
         return ret;
+    }
+
+    /**
+     * Creates the name of output class. $$__AppSearch__Foo for Foo, $$__AppSearch__Foo$$__Bar
+     * for inner class Foo.Bar.
+     */
+    public ClassName getDocumentClassFactoryForClass(String pkg, String className) {
+        String genClassName = GEN_CLASS_PREFIX + className.replace(".", "$$__");
+        return ClassName.get(pkg, genClassName);
+    }
+
+    /**
+     * Creates the name of output class. $$__AppSearch__Foo for Foo, $$__AppSearch__Foo$$__Bar
+     * for inner class Foo.Bar.
+     */
+    public ClassName getDocumentClassFactoryForClass(ClassName clazz) {
+        String className = clazz.canonicalName().substring(clazz.packageName().length() + 1);
+        return getDocumentClassFactoryForClass(clazz.packageName(), className);
     }
 
     public ClassName getAppSearchClass(String clazz, String... nested) {

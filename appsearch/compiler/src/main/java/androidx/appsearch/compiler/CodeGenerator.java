@@ -17,8 +17,8 @@
 package androidx.appsearch.compiler;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -35,9 +35,6 @@ import javax.lang.model.element.Modifier;
  * between the document class and a {@link androidx.appsearch.app.GenericDocument}.
  */
 class CodeGenerator {
-    @VisibleForTesting
-    static final String GEN_CLASS_PREFIX = "$$__AppSearch__";
-
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
     private final DocumentModel mModel;
@@ -85,12 +82,8 @@ class CodeGenerator {
     private TypeSpec createClass() throws ProcessingException {
         // Gets the full name of target class.
         String qualifiedName = mModel.getClassElement().getQualifiedName().toString();
-        String packageName = mOutputPackage + ".";
-
-        // Creates the name of output class. $$__AppSearch__Foo for Foo, $$__AppSearch__Foo$$__Bar
-        // for inner class Foo.Bar.
-        String genClassName = GEN_CLASS_PREFIX
-                + qualifiedName.substring(packageName.length()).replace(".", "$$__");
+        String className = qualifiedName.substring(mOutputPackage.length() + 1);
+        ClassName genClassName = mHelper.getDocumentClassFactoryForClass(mOutputPackage, className);
 
         TypeName genClassType = TypeName.get(mModel.getClassElement().asType());
         TypeName factoryType = ParameterizedTypeName.get(
