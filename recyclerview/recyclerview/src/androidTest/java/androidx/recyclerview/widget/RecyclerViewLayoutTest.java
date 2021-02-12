@@ -2710,7 +2710,19 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         TestLayoutManager layoutManager = new SimpleTestLayoutManager();
 
         RecyclerView recyclerView = new RecyclerView(getActivity());
-        recyclerView.setAdapter(new TestAdapter(1000));
+        // Setting height of RV to a fixed value so that it doesn't change based on the device
+        //  that the test is running on.
+        recyclerView.setLayoutParams(
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 500)
+        );
+        recyclerView.setAdapter(
+                new TestAdapter(
+                        10,
+                        new RecyclerView.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                100)
+                )
+        );
         recyclerView.setLayoutManager(layoutManager);
         layoutManager.expectLayouts(1);
         setRecyclerView(recyclerView);
