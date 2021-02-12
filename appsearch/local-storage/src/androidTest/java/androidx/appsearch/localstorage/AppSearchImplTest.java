@@ -782,22 +782,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testHasSchemaType() throws Exception {
-        // Nothing exists yet
-        assertThat(mAppSearchImpl.hasSchemaTypeLocked("package", "database", "Schema")).isFalse();
-
-        mAppSearchImpl.setSchema("package", "database",
-                Collections.singletonList(new AppSearchSchema.Builder(
-                        "Schema").build()), /*schemasNotPlatformSurfaceable=*/
-                Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false);
-        assertThat(mAppSearchImpl.hasSchemaTypeLocked("package", "database", "Schema")).isTrue();
-
-        assertThat(mAppSearchImpl.hasSchemaTypeLocked("package", "database",
-                "UnknownSchema")).isFalse();
-    }
-
-    @Test
     public void testGetPackageToDatabases() throws Exception {
         Map<String, Set<String>> existingMapping = mAppSearchImpl.getPackageToDatabases();
         Map<String, Set<String>> expectedMapping = new ArrayMap<>();
