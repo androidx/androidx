@@ -123,7 +123,7 @@ public class DocumentStartJavaScriptActivity extends AppCompatActivity {
         webView.setWebViewClient(new MyWebViewClient(assetLoader));
         webView.getSettings().setJavaScriptEnabled(true);
 
-        HashSet allowedOriginRules = new HashSet(Arrays.asList("https://example.com"));
+        HashSet<String> allowedOriginRules = new HashSet<>(Arrays.asList("https://example.com"));
         // Add WebMessageListeners.
         WebViewCompat.addWebMessageListener(webView, "replyObject", allowedOriginRules,
                 new ReplyMessageListener(mReplyProxyButton));

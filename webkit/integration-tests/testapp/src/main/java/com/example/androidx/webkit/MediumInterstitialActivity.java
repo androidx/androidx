@@ -64,7 +64,7 @@ public class MediumInterstitialActivity extends AppCompatActivity {
 
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        Map<Integer, String> map = new ImmutableMap.Builder()
+        Map<Integer, String> map = new ImmutableMap.Builder<Integer, String>()
                 .put(R.id.malware_webview, SafeBrowsingHelpers.MALWARE_URL)
                 .put(R.id.phishing_webview, SafeBrowsingHelpers.PHISHING_URL)
                 .put(R.id.unwanted_software_webview, SafeBrowsingHelpers.UNWANTED_SOFTWARE_URL)

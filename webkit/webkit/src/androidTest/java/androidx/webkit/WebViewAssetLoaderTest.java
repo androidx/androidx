@@ -302,15 +302,12 @@ public class WebViewAssetLoaderTest {
         WebViewAssetLoader.Builder builder = new WebViewAssetLoader.Builder();
         for (int i = 1; i <= 5; ++i) {
             final String testContent = CONTENTS + Integer.toString(i);
-            builder.addPathHandler("/test_path_" + Integer.toString(i) + "/", new PathHandler() {
-                @Override
-                public WebResourceResponse handle(@NonNull String path) {
-                    try {
-                        InputStream is = new ByteArrayInputStream(testContent.getBytes(ENCODING));
-                        return new WebResourceResponse(null, null, is);
-                    } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException(e);
-                    }
+            builder.addPathHandler("/test_path_" + Integer.toString(i) + "/", path -> {
+                try {
+                    InputStream is = new ByteArrayInputStream(testContent.getBytes(ENCODING));
+                    return new WebResourceResponse(null, null, is);
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
                 }
             });
         }
