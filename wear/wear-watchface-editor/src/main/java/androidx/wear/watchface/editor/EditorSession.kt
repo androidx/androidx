@@ -334,10 +334,15 @@ public abstract class BaseEditorSession internal constructor(
         }
         // Fetch preview ComplicationData if possible.
         return providerInfo.providerComponentName?.let {
-            providerInfoRetriever.requestPreviewComplicationData(
-                it,
-                ComplicationType.fromWireType(providerInfo.complicationType)
-            )
+            try {
+                providerInfoRetriever.requestPreviewComplicationData(
+                    it,
+                    ComplicationType.fromWireType(providerInfo.complicationType)
+                )
+            } catch (e: Exception) {
+                // Something went wrong, so use fallback preview data.
+                makeFallbackPreviewData(providerInfo)
+            }
         } ?: makeFallbackPreviewData(providerInfo)
     }
 
@@ -362,6 +367,9 @@ public abstract class BaseEditorSession internal constructor(
     protected fun fetchComplicationPreviewData() {
         coroutineScope.launch {
             val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
+            // Unlikely but WCS could conceivably crash during this call. We could retry but it's
+            // not obvious if that'd succeed or if WCS session state is recoverable, it's probably
+            // better to crash and start over.
             val providerInfoArray = providerInfoRetriever.retrieveProviderInfo(
                 watchFaceComponentName,
                 complicationState.keys.toIntArray()

@@ -25,6 +25,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.Bundle
+import android.os.IBinder
 import android.os.Parcel
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationProviderInfo
@@ -543,8 +544,10 @@ public class EditorSessionTest {
                 val providerIcon =
                     Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
                 val complicationText = "TestText"
+                val mockBinder = Mockito.mock(IBinder::class.java)
 
                 `when`(mockProviderInfoService.apiVersion).thenReturn(1)
+                `when`(mockProviderInfoService.asBinder()).thenReturn(mockBinder)
 
                 doAnswer {
                     val callback = it.arguments[2] as IPreviewComplicationDataCallback
