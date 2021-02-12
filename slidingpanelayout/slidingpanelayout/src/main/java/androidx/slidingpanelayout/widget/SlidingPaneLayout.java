@@ -37,6 +37,7 @@ import android.view.accessibility.AccessibilityEvent;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
@@ -48,6 +49,8 @@ import androidx.customview.view.AbsSavedState;
 import androidx.customview.widget.Openable;
 import androidx.customview.widget.ViewDragHelper;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -199,6 +202,56 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     private final Rect mTmpRect = new Rect();
 
     final ArrayList<DisableLayerRunnable> mPostedRunnables = new ArrayList<>();
+
+    @LockMode
+    private int mLockMode;
+
+    /**
+     * User can freely swipe between list and detail panes.
+     */
+    public static final int LOCK_MODE_UNLOCKED = 0;
+
+    /**
+     * The list pane is locked open. The user cannot swipe from list to detail, but can swipe from
+     * detail to list. The app can close the list pane programmatically.
+     */
+    public static final int LOCK_MODE_LOCKED_OPEN = 1;
+
+    /**
+     * The list pane is locked closed. The user cannot swipe from detail to list, but can swipe from
+     * list to detail. The app can open the list pane programmatically.
+     */
+    public static final int LOCK_MODE_LOCKED_CLOSED = 2;
+
+    /**
+     * The user cannot swipe between list and detail panes, though the app can open or close the
+     * list pane programmatically.
+     */
+    public static final int LOCK_MODE_OPEN_ONLY = 3;
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({LOCK_MODE_UNLOCKED, LOCK_MODE_LOCKED_OPEN, LOCK_MODE_LOCKED_CLOSED,
+            LOCK_MODE_OPEN_ONLY})
+    @interface LockMode {
+    }
+
+    /**
+     * Set the lock mode that controls how the user can swipe between the panes.
+     */
+    public final void setLockMode(@LockMode int lockMode) {
+        mLockMode = lockMode;
+    }
+
+    /**
+     * Get the lock mode used to control over the swipe behavior.
+     *
+     * @return
+     * @see #setLockMode(int)
+     */
+    @LockMode
+    public final int getLockMode() {
+        return mLockMode;
+    }
 
     /**
      * Listener for monitoring events about sliding panes.
@@ -1417,18 +1470,31 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
+            boolean slidingDetailToList = isLayoutRtlSupport() ? dx > 0 : dx < 0;
+            int newLeft = left;
+            if (slidingDetailToList) {
+                if (getLockMode() == LOCK_MODE_LOCKED_CLOSED
+                        || getLockMode() == LOCK_MODE_OPEN_ONLY) {
+                    newLeft -= dx;
+                }
+            } else {
+                if (getLockMode() == LOCK_MODE_LOCKED_OPEN
+                        || getLockMode() == LOCK_MODE_OPEN_ONLY) {
+                    newLeft -= dx;
+                }
+            }
+
             final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
 
-            final int newLeft;
             if (isLayoutRtlSupport()) {
                 int startBound = getWidth()
                         - (getPaddingRight() + lp.rightMargin + mSlideableView.getWidth());
-                int endBound =  startBound - mSlideRange;
-                newLeft = Math.max(Math.min(left, startBound), endBound);
+                int endBound = startBound - mSlideRange;
+                newLeft = Math.max(Math.min(newLeft, startBound), endBound);
             } else {
                 int startBound = getPaddingLeft() + lp.leftMargin;
                 int endBound = startBound + mSlideRange;
-                newLeft = Math.min(Math.max(left, startBound), endBound);
+                newLeft = Math.min(Math.max(newLeft, startBound), endBound);
             }
             return newLeft;
         }
