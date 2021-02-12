@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro/*
- * Copyright 2021 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package androidx.benchmark.macro
 
+import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
 import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.InstrumentationResults
@@ -52,6 +40,13 @@ fun throwIfError(packageName: String) {
         )
     }
 
+    @SuppressLint("UnsafeNewApiCall")
+    val errorNotProfileable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        !applicationInfo.isProfileableByShell
+    } else {
+        false
+    }
+
     val errors = DeviceInfo.errors +
         // TODO: Merge this debuggable check / definition with Errors.kt in benchmark-common
         listOfNotNull(
@@ -66,6 +61,23 @@ fun throwIfError(packageName: String) {
                     benchmarks with debuggable=false. Debuggable affects execution speed
                     in ways that mean benchmark improvements might not carry over to a
                     real user's experience (or even regress release performance).
+                """.trimIndent()
+            ),
+            conditionalError(
+                hasError = errorNotProfileable,
+                id = "NOT-PROFILEABLE",
+                summary = "Benchmark Target is NOT profileable",
+                message = """
+                    Target package $packageName
+                    is running without profileable. Profileable is required to enable
+                    macrobenchmark to capture detailed trace information from the target process,
+                    such as System tracing sections definied in the app, or libraries.
+
+                    To make the target profileable, add the following in your target app's
+                    main AndroidManifest.xml, within the application tag:
+
+                    <!--suppress AndroidElementNotAllowed -->
+                    <profileable android:shell="true"/>
                 """.trimIndent()
             )
         ).sortedBy { it.id }
