@@ -26,6 +26,12 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -326,123 +332,54 @@ class Util {
         return result;
     }
 
-    /*
-Certificate:
-    Data:
-        Version: 3 (0x2)
-        Serial Number: 1 (0x1)
-    Signature Algorithm: ecdsa-with-SHA256
-        Issuer: CN=fake
-        Validity
-            Not Before: Jan  1 00:00:00 1970 GMT
-            Not After : Jan  1 00:00:00 2048 GMT
-        Subject: CN=fake
-        Subject Public Key Info:
-            Public Key Algorithm: id-ecPublicKey
-                Public-Key: (256 bit)
-                00000000  04 9b 60 70 8a 99 b6 bf  e3 b8 17 02 9e 93 eb 48  |..`p...........H|
-                00000010  23 b9 39 89 d1 00 bf a0  0f d0 2f bd 6b 11 bc d1  |#.9......./.k...|
-                00000020  19 53 54 28 31 00 f5 49  db 31 fb 9f 7d 99 bf 23  |.ST(1..I.1..}..#|
-                00000030  fb 92 04 6b 23 63 55 98  ad 24 d2 68 c4 83 bf 99  |...k#cU..$.h....|
-                00000040  62                                                |b|
-    Signature Algorithm: ecdsa-with-SHA256
-         30:45:02:20:67:ad:d1:34:ed:a5:68:3f:5b:33:ee:b3:18:a2:
-         eb:03:61:74:0f:21:64:4a:a3:2e:82:b3:92:5c:21:0f:88:3f:
-         02:21:00:b7:38:5c:9b:f2:9c:b1:27:86:37:44:df:eb:4a:b2:
-         6c:11:9a:c1:ff:b2:80:95:ce:fc:5f:26:b4:20:6e:9b:0d
-     */
-
-
-    static @NonNull
-    X509Certificate signPublicKeyWithPrivateKey(String keyToSignAlias,
-            String keyToSignWithAlias) {
-
+    static @NonNull X509Certificate generateAuthenticationKeyCert(String authKeyAlias,
+            String credentialKeyAlias,
+            byte[] proofOfProvisioningSha256) {
         KeyStore ks = null;
         try {
             ks = KeyStore.getInstance("AndroidKeyStore");
             ks.load(null);
 
-            /* First note that KeyStore.getCertificate() returns a self-signed X.509 certificate
-             * for the key in question. As per RFC 5280, section 4.1 an X.509 certificate has the
-             * following structure:
-             *
-             *   Certificate  ::=  SEQUENCE  {
-             *        tbsCertificate       TBSCertificate,
-             *        signatureAlgorithm   AlgorithmIdentifier,
-             *        signatureValue       BIT STRING  }
-             *
-             * Conveniently, the X509Certificate class has a getTBSCertificate() method which
-             * returns the tbsCertificate blob. So all we need to do is just sign that and build
-             * signatureAlgorithm and signatureValue and combine it with tbsCertificate. We don't
-             * need a full-blown ASN.1/DER encoder to do this.
-             */
-            X509Certificate selfSignedCert = (X509Certificate) ks.getCertificate(keyToSignAlias);
-            byte[] tbsCertificate = selfSignedCert.getTBSCertificate();
+            //PublicKey publicKey = (PublicKey) ks.getKey(keyToSignAlias, null);
+            X509Certificate selfSignedCert = (X509Certificate) ks.getCertificate(authKeyAlias);
+            PublicKey publicKey = selfSignedCert.getPublicKey();
 
-            KeyStore.Entry keyToSignWithEntry = ks.getEntry(keyToSignWithAlias, null);
-            Signature s = Signature.getInstance("SHA256withECDSA");
-            s.initSign(((KeyStore.PrivateKeyEntry) keyToSignWithEntry).getPrivateKey());
-            s.update(tbsCertificate);
-            byte[] signatureValue = s.sign();
+            PrivateKey privateKey = ((KeyStore.PrivateKeyEntry) ks.getEntry(credentialKeyAlias,
+                    null)).getPrivateKey();
 
-            /* The DER encoding for a SEQUENCE of length 128-65536 - the length is updated below.
-             *
-             * We assume - and test for below - that the final length is always going to be in
-             * this range. This is a sound assumption given we're using 256-bit EC keys.
-             */
-            byte[] sequence = new byte[]{
-                    0x30, (byte) 0x82, 0x00, 0x00
-            };
+            X500Name issuer = new X500Name("CN=Android Identity Credential Key");
+            X500Name subject = new X500Name("CN=Android Identity Credential Authentication Key");
 
-            /* The DER encoding for the ECDSA with SHA-256 signature algorithm:
-             *
-             *   SEQUENCE (1 elem)
-             *      OBJECT IDENTIFIER 1.2.840.10045.4.3.2 ecdsaWithSHA256 (ANSI X9.62 ECDSA
-             *      algorithm with SHA256)
-             */
-            byte[] signatureAlgorithm = new byte[]{
-                    0x30, 0x0a, 0x06, 0x08, 0x2a, (byte) 0x86, 0x48, (byte) 0xce, 0x3d, 0x04, 0x03,
-                    0x02
-            };
+            Date now = new Date();
+            final long kMilliSecsInOneYear = 365L * 24 * 60 * 60 * 1000;
+            Date expirationDate = new Date(now.getTime() + kMilliSecsInOneYear);
+            BigInteger serial = new BigInteger("1");
+            JcaX509v3CertificateBuilder builder =
+                    new JcaX509v3CertificateBuilder(issuer,
+                            serial,
+                            now,
+                            expirationDate,
+                            subject,
+                            publicKey);
 
-            /* The DER encoding for a BIT STRING with one element - the length is updated below.
-             *
-             * We assume the length of signatureValue is always going to be less than 128. This
-             * assumption works since we know ecdsaWithSHA256 signatures are always 69, 70, or
-             * 71 bytes long when DER encoded.
-             */
-            byte[] bitStringForSignature = new byte[]{0x03, 0x00, 0x00};
-
-            // Calculate sequence length and set it in |sequence|.
-            int sequenceLength = tbsCertificate.length
-                    + signatureAlgorithm.length
-                    + bitStringForSignature.length
-                    + signatureValue.length;
-            if (sequenceLength < 128 || sequenceLength > 65535) {
-                throw new RuntimeException("Unexpected sequenceLength " + sequenceLength);
+            if (proofOfProvisioningSha256 != null) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                new CborEncoder(baos).encode(new CborBuilder()
+                        .addArray()
+                        .add("ProofOfBinding")
+                        .add(proofOfProvisioningSha256)
+                        .end()
+                        .build());
+                byte[] encodedProofOfBinding = baos.toByteArray();
+                builder.addExtension(new ASN1ObjectIdentifier("1.3.6.1.4.1.11129.2.1.26"), false,
+                        encodedProofOfBinding);
             }
-            sequence[2] = (byte) (sequenceLength >> 8);
-            sequence[3] = (byte) (sequenceLength & 0xff);
 
-            // Calculate signatureValue length and set it in |bitStringForSignature|.
-            int signatureValueLength = signatureValue.length + 1;
-            if (signatureValueLength >= 128) {
-                throw new RuntimeException(
-                        "Unexpected signatureValueLength " + signatureValueLength);
-            }
-            bitStringForSignature[1] = (byte) signatureValueLength;
-
-            // Finally concatenate everything together.
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            baos.write(sequence);
-            baos.write(tbsCertificate);
-            baos.write(signatureAlgorithm);
-            baos.write(bitStringForSignature);
-            baos.write(signatureValue);
-            byte[] resultingCertBytes = baos.toByteArray();
+            ContentSigner signer = new JcaContentSignerBuilder("SHA256withECDSA").build(privateKey);
+            byte[] encodedCert = builder.build(signer).getEncoded();
 
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            ByteArrayInputStream bais = new ByteArrayInputStream(resultingCertBytes);
+            ByteArrayInputStream bais = new ByteArrayInputStream(encodedCert);
             X509Certificate result = (X509Certificate) cf.generateCertificate(bais);
             return result;
         } catch (Exception e) {
@@ -983,7 +920,7 @@ Certificate:
             throw new RuntimeException("Expected at least four items in COSE_Sign1 array");
         }
         if (items.get(1).getMajorType() != MajorType.MAP) {
-            throw new RuntimeException("Item 1 (unprocted headers) is not a map");
+            throw new RuntimeException("Item 1 (unprotected headers) is not a map");
         }
         co.nstant.in.cbor.model.Map map = (co.nstant.in.cbor.model.Map) items.get(1);
         DataItem x5chainItem = map.get(new UnsignedInteger(COSE_LABEL_X5CHAIN));
@@ -1009,5 +946,4 @@ Certificate:
         }
         return ret;
     }
-
 }

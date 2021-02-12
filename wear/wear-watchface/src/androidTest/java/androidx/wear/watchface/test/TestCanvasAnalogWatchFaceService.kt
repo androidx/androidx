@@ -23,6 +23,7 @@ import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.samples.createExampleCanvasAnalogWatchFaceBuilder
 
 /** A simple canvas test analog watch face for integration tests. */
@@ -31,7 +32,8 @@ internal class TestCanvasAnalogWatchFaceService(
     private val handler: Handler,
     var mockSystemTimeMillis: Long,
     var surfaceHolderOverride: SurfaceHolder,
-    var preRInitFlow: Boolean
+    var preRInitFlow: Boolean,
+    var directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
 ) : WatchFaceService() {
 
     private val mutableWatchState = MutableWatchState()
@@ -67,4 +69,15 @@ internal class TestCanvasAnalogWatchFaceService(
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
     override fun expectPreRInitFlow() = preRInitFlow
+
+    override fun readDirectBootPrefs(
+        context: Context,
+        fileName: String
+    ) = directBootParams
+
+    override fun writeDirectBootPrefs(
+        context: Context,
+        fileName: String,
+        prefs: WallpaperInteractiveWatchFaceInstanceParams
+    ) {}
 }

@@ -8,7 +8,6 @@ package androidx.slice {
     method public android.os.Bundle getHostExtras();
     method public android.app.PendingIntent? getInputRangeAction();
     method public long getLastUpdatedTime();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.slice.widget.ListContent! getListContent();
     method public int getLoadingState();
     method public androidx.slice.core.SliceAction? getPrimaryAction();
     method public androidx.core.util.Pair<java.lang.Integer!,java.lang.Integer!>? getRange();
@@ -122,7 +121,6 @@ package androidx.slice.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.slice.SliceItem? getContentIntent();
     method public android.graphics.Point getFirstImageSize(android.content.Context);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.ArrayList<androidx.slice.widget.GridContent.CellContent!> getGridContent();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getHeight(androidx.slice.widget.SliceStyle, androidx.slice.widget.SliceViewPolicy);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean getIsLastIndex();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getLargestImageMode();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMaxCellLineCount();
@@ -152,29 +150,24 @@ package androidx.slice.widget {
     method public boolean populate(androidx.slice.SliceItem);
   }
 
-  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ListContent extends androidx.slice.widget.SliceContent {
-    ctor public ListContent(androidx.slice.Slice);
-    ctor @Deprecated public ListContent(android.content.Context!, androidx.slice.Slice);
-    method public androidx.slice.widget.RowContent? getHeader();
-    method public int getHeaderTemplateType();
-    method public int getHeight(androidx.slice.widget.SliceStyle!, androidx.slice.widget.SliceViewPolicy!);
-    method public static int getListHeight(java.util.List<androidx.slice.widget.SliceContent!>!, androidx.slice.widget.SliceStyle!, androidx.slice.widget.SliceViewPolicy!);
-    method public androidx.slice.widget.DisplayedListItems! getRowItems(int, androidx.slice.widget.SliceStyle!, androidx.slice.widget.SliceViewPolicy!);
-    method public java.util.ArrayList<androidx.slice.widget.SliceContent!> getRowItems();
-    method public static int getRowType(androidx.slice.widget.SliceContent!, boolean, java.util.List<androidx.slice.core.SliceAction!>!);
-    method public androidx.slice.widget.SliceContent! getSeeMoreItem();
-    method public androidx.slice.core.SliceAction? getShortcut(android.content.Context?);
-    method public java.util.List<androidx.slice.core.SliceAction!>? getSliceActions();
-    method public boolean isValid();
-    method public void showActionDividers(boolean);
-    method public void showHeaderDivider(boolean);
-    method public void showTitleItems(boolean);
+  @RequiresApi(19) public class GridRowView extends androidx.slice.widget.SliceChildView implements android.view.View.OnClickListener android.view.View.OnTouchListener {
+    ctor public GridRowView(android.content.Context);
+    ctor public GridRowView(android.content.Context, android.util.AttributeSet?);
+    method protected boolean addImageItem(androidx.slice.SliceItem, androidx.slice.SliceItem?, int, android.view.ViewGroup, boolean);
+    method protected int getExtraBottomPadding();
+    method protected int getExtraTopPadding();
+    method protected int getMaxCells();
+    method protected int getTitleTextLayout();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void onClick(android.view.View);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public boolean onTouch(android.view.View, android.view.MotionEvent);
+    method protected void populateViews();
+    method public void resetView();
+    method protected boolean scheduleMaxCellsUpdate();
   }
 
   @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class RowContent extends androidx.slice.widget.SliceContent {
     ctor public RowContent(androidx.slice.SliceItem!, int);
     method public java.util.List<androidx.slice.SliceItem!>! getEndItems();
-    method public int getHeight(androidx.slice.widget.SliceStyle!, androidx.slice.widget.SliceViewPolicy!);
     method public androidx.slice.SliceItem? getInputRangeThumb();
     method public boolean getIsHeader();
     method public int getLineCount();
@@ -214,6 +207,7 @@ package androidx.slice.widget {
 
   @RequiresApi(19) public class SliceAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.slice.widget.SliceAdapter.SliceViewHolder> {
     ctor public SliceAdapter(android.content.Context);
+    method public androidx.slice.widget.GridRowView getGridRowView();
     method public int getItemCount();
     method public androidx.slice.widget.RowView getRowView();
     method public void onBindViewHolder(androidx.slice.widget.SliceAdapter.SliceViewHolder, int);

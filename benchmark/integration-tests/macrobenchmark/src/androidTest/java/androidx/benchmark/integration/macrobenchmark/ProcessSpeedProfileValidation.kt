@@ -46,7 +46,7 @@ class ProcessSpeedProfileValidation(
         startupMode = startupMode
     ) {
         pressHome()
-        launchPackageAndWait()
+        startActivityAndWait()
     }
 
     companion object {

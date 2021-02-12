@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
@@ -50,11 +51,11 @@ class HardwareIdentityCredential extends IdentityCredential {
     private PublicKey mReaderEphemeralPublicKey = null;
     private byte[] mSessionTranscript = null;
 
-    private SecretKey mSecretKey = null;
-    private SecretKey mReaderSecretKey = null;
+    private SecretKey mSKDevice = null;
+    private SecretKey mSKReader = null;
 
-    private int mEphemeralCounter;
-    private int mReadersExpectedEphemeralCounter;
+    private int mSKDeviceCounter;
+    private int mSKReaderCounter;
 
     private android.security.identity.IdentityCredential mCredential  = null;
 
@@ -86,7 +87,7 @@ class HardwareIdentityCredential extends IdentityCredential {
     }
 
     private void ensureSessionEncryptionKey() {
-        if (mSecretKey != null) {
+        if (mSKDevice != null) {
             return;
         }
         if (mReaderEphemeralPublicKey == null) {
@@ -103,24 +104,18 @@ class HardwareIdentityCredential extends IdentityCredential {
 
             byte[] sessionTranscriptBytes =
                     Util.prependSemanticTagForEncodedCbor(mSessionTranscript);
-            byte[] sharedSecretWithSessionTranscriptBytes =
-                    Util.concatArrays(sharedSecret, sessionTranscriptBytes);
+            byte[] salt = MessageDigest.getInstance("SHA-256").digest(sessionTranscriptBytes);
 
-            byte[] salt = new byte[1];
-            byte[] info = new byte[0];
+            byte[] info = new byte[] {'S', 'K', 'D', 'e', 'v', 'i', 'c', 'e'};
+            byte[] derivedKey = Util.computeHkdf("HmacSha256", sharedSecret, salt, info, 32);
+            mSKDevice = new SecretKeySpec(derivedKey, "AES");
 
-            salt[0] = 0x01;
-            byte[] derivedKey = Util.computeHkdf("HmacSha256",
-                    sharedSecretWithSessionTranscriptBytes, salt, info, 32);
-            mSecretKey = new SecretKeySpec(derivedKey, "AES");
+            info = new byte[] {'S', 'K', 'R', 'e', 'a', 'd', 'e', 'r'};
+            derivedKey = Util.computeHkdf("HmacSha256", sharedSecret, salt, info, 32);
+            mSKReader = new SecretKeySpec(derivedKey, "AES");
 
-            salt[0] = 0x00;
-            derivedKey = Util.computeHkdf("HmacSha256", sharedSecretWithSessionTranscriptBytes,
-                    salt, info, 32);
-            mReaderSecretKey = new SecretKeySpec(derivedKey, "AES");
-
-            mEphemeralCounter = 1;
-            mReadersExpectedEphemeralCounter = 1;
+            mSKDeviceCounter = 1;
+            mSKReaderCounter = 1;
 
         } catch (InvalidKeyException
                 | NoSuchAlgorithmException e) {
@@ -137,10 +132,10 @@ class HardwareIdentityCredential extends IdentityCredential {
             ByteBuffer iv = ByteBuffer.allocate(12);
             iv.putInt(0, 0x00000000);
             iv.putInt(4, 0x00000001);
-            iv.putInt(8, mEphemeralCounter);
+            iv.putInt(8, mSKDeviceCounter);
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             GCMParameterSpec encryptionParameterSpec = new GCMParameterSpec(128, iv.array());
-            cipher.init(Cipher.ENCRYPT_MODE, mSecretKey, encryptionParameterSpec);
+            cipher.init(Cipher.ENCRYPT_MODE, mSKDevice, encryptionParameterSpec);
             messageCiphertextAndAuthTag = cipher.doFinal(messagePlaintext);
         } catch (BadPaddingException
                 | IllegalBlockSizeException
@@ -150,7 +145,7 @@ class HardwareIdentityCredential extends IdentityCredential {
                 | InvalidAlgorithmParameterException e) {
             throw new RuntimeException("Error encrypting message", e);
         }
-        mEphemeralCounter += 1;
+        mSKDeviceCounter += 1;
         return messageCiphertextAndAuthTag;
     }
 
@@ -162,11 +157,11 @@ class HardwareIdentityCredential extends IdentityCredential {
         ByteBuffer iv = ByteBuffer.allocate(12);
         iv.putInt(0, 0x00000000);
         iv.putInt(4, 0x00000000);
-        iv.putInt(8, mReadersExpectedEphemeralCounter);
+        iv.putInt(8, mSKReaderCounter);
         byte[] plainText = null;
         try {
             final Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            cipher.init(Cipher.DECRYPT_MODE, mReaderSecretKey, new GCMParameterSpec(128,
+            cipher.init(Cipher.DECRYPT_MODE, mSKReader, new GCMParameterSpec(128,
                     iv.array()));
             plainText = cipher.doFinal(messageCiphertext);
         } catch (BadPaddingException
@@ -177,7 +172,7 @@ class HardwareIdentityCredential extends IdentityCredential {
                 | NoSuchPaddingException e) {
             throw new MessageDecryptionException("Error decrypting message", e);
         }
-        mReadersExpectedEphemeralCounter += 1;
+        mSKReaderCounter += 1;
         return plainText;
     }
 
@@ -258,6 +253,7 @@ class HardwareIdentityCredential extends IdentityCredential {
         return mCredential.getAuthKeysNeedingCertification();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void storeStaticAuthenticationData(@NonNull X509Certificate authenticationKey,
             @NonNull byte[] staticAuthData) throws UnknownAuthenticationKeyException {
@@ -273,5 +269,4 @@ class HardwareIdentityCredential extends IdentityCredential {
     int[] getAuthenticationDataUsageCount() {
         return mCredential.getAuthenticationDataUsageCount();
     }
-
 }

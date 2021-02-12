@@ -22,6 +22,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
+import android.icu.util.TimeZone
 import android.os.Handler
 import android.os.Looper
 import android.support.wearable.watchface.SharedMemoryImage
@@ -114,7 +115,9 @@ class WatchFaceServiceImageTest {
 
     @After
     fun shutDown() {
-        interactiveWatchFaceInstanceWCS.release()
+        if (this::interactiveWatchFaceInstanceWCS.isInitialized) {
+            interactiveWatchFaceInstanceWCS.release()
+        }
     }
 
     private fun initCanvasWatchFace() {
@@ -123,7 +126,8 @@ class WatchFaceServiceImageTest {
             handler,
             100000,
             surfaceHolder,
-            true // Not direct boot.
+            true, // Not direct boot.
+            null
         )
 
         Mockito.`when`(surfaceHolder.surfaceFrame)
@@ -144,7 +148,8 @@ class WatchFaceServiceImageTest {
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
             100000,
-            surfaceHolder
+            surfaceHolder,
+            null
         )
 
         surfaceTexture.setDefaultBufferSize(BITMAP_WIDTH, BITMAP_HEIGHT)
@@ -183,6 +188,9 @@ class WatchFaceServiceImageTest {
                         ) {
                             interactiveWatchFaceInstanceWCS = iInteractiveWatchFaceWcs
                             sendComplications()
+                            // Set the timezone so it doesn't matter where the bots are running.
+                            engineWrapper.watchFaceImpl.calendar.timeZone =
+                                TimeZone.getTimeZone("UTC")
                             initLatch.countDown()
                         }
                     }
@@ -456,33 +464,51 @@ class WatchFaceServiceImageTest {
 
     @Test
     fun directBoot() {
-        handler.post(this::initCanvasWatchFace)
-        initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        Mockito.`when`(surfaceHolder.surfaceFrame)
+            .thenReturn(Rect(0, 0, BITMAP_WIDTH, BITMAP_HEIGHT))
+        Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
+        Mockito.`when`(surfaceHolder.unlockCanvasAndPost(canvas)).then {
+            renderDoneLatch.countDown()
+        }
+
+        lateinit var engineWrapper: WatchFaceService.EngineWrapper
+
         handler.post {
-            // Change the style
-            interactiveWatchFaceInstanceWCS.setCurrentUserStyle(
-                UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE))
-            )
-
-            // Simulate device shutting down.
-            InteractiveInstanceManager.deleteInstance(INTERACTIVE_INSTANCE_ID)
-
             // Simulate a R style direct boot scenario where a new service is created but there's no
-            // pending PendingWallpaperInteractiveWatchFaceInstance and no wallpaper command. This
-            // should load the direct boot parameters which get saved.
-            val service2 = TestCanvasAnalogWatchFaceService(
+            // pending PendingWallpaperInteractiveWatchFaceInstance and no wallpaper command. It
+            // instead uses the WallpaperInteractiveWatchFaceInstanceParams which normally would be
+            // read from disk, but provided directly in this test.
+            val service = TestCanvasAnalogWatchFaceService(
                 ApplicationProvider.getApplicationContext<Context>(),
                 handler,
                 100000,
                 surfaceHolder,
-                false // Direct boot.
+                false, // Direct boot.
+                WallpaperInteractiveWatchFaceInstanceParams(
+                    INTERACTIVE_INSTANCE_ID,
+                    DeviceConfig(
+                        false,
+                        false,
+                        0,
+                        0
+                    ),
+                    SystemState(false, 0),
+                    UserStyleWireFormat(
+                        mapOf(COLOR_STYLE_SETTING to GREEN_STYLE)
+                    ),
+                    null
+                )
             )
 
-            val engineWrapper2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
-            handler.post { engineWrapper2.draw() }
+            engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
+            handler.post { engineWrapper.draw() }
         }
 
         renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
-        bitmap.assertAgainstGolden(screenshotRule, "direct_boot")
+        try {
+            bitmap.assertAgainstGolden(screenshotRule, "direct_boot")
+        } finally {
+            engineWrapper.onDestroy()
+        }
     }
 }

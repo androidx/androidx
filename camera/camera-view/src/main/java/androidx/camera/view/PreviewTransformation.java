@@ -24,6 +24,12 @@ import static androidx.camera.view.PreviewView.ScaleType.FILL_CENTER;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_CENTER;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_END;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_START;
+import static androidx.camera.view.TransformUtils.createRotatedVertices;
+import static androidx.camera.view.TransformUtils.is90or270;
+import static androidx.camera.view.TransformUtils.rectToVertices;
+import static androidx.camera.view.TransformUtils.sizeToVertices;
+import static androidx.camera.view.TransformUtils.surfaceRotationToRotationDegrees;
+import static androidx.camera.view.TransformUtils.verticesToRect;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -87,10 +93,6 @@ import androidx.core.util.Preconditions;
  *
  * <p> The transformed Surface is how the PreviewView's inner view should behave, to make the
  * crop rect matches the PreviewView.
- *
- * <p> The class uses the vertices to represent a rectangle with arbitrary rotation and chirality.
- * It could be otherwise represented by a triple of a {@link RectF}, a rotation degrees and a
- * flag for the orientation of rotation (clockwise v.s. counter-clockwise).
  */
 final class PreviewTransformation {
 
@@ -98,8 +100,6 @@ final class PreviewTransformation {
 
     private static final PreviewView.ScaleType DEFAULT_SCALE_TYPE = FILL_CENTER;
 
-    // Each vertex is represented by a pair of (x, y) which is 2 slots in a float array.
-    private static final int FLOAT_NUMBER_PER_VERTEX = 2;
     // SurfaceRequest.getResolution().
     private Size mResolution;
     // TransformationInfo.getCropRect().
@@ -150,7 +150,7 @@ final class PreviewTransformation {
         Matrix matrix = new Matrix();
         float[] surfaceVertices = sizeToVertices(mResolution);
         float[] rotatedSurfaceVertices = createRotatedVertices(surfaceVertices,
-                -rotationValueToRotationDegrees(mTargetRotation));
+                -surfaceRotationToRotationDegrees(mTargetRotation));
         matrix.setPolyToPoly(surfaceVertices, 0, rotatedSurfaceVertices, 0, 4);
         return matrix;
     }
@@ -439,95 +439,7 @@ final class PreviewTransformation {
         return matrix;
     }
 
-    static int rotationValueToRotationDegrees(int rotationValue) {
-        switch (rotationValue) {
-            case Surface.ROTATION_0:
-                return 0;
-            case Surface.ROTATION_90:
-                return 90;
-            case Surface.ROTATION_180:
-                return 180;
-            case Surface.ROTATION_270:
-                return 270;
-            default:
-                throw new IllegalStateException("Unexpected rotation value " + rotationValue);
-        }
-    }
-
-    private static boolean is90or270(int rotationDegrees) {
-        if (rotationDegrees == 90 || rotationDegrees == 270) {
-            return true;
-        }
-        if (rotationDegrees == 0 || rotationDegrees == 180) {
-            return false;
-        }
-        throw new IllegalArgumentException("Invalid rotation degrees: " + rotationDegrees);
-    }
-
-    /**
-     * Converts a {@link Size} to an float array of vertices.
-     */
-    @VisibleForTesting
-    static float[] sizeToVertices(Size size) {
-        return new float[]{0, 0, size.getWidth(), 0, size.getWidth(), size.getHeight(), 0,
-                size.getHeight()};
-    }
-
-    /**
-     * Converts a {@link Rect} defined by left, top right and bottom to an array of vertices.
-     */
-    private static float[] rectToVertices(RectF rectF) {
-        return new float[]{rectF.left, rectF.top, rectF.right, rectF.top, rectF.right, rectF.bottom,
-                rectF.left, rectF.bottom};
-    }
-
-    /**
-     * Converts an array of vertices to a {@link Rect}.
-     */
-    private static RectF verticesToRect(float[] vertices) {
-        return new RectF(
-                min(vertices[0], vertices[2], vertices[4], vertices[6]),
-                min(vertices[1], vertices[3], vertices[5], vertices[7]),
-                max(vertices[0], vertices[2], vertices[4], vertices[6]),
-                max(vertices[1], vertices[3], vertices[5], vertices[7])
-        );
-    }
-
-    private static float max(float value1, float value2, float value3, float value4) {
-        return Math.max(Math.max(value1, value2), Math.max(value3, value4));
-    }
-
-    private static float min(float value1, float value2, float value3, float value4) {
-        return Math.min(Math.min(value1, value2), Math.min(value3, value4));
-    }
-
     private boolean isTransformationInfoReady() {
         return mSurfaceCropRect != null && mResolution != null;
-    }
-
-    /**
-     * Creates a new quad that the vertices are rotated clockwise with the given degrees.
-     *
-     * <pre>
-     *  a----b
-     *  |    |
-     *  d----c  vertices = {a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y}
-     *
-     * After 90° rotation:
-     *
-     *  d----a
-     *  |    |
-     *  c----b  vertices = {d.x, d.y, a.x, a.y, b.x, b.y, c.x, c.y}
-     * </pre>
-     */
-    private static float[] createRotatedVertices(float[] original, int rotationDegrees) {
-        float[] rotated = new float[original.length];
-        int offset = -rotationDegrees / 90 * FLOAT_NUMBER_PER_VERTEX;
-        for (int originalIndex = 0; originalIndex < original.length; originalIndex++) {
-            int rotatedIndex = (originalIndex + offset) % original.length;
-            rotatedIndex = rotatedIndex < 0 ? rotatedIndex + original.length : rotatedIndex;
-            rotated[rotatedIndex] = original[originalIndex];
-        }
-        return rotated;
     }
 }

@@ -97,10 +97,13 @@ dependencies {
     // depend on the shadowed version so that it tests with the shipped artifact
     // this is a temporary attribute until KSP and AndroidX plugin supports variants.
     if (useKsp) {
-        ksp(project(path: ":room:room-compiler", configuration: 'shadowAndImplementation'))
+        kspAndroidTest(
+                project(path: ":room:room-compiler", configuration: 'shadowAndImplementation')
+        )
     } else {
-         kaptAndroidTest project(path: ":room:room-compiler", configuration:
-            'shadowAndImplementation')
+        kaptAndroidTest(
+                project(path: ":room:room-compiler", configuration: 'shadowAndImplementation')
+        )
     }
     androidTestImplementation(projectOrArtifact(":arch:core:core-runtime")) // Added for b/155802460
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

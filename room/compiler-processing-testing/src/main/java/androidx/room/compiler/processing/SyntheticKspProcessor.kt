@@ -16,22 +16,22 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.util.RecordingXMessager
 import androidx.room.compiler.processing.util.XTestInvocation
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.symbol.KSAnnotated
 
-class SyntheticKspProcessor(
-    private val handler: (XTestInvocation) -> Unit
-) : SymbolProcessor, SyntheticProcessor {
-    override val invocationInstances = mutableListOf<XTestInvocation>()
-    private var result: Result<Unit>? = null
+class SyntheticKspProcessor private constructor(
+    private val impl: SyntheticProcessorImpl
+) : SymbolProcessor, SyntheticProcessor by impl {
+    constructor(handlers: List<(XTestInvocation) -> Unit>) : this(
+        SyntheticProcessorImpl(handlers)
+    )
     private lateinit var options: Map<String, String>
     private lateinit var codeGenerator: CodeGenerator
     private lateinit var logger: KSPLogger
-    override val messageWatcher = RecordingXMessager()
 
     override fun finish() {
     }
@@ -47,34 +47,21 @@ class SyntheticKspProcessor(
         this.logger = logger
     }
 
-    override fun process(resolver: Resolver) {
+    override fun process(resolver: Resolver): List<KSAnnotated> {
+        if (!impl.canRunAnotherRound()) {
+            return emptyList()
+        }
         val xEnv = XProcessingEnv.create(
             options,
             resolver,
             codeGenerator,
             logger
         )
-        xEnv.messager.addMessageWatcher(messageWatcher)
-        result = kotlin.runCatching {
-            handler(
-                XTestInvocation(
-                    processingEnv = xEnv,
-                    roundEnv = XRoundEnv.create(xEnv)
-                ).also {
-                    invocationInstances.add(it)
-                }
-            )
-        }
-    }
-
-    override fun getProcessingException(): Throwable? {
-        val result = this.result ?: return AssertionError("processor didn't run")
-        result.exceptionOrNull()?.let {
-            return it
-        }
-        if (result.isFailure) {
-            return AssertionError("processor failed but no exception is reported")
-        }
-        return null
+        val testInvocation = XTestInvocation(
+            processingEnv = xEnv,
+            roundEnv = XRoundEnv.create(xEnv)
+        )
+        impl.runNextRound(testInvocation)
+        return emptyList()
     }
 }

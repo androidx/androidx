@@ -134,6 +134,33 @@ class TestSettingsGradle(unittest.TestCase):
         coordinates = get_gradle_project_coordinates("androidx.foo.bar", "bar-qux")
         self.assertEqual(":foo:bar:bar-qux", coordinates)
 
+class TestBuildGradle(unittest.TestCase):
+    def test_correct_library_type_is_returned(self):
+        library_type = get_library_type("foo-samples")
+        self.assertEqual("SAMPLES", library_type)
+
+        library_type = get_library_type("foo-compiler")
+        self.assertEqual("ANNOTATION_PROCESSOR", library_type)
+
+        library_type = get_library_type("foo-lint")
+        self.assertEqual("LINT", library_type)
+
+        library_type = get_library_type("foo-inspection")
+        self.assertEqual("IDE_PLUGIN", library_type)
+
+        library_type = get_library_type("foo")
+        self.assertEqual("PUBLISHED_LIBRARY", library_type)
+
+        library_type = get_library_type("foo-inspect")
+        self.assertEqual("PUBLISHED_LIBRARY", library_type)
+
+        library_type = get_library_type("foocomp")
+        self.assertEqual("PUBLISHED_LIBRARY", library_type)
+
+        library_type = get_library_type("foo-bar")
+        self.assertEqual("PUBLISHED_LIBRARY", library_type)
+
+
 class TestDocsTipOfTree(unittest.TestCase):
 
     def test_docs_tip_of_tree_build_grade_line(self):
@@ -165,6 +192,12 @@ class TestReplacements(unittest.TestCase):
         self.assertEqual("FOO_BAR", macro)
 
         macro = get_group_id_version_macro("androidx.compose.bar")
+        self.assertEqual("BAR", macro)
+
+        macro = get_group_id_version_macro("androidx.compose.foo.bar")
+        self.assertEqual("FOO_BAR", macro)
+
+        macro = get_group_id_version_macro("androidx.compose")
         self.assertEqual("COMPOSE", macro)
 
     def test_sed(self):
@@ -219,6 +252,45 @@ class TestReplacements(unittest.TestCase):
         self.assertEqual("a\nb\nc", file_contents)
         rm(src_out_dir)
         rm(dst_out_dir_parent)
+
+    def test_remove_line(self):
+        out_dir = "./out"
+        test_file = out_dir + "/temp.txt"
+        test_file_contents = "a\nb\nc"
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        with open(test_file,"w") as f:
+           f.write("a\nb\nc")
+        remove_line("b", test_file)
+        # read back the file and check
+        with open(test_file) as f:
+           file_contents = f.read()
+        self.assertEqual("a\nc", file_contents)
+
+        with open(test_file,"w") as f:
+           f.write("abc\ndef\nghi")
+        remove_line("c", test_file)
+        # read back the file and check
+        with open(test_file) as f:
+           file_contents = f.read()
+        self.assertEqual("def\nghi", file_contents)
+
+        # Clean up
+        rm(out_dir)
+
+
+class TestLibraryGroupKt(unittest.TestCase):
+
+    def test_library_group_atomicity_is_correctly_determined(self):
+        self.assertFalse(is_group_id_atomic("androidx.core"))
+        self.assertFalse(is_group_id_atomic("androidx.foo"))
+        self.assertFalse(is_group_id_atomic(""))
+        self.assertFalse(is_group_id_atomic("androidx.compose.foo"))
+        self.assertTrue(is_group_id_atomic("androidx.cardview"))
+        self.assertTrue(is_group_id_atomic("androidx.tracing"))
+        self.assertTrue(is_group_id_atomic("androidx.compose.foundation"))
+
 
 if __name__ == '__main__':
     unittest.main()

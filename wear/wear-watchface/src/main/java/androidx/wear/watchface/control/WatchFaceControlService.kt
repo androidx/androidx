@@ -28,6 +28,7 @@ import androidx.annotation.RestrictTo
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
+import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.runOnHandler
 import kotlinx.coroutines.runBlocking
 
@@ -102,14 +103,18 @@ private class IWatchFaceInstanceServiceStub(
     ): WatchFaceService.EngineWrapper? {
         // Attempt to construct the class for the specified watchFaceName, failing if it either
         // doesn't exist or isn't a [WatchFaceService].
-        val watchFaceServiceClass = Class.forName(watchFaceName.className) ?: return null
-        if (!WatchFaceService::class.java.isAssignableFrom(WatchFaceService::class.java)) {
+        try {
+            val watchFaceServiceClass = Class.forName(watchFaceName.className) ?: return null
+            if (!WatchFaceService::class.java.isAssignableFrom(WatchFaceService::class.java)) {
+                return null
+            }
+            val watchFaceService =
+                watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
+            watchFaceService.setContext(context)
+            return watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        } catch (e: ClassNotFoundException) {
             return null
         }
-        val watchFaceService =
-            watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
-        watchFaceService.setContext(context)
-        return watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
     }
 
     override fun getOrCreateInteractiveWatchFaceWCS(
@@ -122,4 +127,6 @@ private class IWatchFaceInstanceServiceStub(
                 callback
             )
         )
+
+    override fun getEditorService() = EditorService.globalEditorService
 }

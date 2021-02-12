@@ -334,7 +334,7 @@ open class ScreenshotTestRule(
 
     private fun getDeviceModel(): String {
         var model = android.os.Build.MODEL.toLowerCase()
-        arrayOf("phone", "x86", "x64").forEach {
+        arrayOf("phone", "x86", "x64", "gms").forEach {
             model = model.replace(it, "")
         }
         return model.trim().replace(" ", "_")

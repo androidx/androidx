@@ -46,7 +46,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 24
+        minSdkVersion 25
     }
 
     // Use Robolectric 4.+

@@ -18,6 +18,7 @@ package androidx.security.identity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.icu.util.Calendar;
 import android.security.keystore.KeyProperties;
 import android.util.Log;
 import android.util.Pair;
@@ -36,6 +37,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -84,11 +86,11 @@ class SoftwareIdentityCredential extends IdentityCredential {
 
     private KeyPair mEphemeralKeyPair = null;
 
-    private SecretKey mSecretKey = null;
-    private SecretKey mReaderSecretKey = null;
+    private SecretKey mSKDevice = null;
+    private SecretKey mSKReader = null;
 
-    private int mEphemeralCounter;
-    private int mReadersExpectedEphemeralCounter;
+    private int mSKDeviceCounter;
+    private int mSKReaderCounter;
     private byte[] mAuthKeyAssociatedData = null;
     private PrivateKey mAuthKey = null;
     private BiometricPrompt.CryptoObject mCryptoObject = null;
@@ -116,8 +118,20 @@ class SoftwareIdentityCredential extends IdentityCredential {
     }
 
     static byte[] delete(Context context, String credentialName) {
-        return CredentialData.delete(context, credentialName);
+        return CredentialData.delete(context, credentialName, null);
     }
+
+    @Override
+    public @NonNull byte[] delete(@NonNull byte[] challenge)  {
+        return CredentialData.delete(mContext, mCredentialName, challenge);
+    }
+
+    @Override
+    public @NonNull byte[] proveOwnership(@NonNull byte[] challenge)  {
+        return mData.proveOwnership(challenge);
+    }
+
+
 
     // This only extracts the requested namespaces, not DocType or RequestInfo. We
     // can do this later if it's needed.
@@ -207,7 +221,7 @@ class SoftwareIdentityCredential extends IdentityCredential {
     }
 
     private void ensureSessionEncryptionKey() {
-        if (mSecretKey != null) {
+        if (mSKDevice != null) {
             return;
         }
         if (mReaderEphemeralPublicKey == null) {
@@ -224,24 +238,18 @@ class SoftwareIdentityCredential extends IdentityCredential {
 
             byte[] sessionTranscriptBytes =
                     Util.prependSemanticTagForEncodedCbor(mSessionTranscript);
-            byte[] sharedSecretWithSessionTranscriptBytes =
-                    Util.concatArrays(sharedSecret, sessionTranscriptBytes);
+            byte[] salt = MessageDigest.getInstance("SHA-256").digest(sessionTranscriptBytes);
 
-            byte[] salt = new byte[1];
-            byte[] info = new byte[0];
+            byte[] info = new byte[] {'S', 'K', 'D', 'e', 'v', 'i', 'c', 'e'};
+            byte[] derivedKey = Util.computeHkdf("HmacSha256", sharedSecret, salt, info, 32);
+            mSKDevice = new SecretKeySpec(derivedKey, "AES");
 
-            salt[0] = 0x01;
-            byte[] derivedKey = Util.computeHkdf("HmacSha256",
-                    sharedSecretWithSessionTranscriptBytes, salt, info, 32);
-            mSecretKey = new SecretKeySpec(derivedKey, "AES");
+            info = new byte[] {'S', 'K', 'R', 'e', 'a', 'd', 'e', 'r'};
+            derivedKey = Util.computeHkdf("HmacSha256", sharedSecret, salt, info, 32);
+            mSKReader = new SecretKeySpec(derivedKey, "AES");
 
-            salt[0] = 0x00;
-            derivedKey = Util.computeHkdf("HmacSha256", sharedSecretWithSessionTranscriptBytes,
-                    salt, info, 32);
-            mReaderSecretKey = new SecretKeySpec(derivedKey, "AES");
-
-            mEphemeralCounter = 1;
-            mReadersExpectedEphemeralCounter = 1;
+            mSKDeviceCounter = 1;
+            mSKReaderCounter = 1;
 
         } catch (InvalidKeyException
                 | NoSuchAlgorithmException e) {
@@ -258,10 +266,10 @@ class SoftwareIdentityCredential extends IdentityCredential {
             ByteBuffer iv = ByteBuffer.allocate(12);
             iv.putInt(0, 0x00000000);
             iv.putInt(4, 0x00000001);
-            iv.putInt(8, mEphemeralCounter);
+            iv.putInt(8, mSKDeviceCounter);
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             GCMParameterSpec encryptionParameterSpec = new GCMParameterSpec(128, iv.array());
-            cipher.init(Cipher.ENCRYPT_MODE, mSecretKey, encryptionParameterSpec);
+            cipher.init(Cipher.ENCRYPT_MODE, mSKDevice, encryptionParameterSpec);
             messageCiphertextAndAuthTag = cipher.doFinal(messagePlaintext);
         } catch (BadPaddingException
                 | IllegalBlockSizeException
@@ -271,7 +279,7 @@ class SoftwareIdentityCredential extends IdentityCredential {
                 | InvalidAlgorithmParameterException e) {
             throw new RuntimeException("Error encrypting message", e);
         }
-        mEphemeralCounter += 1;
+        mSKDeviceCounter += 1;
         return messageCiphertextAndAuthTag;
     }
 
@@ -283,11 +291,11 @@ class SoftwareIdentityCredential extends IdentityCredential {
         ByteBuffer iv = ByteBuffer.allocate(12);
         iv.putInt(0, 0x00000000);
         iv.putInt(4, 0x00000000);
-        iv.putInt(8, mReadersExpectedEphemeralCounter);
+        iv.putInt(8, mSKReaderCounter);
         byte[] plainText = null;
         try {
             final Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            cipher.init(Cipher.DECRYPT_MODE, mReaderSecretKey, new GCMParameterSpec(128,
+            cipher.init(Cipher.DECRYPT_MODE, mSKReader, new GCMParameterSpec(128,
                     iv.array()));
             plainText = cipher.doFinal(messageCiphertext);
         } catch (BadPaddingException
@@ -298,7 +306,7 @@ class SoftwareIdentityCredential extends IdentityCredential {
                 | NoSuchPaddingException e) {
             throw new MessageDecryptionException("Error decrypting message", e);
         }
-        mReadersExpectedEphemeralCounter += 1;
+        mSKReaderCounter += 1;
         return plainText;
     }
 
@@ -339,7 +347,8 @@ class SoftwareIdentityCredential extends IdentityCredential {
         }
 
         Pair<PrivateKey, byte[]> keyAndStaticData = mData.selectAuthenticationKey(
-                mAllowUsingExhaustedKeys);
+                mAllowUsingExhaustedKeys,
+                mAllowUsingExpiredKeys);
         if (keyAndStaticData == null) {
             throw new NoAuthenticationKeyAvailableException(
                     "No authentication key available for signing");
@@ -349,10 +358,16 @@ class SoftwareIdentityCredential extends IdentityCredential {
     }
 
     boolean mAllowUsingExhaustedKeys = true;
+    boolean mAllowUsingExpiredKeys = false;
 
     @Override
     public void setAllowUsingExhaustedKeys(boolean allowUsingExhaustedKeys) {
         mAllowUsingExhaustedKeys = allowUsingExhaustedKeys;
+    }
+
+    @Override
+    public void setAllowUsingExpiredKeys(boolean allowUsingExpiredKeys) {
+        mAllowUsingExpiredKeys = allowUsingExpiredKeys;
     }
 
     @Override
@@ -707,15 +722,70 @@ class SoftwareIdentityCredential extends IdentityCredential {
         return mData.getAuthKeysNeedingCertification();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void storeStaticAuthenticationData(@NonNull X509Certificate authenticationKey,
             @NonNull byte[] staticAuthData) throws UnknownAuthenticationKeyException {
-        mData.storeStaticAuthenticationData(authenticationKey, staticAuthData);
+        mData.storeStaticAuthenticationData(authenticationKey, null, staticAuthData);
     }
+
+    @Override
+    public void storeStaticAuthenticationData(
+            @NonNull X509Certificate authenticationKey,
+            @NonNull Calendar expirationDate,
+            @NonNull byte[] staticAuthData)
+            throws UnknownAuthenticationKeyException {
+        mData.storeStaticAuthenticationData(authenticationKey, expirationDate, staticAuthData);
+    }
+
 
     @Override
     public @NonNull
     int[] getAuthenticationDataUsageCount() {
         return mData.getAuthKeyUseCounts();
     }
+
+    @Override
+    public @NonNull byte[] update(@NonNull PersonalizationData personalizationData) {
+        try {
+            String docType = mData.getDocType();
+            Collection<X509Certificate> certificates = mData.getCredentialKeyCertificateChain();
+            PrivateKey credentialKey = mData.getCredentialKeyPrivate();
+            int authKeyCount = mData.getAuthKeyCount();
+            int authMaxUsesPerKey = mData.getAuthMaxUsesPerKey();
+
+            byte[] encodedBytes =
+                    SoftwareWritableIdentityCredential.buildProofOfProvisioningWithSignature(
+                            docType,
+                            personalizationData,
+                            credentialKey);
+
+            byte[] proofOfProvisioning = Util.coseSign1GetData(encodedBytes);
+            byte[] proofOfProvisioningSha256 = MessageDigest.getInstance("SHA-256").digest(
+                    proofOfProvisioning);
+
+            // Nuke all KeyStore keys except for CredentialKey (otherwise we leak them)
+            //
+            mData.deleteKeysForReplacement();
+
+            mData = CredentialData.createCredentialData(
+                    mContext,
+                    docType,
+                    mCredentialName,
+                    CredentialData.getAliasFromCredentialName(mCredentialName),
+                    certificates,
+                    personalizationData,
+                    proofOfProvisioningSha256,
+                    true);
+            // Configure with same settings as old object.
+            //
+            mData.setAvailableAuthenticationKeys(authKeyCount, authMaxUsesPerKey);
+
+            return encodedBytes;
+
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error digesting ProofOfProvisioning", e);
+        }
+    }
+
 }

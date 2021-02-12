@@ -22,7 +22,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation:annotation"))
-    api(project(":versionedparcelable:versionedparcelable"))
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.versionedparcelable:versionedparcelable:1.1.1")
     implementation(JUNIT)
 }

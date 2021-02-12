@@ -57,6 +57,44 @@ class TestRunnerTest {
     @Test(expected = AssertionError::class)
     fun reportedError_unexpected() = reportedError(assertFailure = false)
 
+    @Test
+    fun diagnosticsMessages() {
+        runProcessorTest { invocation ->
+            invocation.processingEnv.messager.run {
+                printMessage(Diagnostic.Kind.NOTE, "note 1")
+                printMessage(Diagnostic.Kind.WARNING, "warn 1")
+                printMessage(Diagnostic.Kind.ERROR, "error 1")
+            }
+            invocation.assertCompilationResult {
+                hasNote("note 1")
+                hasWarning("warn 1")
+                hasError("error 1")
+                hasNoteContaining("ote")
+                hasWarningContaining("arn")
+                hasErrorContaining("rror")
+                // these should fail:
+                assertThat(
+                    runCatching { hasNote("note") }.isFailure
+                ).isTrue()
+                assertThat(
+                    runCatching { hasWarning("warn") }.isFailure
+                ).isTrue()
+                assertThat(
+                    runCatching { hasError("error") }.isFailure
+                ).isTrue()
+                assertThat(
+                    runCatching { hasNoteContaining("error") }.isFailure
+                ).isTrue()
+                assertThat(
+                    runCatching { hasWarningContaining("note") }.isFailure
+                ).isTrue()
+                assertThat(
+                    runCatching { hasErrorContaining("warning") }.isFailure
+                ).isTrue()
+            }
+        }
+    }
+
     private fun reportedError(assertFailure: Boolean) {
         runProcessorTest {
             it.processingEnv.messager.printMessage(

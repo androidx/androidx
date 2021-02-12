@@ -19,7 +19,6 @@ package androidx.datastore.rxjava2
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.datastore.core.DataMigration
-import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.Serializer
 import androidx.datastore.createDataStore
@@ -27,16 +26,17 @@ import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.rx2.asCoroutineDispatcher
 import kotlinx.coroutines.rx2.await
 import java.io.File
 import java.util.concurrent.Callable
 
 /**
- * RxSharedPreferencesMigrationBuilder class for a DataStore that works on a single process.
+ * RxDataStoreBuilder class for a DataStore that works on a single process.
  */
 @SuppressLint("TopLevelBuilder")
-public class RxDataStoreBuilder<T> {
+public class RxDataStoreBuilder<T : Any> {
 
     /**
      * Create a RxDataStoreBuilder with the callable which returns the File that DataStore acts on.
@@ -139,21 +139,19 @@ public class RxDataStoreBuilder<T> {
      *
      * @return the DataStore with the provided parameters
      */
-    public fun build(): DataStore<T> {
-        val scope = CoroutineScope(ioScheduler.asCoroutineDispatcher())
+    public fun build(): RxDataStore<T> {
+        val scope = CoroutineScope(ioScheduler.asCoroutineDispatcher() + Job())
 
-        return if (produceFile != null) {
+        val delegateDs = if (produceFile != null) {
             DataStoreFactory.create(
                 produceFile = { produceFile!!.call() },
                 serializer = serializer!!,
-                scope = CoroutineScope(
-                    ioScheduler.asCoroutineDispatcher()
-                ),
+                scope = scope,
                 corruptionHandler = corruptionHandler,
                 migrations = dataMigrations
             )
         } else if (context != null && name != null) {
-            return context!!.createDataStore(
+            context!!.createDataStore(
                 fileName = name!!,
                 serializer = serializer!!,
                 scope = scope,
@@ -161,10 +159,10 @@ public class RxDataStoreBuilder<T> {
                 migrations = dataMigrations
             )
         } else {
-            error(
-                "Either produceFile or context and name must be set. This should never happen."
-            )
+            error("Either produceFile or context and name must be set. This should never happen.")
         }
+
+        return RxDataStore.create(delegateDs, scope)
     }
 }
 

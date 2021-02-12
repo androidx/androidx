@@ -96,6 +96,8 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
      * immediately dispatched when the first [PagingData] is submitted:
      *  * [LAUNCH_INITIAL_REFRESH] to immediately dispatch [load] asynchronously with load type
      *  [REFRESH], to update paginated content when the stream is initialized.
+     *  Note: This also prevents [RemoteMediator] from triggering [PREPEND] or [APPEND] until
+     *  [REFRESH] succeeds.
      *  * [SKIP_INITIAL_REFRESH] to wait for a refresh request from the UI before dispatching [load]
      *  asynchronously with load type [REFRESH].
      */
@@ -131,6 +133,9 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
         /**
          * Immediately dispatch a [load] asynchronously with load type [REFRESH], to update
          * paginated content when the stream is initialized.
+         *
+         * Note: This also prevents [RemoteMediator] from triggering [PREPEND] or [APPEND] until
+         * [REFRESH] succeeds.
          */
         LAUNCH_INITIAL_REFRESH,
 

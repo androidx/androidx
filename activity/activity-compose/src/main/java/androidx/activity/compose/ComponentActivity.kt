@@ -26,6 +26,18 @@ import androidx.compose.ui.platform.ComposeView
  * Composes the given composable into the given activity. The [content] will become the root view
  * of the given activity.
  *
+ * This is roughly equivalent to calling [setContentView] with a [ComposeView] i.e.:
+ *
+ * ```
+ * setContentView(
+ *   ComposeView(this).apply {
+ *     setContent {
+ *       MyComposableContent()
+ *     }
+ *   }
+ * )
+ * ```
+ *
  * @param parent The parent composition reference to coordinate scheduling of composition updates
  * @param content A `@Composable` function declaring the UI contents
  */

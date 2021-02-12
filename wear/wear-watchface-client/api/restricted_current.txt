@@ -2,7 +2,7 @@
 package androidx.wear.watchface.client {
 
   public final class ComplicationState {
-    ctor public ComplicationState(android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled, androidx.wear.complications.data.ComplicationType currentType);
+    ctor public ComplicationState(android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled, androidx.wear.complications.data.ComplicationType currentType, boolean fixedComplicationProvider);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public ComplicationState(androidx.wear.watchface.data.ComplicationStateWireFormat complicationStateWireFormat);
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();
@@ -11,11 +11,13 @@ package androidx.wear.watchface.client {
     method public androidx.wear.complications.data.ComplicationType getDefaultProviderType();
     method public java.util.List<androidx.wear.complications.data.ComplicationType> getSupportedTypes();
     method public boolean isEnabled();
+    method public boolean isFixedComplicationProvider();
     property public final android.graphics.Rect bounds;
     property public final int boundsType;
     property public final androidx.wear.complications.data.ComplicationType currentType;
     property public final androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy;
     property public final androidx.wear.complications.data.ComplicationType defaultProviderType;
+    property public final boolean fixedComplicationProvider;
     property public final boolean isEnabled;
     property public final java.util.List<androidx.wear.complications.data.ComplicationType> supportedTypes;
   }
@@ -30,6 +32,31 @@ package androidx.wear.watchface.client {
     property public final long digitalPreviewReferenceTimeMillis;
     property public final boolean hasBurnInProtection;
     property public final boolean hasLowBitAmbient;
+  }
+
+  public interface EditorObserverCallback {
+    method public void onEditorStateChange(androidx.wear.watchface.client.EditorState editorState);
+  }
+
+  public interface EditorServiceClient {
+    method public void registerObserver(androidx.wear.watchface.client.EditorObserverCallback editorObserverCallback);
+    method public void registerObserver(optional java.util.concurrent.Executor? observerCallbackExecutor, androidx.wear.watchface.client.EditorObserverCallback editorObserverCallback);
+    method public void unregisterObserver(androidx.wear.watchface.client.EditorObserverCallback editorObserverCallback);
+  }
+
+  public final class EditorState {
+    method public java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> getPreviewComplicationData();
+    method public java.util.Map<java.lang.String,java.lang.String> getUserStyle();
+    method public String? getWatchFaceInstanceId();
+    method public boolean hasCommitChanges();
+    property public final boolean commitChanges;
+    property public final java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> previewComplicationData;
+    property public final java.util.Map<java.lang.String,java.lang.String> userStyle;
+    property public final String? watchFaceInstanceId;
+  }
+
+  public final class EditorStateKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.watchface.client.EditorState asApiEditorState(androidx.wear.watchface.editor.data.EditorStateWireFormat);
   }
 
   public interface HeadlessWatchFaceClient extends java.lang.AutoCloseable {
@@ -123,6 +150,7 @@ package androidx.wear.watchface.client {
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {
     method public androidx.wear.watchface.client.HeadlessWatchFaceClient? createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, int surfaceWidth, int surfaceHeight);
     method public default static suspend Object? createWatchFaceControlClient(android.content.Context p, String context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> watchFacePackageName);
+    method public androidx.wear.watchface.client.EditorServiceClient getEditorServiceClient();
     method public androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient? getInteractiveWatchFaceSysUiClientInstance(String instanceId);
     method public kotlinx.coroutines.Deferred<androidx.wear.watchface.client.InteractiveWatchFaceWcsClient> getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.SystemState systemState, java.util.Map<java.lang.String,java.lang.String>? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
     field public static final androidx.wear.watchface.client.WatchFaceControlClient.Companion Companion;

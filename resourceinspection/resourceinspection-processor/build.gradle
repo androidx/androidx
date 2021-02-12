@@ -26,6 +26,8 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":resourceinspection:resourceinspection-annotation"))
+
     implementation(KOTLIN_STDLIB)
 }
 

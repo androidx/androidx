@@ -17,11 +17,14 @@
 package androidx.security.identity;
 
 import android.content.Context;
+import android.icu.util.Calendar;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.AtomicFile;
 import android.util.Log;
 import android.util.Pair;
+
+import androidx.annotation.NonNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -85,6 +88,7 @@ class CredentialData {
     private String mDocType = "";
     private String mCredentialKeyAlias = "";
     private Collection<X509Certificate> mCertificateChain = null;
+    private byte[] mProofOfProvisioningSha256 = null;
     private AbstractList<AccessControlProfile> mAccessControlProfiles = new ArrayList<>();
     private AbstractMap<Integer, AccessControlProfile> mProfileIdToAcpMap = new HashMap<>();
     private AbstractList<PersonalizationData.NamespaceData> mNamespaceDatas = new ArrayList<>();
@@ -111,14 +115,51 @@ class CredentialData {
     }
 
     /**
+     * Deletes KeyStore keys no longer needed when updating a credential (every KeyStore key
+     * except for CredentialKey).
+     */
+    void deleteKeysForReplacement() {
+        KeyStore ks;
+        try {
+            ks = KeyStore.getInstance("AndroidKeyStore");
+            ks.load(null);
+        } catch (CertificateException
+                | IOException
+                | NoSuchAlgorithmException
+                | KeyStoreException e) {
+            throw new RuntimeException("Error loading keystore", e);
+        }
+
+        // Nuke all keys except for CredentialKey.
+        try {
+            if (!mPerReaderSessionKeyAlias.isEmpty()) {
+                ks.deleteEntry(mPerReaderSessionKeyAlias);
+            }
+            for (String alias : mAcpTimeoutKeyAliases.values()) {
+                ks.deleteEntry(alias);
+            }
+            for (AuthKeyData authKeyData : mAuthKeyDatas) {
+                if (!authKeyData.mAlias.isEmpty()) {
+                    ks.deleteEntry(authKeyData.mAlias);
+                }
+                if (!authKeyData.mPendingAlias.isEmpty()) {
+                    ks.deleteEntry(authKeyData.mPendingAlias);
+                }
+            }
+        } catch (KeyStoreException e) {
+            throw new RuntimeException("Error deleting key", e);
+        }
+    }
+
+    /**
      * Creates a new {@link CredentialData} with the given name and saves it to disk.
-     * <p>
-     * The created data will be configured with zero authentication keys and max one use per key.
-     * <p>
-     * The created data can later be loaded via the {@link #loadCredentialData(Context, String)}
-     * method and deleted by calling {@link #delete(Context, String)}.
      *
-     * An auth-bound key will be created for each access control profile with user-authentication.
+     * <p>The created data will be configured with zero authentication keys and max one use per
+     * key and can later be loaded via the {@link #loadCredentialData(Context, String)}
+     * method and deleted by calling {@link #delete(Context, String, byte[])}.
+     *
+     * <p>An auth-bound key will be created for each access control profile with
+     * user-authentication.
      *
      * @param context             the context.
      * @param credentialName      the name of the credential.
@@ -126,6 +167,7 @@ class CredentialData {
      *                            created.
      * @param certificateChain    the certificate chain for the credential key.
      * @param personalizationData the data for the credential.
+     * @param isReplacement       set to true if this replaces an existing credential
      * @return a new @{link CredentialData} object
      */
     static CredentialData createCredentialData(Context context,
@@ -133,16 +175,20 @@ class CredentialData {
             String credentialName,
             String credentialKeyAlias,
             Collection<X509Certificate> certificateChain,
-            PersonalizationData personalizationData) {
-
-        if (credentialAlreadyExists(context, credentialName)) {
-            throw new RuntimeException("Credential with given name already exists");
+            PersonalizationData personalizationData,
+            byte[] proofOfProvisioningSha256,
+            boolean isReplacement) {
+        if (!isReplacement) {
+            if (credentialAlreadyExists(context, credentialName)) {
+                throw new RuntimeException("Credential with given name already exists");
+            }
         }
 
         CredentialData data = new CredentialData(context, credentialName);
         data.mDocType = docType;
         data.mCredentialKeyAlias = credentialKeyAlias;
         data.mCertificateChain = certificateChain;
+        data.mProofOfProvisioningSha256 = proofOfProvisioningSha256;
         data.mAccessControlProfiles = new ArrayList<>();
         data.mProfileIdToAcpMap = new HashMap<>();
         for (AccessControlProfile item : personalizationData.getAccessControlProfiles()) {
@@ -248,7 +294,7 @@ class CredentialData {
     /**
      * Loads a {@link CredentialData} object previously created with
      * {@link #createCredentialData(Context, String, String, String, Collection,
-     * PersonalizationData)}.
+     * PersonalizationData, byte[])}.
      *
      * @param context        the application context
      * @param credentialName the name of the credential.
@@ -292,14 +338,64 @@ class CredentialData {
         return escapeCredentialName("acp", credentialName);
     }
 
-    // Returns COSE_Sign1 with payload set to ProofOfDeletion
-    static byte[] buildProofOfDeletionSignature(String docType, PrivateKey key) {
+    PrivateKey getCredentialKeyPrivate() {
+        KeyStore ks;
+        KeyStore.Entry entry;
+        try {
+            ks = KeyStore.getInstance("AndroidKeyStore");
+            ks.load(null);
+            entry = ks.getEntry(mCredentialKeyAlias, null);
+        } catch (CertificateException
+                | IOException
+                | NoSuchAlgorithmException
+                | KeyStoreException
+                | UnrecoverableEntryException e) {
+            throw new RuntimeException("Error loading keystore", e);
+        }
+        return ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
+    }
+
+    // Returns COSE_Sign1 with payload set to ProofOfOwnership
+    @NonNull byte[] proveOwnership(@NonNull byte[] challenge) {
+        PrivateKey key = getCredentialKeyPrivate();
 
         CborBuilder signedDataBuilder = new CborBuilder();
         signedDataBuilder.addArray()
-                .add("ProofOfDeletion")
-                .add(docType)
+                .add("ProofOfOwnership")
+                .add(mDocType)
+                .add(challenge)
                 .add(false);
+        byte[] signatureBytes;
+        try {
+            ByteArrayOutputStream dtsBaos = new ByteArrayOutputStream();
+            CborEncoder dtsEncoder = new CborEncoder(dtsBaos);
+            dtsEncoder.encode(signedDataBuilder.build().get(0));
+            byte[] dataToSign = dtsBaos.toByteArray();
+
+            signatureBytes = Util.coseSign1Sign(key,
+                    dataToSign,
+                    null,
+                    null);
+        } catch (NoSuchAlgorithmException
+                | InvalidKeyException
+                | CertificateEncodingException
+                | CborException e) {
+            throw new RuntimeException("Error building ProofOfOwnership", e);
+        }
+        return signatureBytes;
+    }
+
+    // Returns COSE_Sign1 with payload set to ProofOfDeletion
+    static byte[] buildProofOfDeletionSignature(String docType, PrivateKey key, byte[] challenge) {
+
+        CborBuilder signedDataBuilder = new CborBuilder();
+        ArrayBuilder<CborBuilder> arrayBuilder = signedDataBuilder.addArray();
+        arrayBuilder.add("ProofOfDeletion")
+                .add(docType);
+        if (challenge != null) {
+            arrayBuilder.add(challenge);
+        }
+        arrayBuilder.add(false);
 
         byte[] signatureBytes;
         try {
@@ -321,7 +417,7 @@ class CredentialData {
         return signatureBytes;
     }
 
-    static byte[] delete(Context context, String credentialName) {
+    static byte[] delete(Context context, String credentialName, byte[] challenge) {
         String filename = getFilenameForCredentialData(credentialName);
         AtomicFile file = new AtomicFile(context.getFileStreamPath(filename));
         try {
@@ -355,7 +451,7 @@ class CredentialData {
         }
 
         byte[] signature = buildProofOfDeletionSignature(data.mDocType,
-                ((KeyStore.PrivateKeyEntry) entry).getPrivateKey());
+                ((KeyStore.PrivateKeyEntry) entry).getPrivateKey(), challenge);
 
         file.delete();
 
@@ -512,6 +608,10 @@ class CredentialData {
         ArrayBuilder<MapBuilder<CborBuilder>> authKeyDataArrayBuilder = map.putArray(
                 "authKeyDatas");
         for (AuthKeyData data : mAuthKeyDatas) {
+            long expirationDateMillis = Long.MAX_VALUE;
+            if (data.mExpirationDate != null) {
+                expirationDateMillis = data.mExpirationDate.getTimeInMillis();
+            }
             authKeyDataArrayBuilder.addMap()
                     .put("alias", data.mAlias)
                     .put("useCount", data.mUseCount)
@@ -519,6 +619,7 @@ class CredentialData {
                     .put("staticAuthenticationData", data.mStaticAuthenticationData)
                     .put("pendingAlias", data.mPendingAlias)
                     .put("pendingCertificate", data.mPendingCertificate)
+                    .put("expirationDateMillis", expirationDateMillis)
                     .end();
         }
     }
@@ -535,6 +636,7 @@ class CredentialData {
                 throw new RuntimeException("Error encoding certificate", e);
             }
         }
+        map.put("proofOfProvisioningSha256", mProofOfProvisioningSha256);
         map.put("authKeyCount", mAuthKeyCount);
         map.put("authKeyMaxUses", mAuthMaxUsesPerKey);
     }
@@ -564,6 +666,7 @@ class CredentialData {
 
             loadBasic(map);
             loadCredentialKeyCertChain(map);
+            loadProofOfProvisioningSha256(map);
             loadAccessControlProfiles(map);
             loadNamespaceDatas(map);
             loadAuthKey(map);
@@ -664,6 +767,19 @@ class CredentialData {
             data.mPendingCertificate = ((ByteString) im.get(
                     new UnicodeString("pendingCertificate"))).getBytes();
 
+            // expirationDateMillis was added in a later release, may not be present
+            long expirationDateMillis = Long.MAX_VALUE;
+            DataItem expirationDateMillisItem = im.get(new UnicodeString("expirationDateMillis"));
+            if (expirationDateMillisItem != null) {
+                if (!(expirationDateMillisItem instanceof Number)) {
+                    throw new RuntimeException("expirationDateMillis not a number");
+                }
+                expirationDateMillis = ((Number) expirationDateMillisItem).getValue().longValue();
+            }
+            Calendar expirationDate = Calendar.getInstance();
+            expirationDate.setTimeInMillis(expirationDateMillis);
+            data.mExpirationDate = expirationDate;
+
             mAuthKeyDatas.add(data);
         }
     }
@@ -697,6 +813,16 @@ class CredentialData {
             mAccessControlProfiles.add(profile);
             mProfileIdToAcpMap.put(profile.getAccessControlProfileId().getId(), profile);
         }
+    }
+
+    private void loadProofOfProvisioningSha256(co.nstant.in.cbor.model.Map map) {
+        DataItem proofOfProvisioningSha256 = map.get(
+                new UnicodeString("proofOfProvisioningSha256"));
+        if (!(proofOfProvisioningSha256 instanceof ByteString)) {
+            throw new RuntimeException(
+                    "proofOfProvisioningSha256 not found or not bstr");
+        }
+        mProofOfProvisioningSha256 = ((ByteString) proofOfProvisioningSha256).getBytes();
     }
 
     private void loadCredentialKeyCertChain(co.nstant.in.cbor.model.Map map) {
@@ -830,12 +956,20 @@ class CredentialData {
 
         ArrayList<X509Certificate> certificates = new ArrayList<X509Certificate>();
 
+        Calendar now = Calendar.getInstance();
+
         // Determine which keys need certification (or re-certification) and generate
         // keys and X.509 certs for these and mark them as pending.
         for (int n = 0; n < mAuthKeyCount; n++) {
             AuthKeyData data = mAuthKeyDatas.get(n);
 
-            boolean newKeyNeeded = data.mAlias.isEmpty() || (data.mUseCount >= mAuthMaxUsesPerKey);
+            boolean keyExceededUseCount = (data.mUseCount >= mAuthMaxUsesPerKey);
+            boolean keyBeyondExpirationDate = false;
+            if (data.mExpirationDate != null) {
+                keyBeyondExpirationDate = now.after(data.mExpirationDate);
+            }
+            boolean newKeyNeeded =
+                    data.mAlias.isEmpty() || keyExceededUseCount || keyBeyondExpirationDate;
             boolean certificationPending = !data.mPendingAlias.isEmpty();
 
             if (newKeyNeeded && !certificationPending) {
@@ -856,8 +990,8 @@ class CredentialData {
                     kpg.initialize(builder.build());
                     kpg.generateKeyPair();
 
-                    X509Certificate certificate = Util.signPublicKeyWithPrivateKey(aliasForAuthKey,
-                            mCredentialKeyAlias);
+                    X509Certificate certificate = Util.generateAuthenticationKeyCert(
+                            aliasForAuthKey, mCredentialKeyAlias, mProofOfProvisioningSha256);
 
                     data.mPendingAlias = aliasForAuthKey;
                     data.mPendingCertificate = certificate.getEncoded();
@@ -888,6 +1022,7 @@ class CredentialData {
     }
 
     void storeStaticAuthenticationData(X509Certificate authenticationKey,
+            Calendar expirationDate,
             byte[] staticAuthData)
             throws UnknownAuthenticationKeyException {
         AuthKeyData dataForAuthKey = null;
@@ -935,7 +1070,7 @@ class CredentialData {
         dataForAuthKey.mUseCount = 0;
         dataForAuthKey.mPendingAlias = "";
         dataForAuthKey.mPendingCertificate = new byte[0];
-
+        dataForAuthKey.mExpirationDate = expirationDate;
         saveToDisk();
     }
 
@@ -947,22 +1082,49 @@ class CredentialData {
      *
      * The use count of the returned authentication key will be increased by one.
      *
+     * If no key could be found {@code null} is returned.
+     *
      * @param allowUsingExhaustedKeys If {@code true}, allow using an authentication key which
-     *                                use count has been
-     *                                exceeded if no other key is available. If @{code false},
-     *                                this method will
-     *                                throw @{link NoAuthenticationKeyAvailableException} if in
-     *                                the same situation.
+     *                                use count has been exceeded if no other key is available.
+     * @param allowUsingExpiredKeys If {@code true}, allow using an authentication key which
+     *                              is expired.
      * @return A pair containing the authentication key and its associated static authentication
      * data or {@code null} if no key could be found.
      */
-    Pair<PrivateKey, byte[]> selectAuthenticationKey(boolean allowUsingExhaustedKeys)
-            throws NoAuthenticationKeyAvailableException {
+    Pair<PrivateKey, byte[]> selectAuthenticationKey(boolean allowUsingExhaustedKeys,
+            boolean allowUsingExpiredKeys) {
+
+        // First try to find a un-expired key..
+        Pair<PrivateKey, byte[]> keyAndStaticData =
+                selectAuthenticationKeyHelper(allowUsingExhaustedKeys, false);
+        if (keyAndStaticData != null) {
+            return keyAndStaticData;
+        }
+        // Nope, try to see if there's an expired key (if allowed)
+        if (!allowUsingExpiredKeys) {
+            return null;
+        }
+        return selectAuthenticationKeyHelper(allowUsingExhaustedKeys, true);
+    }
+
+    Pair<PrivateKey, byte[]> selectAuthenticationKeyHelper(boolean allowUsingExhaustedKeys,
+            boolean allowUsingExpiredKeys) {
         AuthKeyData candidate = null;
+
+        Calendar now = Calendar.getInstance();
 
         for (int n = 0; n < mAuthKeyCount; n++) {
             AuthKeyData data = mAuthKeyDatas.get(n);
             if (!data.mAlias.isEmpty()) {
+                if (data.mExpirationDate != null) {
+                    if (now.after(data.mExpirationDate)) {
+                        // expired...
+                        if (!allowUsingExpiredKeys) {
+                            continue;
+                        }
+                    }
+                }
+
                 if (candidate == null || data.mUseCount < candidate.mUseCount) {
                     candidate = data;
                 }
@@ -1087,6 +1249,8 @@ class CredentialData {
         String mPendingAlias = "";
         // The X509 certificate for a key pending certification.
         byte[] mPendingCertificate = new byte[0];
+
+        Calendar mExpirationDate = null;
 
         AuthKeyData() {
         }

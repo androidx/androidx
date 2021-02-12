@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.room.compiler.processing.util.Source
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import androidx.room.vo.CallType
@@ -27,7 +28,7 @@ import androidx.room.vo.Fields
 import androidx.room.vo.Index
 import androidx.room.vo.Pojo
 import androidx.room.vo.columnNames
-import com.google.testing.compile.JavaFileObjects
+import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import compileLibrarySource
@@ -37,6 +38,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import toSources
 
 @RunWith(JUnit4::class)
 class TableEntityProcessorTest : BaseEntityParserTest() {
@@ -50,7 +52,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public void setId(int id) { this.id = id; }
             """
         ) { entity, invocation ->
-            assertThat(entity.type.toString(), `is`("foo.bar.MyEntity"))
+            assertThat(entity.type.typeName.toString(), `is`("foo.bar.MyEntity"))
             assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
             val intType = invocation.processingEnv.requireType(TypeName.INT)
@@ -69,7 +71,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             assertThat(field.setter, `is`(FieldSetter("setId", intType, CallType.METHOD)))
             assertThat(field.getter, `is`(FieldGetter("getId", intType, CallType.METHOD)))
             assertThat(entity.primaryKey.fields, `is`(Fields(field)))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -80,9 +82,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 private int id;
                 public void setId(int id) {this.id = id;}
                 """
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
+            }
+        }
     }
 
     @Test
@@ -101,13 +105,16 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         singleEntity(
             "",
             baseClass = "test.library.MissingGetterEntity",
-            classpathFiles = libraryClasspath
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD +
-                    " - id in test.library.MissingGetterEntity"
-            )
+            classpathFiles = libraryClasspath.toList()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
+                hasRawOutputContaining(
+                    ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD +
+                        " - id in test.library.MissingGetterEntity"
+                )
+            }
+        }
     }
 
     @Test
@@ -119,9 +126,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public float getId() {return 0f;}
                 public void setId(int id) {this.id = id;}
                 """
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
+            }
+        }
     }
 
     @Test
@@ -133,9 +142,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId() {return id;}
                 public void setId(float id) {}
                 """
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining(ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
+            }
+        }
     }
 
     @Test
@@ -147,8 +158,9 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId() {return id;}
                 public void setId(Integer id) {}
                 """
-        ) { _, _ -> }
-            .compilesWithoutError()
+        ) { entity, _ ->
+            assertThat(entity.fields.columnNames).contains("id")
+        }
     }
 
     @Test
@@ -160,8 +172,9 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public Integer getId() {return id;}
                 public void setId(int id) {}
                 """
-        ) { _, _ -> }
-            .compilesWithoutError()
+        ) { entity, _ ->
+            assertThat(entity.fields.columnNames).contains("id")
+        }
     }
 
     @Test
@@ -181,15 +194,17 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 cursorValueReader.typeMirror().typeName,
                 `is`(invocation.processingEnv.requireType(TypeName.INT).typeName)
             )
-        }.compilesWithoutError()
-            .withWarningContaining(
-                ProcessorErrors.mismatchedSetter(
-                    fieldName = "id",
-                    ownerType = ClassName.bestGuess("foo.bar.MyEntity"),
-                    setterType = TypeName.INT,
-                    fieldType = TypeName.INT.box()
+            invocation.assertCompilationResult {
+                hasWarning(
+                    ProcessorErrors.mismatchedSetter(
+                        fieldName = "id",
+                        ownerType = ClassName.bestGuess("foo.bar.MyEntity"),
+                        setterType = TypeName.INT,
+                        fieldType = TypeName.INT.box()
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
@@ -209,7 +224,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 statementBinder.typeMirror().typeName,
                 `is`(invocation.processingEnv.requireType(TypeName.INT).typeName)
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -220,9 +235,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 private int id;
                 public int getId(){ return id; }
                 """
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining(ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
+            }
+        }
     }
 
     @Test
@@ -235,9 +252,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId(){ return id; }
                 public int id(){ return id; }
                 """
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining("getId, id")
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining("getId, id")
+            }
+        }
     }
 
     @Test
@@ -252,7 +271,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { entity, _ ->
             assertThat(entity.fields.first().getter.name, `is`("getId"))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -267,7 +286,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { entity, _ ->
             assertThat(entity.fields.first().getter.name, `is`("getId"))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -282,7 +301,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, _ ->
             assertThat(entity.fields.first().getter.name, `is`("id"))
             assertThat(entity.fields.first().getter.callType, `is`(CallType.FIELD))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -295,9 +314,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public void id(int id) {}
                 public int getId(){ return id; }
                 """
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining("setId, id")
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining("setId, id")
+            }
+        }
     }
 
     @Test
@@ -312,7 +333,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { entity, _ ->
             assertThat(entity.fields.first().setter.name, `is`("setId"))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -327,7 +348,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """
         ) { entity, _ ->
             assertThat(entity.fields.first().setter.name, `is`("setId"))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -342,7 +363,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, _ ->
             assertThat(entity.fields.first().setter.name, `is`("id"))
             assertThat(entity.fields.first().setter.callType, `is`(CallType.FIELD))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -357,7 +378,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, _ ->
             assertThat(entity.fields.first().setter.name, `is`("setId"))
             assertThat(entity.fields.first().getter.name, `is`("getId"))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -370,7 +391,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             hashMapOf(Pair("tableName", "\"foo_table\""))
         ) { entity, _ ->
             assertThat(entity.tableName, `is`("foo_table"))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -381,8 +402,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int x;
                 """,
             hashMapOf(Pair("tableName", "\" \""))
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
+            }
+        }
     }
 
     @Test
@@ -390,9 +414,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         singleEntity(
             """
                 """
-        ) { _, _ ->
-        }.failsToCompile()
-            .withErrorContaining(ProcessorErrors.MISSING_PRIMARY_KEY)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.MISSING_PRIMARY_KEY)
+            }
+        }
     }
 
     @Test
@@ -402,8 +428,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public java.util.Date myDate;
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER)
+            }
+        }
     }
 
     @Test
@@ -420,15 +449,16 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     int y;
                 }
                 """
-        ) { entity, _ ->
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.fields.map { it.name }, `is`(listOf("id")))
-        }.compilesWithoutError()
-            .withWarningCount(1)
-            .withWarningContaining(
-                ProcessorErrors.embeddedPrimaryKeyIsDropped(
-                    "foo.bar.MyEntity", "x"
+            invocation.assertCompilationResult {
+                hasWarning(
+                    ProcessorErrors.embeddedPrimaryKeyIsDropped(
+                        "foo.bar.MyEntity", "x"
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
@@ -446,9 +476,12 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     int y;
                 }
                 """
-        ) { entity, _ ->
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.fields.map { it.name }, `is`(listOf("id")))
-        }.compilesWithoutError().withWarningCount(0)
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
@@ -463,7 +496,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             assertThat(field.name, `is`("name"))
             assertThat(field.columnName, `is`("name"))
             assertThat(field.nonNull, `is`(true))
-        }.compilesWithoutError()
+        }
     }
 
     private fun fieldsByName(entity: Pojo, vararg fieldNames: String): List<Field> {
@@ -495,7 +528,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     )
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -520,7 +553,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     )
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -548,7 +581,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     )
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -583,7 +616,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     )
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -611,7 +644,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     )
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -639,7 +672,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     )
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -668,7 +701,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     )
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -683,10 +716,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public String foo;
                 """,
             annotation
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY)
+            }
+        }
     }
 
     @Test
@@ -701,10 +735,13 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public String foo;
                 """,
             annotation
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.indexColumnDoesNotExist("bar", listOf("id, foo"))
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.indexColumnDoesNotExist("bar", listOf("id, foo"))
+                )
+            }
+        }
     }
 
     @Test
@@ -720,17 +757,20 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public String foo;
                 """,
             annotation
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.duplicateIndexInEntity("index_MyEntity_foo")
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.duplicateIndexInEntity("index_MyEntity_foo")
+                )
+            }
+        }
     }
 
     @Test
     fun index_droppedParentFieldIndex() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
                 public class Base {
@@ -747,24 +787,26 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 """,
-            baseClass = "foo.bar.Base", jfos = listOf(parent)
-        ) { entity, _ ->
+            baseClass = "foo.bar.Base", sources = listOf(parent)
+        ) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
-        }.compilesWithoutError()
-            .withWarningContaining(
-                ProcessorErrors.droppedSuperClassFieldIndex(
-                    fieldName = "name",
-                    childEntity = "foo.bar.MyEntity",
-                    superEntity = "foo.bar.Base"
+            invocation.assertCompilationResult {
+                hasWarning(
+                    ProcessorErrors.droppedSuperClassFieldIndex(
+                        fieldName = "name",
+                        childEntity = "foo.bar.MyEntity",
+                        superEntity = "foo.bar.Base"
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
     fun index_keptGrandParentEntityIndex() {
-        val grandParent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val grandParent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(indices = @Index({"name", "lastName"}))
@@ -775,9 +817,9 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 }
                 """
         )
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Parent",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Parent",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
 
@@ -793,9 +835,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """,
             baseClass = "foo.bar.Parent",
             attributes = hashMapOf("inheritSuperIndices" to "true"),
-            jfos = listOf(parent, grandParent)
-        ) {
-            entity, _ ->
+            sources = listOf(parent, grandParent)
+        ) { entity, invocation ->
             assertThat(entity.indices.size, `is`(1))
             assertThat(
                 entity.indices.first(),
@@ -807,14 +848,17 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     )
                 )
             )
-        }.compilesWithoutError().withWarningCount(0)
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
     fun index_keptParentEntityIndex() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(indices = @Index({"name", "lastName"}))
@@ -832,8 +876,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """,
             baseClass = "foo.bar.Base",
             attributes = hashMapOf("inheritSuperIndices" to "true"),
-            jfos = listOf(parent)
-        ) { entity, _ ->
+            sources = listOf(parent)
+        ) { entity, invocation ->
             assertThat(entity.indices.size, `is`(1))
             assertThat(
                 entity.indices.first(),
@@ -845,14 +889,17 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     )
                 )
             )
-        }.compilesWithoutError().withWarningCount(0)
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
     fun ignoredFields() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
                 public class Base {
@@ -869,18 +916,21 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """,
             baseClass = "foo.bar.Base",
             attributes = hashMapOf("ignoredColumns" to "{\"tmp1\", \"tmp2\"}"),
-            jfos = listOf(parent)
-        ) { entity, _ ->
+            sources = listOf(parent)
+        ) { entity, invocation ->
             assertThat(entity.fields.size, `is`(2))
             assertThat(entity.fields.map(Field::name), hasItems("name", "id"))
-        }.compilesWithoutError().withWarningCount(0)
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
     fun index_keptParentFieldIndex() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
                 public class Base {
@@ -899,8 +949,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """,
             baseClass = "foo.bar.Base",
             attributes = hashMapOf("inheritSuperIndices" to "true"),
-            jfos = listOf(parent)
-        ) { entity, _ ->
+            sources = listOf(parent)
+        ) { entity, invocation ->
             assertThat(entity.indices.size, `is`(1))
             assertThat(
                 entity.indices.first(),
@@ -912,14 +962,17 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     )
                 )
             )
-        }.compilesWithoutError().withWarningCount(0)
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
     fun index_droppedGrandParentEntityIndex() {
-        val grandParent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val grandParent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(indices = @Index({"name", "lastName"}))
@@ -930,9 +983,9 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 }
                 """
         )
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Parent",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Parent",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
 
@@ -946,24 +999,25 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 """,
-            baseClass = "foo.bar.Parent", jfos = listOf(parent, grandParent)
-        ) {
-            entity, _ ->
+            baseClass = "foo.bar.Parent", sources = listOf(parent, grandParent)
+        ) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
-        }.compilesWithoutError()
-            .withWarningContaining(
-                ProcessorErrors.droppedSuperClassIndex(
-                    childEntity = "foo.bar.MyEntity",
-                    superEntity = "foo.bar.Base"
+            invocation.assertCompilationResult {
+                hasWarning(
+                    ProcessorErrors.droppedSuperClassIndex(
+                        childEntity = "foo.bar.MyEntity",
+                        superEntity = "foo.bar.Base"
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
     fun index_droppedParentEntityIndex() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(indices = @Index({"name", "lastName"}))
@@ -979,16 +1033,18 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 """,
-            baseClass = "foo.bar.Base", jfos = listOf(parent)
-        ) { entity, _ ->
+            baseClass = "foo.bar.Base", sources = listOf(parent)
+        ) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
-        }.compilesWithoutError()
-            .withWarningContaining(
-                ProcessorErrors.droppedSuperClassIndex(
-                    childEntity = "foo.bar.MyEntity",
-                    superEntity = "foo.bar.Base"
+            invocation.assertCompilationResult {
+                hasWarning(
+                    ProcessorErrors.droppedSuperClassIndex(
+                        childEntity = "foo.bar.MyEntity",
+                        superEntity = "foo.bar.Base"
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
@@ -1008,16 +1064,18 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     public int a;
                 }
                 """
-        ) { entity, _ ->
+        ) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
-        }.compilesWithoutError()
-            .withWarningContaining(
-                ProcessorErrors.droppedEmbeddedIndex(
-                    entityName = "foo.bar.MyEntity.Foo",
-                    fieldPath = "foo",
-                    grandParent = "foo.bar.MyEntity"
+            invocation.assertCompilationResult {
+                hasWarning(
+                    ProcessorErrors.droppedEmbeddedIndex(
+                        entityName = "foo.bar.MyEntity.Foo",
+                        fieldPath = "foo",
+                        grandParent = "foo.bar.MyEntity"
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
@@ -1034,11 +1092,12 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     public int a;
                 }
                 """
-        ) { entity, _ ->
+        ) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION
-        )
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION)
+            }
+        }
     }
 
     @Test
@@ -1054,12 +1113,14 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     public int a;
                 }
                 """
-        ) { entity, _ ->
+        ) { entity, invocation ->
             assertThat(entity.indices.isEmpty(), `is`(true))
-        }.compilesWithoutError()
-            .withWarningContaining(
-                ProcessorErrors.droppedEmbeddedFieldIndex("foo > a", "foo.bar.MyEntity")
-            )
+            invocation.assertCompilationResult {
+                hasWarning(
+                    ProcessorErrors.droppedEmbeddedFieldIndex("foo > a", "foo.bar.MyEntity")
+                )
+            }
+        }
     }
 
     @Test
@@ -1087,7 +1148,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     )
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -1099,12 +1160,15 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public String foo;
                 """,
             attributes = mapOf("primaryKeys" to "\"id\"")
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.multiplePrimaryKeyAnnotations(
-                listOf("PrimaryKey[id]", "PrimaryKey[foo]")
-            )
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.multiplePrimaryKeyAnnotations(
+                        listOf("PrimaryKey[id]", "PrimaryKey[foo]")
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -1114,10 +1178,13 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
             attributes = mapOf("primaryKeys" to "\"foo\"")
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.primaryKeyColumnDoesNotExist("foo", listOf("id"))
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.primaryKeyColumnDoesNotExist("foo", listOf("id"))
+                )
+            }
+        }
     }
 
     @Test
@@ -1129,21 +1196,23 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 int y;
                 """
-        ) { entity, _ ->
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.fields.isEmpty(), `is`(true))
-        }.failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.multiplePrimaryKeyAnnotations(
-                    listOf("PrimaryKey[x]", "PrimaryKey[y]")
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.multiplePrimaryKeyAnnotations(
+                        listOf("PrimaryKey[x]", "PrimaryKey[y]")
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
     fun primaryKey_fromParentField() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
                 public class Base {
@@ -1158,17 +1227,20 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent)
-        ) { entity, _ ->
+            sources = listOf(parent)
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("baseId"))
-        }.compilesWithoutError().withWarningCount(0)
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
     fun primaryKey_fromParentEntity() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(primaryKeys = "baseId")
@@ -1183,17 +1255,20 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent)
-        ) { entity, _ ->
+            sources = listOf(parent)
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("baseId"))
-        }.compilesWithoutError().withWarningCount(0)
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
     fun primaryKey_overrideFromParentField() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
                 public class Base {
@@ -1209,21 +1284,22 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent)
-        ) { entity, _ ->
+            sources = listOf(parent)
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.fields.size, `is`(1))
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
             assertThat(entity.primaryKey.autoGenerateId, `is`(false))
-        }.compilesWithoutError().withNoteContaining(
-            "PrimaryKey[baseId] is overridden by PrimaryKey[id]"
-        )
+            invocation.assertCompilationResult {
+                hasNote("PrimaryKey[baseId] is overridden by PrimaryKey[id]")
+            }
+        }
     }
 
     @Test
     fun primaryKey_overrideFromParentEntityViaField() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(primaryKeys = "baseId")
@@ -1239,20 +1315,21 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent)
-        ) { entity, _ ->
+            sources = listOf(parent)
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.fields.size, `is`(1))
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
-        }.compilesWithoutError().withNoteContaining(
-            "PrimaryKey[baseId] is overridden by PrimaryKey[id]"
-        )
+            invocation.assertCompilationResult {
+                hasNote("PrimaryKey[baseId] is overridden by PrimaryKey[id]")
+            }
+        }
     }
 
     @Test
     fun primaryKey_overrideFromParentEntityViaEntity() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(primaryKeys = "baseId")
@@ -1267,15 +1344,16 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent),
+            sources = listOf(parent),
             attributes = mapOf("primaryKeys" to "\"id\"")
-        ) { entity, _ ->
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.fields.size, `is`(1))
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
             assertThat(entity.primaryKey.autoGenerateId, `is`(false))
-        }.compilesWithoutError().withNoteContaining(
-            "PrimaryKey[baseId] is overridden by PrimaryKey[id]"
-        )
+            invocation.assertCompilationResult {
+                hasNote("PrimaryKey[baseId] is overridden by PrimaryKey[id]")
+            }
+        }
     }
 
     @Test
@@ -1290,7 +1368,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 assertThat(entity.primaryKey.fields.size, `is`(1))
                 assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
                 assertThat(entity.primaryKey.autoGenerateId, `is`(true))
-            }.compilesWithoutError()
+            }
         }
     }
 
@@ -1306,7 +1384,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 assertThat(entity.primaryKey.fields.size, `is`(1))
                 assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
                 assertThat(entity.primaryKey.autoGenerateId, `is`(false))
-            }.compilesWithoutError()
+            }
         }
     }
 
@@ -1318,13 +1396,14 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey(autoGenerate = true)
                 public $type id;
                 """
-            ) { entity, _ ->
+            ) { entity, invocation ->
                 assertThat(entity.primaryKey.fields.size, `is`(1))
                 assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
                 assertThat(entity.primaryKey.autoGenerateId, `is`(true))
-            }.failsToCompile().withErrorContaining(
-                ProcessorErrors.AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT
-            )
+                invocation.assertCompilationResult {
+                    hasError(ProcessorErrors.AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT)
+                }
+            }
         }
     }
 
@@ -1344,16 +1423,19 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     public int b;
                 }
                 """
-        ) { entity, _ ->
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.columnNames, `is`(listOf("bar_a", "bar_b")))
-        }.compilesWithoutError().withWarningCount(0)
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
     fun primaryKey_embeddedInherited() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.annotation.NonNull;
                 import androidx.room.*;
@@ -1378,17 +1460,20 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent)
-        ) { entity, _ ->
+            sources = listOf(parent)
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.columnNames, `is`(listOf("bar_a", "bar_b")))
-        }.compilesWithoutError().withWarningCount(0)
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
     fun primaryKey_overrideViaEmbedded() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
 
@@ -1413,19 +1498,20 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 }
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent)
-        ) { entity, _ ->
+            sources = listOf(parent)
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.columnNames, `is`(listOf("bar_a", "bar_b")))
-        }.compilesWithoutError().withNoteContaining(
-            "PrimaryKey[baseId] is overridden by PrimaryKey[foo > a, foo > b]"
-        )
+            invocation.assertCompilationResult {
+                hasNote("PrimaryKey[baseId] is overridden by PrimaryKey[foo > a, foo > b]")
+            }
+        }
     }
 
     @Test
     fun primaryKey_overrideEmbedded() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.annotation.NonNull;
                 import androidx.room.*;
@@ -1451,12 +1537,13 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent)
-        ) { entity, _ ->
+            sources = listOf(parent)
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.columnNames, `is`(listOf("id")))
-        }.compilesWithoutError().withNoteContaining(
-            "PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]"
-        )
+            invocation.assertCompilationResult {
+                hasNote("PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
+            }
+        }
     }
 
     @Test
@@ -1470,7 +1557,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         ) { entity, _ ->
             assertThat(entity.primaryKey.fields.size, `is`(1))
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -1480,10 +1567,13 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             @PrimaryKey
             public String id;
             """
-        ) { entity, _ ->
+        ) { entity, invocation ->
             assertThat(entity.primaryKey.fields.size, `is`(1))
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
-        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("id"))
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.primaryKeyNull("id"))
+            }
+        }
     }
 
     @Test
@@ -1495,9 +1585,12 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             @PrimaryKey
             public String anotherId;
             """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("id"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("anotherId"))
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.primaryKeyNull("id"))
+                hasError(ProcessorErrors.primaryKeyNull("anotherId"))
+            }
+        }
     }
 
     @Test
@@ -1510,8 +1603,13 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             @PrimaryKey
             public String anotherId;
             """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("anotherId"))
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.primaryKeyNull("anotherId")
+                )
+            }
+        }
     }
 
     @Test
@@ -1522,8 +1620,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public String foo;
                 """,
             attributes = mapOf("primaryKeys" to "{\"id\", \"foo\"}")
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.primaryKeyNull("foo"))
+            }
+        }
     }
 
     @Test
@@ -1537,7 +1638,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             attributes = mapOf("primaryKeys" to "{\"id\", \"foo\"}")
         ) { entity, _ ->
             assertThat(entity.primaryKey.fields.map { it.name }, `is`(listOf("id", "foo")))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -1555,8 +1656,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     public int b;
                 }
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.primaryKeyNull("foo"))
+            }
+        }
     }
 
     @Test
@@ -1574,11 +1678,14 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     public String b;
                 }
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
-            .and().withErrorCount(3)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.primaryKeyNull("foo > a"))
+                hasError(ProcessorErrors.primaryKeyNull("foo > b"))
+                hasError(ProcessorErrors.primaryKeyNull("foo"))
+                hasErrorCount(3)
+            }
+        }
     }
 
     @Test
@@ -1601,19 +1708,22 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 }
             }
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a > bb"))
-            .and().withErrorCount(4)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.primaryKeyNull("foo > a"))
+                hasError(ProcessorErrors.primaryKeyNull("foo > b"))
+                hasError(ProcessorErrors.primaryKeyNull("foo"))
+                hasError(ProcessorErrors.primaryKeyNull("foo > a > bb"))
+                hasErrorCount(4)
+            }
+        }
     }
 
     @Test
     fun primaryKey_nullableEmbeddedInherited() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.annotation.NonNull;
                 import androidx.room.*;
@@ -1637,19 +1747,22 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
-            .and().withErrorCount(3)
+            sources = listOf(parent)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.primaryKeyNull("foo"))
+                hasError(ProcessorErrors.primaryKeyNull("foo > a"))
+                hasError(ProcessorErrors.primaryKeyNull("foo > b"))
+                hasErrorCount(3)
+            }
+        }
     }
 
     @Test
     fun primaryKey_nullableOverrideViaEmbedded() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.room.*;
 
@@ -1673,22 +1786,23 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 }
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
-            .and().withNoteContaining(
-                "PrimaryKey[baseId] is overridden by PrimaryKey[foo > a, foo > b]"
-            )
-            .and().withErrorCount(3)
+            sources = listOf(parent)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.primaryKeyNull("foo"))
+                hasError(ProcessorErrors.primaryKeyNull("foo > a"))
+                hasError(ProcessorErrors.primaryKeyNull("foo > b"))
+                hasNote("PrimaryKey[baseId] is overridden by PrimaryKey[foo > a, foo > b]")
+                hasErrorCount(3)
+            }
+        }
     }
 
     @Test
     fun primaryKey_nullableOverrideEmbedded() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.annotation.NonNull;
                 import androidx.room.*;
@@ -1713,22 +1827,23 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > b"))
-            .and().withNoteContaining(
-                "PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]"
-            )
-            .and().withErrorCount(3)
+            sources = listOf(parent)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.primaryKeyNull("foo"))
+                hasError(ProcessorErrors.primaryKeyNull("foo > a"))
+                hasError(ProcessorErrors.primaryKeyNull("foo > b"))
+                hasNote("PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
+                hasErrorCount(3)
+            }
+        }
     }
 
     @Test
     fun primaryKey_integerOverrideEmbedded() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.annotation.NonNull;
                 import androidx.room.*;
@@ -1752,18 +1867,19 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent)
-        ) { _, _ ->
-        }.compilesWithoutError().withNoteContaining(
-            "PrimaryKey[foo > a] is overridden by PrimaryKey[id]"
-        )
+            sources = listOf(parent)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNote("PrimaryKey[foo > a] is overridden by PrimaryKey[id]")
+            }
+        }
     }
 
     @Test
     fun primaryKey_singleStringPrimaryKeyOverrideEmbedded() {
-        val parent = JavaFileObjects.forSourceLines(
-            "foo.bar.Base",
-            """
+        val parent = Source.java(
+            qName = "foo.bar.Base",
+            code = """
                 package foo.bar;
                 import androidx.annotation.NonNull;
                 import androidx.room.*;
@@ -1787,14 +1903,15 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
             baseClass = "foo.bar.Base",
-            jfos = listOf(parent)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
-            .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
-            .and().withNoteContaining(
-                "PrimaryKey[foo > a] is overridden by PrimaryKey[id]"
-            )
-            .and().withErrorCount(2)
+            sources = listOf(parent)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.primaryKeyNull("foo"))
+                hasError(ProcessorErrors.primaryKeyNull("foo > a"))
+                hasNote("PrimaryKey[foo > a] is overridden by PrimaryKey[id]")
+                hasErrorCount(2)
+            }
+        }
     }
 
     @Test
@@ -1806,9 +1923,12 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 java.util.List<User> users;
                 """,
-            jfos = listOf(COMMON.USER)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(RELATION_IN_ENTITY)
+            sources = listOf(COMMON.USER).toSources()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(RELATION_IN_ENTITY)
+            }
+        }
     }
 
     @Test
@@ -1828,9 +1948,12 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_FOREIGN_KEY_ACTION)
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.INVALID_FOREIGN_KEY_ACTION)
+            }
+        }
     }
 
     @Test
@@ -1849,9 +1972,13 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining("cannot find symbol")
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                compilationDidFail()
+                hasRawOutputContaining("cannot find symbol")
+            }
+        }
     }
 
     @Test
@@ -1870,13 +1997,16 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.NOT_AN_ENTITY)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.foreignKeyNotAnEntity(
-                COMMON.NOT_AN_ENTITY_TYPE_NAME.toString()
-            )
-        )
+            attributes = annotation, sources = listOf(COMMON.NOT_AN_ENTITY).toSources()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.foreignKeyNotAnEntity(
+                        COMMON.NOT_AN_ENTITY_TYPE_NAME.toString()
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -1895,13 +2025,16 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.foreignKeyChildColumnDoesNotExist(
-                "namex", listOf("id", "name")
-            )
-        )
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.foreignKeyChildColumnDoesNotExist(
+                        "namex", listOf("id", "name")
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -1920,13 +2053,16 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.foreignKeyColumnNumberMismatch(
-                listOf("name", "id"), listOf("lastName")
-            )
-        )
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.foreignKeyColumnNumberMismatch(
+                        listOf("name", "id"), listOf("lastName")
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -1945,9 +2081,12 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.FOREIGN_KEY_EMPTY_CHILD_COLUMN_LIST)
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.FOREIGN_KEY_EMPTY_CHILD_COLUMN_LIST)
+            }
+        }
     }
 
     @Test
@@ -1966,9 +2105,12 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST)
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST)
+            }
+        }
     }
 
     @Test
@@ -1990,7 +2132,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
         ) { entity, _ ->
             assertThat(entity.foreignKeys.size, `is`(1))
             val fKey = entity.foreignKeys.first()
@@ -2000,7 +2142,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             assertThat(fKey.childFields.size, `is`(1))
             val field = fKey.childFields.first()
             assertThat(field.name, `is`("name"))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -2023,9 +2165,12 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { _, _ ->
-        }.compilesWithoutWarnings()
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
@@ -2049,10 +2194,13 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 String lName;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { entity, _ ->
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { entity, invocation ->
             assertThat(entity.indices.size, `is`(1))
-        }.compilesWithoutWarnings()
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
@@ -2076,10 +2224,13 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 String lName;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { entity, _ ->
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { entity, invocation ->
             assertThat(entity.indices.size, `is`(1))
-        }.compilesWithoutWarnings()
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
@@ -2101,12 +2252,13 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { entity, _ ->
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { entity, invocation ->
             assertThat(entity.indices, `is`(emptyList()))
-        }.compilesWithoutError().withWarningContaining(
-            ProcessorErrors.foreignKeyMissingIndexInChildColumn("name")
-        )
+            invocation.assertCompilationResult {
+                hasWarning(ProcessorErrors.foreignKeyMissingIndexInChildColumn("name"))
+            }
+        }
     }
 
     @Test
@@ -2126,12 +2278,20 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 String lName;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { entity, _ ->
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { entity, invocation ->
             assertThat(entity.indices, `is`(emptyList()))
-        }.compilesWithoutError().withWarningContaining(
-            ProcessorErrors.foreignKeyMissingIndexInChildColumns(listOf("lName", "name"))
-        )
+            invocation.assertCompilationResult {
+                hasWarning(
+                    ProcessorErrors.foreignKeyMissingIndexInChildColumns(
+                        listOf(
+                            "lName",
+                            "name"
+                        )
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -2153,10 +2313,13 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { entity, _ ->
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { entity, invocation ->
             assertThat(entity.indices, `is`(emptyList()))
-        }.compilesWithoutWarnings()
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
@@ -2166,12 +2329,15 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @Embedded
                 MyEntity myEntity;
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
-                "foo.bar.MyEntity -> foo.bar.MyEntity"
-            )
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyEntity -> foo.bar.MyEntity"
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -2188,12 +2354,15 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     List<MyEntity> myEntity;
                 }
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
-                "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"
-            )
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -2208,12 +2377,15 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     MyEntity myEntity;
                 }
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
-                "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"
-            )
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -2229,12 +2401,15 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     MyEntity myEntity;
                 }
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
-                "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"
-            )
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
+                        "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -2246,9 +2421,10 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { _, _ ->
-        }.compilesWithoutError()
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { entity, _ ->
+            assertThat(entity.tableName).isEqualTo("foo bar")
+        }
     }
 
     @Test
@@ -2260,9 +2436,12 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_TABLE_NAME)
+            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.INVALID_TABLE_NAME)
+            }
+        }
     }
 
     @Test
@@ -2274,8 +2453,11 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @ColumnInfo(name = "\"foo bar\"")
                 String name;
                 """,
-            jfos = listOf(COMMON.USER)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_COLUMN_NAME)
+            sources = listOf(COMMON.USER).toSources()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.INVALID_COLUMN_NAME)
+            }
+        }
     }
 }

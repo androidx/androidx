@@ -45,6 +45,32 @@ public class ProxyOverrideTestAppTest {
     public void testProxyOverride() {
         WebkitTestHelpers.clickMenuListItemWithString(R.string.proxy_override_activity_title);
         WebkitTestHelpers.assertViewHasText(R.id.proxy_override_textview,
+                R.string.proxy_override_requests_served, 0);
+
+        // Set proxy override and load URL
+        WebkitTestHelpers.clickViewWithId(R.id.proxy_override_button);
+        WebkitTestHelpers.clickViewWithId(R.id.proxy_override_load_url_button);
+
+        // Assert proxy served 1 request
+        WebkitTestHelpers.assertViewHasText(R.id.proxy_override_textview,
+                                R.string.proxy_override_requests_served, 1);
+    }
+
+    @Test
+    public void testReverseBypass() {
+        WebkitTestHelpers.assumeFeature(WebViewFeature.PROXY_OVERRIDE_REVERSE_BYPASS);
+
+        WebkitTestHelpers.clickMenuListItemWithString(R.string.proxy_override_activity_title);
+        WebkitTestHelpers.assertViewHasText(R.id.proxy_override_textview,
+                R.string.proxy_override_requests_served, 0);
+
+        // Check reverse bypass, set proxy override, load URL in the bypass list
+        WebkitTestHelpers.clickViewWithId(R.id.proxy_override_reverse_bypass_checkbox);
+        WebkitTestHelpers.clickViewWithId(R.id.proxy_override_button);
+        WebkitTestHelpers.clickViewWithId(R.id.proxy_override_load_bypass_button);
+
+        // Assert proxy served 1 request
+        WebkitTestHelpers.assertViewHasText(R.id.proxy_override_textview,
                 R.string.proxy_override_requests_served, 1);
     }
 }

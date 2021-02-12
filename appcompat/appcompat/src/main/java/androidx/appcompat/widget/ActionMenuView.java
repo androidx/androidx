@@ -15,6 +15,7 @@
  */
 package androidx.appcompat.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
@@ -118,7 +119,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
      * @param presenter Menu presenter used to display popup menu
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public void setPresenter(ActionMenuPresenter presenter) {
         mPresenter = presenter;
         mPresenter.setMenuView(this);

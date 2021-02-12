@@ -23,7 +23,7 @@ plugins {
 
 android {
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
     }
 }
 
@@ -32,6 +32,8 @@ dependencies {
     implementation(project(":appcompat:appcompat"))
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation(GUAVA_ANDROID)
+    implementation(project(":recyclerview:recyclerview"))
+    implementation(MATERIAL)
 
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

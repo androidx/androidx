@@ -87,7 +87,7 @@ public final class ProcessCompat {
             // This class is non-instantiable.
         }
 
-        @SuppressWarnings("JavaReflectionMemberAccess")
+        @SuppressWarnings({"JavaReflectionMemberAccess", "CatchAndPrintStackTrace"})
         @SuppressLint("DiscouragedPrivateApi")
         static boolean isApplicationUid(int uid) {
             // In JELLY_BEAN_MR2, the equivalent isApp(int) hidden method moved to public class
@@ -126,6 +126,7 @@ public final class ProcessCompat {
         }
 
         @SuppressLint("PrivateApi")
+        @SuppressWarnings("CatchAndPrintStackTrace")
         static boolean isApplicationUid(int uid) {
             // In JELLY_BEAN_MR1, the equivalent isApp(int) hidden method was available on hidden
             // class android.os.UserId.

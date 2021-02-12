@@ -17,33 +17,43 @@
 package androidx.room.writer
 
 import COMMON
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames
 import androidx.room.processor.DaoProcessor
-import androidx.room.testing.TestProcessor
-import com.google.common.truth.Truth
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaSourcesSubjectFactory
+import androidx.room.testing.context
 import createVerifierFromEntitiesAndViews
-import loadJavaCode
+import loadTestSource
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import toSources
 import java.util.Locale
-import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class DaoWriterTest {
     @Test
     fun complexDao() {
         singleDao(
-            loadJavaCode(
-                "databasewriter/input/ComplexDatabase.java",
-                "foo.bar.ComplexDatabase"
+            loadTestSource(
+                fileName = "databasewriter/input/ComplexDatabase.java",
+                qName = "foo.bar.ComplexDatabase"
             ),
-            loadJavaCode("daoWriter/input/ComplexDao.java", "foo.bar.ComplexDao")
-        ).compilesWithoutError().and().generatesSources(
-            loadJavaCode("daoWriter/output/ComplexDao.java", "foo.bar.ComplexDao_Impl")
-        )
+            loadTestSource(
+                fileName = "daoWriter/input/ComplexDao.java",
+                qName = "foo.bar.ComplexDao"
+            )
+        ) {
+            it.assertCompilationResult {
+                generatedSource(
+                    loadTestSource(
+                        fileName = "daoWriter/output/ComplexDao.java",
+                        qName = "foo.bar.ComplexDao_Impl"
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -60,68 +70,99 @@ class DaoWriterTest {
     @Test
     fun writerDao() {
         singleDao(
-            loadJavaCode("daoWriter/input/WriterDao.java", "foo.bar.WriterDao")
-        ).compilesWithoutError().and().generatesSources(
-            loadJavaCode("daoWriter/output/WriterDao.java", "foo.bar.WriterDao_Impl")
-        )
+            loadTestSource(
+                fileName = "daoWriter/input/WriterDao.java",
+                qName = "foo.bar.WriterDao"
+            )
+        ) {
+            it.assertCompilationResult {
+                generatedSource(
+                    loadTestSource(
+                        fileName = "daoWriter/output/WriterDao.java",
+                        qName = "foo.bar.WriterDao_Impl"
+                    )
+                )
+            }
+        }
     }
 
     @Test
     fun deletionDao() {
         singleDao(
-            loadJavaCode("daoWriter/input/DeletionDao.java", "foo.bar.DeletionDao")
-        ).compilesWithoutError().and().generatesSources(
-            loadJavaCode("daoWriter/output/DeletionDao.java", "foo.bar.DeletionDao_Impl")
-        )
+            loadTestSource(
+                fileName = "daoWriter/input/DeletionDao.java",
+                qName = "foo.bar.DeletionDao"
+            )
+        ) {
+            it.assertCompilationResult {
+                generatedSource(
+                    loadTestSource(
+                        fileName = "daoWriter/output/DeletionDao.java",
+                        qName = "foo.bar.DeletionDao_Impl"
+                    )
+                )
+            }
+        }
     }
 
     @Test
     fun updateDao() {
         singleDao(
-            loadJavaCode("daoWriter/input/UpdateDao.java", "foo.bar.UpdateDao")
-        ).compilesWithoutError().and().generatesSources(
-            loadJavaCode("daoWriter/output/UpdateDao.java", "foo.bar.UpdateDao_Impl")
-        )
+            loadTestSource(
+                fileName = "daoWriter/input/UpdateDao.java",
+                qName = "foo.bar.UpdateDao"
+            )
+        ) {
+            it.assertCompilationResult {
+                generatedSource(
+                    loadTestSource(
+                        fileName = "daoWriter/output/UpdateDao.java",
+                        qName = "foo.bar.UpdateDao_Impl"
+                    )
+                )
+            }
+        }
     }
 
-    private fun singleDao(vararg jfo: JavaFileObject): CompileTester {
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(
-                jfo.toList() + COMMON.USER + COMMON.MULTI_PKEY_ENTITY + COMMON.BOOK +
-                    COMMON.LIVE_DATA + COMMON.COMPUTABLE_LIVE_DATA + COMMON.RX2_SINGLE +
-                    COMMON.RX2_MAYBE + COMMON.RX2_COMPLETABLE + COMMON.USER_SUMMARY +
-                    COMMON.RX2_ROOM + COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 +
-                    COMMON.INFO + COMMON.LISTENABLE_FUTURE + COMMON.GUAVA_ROOM
-            )
-            .processedWith(
-                TestProcessor.builder()
-                    .forAnnotations(androidx.room.Dao::class)
-                    .nextRunHandler { invocation ->
-                        val dao = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(
-                                androidx.room.Dao::class.java
-                            )
-                            .first()
-                        val db = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(
-                                androidx.room.Database::class.java
-                            )
-                            .firstOrNull()
-                            ?: invocation.context.processingEnv
-                                .requireTypeElement(RoomTypeNames.ROOM_DB)
-                        val dbType = db.type
-                        val parser = DaoProcessor(
-                            baseContext = invocation.context,
-                            element = dao,
-                            dbType = dbType,
-                            dbVerifier = createVerifierFromEntitiesAndViews(invocation)
-                        )
-                        val parsedDao = parser.process()
-                        DaoWriter(parsedDao, db, invocation.processingEnv)
-                            .write(invocation.processingEnv)
-                        true
-                    }
-                    .build()
-            )
+    private fun singleDao(
+        vararg inputs: Source,
+        handler: (XTestInvocation) -> Unit
+    ) {
+        val sources = listOf(
+            COMMON.USER, COMMON.MULTI_PKEY_ENTITY, COMMON.BOOK,
+            COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.RX2_SINGLE,
+            COMMON.RX2_MAYBE, COMMON.RX2_COMPLETABLE, COMMON.USER_SUMMARY,
+            COMMON.RX2_ROOM, COMMON.PARENT, COMMON.CHILD1, COMMON.CHILD2,
+            COMMON.INFO, COMMON.LISTENABLE_FUTURE, COMMON.GUAVA_ROOM
+        ).toSources() + inputs
+        runProcessorTest(
+            sources = sources
+        ) { invocation ->
+            val dao = invocation.roundEnv
+                .getTypeElementsAnnotatedWith(
+                    androidx.room.Dao::class.java
+                ).firstOrNull()
+            if (dao != null) {
+                val db = invocation.roundEnv
+                    .getTypeElementsAnnotatedWith(
+                        androidx.room.Database::class.java
+                    ).firstOrNull()
+                    ?: invocation.context.processingEnv
+                        .requireTypeElement(RoomTypeNames.ROOM_DB)
+                val dbType = db.type
+                val parser = DaoProcessor(
+                    baseContext = invocation.context,
+                    element = dao,
+                    dbType = dbType,
+                    dbVerifier = createVerifierFromEntitiesAndViews(invocation)
+                )
+                val parsedDao = parser.process()
+                DaoWriter(parsedDao, db, invocation.processingEnv)
+                    .write(invocation.processingEnv)
+            }
+            // we could call handler inside the if block but if something happens and we cannot
+            // find the dao, test will never assert on generated code.
+            handler(invocation)
+        }
     }
 }

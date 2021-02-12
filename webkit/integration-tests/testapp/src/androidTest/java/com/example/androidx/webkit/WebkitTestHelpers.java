@@ -59,6 +59,15 @@ public final class WebkitTestHelpers {
     }
 
     /**
+     * Click on a view by id.
+     *
+     * @param viewId view to be clicked on
+     */
+    public static void clickViewWithId(@IdRes int viewId) {
+        onView(withId(viewId)).perform(click());
+    }
+
+    /**
      * Asserts that a view displays the expected text.
      *
      * @param viewId the view to be checked

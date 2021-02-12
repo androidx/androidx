@@ -40,7 +40,7 @@ class MacrobenchmarkRule : TestRule {
      * @param compilationMode Mode of compilation used before capturing measurement, such as
      * [CompilationMode.SpeedProfile].
      * @param startupMode Optional mode to force app launches performed with
-     * [MacrobenchmarkScope.launchIntentAndWait] (and similar variants) to be of the assigned
+     * [MacrobenchmarkScope.startActivityAndWait] (and similar variants) to be of the assigned
      * type. For example, `COLD` launches kill the process before the measureBlock, to ensure
      * startups will go through full process creation. Generally, leave as null for non-startup
      * benchmarks.

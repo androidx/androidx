@@ -16,6 +16,9 @@
 
 package androidx.paging
 
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -71,6 +74,8 @@ abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
      * @return [InitializeAction] indicating the action to take after initialization:
      *  * [LAUNCH_INITIAL_REFRESH] to immediately dispatch a [load] asynchronously with load type
      *  [LoadType.REFRESH], to update paginated content when the stream is initialized.
+     *  Note: This also prevents [RemoteMediator] from triggering [PREPEND] or [APPEND] until
+     *  [REFRESH] succeeds.
      *  * [SKIP_INITIAL_REFRESH][InitializeAction.SKIP_INITIAL_REFRESH] to wait for a
      *  refresh request from the UI before dispatching a [load] with load type [LoadType.REFRESH].
      */

@@ -139,6 +139,21 @@ package androidx.slice {
 
 package androidx.slice.compat {
 
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class CompatPermissionManager {
+    ctor public CompatPermissionManager(android.content.Context!, String!, int, String![]!);
+    method public int checkSlicePermission(android.net.Uri!, int, int);
+    method public void grantSlicePermission(android.net.Uri!, String!);
+    method public void revokeSlicePermission(android.net.Uri!, String!);
+    field public static final String ALL_SUFFIX = "_all";
+  }
+
+  public static class CompatPermissionManager.PermissionState {
+    method public String! getKey();
+    method public boolean hasAccess(java.util.List<java.lang.String!>!);
+    method public boolean hasAllPermissions();
+    method public java.util.Set<java.lang.String!>! toPersistable();
+  }
+
   @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class SliceProviderCompat {
     ctor public SliceProviderCompat(androidx.slice.SliceProvider, androidx.slice.compat.CompatPermissionManager, android.content.Context);
     method public static void addSpecs(android.os.Bundle, java.util.Set<androidx.slice.SliceSpec!>);

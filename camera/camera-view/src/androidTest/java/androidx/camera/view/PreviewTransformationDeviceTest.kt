@@ -23,6 +23,7 @@ import android.view.Surface
 import android.view.View
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue
+import androidx.camera.view.TransformUtils.sizeToVertices
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -191,7 +192,7 @@ public class PreviewTransformationDeviceTest {
         )
 
         // Act.
-        val surfaceVertexes = PreviewTransformation.sizeToVertices(SURFACE_SIZE)
+        val surfaceVertexes = sizeToVertices(SURFACE_SIZE)
         mPreviewTransform.textureViewCorrectionMatrix.mapPoints(surfaceVertexes)
         return convertToIntArray(surfaceVertexes)
     }

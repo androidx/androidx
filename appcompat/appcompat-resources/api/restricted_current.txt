@@ -65,6 +65,14 @@ package androidx.appcompat.widget {
     method public void setHooks(androidx.appcompat.widget.ResourceManagerInternal.ResourceManagerHooks!);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static interface ResourceManagerInternal.ResourceManagerHooks {
+    method public android.graphics.drawable.Drawable? createDrawableFor(androidx.appcompat.widget.ResourceManagerInternal, android.content.Context, @DrawableRes int);
+    method public android.content.res.ColorStateList? getTintListForDrawableRes(android.content.Context, @DrawableRes int);
+    method public android.graphics.PorterDuff.Mode? getTintModeForDrawableRes(int);
+    method public boolean tintDrawable(android.content.Context, @DrawableRes int, android.graphics.drawable.Drawable);
+    method public boolean tintDrawableUsingColorFilter(android.content.Context, @DrawableRes int, android.graphics.drawable.Drawable);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TintContextWrapper extends android.content.ContextWrapper {
     method public static android.content.Context! wrap(android.content.Context);
   }

@@ -66,7 +66,7 @@ package androidx.wear.watchface.style {
   }
 
   public static final class UserStyleSetting.BooleanUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
-    ctor public UserStyleSetting.BooleanUserStyleSetting(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, boolean defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    ctor public UserStyleSetting.BooleanUserStyleSetting(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers, boolean defaultValue);
     method public boolean getDefaultValue();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat toWireFormat();
   }
@@ -82,6 +82,7 @@ package androidx.wear.watchface.style {
   }
 
   public static final class UserStyleSetting.ComplicationsUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
+    ctor public UserStyleSetting.ComplicationsUserStyleSetting(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption> complicationConfig, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers, androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption defaultOption);
     ctor public UserStyleSetting.ComplicationsUserStyleSetting(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption> complicationConfig, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat toWireFormat();
   }
@@ -115,7 +116,7 @@ package androidx.wear.watchface.style {
   }
 
   public static final class UserStyleSetting.CustomValueUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
-    ctor public UserStyleSetting.CustomValueUserStyleSetting(String defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    ctor public UserStyleSetting.CustomValueUserStyleSetting(java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers, String defaultValue);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.CustomValueUserStyleSettingWireFormat toWireFormat();
   }
 
@@ -127,7 +128,7 @@ package androidx.wear.watchface.style {
   }
 
   public static final class UserStyleSetting.DoubleRangeUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
-    ctor public UserStyleSetting.DoubleRangeUserStyleSetting(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, double minimumValue, double maximumValue, double defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    ctor public UserStyleSetting.DoubleRangeUserStyleSetting(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, double minimumValue, double maximumValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers, double defaultValue);
     method public double getDefaultValue();
     method public double getMaximumValue();
     method public double getMinimumValue();
@@ -157,7 +158,7 @@ package androidx.wear.watchface.style {
   }
 
   public static final class UserStyleSetting.LongRangeUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
-    ctor public UserStyleSetting.LongRangeUserStyleSetting(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, long minimumValue, long maximumValue, long defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    ctor public UserStyleSetting.LongRangeUserStyleSetting(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, long minimumValue, long maximumValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers, long defaultValue);
     method public long getDefaultValue();
     method public long getMaximumValue();
     method public long getMinimumValue();

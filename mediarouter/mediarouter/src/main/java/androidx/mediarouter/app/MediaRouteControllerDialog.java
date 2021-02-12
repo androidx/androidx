@@ -501,6 +501,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         return super.onKeyUp(keyCode, event);
     }
 
+    @SuppressWarnings("ObjectToString")
     void update(boolean animate) {
         // Defer dialog updates if a user is adjusting a volume in the list
         if (mRouteInVolumeSliderTouched != null) {
@@ -1375,6 +1376,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
 
         @Override
+        @SuppressWarnings("ObjectToString")
         protected Bitmap doInBackground(Void... arg) {
             Bitmap art = null;
             if (mIconBitmap != null) {

@@ -52,7 +52,7 @@ class StartupTimingMetricTest {
             scope.killProcess()
             scope.dropKernelPageCache()
             scope.pressHome()
-            scope.launchPackageAndWait {
+            scope.startActivityAndWait {
                 it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 it.action =
                     "androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY"

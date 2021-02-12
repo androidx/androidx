@@ -409,12 +409,12 @@ open class AsyncPagedListDiffer<T : Any> {
             mainThreadExecutor.execute {
                 if (maxScheduledGeneration == runGeneration) {
                     latchPagedList(
-                        pagedList,
-                        newSnapshot,
-                        result,
-                        recordingCallback,
-                        oldSnapshot.lastLoad(),
-                        commitCallback
+                        newList = pagedList,
+                        diffSnapshot = newSnapshot,
+                        diffResult = result,
+                        recordingCallback = recordingCallback,
+                        lastAccessIndex = oldSnapshot.lastLoad(),
+                        commitCallback = commitCallback
                     )
                 }
             }
@@ -441,9 +441,9 @@ open class AsyncPagedListDiffer<T : Any> {
 
         // dispatch updates to UI from previousSnapshot -> newSnapshot
         previousSnapshot.getNullPaddedList().dispatchDiff(
-            updateCallback,
-            previousSnapshot.getNullPaddedList(),
-            diffResult
+            callback = updateCallback,
+            newList = diffSnapshot.getNullPaddedList(),
+            diffResult = diffResult
         )
 
         // dispatch updates to UI from newSnapshot -> currentList

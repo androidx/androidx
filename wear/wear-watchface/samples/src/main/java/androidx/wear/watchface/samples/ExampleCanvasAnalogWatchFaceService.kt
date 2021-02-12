@@ -137,8 +137,8 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
         context.getString(R.string.watchface_pips_setting),
         context.getString(R.string.watchface_pips_setting_description),
         null,
-        true,
-        listOf(Layer.BASE_LAYER)
+        listOf(Layer.BASE_LAYER),
+        true
     )
     val watchHandLengthStyleSetting = DoubleRangeUserStyleSetting(
         WATCH_HAND_LENGTH_STYLE_SETTING,
@@ -147,8 +147,8 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
         null,
         0.25,
         1.0,
-        0.75,
-        listOf(Layer.TOP_LAYER)
+        listOf(Layer.TOP_LAYER),
+        0.75
     )
     // These are style overrides applied on top of the complications passed into
     // complicationsManager below.

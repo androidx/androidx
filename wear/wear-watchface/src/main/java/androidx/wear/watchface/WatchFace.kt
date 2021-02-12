@@ -657,7 +657,7 @@ internal class WatchFaceImpl(
         ): Bitmap {
             val oldComplicationData =
                 complicationsManager.complications.values.map {
-                    it.renderer.idAndData ?: IdAndComplicationData(
+                    it.renderer.getIdAndData() ?: IdAndComplicationData(
                         it.id,
                         NoDataComplicationData()
                     )
@@ -665,8 +665,9 @@ internal class WatchFaceImpl(
 
             idToComplicationData?.let {
                 for ((id, complicationData) in it) {
-                    complicationsManager[id]!!.renderer.setIdComplicationDataSync(
-                        IdAndComplicationData(id, complicationData)
+                    complicationsManager[id]!!.renderer.setIdAndData(
+                        IdAndComplicationData(id, complicationData),
+                        false
                     )
                 }
             }
@@ -679,7 +680,7 @@ internal class WatchFaceImpl(
             if (idToComplicationData != null) {
                 for (idAndData in oldComplicationData) {
                     complicationsManager[idAndData.complicationId]!!.renderer
-                        .setIdComplicationDataSync(idAndData)
+                        .setIdAndData(idAndData, false)
                 }
             }
             return screenShot

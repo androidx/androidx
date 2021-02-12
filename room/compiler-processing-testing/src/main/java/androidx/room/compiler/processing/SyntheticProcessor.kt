@@ -43,4 +43,67 @@ internal interface SyntheticProcessor {
      * dispatch them afterwards.
      */
     fun getProcessingException(): Throwable?
+
+    /**
+     * Returns true if the processor expected to run another round.
+     */
+    fun expectsAnotherRound(): Boolean
+}
+
+/**
+ * Helper class to implement [SyntheticProcessor] processor that handles the communication with
+ * the testing infrastructure.
+ */
+internal class SyntheticProcessorImpl(
+    handlers: List<(XTestInvocation) -> Unit>
+) : SyntheticProcessor {
+    private var result: Result<Unit>? = null
+    override val invocationInstances = mutableListOf<XTestInvocation>()
+    private val nextRunHandlers = handlers.toMutableList()
+    override val messageWatcher = RecordingXMessager()
+
+    override fun expectsAnotherRound(): Boolean {
+        return nextRunHandlers.isNotEmpty()
+    }
+
+    /**
+     * Returns true if this can run another round, which means previous round didn't throw an
+     * exception and there is another handler in the queue.
+     */
+    fun canRunAnotherRound(): Boolean {
+        if (result?.exceptionOrNull() != null) {
+            // if there is an existing failure from a previous run, stop
+            return false
+        }
+        return expectsAnotherRound()
+    }
+
+    override fun getProcessingException(): Throwable? {
+        val result = this.result ?: return AssertionError("processor didn't run")
+        result.exceptionOrNull()?.let {
+            return it
+        }
+        if (result.isFailure) {
+            return AssertionError("processor failed but no exception is reported")
+        }
+        return null
+    }
+
+    /**
+     * Runs the next handler with the given test invocation.
+     */
+    fun runNextRound(
+        invocation: XTestInvocation
+    ) {
+        check(nextRunHandlers.isNotEmpty()) {
+            "Called run next round w/o a runner to handle it. Looks like a testing infra bug"
+        }
+        val handler = nextRunHandlers.removeAt(0)
+        invocationInstances.add(invocation)
+        invocation.processingEnv.messager.addMessageWatcher(messageWatcher)
+        result = kotlin.runCatching {
+            handler(invocation)
+            invocation.dispose()
+        }
+    }
 }

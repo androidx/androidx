@@ -26,6 +26,7 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.kspSourcesDir
 import com.tschuchort.compiletesting.symbolProcessors
+import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.tools.Diagnostic
 
@@ -46,11 +47,13 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
         } else {
             params.sources
         }
-        val syntheticKspProcessor = SyntheticKspProcessor(params.handler)
+        val syntheticKspProcessor = SyntheticKspProcessor(params.handlers)
 
+        val combinedOutputStream = ByteArrayOutputStream()
         val kspCompilation = KotlinCompilationUtil.prepareCompilation(
-            sources,
-            params.classpath
+            sources = sources,
+            outputStream = combinedOutputStream,
+            classpaths = params.classpath
         )
         kspCompilation.symbolProcessors = listOf(syntheticKspProcessor)
         kspCompilation.compile()
@@ -61,8 +64,9 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
 
         // after ksp, compile without ksp with KSP's output as input
         val finalCompilation = KotlinCompilationUtil.prepareCompilation(
-            sources,
-            params.classpath
+            sources = sources,
+            outputStream = combinedOutputStream,
+            classpaths = params.classpath,
         )
         // build source files from generated code
         finalCompilation.sources += kspCompilation.kspJavaSourceDir.collectSourceFiles() +
@@ -81,7 +85,8 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
             outputSourceDirs = listOf(
                 kspCompilation.kspJavaSourceDir,
                 kspCompilation.kspKotlinSourceDir
-            )
+            ),
+            rawOutput = combinedOutputStream.toString(Charsets.UTF_8),
         )
     }
 

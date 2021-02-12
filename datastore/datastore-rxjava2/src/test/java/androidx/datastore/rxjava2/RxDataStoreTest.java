@@ -18,22 +18,18 @@ package androidx.datastore.rxjava2;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.datastore.core.DataStore;
-import androidx.datastore.core.DataStoreFactory;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import kotlinx.coroutines.CoroutineScopeKt;
-import kotlinx.coroutines.Dispatchers;
 
 public class RxDataStoreTest {
     @Rule
@@ -47,22 +43,19 @@ public class RxDataStoreTest {
     public void testGetSingleValue() throws Exception {
         File newFile = tempFolder.newFile();
 
-        DataStore<Byte> byteStore = DataStoreFactory.INSTANCE.create(
-                new TestingSerializer(),
-                null,
-                new ArrayList<>(),
-                CoroutineScopeKt.CoroutineScope(Dispatchers.getIO()),
-                () -> newFile);
+        RxDataStore<Byte> byteStore =
+                new RxDataStoreBuilder<Byte>(() -> newFile, new TestingSerializer()).build();
 
-        Byte firstByte = RxDataStore.data(byteStore).blockingFirst();
+
+        Byte firstByte = byteStore.data().blockingFirst();
         assertThat(firstByte).isEqualTo(0);
 
-        Single<Byte> incrementByte = RxDataStore.updateDataAsync(byteStore,
+        Single<Byte> incrementByte = byteStore.updateDataAsync(
                 RxDataStoreTest::incrementByte);
 
         assertThat(incrementByte.blockingGet()).isEqualTo(1);
 
-        firstByte = RxDataStore.data(byteStore).blockingFirst();
+        firstByte = byteStore.data().blockingFirst();
         assertThat(firstByte).isEqualTo(1);
     }
 
@@ -70,17 +63,14 @@ public class RxDataStoreTest {
     public void testTake3() throws Exception {
         File newFile = tempFolder.newFile();
 
-        DataStore<Byte> byteStore = DataStoreFactory.INSTANCE.create(
-                new TestingSerializer(),
-                null,
-                new ArrayList<>(),
-                CoroutineScopeKt.CoroutineScope(Dispatchers.getIO()),
-                () -> newFile);
+        RxDataStore<Byte> byteStore =
+                new RxDataStoreBuilder<Byte>(() -> newFile, new TestingSerializer())
+                        .build();
 
-        TestSubscriber<Byte> testSubscriber = RxDataStore.data(byteStore).test();
+        TestSubscriber<Byte> testSubscriber = byteStore.data().test();
 
-        RxDataStore.updateDataAsync(byteStore, RxDataStoreTest::incrementByte);
-        RxDataStore.updateDataAsync(byteStore, RxDataStoreTest::incrementByte);
+        byteStore.updateDataAsync(RxDataStoreTest::incrementByte);
+        byteStore.updateDataAsync(RxDataStoreTest::incrementByte);
 
         testSubscriber.awaitCount(3).assertValues((byte) 0, (byte) 1, (byte) 2);
     }
@@ -91,16 +81,13 @@ public class RxDataStoreTest {
         File newFile = tempFolder.newFile();
         TestingSerializer testingSerializer = new TestingSerializer();
 
-        DataStore<Byte> byteStore = DataStoreFactory.INSTANCE.create(
-                testingSerializer,
-                null,
-                new ArrayList<>(),
-                CoroutineScopeKt.CoroutineScope(Dispatchers.getIO()),
-                () -> newFile);
+        RxDataStore<Byte> byteStore =
+                new RxDataStoreBuilder<Byte>(() -> newFile, testingSerializer).build();
+
 
         testingSerializer.setFailingRead(true);
 
-        TestSubscriber<Byte> testSubscriber = RxDataStore.data(byteStore).test();
+        TestSubscriber<Byte> testSubscriber = byteStore.data().test();
 
         assertThat(testSubscriber.awaitTerminalEvent(5, TimeUnit.SECONDS)).isTrue();
 
@@ -108,7 +95,7 @@ public class RxDataStoreTest {
 
         testingSerializer.setFailingRead(false);
 
-        testSubscriber = RxDataStore.data(byteStore).test();
+        testSubscriber = byteStore.data().test();
         testSubscriber.awaitCount(1).assertValues((byte) 0);
     }
 
@@ -117,28 +104,63 @@ public class RxDataStoreTest {
         File newFile = tempFolder.newFile();
         TestingSerializer testingSerializer = new TestingSerializer();
 
-        DataStore<Byte> byteStore = DataStoreFactory.INSTANCE.create(
-                testingSerializer,
-                null,
-                new ArrayList<>(),
-                CoroutineScopeKt.CoroutineScope(Dispatchers.getIO()),
-                () -> newFile);
+        RxDataStore<Byte> byteStore =
+                new RxDataStoreBuilder<Byte>(() -> newFile, testingSerializer).build();
 
-        TestSubscriber<Byte> testSubscriber = RxDataStore.data(byteStore).test();
+        TestSubscriber<Byte> testSubscriber = byteStore.data().test();
 
         testingSerializer.setFailingWrite(true);
-        Single<Byte> incrementByte = RxDataStore.updateDataAsync(byteStore,
-                RxDataStoreTest::incrementByte);
+        Single<Byte> incrementByte = byteStore.updateDataAsync(RxDataStoreTest::incrementByte);
 
         incrementByte.cache().test().await().assertError(IOException.class);
 
         testSubscriber.awaitCount(1).assertNoErrors().assertValues((byte) 0);
         testingSerializer.setFailingWrite(false);
 
-        Single<Byte> incrementByte2 = RxDataStore.updateDataAsync(byteStore,
-                RxDataStoreTest::incrementByte);
+        Single<Byte> incrementByte2 = byteStore.updateDataAsync(RxDataStoreTest::incrementByte);
         assertThat(incrementByte2.blockingGet()).isEqualTo((byte) 1);
 
         testSubscriber.awaitCount(2).assertValues((byte) 0, (byte) 1);
+    }
+
+    @Test
+    public void canCloseDataStore() throws Exception {
+        File newFile = tempFolder.newFile();
+        TestingSerializer testingSerializer = new TestingSerializer();
+
+        RxDataStore<Byte> byteRxDataStore = new RxDataStoreBuilder<Byte>(() -> newFile,
+                testingSerializer).build();
+
+        assertThat(byteRxDataStore.data().blockingFirst()).isEqualTo((byte) 0);
+
+        byteRxDataStore.dispose();
+        byteRxDataStore.shutdownComplete().blockingAwait();
+
+
+        TestSubscriber<Byte> testSubscriber = byteRxDataStore.data().test();
+
+        assertThat(testSubscriber.awaitTerminalEvent()).isTrue();
+        testSubscriber.assertTerminated()
+                // Note(rohitsat): this is different from coroutines bc asFlowable converts the
+                // CancellationException to onComplete.
+                .assertNoErrors()
+                .assertComplete()
+                .assertValueCount(0);
+
+
+        // NOTE(rohitsat): this is different from data()
+        TestObserver<Byte> testObserver = byteRxDataStore.updateDataAsync(Single::just).test();
+        testObserver.awaitTerminalEvent();
+
+        testObserver.assertTerminated()
+                .assertError(CancellationException.class)
+                .assertNoValues();
+
+
+        RxDataStore<Byte> byteRxDataStore2 = new RxDataStoreBuilder<Byte>(() -> newFile,
+                testingSerializer).build();
+
+        // Should not throw
+        assertThat(byteRxDataStore2.data().blockingFirst()).isEqualTo((byte) 0);
     }
 }

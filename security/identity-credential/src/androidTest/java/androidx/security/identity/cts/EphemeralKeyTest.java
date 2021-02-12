@@ -39,6 +39,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -124,10 +125,10 @@ public class EphemeralKeyTest {
 
         private PublicKey mHolderEphemeralPublicKey;
         private KeyPair mEphemeralKeyPair;
-        private SecretKey mSecretKey;
-        private SecretKey mReaderSecretKey;
-        private int mCounter;
-        private int mMdlExpectedCounter;
+        private SecretKey mSKDevice;
+        private SecretKey mSKReader;
+        private int mSKDeviceCounter;
+        private int mSKReaderCounter;
 
         private SecureRandom mSecureRandom;
 
@@ -140,8 +141,8 @@ public class EphemeralKeyTest {
                 byte[] sessionTranscript) throws IdentityCredentialException {
             mCipherSuite = cipherSuite;
             mHolderEphemeralPublicKey = holderEphemeralPublicKey;
-            mCounter = 1;
-            mMdlExpectedCounter = 1;
+            mSKReaderCounter = 1;
+            mSKDeviceCounter = 1;
 
             try {
                 KeyPairGenerator kpg = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC);
@@ -162,21 +163,15 @@ public class EphemeralKeyTest {
 
                 byte[] sessionTranscriptBytes =
                         Util.prependSemanticTagForEncodedCbor(sessionTranscript);
-                byte[] sharedSecretWithSessionTranscriptBytes =
-                        Util.concatArrays(sharedSecret, sessionTranscriptBytes);
+                byte[] salt = MessageDigest.getInstance("SHA-256").digest(sessionTranscriptBytes);
 
-                byte[] salt = new byte[1];
-                byte[] info = new byte[0];
+                byte[] info = new byte[] {'S', 'K', 'D', 'e', 'v', 'i', 'c', 'e'};
+                byte[] derivedKey = Util.computeHkdf("HmacSha256", sharedSecret, salt, info, 32);
+                mSKDevice = new SecretKeySpec(derivedKey, "AES");
 
-                salt[0] = 0x01;
-                byte[] derivedKey = Util.computeHkdf("HmacSha256",
-                        sharedSecretWithSessionTranscriptBytes, salt, info, 32);
-                mSecretKey = new SecretKeySpec(derivedKey, "AES");
-
-                salt[0] = 0x00;
-                derivedKey = Util.computeHkdf("HmacSha256", sharedSecretWithSessionTranscriptBytes,
-                        salt, info, 32);
-                mReaderSecretKey = new SecretKeySpec(derivedKey, "AES");
+                info = new byte[] {'S', 'K', 'R', 'e', 'a', 'd', 'e', 'r'};
+                derivedKey = Util.computeHkdf("HmacSha256", sharedSecret, salt, info, 32);
+                mSKReader = new SecretKeySpec(derivedKey, "AES");
 
                 mSecureRandom = new SecureRandom();
 
@@ -197,10 +192,10 @@ public class EphemeralKeyTest {
                 ByteBuffer iv = ByteBuffer.allocate(12);
                 iv.putInt(0, 0x00000000);
                 iv.putInt(4, 0x00000000);
-                iv.putInt(8, mCounter);
+                iv.putInt(8, mSKReaderCounter);
                 Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
                 GCMParameterSpec encryptionParameterSpec = new GCMParameterSpec(128, iv.array());
-                cipher.init(Cipher.ENCRYPT_MODE, mReaderSecretKey, encryptionParameterSpec);
+                cipher.init(Cipher.ENCRYPT_MODE, mSKReader, encryptionParameterSpec);
                 messageCiphertext = cipher.doFinal(messagePlaintext); // This includes the auth tag
             } catch (BadPaddingException
                     | IllegalBlockSizeException
@@ -211,7 +206,7 @@ public class EphemeralKeyTest {
                 e.printStackTrace();
                 throw new IdentityCredentialException("Error encrypting message", e);
             }
-            mCounter += 1;
+            mSKReaderCounter += 1;
             return messageCiphertext;
         }
 
@@ -220,11 +215,11 @@ public class EphemeralKeyTest {
             ByteBuffer iv = ByteBuffer.allocate(12);
             iv.putInt(0, 0x00000000);
             iv.putInt(4, 0x00000001);
-            iv.putInt(8, mMdlExpectedCounter);
+            iv.putInt(8, mSKDeviceCounter);
             byte[] plaintext = null;
             try {
                 final Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-                cipher.init(Cipher.DECRYPT_MODE, mSecretKey, new GCMParameterSpec(128, iv.array()));
+                cipher.init(Cipher.DECRYPT_MODE, mSKDevice, new GCMParameterSpec(128, iv.array()));
                 plaintext = cipher.doFinal(messageCiphertext);
             } catch (BadPaddingException
                     | IllegalBlockSizeException
@@ -235,7 +230,7 @@ public class EphemeralKeyTest {
                 e.printStackTrace();
                 throw new IdentityCredentialException("Error decrypting message", e);
             }
-            mMdlExpectedCounter += 1;
+            mSKDeviceCounter += 1;
             return plaintext;
         }
     }

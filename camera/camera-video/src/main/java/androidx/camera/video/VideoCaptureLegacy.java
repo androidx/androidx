@@ -350,6 +350,7 @@ public final class VideoCaptureLegacy extends UseCase {
      * @param executor          The executor in which the callback methods will be run.
      * @param callback          Callback for when the recorded video saving completion or failure.
      */
+    @SuppressWarnings("ObjectToString")
     public void startRecording(
             @NonNull OutputFileOptions outputFileOptions, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
@@ -1189,6 +1190,7 @@ public final class VideoCaptureLegacy extends UseCase {
     }
 
     /** Builder for a {@link VideoCaptureLegacy}. */
+    @SuppressWarnings("ObjectToString")
     public static final class Builder
             implements
             UseCaseConfig.Builder<VideoCaptureLegacy, VideoCaptureLegacyConfig, Builder>,

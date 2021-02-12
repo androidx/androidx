@@ -16,17 +16,12 @@
 
 package androidx.room.processor
 
-import androidx.annotation.NonNull
-import androidx.room.Embedded
-import androidx.room.testing.TestInvocation
-import androidx.room.testing.TestProcessor
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.testing.context
 import androidx.room.vo.Entity
-import com.google.common.truth.Truth
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import java.io.File
-import javax.tools.JavaFileObject
 
 abstract class BaseEntityParserTest {
     companion object {
@@ -45,10 +40,10 @@ abstract class BaseEntityParserTest {
         input: String,
         attributes: Map<String, String> = mapOf(),
         baseClass: String = "",
-        jfos: List<JavaFileObject> = emptyList(),
-        classpathFiles: Set<File> = emptySet(),
-        handler: (Entity, TestInvocation) -> Unit
-    ): CompileTester {
+        sources: List<Source> = emptyList(),
+        classpathFiles: List<File> = emptyList(),
+        handler: (Entity, XTestInvocation) -> Unit
+    ) {
         val attributesReplacement: String
         if (attributes.isEmpty()) {
             attributesReplacement = ""
@@ -63,45 +58,26 @@ abstract class BaseEntityParserTest {
         } else {
             baseClassReplacement = " extends $baseClass"
         }
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(
-                jfos + JavaFileObjects.forSourceString(
-                    "foo.bar.MyEntity",
-                    ENTITY_PREFIX.format(attributesReplacement, baseClassReplacement) +
-                        input + ENTITY_SUFFIX
-                )
-            )
-            .apply {
-                if (classpathFiles.isNotEmpty()) {
-                    withClasspath(classpathFiles)
+        runProcessorTest(
+            sources = sources + Source.java(
+                qName = "foo.bar.MyEntity",
+                code = ENTITY_PREFIX.format(attributesReplacement, baseClassReplacement) +
+                    input + ENTITY_SUFFIX
+            ),
+            classpath = classpathFiles
+        ) { invocation ->
+            val entity = invocation.roundEnv
+                .getTypeElementsAnnotatedWith(
+                    androidx.room.Entity::class.java
+                ).first {
+                    it.qualifiedName == "foo.bar.MyEntity"
                 }
-            }
-            .processedWith(
-                TestProcessor.builder()
-                    .forAnnotations(
-                        java.lang.SuppressWarnings::class,
-                        androidx.room.Entity::class,
-                        androidx.room.PrimaryKey::class,
-                        androidx.room.Ignore::class,
-                        Embedded::class,
-                        androidx.room.ColumnInfo::class,
-                        NonNull::class
-                    )
-                    .nextRunHandler { invocation ->
-                        val entity = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(
-                                androidx.room.Entity::class.java
-                            )
-                            .first { it.toString() == "foo.bar.MyEntity" }
-                        val parser = TableEntityProcessor(
-                            invocation.context,
-                            entity
-                        )
-                        val parsedQuery = parser.process()
-                        handler(parsedQuery, invocation)
-                        true
-                    }
-                    .build()
+            val parser = TableEntityProcessor(
+                invocation.context,
+                entity
             )
+            val parsedQuery = parser.process()
+            handler(parsedQuery, invocation)
+        }
     }
 }
