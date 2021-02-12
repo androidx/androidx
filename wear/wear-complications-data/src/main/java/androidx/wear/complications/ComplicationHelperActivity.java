@@ -54,8 +54,10 @@ import java.util.Objects;
  * <p>Or, to request the permission, for instance if {@link ComplicationData} of {@link
  * ComplicationData#TYPE_NO_PERMISSION TYPE_NO_PERMISSION} has been received and tapped on, use
  * {@link #createPermissionRequestHelperIntent}.
+ * @hide
  */
 @TargetApi(Build.VERSION_CODES.N)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings("ForbiddenSuperClass")
 public final class ComplicationHelperActivity extends Activity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
@@ -199,6 +201,8 @@ public final class ComplicationHelperActivity extends Activity
      *
      * <p>The package of the calling app must match the package of the watch face, or this will not
      * work.
+     *
+     * <p>From android R onwards this API can only be called during an editing session.
      *
      * @param context context for the current app, that must contain a ComplicationHelperActivity
      * @param watchFace the ComponentName of the WatchFaceService being configured.
