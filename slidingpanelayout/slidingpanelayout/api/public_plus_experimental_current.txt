@@ -10,6 +10,7 @@ package androidx.slidingpanelayout.widget {
     method public void close();
     method public boolean closePane();
     method @ColorInt public int getCoveredFadeColor();
+    method public final int getLockMode();
     method @Px public int getParallaxDistance();
     method @ColorInt public int getSliderFadeColor();
     method public boolean isOpen();
@@ -17,6 +18,7 @@ package androidx.slidingpanelayout.widget {
     method public void open();
     method public boolean openPane();
     method public void setCoveredFadeColor(@ColorInt int);
+    method public final void setLockMode(int);
     method public void setPanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener?);
     method public void setParallaxDistance(@Px int);
     method @Deprecated public void setShadowDrawable(android.graphics.drawable.Drawable!);
@@ -28,6 +30,10 @@ package androidx.slidingpanelayout.widget {
     method public void setSliderFadeColor(@ColorInt int);
     method @Deprecated public void smoothSlideClosed();
     method @Deprecated public void smoothSlideOpen();
+    field public static final int LOCK_MODE_LOCKED_CLOSED = 2; // 0x2
+    field public static final int LOCK_MODE_LOCKED_OPEN = 1; // 0x1
+    field public static final int LOCK_MODE_OPEN_ONLY = 3; // 0x3
+    field public static final int LOCK_MODE_UNLOCKED = 0; // 0x0
   }
 
   public static class SlidingPaneLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
