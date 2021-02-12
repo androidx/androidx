@@ -2875,33 +2875,6 @@ class PageFetcherSnapshotTest {
 
         // TODO: Fix broken test
         assertThat(state.newEvents()).containsExactly(
-            /*
-            LegacyLoadStateUpdate<Int>(
-                loadType = REFRESH,
-                fromMediator = true,
-                loadState = Loading
-            ),
-            LegacyLoadStateUpdate<Int>(
-                loadType = REFRESH,
-                fromMediator = false,
-                loadState = Loading
-            ),
-            LegacyLoadStateUpdate<PageEvent<Int>>(
-                loadType = REFRESH,
-                fromMediator = true,
-                loadState = NotLoading(endOfPaginationReached = true)
-            ),
-            LegacyLoadStateUpdate<Int>(
-                loadType = PREPEND,
-                fromMediator = true,
-                loadState = NotLoading(endOfPaginationReached = true)
-            ),
-            LegacyLoadStateUpdate<Int>(
-                loadType = APPEND,
-                fromMediator = true,
-                loadState = NotLoading(endOfPaginationReached = true)
-            ),
-             */
             LoadStateUpdate<Int>(
                 remoteLoadStatesOf(
                     refresh = Loading,
@@ -2917,26 +2890,26 @@ class PageFetcherSnapshotTest {
             ),
             LoadStateUpdate<PageEvent<Int>>(
                 remoteLoadStatesOf(
-                    refresh = NotLoading.Complete,
-                    refreshLocal = NotLoading.Incomplete,
+                    refresh = Loading,
+                    refreshLocal = Loading,
                     refreshRemote = NotLoading.Complete
                 )
             ),
             LoadStateUpdate<Int>(
                 remoteLoadStatesOf(
-                    refresh = NotLoading.Complete,
+                    refresh = Loading,
                     prepend = NotLoading.Complete,
-                    refreshLocal = NotLoading.Incomplete,
+                    refreshLocal = Loading,
                     refreshRemote = NotLoading.Complete,
                     prependRemote = NotLoading.Complete
                 )
             ),
             LoadStateUpdate<Int>(
                 remoteLoadStatesOf(
-                    refresh = NotLoading.Complete,
+                    refresh = Loading,
                     prepend = NotLoading.Complete,
                     append = NotLoading.Complete,
-                    refreshLocal = NotLoading.Incomplete,
+                    refreshLocal = Loading,
                     refreshRemote = NotLoading.Complete,
                     prependRemote = NotLoading.Complete,
                     appendRemote = NotLoading.Complete

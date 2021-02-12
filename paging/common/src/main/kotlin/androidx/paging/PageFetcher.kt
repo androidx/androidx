@@ -200,10 +200,25 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         // println("Accessor state: \n" + accessor.state.value)
 
                         loadStates.set(
-                            sourceLoadStates = event.combinedLoadStates.source,
-                            remoteLoadStates = accessor.state.value
-                            // remoteLoadStates = loadStates.snapshot().mediator
+                            REFRESH,
+                            false,
+                            event.combinedLoadStates.source.refresh
                         )
+                        loadStates.set(
+                            PREPEND,
+                            false,
+                            event.combinedLoadStates.source.prepend
+                        )
+                        loadStates.set(
+                            APPEND,
+                            false,
+                            event.combinedLoadStates.source.append
+                        )
+//                        loadStates.set(
+//                            sourceLoadStates = event.combinedLoadStates.source.copy(),
+//                            remoteLoadStates = accessor.state.value
+//                            // remoteLoadStates = loadStates.snapshot().mediator
+//                        )
 
                         println("Combined: \n" + loadStates.snapshot())
 
