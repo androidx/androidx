@@ -43,7 +43,9 @@ internal class InteractiveInstanceManager {
         @SuppressLint("SyntheticAccessor")
         fun addInstance(impl: InteractiveWatchFaceImpl) {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
-                require(!instances.containsKey(impl.instanceId))
+                require(!instances.containsKey(impl.instanceId)) {
+                    "Already have an InteractiveWatchFaceImpl with id " + impl.instanceId
+                }
                 instances[impl.instanceId] = RefCountedInteractiveWatchFaceInstance(impl, 1)
             }
         }

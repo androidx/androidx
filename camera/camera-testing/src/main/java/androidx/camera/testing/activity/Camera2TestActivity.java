@@ -189,6 +189,7 @@ public class Camera2TestActivity extends Activity {
     }
 
     @RequiresPermission(Manifest.permission.CAMERA)
+    @SuppressWarnings("CatchAndPrintStackTrace")
     void openCamera() {
         if (TextUtils.isEmpty(mCameraId)) {
             Logger.d(TAG, "Cannot open the camera");
@@ -233,7 +234,8 @@ public class Camera2TestActivity extends Activity {
     /**
      * Creates a new {@link CameraCaptureSession} for camera preview.
      */
-    @SuppressWarnings("deprecation") /* createCaptureSession */
+    /* createCaptureSession */
+    @SuppressWarnings({"deprecation", "CatchAndPrintStackTrace"})
     void createCameraPreviewSession() {
         Preconditions.checkNotNull(mCameraDevice);
         try {
@@ -257,6 +259,7 @@ public class Camera2TestActivity extends Activity {
                     new CameraCaptureSession.StateCallback() {
 
                         @Override
+                        @SuppressWarnings("CatchAndPrintStackTrace")
                         public void onConfigured(
                                 @NonNull CameraCaptureSession cameraCaptureSession) {
                             // The camera is already closed
@@ -305,6 +308,7 @@ public class Camera2TestActivity extends Activity {
     /**
      * Stops the background thread and its {@link Handler}.
      */
+    @SuppressWarnings("CatchAndPrintStackTrace")
     private void stopBackgroundThread() {
         if (mBackgroundThread != null) {
             mBackgroundThread.quitSafely();

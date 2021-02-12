@@ -19,15 +19,16 @@ package androidx.datastore.preferences.rxjava2
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.datastore.core.DataMigration
-import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.createDataStore
 import androidx.datastore.rxjava2.RxDataMigration
+import androidx.datastore.rxjava2.RxDataStore
 import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.rx2.asCoroutineDispatcher
 import kotlinx.coroutines.rx2.await
 import java.io.File
@@ -135,24 +136,22 @@ public class RxPreferenceDataStoreBuilder {
      * context and name are set.
      * @return the DataStore with the provided parameters
      */
-    public fun build(): DataStore<Preferences> {
-        val scope = CoroutineScope(ioScheduler.asCoroutineDispatcher())
+    public fun build(): RxDataStore<Preferences> {
+        val scope = CoroutineScope(ioScheduler.asCoroutineDispatcher() + Job())
 
         val produceFile: Callable<File>? = this.produceFile
         val context: Context? = this.context
         val name: String? = this.name
 
-        return if (produceFile != null) {
+        val delegate = if (produceFile != null) {
             PreferenceDataStoreFactory.create(
                 produceFile = { produceFile.call() },
-                scope = CoroutineScope(
-                    ioScheduler.asCoroutineDispatcher()
-                ),
+                scope = scope,
                 corruptionHandler = corruptionHandler,
                 migrations = dataMigrations
             )
         } else if (context != null && name != null) {
-            return context.createDataStore(
+            context.createDataStore(
                 name = name,
                 scope = scope,
                 corruptionHandler = corruptionHandler,
@@ -161,6 +160,8 @@ public class RxPreferenceDataStoreBuilder {
         } else {
             error("Either produceFile or context and name must be set. This should never happen.")
         }
+
+        return RxDataStore.create(delegate, scope)
     }
 }
 

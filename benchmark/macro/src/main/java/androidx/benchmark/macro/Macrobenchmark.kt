@@ -30,12 +30,48 @@ package androidx.benchmark.macro/*
  * limitations under the License.
  */
 
+import android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.MetricResult
 import androidx.benchmark.ResultWriter
 import androidx.benchmark.macro.perfetto.PerfettoCaptureWrapper
+import androidx.test.platform.app.InstrumentationRegistry
+
+fun throwIfError(packageName: String) {
+    val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
+
+    val applicationInfo = try {
+        pm.getApplicationInfo(packageName, 0)
+    } catch (notFoundException: PackageManager.NameNotFoundException) {
+        throw AssertionError(
+            "Unable to find target package $packageName, is it installed?",
+            notFoundException
+        )
+    }
+
+    val errors = DeviceInfo.errors +
+        // TODO: Merge this debuggable check / definition with Errors.kt in benchmark-common
+        listOfNotNull(
+            conditionalError(
+                hasError = applicationInfo.flags.and(FLAG_DEBUGGABLE) != 0,
+                id = "DEBUGGABLE",
+                summary = "Benchmark Target is Debuggable",
+                message = """
+                    Target package $packageName
+                    is running with debuggable=true, which drastically reduces
+                    runtime performance in order to support debugging features. Run
+                    benchmarks with debuggable=false. Debuggable affects execution speed
+                    in ways that mean benchmark improvements might not carry over to a
+                    real user's experience (or even regress release performance).
+                """.trimIndent()
+            )
+        ).sortedBy { it.id }
+
+    errors.throwErrorIfNotEmpty()
+}
 
 /**
  * macrobenchmark test entrypoint, which doesn't depend on JUnit.
@@ -54,6 +90,8 @@ fun macrobenchmark(
     setupBlock: MacrobenchmarkScope.(Boolean) -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
+    throwIfError(packageName)
+
     val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(packageName, launchWithClearTask)
 

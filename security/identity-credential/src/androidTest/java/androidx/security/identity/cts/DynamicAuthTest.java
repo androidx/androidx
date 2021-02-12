@@ -19,16 +19,24 @@ package androidx.security.identity.cts;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
+import android.icu.util.Calendar;
+import android.os.SystemClock;
 
+import androidx.security.identity.AccessControlProfile;
+import androidx.security.identity.AccessControlProfileId;
 import androidx.security.identity.EphemeralPublicKeyNotFoundException;
 import androidx.security.identity.IdentityCredential;
 import androidx.security.identity.IdentityCredentialException;
 import androidx.security.identity.IdentityCredentialStore;
 import androidx.security.identity.NoAuthenticationKeyAvailableException;
+import androidx.security.identity.PersonalizationData;
 import androidx.security.identity.ResultData;
+import androidx.security.identity.WritableIdentityCredential;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -38,6 +46,7 @@ import org.junit.runner.RunWith;
 import java.io.ByteArrayOutputStream;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SignatureException;
@@ -46,6 +55,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -59,6 +69,97 @@ import co.nstant.in.cbor.CborException;
 @RunWith(AndroidJUnit4.class)
 public class DynamicAuthTest {
     private static final String TAG = "DynamicAuthTest";
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void checkAuthKey() throws Exception {
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
+
+        String credentialName = "test";
+
+        store.deleteCredentialByName(credentialName);
+
+        WritableIdentityCredential wc = store.createCredential(credentialName,
+                "org.iso.18013-5.2019.mdl");
+
+        byte[] challenge = "TheChallenge".getBytes();
+        Collection<X509Certificate> certChain = wc.getCredentialKeyCertificateChain(challenge);
+        // Profile 0 (no authentication)
+        AccessControlProfile noAuthProfile =
+                new AccessControlProfile.Builder(new AccessControlProfileId(0))
+                        .setUserAuthenticationRequired(false)
+                        .build();
+        Collection<AccessControlProfileId> idsNoAuth = new ArrayList<AccessControlProfileId>();
+        idsNoAuth.add(new AccessControlProfileId(0));
+        String mdlNs = "org.iso.18013-5.2019";
+        PersonalizationData personalizationData =
+                new PersonalizationData.Builder()
+                        .addAccessControlProfile(noAuthProfile)
+                        .putEntry(mdlNs, "First name", idsNoAuth, Util.cborEncodeString("Alan"))
+                        .putEntry(mdlNs, "Last name", idsNoAuth, Util.cborEncodeString("Turing"))
+                        .build();
+        byte[] proofOfProvisioningSignature = wc.personalize(personalizationData);
+        byte[] proofOfProvisioning = Util.coseSign1GetData(proofOfProvisioningSignature);
+        byte[] proofOfProvisioningSha256 =
+                MessageDigest.getInstance("SHA256").digest(proofOfProvisioning);
+
+        IdentityCredential credential = store.getCredentialByName(credentialName,
+                IdentityCredentialStore.CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256);
+        assertNotNull(credential);
+        credential.setAvailableAuthenticationKeys(5, 3);
+        assertArrayEquals(
+                new int[]{0, 0, 0, 0, 0},
+                credential.getAuthenticationDataUsageCount());
+
+        Collection<X509Certificate> certificates = null;
+        certificates = credential.getAuthKeysNeedingCertification();
+        assertEquals(5, certificates.size());
+
+        X509Certificate cert = (X509Certificate) certificates.toArray()[0];
+
+        //  - serialNumber: INTEGER 1 (fixed value: same on all certs).
+        assertEquals(1, cert.getSerialNumber().intValue());
+
+        //  - issuer: CN shall be set to "Android Identity Credential Key". (fixed value:
+        //    same on all certs)
+        assertEquals("CN=Android Identity Credential Key",
+                cert.getIssuerX500Principal().getName());
+
+        //  - subject: CN shall be set to "Android Identity Credential Authentication Key". (fixed
+        //    value: same on all certs)
+        assertEquals("CN=Android Identity Credential Authentication Key",
+                cert.getSubjectX500Principal().getName());
+
+        //  - validity: should be from current time and one year in the future (365 days).
+        Date now = new Date();
+
+        // Allow for 10 seconds drift to account for the time drift and loss of precision
+        // when encoding into ASN.1
+        //
+        long diffMilliSecs = now.getTime() - cert.getNotBefore().getTime();
+        final long allowDriftMilliSecs = 10 * 1000;
+        assertTrue(-allowDriftMilliSecs <= diffMilliSecs && diffMilliSecs <= allowDriftMilliSecs);
+
+        final long kMilliSecsInOneYear = 365L * 24 * 60 * 60 * 1000;
+        diffMilliSecs =
+                cert.getNotBefore().getTime() + kMilliSecsInOneYear - cert.getNotAfter().getTime();
+        assertTrue(-allowDriftMilliSecs <= diffMilliSecs && diffMilliSecs <= allowDriftMilliSecs);
+
+        // The extension is expected only if - and only if - the underlying hardware
+        // supports updating the credential.
+        //
+        byte[] icExtension = cert.getExtensionValue("1.3.6.1.4.1.11129.2.1.26");
+        if (store.getCapabilities().isUpdateSupported()) {
+            assertNotNull(icExtension);
+            assertArrayEquals(proofOfProvisioningSha256, Util.getPopSha256FromAuthKeyCert(cert));
+        } else {
+            assertNull(icExtension);
+        }
+
+        // ... and we're done. Clean up after ourselves.
+        store.deleteCredentialByName(credentialName);
+    }
 
     @SuppressWarnings("deprecation")
     @Test
@@ -495,4 +596,132 @@ public class DynamicAuthTest {
 
     // TODO: test storeStaticAuthenticationData() throwing UnknownAuthenticationKeyException
     // on an unknown auth key
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void dynamicAuthWithExpirationTest() throws Exception {
+        Context appContext = androidx.test.InstrumentationRegistry.getTargetContext();
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
+        assumeTrue(store.getCapabilities().isStaticAuthenticationDataExpirationSupported());
+
+        String credentialName = "test";
+
+        store.deleteCredentialByName(credentialName);
+        Collection<X509Certificate> certChain = ProvisioningTest.createCredential(store,
+                credentialName);
+
+        IdentityCredential credential = store.getCredentialByName(credentialName,
+                IdentityCredentialStore.CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256);
+        assertNotNull(credential);
+
+        credential.setAvailableAuthenticationKeys(3, 5);
+
+        Collection<X509Certificate> certificates = null;
+        certificates = credential.getAuthKeysNeedingCertification();
+        assertEquals(3, certificates.size());
+
+        // Endorse an auth-key but set expiration to 10 seconds in the future.
+        //
+        Calendar now = Calendar.getInstance();
+        Calendar tenSecondsFromNow = Calendar.getInstance();
+        tenSecondsFromNow.add(Calendar.SECOND, 10);
+        try {
+            X509Certificate key0Cert = certificates.iterator().next();
+            credential.storeStaticAuthenticationData(key0Cert,
+                    tenSecondsFromNow,
+                    new byte[]{52, 53, 44});
+            certificates = credential.getAuthKeysNeedingCertification();
+        } catch (IdentityCredentialException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        assertEquals(2, certificates.size());
+        assertArrayEquals(
+                new int[]{0, 0, 0},
+                credential.getAuthenticationDataUsageCount());
+        // Check that presentation works.
+        try {
+            IdentityCredential tc = store.getCredentialByName(credentialName,
+                    IdentityCredentialStore.CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256);
+            KeyPair ekp = tc.createEphemeralKeyPair();
+            KeyPair rekp = Util.createEphemeralKeyPair();
+            tc.setReaderEphemeralPublicKey(rekp.getPublic());
+            tc.setSessionTranscript(Util.buildSessionTranscript(ekp));
+            Map<String, Collection<String>> etr = new LinkedHashMap<>();
+            etr.put("org.iso.18013-5.2019", Arrays.asList("First name", "Last name"));
+            ResultData rd = tc.getEntries(
+                    Util.createItemsRequest(etr, null),
+                    etr,
+                    null);
+        } catch (IdentityCredentialException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        credential = store.getCredentialByName(credentialName,
+                IdentityCredentialStore.CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256);
+        assertArrayEquals(
+                new int[]{1, 0, 0},
+                credential.getAuthenticationDataUsageCount());
+
+        SystemClock.sleep(11 * 1000);
+
+        certificates = credential.getAuthKeysNeedingCertification();
+        assertEquals(3, certificates.size());
+
+        // Check that presentation now fails..
+        try {
+            IdentityCredential tc = store.getCredentialByName(credentialName,
+                    IdentityCredentialStore.CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256);
+            KeyPair ekp = tc.createEphemeralKeyPair();
+            KeyPair rekp = Util.createEphemeralKeyPair();
+            tc.setReaderEphemeralPublicKey(rekp.getPublic());
+            tc.setSessionTranscript(Util.buildSessionTranscript(ekp));
+            Map<String, Collection<String>> etr = new LinkedHashMap<>();
+            etr.put("org.iso.18013-5.2019", Arrays.asList("First name", "Last name"));
+            ResultData rd = tc.getEntries(
+                    Util.createItemsRequest(etr, null),
+                    etr,
+                    null);
+            assertTrue(false);
+        } catch (NoAuthenticationKeyAvailableException e) {
+            // This is the expected path...
+        } catch (IdentityCredentialException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        credential = store.getCredentialByName(credentialName,
+                IdentityCredentialStore.CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256);
+        assertArrayEquals(
+                new int[]{1, 0, 0},
+                credential.getAuthenticationDataUsageCount());
+
+        // Check that it works if we use setAllowUsingExpiredKeys(true)
+        try {
+            IdentityCredential tc = store.getCredentialByName(credentialName,
+                    IdentityCredentialStore.CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256);
+            tc.setAllowUsingExpiredKeys(true);   // <-- this is the call that makes the difference!
+            KeyPair ekp = tc.createEphemeralKeyPair();
+            KeyPair rekp = Util.createEphemeralKeyPair();
+            tc.setReaderEphemeralPublicKey(rekp.getPublic());
+            tc.setSessionTranscript(Util.buildSessionTranscript(ekp));
+            Map<String, Collection<String>> etr = new LinkedHashMap<>();
+            etr.put("org.iso.18013-5.2019", Arrays.asList("First name", "Last name"));
+            ResultData rd = tc.getEntries(
+                    Util.createItemsRequest(etr, null),
+                    etr,
+                    null);
+        } catch (IdentityCredentialException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+        credential = store.getCredentialByName(credentialName,
+                IdentityCredentialStore.CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256);
+        assertArrayEquals(
+                new int[]{2, 0, 0},
+                credential.getAuthenticationDataUsageCount());
+
+        // ... and we're done. Clean up after ourselves.
+        store.deleteCredentialByName(credentialName);
+    }
+
 }

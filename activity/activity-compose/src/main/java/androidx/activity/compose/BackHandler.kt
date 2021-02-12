@@ -16,14 +16,12 @@
 
 package androidx.activity.compose
 
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
@@ -41,24 +39,17 @@ public object LocalOnBackPressedDispatcherOwner {
     public val current: OnBackPressedDispatcherOwner
         @Composable
         get() = LocalOnBackPressedDispatcherOwner.current
-            ?: findOnBackPressedDispatcherOwner(LocalContext.current)
+            ?: findOwner<OnBackPressedDispatcherOwner>(LocalContext.current)
             ?: error("No Back Dispatcher provided")
 
-    public fun asProvidableCompositionLocal():
-        ProvidableCompositionLocal<OnBackPressedDispatcherOwner?> =
-            LocalOnBackPressedDispatcherOwner
-}
-
-private fun findOnBackPressedDispatcherOwner(context: Context): OnBackPressedDispatcherOwner? {
-    var innerContext = context
-    while (innerContext is ContextWrapper) {
-        if (innerContext is OnBackPressedDispatcherOwner) {
-            return innerContext
+    /**
+     * Associates a [LocalOnBackPressedDispatcherOwner] key to a value in a call to
+     * [CompositionLocalProvider].
+     */
+    public infix fun provides(dispatcherOwner: OnBackPressedDispatcherOwner):
+        ProvidedValue<OnBackPressedDispatcherOwner?> {
+            return LocalOnBackPressedDispatcherOwner.provides(dispatcherOwner)
         }
-        innerContext = innerContext.baseContext
-    }
-    innerContext as OnBackPressedDispatcherOwner
-    return null
 }
 
 /**

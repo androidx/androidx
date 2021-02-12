@@ -36,7 +36,8 @@ object PerfettoTraceProcessor {
     @TestOnly
     fun isAbiSupported(): Boolean {
         Log.d(TAG, "Supported ABIs: ${Build.SUPPORTED_ABIS.joinToString()}")
-        return Build.SUPPORTED_64_BIT_ABIS.any { it == "arm64-v8a" }
+        return !Build.MODEL.contains("Cuttlefish") && // b/180022458
+            Build.SUPPORTED_64_BIT_ABIS.any { it == "arm64-v8a" }
     }
 
     /**

@@ -16,6 +16,7 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.Publish
+import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -23,13 +24,25 @@ plugins {
 }
 
 dependencies {
-    // Add dependencies here
+    api(project(":car:app:app"))
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation project(path: ':lifecycle:lifecycle-runtime')
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 23
+        multiDexEnabled = true
+    }
 }
 
 androidx {
     name = "androidx.car.app:app-testing"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.CAR_APP
+    // Special pre-release version to exclude the app-aaos module from the 1.0.0 release.
+    mavenVersion = LibraryVersions.CAR_APP_PRE_RELEASE
     inceptionYear = "2021"
     description = "androidx.car.app:app-testing"
 }

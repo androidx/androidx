@@ -473,7 +473,8 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "ObjectToString"})
     void updateMetadataViews() {
         if (shouldDeferUpdateViews()) {
             mUpdateMetadataViewsDeferred = true;
@@ -1444,6 +1445,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
 
         @Override
+        @SuppressWarnings("ObjectToString")
         protected Bitmap doInBackground(Void... arg) {
             Bitmap art = null;
             if (mIconBitmap != null) {

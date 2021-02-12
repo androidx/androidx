@@ -29,7 +29,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.versionedparcelable:versionedparcelable:1.1.0")
-    api("androidx.activity:activity:1.2.0-rc01")
+    api("androidx.activity:activity:1.2.0")
     api(project(":wear:wear-watchface-client"))
     api(project(":wear:wear-watchface-data"))
     api(KOTLIN_STDLIB)
@@ -37,12 +37,14 @@ dependencies {
 
     implementation("androidx.core:core:1.1.0")
 
+    androidTestImplementation(project(":wear:wear-watchface-editor-guava"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(KOTLIN_COROUTINES_TEST)
     androidTestImplementation(TRUTH)
 }
 

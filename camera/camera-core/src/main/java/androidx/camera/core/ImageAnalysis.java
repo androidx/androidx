@@ -604,6 +604,7 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /** Builder for a {@link ImageAnalysis}. */
+    @SuppressWarnings("ObjectToString")
     public static final class Builder
             implements ImageOutputConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder>,

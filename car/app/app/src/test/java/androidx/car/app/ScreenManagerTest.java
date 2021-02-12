@@ -65,6 +65,7 @@ public final class ScreenManagerTest {
     @Mock
     private AppManager mMockAppManager;
 
+    private TestCarContext mTestCarContext;
     private TestLifecycleOwner mLifecycleOwner;
 
     private ScreenManager mScreenManager;
@@ -73,17 +74,18 @@ public final class ScreenManagerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        TestCarContext testCarContext =
+        mTestCarContext =
                 TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
-        testCarContext.overrideCarService(AppManager.class, mMockAppManager);
+        mTestCarContext.overrideCarService(AppManager.class, mMockAppManager);
 
-        mScreen1 = new TestScreen(testCarContext, mMockScreen1);
-        mScreen2 = new TestScreen(testCarContext, mMockScreen2);
-        mScreen3 = new TestScreen(testCarContext, mMockScreen3);
+        mScreen1 = new TestScreen(mTestCarContext, mMockScreen1);
+        mScreen2 = new TestScreen(mTestCarContext, mMockScreen2);
+        mScreen3 = new TestScreen(mTestCarContext, mMockScreen3);
 
         mLifecycleOwner = new TestLifecycleOwner();
 
-        mScreenManager = ScreenManager.create(testCarContext, mLifecycleOwner.mRegistry);
+        mScreenManager = ScreenManager.create(mTestCarContext, mLifecycleOwner.mRegistry);
+        mTestCarContext.overrideCarService(ScreenManager.class, mScreenManager);
         mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_CREATE);
     }
 
@@ -802,6 +804,71 @@ public final class ScreenManagerTest {
         inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_DESTROY);
 
         inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_RESUME);
+
+        inOrder.verifyNoMoreInteractions();
+
+        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+    }
+
+    @Test
+    public void pop_pushedwithCallbackToPopOnResult_callsProperLifecycleMethods() {
+        mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_RESUME);
+        InOrder inOrder =
+                inOrder(mMockScreen1, mMockScreen2, mMockScreen3, mMockAppManager,
+                        mOnScreenResultListener);
+
+        mScreenManager.push(mScreen1);
+
+        mScreenManager.pushForResult(mScreen2, mOnScreenResultListener);
+        Object result1 = "foo";
+        mScreen2.setResult(result1);
+
+        mScreenManager.pushForResult(mScreen3, obj -> mScreen2.finish());
+        Object result2 = "bar";
+        mScreen3.setResult(result2);
+
+        mScreenManager.pop();
+
+        // Pushing screen1
+        inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_CREATE);
+        inOrder.verify(mMockAppManager).invalidate();
+        inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_START);
+        inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_RESUME);
+
+        // Pushing screen2
+        inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_CREATE);
+        inOrder.verify(mMockAppManager).invalidate();
+        inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_START);
+        inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_PAUSE);
+        inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_STOP);
+        inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_RESUME);
+
+        // Pushing screen3
+        inOrder.verify(mMockScreen3).dispatchLifecycleEvent(Event.ON_CREATE);
+        inOrder.verify(mMockAppManager).invalidate();
+        inOrder.verify(mMockScreen3).dispatchLifecycleEvent(Event.ON_START);
+        inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_PAUSE);
+        inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_STOP);
+        inOrder.verify(mMockScreen3).dispatchLifecycleEvent(Event.ON_RESUME);
+
+        // Popping
+        inOrder.verify(mMockAppManager).invalidate();
+        inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_START);
+
+        inOrder.verify(mMockScreen3).dispatchLifecycleEvent(Event.ON_PAUSE);
+        inOrder.verify(mMockScreen3).dispatchLifecycleEvent(Event.ON_STOP);
+
+        inOrder.verify(mMockAppManager).invalidate();
+
+        inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_START);
+        inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_STOP);
+        inOrder.verify(mOnScreenResultListener).onScreenResult(result1);
+
+        inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_DESTROY);
+
+        inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_RESUME);
+
+        inOrder.verify(mMockScreen3).dispatchLifecycleEvent(Event.ON_DESTROY);
 
         inOrder.verifyNoMoreInteractions();
 

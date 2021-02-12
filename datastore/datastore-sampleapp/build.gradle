@@ -40,7 +40,7 @@ dependencies {
     implementation(PROTOBUF_LITE)
     implementation(KOTLIN_STDLIB)
     implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.activity:activity-ktx:1.2.0-rc01")
+    implementation("androidx.activity:activity-ktx:1.2.0")
 
     // For settings fragment
     implementation("androidx.preference:preference:1.1.1")

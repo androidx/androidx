@@ -486,6 +486,7 @@ class ConcatAdapterController implements NestedAdapterWrapper.Callback {
         return wrapper.adapter;
     }
 
+    @SuppressWarnings("MixedMutabilityReturnType")
     public List<Adapter<? extends ViewHolder>> getCopyOfAdapters() {
         if (mWrappers.isEmpty()) {
             return Collections.emptyList();

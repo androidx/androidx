@@ -47,7 +47,11 @@ public class ComplicationState(
     public val isEnabled: Boolean,
 
     /** The [ComplicationType] of the complication's current [ComplicationData]. */
-    public val currentType: ComplicationType
+    public val currentType: ComplicationType,
+
+    /** Whether or not the complication provider is fixed (i.e the user can't configure it). */
+    @get:JvmName("isFixedComplicationProvider")
+    public val fixedComplicationProvider: Boolean
 ) {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -63,6 +67,7 @@ public class ComplicationState(
         ),
         ComplicationType.fromWireType(complicationStateWireFormat.defaultProviderType),
         complicationStateWireFormat.isEnabled,
-        ComplicationType.fromWireType(complicationStateWireFormat.currentType)
+        ComplicationType.fromWireType(complicationStateWireFormat.currentType),
+        complicationStateWireFormat.isFixedComplicationProvider
     )
 }

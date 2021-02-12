@@ -215,7 +215,8 @@ final class SidecarAdapter {
      * with the value passed from extension.
      */
     @Nullable
-    @SuppressWarnings("UnusedVariable") // TODO(b/175507310): Remove after fix.
+    // TODO(b/175507310): Remove after fix.
+    @SuppressWarnings({"UnusedVariable", "ObjectToString"})
     private static DisplayFeature translate(SidecarDisplayFeature feature,
             SidecarDeviceState deviceState, Rect windowBounds) {
         Rect bounds = feature.getRect();

@@ -16,7 +16,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.navigation.fragment.ktx">
+          package="androidx.hilt.navigation.fragment">
     <application>
         <activity android:name="androidx.hilt.navigation.fragment.NavGraphActivity" />
     </application>

@@ -602,7 +602,7 @@ public abstract class JobIntentService extends Service {
         return onStopCurrentWork();
     }
 
-    @SuppressWarnings("deprecation") /* AsyncTask */
+    @SuppressWarnings({"deprecation", "ObjectToString"}) /* AsyncTask */
     void ensureProcessorRunningLocked(boolean reportStarted) {
         if (mCurProcessor == null) {
             mCurProcessor = new CommandProcessor();

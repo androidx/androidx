@@ -25,5 +25,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="androidx.wear.watchface.editor.TestComplicationHelperActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_START_PROVIDER_CHOOSER" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

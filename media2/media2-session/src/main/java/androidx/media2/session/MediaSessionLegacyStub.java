@@ -501,6 +501,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         dispatchSessionTaskInternal(sessionCommand, SessionCommand.COMMAND_CODE_CUSTOM, task);
     }
 
+    @SuppressWarnings("ObjectToString")
     private void dispatchSessionTaskInternal(@Nullable final SessionCommand sessionCommand,
             @CommandCode final int commandCode, @NonNull final SessionTask task) {
         if (mSessionImpl.isClosed()) {
@@ -550,7 +551,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         });
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "ObjectToString"})
     void handleTaskOnExecutor(@NonNull final ControllerInfo controller,
             @Nullable final SessionCommand sessionCommand, @CommandCode final int commandCode,
             @NonNull final SessionTask task) {

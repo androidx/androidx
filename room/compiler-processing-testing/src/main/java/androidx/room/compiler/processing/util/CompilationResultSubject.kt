@@ -109,16 +109,96 @@ class CompilationResultSubject(
     }
 
     /**
+     * Asserts free form output from the compilation output.
+     */
+    fun hasRawOutputContaining(expected: String) = chain {
+        val found = compilationResult.rawOutput().contains(expected)
+        if (!found) {
+            failWithActual(
+                simpleFact("Did not find $expected in the output.")
+            )
+        }
+    }
+
+    /**
+     * Checks the compilation didn't have any warnings.
+     */
+    fun hasNoWarnings() = hasDiagnosticCount(Diagnostic.Kind.WARNING, 0)
+
+    /**
+     * Check the compilation had [expected] number of error messages.
+     */
+    fun hasErrorCount(expected: Int) = hasDiagnosticCount(Diagnostic.Kind.ERROR, expected)
+
+    private fun hasDiagnosticCount(kind: Diagnostic.Kind, expected: Int) = chain {
+        val actual = compilationResult.diagnosticsOfKind(kind).size
+        if (actual != expected) {
+            failWithActual(
+                simpleFact("expected $expected $kind messages, found $actual")
+            )
+        }
+    }
+    /**
      * Asserts that compilation has a warning with the given text.
      *
      * @see hasError
+     * @see hasNote
      */
     fun hasWarning(expected: String) = chain {
         hasDiagnosticWithMessage(
             kind = Diagnostic.Kind.WARNING,
-            expected = expected
+            expected = expected,
+            acceptPartialMatch = false
         ) {
             "expected warning: $expected"
+        }
+    }
+
+    /**
+     * Asserts that compilation has a warning that contains the given text.
+     *
+     * @see hasErrorContaining
+     * @see hasNoteContaining
+     */
+    fun hasWarningContaining(expected: String) = chain {
+        hasDiagnosticWithMessage(
+            kind = Diagnostic.Kind.WARNING,
+            expected = expected,
+            acceptPartialMatch = true
+        ) {
+            "expected warning: $expected"
+        }
+    }
+
+    /**
+     * Asserts that compilation has a note with the given text.
+     *
+     * @see hasError
+     * @see hasWarning
+     */
+    fun hasNote(expected: String) = chain {
+        hasDiagnosticWithMessage(
+            kind = Diagnostic.Kind.NOTE,
+            expected = expected,
+            acceptPartialMatch = false
+        ) {
+            "expected note: $expected"
+        }
+    }
+
+    /**
+     * Asserts that compilation has a note that contains the given text.
+     *
+     * @see hasErrorContaining
+     * @see hasWarningContaining
+     */
+    fun hasNoteContaining(expected: String) = chain {
+        hasDiagnosticWithMessage(
+            kind = Diagnostic.Kind.NOTE,
+            expected = expected,
+            acceptPartialMatch = true
+        ) {
+            "expected note: $expected"
         }
     }
 
@@ -126,12 +206,31 @@ class CompilationResultSubject(
      * Asserts that compilation has an error with the given text.
      *
      * @see hasWarning
+     * @see hasNote
      */
     fun hasError(expected: String) = chain {
         shouldSucceed = false
         hasDiagnosticWithMessage(
             kind = Diagnostic.Kind.ERROR,
-            expected = expected
+            expected = expected,
+            acceptPartialMatch = false
+        ) {
+            "expected error: $expected"
+        }
+    }
+
+    /**
+     * Asserts that compilation has an error that contains the given text.
+     *
+     * @see hasWarningContaining
+     * @see hasNoteContaining
+     */
+    fun hasErrorContaining(expected: String) = chain {
+        shouldSucceed = false
+        hasDiagnosticWithMessage(
+            kind = Diagnostic.Kind.ERROR,
+            expected = expected,
+            acceptPartialMatch = true
         ) {
             "expected error: $expected"
         }
@@ -194,6 +293,18 @@ class CompilationResultSubject(
         }
     }
 
+    /**
+     * Checks if the processor has any remaining rounds that did not run which would possibly
+     * mean it didn't run assertions it wanted to run.
+     */
+    internal fun assertAllExpectedRoundsAreCompleted() {
+        if (compilationResult.processor.expectsAnotherRound()) {
+            failWithActual(
+                simpleFact("Test runner requested another round but that didn't happen")
+            )
+        }
+    }
+
     internal fun assertNoProcessorAssertionErrors() {
         val processingException = compilationResult.processor.getProcessingException()
         if (processingException != null) {
@@ -209,10 +320,14 @@ class CompilationResultSubject(
     private fun hasDiagnosticWithMessage(
         kind: Diagnostic.Kind,
         expected: String,
+        acceptPartialMatch: Boolean,
         buildErrorMessage: () -> String
     ) {
         val diagnostics = compilationResult.diagnosticsOfKind(kind)
         if (diagnostics.any { it.msg == expected }) {
+            return
+        }
+        if (acceptPartialMatch && diagnostics.any { it.msg.contains(expected) }) {
             return
         }
         failWithActual(simpleFact(buildErrorMessage()))
@@ -290,6 +405,7 @@ internal class KotlinCompileTestingCompilationResult(
     processor: SyntheticProcessor,
     successfulCompilation: Boolean,
     outputSourceDirs: List<File>,
+    private val rawOutput: String,
 ) : CompilationResult(
     testRunnerName = testRunner.name,
     processor = processor,
@@ -316,7 +432,5 @@ internal class KotlinCompileTestingCompilationResult(
         }
     }
 
-    override fun rawOutput(): String {
-        return delegate.messages
-    }
+    override fun rawOutput() = rawOutput
 }

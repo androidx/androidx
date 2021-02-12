@@ -1404,6 +1404,7 @@ public class PropertyValuesHolder implements Cloneable {
         }
 
         @Override
+        @SuppressWarnings("CatchAndPrintStackTrace")
         void setupSetter(Class<?> targetClass) {
             synchronized (sSetterPropertyMap) {
                 // Have to lock property map prior to reading it, to guard against
@@ -1503,6 +1504,7 @@ public class PropertyValuesHolder implements Cloneable {
         }
 
         @Override
+        @SuppressWarnings("CatchAndPrintStackTrace")
         void setupSetter(Class<?> targetClass) {
             synchronized (sSetterPropertyMap) {
                 // Have to lock property map prior to reading it, to guard against

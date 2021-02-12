@@ -183,7 +183,6 @@ public abstract class SliceChildView extends FrameLayout {
      * Sets the observer to notify when an interaction events occur on the view.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setSliceActionListener(SliceView.OnSliceActionListener observer) {
         mObserver = observer;
     }

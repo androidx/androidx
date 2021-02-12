@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2021 The Android Open Source Project
   ~
@@ -16,5 +17,7 @@
 
 <resources>
     <string name="app_name">Receive Content AndroidX Demo</string>
-    <string name="text_input_default_text">Hello world</string>
+    <string name="app_menu_item_clear_attachments">Clear attachments</string>
+    <string name="text_input_default_text">Try inserting text, images and other content
+        using copy/paste or drag-and-drop</string>
 </resources>

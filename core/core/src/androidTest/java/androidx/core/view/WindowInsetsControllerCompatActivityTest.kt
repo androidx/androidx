@@ -61,7 +61,7 @@ public class WindowInsetsControllerCompatActivityTest {
     private lateinit var scenario: ActivityScenario<WindowInsetsCompatActivity>
 
     @Before
-    fun setup() {
+    public fun setup() {
         scenario = ActivityScenario.launch(WindowInsetsCompatActivity::class.java)
 
         container = scenario.withActivity { findViewById(R.id.container) }
@@ -83,7 +83,7 @@ public class WindowInsetsControllerCompatActivityTest {
      */
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    fun toggleIME() {
+    public fun toggleIME() {
         // Test do not currently work on Cuttlefish
         assumeNotCuttlefish()
         val container: View = scenario.withActivity { findViewById(R.id.container) }
@@ -101,7 +101,7 @@ public class WindowInsetsControllerCompatActivityTest {
      */
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    fun do_not_show_IME_if_TextView_not_focused() {
+    public fun do_not_show_IME_if_TextView_not_focused() {
         val editText = scenario.withActivity {
             findViewById<EditText>(R.id.edittext)
         }
@@ -146,7 +146,7 @@ public class WindowInsetsControllerCompatActivityTest {
      */
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    fun hide_IME() {
+    public fun hide_IME() {
         // Test do not currently work on Cuttlefish
         assumeNotCuttlefish()
         onView(withId(R.id.edittext)).perform(click())
@@ -155,14 +155,14 @@ public class WindowInsetsControllerCompatActivityTest {
     }
 
     @Test
-    fun toggle_StatusBar() {
+    public fun toggle_StatusBar() {
         container.assertInsetsVisibility(WindowInsetsCompat.Type.statusBars(), true)
         testHide(WindowInsetsCompat.Type.statusBars())
         testShow(WindowInsetsCompat.Type.statusBars())
     }
 
     @Test
-    fun toggle_NavBar() {
+    public fun toggle_NavBar() {
         testHide(WindowInsetsCompat.Type.navigationBars())
         testShow(WindowInsetsCompat.Type.navigationBars())
     }
@@ -179,7 +179,7 @@ public class WindowInsetsControllerCompatActivityTest {
         container.assertInsetsVisibility(type, true)
     }
 
-    @RequiresApi(23)
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     public fun systemBar_light() {
         scenario.onActivity {
@@ -196,7 +196,7 @@ public class WindowInsetsControllerCompatActivityTest {
         assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(true))
     }
 
-    @RequiresApi(26)
+    @SdkSuppress(minSdkVersion = 26)
     @Test
     public fun navigationBar_light() {
         scenario.onActivity {
@@ -221,7 +221,7 @@ public class WindowInsetsControllerCompatActivityTest {
     @SdkSuppress(minSdkVersion = 23)
     @Ignore("The listener isn't called when changing the visibility")
     @Test
-    fun ime_toggle_check_with_listener() {
+    public fun ime_toggle_check_with_listener() {
         // Test do not currently work on Cuttlefish
         assumeNotCuttlefish()
         val type = WindowInsetsCompat.Type.ime()

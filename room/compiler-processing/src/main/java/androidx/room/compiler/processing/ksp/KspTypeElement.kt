@@ -25,17 +25,17 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
-import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticConstructorForJava
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.tryBox
 import com.google.devtools.ksp.getAllSuperTypes
+import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
+import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.isOpen
 import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
@@ -66,12 +66,7 @@ internal sealed class KspTypeElement(
     }
 
     override val qualifiedName: String by lazy {
-        val pkgName = declaration.getNormalizedPackageName()
-        if (pkgName.isBlank()) {
-            declaration.simpleName.asString()
-        } else {
-            "$pkgName.${declaration.simpleName.asString()}"
-        }
+        (declaration.qualifiedName ?: declaration.simpleName).asString()
     }
 
     override val type: KspType by lazy {
@@ -137,9 +132,6 @@ internal sealed class KspTypeElement(
 
     private val _declaredFieldsIncludingSupers by lazy {
         // Read all properties from all supers and select the ones that are not overridden.
-        // TODO: remove once it is implemented in KSP
-        // https://github.com/android/kotlin/issues/133
-
         val myPropertyFields = if (declaration.classKind == ClassKind.INTERFACE) {
             _declaredProperties.filter {
                 it.isStatic()
@@ -270,6 +262,7 @@ internal sealed class KspTypeElement(
 
     private val _declaredMethods by lazy {
         val instanceMethods = declaration.getDeclaredFunctions().asSequence()
+            .filterNot { it.isConstructor() }
         val companionMethods = declaration.findCompanionObject()
             ?.getDeclaredFunctions()
             ?.asSequence()
@@ -301,35 +294,12 @@ internal sealed class KspTypeElement(
     }
 
     override fun getConstructors(): List<XConstructorElement> {
-        val constructors = declaration.declaredConstructors().toMutableList()
-        val primary = if (constructors.isEmpty() && !isInterface()) {
-            declaration.primaryConstructor
-        } else {
-            declaration.getNonSyntheticPrimaryConstructor()
-        }
-        primary?.let(constructors::add)
-
-        val elements: List<XConstructorElement> = constructors.map {
+        return declaration.getConstructors().map {
             KspConstructorElement(
                 env = env,
                 containing = this,
                 declaration = it
             )
-        }
-        return if (elements.isEmpty() &&
-            declaration.origin == Origin.JAVA &&
-            !isInterface()
-        ) {
-            // workaround for https://github.com/google/ksp/issues/98
-            // TODO remove if KSP support this
-            listOf(
-                KspSyntheticConstructorForJava(
-                    env = env,
-                    origin = this
-                )
-            )
-        } else {
-            elements
         }
     }
 
@@ -343,21 +313,6 @@ internal sealed class KspTypeElement(
                 env.wrapClassDeclaration(it)
             }
     }
-
-    private fun KSClassDeclaration.getNonSyntheticPrimaryConstructor(): KSFunctionDeclaration? {
-        // workaround for https://github.com/android/kotlin/issues/136
-        // TODO remove once that bug is fixed
-        return if (primaryConstructor?.simpleName?.asString() != "<init>") {
-            primaryConstructor
-        } else {
-            null
-        }
-    }
-
-    private fun KSClassDeclaration.declaredConstructors() = this.getDeclaredFunctions()
-        .filter {
-            it.simpleName == this.simpleName
-        }
 
     override fun toString(): String {
         return declaration.toString()

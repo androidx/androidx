@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package androidx.customview.widget;
 
 import android.content.Context;
@@ -68,6 +67,7 @@ public class ViewDragHelper {
     /**
      * Edge flag indicating that the left edge should be affected.
      */
+    @SuppressWarnings("PointlessBitwiseExpression")
     public static final int EDGE_LEFT = 1 << 0;
 
     /**
@@ -93,6 +93,7 @@ public class ViewDragHelper {
     /**
      * Indicates that a check should occur along the horizontal axis
      */
+    @SuppressWarnings("PointlessBitwiseExpression")
     public static final int DIRECTION_HORIZONTAL = 1 << 0;
 
     /**
@@ -109,6 +110,8 @@ public class ViewDragHelper {
 
     private static final int BASE_SETTLE_DURATION = 256; // ms
     private static final int MAX_SETTLE_DURATION = 600; // ms
+
+    private static final boolean DEBUG = false;
 
     // Current drag state; idle, dragging or settling
     private int mDragState;
@@ -128,20 +131,23 @@ public class ViewDragHelper {
     private int mPointersDown;
 
     private VelocityTracker mVelocityTracker;
-    private float mMaxVelocity;
+    private final float mMaxVelocity;
     private float mMinVelocity;
 
     private int mEdgeSize;
     private final int mDefaultEdgeSize;
     private int mTrackingEdges;
 
-    private OverScroller mScroller;
+    @NonNull
+    private final OverScroller mScroller;
 
+    @NonNull
     private final Callback mCallback;
 
     private View mCapturedView;
     private boolean mReleaseInProgress;
 
+    @NonNull
     private final ViewGroup mParentView;
 
     /**
@@ -275,6 +281,7 @@ public class ViewDragHelper {
          * @param child Child view to check
          * @return range of vertical motion in pixels
          */
+        @SuppressWarnings("unused")
         public int getViewVerticalDragRange(@NonNull View child) {
             return 0;
         }
@@ -383,12 +390,8 @@ public class ViewDragHelper {
      */
     private ViewDragHelper(@NonNull Context context, @NonNull ViewGroup forParent,
             @NonNull Callback cb) {
-        if (forParent == null) {
-            throw new IllegalArgumentException("Parent view may not be null");
-        }
-        if (cb == null) {
-            throw new IllegalArgumentException("Callback may not be null");
-        }
+        requireNonNull(forParent, "Parent view may not be null");
+        requireNonNull(cb, "Callback may not be null");
 
         mParentView = forParent;
         mCallback = cb;
@@ -1064,7 +1067,7 @@ public class ViewDragHelper {
                     final float dy = y - mInitialMotionY[pointerId];
 
                     final View toCapture = findTopChildUnder((int) x, (int) y);
-                    final boolean pastSlop = toCapture != null && checkTouchSlop(toCapture, dx, dy);
+                    final boolean pastSlop = checkTouchSlop(toCapture, dx, dy);
                     if (pastSlop) {
                         // check the callback's
                         // getView[Horizontal|Vertical]DragRange methods to know
@@ -1194,9 +1197,11 @@ public class ViewDragHelper {
                     // If pointer index is not found then skip.
                     final int index = ev.findPointerIndex(mActivePointerId);
                     if (index == -1) {
-                        Log.w(TAG, "Failed to find pointer index for active pointer ID "
-                                + mActivePointerId + ", which may indicate an inconsistent "
-                                + "MotionEvent stream");
+                        if (DEBUG) {
+                            Log.e(TAG, "Failed to find pointer index for active pointer ID "
+                                    + mActivePointerId + ", which may indicate an inconsistent "
+                                    + "MotionEvent stream");
+                        }
                         break;
                     }
 
@@ -1206,8 +1211,6 @@ public class ViewDragHelper {
                     final int idy = (int) (y - mLastMotionY[mActivePointerId]);
 
                     dragTo(mCapturedView.getLeft() + idx, mCapturedView.getTop() + idy, idx, idy);
-
-                    saveLastMotion(ev);
                 } else {
                     // Check to see if any pointer is now over a draggable view.
                     final int pointerCount = ev.getPointerCount();
@@ -1234,8 +1237,9 @@ public class ViewDragHelper {
                             break;
                         }
                     }
-                    saveLastMotion(ev);
                 }
+
+                saveLastMotion(ev);
                 break;
             }
 
@@ -1334,12 +1338,14 @@ public class ViewDragHelper {
      * @param child Child to check
      * @param dx Motion since initial position along X axis
      * @param dy Motion since initial position along Y axis
-     * @return true if the touch slop has been crossed
+     * @return {@code true} if the touch slop has been crossed, {@code false} otherwise or if
+     *         child is {@code null}
      */
-    private boolean checkTouchSlop(View child, float dx, float dy) {
+    private boolean checkTouchSlop(@Nullable View child, float dx, float dy) {
         if (child == null) {
             return false;
         }
+
         final boolean checkHorizontal = mCallback.getViewHorizontalDragRange(child) > 0;
         final boolean checkVertical = mCallback.getViewVerticalDragRange(child) > 0;
 
@@ -1368,6 +1374,10 @@ public class ViewDragHelper {
      * @return true if the slop threshold has been crossed, false otherwise
      */
     public boolean checkTouchSlop(int directions) {
+        if (mInitialMotionX == null) {
+            return false;
+        }
+
         final int count = mInitialMotionX.length;
         for (int i = 0; i < count; i++) {
             if (checkTouchSlop(directions, i)) {
@@ -1400,6 +1410,15 @@ public class ViewDragHelper {
         final boolean checkHorizontal = (directions & DIRECTION_HORIZONTAL) == DIRECTION_HORIZONTAL;
         final boolean checkVertical = (directions & DIRECTION_VERTICAL) == DIRECTION_VERTICAL;
 
+        if (mInitialMotionX == null || mInitialMotionY == null
+                || mLastMotionX == null || mLastMotionY == null) {
+            // We should never reach this point, because if the pointer is down then there ought
+            // to be an initial motion event; however, isPointerDown is not a guarantee of this.
+            Log.w(TAG, "Inconsistent pointer event stream: pointer is down, but there is no "
+                    + "initial motion recorded. Is something intercepting or modifying events?");
+            return false;
+        }
+
         final float dx = mLastMotionX[pointerId] - mInitialMotionX[pointerId];
         final float dy = mLastMotionY[pointerId] - mInitialMotionY[pointerId];
 
@@ -1423,6 +1442,10 @@ public class ViewDragHelper {
      * @return true if any of the edges specified were initially touched in the current gesture
      */
     public boolean isEdgeTouched(int edges) {
+        if (mInitialEdgesTouched == null) {
+            return false;
+        }
+
         final int count = mInitialEdgesTouched.length;
         for (int i = 0; i < count; i++) {
             if (isEdgeTouched(edges, i)) {
@@ -1443,7 +1466,8 @@ public class ViewDragHelper {
      * @return true if any of the edges specified were initially touched in the current gesture
      */
     public boolean isEdgeTouched(int edges, int pointerId) {
-        return isPointerDown(pointerId) && (mInitialEdgesTouched[pointerId] & edges) != 0;
+        return isPointerDown(pointerId) && mInitialEdgesTouched != null
+                && (mInitialEdgesTouched[pointerId] & edges) != 0;
     }
 
     private void releaseViewForPointerUp() {
@@ -1543,13 +1567,24 @@ public class ViewDragHelper {
         return result;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isValidPointerForActionMove(int pointerId) {
         if (!isPointerDown(pointerId)) {
-            Log.e(TAG, "Ignoring pointerId=" + pointerId + " because ACTION_DOWN was not received "
-                    + "for this pointer before ACTION_MOVE. It likely happened because "
-                    + " ViewDragHelper did not receive all the events in the event stream.");
+            if (DEBUG) {
+                Log.e(TAG, "Ignoring pointerId=" + pointerId + " because ACTION_DOWN was not "
+                        + "received for this pointer before ACTION_MOVE. It likely happened "
+                        + "because ViewDragHelper did not receive all the events in the event "
+                        + "stream.");
+            }
             return false;
         }
         return true;
+    }
+
+    // Temporary backport of Objects.requireNonNull() until we can port it to core (b/179904366).
+    @Nullable
+    private static <T> T requireNonNull(@Nullable T obj, @NonNull String message) {
+        if (obj == null) throw new NullPointerException(message);
+        return obj;
     }
 }

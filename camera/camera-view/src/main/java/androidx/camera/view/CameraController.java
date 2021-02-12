@@ -971,6 +971,19 @@ public abstract class CameraController {
     }
 
     /**
+     * Gets the {@link CameraInfo} of the currently attached camera.
+     *
+     * @return the {@link CameraInfo} of the current camera. Returns null if camera is not ready.
+     * @see Camera#getCameraInfo()
+     */
+    @Nullable
+    @MainThread
+    public CameraInfo getCameraInfo() {
+        Threads.checkMainThread();
+        return mCamera == null ? null : mCamera.getCameraInfo();
+    }
+
+    /**
      * Sets current zoom by ratio.
      *
      * <p>Valid zoom values range from {@link ZoomState#getMinZoomRatio()} to

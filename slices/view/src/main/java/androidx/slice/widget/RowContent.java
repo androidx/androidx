@@ -352,6 +352,10 @@ public class RowContent extends SliceContent {
         return mLineCount;
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public int getHeight(SliceStyle style, SliceViewPolicy policy) {
         return style.getRowHeight(this, policy);

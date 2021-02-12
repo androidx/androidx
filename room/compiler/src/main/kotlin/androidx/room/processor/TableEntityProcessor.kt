@@ -108,8 +108,8 @@ class TableEntityProcessor internal constructor(
                     context.logger.w(
                         Warning.INDEX_FROM_PARENT_FIELD_IS_DROPPED,
                         ProcessorErrors.droppedSuperClassFieldIndex(
-                            it.columnName, element.toString(),
-                            it.element.enclosingTypeElement.toString()
+                            it.columnName, element.qualifiedName,
+                            it.element.enclosingTypeElement.qualifiedName
                         )
                     )
                     null
@@ -236,7 +236,7 @@ class TableEntityProcessor internal constructor(
             if (parentAnnotation == null) {
                 context.logger.e(
                     element,
-                    ProcessorErrors.foreignKeyNotAnEntity(parentElement.toString())
+                    ProcessorErrors.foreignKeyNotAnEntity(parentElement.qualifiedName)
                 )
                 return@map null
             }

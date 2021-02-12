@@ -27,6 +27,7 @@ import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
+import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
@@ -209,19 +210,23 @@ class KSTypeExtTest {
         ) { invocation ->
             val env = (invocation.processingEnv as KspProcessingEnv)
             val subject = env.resolver.requireClass("Subject")
-            subject.getDeclaredFunctions().forEach { method ->
-                val types = listOf(
-                    method.returnType.typeName(
-                        invocation.kspResolver
-                    )
-                ) +
-                    method.parameters.map {
-                        it.type.typeName(
+            subject.getDeclaredFunctions()
+                .filterNot {
+                    // ElementFilter.methods in do not include constructors
+                    it.isConstructor()
+                }.forEach { method ->
+                    val types = listOf(
+                        method.returnType.typeName(
                             invocation.kspResolver
                         )
-                    }
-                kspResults[method.simpleName.asString()] = types
-            }
+                    ) +
+                        method.parameters.map {
+                            it.type.typeName(
+                                invocation.kspResolver
+                            )
+                        }
+                    kspResults[method.simpleName.asString()] = types
+                }
         }
         // make sure we grabbed some values to ensure test is working
         assertThat(golden).isNotEmpty()

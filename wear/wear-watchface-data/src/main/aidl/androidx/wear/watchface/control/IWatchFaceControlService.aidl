@@ -22,6 +22,7 @@ import androidx.wear.watchface.control.IHeadlessWatchFace;
 import androidx.wear.watchface.control.IPendingInteractiveWatchFaceWCS;
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams;
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams;
+import androidx.wear.watchface.editor.IEditorService;
 
 /**
  * Interface of a service that allows the user to create watch face instances.
@@ -31,7 +32,7 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 interface IWatchFaceControlService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 5
+    // Next Id: 6
 
     /**
      * API version number. This should be incremented every time a new method is added.
@@ -84,4 +85,11 @@ interface IWatchFaceControlService {
     IInteractiveWatchFaceWCS getOrCreateInteractiveWatchFaceWCS(
             in WallpaperInteractiveWatchFaceInstanceParams params,
             in IPendingInteractiveWatchFaceWCS callback) = 4;
+
+    /**
+     * Returns the {@link IEditorService}
+     *
+     * @since API version 1.
+     */
+    IEditorService getEditorService() = 5;
 }

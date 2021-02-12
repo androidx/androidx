@@ -60,6 +60,7 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -161,7 +162,7 @@ class WatchFaceServiceTest {
                 complicationDrawableLeft,
                 watchState.asWatchState()
             ).apply {
-                idAndData = createIdAndComplicationData(LEFT_COMPLICATION_ID)
+                setIdAndData(createIdAndComplicationData(LEFT_COMPLICATION_ID), false)
             },
             listOf(
                 ComplicationType.RANGED_VALUE,
@@ -182,7 +183,7 @@ class WatchFaceServiceTest {
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
-                idAndData = createIdAndComplicationData(RIGHT_COMPLICATION_ID)
+                setIdAndData(createIdAndComplicationData(RIGHT_COMPLICATION_ID), false)
             },
             listOf(
                 ComplicationType.RANGED_VALUE,
@@ -203,7 +204,7 @@ class WatchFaceServiceTest {
                 complicationDrawableBackground,
                 watchState.asWatchState()
             ).apply {
-                idAndData = createIdAndComplicationData(BACKGROUND_COMPLICATION_ID)
+                setIdAndData(createIdAndComplicationData(BACKGROUND_COMPLICATION_ID), false)
             },
             listOf(
                 ComplicationType.PHOTO_IMAGE
@@ -712,6 +713,41 @@ class WatchFaceServiceTest {
 
         runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
+    }
+
+    @Test
+    fun doubleTap_onFixedComplication_ignored() {
+        val fixedLeftComplication =
+            Complication.createRoundRectComplicationBuilder(
+                LEFT_COMPLICATION_ID,
+                CanvasComplicationDrawable(
+                    complicationDrawableLeft,
+                    watchState.asWatchState()
+                ).apply {
+                    setIdAndData(createIdAndComplicationData(LEFT_COMPLICATION_ID), false)
+                },
+                listOf(
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.LONG_TEXT,
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.MONOCHROMATIC_IMAGE,
+                    ComplicationType.SMALL_IMAGE
+                ),
+                DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
+                ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                .setFixedComplicationProvider(true)
+                .build()
+
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(fixedLeftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        // Double tap left complication.
+        doubleTapAt(30, 50, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
+        assertThat(testWatchFaceService.complicationDoubleTapped).isNull()
     }
 
     @Test
@@ -2105,5 +2141,30 @@ class WatchFaceServiceTest {
         // At this stage we haven't sent properties such as isAmbient, we expect it to be
         // initialized to false (as opposed to null).
         assertThat(watchState.isAmbient.value).isFalse()
+    }
+
+    @Test
+    fun onDestroy_clearsInstanceRecord() {
+        val instanceId = "interactiveInstanceId"
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                instanceId,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(hashMapOf(colorStyleSetting to blueStyleOption)).toWireFormat(),
+                null
+            )
+        )
+        engineWrapper.onDestroy()
+
+        assertNull(InteractiveInstanceManager.getAndRetainInstance(instanceId))
     }
 }
