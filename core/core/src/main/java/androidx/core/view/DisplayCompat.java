@@ -30,6 +30,7 @@ import android.view.Display;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
 
 import java.lang.reflect.Method;
@@ -56,7 +57,8 @@ public final class DisplayCompat {
      * determine support for 4k on Android TV devices.
      */
     @NonNull
-    public static ModeCompat getMode(@NonNull Context context, @NonNull Display display) {
+    @VisibleForTesting
+    static ModeCompat getMode(@NonNull Context context, @NonNull Display display) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return Api23Impl.getMode(context, display);
         }
@@ -385,10 +387,7 @@ public final class DisplayCompat {
          * This field does *not* indicate the native resolution of the display.
          *
          * @return true if this mode is the same resolution as the current display mode.
-         * @deprecated Use {@link DisplayCompat#getMode} to retrieve the resolution of the current
-         *             display mode.
          */
-        @Deprecated
         public boolean isNative() {
             return mIsNative;
         }
