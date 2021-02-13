@@ -90,6 +90,29 @@ public class GenericDocument {
         return MAX_INDEXED_PROPERTIES;
     }
 
+// @exportToFramework:startStrip()
+
+    /**
+     * Converts an instance of a class annotated with \@{@link Document} into an instance of
+     * {@link GenericDocument}.
+     *
+     * @param document An instance of a class annotated with \@{@link Document}.
+     * @return an instance of {@link GenericDocument} produced by converting {@code document}.
+     * @throws AppSearchException if no generated conversion class exists on the classpath for the
+     *                            given document class or an unexpected error occurs during
+     *                            conversion.
+     * @see GenericDocument#toDocumentClass
+     */
+    @NonNull
+    public static GenericDocument fromDocumentClass(@NonNull Object document)
+            throws AppSearchException {
+        Preconditions.checkNotNull(document);
+        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+        DocumentClassFactory<Object> factory = registry.getOrCreateFactory(document);
+        return factory.toGenericDocument(document);
+    }
+// @exportToFramework:endStrip()
+
     /** Contains {@link GenericDocument} basic information (uri, schemaType etc). */
     @NonNull
     final Bundle mBundle;
@@ -493,6 +516,7 @@ public class GenericDocument {
      *       classpath.
      * @return an instance of the document class after being converted from a
      *       {@link GenericDocument}
+     * @see GenericDocument#fromDocumentClass
      */
     @NonNull
     public <T> T toDocumentClass(@NonNull Class<T> documentClass) throws AppSearchException {

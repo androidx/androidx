@@ -330,21 +330,21 @@ class ToGenericDocumentCodeGenerator {
             return false;
         }
 
-        body.addStatement("GenericDocument[] $NConv = new GenericDocument[$NCopy.size()]",
+        body.addStatement(
+                "GenericDocument[] $NConv = new GenericDocument[$NCopy.size()]",
                 fieldName, fieldName);
-        body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
-                ParameterizedTypeName.get(mHelper.getAppSearchClass("DocumentClassFactory"),
-                        TypeName.get(propertyType)),
-                mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType);
-
         body.addStatement("int i = 0");
-        body.add("for ($T item : $NCopy) {\n", propertyType, fieldName).indent();
-        body.addStatement("$NConv[i++] = factory.toGenericDocument(item)", fieldName);
+        body
+                .add("for ($T item : $NCopy) {\n", propertyType, fieldName).indent()
+                .addStatement(
+                        "$NConv[i++] = $T.fromDocumentClass(item)",
+                        fieldName, mHelper.getAppSearchClass("GenericDocument"))
+                .unindent().add("}\n");
 
-        body.unindent().add("}\n");
-
-        body.addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName)
-                .unindent().add("}\n");   //  if ($NCopy != null) {
+        body
+                .addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName)
+                .unindent()
+                .add("}\n");   //  if ($NCopy != null) {
 
         method.add(body.build());
         return true;
@@ -509,16 +509,15 @@ class ToGenericDocumentCodeGenerator {
             return false;
         }
 
-        body.addStatement("GenericDocument[] $NConv = new GenericDocument[$NCopy.length]",
+        body.addStatement(
+                "GenericDocument[] $NConv = new GenericDocument[$NCopy.length]",
                 fieldName, fieldName);
-        body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
-                ParameterizedTypeName.get(mHelper.getAppSearchClass("DocumentClassFactory"),
-                        TypeName.get(propertyType)),
-                mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType);
-        body.add("for (int i = 0; i < $NConv.length; i++) {\n", fieldName).indent();
-        body.addStatement("$NConv[i] = factory.toGenericDocument($NCopy[i])",
-                fieldName, fieldName);
-        body.unindent().add("}\n");
+        body
+                .add("for (int i = 0; i < $NConv.length; i++) {\n", fieldName).indent()
+                .addStatement(
+                        "$NConv[i] = $T.fromDocumentClass($NCopy[i])",
+                        fieldName, mHelper.getAppSearchClass("GenericDocument"), fieldName)
+                .unindent().add("}\n");
 
         body.addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName)
                 .unindent().add("}\n");    //  if ($NCopy != null) {
@@ -650,16 +649,16 @@ class ToGenericDocumentCodeGenerator {
             // field.
             return false;
         }
-        method.addStatement("$T $NCopy = $L", propertyType, propertyName,
-                createAppSearchFieldRead(fieldName));
+        method.addStatement(
+                "$T $NCopy = $L", propertyType, fieldName, createAppSearchFieldRead(fieldName));
 
-        method.add("if ($NCopy != null) {\n", propertyName).indent();
+        method.add("if ($NCopy != null) {\n", fieldName).indent();
 
-        method.addStatement("GenericDocument $NConv = $T.getInstance().getOrCreateFactory($T.class)"
-                        + ".toGenericDocument($NCopy)", fieldName,
-                mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType,
-                propertyName);
-        method.addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName);
+        method
+                .addStatement(
+                        "GenericDocument $NConv = $T.fromDocumentClass($NCopy)",
+                        fieldName, mHelper.getAppSearchClass("GenericDocument"), fieldName)
+                .addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName);
 
         method.unindent().add("}\n");
         return true;
