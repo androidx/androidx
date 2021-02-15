@@ -96,16 +96,6 @@ internal class PagePresenter<T : Any>(
         when (pageEvent) {
             is PageEvent.Insert -> insertPage(pageEvent, callback)
             is PageEvent.Drop -> dropPages(pageEvent, callback)
-            is PageEvent.LegacyLoadStateUpdate -> {
-                error("this should not happen")
-                /*
-                callback.onStateUpdate(
-                    loadType = pageEvent.loadType,
-                    fromMediator = pageEvent.fromMediator,
-                    loadState = pageEvent.loadState
-                )
-                 */
-            }
             is PageEvent.LoadStateUpdate -> {
                 callback.onStateUpdate(pageEvent.combinedLoadStates)
             }

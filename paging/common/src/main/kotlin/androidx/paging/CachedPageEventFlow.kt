@@ -218,7 +218,6 @@ internal class FlattenedPageEventStorage<T : Any> {
         when (event) {
             is PageEvent.Insert<T> -> handleInsert(event)
             is PageEvent.Drop<T> -> handlePageDrop(event)
-            is PageEvent.LegacyLoadStateUpdate<T> -> handleLoadStateUpdate(event)
             is PageEvent.LoadStateUpdate<T> -> handleLoadStateUpdate(event)
         }
     }
@@ -262,11 +261,6 @@ internal class FlattenedPageEventStorage<T : Any> {
                 pages.addAll(event.pages)
             }
         }
-    }
-
-    // TODO: Cleanup, no need for this
-    private fun handleLoadStateUpdate(event: PageEvent.LegacyLoadStateUpdate<T>) {
-        loadStates.set(event.loadType, event.fromMediator, event.loadState)
     }
 
     private fun handleLoadStateUpdate(event: PageEvent.LoadStateUpdate<T>) {

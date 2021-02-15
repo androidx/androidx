@@ -127,17 +127,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         fromMediator = true
                     )
                 ) {
-//                    send(
-//                        PageEvent.LegacyLoadStateUpdate<Value>(
-//                            loadType = type,
-//                            fromMediator = true,
-//                            loadState = state
-//                        )
-//                    )
-
-                    println()
-                    println("Valid and dispatched: " + loadStates.snapshot())
-
                     send(
                         PageEvent.LoadStateUpdate(loadStates.snapshot())
                     )
@@ -184,21 +173,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         )
                         send(event)
                     }
-                    is PageEvent.LegacyLoadStateUpdate -> {
-                        loadStates.set(
-                            type = event.loadType,
-                            remote = event.fromMediator,
-                            state = event.loadState
-                        )
-                        send(event)
-                    }
                     is PageEvent.LoadStateUpdate -> {
-                        // TODO: Load states should not be entirely replaced with event
-                        println()
-                        println("Incoming: \n" + event.combinedLoadStates)
-                        println("Current: \n" + loadStates.snapshot())
-                        // println("Accessor state: \n" + accessor.state.value)
-
                         loadStates.set(
                             REFRESH,
                             false,
@@ -214,13 +189,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
                             false,
                             event.combinedLoadStates.source.append
                         )
-//                        loadStates.set(
-//                            sourceLoadStates = event.combinedLoadStates.source.copy(),
-//                            remoteLoadStates = accessor.state.value
-//                            // remoteLoadStates = loadStates.snapshot().mediator
-//                        )
-
-                        println("Combined: \n" + loadStates.snapshot())
 
                         send(event.copy(combinedLoadStates = loadStates.snapshot()))
                     }

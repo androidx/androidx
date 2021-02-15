@@ -20,12 +20,10 @@ import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
-import androidx.paging.PageEvent.LegacyLoadStateUpdate
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
 import androidx.paging.TerminalSeparatorType.SOURCE_COMPLETE
@@ -1064,22 +1062,10 @@ class SeparatorsTest {
     fun remoteRefreshEndOfPaginationReached_fullyComplete() = runBlockingTest {
         assertThat(
             flowOf(
-                /*
-                LegacyLoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = LoadState.Loading
-                ),
-                LegacyLoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = false,
-                    loadState = LoadState.Loading
-                ),
-                 */
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         refresh = Loading,
-                        refreshRemote = Loading
+                        refreshRemote = Loading,
                     )
                 ),
                 LoadStateUpdate(
@@ -1098,82 +1084,53 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                     )
                 ),
-                /*
-                LegacyLoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
-                ),
-                LegacyLoadStateUpdate(
-                    loadType = PREPEND,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
-                ),
-                LegacyLoadStateUpdate(
-                    loadType = APPEND,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
-                ),
-                 */
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         refresh = NotLoading.Complete,
+                        refreshRemote = NotLoading.Complete,
                         appendLocal = NotLoading.Complete,
-                        prependLocal = NotLoading.Complete,
-                        refreshRemote = NotLoading.Complete
+                        prependLocal = NotLoading.Complete
                     )
                 ),
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         refresh = NotLoading.Complete,
                         prepend = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                        prependLocal = NotLoading.Complete,
                         refreshRemote = NotLoading.Complete,
                         prependRemote = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete
                     )
                 ),
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         refresh = NotLoading.Complete,
-                        prepend = NotLoading.Complete,
                         append = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                        prependLocal = NotLoading.Complete,
+                        prepend = NotLoading.Complete,
                         refreshRemote = NotLoading.Complete,
                         prependRemote = NotLoading.Complete,
-                        appendRemote = NotLoading.Complete
+                        appendRemote = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete
                     )
-                ),
+                )
             ).insertEventSeparators(
                 terminalSeparatorType = FULLY_COMPLETE,
                 generator = LETTER_SEPARATOR_GENERATOR
             ).toList()
         ).isEqualTo(
             listOf(
-                /*
-                LegacyLoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = LoadState.Loading
-                ),
-                LegacyLoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = false,
-                    loadState = LoadState.Loading
-                ),
-                 */
                 LoadStateUpdate(
                     remoteLoadStatesOf(
-                        refresh = LoadState.Loading,
-                        refreshRemote = LoadState.Loading
+                        refresh = Loading,
+                        refreshRemote = Loading,
                     )
                 ),
                 LoadStateUpdate(
                     remoteLoadStatesOf(
-                        refresh = LoadState.Loading,
-                        refreshRemote = LoadState.Loading,
-                        refreshLocal = LoadState.Loading
+                        refresh = Loading,
+                        refreshRemote = Loading,
+                        refreshLocal = Loading
                     )
                 ),
                 Refresh(
@@ -1185,19 +1142,12 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                     )
                 ),
-                /*
-                LegacyLoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
-                ),
-                 */
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         refresh = NotLoading.Complete,
+                        refreshRemote = NotLoading.Complete,
                         appendLocal = NotLoading.Complete,
                         prependLocal = NotLoading.Complete,
-                        refreshRemote = NotLoading.Complete,
                     )
                 ),
                 Prepend(
@@ -1248,26 +1198,16 @@ class SeparatorsTest {
     fun remoteRefreshEndOfPaginationReached_sourceComplete() = runBlockingTest {
         assertThat(
             flowOf(
-                /*
-                LegacyLoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = LoadState.Loading
-                ),
-                LegacyLoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = false,
-                    loadState = LoadState.Loading
-                ),
-                 */
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         refresh = Loading,
-                        refreshRemote = Loading
+                        refreshRemote = Loading,
                     )
                 ),
                 LoadStateUpdate(
-                    localLoadStatesOf(
+                    remoteLoadStatesOf(
+                        refresh = Loading,
+                        refreshRemote = Loading,
                         refreshLocal = Loading
                     )
                 ),
@@ -1280,39 +1220,22 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                     )
                 ),
-                /*
-                LegacyLoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
-                ),
-                LegacyLoadStateUpdate(
-                    loadType = PREPEND,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
-                ),
-                LegacyLoadStateUpdate(
-                    loadType = APPEND,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
-                )
-                 */
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         refresh = NotLoading.Complete,
+                        refreshRemote = NotLoading.Complete,
                         appendLocal = NotLoading.Complete,
                         prependLocal = NotLoading.Complete,
-                        refreshRemote = NotLoading.Complete
                     )
                 ),
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         refresh = NotLoading.Complete,
                         prepend = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                        prependLocal = NotLoading.Complete,
                         refreshRemote = NotLoading.Complete,
                         prependRemote = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
                     )
                 ),
                 LoadStateUpdate(
@@ -1320,11 +1243,11 @@ class SeparatorsTest {
                         refresh = NotLoading.Complete,
                         prepend = NotLoading.Complete,
                         append = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                        prependLocal = NotLoading.Complete,
                         refreshRemote = NotLoading.Complete,
                         prependRemote = NotLoading.Complete,
                         appendRemote = NotLoading.Complete,
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
                     )
                 )
             ).insertEventSeparators(
@@ -1333,26 +1256,16 @@ class SeparatorsTest {
             ).toList()
         ).isEqualTo(
             listOf(
-                /*
-                LegacyLoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = LoadState.Loading
-                ),
-                LegacyLoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = false,
-                    loadState = LoadState.Loading
-                ),
-                 */
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         refresh = Loading,
-                        refreshRemote = Loading
+                        refreshRemote = Loading,
                     )
                 ),
                 LoadStateUpdate(
-                    localLoadStatesOf(
+                    remoteLoadStatesOf(
+                        refresh = Loading,
+                        refreshRemote = Loading,
                         refreshLocal = Loading
                     )
                 ),
@@ -1382,19 +1295,12 @@ class SeparatorsTest {
                         prependLocal = NotLoading.Complete,
                     )
                 ),
-                /*
-                LegacyLoadStateUpdate(
-                    loadType = REFRESH,
-                    fromMediator = true,
-                    loadState = NotLoading(endOfPaginationReached = true)
-                ),
-                 */
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         refresh = NotLoading.Complete,
+                        refreshRemote = NotLoading.Complete,
                         appendLocal = NotLoading.Complete,
                         prependLocal = NotLoading.Complete,
-                        refreshRemote = NotLoading.Complete
                     )
                 ),
                 Prepend(
