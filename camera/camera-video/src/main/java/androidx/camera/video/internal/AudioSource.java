@@ -91,6 +91,7 @@ public final class AudioSource {
     boolean mIsSendingAudio;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @SuppressLint("MissingPermission") // b/180321825
     AudioSource(@NonNull Executor executor,
             @NonNull BufferProvider<InputBuffer> bufferProvider,
             int audioSource,
