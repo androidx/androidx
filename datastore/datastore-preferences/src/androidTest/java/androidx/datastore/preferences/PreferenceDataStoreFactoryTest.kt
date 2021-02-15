@@ -29,6 +29,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -134,23 +135,30 @@ class PreferenceDataStoreFactoryTest {
     fun testCreateWithContextAndName() = runBlockingTest {
         val prefs = preferencesOf(stringKey to "value")
 
-        var store = context.createDataStore(
-            name = "my_settings",
-            scope = dataStoreScope
-        )
-        store.updateData { prefs }
-
-        // Create it again and confirm it's still there
-        store = context.createDataStore("my_settings", scope = dataStoreScope)
-        assertEquals(prefs, store.data.first())
-
-        // Check that the file name is context.filesDir + name + ".preferences_pb"
-        store = PreferenceDataStoreFactory.create(
-            scope = dataStoreScope
-        ) {
-            File(context.filesDir, "datastore/my_settings.preferences_pb")
+        coroutineScope {
+            val store = context.createDataStore(
+                name = "my_settings",
+                scope = this
+            )
+            store.updateData { prefs }
         }
-        assertEquals(prefs, store.data.first())
+
+        coroutineScope {
+            // Create it again and confirm it's still there
+            val store = context.createDataStore("my_settings", scope = this)
+            assertEquals(prefs, store.data.first())
+        }
+
+        coroutineScope {
+            // Check that the file name is context.filesDir + name + ".preferences_pb"
+            val store = PreferenceDataStoreFactory.create(
+                scope = this
+            ) {
+                File(context.filesDir, "datastore/my_settings.preferences_pb")
+            }
+
+            assertEquals(prefs, store.data.first())
+        }
     }
 
     @Test
