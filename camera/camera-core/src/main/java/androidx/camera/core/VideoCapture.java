@@ -913,6 +913,7 @@ public final class VideoCapture extends UseCase {
     }
 
     /** Create a AudioRecord object to get raw data */
+    @SuppressLint("MissingPermission") // b/180321825
     private AudioRecord autoConfigAudioRecordSource(VideoCaptureConfig config) {
         for (short audioFormat : sAudioEncoding) {
 
