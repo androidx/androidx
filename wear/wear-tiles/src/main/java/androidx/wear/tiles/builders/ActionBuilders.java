@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.tiles.builders.StateBuilders.State;
 import androidx.wear.tiles.proto.ActionProto;
 
 /** Builders for actions that can be performed when a user interacts with layout elements. */
@@ -31,7 +32,7 @@ public final class ActionBuilders {
     public static final class AndroidActivity {
         private final ActionProto.AndroidActivity mImpl;
 
-        AndroidActivity(ActionProto.AndroidActivity impl) {
+        private AndroidActivity(ActionProto.AndroidActivity impl) {
             this.mImpl = impl;
         }
 
@@ -41,12 +42,15 @@ public final class ActionBuilders {
             return new Builder();
         }
 
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AndroidActivity fromProto(@NonNull ActionProto.AndroidActivity proto) {
+            return new AndroidActivity(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ActionProto.AndroidActivity toProto() {
             return mImpl;
@@ -81,7 +85,7 @@ public final class ActionBuilders {
             /** Builds an instance from accumulated values. */
             @NonNull
             public AndroidActivity build() {
-                return new AndroidActivity(mImpl.build());
+                return AndroidActivity.fromProto(mImpl.build());
             }
         }
     }
@@ -94,7 +98,7 @@ public final class ActionBuilders {
     public static final class LaunchAction implements Action {
         private final ActionProto.LaunchAction mImpl;
 
-        LaunchAction(ActionProto.LaunchAction impl) {
+        private LaunchAction(ActionProto.LaunchAction impl) {
             this.mImpl = impl;
         }
 
@@ -105,7 +109,14 @@ public final class ActionBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static LaunchAction fromProto(@NonNull ActionProto.LaunchAction proto) {
+            return new LaunchAction(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.LaunchAction toProto() {
             return mImpl;
@@ -113,7 +124,7 @@ public final class ActionBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ActionProto.Action toActionProto() {
             return ActionProto.Action.newBuilder().setLaunchAction(mImpl).build();
@@ -146,7 +157,7 @@ public final class ActionBuilders {
             @Override
             @NonNull
             public LaunchAction build() {
-                return new LaunchAction(mImpl.build());
+                return LaunchAction.fromProto(mImpl.build());
             }
         }
     }
@@ -155,7 +166,7 @@ public final class ActionBuilders {
     public static final class LoadAction implements Action {
         private final ActionProto.LoadAction mImpl;
 
-        LoadAction(ActionProto.LoadAction impl) {
+        private LoadAction(ActionProto.LoadAction impl) {
             this.mImpl = impl;
         }
 
@@ -166,7 +177,14 @@ public final class ActionBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static LoadAction fromProto(@NonNull ActionProto.LoadAction proto) {
+            return new LoadAction(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.LoadAction toProto() {
             return mImpl;
@@ -174,7 +192,7 @@ public final class ActionBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ActionProto.Action toActionProto() {
             return ActionProto.Action.newBuilder().setLoadAction(mImpl).build();
@@ -187,10 +205,34 @@ public final class ActionBuilders {
 
             Builder() {}
 
+            /**
+             * Sets the state to load the next tile with. This will be included in the TileRequest
+             * sent after this action is invoked by a {@link
+             * androidx.wear.tiles.builders.ModifiersBuilders.Clickable}.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setRequestState(@NonNull State requestState) {
+                mImpl.setRequestState(requestState.toProto());
+                return this;
+            }
+
+            /**
+             * Sets the state to load the next tile with. This will be included in the TileRequest
+             * sent after this action is invoked by a {@link
+             * androidx.wear.tiles.builders.ModifiersBuilders.Clickable}.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setRequestState(@NonNull State.Builder requestStateBuilder) {
+                mImpl.setRequestState(requestStateBuilder.build().toProto());
+                return this;
+            }
+
             @Override
             @NonNull
             public LoadAction build() {
-                return new LoadAction(mImpl.build());
+                return LoadAction.fromProto(mImpl.build());
             }
         }
     }
@@ -202,7 +244,7 @@ public final class ActionBuilders {
          *
          * @hide
          */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.Action toActionProto();
 
