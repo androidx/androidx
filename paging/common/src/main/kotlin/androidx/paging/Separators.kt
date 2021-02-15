@@ -537,11 +537,7 @@ private class SeparatorState<R : Any, T : R>(
         // isn't possible to add a separator to. Note: Adding a separate insert event also
         // doesn't work in the case where .insertSeparators() is called multiple times on the
         // same page event stream - we have to transform the terminating LoadStateUpdate event.
-        if (
-            diffType != REFRESH && // Not refresh event
-            fromMediator && // From mediator
-            diffState.endOfPaginationReached // End of pagination
-        ) {
+        if (diffType != REFRESH && fromMediator && diffState.endOfPaginationReached) {
             val emptyTerminalInsert: Insert<T> = if (diffType == PREPEND) {
                 Insert.Prepend(
                     pages = emptyList(),

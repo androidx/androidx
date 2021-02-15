@@ -187,41 +187,6 @@ internal sealed class PageEvent<T : Any> {
         val pageCount get() = maxPageOffset - minPageOffset + 1
     }
 
-    /*
-    @Deprecated("Should use LoadStateUpdate instead")
-    data class LegacyLoadStateUpdate<T : Any>(
-        val loadType: LoadType,
-        val fromMediator: Boolean,
-        val loadState: LoadState // TODO: consider using full state object here
-    ) : PageEvent<T>() {
-        init {
-            // endOfPaginationReached for local refresh is driven by null values in next/prev keys.
-            require(
-                loadType != REFRESH || fromMediator || loadState !is LoadState.NotLoading ||
-                    !loadState.endOfPaginationReached
-            ) {
-                "LoadStateUpdate for local REFRESH may not set endOfPaginationReached = true"
-            }
-
-            require(canDispatchWithoutInsert(loadState, fromMediator)) {
-                "LoadStateUpdates cannot be used to dispatch NotLoading unless it is from remote" +
-                    " mediator and remote mediator reached end of pagination."
-            }
-        }
-
-        companion object {
-            /**
-             * DataSource loads with no more to load must carry LoadState.NotLoading with them,
-             * to ensure content appears in the same frame as e.g. a load state spinner is removed.
-             *
-             * This prevents multiple related RV animations from happening simultaneously
-             */
-            internal fun canDispatchWithoutInsert(loadState: LoadState, fromMediator: Boolean) =
-                loadState is LoadState.Loading || loadState is LoadState.Error || fromMediator
-        }
-    }
-     */
-
     data class LoadStateUpdate<T : Any>(
         val combinedLoadStates: CombinedLoadStates
     ) : PageEvent<T>() {
@@ -236,16 +201,14 @@ internal sealed class PageEvent<T : Any> {
             internal fun canDispatchWithoutInsert(loadState: LoadState, fromMediator: Boolean) =
                 loadState is LoadState.Loading || loadState is LoadState.Error || fromMediator
 
-            // TODO: Double check this is actually right
+            // TODO: Performance can probably be improved
             internal fun canDispatchWithoutInsert(combinedLoadStates: CombinedLoadStates): Boolean {
                 var canDispatch = true
-
                 combinedLoadStates.forEach { _, fromMediator, loadState ->
                     if (!canDispatchWithoutInsert(loadState, fromMediator)) {
                         canDispatch = false
                     }
                 }
-
                 return canDispatch
             }
         }
