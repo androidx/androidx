@@ -4,8 +4,6 @@ syntax = "proto3";
 package androidx.wear.tiles.proto;
 
 
-
-
 option java_package = "androidx.wear.tiles.proto";
 option java_outer_classname = "ResourceProto";
 
@@ -32,13 +30,18 @@ message InlineImageResource {
   // The byte array representing the image.
   bytes data = 1;
 
-  // The native width of the image, in pixels.
+  // The native width of the image, in pixels. Only required for formats
+  // (e.g. IMAGE_FORMAT_RGB_565) where the image data does not include size.
   int32 width_px = 2;
 
-  // The native height of the image, in pixels.
+  // The native height of the image, in pixels. Only required for formats
+  // (e.g. IMAGE_FORMAT_RGB_565) where the image data does not include size.
   int32 height_px = 3;
 
-  // The format of the byte array data representing the image.
+  // The format of the byte array data representing the image. May be left
+  // unspecified or set to IMAGE_FORMAT_UNDEFINED in which case the platform
+  // will attempt to extract this from the raw image data. If the platform does
+  // not support the format, the image will not be decoded or displayed.
   ImageFormat format = 4;
 }
 

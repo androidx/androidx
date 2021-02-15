@@ -4,12 +4,10 @@ syntax = "proto3";
 
 package androidx.wear.tiles.proto;
 
-import "action.proto";
 import "color.proto";
 import "dimension.proto";
-
+import "modifiers.proto";
 import "types.proto";
-
 
 option java_package = "androidx.wear.tiles.proto";
 option java_outer_classname = "LayoutElementProto";
@@ -88,12 +86,6 @@ message FontStyle {
   // the size of the system's "body" font.
   SpProp size = 1;
 
-  // Whether the text should be rendered in a bold typeface. If not specified,
-  // defaults to "false".
-  //
-  // DEPRECATED: Use weight instead.
-  BoolProp bold = 2 [deprecated = true];
-
   // Whether the text should be rendered in a italic typeface. If not specified,
   // defaults to "false".
   BoolProp italic = 3;
@@ -109,6 +101,13 @@ message FontStyle {
   // platform, the nearest supported value will be used. If not defined, or
   // when set to an invalid value, defaults to "normal".
   FontWeightProp weight = 6;
+
+  // The text letter-spacing. Positive numbers increase the space between
+  // letters while negative numbers tighten the space. If not specified,
+  // defaults to 0.
+  EmProp letter_spacing = 7;
+
+  reserved 2;
 }
 
 // Alignment of a text element.
@@ -203,116 +202,10 @@ message ArcAnchorTypeProp {
   ArcAnchorType value = 1;
 }
 
-// The padding around a Box element.
-message Padding {
-  // The padding on the end of the content, depending on the layout direction,
-  // in DP and the value of "rtl_aware".
-  DpProp end = 1;
-
-  // The padding on the start of the content, depending on the layout direction,
-  // in DP and the value of "rtl_aware".
-  DpProp start = 2;
-
-  // The padding at the top, in DP.
-  DpProp top = 3;
-
-  // The padding at the bottom, in DP.
-  DpProp bottom = 4;
-
-  // Whether the start/end padding is aware of RTL support. If true, the values
-  // for start/end will follow the layout direction (i.e. start will refer to
-  // the right hand side of the container if the device is using an RTL locale).
-  // If false, start/end will always map to left/right, accordingly.
-  BoolProp rtl_aware = 5;
-}
-
-// The border around a Box element.
-message Border {
-  // The width of the border, in DP.
-  DpProp width = 1;
-
-  // The color of the border.
-  ColorProp color = 2;
-}
-
-// The corner of a Box element.
-message Corner {
-  // The radius of the corner in DP.
-  DpProp radius = 1;
-}
-
-// The style of a Text element.
-message TextStyle {
-  // The text color. If not defined, defaults to white.
-  //
-  // DEPRECATED: Use color property of FontStyle instead.
-  ColorProp color = 1 [deprecated = true];
-
-  // The maximum number of lines that can be represented by the Text element.
-  // If not defined, the Text element will be treated as a single-line element.
-  Int32Prop max_lines = 2;
-
-  // Alignment of the text within its bounds. Note that a Text element will size
-  // itself to wrap its contents, so this option is meaningless for single-line
-  // text (for that, use alignment of the outer container). For multi-line text,
-  // however, this will set the alignment of lines relative to the Text element
-  // bounds. If not defined, defaults to TEXT_ALIGN_CENTER.
-  TextAlignmentProp multiline_alignment = 3;
-
-  // Specifies how to handle text which overflows the bound of the Text element.
-  // A Text element will grow as large as possible inside its parent container
-  // (while still respecting max_lines); if it cannot grow large  enough to
-  // render all of its text, the text which cannot fit inside its container will
-  // be truncated. If not defined, defaults to TEXT_OVERFLOW_TRUNCATE.
-  TextOverflowProp overflow = 4;
-}
-
-// The style of a Spannable element.
-message SpannableStyle {
-  // The maximum number of lines that can be represented by the Spannable
-  // element. If not defined, the Text element will be treated as a single-line
-  // element.
-  Int32Prop max_lines = 1;
-
-  // Alignment of the Spannable content within its bounds. Note that a Spannable
-  // element will size itself to wrap its contents, so this option is
-  // meaningless for single-line content (for that, use alignment of the outer
-  // container). For multi-line content, however, this will set the alignment of
-  // lines relative to the Spannable element bounds. If not defined, defaults to
-  // TEXT_ALIGN_CENTER.
-  HorizontalAlignmentProp multiline_alignment = 2;
-
-  // Specifies how to handle content which overflows the bound of the Spannable
-  // element. A Spannable element will grow as large as possible inside its
-  // parent container (while still respecting max_lines); if it cannot grow
-  // large enough to render all of its content, the content which cannot fit
-  // inside its container will  be truncated. If not defined, defaults to
-  // TEXT_OVERFLOW_TRUNCATE.
-  TextOverflowProp overflow = 3;
-}
-
-// The style of a Box.
-message BoxStyle {
-  // The background color for this Box. If not defined, defaults to being
-  // transparent.
-  ColorProp background_color = 1;
-
-  // An optional padding inside of this Box. If not defined, Box will not have
-  // any padding.
-  Padding padding = 2;
-
-  // An optional border for this Box. If not defined, Box will not have a
-  // border.
-  Border border = 3;
-
-  // The corner properties of this Box. This only affects the drawing of this
-  // Box if either "color" or "border" are also set. If not defined, defaults to
-  // having a square corner.
-  Corner corner = 4;
-}
-
 // The style of a line.
 message LineStyle {
+  option deprecated = true;
+
   // Color of this line. If not defined, defaults to white.
   ColorProp color = 1;
 }
@@ -322,28 +215,37 @@ message Text {
   // The text to render.
   StringProp text = 1;
 
-  // An optional style for this text string.
-  //
-  // DEPRECATED: Use Spannable with SpannableStyle instead.
-  TextStyle style = 2 [deprecated = true];
-
   // The style of font to use (size, bold etc). If not specified, defaults to
   // the platform's default body font.
   FontStyle font_style = 3;
-}
 
-// A holder for an element which can have associated Action items for click
-// events. When an element wrapped in a Clickable is clicked, it will fire the
-// associated action.
-message Clickable {
-  // The ID associated with this action.
-  string id = 1;
+  // Modifiers for this element.
+  Modifiers modifiers = 4;
 
-  // The layout element to attach the action to.
-  LayoutElement content = 2;
+  // The maximum number of lines that can be represented by the Text element.
+  // If not defined, the Text element will be treated as a single-line element.
+  Int32Prop max_lines = 5;
 
-  // The action to perform when "content" is clicked.
-  Action on_click = 3;
+  // Alignment of the text within its bounds. Note that a Text element will size
+  // itself to wrap its contents, so this option is meaningless for single-line
+  // text (for that, use alignment of the outer container). For multi-line text,
+  // however, this will set the alignment of lines relative to the Text element
+  // bounds. If not defined, defaults to TEXT_ALIGN_CENTER.
+  TextAlignmentProp multiline_alignment = 6;
+
+  // How to handle text which overflows the bound of the Text element.
+  // A Text element will grow as large as possible inside its parent container
+  // (while still respecting max_lines); if it cannot grow large  enough to
+  // render all of its text, the text which cannot fit inside its container will
+  // be truncated. If not defined, defaults to TEXT_OVERFLOW_TRUNCATE.
+  TextOverflowProp overflow = 7;
+
+  // The explicit height between lines of text. This is equivalent to the
+  // vertical distance between subsequent baselines. If not specified, defaults
+  // the font's recommended interline spacing.
+  SpProp line_height = 8;
+
+  reserved 2;
 }
 
 // How content which does not match the dimensions of its bounds (e.g. an image
@@ -397,6 +299,9 @@ message Image {
   // if its size does not match those bounds. Defaults to
   // CONTENT_SCALE_MODE_FIT.
   ContentScaleModeProp content_scale_mode = 4;
+
+  // Modifiers for this element.
+  Modifiers modifiers = 5;
 }
 
 // A simple spacer, typically used to provide padding between adjacent elements.
@@ -404,10 +309,15 @@ message Spacer {
   // The width of this Spacer. When this is added as the direct child of an Arc,
   // this must be specified as an angular dimension, otherwise a linear
   // dimension must be used. If not defined, defaults to 0.
-  LinearOrAngularDimension width = 1;
+  SpacerDimension width = 4;
 
   // The height of this spacer. If not defined, defaults to 0.
-  DpProp height = 2;
+  SpacerDimension height = 5;
+
+  // Modifiers for this element.
+  Modifiers modifiers = 3;
+
+  reserved 1, 2;
 }
 
 // A container which stacks all of its children on top of one another. This also
@@ -416,9 +326,6 @@ message Spacer {
 message Box {
   // The child element(s) to wrap.
   repeated LayoutElement contents = 1;
-
-  // The style of the Box (padding, background color, border etc).
-  BoxStyle style = 2;
 
   // The height of this Box. If not defined, this will size itself to fit all of
   // its children (i.e. a WrappedDimension).
@@ -435,14 +342,49 @@ message Box {
   // The vertical alignment of the element inside this Box. If not defined,
   // defaults to VALIGN_CENTER.
   VerticalAlignmentProp vertical_alignment = 6;
+
+  // Modifiers for this element.
+  Modifiers modifiers = 7;
+
+  reserved 2;
+}
+
+// A portion of text which can be added to a Span.
+message SpanText {
+  // The text to render.
+  StringProp text = 1;
+
+  // The style of font to use (size, bold etc). If not specified, defaults to
+  // the platform's default body font.
+  FontStyle font_style = 2;
+
+  // Modifiers for this element.
+  SpanModifiers modifiers = 3;
+}
+
+// An image which can be added to a Span.
+message SpanImage {
+  // The resource_id of the image to render. This must exist in the supplied
+  // resource bundle.
+  StringProp resource_id = 1;
+
+  // The width of this image. If not defined, the image will not be rendered.
+  DpProp width = 2;
+
+  // The height of this image. If not defined, the image will not be rendered.
+  DpProp height = 3;
+
+  // Modifiers for this element.
+  SpanModifiers modifiers = 4;
 }
 
 // A single Span. Each Span forms part of a larger Spannable widget. At the
 // moment, the only widgets which can be added to Spannable containers are
-// Text elements.
+// SpanText and SpanImage elements.
 message Span {
   oneof inner {
-    Text text = 1;
+    SpanText text = 1;
+    SpanImage image = 2;
   }
 }
 
@@ -455,8 +397,36 @@ message Spannable {
   // The Span elements that form this Spannable.
   repeated Span spans = 1;
 
-  // The style of this Spannable
-  SpannableStyle style = 2;
+  // Modifiers for this element.
+  Modifiers modifiers = 3;
+
+  // The maximum number of lines that can be represented by the Spannable
+  // element. If not defined, the Spannable element will be treated as a
+  // single-line element.
+  Int32Prop max_lines = 4;
+
+  // Alignment of the Spannable content within its bounds. Note that a Spannable
+  // element will size itself to wrap its contents, so this option is
+  // meaningless for single-line content (for that, use alignment of the outer
+  // container). For multi-line content, however, this will set the alignment of
+  // lines relative to the Spannable element bounds. If not defined, defaults to
+  // TEXT_ALIGN_CENTER.
+  HorizontalAlignmentProp multiline_alignment = 5;
+
+  // How to handle content which overflows the bound of the Spannable element.
+  // A Spannable element will grow as large as possible inside its parent
+  // container (while still respecting max_lines); if it cannot grow large
+  // enough to render all of its content, the content which cannot fit inside
+  // its container will  be truncated. If not defined, defaults to
+  // TEXT_OVERFLOW_TRUNCATE.
+  TextOverflowProp overflow = 6;
+
+  // Extra spacing to add between each line. This will apply to all
+  // spans regardless of their font size. This is in addition to original
+  // line heights. Note that this won't add any additional space before the
+  // first line or after the last line. The default value is zero and negative
+  // values will decrease the interline spacing.
+  SpProp line_spacing = 7;
 }
 
 // A column of elements. Each child element will be laid out vertically, one
@@ -483,6 +453,9 @@ message Column {
   // The height of this column. If not defined, this will size itself to fit
   // all of its children (i.e. a WrappedDimension).
   ContainerDimension height = 4;
+
+  // Modifiers for this element.
+  Modifiers modifiers = 5;
 }
 
 // A row of elements. Each child will be laid out horizontally, one after
@@ -509,64 +482,18 @@ message Row {
   // The height of this row. If not defined, this will size itself to fit
   // all of its children (i.e. a WrappedDimension).
   ContainerDimension height = 4;
-}
 
-// A wrapper for an element which has a screen reader description associated
-// with it. This should generally be used sparingly, and in most cases should
-// only be applied to the top-level layout element or to Clickables.
-message Audible {
-  // The element to wrap with the screen reader description.
-  LayoutElement content = 1;
-
-  // The accessibility label associated with this element. This will be dictated
-  // when the element is focused by the screen reader.
-  string accessibility_label = 2;
-}
-
-// A line. When added to a normal container, this renders as a horizontal line
-// which can be used to provide a visual break between elements. When added to
-// an arc, it will render as a round progress bar.
-message Line {
-  // The length of this Line. When this is added as the direct child of an Arc,
-  // this must be specified as an AngularDimension, otherwise a LinearDimension
-  // must be used. If not defined, defaults to 0.
-  LinearOrAngularDimension length = 1;
-
-  // The thickness of this line. If not defined, defaults to 0.
-  DpProp thickness = 2;
-
-  // The style of this line.
-  LineStyle style = 3;
+  // Modifiers for this element.
+  Modifiers modifiers = 5;
 }
 
 // An arc container. This container will fill itself to a circle, which fits
 // inside its parent container, and all of its children will be placed on that
 // circle. The fields anchor_angle and anchor_type can be used to specify where
 // to draw children within this circle.
-//
-// Note that there are two special cases. Text and Line elements which are added
-// as direct descendants to an arc will be drawn as a curved widget around the
-// arc, rather than just placed on the arc and drawn normally.
 message Arc {
   // Contents of this container.
-  repeated LayoutElement contents = 1;
-
-  // The length of this Arc as an angle. If not defined, this will size itself
-  // to fit all of its children. If defined, this should be a value > 0 degrees.
-  DegreesProp length = 2;
-
-  // The thickness of this Arc. If not defined, this will size itself to fit all
-  // of its children.
-  DpProp thickness = 3;
-
-  // Whether this Arc's children should be rotated, according to its position
-  // in the arc or not. As an example, assume that an Image has been added to
-  // the arc, and ends up at the 3 o clock position. If rotate_contents = true,
-  // the image will be placed at the 3 o clock position, and will be rotated
-  // clockwise through 90 degrees. If rotate_contents = false, the image will be
-  // placed at the 3 o clock position, but itself will not be rotated. If not
-  // defined, defaults to true.
-  BoolProp rotate_contents = 4;
+  repeated ArcLayoutElement contents = 9;
 
   // The angle for the anchor, used with anchor_type to determine where to draw
   // children. Note that 0 degrees is the 12 o clock position on a device, and
@@ -588,6 +515,66 @@ message Arc {
   // drawn in the center.
   // If not defined, defaults to VALIGN_CENTER
   VerticalAlignmentProp vertical_align = 7;
+
+  // Modifiers for this element.
+  Modifiers modifiers = 8;
+
+  reserved 1, 2, 3, 4;
+}
+
+// A text element that can be used in an Arc.
+message ArcText {
+  // The text to render.
+  StringProp text = 1;
+
+  // The style of font to use (size, bold etc). If not specified, defaults to
+  // the platform's default body font.
+  FontStyle font_style = 2;
+
+  // Modifiers for this element.
+  ArcModifiers modifiers = 3;
+}
+
+// A line that can be used in an Arc and renders as a round progress bar.
+message ArcLine {
+  // The length of this line, in degrees. If not defined, defaults to 0.
+  DegreesProp length = 1;
+
+  // The thickness of this line. If not defined, defaults to 0.
+  DpProp thickness = 2;
+
+  // The color of this line.
+  ColorProp color = 3;
+
+  // Modifiers for this element.
+  ArcModifiers modifiers = 4;
+}
+
+// A simple spacer used to provide padding between adjacent elements in an Arc.
+message ArcSpacer {
+  // The length of this spacer, in degrees. If not defined, defaults to 0.
+  DegreesProp length = 1;
+
+  // The thickness of this spacer, in DP. If not defined, defaults to 0.
+  DpProp thickness = 2;
+
+  // Modifiers for this element.
+  ArcModifiers modifiers = 3;
+}
+
+// A container that allows a standard LayoutElement to be added to an Arc.
+message ArcAdapter {
+  // The element to adapt to an Arc.
+  LayoutElement content = 1;
+
+  // Whether this adapter's contents should be rotated, according to its
+  // position in the arc or not. As an example, assume that an Image has been
+  // added to the arc, and ends up at the 3 o clock position. If rotate_contents
+  // = true, the image will be placed at the 3 o clock position, and will be
+  // rotated clockwise through 90 degrees. If rotate_contents = false, the image
+  // will be placed at the 3 o clock position, but itself will not be rotated.
+  // If not defined, defaults to false.
+  BoolProp rotate_contents = 2;
 }
 
 // The root of all layout elements. This exists to act as a holder for all of
@@ -600,10 +587,26 @@ message LayoutElement {
     Spacer spacer = 4;
     Text text = 5;
     Image image = 6;
-    Clickable clickable = 7;
-    Audible audible = 8;
-    Line line = 9;
     Arc arc = 10;
     Spannable spannable = 11;
   }
+
+  reserved 7, 8, 9;
+}
+
+// The root of all elements that can be used in an Arc. This exists to act as a
+// holder for all of the actual arc layout elements above.
+message ArcLayoutElement {
+  oneof inner {
+    ArcText text = 1;
+    ArcLine line = 2;
+    ArcSpacer spacer = 3;
+    ArcAdapter adapter = 4;
+  }
+}
+
+// A complete layout.
+message Layout {
+  // The root element in the layout.
+  LayoutElement root = 1;
 }

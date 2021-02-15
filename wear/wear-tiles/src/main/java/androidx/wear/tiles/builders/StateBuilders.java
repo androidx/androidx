@@ -18,28 +18,27 @@ package androidx.wear.tiles.builders;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.proto.ColorProto;
+import androidx.wear.tiles.proto.StateProto;
 
-/** Builders for color utilities for layout elements. */
-public final class ColorBuilders {
-    private ColorBuilders() {}
+/** Builders for state of a tile. */
+public final class StateBuilders {
+    private StateBuilders() {}
 
-    /** Shortcut for building a {@link ColorProp} using an ARGB value. */
-    @NonNull
-    public static ColorProp argb(@ColorInt int colorArgb) {
-        return ColorProp.builder().setArgb(colorArgb).build();
-    }
+    /** {@link State} information. */
+    public static final class State {
+        private final StateProto.State mImpl;
 
-    /** A property defining a color. */
-    public static final class ColorProp {
-        private final ColorProto.ColorProp mImpl;
-
-        private ColorProp(ColorProto.ColorProp impl) {
+        private State(StateProto.State impl) {
             this.mImpl = impl;
+        }
+
+        /** Gets the ID of the clickable that was last clicked. */
+        @NonNull
+        public String getLastClickableId() {
+            return mImpl.getLastClickableId();
         }
 
         /** Returns a new {@link Builder}. */
@@ -51,35 +50,35 @@ public final class ColorBuilders {
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public static ColorProp fromProto(@NonNull ColorProto.ColorProp proto) {
-            return new ColorProp(proto);
+        public static State fromProto(@NonNull StateProto.State proto) {
+            return new State(proto);
         }
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public ColorProto.ColorProp toProto() {
+        public StateProto.State toProto() {
             return mImpl;
         }
 
-        /** Builder for {@link ColorProp} */
+        /** Builder for {@link State} */
         public static final class Builder {
-            private final ColorProto.ColorProp.Builder mImpl = ColorProto.ColorProp.newBuilder();
+            private final StateProto.State.Builder mImpl = StateProto.State.newBuilder();
 
             Builder() {}
 
-            /** Sets the color value, in ARGB format. */
+            /** Sets the ID of the clickable that was last clicked. */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setArgb(@ColorInt int argb) {
-                mImpl.setArgb(argb);
+            public Builder setLastClickableId(@NonNull String lastClickableId) {
+                mImpl.setLastClickableId(lastClickableId);
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
-            public ColorProp build() {
-                return ColorProp.fromProto(mImpl.build());
+            public State build() {
+                return State.fromProto(mImpl.build());
             }
         }
     }

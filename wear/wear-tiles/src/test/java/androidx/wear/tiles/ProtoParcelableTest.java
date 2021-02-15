@@ -42,14 +42,26 @@ public final class ProtoParcelableTest {
     @Test
     public void contentsEqualsAndHashCode() {
         final Wrapper foo1 =
-                new Wrapper(RequestProto.ResourcesRequest.newBuilder().setVersion(
-                        "foo").build().toByteArray(), Wrapper.VERSION);
+                new Wrapper(
+                        RequestProto.ResourcesRequest.newBuilder()
+                                .setVersion("foo")
+                                .build()
+                                .toByteArray(),
+                        Wrapper.VERSION);
         final Wrapper foo2 =
-                new Wrapper(RequestProto.ResourcesRequest.newBuilder().setVersion(
-                        "foo").build().toByteArray(), Wrapper.VERSION);
+                new Wrapper(
+                        RequestProto.ResourcesRequest.newBuilder()
+                                .setVersion("foo")
+                                .build()
+                                .toByteArray(),
+                        Wrapper.VERSION);
         final Wrapper bar =
-                new Wrapper(RequestProto.ResourcesRequest.newBuilder().setVersion(
-                        "bar").build().toByteArray(), Wrapper.VERSION);
+                new Wrapper(
+                        RequestProto.ResourcesRequest.newBuilder()
+                                .setVersion("bar")
+                                .build()
+                                .toByteArray(),
+                        Wrapper.VERSION);
         assertThat(foo1).isEqualTo(foo2);
         assertThat(foo1).isNotEqualTo(bar);
         assertThat(foo1.hashCode()).isEqualTo(foo2.hashCode());
@@ -59,11 +71,19 @@ public final class ProtoParcelableTest {
     @Test
     public void versionEqualsAndHashCode() {
         final Wrapper foo1 =
-                new Wrapper(RequestProto.ResourcesRequest.newBuilder().setVersion(
-                        "foo").build().toByteArray(), Wrapper.VERSION);
+                new Wrapper(
+                        RequestProto.ResourcesRequest.newBuilder()
+                                .setVersion("foo")
+                                .build()
+                                .toByteArray(),
+                        Wrapper.VERSION);
         final Wrapper foo2 =
-                new Wrapper(RequestProto.ResourcesRequest.newBuilder().setVersion(
-                        "foo").build().toByteArray(), /* version= */2);
+                new Wrapper(
+                        RequestProto.ResourcesRequest.newBuilder()
+                                .setVersion("foo")
+                                .build()
+                                .toByteArray(),
+                        /* version= */ 2);
 
         assertThat(foo1).isNotEqualTo(foo2);
         assertThat(foo1.hashCode()).isNotEqualTo(foo2.hashCode());
