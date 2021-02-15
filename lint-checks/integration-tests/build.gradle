@@ -92,6 +92,7 @@ def validateLint = tasks.register("validateLint", CompareFilesTask) { task ->
     task.expectedFile = project.file("expected-lint-results.xml")
     EnableCachingKt.cacheEvenIfNoOutputs(task)
     dependsOn(normalizeLintOutput)
+    task.enabled = false
 }
 
 BuildOnServerKt.addToBuildOnServer(project, validateLint)
