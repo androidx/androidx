@@ -30,7 +30,9 @@ public object DataStoreFactory {
     /**
      * Create an instance of SingleProcessDataStore. Never create more than one instance of
      * DataStore for a given file; doing so can break all DataStore functionality. You should
-     * consider managing your DataStore instance as a singleton.
+     * consider managing your DataStore instance as a singleton. If there are multiple DataStores
+     * active, DataStore will throw IllegalStateException when reading or updating data. A
+     * DataStore is considered active as long as its scope is active.
      *
      * T is the type DataStore acts on. The type T must be immutable. Mutating a type used in
      * DataStore invalidates any guarantees that DataStore provides and will result in

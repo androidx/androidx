@@ -24,11 +24,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.datastore.core.DataMigration;
-import androidx.datastore.core.DataStore;
 import androidx.datastore.migrations.SharedPreferencesView;
 import androidx.test.core.app.ApplicationProvider;
-
-import com.google.common.truth.Truth;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -84,9 +81,9 @@ public class RxSharedPreferencesMigrationTest {
         DataMigration<Byte> spMigration =
                 getSpMigrationBuilder(skippedMigration).build();
 
-        DataStore<Byte> dataStoreWithMigrations = getDataStoreWithMigration(spMigration);
+        RxDataStore<Byte> dataStoreWithMigrations = getDataStoreWithMigration(spMigration);
 
-        Truth.assertThat(RxDataStore.data(dataStoreWithMigrations).blockingFirst()).isEqualTo(0);
+        assertThat(dataStoreWithMigrations.data().blockingFirst()).isEqualTo(0);
     }
 
     @Test
@@ -116,9 +113,9 @@ public class RxSharedPreferencesMigrationTest {
                         }
                 ).setKeysToMigrate(includedKey).build();
 
-        DataStore<Byte> byteStore = getDataStoreWithMigration(dataMigration);
+        RxDataStore<Byte> byteStore = getDataStoreWithMigration(dataMigration);
 
-        assertThat(RxDataStore.data(byteStore).blockingFirst()).isEqualTo(50);
+        assertThat(byteStore.data().blockingFirst()).isEqualTo(50);
 
         assertThat(mSharedPrefs.contains(includedKey)).isFalse();
         assertThat(mSharedPrefs.contains(notMigratedKey)).isTrue();
@@ -151,9 +148,9 @@ public class RxSharedPreferencesMigrationTest {
                         }
                 ).build();
 
-        DataStore<Byte> byteStore = getDataStoreWithMigration(dataMigration);
+        RxDataStore<Byte> byteStore = getDataStoreWithMigration(dataMigration);
 
-        assertThat(RxDataStore.data(byteStore).blockingFirst()).isEqualTo(50);
+        assertThat(byteStore.data().blockingFirst()).isEqualTo(50);
 
         assertThat(mSharedPrefs.contains(includedKey)).isFalse();
         assertThat(mSharedPrefs.contains(includedKey2)).isFalse();
@@ -168,8 +165,8 @@ public class RxSharedPreferencesMigrationTest {
         DataMigration<Byte> dataMigration =
                 getSpMigrationBuilder(new DefaultMigration()).setDeleteEmptyPreferences(
                         true).build();
-        DataStore<Byte> byteStore = getDataStoreWithMigration(dataMigration);
-        assertThat(RxDataStore.data(byteStore).blockingFirst()).isEqualTo(0);
+        RxDataStore<Byte> byteStore = getDataStoreWithMigration(dataMigration);
+        assertThat(byteStore.data().blockingFirst()).isEqualTo(0);
 
         // Check that the shared preferences files are deleted
         File prefsDir = new File(mContext.getApplicationInfo().dataDir, "shared_prefs");
@@ -185,7 +182,7 @@ public class RxSharedPreferencesMigrationTest {
                 rxSharedPreferencesMigration);
     }
 
-    private DataStore<Byte> getDataStoreWithMigration(DataMigration<Byte> dataMigration) {
+    private RxDataStore<Byte> getDataStoreWithMigration(DataMigration<Byte> dataMigration) {
         return new RxDataStoreBuilder<Byte>(() -> mDatastoreFile, new TestingSerializer())
                 .addDataMigration(dataMigration).build();
     }

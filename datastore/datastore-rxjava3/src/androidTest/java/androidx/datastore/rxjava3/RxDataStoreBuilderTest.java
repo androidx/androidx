@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.datastore.core.DataStore;
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -48,40 +47,50 @@ public class RxDataStoreBuilderTest {
     @Test
     public void testConstructWithProduceFile() throws Exception {
         File file = tempFolder.newFile();
-        DataStore<Byte> dataStore =
+        RxDataStore<Byte> dataStore =
                 new RxDataStoreBuilder<Byte>(() -> file, new TestingSerializer())
                         .build();
-        Single<Byte> incrementByte = RxDataStore.updateDataAsync(dataStore,
+        Single<Byte> incrementByte = dataStore.updateDataAsync(
                 RxDataStoreBuilderTest::incrementByte);
         assertThat(incrementByte.blockingGet()).isEqualTo(1);
+        dataStore.dispose();
+        dataStore.shutdownComplete().blockingAwait();
+
         // Construct it again and confirm that the data is still there:
         dataStore =
                 new RxDataStoreBuilder<Byte>(() -> file, new TestingSerializer())
                         .build();
-        assertThat(RxDataStore.data(dataStore).blockingFirst()).isEqualTo(1);
+        assertThat(dataStore.data().blockingFirst()).isEqualTo(1);
     }
 
     @Test
     public void testConstructWithContextAndName() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         String name = "my_data_store";
-        DataStore<Byte> dataStore =
+        RxDataStore<Byte> dataStore =
                 new RxDataStoreBuilder<Byte>(context, name, new TestingSerializer())
                         .build();
-        Single<Byte> set1 = RxDataStore.updateDataAsync(dataStore, input -> Single.just((byte) 1));
+        Single<Byte> set1 = dataStore.updateDataAsync(input -> Single.just((byte) 1));
         assertThat(set1.blockingGet()).isEqualTo(1);
+        dataStore.dispose();
+        dataStore.shutdownComplete().blockingAwait();
+
         // Construct it again and confirm that the data is still there:
         dataStore =
                 new RxDataStoreBuilder<Byte>(context, name, new TestingSerializer())
                         .build();
-        assertThat(RxDataStore.data(dataStore).blockingFirst()).isEqualTo(1);
+        assertThat(dataStore.data().blockingFirst()).isEqualTo(1);
+        dataStore.dispose();
+        dataStore.shutdownComplete().blockingAwait();
+
+
         // Construct it again with the expected file path and confirm that the data is there:
         dataStore =
                 new RxDataStoreBuilder<Byte>(() -> new File(context.getFilesDir().getPath()
                         + "/datastore/" + name), new TestingSerializer()
                 )
                         .build();
-        assertThat(RxDataStore.data(dataStore).blockingFirst()).isEqualTo(1);
+        assertThat(dataStore.data().blockingFirst()).isEqualTo(1);
     }
 
     @Test
@@ -106,12 +115,12 @@ public class RxDataStoreBuilderTest {
             }
         };
 
-        DataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>(
+        RxDataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>(
                 () -> tempFolder.newFile(), new TestingSerializer())
                 .addRxDataMigration(plusOneMigration)
                 .build();
 
-        assertThat(RxDataStore.data(dataStore).blockingFirst()).isEqualTo(1);
+        assertThat(dataStore.data().blockingFirst()).isEqualTo(1);
     }
 
     @Test
@@ -125,17 +134,17 @@ public class RxDataStoreBuilderTest {
                 }));
 
 
-        DataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>(() -> tempFolder.newFile(),
+        RxDataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>(() -> tempFolder.newFile(),
                 new TestingSerializer())
                 .setIoScheduler(singleThreadedScheduler)
                 .build();
-        Single<Byte> update = RxDataStore.updateDataAsync(dataStore, input -> {
+        Single<Byte> update = dataStore.updateDataAsync(input -> {
             Thread currentThread = Thread.currentThread();
             assertThat(currentThread.getName()).isEqualTo("TestingThread");
             return Single.just(input);
         });
         assertThat(update.blockingGet()).isEqualTo((byte) 0);
-        Single<Byte> subsequentUpdate = RxDataStore.updateDataAsync(dataStore, input -> {
+        Single<Byte> subsequentUpdate = dataStore.updateDataAsync(input -> {
             Thread currentThread = Thread.currentThread();
             assertThat(currentThread.getName()).isEqualTo("TestingThread");
             return Single.just(input);
@@ -151,11 +160,11 @@ public class RxDataStoreBuilderTest {
                 new ReplaceFileCorruptionHandler<Byte>(exception -> (byte) 99);
 
 
-        DataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>(
+        RxDataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>(
                 () -> tempFolder.newFile(),
                 testingSerializer)
                 .setCorruptionHandler(replaceFileCorruptionHandler)
                 .build();
-        assertThat(RxDataStore.data(dataStore).blockingFirst()).isEqualTo(99);
+        assertThat(dataStore.data().blockingFirst()).isEqualTo(99);
     }
 }
