@@ -27,7 +27,7 @@ plugins {
 
 dependencies {
     api(project(":fragment:fragment"))
-    api(projectOrArtifact(":activity:activity-ktx")) {
+    api("androidx.activity:activity-ktx:1.2.0") {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
     api("androidx.core:core-ktx:1.1.0") {

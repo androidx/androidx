@@ -28,7 +28,7 @@ plugins {
 
 dependencies {
     implementation(project(":lifecycle:lifecycle-runtime-ktx"))
-    implementation(projectOrArtifact(":activity:activity")) {
+    implementation("androidx.activity:activity:1.2.0") {
         exclude group: 'androidx.lifecycle'
     }
     implementation(project(":lifecycle:lifecycle-viewmodel-savedstate")) {
