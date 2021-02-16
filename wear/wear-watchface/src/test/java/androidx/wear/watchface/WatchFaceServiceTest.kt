@@ -20,6 +20,7 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.RectF
 import android.os.BatteryManager
@@ -62,6 +63,7 @@ import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -2166,5 +2168,41 @@ class WatchFaceServiceTest {
         engineWrapper.onDestroy()
 
         assertNull(InteractiveInstanceManager.getAndRetainInstance(instanceId))
+    }
+
+    @Test
+    fun renderParameters_secondaryConstructor() {
+        val params = RenderParameters(
+            DrawMode.INTERACTIVE,
+            mapOf(
+                Layer.BASE_LAYER to LayerMode.DRAW,
+                Layer.COMPLICATIONS to LayerMode.DRAW,
+                Layer.TOP_LAYER to LayerMode.DRAW
+            ),
+            null
+        )
+
+        assertThat(params.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+        assertThat(params.outlineTint).isEqualTo(Color.RED)
+        assertNull(params.selectedComplicationId)
+    }
+
+    @Test
+    fun renderParameters_secondaryConstructorEnforcesNoDrawOutlined() {
+        try {
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                mapOf(
+                    Layer.BASE_LAYER to LayerMode.DRAW,
+                    Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
+                    Layer.TOP_LAYER to LayerMode.DRAW
+                ),
+                null
+            )
+
+            fail("Should have thrown an exception due to LayerMode.DRAW_OUTLINED")
+        } catch (e: Exception) {
+            // Expected.
+        }
     }
 }
