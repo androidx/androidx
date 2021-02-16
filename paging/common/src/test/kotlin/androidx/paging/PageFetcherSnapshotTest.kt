@@ -181,7 +181,7 @@ class PageFetcherSnapshotTest {
         assertThat(fetcherState.newEvents()).containsExactly(
             LoadStateUpdate<Int>(
                 localLoadStatesOf(
-                    prependLocal = NotLoading.Complete,  // TODO: May be incorrect?
+                    prependLocal = NotLoading.Complete,
                     appendLocal = Loading
                 )
             ),

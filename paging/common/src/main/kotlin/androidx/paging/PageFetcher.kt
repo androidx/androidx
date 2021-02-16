@@ -58,7 +58,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                 emit(remoteMediatorAccessor?.initialize() == LAUNCH_INITIAL_REFRESH)
             }
             .simpleScan(null) { previousGeneration: GenerationInfo<Key, Value>?,
-                triggerRemoteRefresh: Boolean ->
+                                triggerRemoteRefresh: Boolean ->
                 var pagingSource = generateNewPagingSource(
                     previousPagingSource = previousGeneration?.snapshot?.pagingSource
                 )
@@ -139,7 +139,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
             launch {
                 var prev = LoadStates.IDLE
                 accessor.state.collect {
-                    // TODO: Can this be simplified to only dispatch once if any updates are valid?
                     if (prev.refresh != it.refresh) {
                         loadStates.set(REFRESH, true, it.refresh)
                         dispatchIfValid(it.refresh)

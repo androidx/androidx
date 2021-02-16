@@ -190,7 +190,6 @@ internal sealed class PageEvent<T : Any> {
     data class LoadStateUpdate<T : Any>(
         val combinedLoadStates: CombinedLoadStates
     ) : PageEvent<T>() {
-        // TODO: Add init checks?
         companion object {
             /**
              * DataSource loads with no more to load must carry LoadState.NotLoading with them,
@@ -201,7 +200,6 @@ internal sealed class PageEvent<T : Any> {
             internal fun canDispatchWithoutInsert(loadState: LoadState, fromMediator: Boolean) =
                 loadState is LoadState.Loading || loadState is LoadState.Error || fromMediator
 
-            // TODO: Performance can probably be improved
             internal fun canDispatchWithoutInsert(combinedLoadStates: CombinedLoadStates): Boolean {
                 var canDispatch = true
                 combinedLoadStates.forEach { _, fromMediator, loadState ->
