@@ -44,6 +44,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -108,6 +109,7 @@ public class TileProviderServiceTest {
         expect.that(tile).isEqualTo(DUMMY_TILE_PROTOBUF);
     }
 
+    @Ignore("Disabled due to b/179074319")
     @Test
     public void tileProvider_resourcesRequest() throws Exception {
         final String resourcesVersion = "HELLO WORLD";
