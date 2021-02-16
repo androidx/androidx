@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
@@ -343,7 +342,7 @@ internal class PagePresenter<T : Any>(
         fun onChanged(position: Int, count: Int)
         fun onInserted(position: Int, count: Int)
         fun onRemoved(position: Int, count: Int)
-        //fun onStateUpdate(loadType: LoadType, fromMediator: Boolean, loadState: LoadState)
+        // fun onStateUpdate(loadType: LoadType, fromMediator: Boolean, loadState: LoadState)
         fun onStateUpdate(combinedLoadStates: CombinedLoadStates)
     }
 }

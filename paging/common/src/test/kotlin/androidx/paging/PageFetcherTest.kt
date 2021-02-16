@@ -18,7 +18,6 @@ package androidx.paging
 
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH

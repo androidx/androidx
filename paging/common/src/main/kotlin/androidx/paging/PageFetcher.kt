@@ -58,7 +58,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                 emit(remoteMediatorAccessor?.initialize() == LAUNCH_INITIAL_REFRESH)
             }
             .simpleScan(null) { previousGeneration: GenerationInfo<Key, Value>?,
-                                triggerRemoteRefresh: Boolean ->
+                triggerRemoteRefresh: Boolean ->
                 var pagingSource = generateNewPagingSource(
                     previousPagingSource = previousGeneration?.snapshot?.pagingSource
                 )
