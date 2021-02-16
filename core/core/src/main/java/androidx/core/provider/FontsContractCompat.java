@@ -16,6 +16,7 @@
 
 package androidx.core.provider;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
@@ -52,28 +53,6 @@ import java.util.Map;
 public class FontsContractCompat {
     private FontsContractCompat() { }
 
-    // TODO remove unused
-    /**
-     * Constant used to identify the List of {@link ParcelFileDescriptor} item in the Bundle
-     * returned to the ResultReceiver in getFont.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static final String PARCEL_FONT_RESULTS = "font_results";
-
-    // TODO remove unused
-    // Error codes internal to the system, which can not come from a provider. To keep the number
-    // space open for new provider codes, these should all be negative numbers.
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    static final int RESULT_CODE_PROVIDER_NOT_FOUND = -1;
-
-    // TODO remove unused
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    static final int RESULT_CODE_WRONG_CERTIFICATES = -2;
-    // Note -3 is used by FontRequestCallback to indicate the font failed to load.
-
     // TODO deprecated from here, move to TypefaceCompat
     /**
      * Build a Typeface from an array of {@link FontInfo}
@@ -88,8 +67,8 @@ public class FontsContractCompat {
      * @return A Typeface object. Returns null if typeface creation fails.
      */
     @Nullable
-    public static Typeface buildTypeface(@
-            NonNull Context context,
+    public static Typeface buildTypeface(
+            @NonNull Context context,
             @Nullable CancellationSignal cancellationSignal,
             @NonNull FontInfo[] fonts
     ) {
@@ -143,66 +122,30 @@ public class FontsContractCompat {
         return FontProvider.getFontFamilyResult(context, request, cancellationSignal);
     }
 
-    // TODO remove, replace with LIBRARY private, used for tests
     /**
-     * Used for tests, should not be used otherwise.
+     * Used by TypefaceCompat and tests.
      * @hide
-     **/
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static void resetCache() {
-        FontRequestWorker.resetTypefaceCache();
-    }
-
-    // TODO @RestrictTo(LIBRARY)
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static Typeface getFontSync(
-            final Context context,
-            final FontRequest request,
-            final @Nullable ResourcesCompat.FontCallback fontCallback,
-            final @Nullable Handler handler,
+     */
+    @RestrictTo(LIBRARY)
+    @Nullable
+    public static Typeface getFont(
+            @NonNull final Context context,
+            @NonNull final FontRequest request,
+            @Nullable final ResourcesCompat.FontCallback fontCallback,
+            @Nullable final Handler handler,
             boolean isBlockingFetch,
-            int timeout,
+            @IntRange(from = 0) int timeout,
             final int style
     ) {
         return FontRequestWorker.getTypeface(context, request, fontCallback, handler,
                 isBlockingFetch, timeout, style);
     }
 
-    // TODO remove
-    /**
-     * A helper function to create a mapping from {@link Uri} to {@link ByteBuffer}.
-     *
-     * Skip if the file contents is not ready to be read.
-     *
-     * @param context A {@link Context} to be used for resolving content URI in
-     *                {@link FontInfo}.
-     * @param fonts An array of {@link FontInfo}.
-     * @return A map from {@link Uri} to {@link ByteBuffer}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @RequiresApi(19)
-    public static Map<Uri, ByteBuffer> prepareFontData(
-            Context context,
-            FontInfo[] fonts,
-            CancellationSignal cancellationSignal
-    ) {
-        return TypefaceCompatUtil.readFontInfoIntoByteBuffer(context, fonts, cancellationSignal);
-    }
-
-
-    // TODO: Remove, unused
     /** @hide */
     @VisibleForTesting
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @Nullable
-    public static ProviderInfo getProvider(
-            @NonNull PackageManager packageManager,
-            @NonNull FontRequest request,
-            @Nullable Resources resources
-    ) throws PackageManager.NameNotFoundException {
-        return FontProvider.getProvider(packageManager, request, resources);
+    @RestrictTo(LIBRARY)
+    public static void resetTypefaceCache() {
+        FontRequestWorker.resetTypefaceCache();
     }
 
     /**
@@ -302,20 +245,37 @@ public class FontsContractCompat {
          * @param italic A boolean that indicates the font is italic style or not.
          * @param resultCode A boolean that indicates the font contents is ready.
          *
+         * @deprecated Not being used by any cross library, and should not be used, internal
+         * implementation detail.
+         *
          * @hide
          */
+        // TODO after removing from public API make package private.
+        @Deprecated
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public FontInfo(
                 @NonNull Uri uri,
                 @IntRange(from = 0) int ttcIndex,
                 @IntRange(from = 1, to = 1000) int weight,
-                boolean italic, int resultCode
+                boolean italic,
+                int resultCode
         ) {
             mUri = Preconditions.checkNotNull(uri);
             mTtcIndex = ttcIndex;
             mWeight = weight;
             mItalic = italic;
             mResultCode = resultCode;
+        }
+
+        @SuppressWarnings("deprecation")
+        static FontInfo create(
+                @NonNull Uri uri,
+                @IntRange(from = 0) int ttcIndex,
+                @IntRange(from = 1, to = 1000) int weight,
+                boolean italic,
+                int resultCode
+        ) {
+            return new FontInfo(uri, ttcIndex, weight, italic, resultCode);
         }
 
         /**
@@ -381,7 +341,7 @@ public class FontsContractCompat {
         public static final int STATUS_UNEXPECTED_DATA_PROVIDED = 2;
 
         /** @hide */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         @IntDef({STATUS_OK, STATUS_WRONG_CERTIFICATES, STATUS_UNEXPECTED_DATA_PROVIDED})
         @Retention(RetentionPolicy.SOURCE)
         @interface FontResultStatus {}
@@ -389,7 +349,13 @@ public class FontsContractCompat {
         private final @FontResultStatus int mStatusCode;
         private final FontInfo[] mFonts;
 
-        /** @hide */
+        /**
+         * @deprecated Not being used by any cross library, and should not be used, internal
+         * implementation detail.
+         * @hide
+         **/
+        // TODO after removing from public API make package private.
+        @Deprecated
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public FontFamilyResult(@FontResultStatus int statusCode, @Nullable FontInfo[] fonts) {
             mStatusCode = statusCode;
@@ -403,15 +369,29 @@ public class FontsContractCompat {
         public FontInfo[] getFonts() {
             return mFonts;
         }
+
+        @SuppressWarnings("deprecation")
+        static FontFamilyResult create(
+                @FontResultStatus int statusCode,
+                @Nullable FontInfo[] fonts) {
+            return new FontFamilyResult(statusCode, fonts);
+        }
     }
 
     /**
      * Interface used to receive asynchronously fetched typefaces.
      */
     public static class FontRequestCallback {
-        /** @hide */
+        /**
+         * @deprecated Not being used by any cross library, and should not be used, internal
+         * implementation detail.
+         * @hide
+         */
+        @Deprecated
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public static final int RESULT_OK = Columns.RESULT_CODE_OK;
+
+        static final int RESULT_SUCCESS = Columns.RESULT_CODE_OK;
 
         /**
          * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the given
@@ -455,7 +435,9 @@ public class FontsContractCompat {
          */
         public static final int FAIL_REASON_MALFORMED_QUERY = Columns.RESULT_CODE_MALFORMED_QUERY;
 
+        // TODO Move to @RestrictTo(LIBRARY)
         /** @hide */
+        @SuppressWarnings("deprecation")
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @IntDef({ FAIL_REASON_PROVIDER_NOT_FOUND, FAIL_REASON_FONT_LOAD_ERROR,
                 FAIL_REASON_FONT_NOT_FOUND, FAIL_REASON_FONT_UNAVAILABLE,
@@ -488,5 +470,111 @@ public class FontsContractCompat {
         public void onTypefaceRequestFailed(@FontRequestFailReason int reason) {}
     }
 
+    /**
+     * Constant used to identify the List of {@link ParcelFileDescriptor} item in the Bundle
+     * returned to the ResultReceiver in getFont.
+     *
+     * @deprecated Not being used by any cross library, and should not be used, internal
+     * implementation detail.
+     *
+     * @hide
+     */
+    @Deprecated // unused
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public static final String PARCEL_FONT_RESULTS = "font_results";
 
+    // Error codes internal to the system, which can not come from a provider. To keep the number
+    // space open for new provider codes, these should all be negative numbers.
+    /**
+     * @deprecated Not being used by any cross library, and should not be used, internal
+     * implementation detail.
+     * @hide
+     **/
+    @Deprecated // unused
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    static final int RESULT_CODE_PROVIDER_NOT_FOUND = -1;
+
+    /**
+     * @deprecated Not being used by any cross library, and should not be used, internal
+     * implementation detail.
+     * @hide
+     **/
+    @Deprecated // unused
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    static final int RESULT_CODE_WRONG_CERTIFICATES = -2;
+    // Note -3 is used by FontRequestCallback to indicate the font failed to load.
+
+    /**
+     * @deprecated Not being used by any cross library, and should not be used, internal
+     * implementation detail.
+     * @hide
+     **/
+    @Deprecated // unused
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public static Typeface getFontSync(
+            final Context context,
+            final FontRequest request,
+            final @Nullable ResourcesCompat.FontCallback fontCallback,
+            final @Nullable Handler handler,
+            boolean isBlockingFetch,
+            int timeout,
+            final int style
+    ) {
+        return FontRequestWorker.getTypeface(context, request, fontCallback, handler,
+                isBlockingFetch, timeout, style);
+    }
+
+    /**
+     * @deprecated Not being used by any cross library, and should not be used, internal
+     * implementation detail.
+     * @hide
+     **/
+    @Deprecated // unused
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public static void resetCache() {
+        FontRequestWorker.resetTypefaceCache();
+    }
+
+    /**
+     * A helper function to create a mapping from {@link Uri} to {@link ByteBuffer}.
+     *
+     * Skip if the file contents is not ready to be read.
+     *
+     * @param context A {@link Context} to be used for resolving content URI in
+     *                {@link FontInfo}.
+     * @param fonts An array of {@link FontInfo}.
+     * @return A map from {@link Uri} to {@link ByteBuffer}.
+     *
+     * @deprecated Not being used by any cross library, and should not be used, internal
+     * implementation detail.
+     *
+     * @hide
+     */
+    @Deprecated // unused
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RequiresApi(19)
+    public static Map<Uri, ByteBuffer> prepareFontData(
+            Context context,
+            FontInfo[] fonts,
+            CancellationSignal cancellationSignal
+    ) {
+        return TypefaceCompatUtil.readFontInfoIntoByteBuffer(context, fonts, cancellationSignal);
+    }
+
+    /**
+     * @deprecated Not being used by any cross library, and should not be used, internal
+     * implementation detail.
+     * @hide
+     **/
+    @Deprecated // unused
+    @VisibleForTesting
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Nullable
+    public static ProviderInfo getProvider(
+            @NonNull PackageManager packageManager,
+            @NonNull FontRequest request,
+            @Nullable Resources resources
+    ) throws PackageManager.NameNotFoundException {
+        return FontProvider.getProvider(packageManager, request, resources);
+    }
 }

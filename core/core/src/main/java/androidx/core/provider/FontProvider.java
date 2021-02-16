@@ -34,6 +34,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.res.FontResourcesParserCompat;
+import androidx.core.provider.FontsContractCompat.FontFamilyResult;
+import androidx.core.provider.FontsContractCompat.FontInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,20 +47,18 @@ import java.util.List;
     private FontProvider() {}
 
     @NonNull
-    static FontsContractCompat.FontFamilyResult getFontFamilyResult(@NonNull Context context,
+    static FontFamilyResult getFontFamilyResult(@NonNull Context context,
             @NonNull FontRequest request, @Nullable CancellationSignal cancellationSignal)
             throws PackageManager.NameNotFoundException {
         ProviderInfo providerInfo = getProvider(
                 context.getPackageManager(), request, context.getResources());
         if (providerInfo == null) {
-            return new FontsContractCompat.FontFamilyResult(
-                    FontsContractCompat.FontFamilyResult.STATUS_WRONG_CERTIFICATES, null);
+            return FontFamilyResult.create(FontFamilyResult.STATUS_WRONG_CERTIFICATES, null);
 
         }
-        FontsContractCompat.FontInfo[] fonts = query(
+        FontInfo[] fonts = query(
                 context, request, providerInfo.authority, cancellationSignal);
-        return new FontsContractCompat.FontFamilyResult(
-                FontsContractCompat.FontFamilyResult.STATUS_OK, fonts);
+        return FontFamilyResult.create(FontFamilyResult.STATUS_OK, fonts);
     }
 
     /**
@@ -112,13 +112,13 @@ import java.util.List;
     @SuppressWarnings("UnsafeNewApiCall")
     @VisibleForTesting
     @NonNull
-    static FontsContractCompat.FontInfo[] query(
+    static FontInfo[] query(
             Context context,
             FontRequest request,
             String authority,
             CancellationSignal cancellationSignal
     ) {
-        ArrayList<FontsContractCompat.FontInfo> result = new ArrayList<>();
+        ArrayList<FontInfo> result = new ArrayList<>();
         final Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(authority)
                 .build();
@@ -175,8 +175,7 @@ import java.util.List;
                     int weight = weightColumnIndex != -1 ? cursor.getInt(weightColumnIndex) : 400;
                     boolean italic = italicColumnIndex != -1 && cursor.getInt(italicColumnIndex)
                             == 1;
-                    result.add(new FontsContractCompat.FontInfo(fileUri, ttcIndex, weight, italic,
-                            resultCode));
+                    result.add(FontInfo.create(fileUri, ttcIndex, weight, italic, resultCode));
                 }
             }
         } finally {
@@ -184,7 +183,7 @@ import java.util.List;
                 cursor.close();
             }
         }
-        return result.toArray(new FontsContractCompat.FontInfo[0]);
+        return result.toArray(new FontInfo[0]);
     }
 
     private static List<List<byte[]>> getCertificates(FontRequest request, Resources resources) {

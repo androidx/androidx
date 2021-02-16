@@ -16,6 +16,7 @@
 
 package androidx.core.provider;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.util.Base64;
@@ -137,9 +138,22 @@ public final class FontRequest {
         return mCertificatesArray;
     }
 
-    /** @hide */
+    /**
+     * @deprecated Not being used by any cross library, and should not be used, internal
+     * implementation detail.
+     *
+     * @hide
+     */
+    @Deprecated
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public String getIdentifier() {
+        return mIdentifier;
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    @NonNull
+    String getId() {
         return mIdentifier;
     }
 

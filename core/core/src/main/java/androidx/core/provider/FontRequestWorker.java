@@ -23,6 +23,7 @@ import static androidx.core.provider.FontsContractCompat.FontRequestCallback.FAI
 import static androidx.core.provider.FontsContractCompat.FontRequestCallback.FAIL_REASON_PROVIDER_NOT_FOUND;
 import static androidx.core.provider.FontsContractCompat.FontRequestCallback.FAIL_REASON_WRONG_CERTIFICATES;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
@@ -175,7 +176,7 @@ class FontRequestWorker {
             @Nullable final ResourcesCompat.FontCallback fontCallback,
             @Nullable final Handler handler, boolean isBlockingFetch, int timeout,
             final int style) {
-        final String id = request.getIdentifier() + "-" + style;
+        final String id = request.getId() + "-" + style;
         Typeface cached = sTypefaceCache.get(id);
         if (cached != null) {
             if (fontCallback != null) {
@@ -268,6 +269,7 @@ class FontRequestWorker {
     }
 
     /** Package protected to prevent synthetic accessor */
+    @SuppressLint("WrongConstant")
     @NonNull
     static TypefaceResult getFontInternal(
             @NonNull final Context context,
@@ -283,7 +285,7 @@ class FontRequestWorker {
             final Typeface typeface = TypefaceCompat.createFromFontInfo(
                     context, null /* CancellationSignal */, result.getFonts(), style);
             return new TypefaceResult(typeface, typeface != null
-                    ? FontsContractCompat.FontRequestCallback.RESULT_OK
+                    ? FontsContractCompat.FontRequestCallback.RESULT_SUCCESS
                     : FAIL_REASON_FONT_LOAD_ERROR);
         }
         int resultCode = result.getStatusCode() == STATUS_WRONG_CERTIFICATES
