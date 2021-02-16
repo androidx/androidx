@@ -18,6 +18,7 @@ package androidx.wear.watchface
 
 import android.app.NotificationManager
 import androidx.annotation.RestrictTo
+import androidx.annotation.UiThread
 
 /**
  * Describes the current state of the wearable including some hardware details such as whether or
@@ -72,7 +73,23 @@ public class WatchState(
 
     /** Whether or not this is a headless watchface. */
     public val isHeadless: Boolean
-)
+) {
+    @UiThread
+    internal fun dump(writer: IndentingPrintWriter) {
+        writer.println("WatchState:")
+        writer.increaseIndent()
+        writer.println("interruptionFilter=$interruptionFilter")
+        writer.println("isAmbient=$isAmbient")
+        writer.println("isBatteryLowAndNotCharging=$isBatteryLowAndNotCharging")
+        writer.println("isVisible=$isVisible")
+        writer.println("hasLowBitAmbient=$hasLowBitAmbient")
+        writer.println("hasBurnInProtection=$hasBurnInProtection")
+        writer.println("analogPreviewReferenceTimeMillis=$analogPreviewReferenceTimeMillis")
+        writer.println("digitalPreviewReferenceTimeMillis=$digitalPreviewReferenceTimeMillis")
+        writer.println("isHeadless=$isHeadless")
+        writer.decreaseIndent()
+    }
+}
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

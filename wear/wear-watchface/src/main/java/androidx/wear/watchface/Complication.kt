@@ -655,4 +655,33 @@ public class Complication internal constructor(
             (unitSquareBounds.bottom * screen.height()).toInt()
         )
     }
+
+    @UiThread
+    internal fun dump(writer: IndentingPrintWriter) {
+        writer.println("Complication $id:")
+        writer.increaseIndent()
+        writer.println("fixedComplicationProvider=$fixedComplicationProvider")
+        writer.println("enabled=$enabled")
+        writer.println("renderer.isHighlighted=${renderer.isHighlighted}")
+        writer.println("boundsType=$boundsType")
+        writer.println("complicationConfigExtras=$complicationConfigExtras")
+        writer.println("supportedTypes=${supportedTypes.joinToString { it.toString() }}")
+        writer.println("complicationConfigExtras=$complicationConfigExtras")
+        writer.println(
+            "defaultProviderPolicy.primaryProvider=${defaultProviderPolicy.primaryProvider}"
+        )
+        writer.println(
+            "defaultProviderPolicy.secondaryProvider=${defaultProviderPolicy.secondaryProvider}"
+        )
+        writer.println(
+            "defaultProviderPolicy.systemProviderFallback=" +
+                "${defaultProviderPolicy.systemProviderFallback}"
+        )
+        writer.println("data=${renderer.getIdAndData()?.complicationData}")
+        val bounds = complicationBounds.perComplicationTypeBounds.map {
+            "${it.key} -> ${it.value}"
+        }
+        writer.println("bounds=[$bounds]")
+        writer.decreaseIndent()
+    }
 }

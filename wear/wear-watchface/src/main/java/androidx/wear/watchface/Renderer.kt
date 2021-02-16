@@ -260,6 +260,9 @@ public sealed class Renderer(
         }
     }
 
+    @UiThread
+    internal abstract fun dump(writer: IndentingPrintWriter)
+
     /**
      * Watch faces that require [Canvas] rendering should extend their [Renderer] from this class.
      */
@@ -350,6 +353,19 @@ public sealed class Renderer(
             bounds: Rect,
             calendar: Calendar
         )
+
+        internal override fun dump(writer: IndentingPrintWriter) {
+            writer.println("CanvasRenderer:")
+            writer.increaseIndent()
+            writer.println("canvasType=$canvasType")
+            writer.println("screenBounds=$screenBounds")
+            writer.println(
+                "interactiveDrawModeUpdateDelayMillis=$interactiveDrawModeUpdateDelayMillis"
+            )
+            writer.println("shouldAnimate=${shouldAnimate()}")
+            renderParameters.dump(writer)
+            writer.decreaseIndent()
+        }
     }
 
     /**
@@ -633,5 +649,17 @@ public sealed class Renderer(
          */
         @UiThread
         public abstract fun render(calendar: Calendar)
+
+        internal override fun dump(writer: IndentingPrintWriter) {
+            writer.println("GlesRenderer:")
+            writer.increaseIndent()
+            writer.println("screenBounds=$screenBounds")
+            writer.println(
+                "interactiveDrawModeUpdateDelayMillis=$interactiveDrawModeUpdateDelayMillis"
+            )
+            writer.println("shouldAnimate=${shouldAnimate()}")
+            renderParameters.dump(writer)
+            writer.decreaseIndent()
+        }
     }
 }

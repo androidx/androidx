@@ -65,6 +65,7 @@ import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting
@@ -72,7 +73,9 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.launch
+import java.io.FileDescriptor
 import java.io.FileNotFoundException
+import java.io.PrintWriter
 import java.util.concurrent.CountDownLatch
 
 /** The wire format for [ComplicationData]. */
@@ -1137,6 +1140,56 @@ public abstract class WatchFaceService : WallpaperService() {
                 Log.e(TAG, "Failed to set accessibility labels: ", e)
             }
         }
+
+        @UiThread
+        fun dump(writer: IndentingPrintWriter) {
+            require(uiThreadHandler.looper.isCurrentThread) {
+                "dump must be called from the UIThread"
+            }
+            writer.println("WatchFaceEngine:")
+            writer.increaseIndent()
+            when {
+                this::iWatchFaceService.isInitialized -> writer.println("WSL style init flow")
+                this::watchFaceImpl.isInitialized -> writer.println("Androidx style init flow")
+                expectPreRInitFlow() -> writer.println("Expecting WSL style init")
+                else -> writer.println("Expecting androidx style style init")
+            }
+
+            if (this::iWatchFaceService.isInitialized) {
+                writer.println(
+                    "iWatchFaceService.asBinder().isBinderAlive=" +
+                        "${iWatchFaceService.asBinder().isBinderAlive}"
+                )
+                if (iWatchFaceService.asBinder().isBinderAlive) {
+                    writer.println("iWatchFaceService.apiVersion=${iWatchFaceService.apiVersion}")
+                }
+            }
+            writer.println("watchFaceInitStarted=$watchFaceInitStarted")
+            writer.println("asyncWatchFaceConstructionPending=$asyncWatchFaceConstructionPending")
+
+            if (this::interactiveInstanceId.isInitialized) {
+                writer.println("interactiveInstanceId=$interactiveInstanceId")
+            }
+
+            writer.println("frameCallbackPending=$frameCallbackPending")
+            writer.println("destroyed=$destroyed")
+
+            if (!destroyed && this::watchFaceImpl.isInitialized) {
+                watchFaceImpl.dump(writer)
+            }
+            writer.decreaseIndent()
+        }
+    }
+
+    @UiThread
+    override fun dump(fd: FileDescriptor, writer: PrintWriter, args: Array<String>) {
+        super.dump(fd, writer, args)
+        val indentingPrintWriter = IndentingPrintWriter(writer)
+        indentingPrintWriter.println("AndroidX WatchFaceService $packageName")
+        InteractiveInstanceManager.dump(indentingPrintWriter)
+        EditorService.globalEditorService.dump(indentingPrintWriter)
+        HeadlessWatchFaceImpl.dump(indentingPrintWriter)
+        indentingPrintWriter.flush()
     }
 }
 
