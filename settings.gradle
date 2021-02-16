@@ -195,6 +195,7 @@ if (startParameter.projectProperties.containsKey('androidx.useMaxDepVersions')) 
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-dep", [BuildType.MAIN])
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-main", [BuildType.MAIN])
 }
+includeProject(":buildSrc-tests:project-subsets", "buildSrc-tests/project-subsets", [BuildType.MAIN])
 includeProject(":camera:camera-camera2", "camera/camera-camera2", [BuildType.MAIN])
 includeProject(":camera:camera-camera2-pipe", "camera/camera-camera2-pipe", [BuildType.MAIN])
 includeProject(":camera:camera-camera2-pipe-integration", "camera/camera-camera2-pipe-integration", [BuildType.MAIN])
