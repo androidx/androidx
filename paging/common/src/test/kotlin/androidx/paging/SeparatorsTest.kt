@@ -1347,7 +1347,6 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                // LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         prepend = NotLoading.Complete,
@@ -1406,7 +1405,6 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                // LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         prepend = NotLoading.Complete,
@@ -1488,7 +1486,6 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                // LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         prepend = NotLoading.Complete,
@@ -1634,7 +1631,6 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote prepend is done triggers the header to resolve.
-                // LegacyLoadStateUpdate(PREPEND, true, NotLoading.Complete),
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         prepend = NotLoading.Complete,
@@ -1777,7 +1773,6 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                // LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         append = NotLoading.Complete,
@@ -1836,7 +1831,6 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                //LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         append = NotLoading.Complete,
@@ -1918,7 +1912,6 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                // LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         append = NotLoading.Complete,
@@ -2064,7 +2057,6 @@ class SeparatorsTest {
                     )
                 ),
                 // Signalling that remote append is done triggers the footer to resolve.
-                // LegacyLoadStateUpdate(APPEND, true, NotLoading.Complete),
                 LoadStateUpdate(
                     remoteLoadStatesOf(
                         append = NotLoading.Complete,

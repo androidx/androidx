@@ -136,13 +136,6 @@ class PageEventTest {
 
     @Test
     fun stateTransform() = runBlockingTest {
-        /*
-        val state = LegacyLoadStateUpdate<Char>(
-            loadType = REFRESH,
-            fromMediator = false,
-            loadState = LoadState.Loading
-        )
-         */
         val state = LoadStateUpdate<Char>(
             localLoadStatesOf(
                 refreshLocal = LoadState.Loading

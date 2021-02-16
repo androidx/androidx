@@ -279,14 +279,6 @@ internal class FlattenedPageEventStorage<T : Any> {
                 )
             )
         } else {
-            /*
-            loadStates.forEach { type, fromMediator, state ->
-                if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(state, fromMediator)) {
-                    events.add(PageEvent.LegacyLoadStateUpdate(type, fromMediator, state))
-                }
-            }
-            */
-            // TODO: not sure if this is correct
             if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(loadStates.snapshot())) {
                 events.add(PageEvent.LoadStateUpdate(loadStates.snapshot()))
             }
