@@ -344,4 +344,4 @@ public class TapActionTest {
     }
 }
 
-private val String.complicationText get() = ComplicationText.plain(this)
+private val String.complicationText get() = PlainComplicationText.Builder(this).build()

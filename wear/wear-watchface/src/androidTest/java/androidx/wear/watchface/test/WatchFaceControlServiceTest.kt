@@ -26,7 +26,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
-import androidx.wear.complications.data.ComplicationText
+import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
@@ -98,15 +98,19 @@ class WatchFaceControlServiceTest {
                     listOf(
                         IdAndComplicationDataWireFormat(
                             EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                            ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
-                                .setTitle(ComplicationText.plain("23rd"))
+                            ShortTextComplicationData.Builder(
+                                PlainComplicationText.Builder("Mon").build()
+                            )
+                                .setTitle(PlainComplicationText.Builder("23rd").build())
                                 .build()
                                 .asWireComplicationData()
                         ),
                         IdAndComplicationDataWireFormat(
                             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                            ShortTextComplicationData.Builder(ComplicationText.plain("100"))
-                                .setTitle(ComplicationText.plain("Steps"))
+                            ShortTextComplicationData.Builder(
+                                PlainComplicationText.Builder("100").build()
+                            )
+                                .setTitle(PlainComplicationText.Builder("Steps").build())
                                 .build()
                                 .asWireComplicationData()
                         )
@@ -135,8 +139,8 @@ class WatchFaceControlServiceTest {
                     ).toWireFormat(),
                     100,
                     123456789,
-                    ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
-                        .setTitle(ComplicationText.plain("23rd"))
+                    ShortTextComplicationData.Builder(PlainComplicationText.Builder("Mon").build())
+                        .setTitle(PlainComplicationText.Builder("23rd").build())
                         .build()
                         .asWireComplicationData(),
                     null

@@ -31,9 +31,9 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
-import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
+import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
@@ -129,12 +129,12 @@ class WatchFaceControlClientTest {
 
     private val complications = mapOf(
         EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-            ShortTextComplicationData.Builder(ComplicationText.plain("ID"))
-                .setTitle(ComplicationText.plain("Left"))
+            ShortTextComplicationData.Builder(PlainComplicationText.Builder("ID").build())
+                .setTitle(PlainComplicationText.Builder("Left").build())
                 .build(),
         EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
-            ShortTextComplicationData.Builder(ComplicationText.plain("ID"))
-                .setTitle(ComplicationText.plain("Right"))
+            ShortTextComplicationData.Builder(PlainComplicationText.Builder("ID").build())
+                .setTitle(PlainComplicationText.Builder("Right").build())
                 .build()
     )
 
@@ -409,9 +409,13 @@ class WatchFaceControlClientTest {
         interactiveInstance.updateComplicationData(
             mapOf(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-                    ShortTextComplicationData.Builder(ComplicationText.plain("Test")).build(),
+                    ShortTextComplicationData.Builder(
+                        PlainComplicationText.Builder("Test").build()
+                    ).build(),
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
-                    LongTextComplicationData.Builder(ComplicationText.plain("Test")).build()
+                    LongTextComplicationData.Builder(
+                        PlainComplicationText.Builder("Test").build()
+                    ).build()
             )
         )
 

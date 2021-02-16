@@ -70,35 +70,20 @@ public interface ComplicationText {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun asWireComplicationText(): WireComplicationText
+}
 
-    public companion object {
-        /** Returns a [ComplicationText] that represent a plain [CharSequence]. */
-        @JvmStatic
-        public fun plain(text: CharSequence): ComplicationText =
-            WireComplicationText.plainText(text).asApiComplicationText()
-
-        /**
-         * Returns a builder for a [ComplicationText] representing a time difference, which can
-         * be either a count up or a count down.
-         *
-         * @param[style] the style of the time difference to be displayed.
-         */
-        @JvmStatic
-        public fun timeDifferenceBuilder(
-            style: TimeDifferenceStyle,
-            reference: TimeReference
-        ): TimeDifferenceComplicationText.Builder =
-            TimeDifferenceComplicationText.Builder(style, reference)
-
-        /**
-         * Returns a builder for a [ComplicationText] representing the current time.
-         *
-         * @param[format] the format in which the time should be displayed. This should be a pattern
-         * as used by [java.text.SimpleDateFormat].
-         */
-        @JvmStatic
-        public fun timeFormatBuilder(format: String): TimeFormatComplicationText.Builder =
-            TimeFormatComplicationText.Builder(format)
+/** A [ComplicationText] that contains plain text. */
+public class PlainComplicationText internal constructor(
+    delegate: WireComplicationText
+) : ComplicationText by DelegatingComplicationText(delegate) {
+    /**
+     * A builder for [PlainComplicationText].
+     *
+     * @param[text] the text to be displayed.
+     */
+    public class Builder(private var text: CharSequence) {
+        public fun build(): PlainComplicationText =
+            PlainComplicationText(WireComplicationText.plainText(text))
     }
 }
 
