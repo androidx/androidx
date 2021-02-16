@@ -38,6 +38,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
+import androidx.wear.complications.ProviderChooserIntent
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
@@ -194,8 +195,14 @@ private class FakeProviderInfoServiceV1(
 /** Fake ComplicationHelperActivity for testing. */
 public class TestComplicationHelperActivity : Activity() {
 
+    public companion object {
+        public var lastIntent: Intent? = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        lastIntent = intent
 
         setResult(
             123,
@@ -717,6 +724,12 @@ public class EditorSessionTest {
                     0
                 )
             ).isEqualTo("Provider3")
+
+            assertThat(
+                TestComplicationHelperActivity.lastIntent?.extras?.getString(
+                    ProviderChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID
+                )
+            ).isEqualTo(testInstanceId)
         }
     }
 

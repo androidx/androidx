@@ -426,8 +426,6 @@ internal class WatchFaceImpl(
         CancellableUniqueTask(watchFaceHostApi.getHandler())
     private val pendingUpdateTime: CancellableUniqueTask =
         CancellableUniqueTask(watchFaceHostApi.getHandler())
-    private val pendingPostDoubleTap: CancellableUniqueTask =
-        CancellableUniqueTask(watchFaceHostApi.getHandler())
 
     internal val componentName =
         ComponentName(
@@ -721,7 +719,6 @@ internal class WatchFaceImpl(
     internal fun onDestroy() {
         pendingSingleTap.cancel()
         pendingUpdateTime.cancel()
-        pendingPostDoubleTap.cancel()
         renderer.onDestroy()
         watchState.isAmbient.removeObserver(ambientObserver)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !watchState.isHeadless) {
@@ -892,6 +889,7 @@ internal class WatchFaceImpl(
     ) {
         val tappedComplication = complicationsManager.getComplicationAt(x, y)
         if (tappedComplication == null) {
+            System.out.println("<<< tappedComplication == null")
             clearGesture()
             tapListener?.onTap(originalTapType, x, y)
             return
@@ -923,22 +921,7 @@ internal class WatchFaceImpl(
                     clearGesture()
                     return
                 }
-                if (pendingPostDoubleTap.isPending()) {
-                    return
-                }
-                if (pendingSingleTap.isPending()) {
-                    // The user tapped twice rapidly on the same complication so treat this as
-                    // a double tap.
-                    complicationsManager.onComplicationDoubleTapped(tappedComplication.id)
-                    clearGesture()
-
-                    // Block subsequent taps for a short time, to prevent accidental triple taps.
-                    pendingPostDoubleTap.postDelayedUnique(
-                        ViewConfiguration.getDoubleTapTimeout().toLong()
-                    ) {
-                        // NOP.
-                    }
-                } else {
+                if (!pendingSingleTap.isPending()) {
                     // Give the user immediate visual feedback, the UI feels sluggish if we defer
                     // this.
                     complicationsManager.bringAttentionToComplication(tappedComplication.id)
@@ -984,7 +967,6 @@ internal class WatchFaceImpl(
         writer.println("mockTime.speed=${mockTime.speed}")
         writer.println("nextDrawTimeMillis=$nextDrawTimeMillis")
         writer.println("muteMode=$muteMode")
-        writer.println("pendingPostDoubleTap=${pendingPostDoubleTap.isPending()}")
         writer.println("pendingSingleTap=${pendingSingleTap.isPending()}")
         writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
         writer.println("lastTappedComplicationId=$lastTappedComplicationId")
