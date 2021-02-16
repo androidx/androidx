@@ -668,6 +668,87 @@ package androidx.car.app.model {
 
 }
 
+package androidx.car.app.model.signin {
+
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public final class InputSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
+    method public androidx.car.app.model.CarText? getDefaultValue();
+    method public int getInputType();
+    method public int getKeyboardType();
+    method public androidx.car.app.model.CarText? getMessage();
+    method public androidx.car.app.model.signin.OnInputCompletedDelegate getOnInputCompletedDelegate();
+    method public androidx.car.app.model.CarText? getPrompt();
+    method public boolean isShowKeyboardByDefault();
+    field public static final int INPUT_TYPE_DEFAULT = 1; // 0x1
+    field public static final int INPUT_TYPE_PASSWORD = 2; // 0x2
+    field public static final int KEYBOARD_DEFAULT = 1; // 0x1
+    field public static final int KEYBOARD_EMAIL = 2; // 0x2
+    field public static final int KEYBOARD_NUMBER = 4; // 0x4
+    field public static final int KEYBOARD_PHONE = 3; // 0x3
+  }
+
+  public static final class InputSignInMethod.Builder {
+    ctor public InputSignInMethod.Builder(androidx.car.app.model.signin.InputSignInMethod.OnInputCompletedListener);
+    method public androidx.car.app.model.signin.InputSignInMethod build();
+    method public androidx.car.app.model.signin.InputSignInMethod.Builder setDefaultValue(String);
+    method public androidx.car.app.model.signin.InputSignInMethod.Builder setInputType(int);
+    method public androidx.car.app.model.signin.InputSignInMethod.Builder setKeyboardType(int);
+    method public androidx.car.app.model.signin.InputSignInMethod.Builder setMessage(CharSequence);
+    method public androidx.car.app.model.signin.InputSignInMethod.Builder setPrompt(CharSequence);
+    method public androidx.car.app.model.signin.InputSignInMethod.Builder setShowKeyboardByDefault(boolean);
+  }
+
+  public static interface InputSignInMethod.OnInputCompletedListener {
+    method public void onInputCompleted(String);
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public interface OnInputCompletedDelegate {
+    method public void sendInputCompleted(String, androidx.car.app.OnDoneCallback);
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public final class PinSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
+    method public String getPin();
+  }
+
+  public static final class PinSignInMethod.Builder {
+    ctor public PinSignInMethod.Builder(String);
+    method public androidx.car.app.model.signin.PinSignInMethod build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public final class ProviderSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
+    method public androidx.car.app.model.Action getAction();
+  }
+
+  public static final class ProviderSignInMethod.Builder {
+    ctor public ProviderSignInMethod.Builder(androidx.car.app.model.Action);
+    method public androidx.car.app.model.signin.ProviderSignInMethod build();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public final class SignInTemplate implements androidx.car.app.model.Template {
+    method public androidx.car.app.model.ActionStrip? getActionStrip();
+    method public java.util.List<androidx.car.app.model.Action!> getActions();
+    method public androidx.car.app.model.CarText? getAdditionalText();
+    method public androidx.car.app.model.Action? getHeaderAction();
+    method public androidx.car.app.model.CarText? getInstructions();
+    method public androidx.car.app.model.signin.SignInTemplate.SignInMethod getSignInMethod();
+    method public androidx.car.app.model.CarText? getTitle();
+  }
+
+  public static final class SignInTemplate.Builder {
+    ctor public SignInTemplate.Builder(androidx.car.app.model.signin.SignInTemplate.SignInMethod);
+    method public androidx.car.app.model.signin.SignInTemplate.Builder addAction(androidx.car.app.model.Action);
+    method public androidx.car.app.model.signin.SignInTemplate build();
+    method public androidx.car.app.model.signin.SignInTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method public androidx.car.app.model.signin.SignInTemplate.Builder setAdditionalText(CharSequence);
+    method public androidx.car.app.model.signin.SignInTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
+    method public androidx.car.app.model.signin.SignInTemplate.Builder setInstructions(CharSequence);
+    method public androidx.car.app.model.signin.SignInTemplate.Builder setTitle(CharSequence);
+  }
+
+  public static interface SignInTemplate.SignInMethod {
+  }
+
+}
+
 package androidx.car.app.navigation {
 
   public class NavigationManager {
