@@ -134,7 +134,7 @@ public class SelfDestructiveThread {
      */
     @SuppressWarnings("deprecation")
     public <T> void postAndReply(final Callable<T> callable, final ReplyCallback<T> reply) {
-        final Handler callingHandler = new Handler();
+        final Handler calleeHandler = CalleeHandler.create();
         post(new Runnable() {
             @Override
             public void run() {
@@ -145,7 +145,7 @@ public class SelfDestructiveThread {
                     t = null;
                 }
                 final T result = t;
-                callingHandler.post(new Runnable() {
+                calleeHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         reply.onReply(result);
