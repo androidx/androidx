@@ -1,8 +1,11 @@
 // Signature format: 4.0
 package androidx.datastore {
 
-  public final class DataStoreFactoryKt {
-    method public static <T> androidx.datastore.core.DataStore<T> createDataStore(android.content.Context, String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
+  public final class DataStoreDelegateKt {
+    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<T>> dataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
+    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<T>> dataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations);
+    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<T>> dataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler);
+    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<T>> dataStore(String fileName, androidx.datastore.core.Serializer<T> serializer);
   }
 
 }
