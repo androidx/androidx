@@ -226,7 +226,7 @@ public interface AppSearchSession extends Closeable {
      * adding projection, can be set by calling the corresponding {@link SearchSpec.Builder} setter.
      *
      * <p>This method is lightweight. The heavy work will be done in
-     * {@link SearchResults#getNextPage()}.
+     * {@link SearchResults#getNextPage}.
      *
      * @param queryExpression query string to search.
      * @param searchSpec      spec for setting document filters, adding projection, setting term

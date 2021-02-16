@@ -45,9 +45,9 @@ import java.util.Set;
  * <p>Documents are constructed either by using the {@link GenericDocument.Builder} or providing
  * an annotated {@link Document} data class.
  *
- * @see AppSearchSession#put(PutDocumentsRequest)
+ * @see AppSearchSession#put
  * @see AppSearchSession#getByUri
- * @see AppSearchSession#search(String, SearchSpec)
+ * @see AppSearchSession#search
  */
 public class GenericDocument {
     private static final String TAG = "AppSearchGenericDocumen";
@@ -180,8 +180,7 @@ public class GenericDocument {
      * time base, the document will be auto-deleted.
      *
      * <p>The default value is 0, which means the document is permanent and won't be auto-deleted
-     * until the app is uninstalled, {@link AppSearchSession#remove(RemoveByUriRequest)}, or
-     * {@link AppSearchSession#remove(String, SearchSpec)} is called.
+     * until the app is uninstalled or {@link AppSearchSession#remove} is called.
      */
     public long getTtlMillis() {
         return mBundle.getLong(TTL_MILLIS_FIELD, DEFAULT_TTL_MILLIS);
@@ -612,9 +611,9 @@ public class GenericDocument {
          *                   {@link AppSearchSession#setSchema} prior
          *                   to inserting a document of this {@code schemaType} into the
          *                   AppSearch index using
-         *                   {@link AppSearchSession#put(PutDocumentsRequest)}.
+         *                   {@link AppSearchSession#put}.
          *                   Otherwise, the document will be rejected by
-         *                   {@link AppSearchSession#put(PutDocumentsRequest)} with result code
+         *                   {@link AppSearchSession#put} with result code
          *                   {@link AppSearchResult#RESULT_NOT_FOUND}.
          */
         @SuppressWarnings("unchecked")
@@ -699,8 +698,7 @@ public class GenericDocument {
          * {@link System#currentTimeMillis} time base, the document will be auto-deleted.
          *
          * <p>The default value is 0, which means the document is permanent and won't be
-         * auto-deleted until the app is uninstalled, {@link AppSearchSession#remove
-         * (RemoveByUriRequest)}, or {@link AppSearchSession#remove(String, SearchSpec)} is
+         * auto-deleted until the app is uninstalled or {@link AppSearchSession#remove} is
          * called.
          *
          * @param ttlMillis a non-negative duration in milliseconds.
