@@ -333,7 +333,7 @@ public class AppSearchImplTest {
                 + AppSearchImpl.CHECK_OPTIMIZE_INTERVAL; i++) {
             GenericDocument document =
                     new GenericDocument.Builder<>("namespace", "uri" + i, "type").build();
-            mAppSearchImpl.putDocument("package", "database", document);
+            mAppSearchImpl.putDocument("package", "database", document, /*logger=*/ null);
         }
 
         // Check optimize() will release 0 docs since there is no deletion.
@@ -389,7 +389,7 @@ public class AppSearchImplTest {
         // Insert document
         GenericDocument document = new GenericDocument.Builder<>("namespace", "uri",
                 "type").build();
-        mAppSearchImpl.putDocument("package", "database", document);
+        mAppSearchImpl.putDocument("package", "database", document, /*logger=*/ null);
 
         // Rewrite SearchSpec
         mAppSearchImpl.rewriteSearchSpecForPrefixesLocked(searchSpecProto,
@@ -420,11 +420,11 @@ public class AppSearchImplTest {
         // Insert documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "uri",
                 "typeA").build();
-        mAppSearchImpl.putDocument("package", "database1", document1);
+        mAppSearchImpl.putDocument("package", "database1", document1, /*logger=*/ null);
 
         GenericDocument document2 = new GenericDocument.Builder<>("namespace", "uri",
                 "typeB").build();
-        mAppSearchImpl.putDocument("package", "database2", document2);
+        mAppSearchImpl.putDocument("package", "database2", document2, /*logger=*/ null);
 
         // Rewrite SearchSpec
         mAppSearchImpl.rewriteSearchSpecForPrefixesLocked(searchSpecProto,
@@ -454,7 +454,7 @@ public class AppSearchImplTest {
         // Insert document
         GenericDocument document = new GenericDocument.Builder<>("namespace", "uri",
                 "type").build();
-        mAppSearchImpl.putDocument("package", "database", document);
+        mAppSearchImpl.putDocument("package", "database", document, /*logger=*/ null);
 
         // If 'allowedPrefixedSchemas' is empty, this returns false since there's nothing to
         // search over. Despite the searchSpecProto having schema type filters.
@@ -497,7 +497,7 @@ public class AppSearchImplTest {
         // Insert package1 document
         GenericDocument document = new GenericDocument.Builder<>("namespace", "uri", "schema1")
                 .build();
-        mAppSearchImpl.putDocument("package1", "database1", document);
+        mAppSearchImpl.putDocument("package1", "database1", document, /*logger=*/ null);
 
         // No query filters specified, package2 shouldn't be able to query for package1's documents.
         SearchSpec searchSpec =
@@ -507,9 +507,8 @@ public class AppSearchImplTest {
         assertThat(searchResultPage.getResults()).isEmpty();
 
         // Insert package2 document
-        document = new GenericDocument.Builder<>("namespace", "uri", "schema2")
-                .build();
-        mAppSearchImpl.putDocument("package2", "database2", document);
+        document = new GenericDocument.Builder<>("namespace", "uri", "schema2").build();
+        mAppSearchImpl.putDocument("package2", "database2", document, /*logger=*/ null);
 
         // No query filters specified. package2 should only get its own documents back.
         searchResultPage = mAppSearchImpl.query("package2", "database2", "", searchSpec);
@@ -542,7 +541,7 @@ public class AppSearchImplTest {
         // Insert package1 document
         GenericDocument document = new GenericDocument.Builder<>("namespace", "uri",
                 "schema1").build();
-        mAppSearchImpl.putDocument("package1", "database1", document);
+        mAppSearchImpl.putDocument("package1", "database1", document, /*logger=*/ null);
 
         // "package1" filter specified, but package2 shouldn't be able to query for package1's
         // documents.
@@ -556,7 +555,7 @@ public class AppSearchImplTest {
 
         // Insert package2 document
         document = new GenericDocument.Builder<>("namespace", "uri", "schema2").build();
-        mAppSearchImpl.putDocument("package2", "database2", document);
+        mAppSearchImpl.putDocument("package2", "database2", document, /*logger=*/ null);
 
         // "package2" filter specified, package2 should only get its own documents back.
         searchSpec = new SearchSpec.Builder()
@@ -906,7 +905,7 @@ public class AppSearchImplTest {
         assertThrows(IllegalStateException.class, () -> {
             appSearchImpl.putDocument("package", "database", new GenericDocument.Builder<>(
                     "namespace", "uri",
-                    "type").build());
+                    "type").build(), /*logger=*/ null);
         });
 
         assertThrows(IllegalStateException.class, () -> {
@@ -916,7 +915,8 @@ public class AppSearchImplTest {
 
         assertThrows(IllegalStateException.class, () -> {
             appSearchImpl.query("package", "database", "query",
-                    new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build());
+                    new SearchSpec.Builder().setTermMatch(
+                            TermMatchType.Code.PREFIX_VALUE).build());
         });
 
         assertThrows(IllegalStateException.class, () -> {
