@@ -1024,39 +1024,51 @@ Gradle's
 [Incremental annotation processing](https://docs.gradle.org/current/userguide/java_plugin.html#sec:incremental_annotation_processing)
 documentation for information on how to opt-in.
 
-### Experimental APIs {#experimental-api}
+### Experimental `@RequiresOptIn` APIs {#experimental-api}
 
 Jetpack libraries may choose to annotate API surfaces as unstable using either
 Kotlin's
-[`@Experimental` annotation](https://kotlinlang.org/docs/reference/experimental.html)
+[`@RequiresOptIn` annotation](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-requires-opt-in/)
 for APIs written in Kotlin or Jetpack's
-[`@Experimental` annotation](https://developer.android.com/reference/kotlin/androidx/annotation/experimental/Experimental)
+[`@RequiresOptIn` annotation](https://developer.android.com/reference/kotlin/androidx/annotation/RequiresOptIn)
 for APIs written in Java.
 
 In both cases, API surfaces marked as experimental are considered alpha and will
 be excluded from API compatibility guarantees. Due to the lack of compatibility
-guarantees, libraries *must never* call experimental APIs exposed by other
-libraries and *may not* use the `@UseExperimental` annotation except in the
-following cases:
+guarantees, stable libraries *must never* call experimental APIs exposed by
+other libraries outside of their
+[same-version group](#same-version-atomic-groups) and *may not* use the `@OptIn`
+annotation except in the following cases:
 
 *   A library within a same-version group *may* call an experimental API exposed
     by another library **within its same-version group**. In this case, API
     compatibility guarantees are covered under the same-version group policies
-    and the library *may* use the `@UsesExperimental` annotation to prevent
-    propagation of the experimental property. **Library owners must exercise
-    care to ensure that post-alpha APIs backed by experimental APIs actually
-    meet the release criteria for post-alpha APIs.**
+    and the library *may* use the `@OptIn` annotation to prevent propagation of
+    the experimental property. **Library owners must exercise care to ensure
+    that post-alpha APIs backed by experimental APIs actually meet the release
+    criteria for post-alpha APIs.**
+*   An `alpha` library may use experimental APIs from outside its same-version
+    group. These usages must be removed when the library moves to `beta`.
+
+NOTE JetBrains's own usage of `@RequiresOptIn` in Kotlin language libraries
+varies and may indicate binary instability, functional instability, or simply
+that an API is really difficult to use. Jetpack libraries should treat instances
+of `@RequiresOptIn` in JetBrains libraries as indicating **binary instability**
+and avoid using them outside of `alpha`; however, teams are welcome to obtain
+written assurance from JetBrains regarding binary stability of specific APIs.
+`@RequiresOptIn` APIs that are guaranteed to remain binary compatible _may_ be
+used in `beta`, but usages must be removed when the library moves to `rc`.
 
 #### How to mark an API surface as experimental
 
-All libraries using `@Experimental` annotations *must* depend on the
+All libraries using `@RequiresOptIn` annotations *must* depend on the
 `androidx.annotation:annotation-experimental` artifact regardless of whether
 they are using the `androidx` or Kotlin annotation. This artifact provides Lint
 enforcement of experimental usage restrictions for Kotlin callers as well as
 Java (which the Kotlin annotation doesn't handle on its own, since it's a Kotlin
 compiler feature). Libraries *may* include the dependency as `api`-type to make
-`@UseExperimental` available to Java clients; however, this will also
-unnecessarily expose the `@Experimental` annotation.
+`@OptIn` available to Java clients; however, this will also unnecessarily expose
+the `@RequiresOptIn` annotation.
 
 ```java
 dependencies {
@@ -1065,10 +1077,10 @@ dependencies {
 ```
 
 See Kotlin's
-[experimental marker documentation](https://kotlinlang.org/docs/reference/experimental.html)
+[opt-in requirements documentation](https://kotlinlang.org/docs/reference/opt-in-requirements.html)
 for general usage information. If you are writing experimental Java APIs, you
 will use the Jetpack
-[`@Experimental` annotation](https://developer.android.com/reference/kotlin/androidx/annotation/experimental/Experimental)
+[`@RequiresOptIn` annotation](https://developer.android.com/reference/kotlin/androidx/annotation/RequiresOptIn)
 rather than the Kotlin compiler's annotation.
 
 #### How to transition an API out of experimental
