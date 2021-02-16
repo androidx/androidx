@@ -75,7 +75,7 @@ class FontRequestWorker {
             final @NonNull FontsContractCompat.FontRequestCallback callback,
             final @NonNull Handler handler
     ) {
-        final Handler callerHandler = new Handler();
+        final Handler callerHandler = CalleeHandler.create();
         handler.post(new Runnable() {
             @Override
             public void run() {
