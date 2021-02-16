@@ -84,10 +84,40 @@ public class RenderParameters constructor(
     @get:SuppressWarnings("AutoBoxing")
     public val selectedComplicationId: Int?,
 
-    /** Specifies the tint should be used when outlined. */
+    /** Specifies the tint should be used with [LayerMode.DRAW_OUTLINED] .*/
     @ColorInt
     public val outlineTint: Int
 ) {
+    /**
+     * Constructs [RenderParameters] without an explicit [outlineTint]. This constructor doesn't
+     * support [LayerMode.DRAW_OUTLINED].
+     */
+    public constructor(
+        /** The overall drawing parameters based on system state. */
+        drawMode: DrawMode,
+
+        /**
+         * Parameters for rendering individual layers. Generally these will all be [LayerMode#DRAW]
+         * in normal operation, but the editor may make more complicated requests which need to be
+         * honored to function properly.
+         */
+        layerParameters: Map<Layer, LayerMode>,
+
+        /**
+         * Optional parameter which if non null specifies that a particular complication should be
+         * drawn with a special highlight to indicate it's been selected.
+         */
+        @SuppressWarnings("AutoBoxing")
+        selectedComplicationId: Int?,
+    ) : this(drawMode, layerParameters, selectedComplicationId, Color.RED) {
+        for (layerMode in layerParameters.values) {
+            require(layerMode != LayerMode.DRAW_OUTLINED) {
+                "LayerMode.DRAW_OUTLINED is not supported by this constructor, use the primary " +
+                    "one instead"
+            }
+        }
+    }
+
     public companion object {
         /** A layerParameters map where all Layers have [LayerMode.DRAW]. */
         @JvmField
@@ -97,7 +127,7 @@ public class RenderParameters constructor(
         /** Default RenderParameters which draws everything in interactive mode. */
         @JvmField
         public val DEFAULT_INTERACTIVE: RenderParameters =
-            RenderParameters(DrawMode.INTERACTIVE, DRAW_ALL_LAYERS, null, Color.RED)
+            RenderParameters(DrawMode.INTERACTIVE, DRAW_ALL_LAYERS, null)
     }
 
     /** @hide */
