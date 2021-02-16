@@ -41,12 +41,9 @@ class MediaControllerStub extends IMediaController.Stub {
     private static final boolean DEBUG = true; // TODO(jaewan): Change
 
     private final WeakReference<MediaControllerImplBase> mController;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final SequencedFutureManager mSequencedFutureManager;
 
-    MediaControllerStub(MediaControllerImplBase controller, SequencedFutureManager manager) {
+    MediaControllerStub(MediaControllerImplBase controller) {
         mController = new WeakReference<>(controller);
-        mSequencedFutureManager = manager;
     }
 
     @Override
@@ -54,16 +51,8 @@ class MediaControllerStub extends IMediaController.Stub {
         if (sessionResult == null) {
             return;
         }
-        dispatchControllerTask(new ControllerTask() {
-            @Override
-            public void run(MediaControllerImplBase controller) {
-                SessionResult result = MediaParcelUtils.fromParcelable(sessionResult);
-                if (result == null) {
-                    return;
-                }
-                mSequencedFutureManager.setFutureResult(seq, result);
-            }
-        });
+        dispatchControllerTask(controller ->
+                controller.setFutureResult(seq, MediaParcelUtils.fromParcelable(sessionResult)));
     }
 
     @Override
@@ -71,16 +60,8 @@ class MediaControllerStub extends IMediaController.Stub {
         if (libraryResult == null) {
             return;
         }
-        dispatchBrowserTask(new BrowserTask() {
-            @Override
-            public void run(MediaBrowserImplBase browser) {
-                LibraryResult result = MediaParcelUtils.fromParcelable(libraryResult);
-                if (result == null) {
-                    return;
-                }
-                mSequencedFutureManager.setFutureResult(seq, result);
-            }
-        });
+        dispatchBrowserTask(browser ->
+                browser.setFutureResult(seq, MediaParcelUtils.fromParcelable(libraryResult)));
     }
 
     @Override
