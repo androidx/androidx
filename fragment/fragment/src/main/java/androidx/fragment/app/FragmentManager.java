@@ -2742,13 +2742,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
         ArrayList<String> added = mFragmentStore.saveAddedFragments();
 
         // Now save back stack.
-        BackStackState[] backStack = null;
+        BackStackRecordState[] backStack = null;
         if (mBackStack != null) {
             int size = mBackStack.size();
             if (size > 0) {
-                backStack = new BackStackState[size];
+                backStack = new BackStackRecordState[size];
                 for (int i = 0; i < size; i++) {
-                    backStack[i] = new BackStackState(mBackStack.get(i));
+                    backStack[i] = new BackStackRecordState(mBackStack.get(i));
                     if (isLoggingEnabled(Log.VERBOSE)) {
                         Log.v(TAG, "saveAllState: adding back stack #" + i
                                 + ": " + mBackStack.get(i));

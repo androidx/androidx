@@ -31,7 +31,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class BackStackStateTest {
+class BackStackRecordStateTest {
 
     @Suppress("DEPRECATION")
     @get:Rule
@@ -47,12 +47,12 @@ class BackStackStateTest {
             setReorderingAllowed(true)
             setMaxLifecycle(fragment, Lifecycle.State.STARTED)
         }
-        val backStackState = BackStackState(backStackRecord)
+        val backStackState = BackStackRecordState(backStackRecord)
         val parcel = Parcel.obtain()
         backStackState.writeToParcel(parcel, 0)
         // Reset for reading
         parcel.setDataPosition(0)
-        val restoredBackStackState = BackStackState(parcel)
+        val restoredBackStackState = BackStackRecordState(parcel)
         assertThat(restoredBackStackState.mOps).asList()
             .containsExactlyElementsIn(backStackState.mOps.asList())
         assertThat(restoredBackStackState.mFragmentWhos)

@@ -27,7 +27,7 @@ import androidx.lifecycle.Lifecycle;
 import java.util.ArrayList;
 
 @SuppressLint("BanParcelableUsage")
-final class BackStackState implements Parcelable {
+final class BackStackRecordState implements Parcelable {
     private static final String TAG = FragmentManager.TAG;
 
     final int[] mOps;
@@ -45,7 +45,7 @@ final class BackStackState implements Parcelable {
     final ArrayList<String> mSharedElementTargetNames;
     final boolean mReorderingAllowed;
 
-    public BackStackState(BackStackRecord bse) {
+    BackStackRecordState(BackStackRecord bse) {
         final int numOps = bse.mOps.size();
         mOps = new int[numOps * 6];
 
@@ -81,7 +81,7 @@ final class BackStackState implements Parcelable {
         mReorderingAllowed = bse.mReorderingAllowed;
     }
 
-    public BackStackState(Parcel in) {
+    BackStackRecordState(Parcel in) {
         mOps = in.createIntArray();
         mFragmentWhos = in.createStringArrayList();
         mOldMaxLifecycleStates = in.createIntArray();
@@ -168,16 +168,16 @@ final class BackStackState implements Parcelable {
         dest.writeInt(mReorderingAllowed ? 1 : 0);
     }
 
-    public static final Parcelable.Creator<BackStackState> CREATOR
-            = new Parcelable.Creator<BackStackState>() {
+    public static final Parcelable.Creator<BackStackRecordState> CREATOR =
+            new Parcelable.Creator<BackStackRecordState>() {
         @Override
-        public BackStackState createFromParcel(Parcel in) {
-            return new BackStackState(in);
+        public BackStackRecordState createFromParcel(Parcel in) {
+            return new BackStackRecordState(in);
         }
 
         @Override
-        public BackStackState[] newArray(int size) {
-            return new BackStackState[size];
+        public BackStackRecordState[] newArray(int size) {
+            return new BackStackRecordState[size];
         }
     };
 }
