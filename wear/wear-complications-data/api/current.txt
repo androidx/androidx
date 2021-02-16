@@ -211,17 +211,7 @@ package androidx.wear.complications.data {
     method public long getNextChangeTime(long fromDateTimeMillis);
     method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);
     method public boolean isAlwaysEmpty();
-    method public default static androidx.wear.complications.data.ComplicationText plain(CharSequence text);
     method public boolean returnsSameText(long firstDateTimeMillis, long secondDateTimeMillis);
-    method public default static androidx.wear.complications.data.TimeDifferenceComplicationText.Builder timeDifferenceBuilder(androidx.wear.complications.data.TimeDifferenceStyle style, androidx.wear.complications.data.TimeReference reference);
-    method public default static androidx.wear.complications.data.TimeFormatComplicationText.Builder timeFormatBuilder(String format);
-    field public static final androidx.wear.complications.data.ComplicationText.Companion Companion;
-  }
-
-  public static final class ComplicationText.Companion {
-    method public androidx.wear.complications.data.ComplicationText plain(CharSequence text);
-    method public androidx.wear.complications.data.TimeDifferenceComplicationText.Builder timeDifferenceBuilder(androidx.wear.complications.data.TimeDifferenceStyle style, androidx.wear.complications.data.TimeReference reference);
-    method public androidx.wear.complications.data.TimeFormatComplicationText.Builder timeFormatBuilder(String format);
   }
 
   public enum ComplicationType {
@@ -363,6 +353,14 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
+  }
+
+  public final class PlainComplicationText implements androidx.wear.complications.data.ComplicationText {
+  }
+
+  public static final class PlainComplicationText.Builder {
+    ctor public PlainComplicationText.Builder(CharSequence text);
+    method public androidx.wear.complications.data.PlainComplicationText build();
   }
 
   public final class RangedValueComplicationData extends androidx.wear.complications.data.ComplicationData {

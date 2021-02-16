@@ -39,9 +39,9 @@ import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.complications.SystemProviders
-import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
+import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.Complication
@@ -137,15 +137,15 @@ public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
                             mapOf(
                                 provider1 to
                                     ShortTextComplicationData.Builder(
-                                        ComplicationText.plain("Left")
+                                        PlainComplicationText.Builder("Left").build()
                                     ).build().asWireComplicationData(),
                                 provider2 to
                                     LongTextComplicationData.Builder(
-                                        ComplicationText.plain("Right")
+                                        PlainComplicationText.Builder("Right").build()
                                     ).build().asWireComplicationData(),
                                 provider3 to
                                     LongTextComplicationData.Builder(
-                                        ComplicationText.plain("Provider3")
+                                        PlainComplicationText.Builder("Provider3").build()
                                     ).build().asWireComplicationData(),
                             )
                         )
@@ -549,8 +549,9 @@ public class EditorSessionTest {
                 doAnswer {
                     val callback = it.arguments[2] as IPreviewComplicationDataCallback
                     callback.updateComplicationData(
-                        ShortTextComplicationData.Builder(ComplicationText.plain(complicationText))
-                            .build().asWireComplicationData()
+                        ShortTextComplicationData.Builder(
+                            PlainComplicationText.Builder(complicationText).build()
+                        ).build().asWireComplicationData()
                     )
                     true
                 }.`when`(mockProviderInfoService).requestPreviewComplicationData(
