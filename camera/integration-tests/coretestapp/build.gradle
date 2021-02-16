@@ -68,8 +68,8 @@ dependencies {
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":appcompat:appcompat"))
-    implementation(project(":activity:activity"))
-    implementation(project(":fragment:fragment"))
+    implementation("androidx.activity:activity:1.2.0")
+    implementation("androidx.fragment:fragment:1.3.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     // Android Support Library
