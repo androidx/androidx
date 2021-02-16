@@ -32,6 +32,7 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.asApiComplicationData
 import kotlinx.coroutines.CompletableDeferred
+import java.lang.Exception
 
 /**
  * Retrieves [ComplicationProviderInfo] for a watch face's complications.
@@ -65,6 +66,7 @@ public class ProviderInfoRetriever : AutoCloseable {
 
         @SuppressLint("SyntheticAccessor")
         override fun onServiceDisconnected(name: ComponentName) {
+            deferredService.completeExceptionally(ServiceDisconnectedException())
         }
     }
 
@@ -80,6 +82,9 @@ public class ProviderInfoRetriever : AutoCloseable {
         intent.setPackage(PROVIDER_INFO_SERVICE_PACKAGE)
         context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
+
+    /** Exception thrown if the service disconnects. */
+    public class ServiceDisconnectedException : Exception()
 
     /**
      * @hide
@@ -103,7 +108,9 @@ public class ProviderInfoRetriever : AutoCloseable {
      * being requested
      * @param watchFaceComplicationIds ids of the complications that info is being requested for
      * @return The requested provider info. If the look up fails null will be returned
+     * @throws [ServiceDisconnectedException] if the service disconnected during the call.
      */
+    @Throws(ServiceDisconnectedException::class)
     public suspend fun retrieveProviderInfo(
         watchFaceComponent: ComponentName,
         watchFaceComplicationIds: IntArray
@@ -122,7 +129,9 @@ public class ProviderInfoRetriever : AutoCloseable {
      * @param complicationType The requested [ComplicationType] for the preview data.
      * @return The preview [ComplicationData] or `null` if the provider component doesn't exist, or
      * if it doesn't support complicationType, or if the remote service doesn't support this API.
+     * @throws [ServiceDisconnectedException] if the service disconnected during the call.
      */
+    @Throws(ServiceDisconnectedException::class)
     @RequiresApi(Build.VERSION_CODES.R)
     public suspend fun requestPreviewComplicationData(
         providerComponent: ComponentName,
@@ -133,6 +142,10 @@ public class ProviderInfoRetriever : AutoCloseable {
             return null
         }
         val result = CompletableDeferred<ComplicationData?>()
+        val deathObserver = IBinder.DeathRecipient {
+            result.completeExceptionally(ServiceDisconnectedException())
+        }
+        service.asBinder().linkToDeath(deathObserver, 0)
         if (!service.requestPreviewComplicationData(
                 providerComponent,
                 complicationType.asWireComplicationType(),
@@ -140,11 +153,13 @@ public class ProviderInfoRetriever : AutoCloseable {
                     override fun updateComplicationData(
                         data: android.support.wearable.complications.ComplicationData?
                     ) {
+                        service.asBinder().unlinkToDeath(deathObserver, 0)
                         result.complete(data?.asApiComplicationData())
                     }
                 }
             )
         ) {
+            service.asBinder().unlinkToDeath(deathObserver, 0)
             return null
         }
         return result.await()
