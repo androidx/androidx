@@ -45,7 +45,8 @@ public interface WatchFaceControlClient : AutoCloseable {
         /**
          * Constructs a [WatchFaceControlClient] which attempts to connect to a watch face in the
          * android package [watchFacePackageName].
-         * @throws [ServiceNotBoundException] if the watch face control service can not be bound.
+         * @throws [ServiceNotBoundException] if the watch face control service can not be bound or
+         * a [ServiceStartFailureException] if the watch face dies during startup.
          */
         @SuppressLint("NewApi") // For ACTION_WATCHFACE_CONTROL_SERVICE
         @JvmStatic
@@ -72,8 +73,9 @@ public interface WatchFaceControlClient : AutoCloseable {
                 }
 
                 override fun onServiceDisconnected(name: ComponentName?) {
-                    // Nothing to do here, if the service is dead then a RemoteException will be
-                    // thrown by methods attempting to use it.
+                    // Note if onServiceConnected is called first completeExceptionally will do
+                    // nothing because the CompletableDeferred is already completed.
+                    deferredService.completeExceptionally(ServiceStartFailureException())
                 }
             }
             if (!context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)) {
