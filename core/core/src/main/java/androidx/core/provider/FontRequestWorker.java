@@ -37,7 +37,7 @@ import androidx.collection.SimpleArrayMap;
 import androidx.core.content.res.FontResourcesParserCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.TypefaceCompat;
-import androidx.core.provider.SelfDestructiveThread.ReplyCallback;
+import androidx.core.provider.FontRequestThreadPool.ReplyCallback;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -48,10 +48,11 @@ class FontRequestWorker {
 
     static final LruCache<String, Typeface> sTypefaceCache = new LruCache<>(16);
 
-    private static final int BACKGROUND_THREAD_KEEP_ALIVE_DURATION_MS = 10000;
-    private static final SelfDestructiveThread BACKGROUND_THREAD =
-            new SelfDestructiveThread("fonts-androidx", Process.THREAD_PRIORITY_BACKGROUND,
-                    BACKGROUND_THREAD_KEEP_ALIVE_DURATION_MS);
+    private static final FontRequestThreadPool BACKGROUND_THREAD = new FontRequestThreadPool(
+            "fonts-androidx",
+            Process.THREAD_PRIORITY_BACKGROUND,
+            10000 /* keepAliveTime */
+    );
 
     /** Package protected to prevent synthetic accessor */
     static final Object LOCK = new Object();
@@ -198,7 +199,7 @@ class FontRequestWorker {
 
         final Callable<TypefaceResult> fetcher = new Callable<TypefaceResult>() {
             @Override
-            public TypefaceResult call() throws Exception {
+            public TypefaceResult call() {
                 TypefaceResult typeface = getFontInternal(context, request, style);
                 if (typeface.mTypeface != null) {
                     sTypefaceCache.put(id, typeface.mTypeface);
@@ -214,21 +215,21 @@ class FontRequestWorker {
                 return null;
             }
         } else {
-            final ReplyCallback<TypefaceResult> reply = fontCallback == null ? null
-                    : new ReplyCallback<TypefaceResult>() {
-                        @Override
-                        public void onReply(final TypefaceResult typeface) {
-                            if (typeface == null) {
-                                fontCallback.callbackFailAsync(
-                                        FAIL_REASON_FONT_NOT_FOUND, handler);
-                            } else if (typeface.mResult
-                                    == FontsContractCompat.FontFamilyResult.STATUS_OK) {
-                                fontCallback.callbackSuccessAsync(typeface.mTypeface, handler);
-                            } else {
-                                fontCallback.callbackFailAsync(typeface.mResult, handler);
-                            }
-                        }
-                    };
+            final ReplyCallback<TypefaceResult> reply = fontCallback == null ? null :
+                    new ReplyCallback<TypefaceResult>() {
+                @Override
+                public void onReply(final TypefaceResult typeface) {
+                    if (typeface == null) {
+                        fontCallback.callbackFailAsync(
+                                FAIL_REASON_FONT_NOT_FOUND, handler);
+                    } else if (typeface.mResult
+                            == FontsContractCompat.FontFamilyResult.STATUS_OK) {
+                        fontCallback.callbackSuccessAsync(typeface.mTypeface, handler);
+                    } else {
+                        fontCallback.callbackFailAsync(typeface.mResult, handler);
+                    }
+                }
+            };
 
             synchronized (LOCK) {
                 ArrayList<ReplyCallback<TypefaceResult>> pendingReplies = PENDING_REPLIES.get(id);
