@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.editor
 
+import android.os.IBinder
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 
@@ -29,6 +30,7 @@ public class EditorService : IEditorService.Stub() {
     private val lock = Any()
     private var nextId: Int = 0
     private val observers = HashMap<Int, IEditorObserver>()
+    private val deathObservers = HashMap<Int, IBinder.DeathRecipient>()
 
     public companion object {
         /** [EditorService] singleton. */
@@ -41,13 +43,20 @@ public class EditorService : IEditorService.Stub() {
         synchronized(lock) {
             val id = nextId++
             observers[id] = observer
+            val deathObserver = IBinder.DeathRecipient { unregisterObserver(id) }
+            observer.asBinder().linkToDeath(deathObserver, 0)
+            deathObservers[id] = deathObserver
             return id
         }
     }
 
     override fun unregisterObserver(observerId: Int) {
         synchronized(lock) {
+            deathObservers[observerId]?.let {
+                observers[observerId]?.asBinder()?.unlinkToDeath(it, 0)
+            }
             observers.remove(observerId)
+            deathObservers.remove(observerId)
         }
     }
 
@@ -57,7 +66,9 @@ public class EditorService : IEditorService.Stub() {
     public fun broadcastEditorState(editorState: EditorStateWireFormat) {
         synchronized(lock) {
             for ((_, observer) in observers) {
-                observer.onEditorStateChange(editorState)
+                if (observer.asBinder().isBinderAlive) {
+                    observer.onEditorStateChange(editorState)
+                }
             }
         }
     }
