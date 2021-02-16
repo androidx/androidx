@@ -27,7 +27,7 @@ import java.util.ArrayList;
 final class FragmentManagerState implements Parcelable {
     ArrayList<FragmentState> mActive;
     ArrayList<String> mAdded;
-    BackStackState[] mBackStack;
+    BackStackRecordState[] mBackStack;
     int mBackStackIndex;
     String mPrimaryNavActiveWho = null;
     ArrayList<String> mResultKeys = new ArrayList<>();
@@ -40,7 +40,7 @@ final class FragmentManagerState implements Parcelable {
     public FragmentManagerState(Parcel in) {
         mActive = in.createTypedArrayList(FragmentState.CREATOR);
         mAdded = in.createStringArrayList();
-        mBackStack = in.createTypedArray(BackStackState.CREATOR);
+        mBackStack = in.createTypedArray(BackStackRecordState.CREATOR);
         mBackStackIndex = in.readInt();
         mPrimaryNavActiveWho = in.readString();
         mResultKeys = in.createStringArrayList();
