@@ -5,7 +5,7 @@ echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"
 
-impl/build.sh zipTestConfigsWithApks \
+impl/build.sh zipTestConfigsWithApks zipConstrainedTestConfigsWithApks \
     "$@"
 
 echo "Completing $0 at $(date)"

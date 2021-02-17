@@ -100,8 +100,8 @@ class AndroidTestXmlBuilderTest {
     }
 
     @Test
-    fun testValidTestConfigXml_runFullTests() {
-        builder.runFullTests(false)
+    fun testValidTestConfigXml_runAllTests() {
+        builder.runAllTests(false)
         validate(builder.build())
     }
 
