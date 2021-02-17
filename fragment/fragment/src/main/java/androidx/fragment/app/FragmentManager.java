@@ -1710,7 +1710,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         return fragmentStateManager;
     }
 
-    void addFragment(@NonNull Fragment fragment) {
+    FragmentStateManager addFragment(@NonNull Fragment fragment) {
         if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "add: " + fragment);
         FragmentStateManager fragmentStateManager = createOrGetFragmentStateManager(fragment);
         fragment.mFragmentManager = this;
@@ -1725,6 +1725,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 mNeedMenuInvalidate = true;
             }
         }
+        return fragmentStateManager;
     }
 
     void removeFragment(@NonNull Fragment fragment) {
