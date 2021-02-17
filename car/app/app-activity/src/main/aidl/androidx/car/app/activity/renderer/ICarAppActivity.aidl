@@ -18,7 +18,7 @@ package androidx.car.app.activity.renderer;
 
 import androidx.car.app.activity.renderer.IRendererCallback;
 import androidx.car.app.activity.renderer.surface.ISurfaceListener;
-import androidx.car.app.activity.renderer.surface.SurfacePackageWrapper;
+import androidx.car.app.serialization.Bundleable;
 
 /**
  * An interface to let renderer service communicate with the car activity.
@@ -27,7 +27,7 @@ import androidx.car.app.activity.renderer.surface.SurfacePackageWrapper;
  */
 oneway interface ICarAppActivity {
     /** Sets the surface package. */
-    void setSurfacePackage(in SurfacePackageWrapper surfacePackageWrapper) = 1;
+    void setSurfacePackage(in Bundleable surfacePackage) = 1;
 
     /** Registers the listener to get callbacks for surface events. */
     void setSurfaceListener(ISurfaceListener listener) = 2;

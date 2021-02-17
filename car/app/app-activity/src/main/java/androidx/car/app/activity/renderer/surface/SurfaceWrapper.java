@@ -16,29 +16,32 @@
 
 package androidx.car.app.activity.renderer.surface;
 
-import android.annotation.SuppressLint;
 import android.os.IBinder;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.view.Surface;
 import android.view.SurfaceView;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
  * A class holding the information needed to render the content on a surface.
  */
-//TODO(179714355): Investigate using Bundleable instead of Parcelable
-@SuppressLint("BanParcelableUsage")
-public final class SurfaceWrapper implements Parcelable {
+
+public final class SurfaceWrapper {
+    @Keep
     @Nullable
-    private final IBinder mHostToken;
-    private final int mWidth;
-    private final int mHeight;
-    private final int mDisplayId;
-    private final int mDensityDpi;
-    private final Surface mSurface;
+    private IBinder mHostToken;
+    @Keep
+    private int mWidth;
+    @Keep
+    private int mHeight;
+    @Keep
+    private int mDisplayId;
+    @Keep
+    private int mDensityDpi;
+    @Keep
+    private Surface mSurface;
 
     /**
      * Creates a {@link SurfaceWrapper}.
@@ -61,28 +64,8 @@ public final class SurfaceWrapper implements Parcelable {
         mSurface = surface;
     }
 
-    SurfaceWrapper(@NonNull Parcel parcel) {
-        mHostToken = parcel.readStrongBinder();
-        mWidth = parcel.readInt();
-        mHeight = parcel.readInt();
-        mDisplayId = parcel.readInt();
-        mDensityDpi = parcel.readInt();
-        mSurface = parcel.readParcelable(Surface.class.getClassLoader());
-    }
-
-    @Override
-    public void writeToParcel(@NonNull Parcel parcel, int flags) {
-        parcel.writeStrongBinder(mHostToken);
-        parcel.writeInt(mWidth);
-        parcel.writeInt(mHeight);
-        parcel.writeInt(mDisplayId);
-        parcel.writeInt(mDensityDpi);
-        parcel.writeParcelable((Parcelable) mSurface, flags);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
+    /** Empty constructor needed for serializations. **/
+    private SurfaceWrapper() {
     }
 
     @Nullable
@@ -110,19 +93,4 @@ public final class SurfaceWrapper implements Parcelable {
     Surface getSurface() {
         return mSurface;
     }
-
-    @NonNull
-    public static final Creator<SurfaceWrapper> CREATOR = new Creator<SurfaceWrapper>() {
-        @NonNull
-        @Override
-        public SurfaceWrapper createFromParcel(@NonNull Parcel parcel) {
-            return new SurfaceWrapper(parcel);
-        }
-
-        @NonNull
-        @Override
-        public SurfaceWrapper[] newArray(int size) {
-            return new SurfaceWrapper[size];
-        }
-    };
 }

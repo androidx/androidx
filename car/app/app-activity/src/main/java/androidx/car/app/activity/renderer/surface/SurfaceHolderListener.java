@@ -28,6 +28,8 @@ import android.view.SurfaceHolder;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.serialization.BundlerException;
 
 /**
  * A listener of {@link SurfaceHolder}.
@@ -80,10 +82,13 @@ public class SurfaceHolderListener implements SurfaceHolder.Callback {
     private void notifySurfaceCreated() {
         try {
             if (mSurfaceListener != null) {
-                mSurfaceListener.onSurfaceAvailable(mSurfaceWrapperProvider.createSurfaceWrapper());
+                mSurfaceListener.onSurfaceAvailable(
+                        Bundleable.create(mSurfaceWrapperProvider.createSurfaceWrapper()));
             }
         } catch (RemoteException e) {
             Log.e(TAG, "Remote connection lost", e);
+        } catch (BundlerException e) {
+            Log.e(TAG, "Unable to serialize surface wrapper", e);
         }
 
     }
@@ -91,10 +96,13 @@ public class SurfaceHolderListener implements SurfaceHolder.Callback {
     private void notifySurfaceChanged() {
         try {
             if (mSurfaceListener != null) {
-                mSurfaceListener.onSurfaceChanged(mSurfaceWrapperProvider.createSurfaceWrapper());
+                mSurfaceListener.onSurfaceChanged(
+                        Bundleable.create(mSurfaceWrapperProvider.createSurfaceWrapper()));
             }
         } catch (RemoteException e) {
             Log.e(TAG, "Remote connection lost", e);
+        } catch (BundlerException e) {
+            Log.e(TAG, "Unable to serialize surface wrapper", e);
         }
     }
 }

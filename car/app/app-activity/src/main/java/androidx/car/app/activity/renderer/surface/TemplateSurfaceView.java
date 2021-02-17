@@ -35,7 +35,6 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -59,6 +58,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.activity.renderer.IProxyInputConnection;
+import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.serialization.BundlerException;
 
 /**
  * A surface view suitable for template rendering.
@@ -289,15 +290,21 @@ public final class TemplateSurfaceView extends SurfaceView {
 
     /**
      * Updates the surface package. The surface package can be either a
-     * {@link android.view.SurfaceControlViewHost.SurfacePackage} or a
-     * {@link LegacySurfacePackage} wrapped in a {@link SurfacePackageWrapper}.
+     * {@link android.view.SurfaceControlViewHost.SurfacePackage} or a {@link LegacySurfacePackage}.
      */
-    public void setSurfacePackage(@NonNull SurfacePackageWrapper surfacePackageWrapper) {
-        Parcelable surfacePackage = surfacePackageWrapper.getSurfacePackage();
+    public void setSurfacePackage(@NonNull Bundleable bundle) {
+        Object surfacePackage;
+        try {
+            surfacePackage = bundle.get();
+        } catch (BundlerException e) {
+            Log.e(TAG, "Unable to deserialize surface package.");
+            return;
+        }
+
         if (SUPPORTS_SURFACE_CONTROL && surfacePackage instanceof SurfacePackage) {
             Api30Impl.setSurfacePackage(this, (SurfacePackage) surfacePackage);
         } else if (surfacePackage instanceof LegacySurfacePackage) {
-            setLegacySurfacePackage((LegacySurfacePackage) surfacePackage);
+            setSurfacePackage((LegacySurfacePackage) surfacePackage);
         } else {
             Log.e(TAG, "Unrecognized surface package");
         }
@@ -309,14 +316,16 @@ public final class TemplateSurfaceView extends SurfaceView {
      * This control is used to communicate the UI events and focus with the host.
      */
     @SuppressLint({"ClickableViewAccessibility"})
-    private void setLegacySurfacePackage(LegacySurfacePackage surfacePackage) {
+    private void setSurfacePackage(LegacySurfacePackage surfacePackage) {
         ISurfaceControl surfaceControl = surfacePackage.getSurfaceControl();
         SurfaceWrapper surfaceWrapper = mSurfaceWrapperProvider.createSurfaceWrapper();
         try {
-            surfaceControl.setSurfaceWrapper(surfaceWrapper);
+            surfaceControl.setSurfaceWrapper(Bundleable.create(surfaceWrapper));
         } catch (RemoteException e) {
             Log.e(TAG, "Remote connection lost", e);
             return;
+        } catch (BundlerException e) {
+            Log.e(TAG, "Unable to serialize surface wrapper", e);
         }
         mSurfaceControl = surfaceControl;
         setOnTouchListener((view, event) -> handleTouchEvent(event));

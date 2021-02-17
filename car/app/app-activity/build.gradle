@@ -40,6 +40,10 @@ android {
     defaultConfig {
         minSdkVersion 29
     }
+    lintOptions {
+        // We rely on keeping a bunch of private variables in the library for serialization.
+        disable("BanKeepAnnotation")
+    }
     buildFeatures {
         aidl = true
     }

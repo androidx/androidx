@@ -60,7 +60,8 @@ import androidx.car.app.activity.renderer.IRendererCallback;
 import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.activity.renderer.surface.LegacySurfacePackage;
 import androidx.car.app.activity.renderer.surface.SurfaceControlCallback;
-import androidx.car.app.activity.renderer.surface.SurfacePackageWrapper;
+import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.serialization.BundlerException;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -272,10 +273,9 @@ public class CarAppActivityTest {
                     SurfaceControlCallback callback = mock(SurfaceControlCallback.class);
                     IRendererCallback rendererCallback = mock(IRendererCallback.class);
 
-                    SurfacePackageWrapper wrapper =
-                            new SurfacePackageWrapper(new LegacySurfacePackage(callback));
                     ICarAppActivity carAppActivity = mRenderServiceDelegate.getCarAppActivity();
-                    carAppActivity.setSurfacePackage(wrapper);
+                    carAppActivity.setSurfacePackage(
+                            Bundleable.create(new LegacySurfacePackage(callback)));
                     carAppActivity.registerRendererCallback(rendererCallback);
 
                     // Verify back events on surfaceView are sent to host.
@@ -320,7 +320,7 @@ public class CarAppActivityTest {
                             y, metaState);
                     activity.mSurfaceView.dispatchGenericMotionEvent(event);
                     verify(rendererCallback, times(1)).onRotate(anyInt(), eq(false));
-                } catch (RemoteException e) {
+                } catch (RemoteException | BundlerException e) {
                     fail(Log.getStackTraceString(e));
                 }
             });
