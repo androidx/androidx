@@ -30,7 +30,7 @@ dependencies {
     api(GUAVA_LISTENABLE_FUTURE)
 
     implementation 'androidx.annotation:annotation:1.2.0-alpha01'
-    implementation(project(":wear:wear-tiles-proto"))
+    implementation(project(path: ":wear:wear-tiles-proto", configuration: "shadow"))
 
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
     testImplementation(ANDROIDX_TEST_EXT_TRUTH)

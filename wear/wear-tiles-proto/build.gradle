@@ -35,9 +35,16 @@ plugins {
     id("com.github.johnrengelman.shadow")
 }
 
+configurations {
+    shadowed
+
+    compileOnly.extendsFrom(shadowed)
+    testCompile.extendsFrom(shadowed)
+}
+
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
-    implementation(PROTOBUF_LITE)
+    shadowed(PROTOBUF_LITE)
 }
 
 sourceSets {
@@ -52,6 +59,7 @@ jar {
 
 shadowJar {
     archiveClassifier = ''
+    configurations = [project.configurations.shadowed]
 
     relocate "com.google.protobuf", "androidx.wear.tiles.protobuf"
 

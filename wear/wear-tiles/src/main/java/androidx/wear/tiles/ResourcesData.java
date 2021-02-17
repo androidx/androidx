@@ -26,7 +26,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ResourcesData extends ProtoParcelable {
     public static final int VERSION_PROTOBUF = 1;
 
