@@ -45,7 +45,7 @@ import androidx.car.app.aaos.renderer.surface.ISurfaceListener;
 import androidx.car.app.aaos.renderer.surface.OnBackPressedListener;
 import androidx.car.app.aaos.renderer.surface.RotaryEventCallback;
 import androidx.car.app.aaos.renderer.surface.SurfaceHolderListener;
-import androidx.car.app.aaos.renderer.surface.SurfacePackageCompat;
+import androidx.car.app.aaos.renderer.surface.SurfacePackageWrapper;
 import androidx.car.app.aaos.renderer.surface.SurfaceWrapperProvider;
 import androidx.car.app.aaos.renderer.surface.TemplateSurfaceView;
 import androidx.car.app.utils.ThreadUtils;
@@ -88,7 +88,7 @@ public final class CarAppActivity extends Activity {
      */
     private final ICarAppActivity.Stub mCarActivity = new ICarAppActivity.Stub() {
         @Override
-        public void setSurfacePackage(@NonNull SurfacePackageCompat surfacePackage) {
+        public void setSurfacePackage(@NonNull SurfacePackageWrapper surfacePackage) {
             requireNonNull(surfacePackage);
             ThreadUtils.runOnMain(() -> mSurfaceView.setSurfacePackage(surfacePackage));
         }
