@@ -85,8 +85,8 @@ fun runProcessorTestWithoutKsp(
 }
 
 /**
- * Runs the compilation test with all 3 backends (javac, kapt, ksp) if possible (e.g. javac
- * cannot test kotlin sources).
+ * Runs the compilation test with ksp and one of javac or kapt, depending on whether input has
+ * kotlin sources.
  *
  * The [handler] will be invoked only for the first round. If you need to test multi round
  * processing, use `handlers = listOf(..., ...)`.
@@ -113,14 +113,18 @@ fun runProcessorTest(
     classpath: List<File> = emptyList(),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
+    val javaApRunner = if (sources.any { it is Source.KotlinSource }) {
+        KaptCompilationTestRunner
+    } else {
+        JavacCompilationTestRunner
+    }
     runTests(
         params = TestCompilationParameters(
             sources = sources,
             classpath = classpath,
             handlers = handlers
         ),
-        JavacCompilationTestRunner,
-        KaptCompilationTestRunner,
+        javaApRunner,
         KspCompilationTestRunner
     )
 }
