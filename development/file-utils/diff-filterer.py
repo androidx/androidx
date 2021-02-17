@@ -715,10 +715,17 @@ class DiffRunner(object):
 
   def cleanupTempDirs(self):
     print("Clearing work directories")
-    if os.path.isdir(self.workPath):
-      for child in os.listdir(self.workPath):
-        if child.startswith("job-"):
-          fileIo.removePath(os.path.join(self.workPath, child))
+    numAttempts = 3
+    for attempt in range(numAttempts):
+      if os.path.isdir(self.workPath):
+        for child in os.listdir(self.workPath):
+          if child.startswith("job-"):
+            path = os.path.join(self.workPath, child)
+            try:
+              fileIo.removePath(path)
+            except IOError as e:
+              if attempt >= numAttempts - 1:
+                raise Exception("Failed to remove " + path, e)
 
   def runnerTest(self, testState, timeout = None):
     workPath = self.getWorkPath(0)
