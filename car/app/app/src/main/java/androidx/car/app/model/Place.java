@@ -101,7 +101,6 @@ public final class Place {
          * Returns a builder instance for a {@link CarLocation}.
          *
          * @param location the geographical location associated with the place
-         *
          * @throws NullPointerException if {@code location} is {@code null}
          */
         public Builder(@NonNull CarLocation location) {

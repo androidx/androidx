@@ -26,6 +26,7 @@ public class BundlerException extends Exception {
     public BundlerException(@Nullable String msg, @NonNull Throwable e) {
         super(msg, e);
     }
+
     public BundlerException(@Nullable String msg) {
         super(msg);
     }

@@ -17,7 +17,7 @@
 package androidx.car.app.utils;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.car.app.utils.CommonUtils.TAG;
+import static androidx.car.app.utils.LogTags.TAG;
 
 import android.annotation.SuppressLint;
 import android.graphics.Rect;

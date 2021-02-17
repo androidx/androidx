@@ -18,6 +18,8 @@ package androidx.car.app.aaos;
 
 import static android.content.pm.PackageManager.NameNotFoundException;
 
+import static androidx.car.app.aaos.LogTags.TAG_AAOS_HOST;
+
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
@@ -302,7 +304,7 @@ public final class CarAppActivity extends Activity {
             activityInfo = getPackageManager().getActivityInfo(getComponentName(),
                     PackageManager.GET_META_DATA);
         } catch (NameNotFoundException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Unable to find component: " + getComponentName(), e);
+            Log.e(TAG_AAOS_HOST, "Unable to find component: " + getComponentName(), e);
         }
 
         if (activityInfo == null) {
@@ -311,11 +313,10 @@ public final class CarAppActivity extends Activity {
 
         String serviceName = activityInfo.metaData.getString(SERVICE_METADATA_KEY);
         if (serviceName == null) {
-            Log.e(LogTags.TAG_AAOS_HOST, String.format("Unable to find required metadata tag with "
-                            + "name %s. App manifest must include metadata tag with name %s and "
-                            + "the name of the car app service as the value",
-                    SERVICE_METADATA_KEY,
-                    SERVICE_METADATA_KEY));
+            Log.e(TAG_AAOS_HOST, "Unable to find required metadata tag with "
+                    + "name " + SERVICE_METADATA_KEY + ". App manifest must include "
+                    + "metadata tag with name " + SERVICE_METADATA_KEY + " and "
+                    + "the name of the car app service as the value");
             return null;
         }
 

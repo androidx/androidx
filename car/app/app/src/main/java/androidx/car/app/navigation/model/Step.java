@@ -185,7 +185,6 @@ public final class Step {
          * unsupported characters will not be displayed properly.
          *
          * @throws NullPointerException if {@code cue} is {@code null}
-         *
          * @see Builder#setCue(CharSequence)
          */
         public Builder(@NonNull CharSequence cue) {
@@ -284,7 +283,6 @@ public final class Step {
          * that work with different car screen pixel densities.
          *
          * @throws NullPointerException if {@code cue} is {@code null}
-         *
          * @see CarText for details on text handling and span support.
          */
         @NonNull
@@ -304,7 +302,6 @@ public final class Step {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code destinations} is {@code null}
-         *
          * @see CarText for details on text handling and span support.
          */
         @NonNull
