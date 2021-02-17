@@ -282,10 +282,10 @@ public final class TemplateSurfaceView extends SurfaceView {
     /**
      * Updates the surface package. The surface package can be either a
      * {@link android.view.SurfaceControlViewHost.SurfacePackage} or a
-     * {@link LegacySurfacePackage} wrapped in a {@link SurfacePackageCompat}.
+     * {@link LegacySurfacePackage} wrapped in a {@link SurfacePackageWrapper}.
      */
-    public void setSurfacePackage(@NonNull SurfacePackageCompat surfacePackageCompat) {
-        Parcelable surfacePackage = surfacePackageCompat.getSurfacePackage();
+    public void setSurfacePackage(@NonNull SurfacePackageWrapper surfacePackageWrapper) {
+        Parcelable surfacePackage = surfacePackageWrapper.getSurfacePackage();
         if (SUPPORTS_SURFACE_CONTROL && surfacePackage instanceof SurfacePackage) {
             Api30Impl.setSurfacePackage(this, (SurfacePackage) surfacePackage);
         } else if (surfacePackage instanceof LegacySurfacePackage) {

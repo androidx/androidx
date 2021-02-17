@@ -63,7 +63,7 @@ import androidx.car.app.aaos.renderer.IRendererService;
 import androidx.car.app.aaos.renderer.IRotaryEventListener;
 import androidx.car.app.aaos.renderer.surface.LegacySurfacePackage;
 import androidx.car.app.aaos.renderer.surface.SurfaceControlCallback;
-import androidx.car.app.aaos.renderer.surface.SurfacePackageCompat;
+import androidx.car.app.aaos.renderer.surface.SurfacePackageWrapper;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -275,8 +275,8 @@ public class CarAppActivityTest {
                     IBackButtonListener backButtonListener = mock(IBackButtonListener.class);
                     IRotaryEventListener rotaryEventListener = mock(IRotaryEventListener.class);
 
-                    SurfacePackageCompat wrapper =
-                            new SurfacePackageCompat(new LegacySurfacePackage(callback));
+                    SurfacePackageWrapper wrapper =
+                            new SurfacePackageWrapper(new LegacySurfacePackage(callback));
                     ICarAppActivity carAppActivity = mRenderServiceDelegate.getCarAppActivity();
                     carAppActivity.setSurfacePackage(wrapper);
                     carAppActivity.setBackButtonListener(backButtonListener);

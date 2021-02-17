@@ -21,7 +21,7 @@ import androidx.car.app.aaos.renderer.IInputConnectionListener;
 import androidx.car.app.aaos.renderer.ILifecycleListener;
 import androidx.car.app.aaos.renderer.IRotaryEventListener;
 import androidx.car.app.aaos.renderer.surface.ISurfaceListener;
-import androidx.car.app.aaos.renderer.surface.SurfacePackageCompat;
+import androidx.car.app.aaos.renderer.surface.SurfacePackageWrapper;
 
 /**
  * An interface to let renderer service communicate with the car activity.
@@ -30,7 +30,7 @@ import androidx.car.app.aaos.renderer.surface.SurfacePackageCompat;
  */
 oneway interface ICarAppActivity {
     /** Sets the surface package. */
-    void setSurfacePackage(in SurfacePackageCompat surfacePackageCompat) = 1;
+    void setSurfacePackage(in SurfacePackageWrapper surfacePackageWrapper) = 1;
 
     /** Registers the listener to get callbacks for surface events. */
     void setSurfaceListener(ISurfaceListener listener) = 2;
