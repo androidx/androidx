@@ -19,6 +19,8 @@ package androidx.camera.core;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import java.util.List;
+
 /**
  * Provides access to a set of cameras.
  *
@@ -40,4 +42,16 @@ public interface CameraProvider {
      *                                        insufficient permissions.
      */
     boolean hasCamera(@NonNull CameraSelector cameraSelector) throws CameraInfoUnavailableException;
+
+    /**
+     * Returns {@link CameraInfo} instances of the available cameras.
+     *
+     * <p>The available cameras include all the available cameras on the device, or only those
+     * selected through
+     * {@link androidx.camera.core.CameraXConfig.Builder#setAvailableCamerasLimiter(CameraSelector)}
+     *
+     * @return A list of {@link CameraInfo} instances for the available cameras.
+     */
+    @NonNull
+    List<CameraInfo> getAvailableCameraInfos();
 }
