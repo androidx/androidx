@@ -18,6 +18,7 @@ package androidx.wear.watchface.editor
 
 import android.os.IBinder
 import androidx.annotation.RestrictTo
+import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 
 /**
@@ -71,5 +72,19 @@ public class EditorService : IEditorService.Stub() {
                 }
             }
         }
+    }
+
+    internal fun dump(writer: IndentingPrintWriter) {
+        writer.println("EditorService:")
+        writer.increaseIndent()
+        synchronized(lock) {
+            for ((id, observer) in observers) {
+                writer.println("id = $id, alive = ${observer.asBinder().isBinderAlive}")
+                if (observer.asBinder().isBinderAlive) {
+                    writer.println("$apiVersion = {observer.apiVersion}")
+                }
+            }
+        }
+        writer.decreaseIndent()
     }
 }

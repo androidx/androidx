@@ -428,4 +428,14 @@ public class ComplicationsManager(
     public fun removeTapListener(tapCallback: TapCallback) {
         complicationListeners.remove(tapCallback)
     }
+
+    @UiThread
+    internal fun dump(writer: IndentingPrintWriter) {
+        writer.println("ComplicationsManager:")
+        writer.increaseIndent()
+        for ((_, complication) in complications) {
+            complication.dump(writer)
+        }
+        writer.decreaseIndent()
+    }
 }

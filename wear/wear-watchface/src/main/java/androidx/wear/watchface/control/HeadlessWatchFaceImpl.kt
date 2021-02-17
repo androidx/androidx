@@ -18,6 +18,8 @@ package androidx.wear.watchface.control
 
 import android.os.Handler
 import androidx.annotation.RequiresApi
+import androidx.annotation.UiThread
+import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.ComplicationScreenshotParams
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
@@ -32,6 +34,32 @@ internal class HeadlessWatchFaceImpl(
     internal var engine: WatchFaceService.EngineWrapper?,
     private val uiThreadHandler: Handler
 ) : IHeadlessWatchFace.Stub() {
+
+    internal companion object {
+        @UiThread
+        fun dump(indentingPrintWriter: IndentingPrintWriter) {
+            indentingPrintWriter.println("HeadlessWatchFace instances:")
+            indentingPrintWriter.increaseIndent()
+            for (instance in headlessInstances) {
+                require(instance.uiThreadHandler.looper.isCurrentThread) {
+                    "dump must be called from the UIThread"
+                }
+                indentingPrintWriter.println("HeadlessWatchFaceImpl:")
+                indentingPrintWriter.increaseIndent()
+                instance.engine?.dump(indentingPrintWriter)
+                indentingPrintWriter.decreaseIndent()
+            }
+            indentingPrintWriter.decreaseIndent()
+        }
+
+        private val headlessInstances = HashSet<HeadlessWatchFaceImpl>()
+    }
+
+    init {
+        uiThreadHandler.runOnHandler {
+            headlessInstances.add(this)
+        }
+    }
 
     override fun getApiVersion() = IHeadlessWatchFace.API_VERSION
 
@@ -50,7 +78,10 @@ internal class HeadlessWatchFaceImpl(
         engine!!.watchFaceImpl.userStyleRepository.schema.toWireFormat()
 
     override fun release() {
-        engine?.onDestroy()
-        engine = null
+        uiThreadHandler.runOnHandler {
+            headlessInstances.remove(this)
+            engine?.onDestroy()
+            engine = null
+        }
     }
 }
