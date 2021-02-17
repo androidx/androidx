@@ -16,10 +16,7 @@
 
 package androidx.car.app.aaos.renderer;
 
-import androidx.car.app.aaos.renderer.IBackButtonListener;
-import androidx.car.app.aaos.renderer.IInputConnectionListener;
-import androidx.car.app.aaos.renderer.ILifecycleListener;
-import androidx.car.app.aaos.renderer.IRotaryEventListener;
+import androidx.car.app.aaos.renderer.IRendererCallback;
 import androidx.car.app.aaos.renderer.surface.ISurfaceListener;
 import androidx.car.app.aaos.renderer.surface.SurfacePackageCompat;
 
@@ -35,31 +32,18 @@ oneway interface ICarAppActivity {
     /** Registers the listener to get callbacks for surface events. */
     void setSurfaceListener(ISurfaceListener listener) = 2;
 
-    /** Registers the listener to get callbacks for lifecyle events. */
-    void setLifecycleListener(ILifecycleListener listener) = 3;
-
-    /** Registers the listener to get callbacks for back button events. */
-    void setBackButtonListener(IBackButtonListener listener) = 4;
+    /** Registers the callback to get callbacks for renderer events. */
+    void registerRendererCallback(IRendererCallback callback) = 3;
 
     /** Notifies to start the input, i.e. to show the keyboard. */
-    void onStartInput() = 5;
+    void onStartInput() = 4;
 
     /** Notifies to stop the input, i.e. to hide the keyboard. */
-    void onStopInput() = 6;
-
-    /**
-     * Registers the listener for input connection.
-     *
-     * This listener can be used to establish an input connection with the host.
-     */
-    void setInputConnectionListener(IInputConnectionListener listener) = 7;
-
-    /** Registers the listener to get rotary events. */
-    void setRotaryEventListener(IRotaryEventListener listener) = 8;
+    void onStopInput() = 5;
 
     /** Sends the Intent to be used to start a car app. */
-    void startCarApp(in Intent intent) = 9;
+    void startCarApp(in Intent intent) = 6;
 
     /** Requests the activity to finish itself. */
-    void finishCarApp() = 10;
+    void finishCarApp() = 7;
 }
