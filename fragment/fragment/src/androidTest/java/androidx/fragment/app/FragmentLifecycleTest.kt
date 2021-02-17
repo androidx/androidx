@@ -27,6 +27,7 @@ import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
 import androidx.fragment.app.test.EmptyFragmentTestActivity
+import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.app.test.TestViewModel
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
@@ -34,8 +35,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
@@ -1365,6 +1368,20 @@ class FragmentLifecycleTest {
 
         assertThat(createdViewModel.cleared)
             .isTrue()
+    }
+
+    @Test
+    fun inflatedFragmentAfterResume() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragment = withActivity {
+                setContentView(R.layout.activity_inflated_fragment)
+                val fm = supportFragmentManager
+                fm.findFragmentById(R.id.inflated_fragment) as StrictViewFragment
+            }
+
+            assertThat(fragment).isNotNull()
+            assertThat(fragment.isResumed).isTrue()
+        }
     }
 
     @Test
