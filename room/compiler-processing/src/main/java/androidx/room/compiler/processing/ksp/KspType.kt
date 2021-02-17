@@ -52,6 +52,9 @@ internal abstract class KspType(
     }
 
     override val typeElement by lazy {
+        // for primitive types, we could technically return null from here as they are not backed
+        // by a type element in javac but in Kotlin we have types for them, hence returning them
+        // is better.
         val declaration = ksType.declaration as? KSClassDeclaration
         declaration?.let {
             env.wrapClassDeclaration(it)
