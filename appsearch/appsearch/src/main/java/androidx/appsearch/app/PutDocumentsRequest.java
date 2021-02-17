@@ -35,7 +35,7 @@ import java.util.List;
  * {@link androidx.appsearch.annotation.Document} or instances of
  * {@link GenericDocument}.
  *
- * @see AppSearchSession#put(PutDocumentsRequest)
+ * @see AppSearchSession#put
  */
 public final class PutDocumentsRequest {
     private final List<GenericDocument> mDocuments;

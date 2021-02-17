@@ -18,12 +18,11 @@ package androidx.appsearch.localstorage.stats;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.core.util.Preconditions;
 
 /**
  * A class for holding detailed stats to log for each individual document put by a
- * {@link androidx.appsearch.app.AppSearchSession#put(PutDocumentsRequest)} call.
+ * {@link androidx.appsearch.app.AppSearchSession#put} call.
  *
  * @hide
  */

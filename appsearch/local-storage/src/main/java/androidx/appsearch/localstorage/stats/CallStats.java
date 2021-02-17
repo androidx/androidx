@@ -19,8 +19,6 @@ package androidx.appsearch.localstorage.stats;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.app.PutDocumentsRequest;
-import androidx.appsearch.app.SetSchemaRequest;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -33,7 +31,7 @@ import java.lang.annotation.RetentionPolicy;
  * {@link androidx.appsearch.app.AppSearchSession} calls.
  *
  * <p>Some function calls like
- * {@link androidx.appsearch.app.AppSearchSession#setSchema(SetSchemaRequest)} have their own
+ * {@link androidx.appsearch.app.AppSearchSession#setSchema} have their own
  * detailed stats class {@link placeholder}. However, {@link CallStats} can still be used along with
  * the detailed stats class for easy aggregation/analysis with other function calls.
  *
@@ -110,12 +108,11 @@ public class CallStats {
      * Returns number of operations succeeded.
      *
      * <p>For example, for
-     * {@link androidx.appsearch.app.AppSearchSession#put(PutDocumentsRequest)}, it is the
-     * total number of individual successful put operations. In this case, how many documents
-     * are successfully indexed.
+     * {@link androidx.appsearch.app.AppSearchSession#put}, it is the total number of individual
+     * successful put operations. In this case, how many documents are successfully indexed.
      *
      * <p>For non-batch calls such as
-     * {@link androidx.appsearch.app.AppSearchSession#setSchema(SetSchemaRequest)}, the sum of
+     * {@link androidx.appsearch.app.AppSearchSession#setSchema}, the sum of
      * {@link CallStats#getNumOperationsSucceeded()} and
      * {@link CallStats#getNumOperationsFailed()} is always 1 since there is only one
      * operation.
@@ -128,13 +125,11 @@ public class CallStats {
      * Returns number of operations failed.
      *
      * <p>For example, for
-     * {@link androidx.appsearch.app.AppSearchSession#put(PutDocumentsRequest)}, it is the
-     * total number of individual failed put operations. In this case, how many documents
-     * are failed to be indexed.
+     * {@link androidx.appsearch.app.AppSearchSession#put}, it is the total number of individual
+     * failed put operations. In this case, how many documents are failed to be indexed.
      *
-     * <p>For non-batch calls such as
-     * {@link androidx.appsearch.app.AppSearchSession#setSchema(SetSchemaRequest)}, the sum of
-     * {@link CallStats#getNumOperationsSucceeded()} and
+     * <p>For non-batch calls such as {@link androidx.appsearch.app.AppSearchSession#setSchema},
+     * the sum of {@link CallStats#getNumOperationsSucceeded()} and
      * {@link CallStats#getNumOperationsFailed()} is always 1 since there is only one
      * operation.
      */
@@ -175,12 +170,12 @@ public class CallStats {
          * Sets number of operations succeeded.
          *
          * <p>For example, for
-         * {@link androidx.appsearch.app.AppSearchSession#put(PutDocumentsRequest)}, it is the
-         * total number of individual successful put operations. In this case, how many documents
-         * are successfully indexed.
+         * {@link androidx.appsearch.app.AppSearchSession#put}, it is the total number of
+         * individual successful put operations. In this case, how many documents are
+         * successfully indexed.
          *
          * <p>For non-batch calls such as
-         * {@link androidx.appsearch.app.AppSearchSession#setSchema(SetSchemaRequest)}, the sum of
+         * {@link androidx.appsearch.app.AppSearchSession#setSchema}, the sum of
          * {@link CallStats#getNumOperationsSucceeded()} and
          * {@link CallStats#getNumOperationsFailed()} is always 1 since there is only one
          * operation.
@@ -194,13 +189,12 @@ public class CallStats {
         /**
          * Sets number of operations failed.
          *
-         * <p>For example, for
-         * {@link androidx.appsearch.app.AppSearchSession#put(PutDocumentsRequest)}, it is the
+         * <p>For example, for {@link androidx.appsearch.app.AppSearchSession#put}, it is the
          * total number of individual failed put operations. In this case, how many documents
          * are failed to be indexed.
          *
          * <p>For non-batch calls such as
-         * {@link androidx.appsearch.app.AppSearchSession#setSchema(SetSchemaRequest)}, the sum of
+         * {@link androidx.appsearch.app.AppSearchSession#setSchema}, the sum of
          * {@link CallStats#getNumOperationsSucceeded()} and
          * {@link CallStats#getNumOperationsFailed()} is always 1 since there is only one
          * operation.
