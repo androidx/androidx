@@ -61,7 +61,7 @@ class SchemaCodeGenerator {
     private void generate(@NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
         classBuilder.addField(
                 FieldSpec.builder(String.class, "SCHEMA_NAME")
-                        .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                         .initializer("$S", mModel.getSchemaName())
                         .build());
 
@@ -211,9 +211,10 @@ class SchemaCodeGenerator {
             codeBlock.add("\n.setIndexingType($T)", indexingEnum);
 
         } else if (isPropertyDocument) {
-            codeBlock.add("\n.setSchemaType($T.getInstance()"
-                    + ".getOrCreateFactory($T.class).getSchemaName())",
-                    mHelper.getAppSearchClass("DocumentClassFactoryRegistry"), propertyType);
+            ClassName documentClass = (ClassName) ClassName.get(propertyType);
+            codeBlock.add(
+                    "\n.setSchemaType($T.SCHEMA_NAME)",
+                    mHelper.getDocumentClassFactoryForClass(documentClass));
             // TODO(b/177572431): Apply setIndexNestedProperties here too
         }
 

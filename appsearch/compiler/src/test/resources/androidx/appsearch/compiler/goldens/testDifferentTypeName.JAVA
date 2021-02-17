@@ -8,7 +8,7 @@ import java.lang.Override;
 import java.lang.String;
 
 public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
-  private static final String SCHEMA_NAME = "DifferentType";
+  public static final String SCHEMA_NAME = "DifferentType";
 
   @Override
   public String getSchemaName() {

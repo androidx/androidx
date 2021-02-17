@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
-  private static final String SCHEMA_NAME = "Gift";
+  public static final String SCHEMA_NAME = "Gift";
 
   @Override
   public String getSchemaName() {
@@ -54,7 +54,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .build())
           .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("collectGift")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .setSchemaType(DocumentClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).getSchemaName())
+            .setSchemaType($$__AppSearch__Gift.SCHEMA_NAME)
             .build())
           .addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("arrBoxLong")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -99,7 +99,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .build())
           .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("arrGift")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .setSchemaType(DocumentClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).getSchemaName())
+            .setSchemaType($$__AppSearch__Gift.SCHEMA_NAME)
             .build())
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("string")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
@@ -141,7 +141,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .build())
           .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("gift")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setSchemaType(DocumentClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).getSchemaName())
+            .setSchemaType($$__AppSearch__Gift.SCHEMA_NAME)
             .build())
           .build();
   }
@@ -412,10 +412,9 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     GenericDocument[] collectGiftCopy = genericDoc.getPropertyDocumentArray("collectGift");
     List<Gift> collectGiftConv = null;
     if (collectGiftCopy != null) {
-      DocumentClassFactory<Gift> factory = DocumentClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class);
       collectGiftConv = new ArrayList<>(collectGiftCopy.length);
       for (int i = 0; i < collectGiftCopy.length; i++) {
-        collectGiftConv.add(factory.fromGenericDocument(collectGiftCopy[i]));
+        collectGiftConv.add(collectGiftCopy[i].toDocumentClass(Gift.class));
       }
     }
     long[] arrBoxLongCopy = genericDoc.getPropertyLongArray("arrBoxLong");
@@ -491,9 +490,8 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Gift[] arrGiftConv = null;
     if (arrGiftCopy != null) {
       arrGiftConv = new Gift[arrGiftCopy.length];
-      DocumentClassFactory<Gift> factory = DocumentClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class);
       for (int i = 0; i < arrGiftCopy.length; i++) {
-        arrGiftConv[i] = factory.fromGenericDocument(arrGiftCopy[i]);
+        arrGiftConv[i] = arrGiftCopy[i].toDocumentClass(Gift.class);
       }
     }
     String[] stringCopy = genericDoc.getPropertyStringArray("string");
@@ -539,7 +537,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     GenericDocument giftCopy = genericDoc.getPropertyDocument("gift");
     Gift giftConv = null;
     if (giftCopy != null) {
-      giftConv = DocumentClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).fromGenericDocument(giftCopy);
+      giftConv = giftCopy.toDocumentClass(Gift.class);
     }
     Gift document = new Gift();
     document.uri = uriConv;

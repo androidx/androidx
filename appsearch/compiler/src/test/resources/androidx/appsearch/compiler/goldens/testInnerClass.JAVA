@@ -8,7 +8,7 @@ import java.lang.Override;
 import java.lang.String;
 
 public class $$__AppSearch__Gift$$__InnerGift implements DocumentClassFactory<Gift.InnerGift> {
-  private static final String SCHEMA_NAME = "InnerGift";
+  public static final String SCHEMA_NAME = "InnerGift";
 
   @Override
   public String getSchemaName() {

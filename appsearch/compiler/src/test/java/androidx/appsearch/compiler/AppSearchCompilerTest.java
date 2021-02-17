@@ -722,7 +722,8 @@ public class AppSearchCompilerTest {
 
         // Get the actual file contents
         File actualPackageDir = new File(mGenFilesDir, "com/example/appsearch");
-        File actualPath = new File(actualPackageDir, CodeGenerator.GEN_CLASS_PREFIX + className);
+        File actualPath =
+                new File(actualPackageDir, IntrospectionHelper.GEN_CLASS_PREFIX + className);
         Truth.assertWithMessage("Path " + actualPath + " is not a file")
                 .that(actualPath.isFile()).isTrue();
         String actual = Files.asCharSource(actualPath, StandardCharsets.UTF_8).read();

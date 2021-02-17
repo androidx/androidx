@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
-  private static final String SCHEMA_NAME = "Gift";
+  public static final String SCHEMA_NAME = "Gift";
 
   @Override
   public String getSchemaName() {
