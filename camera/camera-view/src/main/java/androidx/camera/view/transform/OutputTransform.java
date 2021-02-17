@@ -60,8 +60,10 @@ public class OutputTransform {
      *                     other {@link OutputTransform}, we can at least make sure that they
      *                     have the same aspect ratio. Viewports with different aspect ratios
      *                     cannot be from the same {@link UseCaseGroup}.
+     * @hide
      */
-    OutputTransform(@NonNull Matrix matrix, @NonNull Size viewPortSize) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public OutputTransform(@NonNull Matrix matrix, @NonNull Size viewPortSize) {
         mMatrix = matrix;
         mViewPortSize = viewPortSize;
     }
@@ -76,8 +78,12 @@ public class OutputTransform {
         return mViewPortSize;
     }
 
+    /**
+     * @hide
+     */
     @NonNull
-    static Matrix getNormalizedToBuffer(@NonNull Rect viewPortRect) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static Matrix getNormalizedToBuffer(@NonNull Rect viewPortRect) {
         return getNormalizedToBuffer(new RectF(viewPortRect));
     }
 

@@ -43,8 +43,11 @@ limitations under the License.
     <string name="camera_view">Camera View</string>
     <string name="preview_view">Preview View</string>
     <string name="camera_controller">Camera Controller</string>
+    <string name="transform">Transform</string>
     <string name="flash_mode_auto">flash auto</string>
     <string name="flash_mode_on">flash on</string>
     <string name="flash_mode_off">flash off</string>
+    <string name="mirror_on">mirror on</string>
+    <string name="mirror_off">mirror off</string>
 
 </resources>

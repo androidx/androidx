@@ -173,6 +173,45 @@ public class PreviewViewTest {
     }
 
     @Test
+    public void receiveSurfaceRequest_transformIsValid() throws InterruptedException {
+        // Arrange: set up PreviewView.
+        AtomicReference<PreviewView> previewView = new AtomicReference<>();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        mInstrumentation.runOnMainSync(() -> {
+            previewView.set(new PreviewView(mContext));
+            setContentView(previewView.get());
+            // Feed the PreviewView with a fake SurfaceRequest
+            CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+            previewView.get().getSurfaceProvider().onSurfaceRequested(
+                    createSurfaceRequest(cameraInfo));
+            notifyLatchWhenLayoutReady(previewView.get(), countDownLatch);
+        });
+        updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
+
+        // Assert: OutputTransform is not null.
+        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        mInstrumentation.runOnMainSync(
+                () -> assertThat(previewView.get().getOutputTransform()).isNotNull());
+    }
+
+    @Test
+    public void noSurfaceRequest_transformIsInvalid() throws InterruptedException {
+        // Arrange: set up PreviewView.
+        AtomicReference<PreviewView> previewView = new AtomicReference<>();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        mInstrumentation.runOnMainSync(() -> {
+            previewView.set(new PreviewView(mContext));
+            setContentView(previewView.get());
+            notifyLatchWhenLayoutReady(previewView.get(), countDownLatch);
+        });
+
+        // Assert: OutputTransform is null.
+        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        mInstrumentation.runOnMainSync(
+                () -> assertThat(previewView.get().getOutputTransform()).isNull());
+    }
+
+    @Test
     public void previewViewPinched_pinchToZoomInvokedOnController()
             throws InterruptedException, UiObjectNotFoundException {
         // TODO(b/169058735): investigate and enable on Cuttlefish.
