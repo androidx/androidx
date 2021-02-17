@@ -58,8 +58,10 @@ package androidx.media2.session {
     field public static final String MEDIA_URI_PATH_PLAY_FROM_SEARCH = "playFromSearch";
     field public static final String MEDIA_URI_PATH_PREPARE_FROM_MEDIA_ID = "prepareFromMediaId";
     field public static final String MEDIA_URI_PATH_PREPARE_FROM_SEARCH = "prepareFromSearch";
+    field public static final String MEDIA_URI_PATH_SET_MEDIA_URI = "setMediaUri";
     field public static final String MEDIA_URI_QUERY_ID = "id";
     field public static final String MEDIA_URI_QUERY_QUERY = "query";
+    field public static final String MEDIA_URI_QUERY_URI = "uri";
     field public static final String MEDIA_URI_SCHEME = "androidx";
   }
 
