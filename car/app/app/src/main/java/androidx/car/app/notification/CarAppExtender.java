@@ -399,7 +399,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code contentTitle} is {@code null}
-         *
          * @see CarText for details on text handling and span support.
          */
         @NonNull
@@ -418,9 +417,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *
          * @param contentText override for the notification's content text. If set to an empty
          *                    string, it will be treated as if there is no context text
-         *
          * @throws NullPointerException if {@code contentText} is {@code null}
-         *
          * @see CarText for details on text handling and span support.
          */
         @NonNull
@@ -475,7 +472,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * {@link NotificationCompat.Builder#setContentIntent(PendingIntent)} for the car screen.
          *
          * @param contentIntent override for the notification's content intent.
-         *
          * @throws NullPointerException if {@code contentIntent} is {@code null}
          */
         @NonNull
@@ -495,7 +491,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * {@link NotificationCompat.Builder#setDeleteIntent(PendingIntent)} for the car screen.
          *
          * @param deleteIntent override for the notification's delete intent
-         *
          * @throws NullPointerException if {@code deleteIntent} is {@code null}
          */
         @NonNull
@@ -529,7 +524,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *               navigation notifications in the rail widget, this intent will be sent
          *               when the user taps on the action icon in the rail
          *               widget
-         *
          * @throws NullPointerException if {@code title} or {@code intent} are {@code null}
          */
         @SuppressWarnings("deprecation")

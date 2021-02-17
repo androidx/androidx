@@ -371,7 +371,6 @@ public final class Row implements Item {
          * </pre>
          *
          * @throws NullPointerException if {@code text} is {@code null}
-         *
          * @see ForegroundCarColorSpan
          */
         @NonNull
@@ -384,7 +383,6 @@ public final class Row implements Item {
          * Sets an image to show in the row with the default size {@link #IMAGE_TYPE_SMALL}.
          *
          * @throws NullPointerException if {@code image} is {@code null}
-         *
          * @see #setImage(CarIcon, int)
          */
         @NonNull
@@ -412,7 +410,6 @@ public final class Row implements Item {
          * @param image     the {@link CarIcon} to display or {@code null} to not display one
          * @param imageType one of {@link #IMAGE_TYPE_ICON}, {@link #IMAGE_TYPE_SMALL} or {@link
          *                  #IMAGE_TYPE_LARGE}
-         *
          * @throws NullPointerException if {@code image} is {@code null}
          */
         @NonNull

@@ -16,6 +16,8 @@
 
 package androidx.car.app.aaos.renderer.surface;
 
+import static androidx.car.app.aaos.LogTags.TAG_AAOS_HOST;
+
 import static java.util.Objects.requireNonNull;
 
 import android.os.Bundle;
@@ -31,7 +33,6 @@ import android.view.inputmethod.InputConnectionWrapper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.aaos.LogTags;
 import androidx.car.app.aaos.renderer.IProxyInputConnection;
 
 /** Proxies input connection calls to the provided {@link IProxyInputConnection}. */
@@ -50,7 +51,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             text = mProxyInputConnection.getTextBeforeCursor(n, flags);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             text = null;
         }
         return text;
@@ -63,7 +64,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             text = mProxyInputConnection.getTextAfterCursor(n, flags);
         } catch (RemoteException e) {
-            Log.w(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.w(TAG_AAOS_HOST, "Remote connection lost", e);
             text = null;
         }
 
@@ -77,7 +78,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             text = mProxyInputConnection.getSelectedText(flags);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             text = null;
         }
 
@@ -90,7 +91,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             text = mProxyInputConnection.getCursorCapsMode(reqModes);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             text = 0;
         }
 
@@ -105,7 +106,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             text = mProxyInputConnection.getExtractedText(request, flags);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             text = null;
         }
 
@@ -118,7 +119,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.deleteSurroundingText(beforeLength, afterLength);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -132,7 +133,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.setComposingText(text, newCursorPosition);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -145,7 +146,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.setComposingRegion(start, end);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -158,7 +159,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.finishComposingText();
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -172,7 +173,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.commitText(text, newCursorPosition);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -186,7 +187,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.commitCompletion(text);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -200,7 +201,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.commitCorrection(correctionInfo);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -213,7 +214,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.setSelection(start, end);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -226,7 +227,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.performEditorAction(editorAction);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -239,7 +240,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.performContextMenuAction(id);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -252,7 +253,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.beginBatchEdit();
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -265,7 +266,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.endBatchEdit();
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -279,7 +280,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.sendKeyEvent(event);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -292,7 +293,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.clearMetaKeyStates(states);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -305,7 +306,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.reportFullscreenMode(enabled);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -320,7 +321,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.performPrivateCommand(action, data);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -333,7 +334,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             success = mProxyInputConnection.requestCursorUpdates(cursorUpdateMode);
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
             success = false;
         }
 
@@ -345,7 +346,7 @@ final class RemoteProxyInputConnection extends InputConnectionWrapper {
         try {
             mProxyInputConnection.closeConnection();
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
         }
     }
 

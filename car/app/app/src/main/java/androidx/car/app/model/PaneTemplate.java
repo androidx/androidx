@@ -160,7 +160,6 @@ public final class PaneTemplate implements Template {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code title} is {@code null}
-         *
          * @see CarText for details on text handling and span support.
          */
         @NonNull

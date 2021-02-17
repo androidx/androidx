@@ -17,6 +17,7 @@
 package androidx.car.app.aaos.renderer.surface;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.aaos.LogTags.TAG_AAOS_HOST;
 
 import static java.util.Objects.requireNonNull;
 
@@ -27,7 +28,6 @@ import android.view.SurfaceHolder;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.aaos.LogTags;
 
 /**
  * A listener of {@link SurfaceHolder}.
@@ -83,7 +83,7 @@ public class SurfaceHolderListener implements SurfaceHolder.Callback {
                 mSurfaceListener.onSurfaceAvailable(mSurfaceWrapperProvider.createSurfaceWrapper());
             }
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
         }
 
     }
@@ -94,7 +94,7 @@ public class SurfaceHolderListener implements SurfaceHolder.Callback {
                 mSurfaceListener.onSurfaceChanged(mSurfaceWrapperProvider.createSurfaceWrapper());
             }
         } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            Log.e(TAG_AAOS_HOST, "Remote connection lost", e);
         }
     }
 }

@@ -130,7 +130,6 @@ public final class Destination {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code name} is {@code null}
-         *
          * @see CarText for details on text handling and span support.
          */
         @NonNull
@@ -145,7 +144,6 @@ public final class Destination {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code address} is {@code null}
-         *
          * @see CarText for details on text handling and span support.
          */
         @NonNull
@@ -182,7 +180,6 @@ public final class Destination {
          * <p>At least one of the name or the address must be set and not empty.
          *
          * @throws IllegalStateException if both the name and the address are {@code null} or empty.
-         *
          * @see #setName(CharSequence)
          * @see #setAddress(CharSequence)
          */

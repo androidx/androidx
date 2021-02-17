@@ -21,18 +21,18 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.RestrictTo;
 
 /**
- * Assorted common utilities.
+ * Declares the log tags to use in the library.
  *
  * @hide
  */
 @RestrictTo(LIBRARY)
-public final class CommonUtils {
+public final class LogTags {
     /** Tag to use for logging in the library. */
     public static final String TAG = "CarApp";
 
     /** Tag to use for host validation */
-    public static final String TAG_HOST_VALIDATION = "CarApp.Val";
+    public static final String TAG_HOST_VALIDATION = TAG + ".Val";
 
-    private CommonUtils() {
+    private LogTags() {
     }
 }

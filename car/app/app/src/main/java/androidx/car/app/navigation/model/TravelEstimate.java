@@ -171,7 +171,6 @@ public final class TravelEstimate {
          *                                 arriving at the destination
          * @param arrivalTimeAtDestination The arrival time with the time zone information
          *                                 provided for the destination
-         *
          * @throws NullPointerException if {@code remainingDistance} or
          *                              {@code arrivalTimeAtDestination} are {@code null}
          */
@@ -189,7 +188,6 @@ public final class TravelEstimate {
          *                                 arriving at the destination
          * @param arrivalTimeAtDestination The arrival time with the time zone information
          *                                 provided for the destination
-         *
          * @throws NullPointerException if {@code remainingDistance} or
          *                              {@code arrivalTimeAtDestination} are {@code null}
          */

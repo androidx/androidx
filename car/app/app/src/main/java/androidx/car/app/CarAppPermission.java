@@ -16,7 +16,7 @@
 
 package androidx.car.app;
 
-import static androidx.car.app.utils.CommonUtils.TAG;
+import static androidx.car.app.utils.LogTags.TAG;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -26,7 +26,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringDef;
-import androidx.car.app.utils.CommonUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -129,8 +128,7 @@ public final class CarAppPermission {
                 }
             }
         } catch (NameNotFoundException e) {
-            Log.e(CommonUtils.TAG,
-                    "Package name not found on the system: " + context.getPackageName(), e);
+            Log.e(TAG, "Package name not found on the system: " + context.getPackageName(), e);
         }
         throw new SecurityException(
                 "The car app does not have a required permission: " + permission);
