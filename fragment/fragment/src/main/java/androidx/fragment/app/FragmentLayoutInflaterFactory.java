@@ -102,8 +102,7 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
             fragment.mHost = mFragmentManager.getHost();
             fragment.onInflate(mFragmentManager.getHost().getContext(), attrs,
                     fragment.mSavedFragmentState);
-            fragmentStateManager = mFragmentManager.createOrGetFragmentStateManager(fragment);
-            mFragmentManager.addFragment(fragment);
+            fragmentStateManager = mFragmentManager.addFragment(fragment);
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(FragmentManager.TAG, "Fragment " + fragment + " has been inflated via "
                         + "the <fragment> tag: id=0x" + Integer.toHexString(id));
@@ -155,23 +154,20 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
         // Fragments added via the <fragment> tag cannot move above VIEW_CREATED
         // during inflation. Instead, we'll wait for the view to be attached to
         // window and its parent view and trigger moveToExpectedState() at that point.
-        if (mFragmentManager.mCurState > fragment.mState) {
-            fragment.mView.addOnAttachStateChangeListener(
-                    new View.OnAttachStateChangeListener() {
-                        @Override
-                        public void onViewAttachedToWindow(View v) {
-                            fragmentStateManager.moveToExpectedState();
-                            SpecialEffectsController controller = SpecialEffectsController
-                                    .getOrCreateController((ViewGroup) parent, mFragmentManager);
-                            controller.forceCompleteAllOperations();
-                        }
-
-                        @Override
-                        public void onViewDetachedFromWindow(View v) {
-                        }
+        fragment.mView.addOnAttachStateChangeListener(
+                new View.OnAttachStateChangeListener() {
+                    @Override
+                    public void onViewAttachedToWindow(View v) {
+                        fragmentStateManager.moveToExpectedState();
+                        SpecialEffectsController controller = SpecialEffectsController
+                                .getOrCreateController((ViewGroup) parent, mFragmentManager);
+                        controller.forceCompleteAllOperations();
                     }
-            );
-        }
+
+                    @Override
+                    public void onViewDetachedFromWindow(View v) { }
+                }
+        );
         return fragment.mView;
     }
 }
