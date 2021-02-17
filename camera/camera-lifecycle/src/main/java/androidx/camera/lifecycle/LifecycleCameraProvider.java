@@ -17,9 +17,7 @@
 package androidx.camera.lifecycle;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.Camera;
-import androidx.camera.core.CameraInfoUnavailableException;
-import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraProvider;
 import androidx.camera.core.UseCase;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -28,7 +26,7 @@ import androidx.lifecycle.LifecycleOwner;
  * Provides access to a camera which has has its opening and closing controlled by a
  * {@link LifecycleOwner}.
  */
-interface LifecycleCameraProvider {
+interface LifecycleCameraProvider extends CameraProvider {
 
     /**
      * Returns true if the {@link UseCase} is bound to a lifecycle. Otherwise returns false.
@@ -63,18 +61,4 @@ interface LifecycleCameraProvider {
      * @throws IllegalStateException If not called on main thread.
      */
     void unbindAll();
-
-    /**
-     * Checks whether this provider supports at least one camera that meets the requirements from a
-     * {@link CameraSelector}.
-     *
-     * <p>If this method returns {@code true}, then the camera selector can be used to bind
-     * use cases and retrieve a {@link Camera} instance.
-     *
-     * @param cameraSelector the {@link CameraSelector} that filters available cameras.
-     * @return true if the device has at least one available camera, otherwise false.
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
-     */
-    boolean hasCamera(@NonNull CameraSelector cameraSelector) throws CameraInfoUnavailableException;
 }
