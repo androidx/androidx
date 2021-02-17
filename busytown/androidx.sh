@@ -7,10 +7,6 @@ cd "$(dirname $0)"
 
 # Run Gradle
 impl/build.sh listTaskOutputs "$@"
-subsets="MAIN COMPOSE FLAN MEDIA WEAR"
-for subset in $subsets; do
-  ANDROIDX_PROJECTS=$subset impl/build.sh tasks -Pandroidx.validateNoUnrecognizedMessages=false >/dev/null
-done
 impl/build.sh buildOnServer checkExternalLicenses validateAllProperties \
     --profile "$@"
 

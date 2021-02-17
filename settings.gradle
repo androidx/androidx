@@ -30,12 +30,28 @@ enum BuildType {
     WEAR,
 }
 
-private static Set<BuildType> createRequestedFilter() {
+private String getRequestedProjectSubsetName() {
+    if (startParameter.projectProperties.containsKey("androidx.projects")) {
+        return startParameter.projectProperties["androidx.projects"].toUpperCase()
+    }
+    if (System.getenv().containsKey("ANDROIDX_PROJECTS")) {
+        return System.getenv()["ANDROIDX_PROJECTS"].toUpperCase()
+    }
+    return null
+}
+
+boolean isAllProjects() {
+    String projectSubsetName = getRequestedProjectSubsetName()
+    return requestedProjectSubsetName == null || requestedProjectSubsetName == "ALL"
+}
+
+private Set<BuildType> createRequestedFilter() {
     Set<BuildType> filter = new HashSet<>()
-    if (!System.getenv().containsKey("ANDROIDX_PROJECTS")) return null
-    String[] requestedFilter = System.getenv("ANDROIDX_PROJECTS").split(",")
+    String projectSubsetName = getRequestedProjectSubsetName()
+    if (projectSubsetName == null) return null
+    String[] requestedFilter = projectSubsetName.split(",")
     for (String requestedType : requestedFilter) {
-        switch (requestedType.toUpperCase()) {
+        switch (requestedType) {
             case "MAIN":
                 filter.add(BuildType.MAIN)
                 break
@@ -74,7 +90,8 @@ private static Set<BuildType> createRequestedFilter() {
  * Note that null value means all the projects should be included
  */
 @Field
-Set<BuildType> requestedFilter = createRequestedFilter()
+Set<BuildType> requestedFilter
+requestedFilter = createRequestedFilter()
 
 boolean shouldIncludeForFilter(List<BuildType> includeList) {
     if (includeList.empty) return true
@@ -182,6 +199,7 @@ if (startParameter.projectProperties.containsKey('androidx.useMaxDepVersions')) 
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-dep", [BuildType.MAIN])
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-main", [BuildType.MAIN])
 }
+includeProject(":buildSrc-tests:project-subsets", "buildSrc-tests/project-subsets", [BuildType.MAIN])
 includeProject(":camera:camera-camera2", "camera/camera-camera2", [BuildType.MAIN])
 includeProject(":camera:camera-camera2-pipe", "camera/camera-camera2-pipe", [BuildType.MAIN])
 includeProject(":camera:camera-camera2-pipe-integration", "camera/camera-camera2-pipe-integration", [BuildType.MAIN])
@@ -658,11 +676,6 @@ File externalRoot = new File(rootDir, "../../external")
 includeProject(":icing", new File(externalRoot, "icing"), [BuildType.MAIN])
 includeProject(":icing:nativeLib", new File(externalRoot, "icing/nativeLib"), [BuildType.MAIN])
 includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"), [BuildType.MAIN])
-
-static boolean isAllProjects() {
-    if (!System.getenv().containsKey("ANDROIDX_PROJECTS")) return true
-    return System.getenv("ANDROIDX_PROJECTS") == "ALL"
-}
 
 if (isAllProjects()) {
     includeProject(":docs-tip-of-tree", "docs-tip-of-tree")
