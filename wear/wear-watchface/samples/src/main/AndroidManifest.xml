@@ -61,7 +61,7 @@
                 android:resource="@drawable/watch_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
-                android:value="com.google.android.clockwork.watchfaces.complication.CONFIG_DIGITAL"/>
+                android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
@@ -95,7 +95,7 @@
                 android:resource="@drawable/watch_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
-                android:value="com.google.android.clockwork.watchfaces.complication.CONFIG_DIGITAL"/>
+                android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
@@ -129,7 +129,7 @@
                 android:resource="@drawable/watch_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
-                android:value="com.google.android.clockwork.watchfaces.complication.CONFIG_DIGITAL"/>
+                android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
@@ -145,7 +145,7 @@
             android:label="Config"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
-                <action android:name="com.google.android.clockwork.watchfaces.complication.CONFIG_DIGITAL" />
+                <action android:name="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
 
                 <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
                 <category android:name="android.intent.category.DEFAULT" />
