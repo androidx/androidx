@@ -210,6 +210,35 @@ class ViewModelTest {
             assertThat(vm.cleared).isTrue()
         }
     }
+
+    @Test
+    fun testDefaultFactoryAfterReuse() {
+        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+            val fragment = withActivity {
+                Fragment().also {
+                    supportFragmentManager.beginTransaction().add(it, "temp").commitNow()
+                }
+            }
+
+            val defaultFactory = fragment.defaultViewModelProviderFactory
+
+            onActivity { activity ->
+                activity.supportFragmentManager.beginTransaction().remove(fragment).commitNow()
+            }
+
+            // Now re-add the removed fragment
+            onActivity { activity ->
+                activity.supportFragmentManager.beginTransaction()
+                    .add(fragment, "temp")
+                    .commitNow()
+            }
+
+            val newDefaultFactory = fragment.defaultViewModelProviderFactory
+
+            // New Fragment should have a new default factory
+            assertThat(newDefaultFactory).isNotSameInstanceAs(defaultFactory)
+        }
+    }
 }
 
 private fun FragmentActivity.getFragment(tag: String) =
