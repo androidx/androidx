@@ -52,8 +52,7 @@ class XTestInvocation(
 
     private val postCompilationAssertions = mutableListOf<CompilationResultSubject.() -> Unit>()
 
-    val isKsp: Boolean
-        get() = processingEnv.backend == XProcessingEnv.Backend.KSP
+    val isKsp: Boolean = processingEnv.backend == XProcessingEnv.Backend.KSP
 
     /**
      * Registers a block that will be called with a [CompilationResultSubject] when compilation
