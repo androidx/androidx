@@ -18,6 +18,7 @@ package androidx.benchmark.macro.perfetto
 
 import android.os.Build
 import android.util.Log
+import androidx.benchmark.Arguments
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.macro.TAG
 
@@ -49,7 +50,7 @@ class PerfettoCaptureWrapper {
                 oldValue = " ",
                 newValue = ""
             )
-            val destination = capture!!.destinationPath(traceName)
+            val destination = Arguments.testOutputFile(traceName).absolutePath
             capture!!.stop(destination)
             InstrumentationResults.reportAdditionalFileToCopy(
                 key = "perfetto_trace_$iterString",

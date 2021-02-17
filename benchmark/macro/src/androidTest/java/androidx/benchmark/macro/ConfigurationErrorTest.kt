@@ -18,10 +18,13 @@ package androidx.benchmark.macro
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -62,27 +65,78 @@ class ConfigurationErrorTest {
     }
 
     @Test
-    fun throwErrorIfNotEmpty() {
-        listOf<ConfigurationError>().throwErrorIfNotEmpty() // no error
-        val error = ConfigurationError(
-            id = "ID",
-            summary = "summary",
-            message = "message"
+    fun checkAndGetSuppressionState_empty() {
+        // no throw or suppressed error
+        assertNull(listOf<ConfigurationError>().checkAndGetSuppressionState(setOf()))
+    }
+
+    @Test
+    fun checkAndGetSuppressionState_suppressed() {
+        // two suppressed errors
+        val suppression = listOf(
+            ConfigurationError(
+                id = "ID1",
+                summary = "summary1",
+                message = "message1"
+            ),
+            ConfigurationError(
+                id = "ID2",
+                summary = "summary2",
+                message = "message2"
+            )
+        ).checkAndGetSuppressionState(setOf("ID1", "ID2"))
+
+        assertNotNull(suppression)
+        assertEquals("ID1_ID2_", suppression.prefix)
+        assertEquals(
+            """
+                |WARNING: summary1
+                |    message1
+
+                |WARNING: summary2
+                |    message2
+
+            """.trimMargin(),
+            suppression.warningMessage
         )
+    }
+
+    @Test
+    fun checkAndGetSuppressionState_unsuppressed() {
+        // one unsuppressed error, so throw
         val exception = assertFailsWith<AssertionError> {
-            listOf(error, error).throwErrorIfNotEmpty()
+            listOf(
+                ConfigurationError(
+                    id = "ID1",
+                    summary = "summary1",
+                    message = "message1"
+                ),
+                ConfigurationError(
+                    id = "ID2",
+                    summary = "summary2",
+                    message = "message2"
+                )
+            ).checkAndGetSuppressionState(setOf("ID1"))
         }
 
-        val expected = """
-            |ERRORS: ID, ID
-            |ERROR: summary
-            |    message
-
-            |ERROR: summary
-            |    message
-
-        """.trimMargin()
-
-        assertEquals(expected.split("\n"), exception.message!!.split("\n"))
+        val message = exception.message!!
+        assertTrue(message.contains("ERRORS (not suppressed): ID2"))
+        assertTrue(message.contains("WARNINGS (suppressed): ID1"))
+        assertTrue(
+            message.contains(
+                """
+                |
+                |ERROR: summary2
+                |    message2
+                |
+            """.trimMargin()
+            )
+        )
+        // suppression warning should contain *both* errors to be suppressed
+        assertTrue(
+            message.contains(
+                "testInstrumentationRunnerArgument 'androidx.benchmark.suppressErrors', 'ID1,ID2'"
+            )
+        )
     }
 }
