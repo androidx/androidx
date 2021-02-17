@@ -214,5 +214,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
     override fun onStop() {
         super.onStop()
         editorSession.close()
+        // Make sure the activity closes.
+        finish()
     }
 }
