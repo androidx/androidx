@@ -21,6 +21,7 @@ import android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.MetricResult
@@ -28,7 +29,7 @@ import androidx.benchmark.ResultWriter
 import androidx.benchmark.macro.perfetto.PerfettoCaptureWrapper
 import androidx.test.platform.app.InstrumentationRegistry
 
-fun throwIfError(packageName: String) {
+internal fun checkErrors(packageName: String): ConfigurationError.SuppressionState? {
     val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
 
     val applicationInfo = try {
@@ -71,7 +72,7 @@ fun throwIfError(packageName: String) {
                     Target package $packageName
                     is running without profileable. Profileable is required to enable
                     macrobenchmark to capture detailed trace information from the target process,
-                    such as System tracing sections definied in the app, or libraries.
+                    such as System tracing sections defined in the app, or libraries.
 
                     To make the target profileable, add the following in your target app's
                     main AndroidManifest.xml, within the application tag:
@@ -82,7 +83,7 @@ fun throwIfError(packageName: String) {
             )
         ).sortedBy { it.id }
 
-    errors.throwErrorIfNotEmpty()
+    return errors.checkAndGetSuppressionState(Arguments.suppressedErrors)
 }
 
 /**
@@ -90,7 +91,7 @@ fun throwIfError(packageName: String) {
  *
  * This function is a building block for public testing APIs
  */
-fun macrobenchmark(
+internal fun macrobenchmark(
     uniqueName: String,
     className: String,
     testName: String,
@@ -102,7 +103,8 @@ fun macrobenchmark(
     setupBlock: MacrobenchmarkScope.(Boolean) -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
-    throwIfError(packageName)
+    val suppressionState = checkErrors(packageName)
+    var warningMessage = suppressionState?.warningMessage ?: ""
 
     val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(packageName, launchWithClearTask)
@@ -148,8 +150,9 @@ fun macrobenchmark(
 
         InstrumentationResults.instrumentationReport {
             val statsList = metricResults.map { it.stats }
-            ideSummaryRecord(ideSummaryString(uniqueName, statsList))
-            statsList.forEach { it.putInBundle(bundle, "") }
+            ideSummaryRecord(ideSummaryString(warningMessage, uniqueName, statsList))
+            warningMessage = "" // warning only printed once
+            statsList.forEach { it.putInBundle(bundle, suppressionState?.prefix ?: "") }
         }
 
         val warmupIterations = if (compilationMode is CompilationMode.SpeedProfile) {

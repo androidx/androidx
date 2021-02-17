@@ -40,7 +40,7 @@ public object ResultWriter {
             val packageName =
                 InstrumentationRegistry.getInstrumentation().targetContext!!.packageName
 
-            val file = File(Arguments.testOutputDir, "$packageName-benchmarkData.json")
+            val file = Arguments.testOutputFile("$packageName-benchmarkData.json")
             Log.d(
                 BenchmarkState.TAG,
                 "writing results to ${file.absolutePath}"
