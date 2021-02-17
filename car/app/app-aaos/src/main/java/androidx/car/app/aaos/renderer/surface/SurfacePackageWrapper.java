@@ -35,7 +35,7 @@ import androidx.annotation.RequiresApi;
  */
 //TODO(179714355): Investigate using Bundleable instead of Parcelable
 @SuppressLint({"BanParcelableUsage"})
-public final class SurfacePackageCompat implements Parcelable {
+public final class SurfacePackageWrapper implements Parcelable {
     enum SurfacePackageType {
         LEGACY,
         SURFACE_CONTROL;
@@ -45,31 +45,31 @@ public final class SurfacePackageCompat implements Parcelable {
     private final Parcelable mSurfacePackage;
 
     /**
-     * Creates a {@link SurfacePackageCompat} that stores a
+     * Creates a {@link SurfacePackageWrapper} that stores a
      * {@link android.view.SurfaceControlViewHost.SurfacePackage}.
      *
      * @param legacySurfacePackage the {@link android.view.SurfaceControlViewHost.SurfacePackage}
      *                             to be stored in this wrapper.
      */
-    public SurfacePackageCompat(@NonNull LegacySurfacePackage legacySurfacePackage) {
+    public SurfacePackageWrapper(@NonNull LegacySurfacePackage legacySurfacePackage) {
         mSurfacePackage = legacySurfacePackage;
     }
 
     /**
-     * Creates a {@link SurfacePackageCompat} that stores a {@link LegacySurfacePackage}.
+     * Creates a {@link SurfacePackageWrapper} that stores a {@link LegacySurfacePackage}.
      *
      * @param surfacePackage the {@link LegacySurfacePackage} to be stored in this wrapper.
      */
     @RequiresApi(Build.VERSION_CODES.R)
-    public SurfacePackageCompat(@NonNull SurfacePackage surfacePackage) {
+    public SurfacePackageWrapper(@NonNull SurfacePackage surfacePackage) {
         mSurfacePackage = surfacePackage;
     }
 
-    SurfacePackageCompat(Parcel parcel) {
+    SurfacePackageWrapper(Parcel parcel) {
         SurfacePackageType type = SurfacePackageType.values()[parcel.readInt()];
         if (type == SurfacePackageType.LEGACY) {
             mSurfacePackage = parcel.readParcelable(LegacySurfacePackage.class.getClassLoader());
-        } else if (type == SurfacePackageCompat.SurfacePackageType.SURFACE_CONTROL
+        } else if (type == SurfacePackageWrapper.SurfacePackageType.SURFACE_CONTROL
                 && VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             mSurfacePackage = parcel.readParcelable(SurfacePackage.class.getClassLoader());
         } else {
@@ -79,10 +79,10 @@ public final class SurfacePackageCompat implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
-        SurfacePackageCompat.SurfacePackageType type =
+        SurfacePackageWrapper.SurfacePackageType type =
                 mSurfacePackage instanceof LegacySurfacePackage
-                        ? SurfacePackageCompat.SurfacePackageType.LEGACY
-                        : SurfacePackageCompat.SurfacePackageType.SURFACE_CONTROL;
+                        ? SurfacePackageWrapper.SurfacePackageType.LEGACY
+                        : SurfacePackageWrapper.SurfacePackageType.SURFACE_CONTROL;
         parcel.writeInt(type.ordinal());
         parcel.writeParcelable(mSurfacePackage, flags);
     }
@@ -98,18 +98,18 @@ public final class SurfacePackageCompat implements Parcelable {
     }
 
     @NonNull
-    public static final Creator<SurfacePackageCompat> CREATOR =
-            new Creator<SurfacePackageCompat>() {
+    public static final Creator<SurfacePackageWrapper> CREATOR =
+            new Creator<SurfacePackageWrapper>() {
                 @NonNull
                 @Override
-                public SurfacePackageCompat createFromParcel(@NonNull Parcel parcel) {
-                    return new SurfacePackageCompat(parcel);
+                public SurfacePackageWrapper createFromParcel(@NonNull Parcel parcel) {
+                    return new SurfacePackageWrapper(parcel);
                 }
 
                 @NonNull
                 @Override
-                public SurfacePackageCompat[] newArray(int size) {
-                    return new SurfacePackageCompat[size];
+                public SurfacePackageWrapper[] newArray(int size) {
+                    return new SurfacePackageWrapper[size];
                 }
             };
 }

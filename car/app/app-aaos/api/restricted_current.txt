@@ -22,13 +22,13 @@ package androidx.car.app.aaos.renderer.surface {
     method public void setSurfaceWrapper(androidx.car.app.aaos.renderer.surface.SurfaceWrapper);
   }
 
-  public final class SurfacePackageCompat implements android.os.Parcelable {
-    ctor public SurfacePackageCompat(androidx.car.app.aaos.renderer.surface.LegacySurfacePackage);
-    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public SurfacePackageCompat(android.view.SurfaceControlViewHost.SurfacePackage);
+  public final class SurfacePackageWrapper implements android.os.Parcelable {
+    ctor public SurfacePackageWrapper(androidx.car.app.aaos.renderer.surface.LegacySurfacePackage);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public SurfacePackageWrapper(android.view.SurfaceControlViewHost.SurfacePackage);
     method public int describeContents();
     method public android.os.Parcelable? getSurfacePackage();
     method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.car.app.aaos.renderer.surface.SurfacePackageCompat!> CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.car.app.aaos.renderer.surface.SurfacePackageWrapper!> CREATOR;
   }
 
   public final class SurfaceWrapper implements android.os.Parcelable {
