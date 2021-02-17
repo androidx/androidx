@@ -136,6 +136,22 @@ class SharedPreferencesMigrationTest {
         assertThat(sharedPrefs.contains(key2)).isFalse()
     }
 
+    @Test
+    fun producedSharedPreferencesIsUsed() = runBlockingTest {
+        assertThat(sharedPrefs.edit().putInt("integer_key", 123).commit()).isTrue()
+
+        val migration = SharedPreferencesMigration(
+            produceSharedPreferences = { sharedPrefs }
+        ) { prefs: SharedPreferencesView, _: Byte ->
+            assertThat(prefs.getAll().size).isEqualTo(1)
+            assertThat(prefs.getInt("integer_key", 0)).isEqualTo(123)
+            123
+        }
+
+        val dataStore = getDataStoreWithMigrations(listOf(migration))
+        assertThat(dataStore.data.first()).isEqualTo(123)
+    }
+
     private fun getDataStoreWithMigrations(
         migrations: List<DataMigration<Byte>>
     ): DataStore<Byte> {
