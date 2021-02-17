@@ -39,6 +39,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * finished.
  * @hide
  */
+// TODO Remove
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class SelfDestructiveThread {
     private final Object mLock = new Object();
