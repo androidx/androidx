@@ -48,8 +48,8 @@ internal class TestWatchFaceService(
     private val handler: Handler,
     private val tapListener: WatchFace.TapListener?
 ) : WatchFaceService() {
+    var singleTapCount = 0
     var complicationSingleTapped: Int? = null
-    var complicationDoubleTapped: Int? = null
     var complicationSelected: Int? = null
     var mockSystemTimeMillis = 0L
     var lastUserStyle: UserStyle? = null
@@ -67,10 +67,7 @@ internal class TestWatchFaceService(
             object : ComplicationsManager.TapCallback {
                 override fun onComplicationSingleTapped(complicationId: Int) {
                     complicationSingleTapped = complicationId
-                }
-
-                override fun onComplicationDoubleTapped(complicationId: Int) {
-                    complicationDoubleTapped = complicationId
+                    singleTapCount++
                 }
             })
     }
@@ -84,7 +81,6 @@ internal class TestWatchFaceService(
 
     fun clearTappedState() {
         complicationSingleTapped = null
-        complicationDoubleTapped = null
     }
 
     init {
