@@ -54,13 +54,10 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
-import androidx.car.app.aaos.renderer.IBackButtonListener;
 import androidx.car.app.aaos.renderer.ICarAppActivity;
-import androidx.car.app.aaos.renderer.IInputConnectionListener;
-import androidx.car.app.aaos.renderer.ILifecycleListener;
 import androidx.car.app.aaos.renderer.IProxyInputConnection;
+import androidx.car.app.aaos.renderer.IRendererCallback;
 import androidx.car.app.aaos.renderer.IRendererService;
-import androidx.car.app.aaos.renderer.IRotaryEventListener;
 import androidx.car.app.aaos.renderer.surface.LegacySurfacePackage;
 import androidx.car.app.aaos.renderer.surface.SurfaceControlCallback;
 import androidx.car.app.aaos.renderer.surface.SurfacePackageCompat;
@@ -164,22 +161,22 @@ public class CarAppActivityTest {
         try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
                 CarAppActivity.class)) {
             scenario.onActivity(activity -> {
-                ILifecycleListener listener = mock(ILifecycleListener.class);
+                IRendererCallback callback = mock(IRendererCallback.class);
                 try {
-                    mRenderServiceDelegate.getCarAppActivity().setLifecycleListener(listener);
-                    // Last observed event is reported as soon as listener is set.
-                    verify(listener, times(1)).onResume();
-                    // Verify lifecycle events are reported to registered listener.
+                    mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
+                    // Last observed event is reported as soon as callback is set.
+                    verify(callback, times(1)).onResume();
+                    // Verify lifecycle events are reported to registered callback.
                     scenario.moveToState(Lifecycle.State.STARTED);
-                    verify(listener, times(1)).onPause();
+                    verify(callback, times(1)).onPause();
                     scenario.moveToState(Lifecycle.State.RESUMED);
-                    verify(listener, times(2)).onResume();
+                    verify(callback, times(2)).onResume();
                     scenario.moveToState(Lifecycle.State.CREATED);
-                    verify(listener, times(1)).onStop();
+                    verify(callback, times(1)).onStop();
                     scenario.moveToState(Lifecycle.State.CREATED);
-                    verify(listener, times(1)).onStop();
+                    verify(callback, times(1)).onStop();
                     scenario.moveToState(Lifecycle.State.DESTROYED);
-                    verify(listener, times(1)).onDestroyed();
+                    verify(callback, times(1)).onDestroyed();
                 } catch (RemoteException e) {
                     fail(Log.getStackTraceString(e));
                 }
@@ -194,14 +191,15 @@ public class CarAppActivityTest {
                 CarAppActivity.class)) {
             scenario.onActivity(activity -> {
                 try {
-                    ILifecycleListener listener = mock(ILifecycleListener.class);
-                    mRenderServiceDelegate.getCarAppActivity().setLifecycleListener(listener);
-                    // Last observed event is reported as soon as listener is set.
-                    verify(listener, times(1)).onResume();
+                    IRendererCallback callback = mock(IRendererCallback.class);
+                    mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
+                    // Last observed event is reported as soon as callback is set.
+                    verify(callback, times(1)).onResume();
 
-                    // Add a test-specific lifecycle listener to activity.
-                    ActivityLifecycleCallbacks callback = mock(ActivityLifecycleCallbacks.class);
-                    activity.registerActivityLifecycleCallbacks(callback);
+                    // Add a test-specific lifecycle callback to activity.
+                    ActivityLifecycleCallbacks activityCallback = mock(
+                            ActivityLifecycleCallbacks.class);
+                    activity.registerActivityLifecycleCallbacks(activityCallback);
                     // Report service connection error.
                     activity.onServiceConnectionError("fake error");
 
@@ -210,8 +208,8 @@ public class CarAppActivityTest {
                     // After service connection error has been reported, test that lifecycle
                     // events are no longer reported to host lifecycle listener.
                     scenario.moveToState(Lifecycle.State.STARTED);
-                    verify(callback, times(1)).onActivityPaused(activity);
-                    verify(listener, times(0)).onPause();
+                    verify(activityCallback, times(1)).onActivityPaused(activity);
+                    verify(callback, times(0)).onPause();
                 } catch (RemoteException e) {
                     fail(Log.getStackTraceString(e));
                 }
@@ -220,16 +218,16 @@ public class CarAppActivityTest {
     }
 
     @Test
-    public void testBackButtonListener() {
+    public void testOnBackPressed() {
         setupCarAppActivityForTesting();
         try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
                 CarAppActivity.class)) {
             scenario.onActivity(activity -> {
                 try {
-                    IBackButtonListener listener = mock(IBackButtonListener.class);
-                    mRenderServiceDelegate.getCarAppActivity().setBackButtonListener(listener);
+                    IRendererCallback callback = mock(IRendererCallback.class);
+                    mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
                     activity.onBackPressed();
-                    verify(listener, times(1)).onBackPressed();
+                    verify(callback, times(1)).onBackPressed();
                 } catch (RemoteException e) {
                     fail(Log.getStackTraceString(e));
                 }
@@ -272,19 +270,17 @@ public class CarAppActivityTest {
             scenario.onActivity(activity -> {
                 try {
                     SurfaceControlCallback callback = mock(SurfaceControlCallback.class);
-                    IBackButtonListener backButtonListener = mock(IBackButtonListener.class);
-                    IRotaryEventListener rotaryEventListener = mock(IRotaryEventListener.class);
+                    IRendererCallback rendererCallback = mock(IRendererCallback.class);
 
                     SurfacePackageCompat wrapper =
                             new SurfacePackageCompat(new LegacySurfacePackage(callback));
                     ICarAppActivity carAppActivity = mRenderServiceDelegate.getCarAppActivity();
                     carAppActivity.setSurfacePackage(wrapper);
-                    carAppActivity.setBackButtonListener(backButtonListener);
-                    carAppActivity.setRotaryEventListener(rotaryEventListener);
+                    carAppActivity.registerRendererCallback(rendererCallback);
 
                     // Verify back events on surfaceView are sent to host.
                     activity.mSurfaceView.dispatchKeyEvent(new KeyEvent(ACTION_UP, KEYCODE_BACK));
-                    verify(backButtonListener, times(1)).onBackPressed();
+                    verify(rendererCallback, times(1)).onBackPressed();
 
                     // Verify focus request sent to host.
                     activity.mSurfaceView.requestFocus();
@@ -295,13 +291,13 @@ public class CarAppActivityTest {
                     // Verify rotary events on surfaceView are sent to host.
                     activity.mSurfaceView.dispatchKeyEvent(
                             new KeyEvent(ACTION_UP, KEYCODE_DPAD_RIGHT));
-                    verify(rotaryEventListener, times(1)).onNudge(KEYCODE_DPAD_RIGHT);
+                    verify(rendererCallback, times(1)).onNudge(KEYCODE_DPAD_RIGHT);
                     activity.mSurfaceView.dispatchKeyEvent(
                             new KeyEvent(ACTION_UP, KEYCODE_DPAD_DOWN));
-                    verify(rotaryEventListener, times(1)).onNudge(KEYCODE_DPAD_DOWN);
+                    verify(rendererCallback, times(1)).onNudge(KEYCODE_DPAD_DOWN);
                     activity.mSurfaceView.dispatchKeyEvent(
                             new KeyEvent(ACTION_UP, KEYCODE_DPAD_CENTER));
-                    verify(rotaryEventListener, times(1)).onSelect();
+                    verify(rendererCallback, times(1)).onSelect();
 
                     long downTime = SystemClock.uptimeMillis();
                     long eventTime = SystemClock.uptimeMillis();
@@ -323,7 +319,7 @@ public class CarAppActivityTest {
                     event = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_SCROLL, x,
                             y, metaState);
                     activity.mSurfaceView.dispatchGenericMotionEvent(event);
-                    verify(rotaryEventListener, times(1)).onRotate(anyInt(), eq(false));
+                    verify(rendererCallback, times(1)).onRotate(anyInt(), eq(false));
                 } catch (RemoteException e) {
                     fail(Log.getStackTraceString(e));
                 }
@@ -339,12 +335,12 @@ public class CarAppActivityTest {
             scenario.onActivity(activity -> {
                 try {
                     EditorInfo editorInfo = new EditorInfo();
-                    IInputConnectionListener listener = mock(IInputConnectionListener.class);
+                    IRendererCallback callback = mock(IRendererCallback.class);
                     IProxyInputConnection inputConnection = mock(IProxyInputConnection.class);
-                    when(listener.onCreateInputConnection(any())).thenReturn(inputConnection);
+                    when(callback.onCreateInputConnection(any())).thenReturn(inputConnection);
                     when(inputConnection.getEditorInfo()).thenReturn(editorInfo);
 
-                    mRenderServiceDelegate.getCarAppActivity().setInputConnectionListener(listener);
+                    mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
                     // Create input connection without first calling ICarAppActivity#startInput().
                     InputConnection remoteProxyInputConnection =
                             activity.mSurfaceView.onCreateInputConnection(editorInfo);
@@ -365,12 +361,12 @@ public class CarAppActivityTest {
             scenario.onActivity(activity -> {
                 try {
                     EditorInfo editorInfo = new EditorInfo();
-                    IInputConnectionListener listener = mock(IInputConnectionListener.class);
+                    IRendererCallback callback = mock(IRendererCallback.class);
                     IProxyInputConnection inputConnection = mock(IProxyInputConnection.class);
-                    when(listener.onCreateInputConnection(any())).thenReturn(inputConnection);
+                    when(callback.onCreateInputConnection(any())).thenReturn(inputConnection);
                     when(inputConnection.getEditorInfo()).thenReturn(editorInfo);
 
-                    mRenderServiceDelegate.getCarAppActivity().setInputConnectionListener(listener);
+                    mRenderServiceDelegate.getCarAppActivity().registerRendererCallback(callback);
                     mRenderServiceDelegate.getCarAppActivity().onStartInput();
                     InputConnection remoteProxyInputConnection =
                             activity.mSurfaceView.onCreateInputConnection(editorInfo);

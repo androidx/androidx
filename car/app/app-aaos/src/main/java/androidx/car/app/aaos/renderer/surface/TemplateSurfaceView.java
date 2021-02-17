@@ -24,6 +24,8 @@ import static android.view.KeyEvent.KEYCODE_DPAD_LEFT;
 import static android.view.KeyEvent.KEYCODE_DPAD_RIGHT;
 import static android.view.KeyEvent.KEYCODE_DPAD_UP;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
@@ -56,10 +58,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.aaos.LogTags;
-import androidx.car.app.aaos.renderer.IBackButtonListener;
-import androidx.car.app.aaos.renderer.IInputConnectionListener;
 import androidx.car.app.aaos.renderer.IProxyInputConnection;
-import androidx.car.app.aaos.renderer.IRotaryEventListener;
 
 /**
  * A surface view suitable for template rendering.
@@ -68,7 +67,7 @@ import androidx.car.app.aaos.renderer.IRotaryEventListener;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(LIBRARY)
 public final class TemplateSurfaceView extends SurfaceView {
     private static final boolean SUPPORTS_SURFACE_CONTROL =
             VERSION.SDK_INT >= Build.VERSION_CODES.R;
@@ -88,11 +87,11 @@ public final class TemplateSurfaceView extends SurfaceView {
             + ".DIRECT_MANIPULATION";
 
     @Nullable
-    private IInputConnectionListener mInputConnectionListener;
+    private RotaryEventCallback mRotaryEventCallback;
     @Nullable
-    private IRotaryEventListener mRotaryEventListener;
+    private OnCreateInputConnectionListener mOnCreateInputConnectionListener;
     @Nullable
-    private IBackButtonListener mBackButtonListener;
+    private OnBackPressedListener mOnBackPressedListener;
 
     ISurfaceControl mSurfaceControl;
     private boolean mIsInInputMode;
@@ -119,18 +118,27 @@ public final class TemplateSurfaceView extends SurfaceView {
         super(context, attrs, 0);
     }
 
-    public void setInputConnectionListener(
-            @Nullable IInputConnectionListener inputConnectionListener) {
-        mInputConnectionListener = inputConnectionListener;
+    /**
+     * Registers a {@link RotaryEventCallback} that is notified of rotary events.
+     */
+    public void registerRotaryEventCallback(@Nullable RotaryEventCallback callback) {
+        mRotaryEventCallback = callback;
     }
 
-    public void setRotaryEventListener(
-            @Nullable IRotaryEventListener rotaryEventListener) {
-        mRotaryEventListener = rotaryEventListener;
+    /**
+     * Registers a {@link OnCreateInputConnectionListener} that is notified of invocations on
+     * {@link #onCreateInputConnection(EditorInfo)}.
+     */
+    public void setOnCreateInputConnectionListener(
+            @Nullable OnCreateInputConnectionListener listener) {
+        mOnCreateInputConnectionListener = listener;
     }
 
-    public void setBackButtonListener(@Nullable IBackButtonListener backButtonListener) {
-        mBackButtonListener = backButtonListener;
+    /**
+     * Registers a {@link OnBackPressedListener} that is notified of back button presses.
+     */
+    public void setOnBackPressedListener(@Nullable OnBackPressedListener listener) {
+        mOnBackPressedListener = listener;
     }
 
     /**
@@ -175,13 +183,13 @@ public final class TemplateSurfaceView extends SurfaceView {
     public InputConnection onCreateInputConnection(@NonNull EditorInfo editorInfo) {
         requireNonNull(editorInfo);
 
-        if (!mIsInInputMode || mInputConnectionListener == null) {
+        if (!mIsInInputMode || mOnCreateInputConnectionListener == null) {
             return null;
         }
 
         try {
             IProxyInputConnection proxyInputConnection =
-                    mInputConnectionListener.onCreateInputConnection(editorInfo);
+                    mOnCreateInputConnectionListener.onCreateInputConnection(editorInfo);
 
             // Clear the input and return null if inputConnectionListener is null or there is no
             // open input connection on the host.
@@ -346,17 +354,13 @@ public final class TemplateSurfaceView extends SurfaceView {
 
     /** Passes the generic motion events to the host. */
     boolean handleGenericMotionEvent(@NonNull MotionEvent event) {
-        try {
-            if (requireNonNull(event).getActionMasked() == MotionEvent.ACTION_SCROLL) {
-                int steps = (int) event.getAxisValue(MotionEvent.AXIS_SCROLL);
-                boolean isClockwise = steps > 0;
-                if (mRotaryEventListener != null) {
-                    mRotaryEventListener.onRotate(steps, isClockwise);
-                }
-                return true;
+        if (requireNonNull(event).getActionMasked() == MotionEvent.ACTION_SCROLL) {
+            int steps = (int) event.getAxisValue(MotionEvent.AXIS_SCROLL);
+            boolean isClockwise = steps > 0;
+            if (mRotaryEventCallback != null) {
+                mRotaryEventCallback.onRotate(steps, isClockwise);
             }
-        } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+            return true;
         }
         return false;
     }
@@ -367,39 +371,35 @@ public final class TemplateSurfaceView extends SurfaceView {
             return false;
         }
 
-        try {
-            switch (event.getKeyCode()) {
-                case KEYCODE_BACK:
-                    if (mBackButtonListener != null) {
-                        mBackButtonListener.onBackPressed();
-                        return true;
+        switch (event.getKeyCode()) {
+            case KEYCODE_BACK:
+                if (mOnBackPressedListener != null) {
+                    mOnBackPressedListener.onBackPressed();
+                    return true;
+                }
+                break;
+            case KEYCODE_DPAD_CENTER:
+                if (mRotaryEventCallback != null) {
+                    mRotaryEventCallback.onSelect();
+                    return true;
+                }
+                break;
+            case KEYCODE_DPAD_RIGHT:
+            case KEYCODE_DPAD_LEFT:
+            case KEYCODE_DPAD_UP:
+            case KEYCODE_DPAD_DOWN:
+                if (mRotaryEventCallback != null) {
+                    boolean success = mRotaryEventCallback.onNudge(event.getKeyCode());
+                    if (!success) {
+                        // Quit direct manipulation mode if the nudge event cannot be handled.
+                        enableDirectManipulationMode(this, false);
+                        return false;
                     }
-                    break;
-                case KEYCODE_DPAD_CENTER:
-                    if (mRotaryEventListener != null) {
-                        mRotaryEventListener.onSelect();
-                        return true;
-                    }
-                    break;
-                case KEYCODE_DPAD_RIGHT:
-                case KEYCODE_DPAD_LEFT:
-                case KEYCODE_DPAD_UP:
-                case KEYCODE_DPAD_DOWN:
-                    if (mRotaryEventListener != null) {
-                        boolean success = mRotaryEventListener.onNudge(event.getKeyCode());
-                        if (!success) {
-                            // Quit direct manipulation mode if the nudge event cannot be handled.
-                            enableDirectManipulationMode(this, false);
-                            return false;
-                        }
-                        return true;
-                    }
-                    break;
-                default:
-                    return false;
-            }
-        } catch (RemoteException e) {
-            Log.e(LogTags.TAG_AAOS_HOST, "Remote connection lost", e);
+                    return true;
+                }
+                break;
+            default:
+                return false;
         }
 
         return false;

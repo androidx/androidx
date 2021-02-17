@@ -38,13 +38,12 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.car.app.aaos.renderer.IBackButtonListener;
 import androidx.car.app.aaos.renderer.ICarAppActivity;
-import androidx.car.app.aaos.renderer.IInputConnectionListener;
-import androidx.car.app.aaos.renderer.ILifecycleListener;
+import androidx.car.app.aaos.renderer.IRendererCallback;
 import androidx.car.app.aaos.renderer.IRendererService;
-import androidx.car.app.aaos.renderer.IRotaryEventListener;
 import androidx.car.app.aaos.renderer.surface.ISurfaceListener;
+import androidx.car.app.aaos.renderer.surface.OnBackPressedListener;
+import androidx.car.app.aaos.renderer.surface.RotaryEventCallback;
 import androidx.car.app.aaos.renderer.surface.SurfaceHolderListener;
 import androidx.car.app.aaos.renderer.surface.SurfacePackageCompat;
 import androidx.car.app.aaos.renderer.surface.SurfaceWrapperProvider;
@@ -78,7 +77,7 @@ public final class CarAppActivity extends Activity {
     SurfaceHolderListener mSurfaceHolderListener;
     ActivityLifecycleDelegate mActivityLifecycleDelegate;
     @Nullable
-    IBackButtonListener mBackButtonListener;
+    OnBackPressedListener mOnBackPressedListener;
     @Nullable
     IRendererService mRendererService;
     private int mDisplayId;
@@ -95,21 +94,73 @@ public final class CarAppActivity extends Activity {
         }
 
         @Override
+        public void registerRendererCallback(@NonNull IRendererCallback callback) {
+            requireNonNull(callback);
+            ThreadUtils.runOnMain(() -> {
+                mSurfaceView.registerRotaryEventCallback(new RotaryEventCallback() {
+                    @Override
+                    public void onRotate(int steps, boolean isClockwise) {
+                        try {
+                            callback.onRotate(steps, isClockwise);
+                        } catch (RemoteException e) {
+                            onServiceConnectionError("Failed to send rotary onRotate event to "
+                                    + "renderer: " + e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public boolean onNudge(int keyCode) {
+                        try {
+                            return callback.onNudge(keyCode);
+                        } catch (RemoteException e) {
+                            onServiceConnectionError("Failed to send rotary onNudge event to "
+                                    + "renderer: " + e.getMessage());
+                        }
+
+                        return false;
+                    }
+
+                    @Override
+                    public void onSelect() {
+                        try {
+                            callback.onSelect();
+                        } catch (RemoteException e) {
+                            onServiceConnectionError(
+                                    "Failed to send rotary onSelect event to renderer: "
+                                            + e.getMessage());
+                        }
+                    }
+                });
+
+                mSurfaceView.setOnCreateInputConnectionListener(editorInfo -> {
+                    try {
+                        return callback.onCreateInputConnection(editorInfo);
+                    } catch (RemoteException e) {
+                        onServiceConnectionError("Failed to send onCreateInputConnection event to "
+                                + "renderer: " + e.getMessage());
+                    }
+
+                    return null;
+                });
+
+                mOnBackPressedListener = () -> {
+                    try {
+                        callback.onBackPressed();
+                    } catch (RemoteException e) {
+                        onServiceConnectionError(
+                                "Failed to send onBackPressed event to renderer: "
+                                        + e.getMessage());
+                    }
+                };
+                mSurfaceView.setOnBackPressedListener(mOnBackPressedListener);
+                mActivityLifecycleDelegate.registerRendererCallback(callback);
+            });
+        }
+
+        @Override
         public void setSurfaceListener(@NonNull ISurfaceListener listener) {
             requireNonNull(listener);
             ThreadUtils.runOnMain(() -> mSurfaceHolderListener.setSurfaceListener(listener));
-        }
-
-        @Override
-        public void setLifecycleListener(@NonNull ILifecycleListener listener) {
-            requireNonNull(listener);
-            ThreadUtils.runOnMain(() -> mActivityLifecycleDelegate.setLifecycleListener(listener));
-        }
-
-        @Override
-        public void setBackButtonListener(@NonNull IBackButtonListener listener) {
-            mBackButtonListener = requireNonNull(listener);
-            mSurfaceView.setBackButtonListener(listener);
         }
 
         @Override
@@ -120,16 +171,6 @@ public final class CarAppActivity extends Activity {
         @Override
         public void onStopInput() {
             ThreadUtils.runOnMain(() -> mSurfaceView.onStopInput());
-        }
-
-        @Override
-        public void setInputConnectionListener(@NonNull IInputConnectionListener listener) {
-            mSurfaceView.setInputConnectionListener(requireNonNull(listener));
-        }
-
-        @Override
-        public void setRotaryEventListener(@NonNull IRotaryEventListener listener) {
-            mSurfaceView.setRotaryEventListener(requireNonNull(listener));
         }
 
         @Override
@@ -224,13 +265,8 @@ public final class CarAppActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (mBackButtonListener != null) {
-            try {
-                mBackButtonListener.onBackPressed();
-            } catch (RemoteException e) {
-                onServiceConnectionError(
-                        "Failed to send onBackPressed event to renderer: " + e.getMessage());
-            }
+        if (mOnBackPressedListener != null) {
+            mOnBackPressedListener.onBackPressed();
         }
     }
 
@@ -325,9 +361,9 @@ public final class CarAppActivity extends Activity {
         if (errorMessage != null) {
             Log.e(TAG, errorMessage);
         }
-        // Remove the lifecycle listener since there is no need to communicate the state with
+        // Remove the renderer callback since there is no need to communicate the state with
         // the host.
-        mActivityLifecycleDelegate.setLifecycleListener(null);
+        mActivityLifecycleDelegate.registerRendererCallback(null);
         finish();
     }
 

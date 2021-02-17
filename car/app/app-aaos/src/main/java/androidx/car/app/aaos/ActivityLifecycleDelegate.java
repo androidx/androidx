@@ -26,26 +26,25 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.aaos.renderer.ILifecycleListener;
+import androidx.car.app.aaos.renderer.IRendererCallback;
 import androidx.lifecycle.Lifecycle.Event;
 
 /**
- * An activity lifecycle listener which dispatches the lifecycle events to the {@link
- * ILifecycleListener}.
+ * An activity lifecycle listener which dispatches the lifecycle events to a {@link
+ * IRendererCallback}.
  */
 final class ActivityLifecycleDelegate implements ActivityLifecycleCallbacks {
     public static final String TAG = "ActivityLifecycleListener";
     @Nullable
-    private ILifecycleListener mLifecycleListener;
+    private IRendererCallback mRendererCallback;
     @NonNull
     private Event mLastObservedEvent = Event.ON_ANY;
 
     /**
-     * Registers the lifecycle listener. This listener gets notified of lifecycle method
-     * invocations.
+     * Registers a {@link IRendererCallback} that is notified of lifecycle method invocations.
      */
-    void setLifecycleListener(@Nullable ILifecycleListener lifecycleListener) {
-        mLifecycleListener = lifecycleListener;
+    void registerRendererCallback(@Nullable IRendererCallback rendererCallback) {
+        mRendererCallback = rendererCallback;
         onActive();
     }
 
@@ -97,29 +96,29 @@ final class ActivityLifecycleDelegate implements ActivityLifecycleCallbacks {
     private void notifyEvent(Event event) {
         mLastObservedEvent = event;
 
-        if (mLifecycleListener == null) {
+        if (mRendererCallback == null) {
             return;
         }
 
         try {
             switch (event) {
                 case ON_CREATE:
-                    mLifecycleListener.onCreate();
+                    mRendererCallback.onCreate();
                     break;
                 case ON_START:
-                    mLifecycleListener.onStart();
+                    mRendererCallback.onStart();
                     break;
                 case ON_RESUME:
-                    mLifecycleListener.onResume();
+                    mRendererCallback.onResume();
                     break;
                 case ON_PAUSE:
-                    mLifecycleListener.onPause();
+                    mRendererCallback.onPause();
                     break;
                 case ON_STOP:
-                    mLifecycleListener.onStop();
+                    mRendererCallback.onStop();
                     break;
                 case ON_DESTROY:
-                    mLifecycleListener.onDestroyed();
+                    mRendererCallback.onDestroyed();
                     break;
                 case ON_ANY:
                     break;

@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.car.app.aaos.renderer;
+package androidx.car.app.aaos.renderer.surface;
 
-import  androidx.car.app.aaos.renderer.IProxyInputConnection;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+import androidx.annotation.RestrictTo;
 
 /**
- * Proxies input connection events from {@link CarAppActivity} to the host renderer.
+ * Classes that wish to listen for back button events should implement this.
  *
  * @hide
  */
-interface IInputConnectionListener {
-
-  /**
-   * Creates a proxy to a remote {@link InputConnection}.
-   *
-   * @params editorInfo the {@link EditorInfo} for which the input connection should be created
-   *
-   * @return an {@link IProxyInputConnection} through which communication to the
-   *   remote {@code InputConnection} should occur
-   */
-  IProxyInputConnection onCreateInputConnection(in EditorInfo editorInfo) = 1;
+@RestrictTo(LIBRARY)
+public interface OnBackPressedListener {
+    /** Notifies that the button was pressed. */
+    void onBackPressed();
 }
