@@ -212,17 +212,22 @@ public final class ComplicationHelperActivity extends Activity
      * @param supportedTypes the types supported by the complication, in decreasing order of
      *     preference. If a provider can supply data for more than one of these types, the type
      *     chosen will be whichever was specified first.
+     * @param watchFaceInstanceId The ID of the watchface being edited.
      */
     @NonNull
     public static Intent createProviderChooserHelperIntent(
             @NonNull Context context,
             @NonNull ComponentName watchFace,
             int watchFaceComplicationId,
-            @NonNull Collection<ComplicationType> supportedTypes) {
+            @NonNull Collection<ComplicationType> supportedTypes,
+            @Nullable String watchFaceInstanceId) {
         Intent intent = new Intent(context, ComplicationHelperActivity.class);
         intent.setAction(ACTION_START_PROVIDER_CHOOSER);
         intent.putExtra(ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME, watchFace);
         intent.putExtra(ProviderChooserIntent.EXTRA_COMPLICATION_ID, watchFaceComplicationId);
+        if (watchFaceInstanceId != null) {
+            intent.putExtra(ProviderChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID, watchFaceInstanceId);
+        }
         int[] wireSupportedTypes = new int[supportedTypes.size()];
         int i = 0;
         for (ComplicationType supportedType : supportedTypes) {

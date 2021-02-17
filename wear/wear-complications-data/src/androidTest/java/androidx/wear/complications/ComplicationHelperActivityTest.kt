@@ -72,16 +72,26 @@ public class ComplicationHelperActivityTest {
         }
     }
 
+    @Test
+    public fun instanceId() {
+        assertThat(
+            createIntent(instanceId = "ID-1")
+                .getStringExtra(ProviderChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID)
+        ).isEqualTo("ID-1")
+    }
+
     /** Creates an intent with default values for unspecified parameters. */
     private fun createIntent(
         watchFaceComponentName: ComponentName = defaultWatchFaceComponentName,
         complicationId: Int = defaultComplicationId,
+        instanceId: String? = null,
         vararg supportedTypes: ComplicationType = defaultSupportedTypes
     ) = ComplicationHelperActivity.createProviderChooserHelperIntent(
         context,
         watchFaceComponentName,
         complicationId,
-        supportedTypes.asList()
+        supportedTypes.asList(),
+        instanceId
     )
 
     private companion object {

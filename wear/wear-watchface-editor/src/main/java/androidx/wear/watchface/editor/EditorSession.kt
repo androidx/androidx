@@ -292,7 +292,7 @@ public abstract class BaseEditorSession internal constructor(
         pendingComplicationProviderChooserResult = CompletableDeferred<Boolean>()
         pendingComplicationProviderId = complicationId
         chooseComplicationProvider.launch(
-            ComplicationProviderChooserRequest(this, complicationId)
+            ComplicationProviderChooserRequest(this, complicationId, instanceId)
         )
         return pendingComplicationProviderChooserResult!!.await()
     }
@@ -554,7 +554,8 @@ internal class HeadlessEditorSession(
 
 internal class ComplicationProviderChooserRequest(
     internal val editorSession: EditorSession,
-    internal val complicationId: Int
+    internal val complicationId: Int,
+    internal val instanceId: String?
 )
 
 internal class ComplicationProviderChooserResult(
@@ -576,7 +577,8 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
             context,
             input.editorSession.watchFaceComponentName,
             input.complicationId,
-            input.editorSession.complicationState[input.complicationId]!!.supportedTypes
+            input.editorSession.complicationState[input.complicationId]!!.supportedTypes,
+            input.instanceId
         )
         if (useTestComplicationHelperActivity) {
             intent.component = ComponentName(

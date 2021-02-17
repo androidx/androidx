@@ -84,6 +84,15 @@ public class ProviderChooserIntent {
             "android.support.wearable.complications.EXTRA_COMPLICATION_ID";
 
     /**
+     * Key for an extra that holds the watch face instance id.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_WATCHFACE_INSTANCE_ID =
+            "androidx.wear.complications.EXTRA_WATCHFACE_INSTANCE_ID";
+
+    /**
      * Key for an extra used to include details of the chosen provider in the activity result
      * returned by the provider chooser.
      *
