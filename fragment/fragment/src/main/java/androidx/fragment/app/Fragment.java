@@ -567,6 +567,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     private void initLifecycle() {
         mLifecycleRegistry = new LifecycleRegistry(this);
         mSavedStateRegistryController = SavedStateRegistryController.create(this);
+        // The default factory depends on the SavedStateRegistry so it
+        // needs to be reset when the SavedStateRegistry is reset
+        mDefaultFactory = null;
     }
 
     /**
