@@ -34,7 +34,7 @@ dependencies {
 
     implementation(KOTLIN_STDLIB)
     api projectOrArtifact(":compose:foundation:foundation")
-    api projectOrArtifact(":paging:paging-common")
+    api "androidx.paging:paging-common:3.0.0-beta01"
 
     androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
     androidTestImplementation projectOrArtifact(':internal-testutils-paging')
