@@ -156,26 +156,6 @@ public class RxSharedPreferencesMigrationTest {
         assertThat(mSharedPrefs.contains(includedKey2)).isFalse();
     }
 
-    @Test
-    public void testDeletesEmptySharedPreferences() {
-        String key = "key";
-        String value = "value";
-        assertThat(mSharedPrefs.edit().putString(key, value).commit()).isTrue();
-
-        DataMigration<Byte> dataMigration =
-                getSpMigrationBuilder(new DefaultMigration()).setDeleteEmptyPreferences(
-                        true).build();
-        RxDataStore<Byte> byteStore = getDataStoreWithMigration(dataMigration);
-        assertThat(byteStore.data().blockingFirst()).isEqualTo(0);
-
-        // Check that the shared preferences files are deleted
-        File prefsDir = new File(mContext.getApplicationInfo().dataDir, "shared_prefs");
-        File prefsFile = new File(prefsDir, mSharedPrefsName + ".xml");
-        File backupPrefsFile = new File(prefsFile.getPath() + ".bak");
-        assertThat(prefsFile.exists()).isFalse();
-        assertThat(backupPrefsFile.exists()).isFalse();
-    }
-
     private RxSharedPreferencesMigrationBuilder<Byte> getSpMigrationBuilder(
             RxSharedPreferencesMigration<Byte> rxSharedPreferencesMigration) {
         return new RxSharedPreferencesMigrationBuilder<Byte>(mContext, mSharedPrefsName,
