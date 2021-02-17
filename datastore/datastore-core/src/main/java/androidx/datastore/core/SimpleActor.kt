@@ -30,9 +30,13 @@ internal class SimpleActor<T>(
      */
     private val scope: CoroutineScope,
     /**
-     * Function that will be called when scope is cancelled.
+     * Function that will be called when scope is cancelled. Should *not* throw exceptions.
      */
     onComplete: (Throwable?) -> Unit,
+    /**
+     * Function that will be called for each element when the scope is cancelled. Should *not*
+     * throw exceptions.
+     */
     onUndeliveredElement: (T, Throwable?) -> Unit,
     /**
      * Function that will be called once for each message.
@@ -44,10 +48,8 @@ internal class SimpleActor<T>(
     private val messageQueue = Channel<T>(capacity = UNLIMITED)
 
     /**
-     * Count of the number of remaining messages to process. This is set to Int.MIN_VALUE when
-     * the scope is completed in order to signal that no more messages should be added to the
-     * queue. When this is set to Int.MIN_VALUE, there is no guarantee that more messages will be
-     * processed.
+     * Count of the number of remaining messages to process. When the messageQueue is closed,
+     * this is no longer used.
      */
     private val remainingMessages = AtomicInteger(0)
 
@@ -56,24 +58,34 @@ internal class SimpleActor<T>(
         // callback.
         scope.coroutineContext[Job]?.invokeOnCompletion { ex ->
             onComplete(ex)
-            // TODO(rohitsat): replace this with Channel(onUndelievedElement) when it
-            // is fixed: https://github.com/Kotlin/kotlinx.coroutines/issues/2435
-            remainingMessages.getAndSet(Int.MIN_VALUE)
 
-            var msg = messageQueue.poll()
-            while (msg != null) {
-                onUndeliveredElement(msg, ex)
-                msg = messageQueue.poll()
+            // TODO(rohitsat): replace this with Channel(onUndeliveredElement) when it
+            // is fixed: https://github.com/Kotlin/kotlinx.coroutines/issues/2435
+
+            messageQueue.close(ex)
+
+            var msg = try {
+                messageQueue.poll()
+            } catch (rethrownEx: Throwable) {
+                return@invokeOnCompletion
             }
 
-            messageQueue.cancel()
+            while (msg != null) {
+                onUndeliveredElement(msg, ex)
+                try {
+                    msg = messageQueue.poll()
+                } catch (rethrownEx: Throwable) {
+                    return@invokeOnCompletion
+                }
+            }
         }
     }
 
     /**
      * Sends a message to a message queue to be processed by [consumeMessage] in [scope].
      *
-     * If [offer] completes successfully, the msg *will* be processed either by consumeMessage or
+     * If [offer] completes successfully, the msg *will* be processed either by
+     * consumeMessage or
      * onUndeliveredElement. If [offer] throws an exception, the message may or may not be
      * processed.
      */
@@ -86,32 +98,20 @@ internal class SimpleActor<T>(
          *   One of the senders is responsible for triggering the consumer
          * 3) remainingMessages > 0, active consumer
          *   Consumer will continue to consume until remainingMessages is 0
-         * 4) remainingMessages < 0, messageQueue not canceled
-         *   The invokeOnCompletion callback is currently running. No active consumers. If a
-         *   message is sent during this time it may or may not be processed, so the sender
-         *   should throw.
-         * 5) remainingMessages < 0, messageQueue canceled.
-         *   Calls to messageQueue.offer will fail with an exception and no more messages will be
-         *   processed.
+         * 4) messageQueue is closed, there are remaining messages to consume
+         *   Attempts to offer messages will fail, onComplete() will consume remaining messages
+         *   with onUndelivered. The Consumer has already completed since close() is called by
+         *   onComplete().
+         * 5) messageQueue is closed, there are no remaining messages to consume
+         *   Attempts to offer messages will fail.
          */
 
         // should never return false bc the channel capacity is unlimited
         check(messageQueue.offer(msg))
 
-        // By checking the count here we can be sure that invokeOnCompletion hasn't  started. If
-        // it has started, we don't know if [msg] will be processed, so we should throw an
-        // exception.
-        val origRemainingMessages = remainingMessages.getAndIncrement()
-        if (origRemainingMessages < 0) {
-            // InvokeOnCompletion has started, we don't know if [msg] will be processed, so we
-            // should throw an exception.
-            scope.ensureActive()
-            error("scope isn't active so this should've thrown")
-        }
-
         // If the number of remaining messages was 0, there is no active consumer, since it quits
         // consuming once remaining messages hits 0. We must kick off a new consumer.
-        if (origRemainingMessages == 0) {
+        if (remainingMessages.getAndIncrement() == 0) {
             scope.launch {
                 // We shouldn't have started a new consumer unless there are remaining messages...
                 check(remainingMessages.get() > 0)
