@@ -337,7 +337,7 @@ fun compileLibrarySources(vararg sources: JavaFileObject): Set<File> {
     return getSystemClasspathFiles() + lib
 }
 
-private fun getSystemClasspathFiles(): Set<File> {
+fun getSystemClasspathFiles(): Set<File> {
     val pathSeparator = System.getProperty("path.separator")!!
     return System.getProperty("java.class.path")!!.split(pathSeparator).map { File(it) }.toSet()
 }

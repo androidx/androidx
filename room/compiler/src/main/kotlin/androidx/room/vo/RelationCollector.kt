@@ -324,7 +324,7 @@ data class RelationCollector(
                 if (rowAdapter == null) {
                     context.logger.e(
                         relation.field.element,
-                        cannotFindQueryResultAdapter(relation.pojoType.toString())
+                        cannotFindQueryResultAdapter(relation.pojoType.typeName)
                     )
                     null
                 } else {
