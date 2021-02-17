@@ -42,6 +42,7 @@ import androidx.car.app.HostInfo;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -79,10 +80,11 @@ public final class HostValidator {
     }
 
     /**
-     * A host validator that doesn't block any hosts. This is designed to be used only for
-     * development/debugging, or in situations where validation is not required (e.g.: the UI
-     * provided by the app has no privacy concerns (e.g.: no credentials or other user private
-     * data is exchanged with the host).
+     * A host validator that doesn't block any hosts.
+     *
+     * <p>This is intended to be used only during development.
+     *
+     * @see CarAppService#createHostValidator()
      */
     @NonNull
     public static final HostValidator ALLOW_ALL_HOSTS_VALIDATOR = new HostValidator(null,
@@ -114,6 +116,14 @@ public final class HostValidator {
         return isValid;
     }
 
+    /**
+     * Returns a map from package name to signature digests of each of the allowed hosts.
+     */
+    @NonNull
+    public Map<String, List<String>> getAllowedHosts() {
+        return Collections.unmodifiableMap(mAllowedHosts);
+    }
+
     @Nullable
     @SuppressWarnings("deprecation")
     private PackageInfo getPackageInfo(String packageName) {
@@ -130,7 +140,7 @@ public final class HostValidator {
         }
     }
 
-    private boolean validateHost(@NonNull HostInfo hostInfo) {
+    private boolean validateHost(HostInfo hostInfo) {
         String hostPackageName = hostInfo.getPackageName();
         PackageInfo packageInfo = getPackageInfo(hostPackageName);
         if (packageInfo == null) {
@@ -209,7 +219,7 @@ public final class HostValidator {
      * rejected, and {@code null} if this is the first time this host is evaluated.
      */
     @Nullable
-    private Boolean checkCache(@NonNull HostInfo hostInfo) {
+    private Boolean checkCache(HostInfo hostInfo) {
         Pair<Integer, Boolean> entry = mCallerChecked.get(hostInfo.getPackageName());
         if (entry == null) {
             return null;
@@ -222,7 +232,7 @@ public final class HostValidator {
         return entry.second;
     }
 
-    private void updateCache(@NonNull HostInfo hostInfo, boolean isValid) {
+    private void updateCache(HostInfo hostInfo, boolean isValid) {
         mCallerChecked.put(hostInfo.getPackageName(), Pair.create(hostInfo.getUid(), isValid));
     }
 
@@ -238,7 +248,7 @@ public final class HostValidator {
 
     @Nullable
     @SuppressWarnings("deprecation")
-    private Signature[] getSignatures(@NonNull PackageInfo packageInfo) {
+    private Signature[] getSignatures(PackageInfo packageInfo) {
         if (Build.VERSION.SDK_INT >= 28) {
             // Implementation extracted to inner class to improve runtime performance.
             return Api28Impl.getSignatures(packageInfo);
@@ -253,7 +263,7 @@ public final class HostValidator {
     }
 
     @Nullable
-    private String getDigest(@NonNull Signature signature) {
+    private String getDigest(Signature signature) {
         byte[] data = signature.toByteArray();
         MessageDigest messageDigest = getMessageDigest();
         if (messageDigest == null) {
@@ -263,14 +273,14 @@ public final class HostValidator {
         messageDigest.update(data);
         byte[] digest = messageDigest.digest();
         StringBuilder sb = new StringBuilder(digest.length * 3 - 1);
-        for (int i = 0; i < digest.length; i++) {
-            sb.append(String.format("%02x", digest[i]));
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b));
         }
         return sb.toString();
     }
 
-    private static boolean hasPermissionGranted(@NonNull PackageInfo packageInfo,
-            @NonNull String permission) {
+    private static boolean hasPermissionGranted(PackageInfo packageInfo,
+            String permission) {
         if (packageInfo.requestedPermissionsFlags == null
                 || packageInfo.requestedPermissions == null) {
             return false;
@@ -284,14 +294,6 @@ public final class HostValidator {
             }
         }
         return false;
-    }
-
-    /**
-     * Returns a map from package name to signature digests of each of the allowed hosts.
-     */
-    @NonNull
-    public Map<String, List<String>> getAllowedHosts() {
-        return mAllowedHosts;
     }
 
     /**
@@ -330,23 +332,22 @@ public final class HostValidator {
         private final Map<String, List<String>> mAllowedHosts = new HashMap<>();
         private final Context mContext;
 
+        /** Returns an empty {@link Builder} instance. */
         public Builder(@NonNull Context context) {
             mContext = context;
         }
 
         /**
-         * Add a host to the allow list.
+         * Adds a host to the allow list.
          *
          * @param packageName host package name (as reported by {@link PackageManager})
          * @param digest      SHA256 digest of the DER encoding of the allow-listed host
-         *                    certificate.
-         *                    This must be formatted as 32 lowercase 2 digits hexadecimal values
-         *                    separated by colon (e.g.:
-         *                    "000102030405060708090a0b0c0d0e0f101112131415
+         *                    certificate, formatted as 32 lowercase 2 digits  hexadecimal values
+         *                    separated by colon (e.g.:"000102030405060708090a0b0c0d0e0f101112131415
          *                    161718191a1b1c1d1e1f"). When using
          *                    <a href="https://developer.android.com/about/versions/pie/android-9.0#apk-key-rotation">signature
          *                    rotation</a>, this digest should correspond to the initial signing
-         *                    certificate.
+         *                    certificate
          */
         @NonNull
         public Builder addAllowedHost(@NonNull String packageName,
@@ -360,10 +361,6 @@ public final class HostValidator {
             }
             digests.add(digest);
             return this;
-        }
-
-        private String cleanUp(String value) {
-            return value.toLowerCase(Locale.US).replace(" ", "");
         }
 
         /**
@@ -403,6 +400,10 @@ public final class HostValidator {
         @NonNull
         public HostValidator build() {
             return new HostValidator(mContext.getPackageManager(), mAllowedHosts, false);
+        }
+
+        private String cleanUp(String value) {
+            return value.toLowerCase(Locale.US).replace(" ", "");
         }
     }
 }
