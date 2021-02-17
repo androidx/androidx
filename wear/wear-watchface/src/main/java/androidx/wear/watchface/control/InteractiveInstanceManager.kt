@@ -18,6 +18,8 @@ package androidx.wear.watchface.control
 
 import android.annotation.SuppressLint
 import androidx.annotation.RequiresApi
+import androidx.annotation.UiThread
+import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 
 /** Keeps track of [InteractiveWatchFaceImpl]s. */
@@ -27,7 +29,17 @@ internal class InteractiveInstanceManager {
     private class RefCountedInteractiveWatchFaceInstance(
         val impl: InteractiveWatchFaceImpl,
         var refcount: Int
-    )
+    ) {
+        @UiThread
+        fun dump(writer: IndentingPrintWriter) {
+            writer.println("InteractiveInstanceManager:")
+            writer.increaseIndent()
+            writer.println("impl.instanceId=${impl.instanceId}")
+            writer.println("refcount=$refcount")
+            impl.engine.dump(writer)
+            writer.decreaseIndent()
+        }
+    }
 
     class PendingWallpaperInteractiveWatchFaceInstance(
         val params: WallpaperInteractiveWatchFaceInstanceParams,
@@ -104,5 +116,22 @@ internal class InteractiveInstanceManager {
                     return returnValue
                 }
             }
+
+        @UiThread
+        fun dump(writer: IndentingPrintWriter) {
+            writer.println("InteractiveInstanceManager instances:")
+            writer.increaseIndent()
+            pendingWallpaperInteractiveWatchFaceInstance?.let {
+                writer.println(
+                    "Pending WallpaperInteractiveWatchFaceInstance id ${it.params.instanceId}"
+                )
+            }
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                for ((_, value) in instances) {
+                    value.dump(writer)
+                }
+            }
+            writer.decreaseIndent()
+        }
     }
 }

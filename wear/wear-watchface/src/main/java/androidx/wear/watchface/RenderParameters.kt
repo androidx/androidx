@@ -155,4 +155,15 @@ public class RenderParameters constructor(
         selectedComplicationId,
         outlineTint
     )
+
+    internal fun dump(writer: IndentingPrintWriter) {
+        writer.println("RenderParameters:")
+        writer.increaseIndent()
+        writer.println("drawMode=${drawMode.name}")
+        writer.println("selectedComplicationId=$selectedComplicationId")
+        writer.println("outlineTint=$outlineTint")
+        val params = layerParameters.map { "${it.key} -> ${it.value.name}" }.joinToString { it }
+        writer.println("layerParameters=[$params]")
+        writer.decreaseIndent()
+    }
 }

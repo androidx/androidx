@@ -973,4 +973,27 @@ internal class WatchFaceImpl(
         lastTappedComplicationId = null
         pendingSingleTap.cancel()
     }
+
+    @UiThread
+    fun dump(writer: IndentingPrintWriter) {
+        writer.println("WatchFaceImpl ($componentName): ")
+        writer.increaseIndent()
+        writer.println("calendar=$calendar")
+        writer.println("mockTime.maxTime=${mockTime.maxTime}")
+        writer.println("mockTime.minTime=${mockTime.minTime}")
+        writer.println("mockTime.speed=${mockTime.speed}")
+        writer.println("nextDrawTimeMillis=$nextDrawTimeMillis")
+        writer.println("muteMode=$muteMode")
+        writer.println("pendingPostDoubleTap=${pendingPostDoubleTap.isPending()}")
+        writer.println("pendingSingleTap=${pendingSingleTap.isPending()}")
+        writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
+        writer.println("lastTappedComplicationId=$lastTappedComplicationId")
+        writer.println("lastTappedPosition=$lastTappedPosition")
+        writer.println("userStyleRepository.userStyle=${userStyleRepository.userStyle}")
+        writer.println("userStyleRepository.schema=${userStyleRepository.schema}")
+        watchState.dump(writer)
+        complicationsManager.dump(writer)
+        renderer.dump(writer)
+        writer.decreaseIndent()
+    }
 }
