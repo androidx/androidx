@@ -40,6 +40,7 @@ import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.IPendingInteractiveWatchFaceWCS
@@ -334,7 +335,8 @@ public class WatchFaceServiceTest {
             userStyleRepository,
             watchState,
             handler,
-            tapListener
+            tapListener,
+            true
         )
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -370,7 +372,8 @@ public class WatchFaceServiceTest {
             userStyleRepository,
             watchState,
             handler,
-            null
+            null,
+            false
         )
 
         InteractiveInstanceManager
@@ -441,6 +444,23 @@ public class WatchFaceServiceTest {
 
     private fun sendRequestStyle() {
         engineWrapper.onCommand(Constants.COMMAND_REQUEST_STYLE, 0, 0, 0, null, false)
+    }
+
+    private fun setComplicationViaWallpaperCommand(
+        complicationId: Int,
+        complicationData: ComplicationData
+    ) {
+        engineWrapper.onCommand(
+            Constants.COMMAND_COMPLICATION_DATA,
+            0,
+            0,
+            0,
+            Bundle().apply {
+                putInt(Constants.EXTRA_COMPLICATION_ID, complicationId)
+                putParcelable(Constants.EXTRA_COMPLICATION_DATA, complicationData)
+            },
+            false
+        )
     }
 
     @Before
@@ -1068,7 +1088,8 @@ public class WatchFaceServiceTest {
             userStyleRepository2,
             watchState,
             handler,
-            null
+            null,
+            true
         )
 
         // Trigger watch face creation.
@@ -1399,7 +1420,8 @@ public class WatchFaceServiceTest {
             UserStyleRepository(UserStyleSchema(emptyList())),
             watchState,
             handler,
-            null
+            null,
+            true
         )
         engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -1617,7 +1639,8 @@ public class WatchFaceServiceTest {
             UserStyleRepository(UserStyleSchema(emptyList())),
             watchState,
             handler,
-            null
+            null,
+            true
         )
 
         engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
@@ -2062,7 +2085,8 @@ public class WatchFaceServiceTest {
             userStyleRepository,
             watchState,
             handler,
-            tapListener
+            tapListener,
+            true
         )
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -2134,5 +2158,78 @@ public class WatchFaceServiceTest {
         } catch (e: Exception) {
             // Expected.
         }
+    }
+
+    @Test
+    public fun sendComplicationWallpaperCommandPreRFlow() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        setComplicationViaWallpaperCommand(
+            LEFT_COMPLICATION_ID,
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(ComplicationText.plainText("Override"))
+                .build()
+        )
+
+        val complication =
+            watchFaceImpl.complicationsManager[LEFT_COMPLICATION_ID]!!.complicationData.value as
+                ShortTextComplicationData
+        assertThat(
+            complication.text.getTextAt(
+                ApplicationProvider.getApplicationContext<Context>().resources,
+                0
+            )
+        ).isEqualTo("Override")
+    }
+
+    @Test
+    public fun sendComplicationWallpaperCommandIgnoredPostRFlow() {
+        val instanceId = "interactiveInstanceId"
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                instanceId,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                listOf(
+                    IdAndComplicationDataWireFormat(
+                        LEFT_COMPLICATION_ID,
+                        ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                            .setShortText(ComplicationText.plainText("INITIAL_VALUE"))
+                            .build()
+                    )
+                )
+            )
+        )
+
+        // This should be ignored because we're on the R flow.
+        setComplicationViaWallpaperCommand(
+            LEFT_COMPLICATION_ID,
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(ComplicationText.plainText("Override"))
+                .build()
+        )
+
+        val complication =
+            watchFaceImpl.complicationsManager[LEFT_COMPLICATION_ID]!!.complicationData.value as
+                ShortTextComplicationData
+        assertThat(
+            complication.text.getTextAt(
+                ApplicationProvider.getApplicationContext<Context>().resources,
+                0
+            )
+        ).isEqualTo("INITIAL_VALUE")
     }
 }

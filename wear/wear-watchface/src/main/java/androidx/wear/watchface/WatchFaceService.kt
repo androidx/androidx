@@ -736,6 +736,11 @@ public abstract class WatchFaceService : WallpaperService() {
             extras: Bundle?,
             resultRequested: Boolean
         ): Bundle? {
+            // From android R onwards the integration changes and no wallpaper commands are allowed
+            // or expected and can/should be ignored.
+            if (!expectPreRInitFlow()) {
+                return null
+            }
             when (action) {
                 Constants.COMMAND_AMBIENT_UPDATE ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_AMBIENT_UPDATE") {

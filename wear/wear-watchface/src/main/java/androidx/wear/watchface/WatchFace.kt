@@ -890,7 +890,6 @@ internal class WatchFaceImpl(
     ) {
         val tappedComplication = complicationsManager.getComplicationAt(x, y)
         if (tappedComplication == null) {
-            System.out.println("<<< tappedComplication == null")
             clearGesture()
             tapListener?.onTap(originalTapType, x, y)
             return
