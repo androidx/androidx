@@ -4630,7 +4630,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             final int width = getWidth();
             final int padding = mClipToPadding ? getPaddingTop() : 0;
             c.rotate(90);
-            c.translate(-padding, -width);
+            c.translate(padding, -width);
             needsInvalidate |= mRightGlow != null && mRightGlow.draw(c);
             c.restoreToCount(restore);
         }
