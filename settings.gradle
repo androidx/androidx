@@ -348,6 +348,8 @@ includeProject(":dynamicanimation:dynamicanimation-ktx", "dynamic-animation/dyna
 includeProject(":emoji", "emoji/core", [BuildType.MAIN])
 includeProject(":emoji-appcompat", "emoji/appcompat", [BuildType.MAIN])
 includeProject(":emoji-bundled", "emoji/bundled", [BuildType.MAIN])
+includeProject(":emoji2:emoji2", "emoji2/emoji2", [BuildType.MAIN])
+includeProject(":emoji2:emoji2-bundled", "emoji2/emoji2-bundled", [BuildType.MAIN])
 includeProject(":enterprise-feedback", "enterprise/feedback", [BuildType.MAIN])
 includeProject(":enterprise-feedback-testing", "enterprise/feedback/testing", [BuildType.MAIN])
 includeProject(":exifinterface:exifinterface", "exifinterface/exifinterface", [BuildType.MAIN])
