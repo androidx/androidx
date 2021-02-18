@@ -108,6 +108,19 @@ class DialogFragmentTest {
             .isTrue()
     }
 
+    @Test
+    fun testInflatedDialogFragmentShowsNow() {
+        val fragment = InflatedDialogFragment()
+
+        activityTestRule.runOnUiThread {
+            fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
+        }
+
+        assertWithMessage("Dialog was not being shown")
+            .that(fragment.dialog?.isShowing)
+            .isTrue()
+    }
+
     @UiThreadTest
     @Test
     fun testDialogFragmentWithChild() {
@@ -407,6 +420,18 @@ class DialogFragmentTest {
                 restoreAfterSetContent = true
                 setContentCalled = false
             }
+        }
+    }
+
+    class InflatedDialogFragment : DialogFragment() {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            val view = layoutInflater.inflate(R.layout.inflated_fragment_tag, null, false)
+            return AlertDialog.Builder(context)
+                .setTitle("Test")
+                .setMessage("Message")
+                .setView(view)
+                .setPositiveButton("Button", null)
+                .create()
         }
     }
 }
