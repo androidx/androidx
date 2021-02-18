@@ -396,6 +396,19 @@ public class PreviewTransformationDeviceTest {
     }
 
     @Test
+    public fun previewViewSizeIs0_noOps() {
+        testOffCenterCropRectMirroring(
+            FRONT_CAMERA, CROP_RECT_90, Size(0, 0), 90
+        )
+
+        // Assert: no transform applied.
+        assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(1F)
+        assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(1F)
+        assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(0F)
+        assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(0F)
+    }
+
+    @Test
     public fun backCameraRotated90_transformationIsNotMirrored() {
         testOffCenterCropRectMirroring(BACK_CAMERA, CROP_RECT_90, PIVOTED_PREVIEW_VIEW_SIZE, 90)
 
