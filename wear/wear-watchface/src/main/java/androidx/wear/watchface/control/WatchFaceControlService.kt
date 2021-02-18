@@ -25,14 +25,18 @@ import android.os.IBinder
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.annotation.UiThread
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
+import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.runOnHandlerWithTracing
 import kotlinx.coroutines.runBlocking
+import java.io.FileDescriptor
+import java.io.PrintWriter
 
 /**
  * A service for creating and controlling watch face instances.
@@ -61,6 +65,15 @@ public class WatchFaceControlService : Service() {
     // Required for testing
     public fun setContext(context: Context) {
         attachBaseContext(context)
+    }
+
+    @UiThread
+    override fun dump(fd: FileDescriptor, writer: PrintWriter, args: Array<String>) {
+        val indentingPrintWriter = IndentingPrintWriter(writer)
+        indentingPrintWriter.println("WatchFaceControlService:")
+        InteractiveInstanceManager.dump(indentingPrintWriter)
+        HeadlessWatchFaceImpl.dump(indentingPrintWriter)
+        indentingPrintWriter.flush()
     }
 }
 
