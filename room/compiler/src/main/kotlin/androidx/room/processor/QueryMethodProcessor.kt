@@ -206,7 +206,7 @@ private class InternalQueryProcessor(
         context.checker.check(
             resultBinder.adapter != null,
             executableElement,
-            ProcessorErrors.cannotFindQueryResultAdapter(returnType.toString())
+            ProcessorErrors.cannotFindQueryResultAdapter(returnType.typeName)
         )
 
         val inTransaction = executableElement.hasAnnotation(Transaction::class)
