@@ -31,6 +31,7 @@ import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.IdAndComplicationData
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.Layer
@@ -227,7 +228,7 @@ public open class CanvasComplicationDrawable(
     override fun setIdAndData(
         idAndComplicationData: IdAndComplicationData?,
         loadDrawablesAsynchronous: Boolean
-    ) {
+    ): Unit = TraceEvent("CanvasComplicationDrawable.setIdAndData").use {
         _idAndData = idAndComplicationData
         drawable.setComplicationData(
             idAndComplicationData?.complicationData?.asWireComplicationData(),

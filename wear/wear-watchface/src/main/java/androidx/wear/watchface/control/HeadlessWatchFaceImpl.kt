@@ -23,7 +23,7 @@ import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.ComplicationScreenshotParams
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
-import androidx.wear.watchface.runOnHandler
+import androidx.wear.watchface.runOnHandlerWithTracing
 
 /**
  * A headless watch face instance. This doesn't render asynchronously and the exposed API makes it
@@ -56,7 +56,7 @@ internal class HeadlessWatchFaceImpl(
     }
 
     init {
-        uiThreadHandler.runOnHandler {
+        uiThreadHandler.runOnHandlerWithTracing("HeadlessWatchFaceImpl.init") {
             headlessInstances.add(this)
         }
     }
@@ -64,21 +64,29 @@ internal class HeadlessWatchFaceImpl(
     override fun getApiVersion() = IHeadlessWatchFace.API_VERSION
 
     override fun takeWatchFaceScreenshot(params: WatchfaceScreenshotParams) =
-        uiThreadHandler.runOnHandler { engine!!.takeWatchFaceScreenshot(params) }
+        uiThreadHandler.runOnHandlerWithTracing("HeadlessWatchFaceImpl.takeWatchFaceScreenshot") {
+            engine!!.takeWatchFaceScreenshot(params)
+        }
 
     override fun getPreviewReferenceTimeMillis() = engine!!.watchFaceImpl.previewReferenceTimeMillis
 
     override fun getComplicationState() =
-        uiThreadHandler.runOnHandler { engine!!.getComplicationState() }
+        uiThreadHandler.runOnHandlerWithTracing("HeadlessWatchFaceImpl.getComplicationState") {
+            engine!!.getComplicationState()
+        }
 
     override fun takeComplicationScreenshot(params: ComplicationScreenshotParams) =
-        uiThreadHandler.runOnHandler { engine!!.takeComplicationScreenshot(params) }
+        uiThreadHandler.runOnHandlerWithTracing(
+            "HeadlessWatchFaceImpl.takeComplicationScreenshot"
+        ) {
+            engine!!.takeComplicationScreenshot(params)
+        }
 
     override fun getUserStyleSchema() =
         engine!!.watchFaceImpl.userStyleRepository.schema.toWireFormat()
 
     override fun release() {
-        uiThreadHandler.runOnHandler {
+        uiThreadHandler.runOnHandlerWithTracing("HeadlessWatchFaceImpl.release") {
             headlessInstances.remove(this)
             engine?.onDestroy()
             engine = null

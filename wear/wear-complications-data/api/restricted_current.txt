@@ -616,3 +616,21 @@ package androidx.wear.complications.data {
 
 }
 
+package androidx.wear.utility {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class AsyncTraceEvent implements java.io.Closeable {
+    ctor public AsyncTraceEvent(String traceName);
+    method public void close();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TraceEvent implements java.io.Closeable {
+    ctor public TraceEvent(String traceName);
+    method public void close();
+  }
+
+  public final class TraceEventKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static void launchWithTracing(kotlinx.coroutines.CoroutineScope, String traceEventName, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+  }
+
+}
+

@@ -38,6 +38,9 @@ import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.MonochromaticImage
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.utility.AsyncTraceEvent
+import androidx.wear.utility.TraceEvent
+import androidx.wear.utility.launchWithTracing
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.ComplicationState
@@ -171,7 +174,9 @@ public abstract class EditorSession : AutoCloseable {
             activity: ComponentActivity,
             editIntent: Intent,
             providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
-        ): Deferred<EditorSession?> {
+        ): Deferred<EditorSession?> = TraceEvent(
+            "EditorSession.createOnWatchEditingSessionAsyncImpl"
+        ).use {
             val coroutineScope =
                 CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher())
             return EditorRequest.createFromIntent(editIntent)?.let { editorRequest ->
@@ -212,7 +217,7 @@ public abstract class EditorSession : AutoCloseable {
             editIntent: Intent,
 
             headlessWatchFaceClient: HeadlessWatchFaceClient
-        ): EditorSession? =
+        ): EditorSession? = TraceEvent("EditorSession.createHeadlessEditingSession").use {
             EditorRequest.createFromIntent(editIntent)?.let {
                 HeadlessEditorSession(
                     activity,
@@ -226,6 +231,7 @@ public abstract class EditorSession : AutoCloseable {
                     CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher())
                 )
             }
+        }
     }
 }
 
@@ -244,6 +250,7 @@ public abstract class BaseEditorSession internal constructor(
     public val coroutineScope: CoroutineScope
 ) : EditorSession() {
     protected var closed: Boolean = false
+    private val editorSessionTraceEvent = AsyncTraceEvent("EditorSession")
 
     // This is completed when [fetchComplicationPreviewData] has called [getPreviewData] for
     // each complication and each of those have been completed.
@@ -284,7 +291,11 @@ public abstract class BaseEditorSession internal constructor(
             }
         }
 
-    override suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean {
+    override suspend fun launchComplicationProviderChooser(
+        complicationId: Int
+    ): Boolean = TraceEvent(
+        "BaseEditorSession.launchComplicationProviderChooser $complicationId"
+    ).use {
         requireNotClosed()
         require(!complicationState[complicationId]!!.fixedComplicationProvider) {
             "Can't configure fixed complication ID $complicationId"
@@ -328,7 +339,9 @@ public abstract class BaseEditorSession internal constructor(
     internal suspend fun getPreviewData(
         providerInfoRetriever: ProviderInfoRetriever,
         providerInfo: ComplicationProviderInfo?
-    ): ComplicationData? {
+    ): ComplicationData? = TraceEvent(
+        "BaseEditorSession.getPreviewData for ${providerInfo?.providerComponentName}"
+    ).use {
         if (providerInfo == null) {
             return null
         }
@@ -365,7 +378,7 @@ public abstract class BaseEditorSession internal constructor(
     }
 
     protected fun fetchComplicationPreviewData() {
-        coroutineScope.launch {
+        coroutineScope.launchWithTracing("BaseEditorSession.fetchComplicationPreviewData") {
             val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
             // Unlikely but WCS could conceivably crash during this call. We could retry but it's
             // not obvious if that'd succeed or if WCS session state is recoverable, it's probably
@@ -393,7 +406,7 @@ public abstract class BaseEditorSession internal constructor(
 
     override fun close() {
         requireNotClosed()
-        coroutineScope.launch {
+        coroutineScope.launchWithTracing("BaseEditorSession.close") {
             val editorState = EditorStateWireFormat(
                 instanceId,
                 userStyle.toWireFormat(),
@@ -408,6 +421,7 @@ public abstract class BaseEditorSession internal constructor(
             releaseResources()
             closed = true
             EditorService.globalEditorService.broadcastEditorState(editorState)
+            editorSessionTraceEvent.close()
         }
     }
 

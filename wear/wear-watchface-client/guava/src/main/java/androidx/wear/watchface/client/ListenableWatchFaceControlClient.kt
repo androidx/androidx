@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.content.Context
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.watchface.client.WatchFaceControlClient.ServiceNotBoundException
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineDispatcher
@@ -57,6 +58,9 @@ public open class ListenableWatchFaceControlClient(
             /** The name of the package containing the watch face control service to bind to. */
             watchFacePackageName: String
         ): ListenableFuture<ListenableWatchFaceControlClient> {
+            val traceEvent = AsyncTraceEvent(
+                "ListenableWatchFaceControlClient.createWatchFaceControlClient"
+            )
             val future = ResolvableFuture.create<ListenableWatchFaceControlClient>()
             val coroutineScope =
                 CoroutineScope(object : CoroutineDispatcher() {
@@ -76,6 +80,8 @@ public open class ListenableWatchFaceControlClient(
                     )
                 } catch (e: Exception) {
                     future.setException(e)
+                } finally {
+                    traceEvent.close()
                 }
             }
             return future
