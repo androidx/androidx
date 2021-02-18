@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.dynamic-feature'
+apply plugin: "com.android.dynamic-feature"
 
 android {
     signingConfigs {
@@ -36,6 +36,6 @@ android {
 }
 
 dependencies {
-    implementation project(':feature')
-    implementation project(':base')
+    implementation(project(":feature"))
+    implementation(project(":base"))
 }

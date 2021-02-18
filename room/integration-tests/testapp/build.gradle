@@ -20,7 +20,7 @@ buildscript {
     // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
     // vectordrawable and vectordrawable-animated were accidentally using the same package name
     // which is no longer valid in namespaced resource world.
-    project.ext['android.uniquePackageNames'] = false
+    project.ext["android.uniquePackageNames"] = false
 }
 
 plugins {
@@ -89,9 +89,9 @@ dependencies {
     // use the shadowed dependency in tests so that if the shadowing does not work properly,
     // our tests fail.
     annotationProcessor project(path: ":room:room-compiler",
-            configuration: 'shadowAndImplementation')
+            configuration: "shadowAndImplementation")
     androidTestAnnotationProcessor project(path: ":room:room-compiler",
-            configuration: 'shadowAndImplementation')
+            configuration: "shadowAndImplementation")
 
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))

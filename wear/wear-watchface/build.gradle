@@ -38,8 +38,8 @@ dependencies {
 
     implementation("androidx.core:core:1.1.0")
 
-    androidTestImplementation project(":test-screenshot")
-    androidTestImplementation project(":wear:wear-watchface-samples")
+    androidTestImplementation(project(":test-screenshot"))
+    androidTestImplementation(project(":wear:wear-watchface-samples"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

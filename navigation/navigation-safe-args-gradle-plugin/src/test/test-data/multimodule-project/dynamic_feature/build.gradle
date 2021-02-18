@@ -15,8 +15,8 @@
  */
 
 plugins {
-    id('com.android.dynamic-feature')
-    id('androidx.navigation.safeargs')
+    id("com.android.dynamic-feature")
+    id("androidx.navigation.safeargs")
 }
 android {
     buildToolsVersion buildTools
@@ -44,7 +44,7 @@ android {
 }
 
 dependencies {
-    implementation project(':base')
-    implementation project(':app')
-    implementation "$navigationCommonDep"
+    implementation(project(":base"))
+    implementation(project(":app"))
+    implementation("$navigationCommonDep")
 }

@@ -22,8 +22,8 @@ import androidx.build.Publish
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
-    id('AndroidXPlugin')
-    id('com.android.library')
+    id("AndroidXPlugin")
+    id("com.android.library")
 }
 
 android {
@@ -37,13 +37,13 @@ android {
         //   splitting targets, continuing with the consumerProguardFiles solution here, fixing the
         //   flows that perform duplicate desugaring, or something else).
         minifyEnabled false
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
     // TODO(b/161205849): We've had to move libicing.so compilation into appsearch:appsearch to get
     //  it included into the exported aar. Find a proper solution for bundling libicing.so into
     //  appsearch-release.aar and move compilation of libicing.so back into the external/icing tree.
     sourceSets {
-        androidTest.java.srcDir '../../../../external/icing/java/tests/instrumentation/'
+        androidTest.java.srcDir "../../../../external/icing/java/tests/instrumentation/"
     }
     defaultConfig {
         externalNativeBuild {
@@ -56,8 +56,8 @@ android {
     }
     externalNativeBuild {
         cmake {
-            version '3.10.2'
-            path '../../../../external/icing/CMakeLists.txt'
+            version "3.10.2"
+            path "../../../../external/icing/CMakeLists.txt"
         }
     }
 }
@@ -69,14 +69,14 @@ BundleInsideHelper.forInsideAar(
 )
 
 dependencies {
-    releaseBundleInside(project(path: ':icing', configuration: "exportRelease"))
-    debugBundleInside(project(path: ':icing', configuration: "exportDebug"))
+    releaseBundleInside(project(path: ":icing", configuration: "exportRelease"))
+    debugBundleInside(project(path: ":icing", configuration: "exportDebug"))
 
-    api('androidx.annotation:annotation:1.1.0')
+    api("androidx.annotation:annotation:1.1.0")
 
-    implementation project(':appsearch:appsearch')
-    implementation('androidx.concurrent:concurrent-futures:1.0.0')
-    implementation('androidx.core:core:1.2.0')
+    implementation(project(":appsearch:appsearch"))
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.core:core:1.2.0")
 
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RULES)
@@ -86,12 +86,12 @@ dependencies {
 }
 
 androidx {
-    name = 'AppSearch Local Storage'
+    name = "AppSearch Local Storage"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.APPSEARCH
     mavenVersion = LibraryVersions.APPSEARCH
-    inceptionYear = '2020'
+    inceptionYear = "2020"
     description =
-        'An implementation of AppSearchSession which uses local app storage and a local copy of ' +
-                'the search library'
+        "An implementation of AppSearchSession which uses local app storage and a local copy of " +
+                "the search library"
 }

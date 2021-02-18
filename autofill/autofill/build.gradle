@@ -33,7 +33,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
-    androidTestImplementation 'junit:junit:4.12'
+    androidTestImplementation("junit:junit:4.12")
 }
 
 androidx {

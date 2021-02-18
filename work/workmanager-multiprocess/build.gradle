@@ -30,7 +30,7 @@ plugins {
 
 android {
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
     buildTypes {
         debug {
@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-    api project(':work:work-runtime')
+    api project(":work:work-runtime")
     api(GUAVA_LISTENABLE_FUTURE)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -49,7 +49,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
-    androidTestImplementation project(':internal-testutils-runtime')
+    androidTestImplementation(project(":internal-testutils-runtime"))
     testImplementation(KOTLIN_STDLIB)
     testImplementation(JUNIT)
 }

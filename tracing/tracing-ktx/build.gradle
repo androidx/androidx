@@ -29,7 +29,7 @@ plugins {
 }
 
 dependencies {
-    api project(':tracing:tracing')
+    api project(":tracing:tracing")
     api(KOTLIN_STDLIB)
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

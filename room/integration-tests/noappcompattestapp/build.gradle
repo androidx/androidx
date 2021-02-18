@@ -25,9 +25,9 @@ dependencies {
     implementation(project(":room:room-runtime"))
     // depend on the shadowed version so that it tests with the shipped artifact
     annotationProcessor project(path: ":room:room-compiler",
-            configuration: 'shadowAndImplementation')
+            configuration: "shadowAndImplementation")
     androidTestAnnotationProcessor project(path: ":room:room-compiler",
-            configuration: 'shadowAndImplementation')
+            configuration: "shadowAndImplementation")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

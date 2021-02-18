@@ -53,8 +53,8 @@ android {
     }
     sourceSets {
         main.res.srcDirs = [
-                'res',
-                'res-public'
+                "res",
+                "res-public"
         ]
     }
 
@@ -64,7 +64,7 @@ android {
     }
 
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 

@@ -32,10 +32,10 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation project(':internal-testutils-appcompat'), {
-        exclude group: 'androidx.appcompat', module: 'appcompat'
-        exclude group: 'androidx.core', module: 'core'
-    }
+    androidTestImplementation(project(":internal-testutils-appcompat"), {
+        exclude group: "androidx.appcompat", module: "appcompat"
+        exclude group: "androidx.core", module: "core"
+    })
     androidTestImplementation(MULTIDEX)
 
     testImplementation(KOTLIN_STDLIB)
@@ -59,12 +59,12 @@ android {
     }
 
     sourceSets {
-        main.res.srcDirs += 'src/main/res-public'
+        main.res.srcDirs += "src/main/res-public"
     }
 
     aaptOptions {
         additionalParameters "--no-version-vectors"
-        noCompress 'ttf'
+        noCompress "ttf"
     }
 
     testOptions {
@@ -79,9 +79,9 @@ android {
         consumerProguardFiles("proguard-rules.pro")
     }
 
-    useLibrary 'android.test.runner'
-    useLibrary 'android.test.base'
-    useLibrary 'android.test.mock'
+    useLibrary "android.test.runner"
+    useLibrary "android.test.base"
+    useLibrary "android.test.mock"
 }
 
 androidx {

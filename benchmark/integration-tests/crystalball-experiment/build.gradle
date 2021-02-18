@@ -30,35 +30,35 @@ android {
         multiDexEnabled true
         // testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         // Listener List
-        testInstrumentationRunnerArgument 'listener',
-                        'android.device.collectors.CpuUsageListener,' +
-                        'android.device.collectors.ProcLoadListener,' +
-                        'android.device.collectors.PerfettoListener,' +
-                        'android.device.collectors.AppStartupListener,' +
-                        'android.device.collectors.JankListener,' +
-                        'android.device.collectors.CrashListener,' +
-                        'android.device.collectors.ScreenshotOnFailureCollector,' +
-                        'android.device.collectors.LogcatOnFailureCollector,' +
-                        'android.device.collectors.IncidentReportListener,' +
-                        'android.device.collectors.TotalPssMetricListener'
+        testInstrumentationRunnerArgument "listener",
+                        "android.device.collectors.CpuUsageListener," +
+                        "android.device.collectors.ProcLoadListener," +
+                        "android.device.collectors.PerfettoListener," +
+                        "android.device.collectors.AppStartupListener," +
+                        "android.device.collectors.JankListener," +
+                        "android.device.collectors.CrashListener," +
+                        "android.device.collectors.ScreenshotOnFailureCollector," +
+                        "android.device.collectors.LogcatOnFailureCollector," +
+                        "android.device.collectors.IncidentReportListener," +
+                        "android.device.collectors.TotalPssMetricListener"
 
         // ProcLoadListener
-        testInstrumentationRunnerArgument 'procload-collector:proc-loadavg-interval', '2000'
-        testInstrumentationRunnerArgument 'procload-collector:proc-loadavg-threshold', '0.5'
-        testInstrumentationRunnerArgument 'procload-collector:proc-loadavg-timeout', '90000'
+        testInstrumentationRunnerArgument "procload-collector:proc-loadavg-interval", "2000"
+        testInstrumentationRunnerArgument "procload-collector:proc-loadavg-threshold", "0.5"
+        testInstrumentationRunnerArgument "procload-collector:proc-loadavg-timeout", "90000"
 
         // CpuUsageListener
-        testInstrumentationRunnerArgument 'cpuusage-collector:disable_per_freq', 'true'
-        testInstrumentationRunnerArgument 'cpuusage-collector:disable_per_pkg', 'true'
+        testInstrumentationRunnerArgument "cpuusage-collector:disable_per_freq", "true"
+        testInstrumentationRunnerArgument "cpuusage-collector:disable_per_pkg", "true"
 
         // TotalPssMetricListener
-        testInstrumentationRunnerArgument 'totalpss-collector:process-names', 'androidx.ui.demos'
+        testInstrumentationRunnerArgument "totalpss-collector:process-names", "androidx.ui.demos"
 
         // JankListener (disable)
-        testInstrumentationRunnerArgument 'jank-listener:log', 'true'
+        testInstrumentationRunnerArgument "jank-listener:log", "true"
 
         // Microbenchmark runner configuration
-        testInstrumentationRunnerArgument 'iterations', '1'
+        testInstrumentationRunnerArgument "iterations", "1"
     }
 }
 

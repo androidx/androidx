@@ -29,13 +29,13 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
     implementation(KOTLIN_STDLIB)
 
-    compileOnly projectOrArtifact(":annotation:annotation-sampled")
-    implementation projectOrArtifact(":compose:foundation:foundation")
-    implementation projectOrArtifact(":navigation:navigation-compose")
-    implementation projectOrArtifact(":compose:material:material")
+    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    implementation(projectOrArtifact(":compose:foundation:foundation"))
+    implementation(projectOrArtifact(":navigation:navigation-compose"))
+    implementation(projectOrArtifact(":compose:material:material"))
 }
 
 androidx {

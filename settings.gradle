@@ -191,7 +191,7 @@ includeProject(":biometric:integration-tests:testapp", "biometric/integration-te
 includeProject(":browser:browser", "browser/browser", [BuildType.MAIN])
 includeProject(":buildSrc-tests", "buildSrc-tests", [BuildType.MAIN])
 // these projects intentionally fail to compile unless androidx.useMaxDepVersions is enabled
-if (startParameter.projectProperties.containsKey('androidx.useMaxDepVersions')) {
+if (startParameter.projectProperties.containsKey("androidx.useMaxDepVersions")) {
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-dep", [BuildType.MAIN])
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-main", [BuildType.MAIN])
 }
@@ -691,4 +691,4 @@ includeProject(":fakeannotations", "fakeannotations")
 //
 /////////////////////////////
 
-apply from: new File('buildSrc/remoteBuildCache.gradle')
+apply from: new File("buildSrc/remoteBuildCache.gradle")

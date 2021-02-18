@@ -15,8 +15,8 @@
  */
 
 plugins {
-    id('com.android.library')
-    id('androidx.navigation.safeargs')
+    id("com.android.library")
+    id("androidx.navigation.safeargs")
 }
 
 android {
@@ -43,6 +43,6 @@ android {
     }
 
     dependencies {
-        implementation "$navigationCommonDep"
+        implementation("$navigationCommonDep")
     }
 }
