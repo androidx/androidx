@@ -44,7 +44,6 @@ private constructor(
      * long, string and string set. If the result of getAll contains other types, they will be
      * ignored.
      *
-     *
      * Example usage:
      * ```
      * val sharedPrefsMigration = SharedPreferencesMigration(
@@ -53,6 +52,7 @@ private constructor(
      *    myData.toBuilder().setCounter(prefs.getCounter(COUNTER_KEY, default = 0)).build()
      * }
      * ```
+     *
      * @param produceSharedPreferences Should return the instance of SharedPreferences to migrate
      * from.
      * @param keysToMigrate The list of keys to migrate. The keys will be mapped to datastore

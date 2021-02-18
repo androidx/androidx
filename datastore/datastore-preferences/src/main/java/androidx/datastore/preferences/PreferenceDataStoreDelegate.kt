@@ -37,13 +37,21 @@ import kotlin.reflect.KProperty
  * in a file (at the top level), and all usages of the DataStore should use a reference the same
  * Instance. The receiver type for the property delegate must be an instance of [Context].
  *
+ * Example usage:
+ * ```
+ * val Context.myDataStore by preferencesDataStore("filename")
+ *
+ * class SomeClass(val context: Context) {
+ *    suspend fun update() = context.myDataStore.edit {...}
+ * }
+ * ```
+ *
+ *
  * @param name The name of the preferences. The preferences will be stored in a file obtained
  * by calling: File(context.filesDir, "datastore/" + name + ".preferences_pb")
  * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
  * [androidx.datastore.core.CorruptionException] when attempting to read data. CorruptionExceptions
- * are
- * thrown by
- * serializers when data can not be de-serialized.
+ * are thrown by serializers when data can not be de-serialized.
  * @param migrations are run before any access to data can occur. Each producer and migration
  * may be run more than once whether or not it already succeeded (potentially because another
  * migration failed or a write to disk failed.)
