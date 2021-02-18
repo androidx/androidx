@@ -87,7 +87,19 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
          */
         @JvmField
         val placeholdersEnabled: Boolean
-    )
+    ) {
+        init {
+            check(requestedStartPosition >= 0) {
+                "invalid start position: $requestedStartPosition"
+            }
+            check(requestedLoadSize >= 0) {
+                "invalid load size: $requestedLoadSize"
+            }
+            check(pageSize >= 0) {
+                "invalid page size: $pageSize"
+            }
+        }
+    }
 
     /**
      * Holder object for inputs to [loadRange].
@@ -315,7 +327,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                     initialPosition = maxOf(0, idealStart / params.pageSize * params.pageSize)
                 } else {
                     // not tiled, so don't try to snap or force multiple of a page size
-                    initialPosition -= initialLoadSize / 2
+                    initialPosition = maxOf(0, initialPosition - initialLoadSize / 2)
                 }
             }
             val initParams = LoadInitialParams(
