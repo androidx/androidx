@@ -30,7 +30,7 @@ import kotlin.jvm.Throws
 public class SharedPreferencesMigration<T>
 private constructor(
     produceSharedPreferences: () -> SharedPreferences,
-    keysToMigrate: Set<String>?,
+    keysToMigrate: Set<String>,
     private val shouldRunMigration: suspend (T) -> Boolean = { true },
     private val migrate: suspend (SharedPreferencesView, T) -> T,
     private val context: Context?,
@@ -58,8 +58,8 @@ private constructor(
      * @param keysToMigrate The list of keys to migrate. The keys will be mapped to datastore
      * .Preferences with their same values. If the key is already present in the new Preferences,
      * the key will not be migrated again. If the key is not present in the SharedPreferences it
-     * will not be migrated. If keysToMigrate is null, all keys will be migrated from the existing
-     * SharedPreferences.
+     * will not be migrated. If keysToMigrate is not set, all keys will be migrated from
+     * the existing SharedPreferences.
      * @param migrate maps SharedPreferences into T. Implementations should be idempotent
      * since this may be called multiple times. See [DataMigration.migrate] for more
      * information. The lambda accepts a SharedPreferencesView which is the view of the
@@ -69,7 +69,7 @@ private constructor(
     @JvmOverloads // Generate constructors for default params for java users.
     public constructor(
         produceSharedPreferences: () -> SharedPreferences,
-        keysToMigrate: Set<String>? = MIGRATE_ALL_KEYS,
+        keysToMigrate: Set<String> = MIGRATE_ALL_KEYS,
         shouldRunMigration: suspend (T) -> Boolean = { true },
         migrate: suspend (SharedPreferencesView, T) -> T
     ) : this(
@@ -103,8 +103,8 @@ private constructor(
      * @param keysToMigrate The list of keys to migrate. The keys will be mapped to datastore
      * .Preferences with their same values. If the key is already present in the new Preferences,
      * the key will not be migrated again. If the key is not present in the SharedPreferences it
-     * will not be migrated. If keysToMigrate is null, all keys will be migrated from the existing
-     * SharedPreferences.
+     * will not be migrated. If keysToMigrate is not set, all keys will be migrated from
+     * the existing SharedPreferences.
      * @param migrate maps SharedPreferences into T. Implementations should be idempotent
      * since this may be called multiple times. See [DataMigration.migrate] for more
      * information. The lambda accepts a SharedPreferencesView which is the view of the
@@ -115,7 +115,7 @@ private constructor(
     public constructor(
         context: Context,
         sharedPreferencesName: String,
-        keysToMigrate: Set<String>? = MIGRATE_ALL_KEYS,
+        keysToMigrate: Set<String> = MIGRATE_ALL_KEYS,
         shouldRunMigration: suspend (T) -> Boolean = { true },
         migrate: suspend (SharedPreferencesView, T) -> T
     ) : this(
@@ -130,7 +130,11 @@ private constructor(
     private val sharedPrefs: SharedPreferences by lazy(produceSharedPreferences)
 
     private val keySet: MutableSet<String> by lazy {
-        (keysToMigrate ?: sharedPrefs.all.keys).toMutableSet()
+        if (keysToMigrate === MIGRATE_ALL_KEYS) {
+            sharedPrefs.all.keys
+        } else {
+            keysToMigrate
+        }.toMutableSet()
     }
 
     override suspend fun shouldMigrate(currentData: T): Boolean {
@@ -289,4 +293,4 @@ public class SharedPreferencesView internal constructor(
     }
 }
 
-internal val MIGRATE_ALL_KEYS = null
+internal val MIGRATE_ALL_KEYS: Set<String> = mutableSetOf()
