@@ -402,7 +402,7 @@ public class FontsContractCompatTest {
         inst.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                FontsContractCompat.getFontSync(mContext, request, callback, null,
+                FontsContractCompat.getFont(mContext, request, callback, null,
                         false /* isBlockingFetch */, 300 /* timeout */, Typeface.NORMAL);
             }
         });
