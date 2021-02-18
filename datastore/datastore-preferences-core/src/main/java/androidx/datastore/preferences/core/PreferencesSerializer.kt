@@ -42,7 +42,7 @@ internal object PreferencesSerializer : Serializer<Preferences> {
         }
 
     @Throws(IOException::class, CorruptionException::class)
-    override fun readFrom(input: InputStream): Preferences {
+    override suspend fun readFrom(input: InputStream): Preferences {
         val preferencesProto = PreferencesMapCompat.readFrom(input)
 
         val mutablePreferences = mutablePreferencesOf()
@@ -55,7 +55,7 @@ internal object PreferencesSerializer : Serializer<Preferences> {
     }
 
     @Throws(IOException::class, CorruptionException::class)
-    override fun writeTo(t: Preferences, output: OutputStream) {
+    override suspend fun writeTo(t: Preferences, output: OutputStream) {
         val preferences = t.asMap()
         val protoBuilder = PreferenceMap.newBuilder()
 

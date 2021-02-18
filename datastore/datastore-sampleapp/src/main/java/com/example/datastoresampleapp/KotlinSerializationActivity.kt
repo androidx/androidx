@@ -119,7 +119,7 @@ object MySettingsSerializer : Serializer<MySettings> {
     override val defaultValue: MySettings
         get() = MySettings()
 
-    override fun readFrom(input: InputStream): MySettings {
+    override suspend fun readFrom(input: InputStream): MySettings {
         try {
             return Json.decodeFromString<MySettings>(input.readBytes().decodeToString())
         } catch (serialization: SerializationException) {
@@ -127,7 +127,7 @@ object MySettingsSerializer : Serializer<MySettings> {
         }
     }
 
-    override fun writeTo(t: MySettings, output: OutputStream) {
+    override suspend fun writeTo(t: MySettings, output: OutputStream) {
         output.write(Json.encodeToString(t).encodeToByteArray())
     }
 }
