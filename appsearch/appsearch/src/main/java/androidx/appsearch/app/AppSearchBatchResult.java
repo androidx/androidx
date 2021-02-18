@@ -34,9 +34,9 @@ import java.util.Map;
  * <p>Alternatively, {@link #getAll()} returns a map of keys to {@link AppSearchResult} objects for
  * both successes and failures.
  *
- * @see AppSearchSession#put(PutDocumentsRequest)
- * @see AppSearchSession#getByUri(GetByUriRequest)
- * @see AppSearchSession#remove(RemoveByUriRequest)
+ * @see AppSearchSession#put
+ * @see AppSearchSession#getByUri
+ * @see AppSearchSession#remove
  */
 public final class AppSearchBatchResult<KeyType, ValueType> {
     @NonNull private final Map<KeyType, ValueType> mSuccesses;
@@ -61,9 +61,8 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
      * Returns a {@link Map} of keys mapped to instances of the value type for all successful
      * individual results.
      *
-     * <p>Example: {@link AppSearchSession#getByUri(GetByUriRequest)} returns a
-     * {@link AppSearchBatchResult}. Each key (a URI of {@code String} type) will map to a
-     * {@link GenericDocument} object.
+     * <p>Example: {@link AppSearchSession#getByUri} returns an {@link AppSearchBatchResult}. Each
+     * key (a URI of {@code String} type) will map to a {@link GenericDocument} object.
      *
      * <p>The values of the {@link Map} will not be {@code null}.
      */
