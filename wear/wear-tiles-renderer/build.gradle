@@ -39,6 +39,9 @@ dependencies {
     api(GUAVA_LISTENABLE_FUTURE)
     implementation(PROTOBUF_LITE)
     implementation 'androidx.annotation:annotation:1.2.0-alpha01'
+    implementation "androidx.concurrent:concurrent-futures:1.1.0"
+    implementation "androidx.core:core:1.3.2"
+    implementation(project(":wear:wear-tiles"))
 
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
     testImplementation(ANDROIDX_TEST_EXT_TRUTH)
@@ -65,7 +68,6 @@ androidx {
     mavenGroup = LibraryGroups.WEAR
     // Tie the versions together to keep everything simpler.
     mavenVersion = LibraryVersions.WEAR_TILES
-    runApiTasks = new RunApiTasks.No("API tracking disabled while the package is empty")
     inceptionYear = "2021"
     description = "Android Wear Tiles Renderer components. These components can be used to parse " +
             "and render an already constructued Wear Tile."
