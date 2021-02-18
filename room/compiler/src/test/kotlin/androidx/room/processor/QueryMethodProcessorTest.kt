@@ -19,6 +19,7 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -26,7 +27,6 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
-import androidx.room.compiler.processing.XType
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
@@ -910,7 +910,11 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(adapter?.mapping?.unusedColumns, `is`(listOf("name", "lastName")))
             assertThat(adapter?.mapping?.unusedFields, `is`(adapter?.pojo?.fields as List<Field>))
         }?.failsToCompile()
-            ?.withErrorContaining(cannotFindQueryResultAdapter("foo.bar.MyClass.Pojo"))
+            ?.withErrorContaining(
+                cannotFindQueryResultAdapter(
+                    ClassName.get("foo.bar", "MyClass", "Pojo")
+                )
+            )
             ?.and()
             ?.withWarningContaining(
                 ProcessorErrors.cursorPojoMismatch(
@@ -942,7 +946,11 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         ) { _, _, _ ->
         }?.failsToCompile()
             ?.withErrorContaining("no such column: age")
-            ?.and()?.withErrorContaining(cannotFindQueryResultAdapter("foo.bar.MyClass.Pojo"))
+            ?.and()?.withErrorContaining(
+                cannotFindQueryResultAdapter(
+                    ClassName.get("foo.bar", "MyClass", "Pojo")
+                )
+            )
             ?.and()?.withErrorCount(2)
             ?.withWarningCount(0)
     }
@@ -1105,7 +1113,11 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             return assertion
         } else {
             assertion.failsToCompile()
-                .withErrorContaining(cannotFindQueryResultAdapter("foo.bar.MyClass.Pojo"))
+                .withErrorContaining(
+                    cannotFindQueryResultAdapter(
+                        ClassName.get("foo.bar", "MyClass", "Pojo")
+                    )
+                )
             return null
         }
     }
