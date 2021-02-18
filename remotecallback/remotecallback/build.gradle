@@ -26,15 +26,15 @@ plugins {
 }
 
 dependencies {
-    api "androidx.annotation:annotation:1.1.0"
-    implementation project(':collection:collection')
+    api("androidx.annotation:annotation:1.1.0")
+    implementation(project(":collection:collection"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
-    androidTestAnnotationProcessor project(":remotecallback:remotecallback-processor")
+    androidTestAnnotationProcessor (project(":remotecallback:remotecallback-processor"))
 }
 
 android {

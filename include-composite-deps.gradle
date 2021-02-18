@@ -25,9 +25,9 @@ boolean currentBuildIsRootBuild = (gradle.parent == null)
 // be applied to several builds and will only enable itself when part of the root build.
 if (currentBuildIsRootBuild) {
   String buildScriptDir = buildscript.sourceFile.parent
-  File externalRoot = new File(buildScriptDir, '../../external')
+  File externalRoot = new File(buildScriptDir, "../../external")
 
-  includeBuild(new File(externalRoot, 'doclava'))
+  includeBuild(new File(externalRoot, "doclava"))
 }
 
 

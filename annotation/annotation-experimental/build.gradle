@@ -27,15 +27,15 @@ plugins {
 }
 
 dependencies {
-    compileOnly KOTLIN_STDLIB
+    compileOnly(KOTLIN_STDLIB)
 
     lintPublish(project(":annotation:annotation-experimental-lint"))
 }
 
 android {
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility(JavaVersion.VERSION_1_7)
+        targetCompatibility(JavaVersion.VERSION_1_7)
     }
 
     buildTypes.all {

@@ -31,7 +31,7 @@ android {
         aidl = true
     }
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 
@@ -42,7 +42,7 @@ dependencies {
     implementation("androidx.arch.core:core-runtime:2.0.1")
     compileOnly("androidx.paging:paging-common:2.0.0")
     compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
-    implementation "androidx.annotation:annotation-experimental:1.1.0-beta01"
+    implementation("androidx.annotation:annotation-experimental:1.1.0-beta01")
     compileOnly KOTLIN_STDLIB // Due to :annotation-experimental
 
     testImplementation("androidx.arch.core:core-testing:2.0.1")
@@ -71,9 +71,9 @@ android.libraryVariants.all { variant ->
 
     // Create jar<variant> task for testImplementation in room-compiler.
     project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn variant.javaCompileProvider.get()
-        from variant.javaCompileProvider.get().destinationDir
-        destinationDir new File(project.buildDir, "libJar")
+        dependsOn(variant.javaCompileProvider.get())
+        from(variant.javaCompileProvider.get().destinationDir)
+        destinationDir(new File(project.buildDir, "libJar"))
     }
 }
 

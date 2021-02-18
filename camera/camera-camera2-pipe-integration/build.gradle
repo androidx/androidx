@@ -38,9 +38,9 @@ BundleInsideHelper.forInsideAar(
 )
 
 dependencies {
-    implementation 'androidx.concurrent:concurrent-listenablefuture-callback:1.0.0-beta01'
-    releaseBundleInside(project(path: ':camera:camera-camera2-pipe', configuration: "exportRelease"))
-    debugBundleInside(project(path: ':camera:camera-camera2-pipe', configuration: "exportDebug"))
+    implementation("androidx.concurrent:concurrent-listenablefuture-callback:1.0.0-beta01")
+    releaseBundleInside(project(path: ":camera:camera-camera2-pipe", configuration: "exportRelease"))
+    debugBundleInside(project(path: ":camera:camera-camera2-pipe", configuration: "exportDebug"))
 
     // Classes and types that are needed at compile & runtime
     api("androidx.annotation:annotation:1.1.0")
@@ -53,8 +53,8 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 
     // Since we jarjar CameraPipe, include the transitive dependencies as implementation
-    implementation CAMERA_PIPE_DEPS.API
-    implementation CAMERA_PIPE_DEPS.IMPLEMENTATION
+    implementation(CAMERA_PIPE_DEPS.API)
+    implementation(CAMERA_PIPE_DEPS.IMPLEMENTATION)
 
     kapt(DAGGER_COMPILER)
 

@@ -28,7 +28,7 @@ plugins {
 dependencies {
     api(project(":loader:loader"))
     api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0") {
-        because 'Mirror loader dependency graph for -ktx artifacts'
+        because "Mirror loader dependency graph for -ktx artifacts"
     }
     api(KOTLIN_STDLIB)
 

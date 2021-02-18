@@ -36,11 +36,11 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
     androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation project(':internal-testutils-runtime'), {
-        exclude group: 'androidx.fragment', module: 'fragment'
-    }
-    androidTestImplementation(project(':internal-testutils-navigation'), {
-        exclude group: 'androidx.navigation', module: 'navigation-common-ktx'
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.fragment", module: "fragment"
+    })
+    androidTestImplementation(project(":internal-testutils-navigation"), {
+        exclude group: "androidx.navigation", module: "navigation-common-ktx"
     })
 }
 

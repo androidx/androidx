@@ -17,7 +17,7 @@ dependencies {
     api("androidx.core:core:1.5.0-alpha04")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
 
-    androidTestImplementation project(":test-screenshot")
+    androidTestImplementation(project(":test-screenshot"))
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -32,11 +32,11 @@ dependencies {
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(ROBOLECTRIC)
 
-    implementation "androidx.core:core-ktx:1.5.0-alpha04"
+    implementation("androidx.core:core-ktx:1.5.0-alpha04")
 
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 
-    compileOnly fileTree(dir: '../wear_stubs', include: ['com.google.android.wearable-stubs.jar'])
+    compileOnly(fileTree(dir: "../wear_stubs", include: ["com.google.android.wearable-stubs.jar"]))
 }
 
 android {
@@ -45,7 +45,7 @@ android {
     }
 
     sourceSets {
-        main.res.srcDirs += 'src/main/res-public'
+        main.res.srcDirs += "src/main/res-public"
         androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear"
     }
 

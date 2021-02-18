@@ -38,11 +38,11 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
-    androidTestImplementation project(':internal-testutils-runtime'), {
-        exclude group: 'androidx.activity', module: 'activity'
-    }
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.activity", module: "activity"
+    })
 
-    lintPublish(project(':activity:activity-lint'))
+    lintPublish(project(":activity:activity-lint"))
 }
 
 androidx {

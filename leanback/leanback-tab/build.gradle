@@ -18,8 +18,8 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api('com.google.android.material:material:1.0.0')
-    api('androidx.viewpager:viewpager:1.0.0')
+    api("com.google.android.material:material:1.0.0")
+    api("androidx.viewpager:viewpager:1.0.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -32,7 +32,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(project(":leanback:leanback"))
-    androidTestImplementation('androidx.appcompat:appcompat:1.0.0')
+    androidTestImplementation("androidx.appcompat:appcompat:1.0.0")
     androidTestImplementation(CONSTRAINT_LAYOUT, { transitive = true })
 
 }

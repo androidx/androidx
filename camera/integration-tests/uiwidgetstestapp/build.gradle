@@ -31,11 +31,11 @@ android {
     }
 
     sourceSets {
-        main.manifest.srcFile 'src/main/AndroidManifest.xml'
-        main.java.srcDirs = ['src/main/java']
-        main.java.excludes = ['**/build/**']
-        main.java.includes = ['**/*.java']
-        main.res.srcDirs = ['src/main/res']
+        main.manifest.srcFile "src/main/AndroidManifest.xml"
+        main.java.srcDirs = ["src/main/java"]
+        main.java.excludes = ["**/build/**"]
+        main.java.includes = ["**/*.java"]
+        main.res.srcDirs = ["src/main/res"]
     }
 
     buildTypes {
@@ -73,7 +73,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(project(":camera:camera-testing"))
-    androidTestImplementation(project(':internal-testutils-runtime'))
+    androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(TRUTH)
     debugImplementation(ANDROIDX_TEST_CORE)
     debugImplementation("androidx.fragment:fragment-testing:1.2.5")

@@ -98,8 +98,8 @@ dependencies {
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
-    androidTestImplementation(project(':internal-testutils-runtime'))
-    androidTestImplementation(project(':lifecycle:lifecycle-runtime-testing'))
+    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
 
     testImplementation(JUNIT)
     testImplementation(TRUTH)
