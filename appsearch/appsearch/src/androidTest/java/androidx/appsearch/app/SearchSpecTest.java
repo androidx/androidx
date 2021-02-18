@@ -25,6 +25,7 @@ import android.os.Bundle;
 
 import androidx.appsearch.annotation.Document;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
@@ -72,9 +73,9 @@ public class SearchSpecTest {
     public void testGetProjectionTypePropertyMasks() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                .addProjection("TypeA", "field1", "field2.subfield2")
-                .addProjection("TypeB", "field7")
-                .addProjection("TypeC")
+                .addProjection("TypeA", ImmutableList.of("field1", "field2.subfield2"))
+                .addProjection("TypeB", ImmutableList.of("field7"))
+                .addProjection("TypeC", ImmutableList.of())
                 .build();
 
         Map<String, List<String>> typePropertyPathMap = searchSpec.getProjections();

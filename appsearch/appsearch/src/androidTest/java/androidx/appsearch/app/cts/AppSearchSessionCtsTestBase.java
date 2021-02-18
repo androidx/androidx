@@ -49,6 +49,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -575,9 +576,12 @@ public abstract class AppSearchSessionCtsTestBase {
                         .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
-        GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUris(
-                "uri1",
-                "uri2").addProjection(AppSearchEmail.SCHEMA_TYPE, "subject", "to").build();
+        GetByUriRequest request = new GetByUriRequest.Builder()
+                .setNamespace("namespace")
+                .addUris("uri1", "uri2")
+                .addProjection(
+                        AppSearchEmail.SCHEMA_TYPE, ImmutableList.of("subject", "to"))
+                .build();
         List<GenericDocument> outDocuments = doGet(mDb1, request);
 
         // The two email documents should have been returned with only the "subject" and "to"
@@ -682,10 +686,12 @@ public abstract class AppSearchSessionCtsTestBase {
                         .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
-        GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUris(
-                "uri1",
-                "uri2").addProjection("NonExistentType", Collections.emptyList())
-                .addProjection(AppSearchEmail.SCHEMA_TYPE, "subject", "to").build();
+        GetByUriRequest request = new GetByUriRequest.Builder()
+                .setNamespace("namespace")
+                .addUris("uri1", "uri2")
+                .addProjection("NonExistentType", Collections.emptyList())
+                .addProjection(AppSearchEmail.SCHEMA_TYPE, ImmutableList.of("subject", "to"))
+                .build();
         List<GenericDocument> outDocuments = doGet(mDb1, request);
 
         // The two email documents should have been returned with only the "subject" and "to"
@@ -739,10 +745,13 @@ public abstract class AppSearchSessionCtsTestBase {
                         .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
-        GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUris(
-                "uri1",
-                "uri2").addProjection(GetByUriRequest.PROJECTION_SCHEMA_TYPE_WILDCARD, "subject",
-                "to").build();
+        GetByUriRequest request = new GetByUriRequest.Builder()
+                .setNamespace("namespace")
+                .addUris("uri1", "uri2")
+                .addProjection(
+                        GetByUriRequest.PROJECTION_SCHEMA_TYPE_WILDCARD,
+                        ImmutableList.of("subject", "to"))
+                .build();
         List<GenericDocument> outDocuments = doGet(mDb1, request);
 
         // The two email documents should have been returned with only the "subject" and "to"
@@ -848,11 +857,14 @@ public abstract class AppSearchSessionCtsTestBase {
                         .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
-        GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUris(
-                "uri1",
-                "uri2").addProjection("NonExistentType", Collections.emptyList())
-                .addProjection(GetByUriRequest.PROJECTION_SCHEMA_TYPE_WILDCARD, "subject",
-                        "to").build();
+        GetByUriRequest request = new GetByUriRequest.Builder()
+                .setNamespace("namespace")
+                .addUris("uri1", "uri2")
+                .addProjection("NonExistentType", Collections.emptyList())
+                .addProjection(
+                        GetByUriRequest.PROJECTION_SCHEMA_TYPE_WILDCARD,
+                        ImmutableList.of("subject", "to"))
+                .build();
         List<GenericDocument> outDocuments = doGet(mDb1, request);
 
         // The two email documents should have been returned with only the "subject" and "to"
@@ -1279,7 +1291,7 @@ public abstract class AppSearchSessionCtsTestBase {
         // Query with type property paths {"Email", ["body", "to"]}
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                .addProjection(AppSearchEmail.SCHEMA_TYPE, "body", "to")
+                .addProjection(AppSearchEmail.SCHEMA_TYPE, ImmutableList.of("body", "to"))
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
 
@@ -1416,7 +1428,7 @@ public abstract class AppSearchSessionCtsTestBase {
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .addProjection("NonExistentType", Collections.emptyList())
-                .addProjection(AppSearchEmail.SCHEMA_TYPE, "body", "to")
+                .addProjection(AppSearchEmail.SCHEMA_TYPE, ImmutableList.of("body", "to"))
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
 
@@ -1484,7 +1496,8 @@ public abstract class AppSearchSessionCtsTestBase {
         // Query with type property paths {"*", ["body", "to"]}
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                .addProjection(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD, "body", "to")
+                .addProjection(
+                        SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD, ImmutableList.of("body", "to"))
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
 
@@ -1614,7 +1627,8 @@ public abstract class AppSearchSessionCtsTestBase {
         SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .addProjection("NonExistentType", Collections.emptyList())
-                .addProjection(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD, "body", "to")
+                .addProjection(
+                        SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD, ImmutableList.of("body", "to"))
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
 

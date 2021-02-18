@@ -482,8 +482,8 @@ public abstract class GlobalSearchSessionCtsTestBase {
         List<GenericDocument> documents =
                 snapshotResults("body", new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .addProjection(AppSearchEmail.SCHEMA_TYPE,
-                                "subject", "to")
+                        .addProjection(
+                                AppSearchEmail.SCHEMA_TYPE, ImmutableList.of("subject", "to"))
                         .build());
 
         // The two email documents should have been returned with only the "subject" and "to"
@@ -610,7 +610,8 @@ public abstract class GlobalSearchSessionCtsTestBase {
                 snapshotResults("body", new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .addProjection("NonExistentType", Collections.emptyList())
-                        .addProjection(AppSearchEmail.SCHEMA_TYPE, "subject", "to")
+                        .addProjection(
+                                AppSearchEmail.SCHEMA_TYPE, ImmutableList.of("subject", "to"))
                         .build());
 
         // The two email documents should have been returned with only the "subject" and "to"
