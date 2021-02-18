@@ -37,9 +37,12 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Background thread which is destructed after certain period after all pending activities are
  * finished.
+ *
+ * @deprecated Not being used by any cross library, and should not be used, internal
+ * implementation detail.
  * @hide
  */
-// TODO Remove
+@Deprecated
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class SelfDestructiveThread {
     private final Object mLock = new Object();
