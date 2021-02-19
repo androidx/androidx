@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.fragment.app.strictmode
+package androidx.fragment.app
 
-import androidx.fragment.app.StrictFragment
-import androidx.fragment.app.executePendingTransactions
+import androidx.fragment.app.strictmode.Violation
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4

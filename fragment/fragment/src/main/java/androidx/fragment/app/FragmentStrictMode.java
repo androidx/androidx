@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.fragment.app.strictmode;
+package androidx.fragment.app;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
@@ -23,8 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.strictmode.Violation;
 
 import java.util.Collections;
 import java.util.HashSet;
