@@ -86,8 +86,8 @@ constructor(
      * @return this
      */
     @Suppress("MissingGetterMatchingBuilder")
-    public fun setKeysToMigrate(vararg keys: String):
-        RxSharedPreferencesMigrationBuilder<T> = apply {
+    public fun setKeysToMigrate(vararg keys: String): RxSharedPreferencesMigrationBuilder<T> =
+        apply {
             keysToMigrate = setOf(*keys)
         }
 
@@ -97,16 +97,29 @@ constructor(
      * @return the DataMigration.
      */
     public fun build(): DataMigration<T> {
-        return SharedPreferencesMigration(
-            context = context,
-            sharedPreferencesName = sharedPreferencesName,
-            migrate = { spView, curData ->
-                rxSharedPreferencesMigration.migrate(spView, curData).await()
-            },
-            keysToMigrate = keysToMigrate,
-            shouldRunMigration = { curData ->
-                rxSharedPreferencesMigration.shouldMigrate(curData).await()
-            }
-        )
+        return if (keysToMigrate == null) {
+            SharedPreferencesMigration(
+                context = context,
+                sharedPreferencesName = sharedPreferencesName,
+                migrate = { spView, curData ->
+                    rxSharedPreferencesMigration.migrate(spView, curData).await()
+                },
+                shouldRunMigration = { curData ->
+                    rxSharedPreferencesMigration.shouldMigrate(curData).await()
+                }
+            )
+        } else {
+            SharedPreferencesMigration(
+                context = context,
+                sharedPreferencesName = sharedPreferencesName,
+                migrate = { spView, curData ->
+                    rxSharedPreferencesMigration.migrate(spView, curData).await()
+                },
+                keysToMigrate = keysToMigrate!!,
+                shouldRunMigration = { curData ->
+                    rxSharedPreferencesMigration.shouldMigrate(curData).await()
+                }
+            )
+        }
     }
 }

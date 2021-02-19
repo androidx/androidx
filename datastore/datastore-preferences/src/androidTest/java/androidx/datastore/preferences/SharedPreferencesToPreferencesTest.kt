@@ -376,6 +376,21 @@ class SharedPreferencesToPreferencesTest {
     }
 
     @Test
+    fun noKeysSpecifiedMigratesNoKeys() = runBlockingTest {
+        assertTrue { sharedPrefs.edit().putInt("some_key", 123).commit() }
+
+        val migration = SharedPreferencesMigration(
+            context = context,
+            sharedPreferencesName = sharedPrefsName,
+            keysToMigrate = setOf()
+        )
+
+        val preferencesStore = getDataStoreWithMigrations(listOf(migration))
+        val prefs = preferencesStore.data.first()
+        assertEquals(0, prefs.asMap().size)
+    }
+
+    @Test
     fun producedSharedPreferencesIsUsed() = runBlockingTest {
         val integerKey = intPreferencesKey("integer_key")
         val integerValue = 123

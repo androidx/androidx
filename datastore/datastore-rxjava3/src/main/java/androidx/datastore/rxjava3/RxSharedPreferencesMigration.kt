@@ -43,7 +43,7 @@ public interface RxSharedPreferencesMigration<T> {
      * Maps SharedPreferences into T. Implementations should be idempotent
      * since this may be called multiple times. See [DataMigration.migrate] for more
      * information. The method accepts a SharedPreferencesView which is the view of the
-     * SharedPreferences to migrate from (limited to [keysToMigrate] and a T which represent
+     * SharedPreferences to migrate from (limited to [keysToMigrate]) and a T which represent
      * the current data. The function must return the migrated data.
      *
      * @param sharedPreferencesView the current state of the SharedPreferences
@@ -97,16 +97,29 @@ constructor(
      * @return the DataMigration.
      */
     public fun build(): DataMigration<T> {
-        return SharedPreferencesMigration(
-            context = context,
-            sharedPreferencesName = sharedPreferencesName,
-            migrate = { spView, curData ->
-                rxSharedPreferencesMigration.migrate(spView, curData).await()
-            },
-            keysToMigrate = keysToMigrate,
-            shouldRunMigration = { curData ->
-                rxSharedPreferencesMigration.shouldMigrate(curData).await()
-            }
-        )
+        return if (keysToMigrate == null) {
+            SharedPreferencesMigration(
+                context = context,
+                sharedPreferencesName = sharedPreferencesName,
+                migrate = { spView, curData ->
+                    rxSharedPreferencesMigration.migrate(spView, curData).await()
+                },
+                shouldRunMigration = { curData ->
+                    rxSharedPreferencesMigration.shouldMigrate(curData).await()
+                }
+            )
+        } else {
+            SharedPreferencesMigration(
+                context = context,
+                sharedPreferencesName = sharedPreferencesName,
+                migrate = { spView, curData ->
+                    rxSharedPreferencesMigration.migrate(spView, curData).await()
+                },
+                keysToMigrate = keysToMigrate!!,
+                shouldRunMigration = { curData ->
+                    rxSharedPreferencesMigration.shouldMigrate(curData).await()
+                }
+            )
+        }
     }
 }

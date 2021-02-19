@@ -44,15 +44,22 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 @JvmOverloads // Generate methods for default params for java users.
 public fun SharedPreferencesMigration(
     produceSharedPreferences: () -> SharedPreferences,
-    keysToMigrate: Set<String>? = MIGRATE_ALL_KEYS
-): SharedPreferencesMigration<Preferences> {
-    return SharedPreferencesMigration(
-        produceSharedPreferences = produceSharedPreferences,
-        keysToMigrate = keysToMigrate,
-        shouldRunMigration = getShouldRunMigration(keysToMigrate),
-        migrate = getMigrationFunction(),
-    )
-}
+    keysToMigrate: Set<String> = MIGRATE_ALL_KEYS
+): SharedPreferencesMigration<Preferences> =
+    if (keysToMigrate === MIGRATE_ALL_KEYS) {
+        SharedPreferencesMigration(
+            produceSharedPreferences = produceSharedPreferences,
+            shouldRunMigration = getShouldRunMigration(keysToMigrate),
+            migrate = getMigrationFunction(),
+        )
+    } else {
+        SharedPreferencesMigration(
+            produceSharedPreferences = produceSharedPreferences,
+            keysToMigrate = keysToMigrate,
+            shouldRunMigration = getShouldRunMigration(keysToMigrate),
+            migrate = getMigrationFunction(),
+        )
+    }
 
 /**
  * Creates a SharedPreferencesMigration for DataStore<Preferences>.
@@ -72,16 +79,24 @@ public fun SharedPreferencesMigration(
 public fun SharedPreferencesMigration(
     context: Context,
     sharedPreferencesName: String,
-    keysToMigrate: Set<String>? = MIGRATE_ALL_KEYS,
-): SharedPreferencesMigration<Preferences> {
-    return SharedPreferencesMigration(
-        context = context,
-        sharedPreferencesName = sharedPreferencesName,
-        keysToMigrate = keysToMigrate,
-        shouldRunMigration = getShouldRunMigration(keysToMigrate),
-        migrate = getMigrationFunction()
-    )
-}
+    keysToMigrate: Set<String> = MIGRATE_ALL_KEYS,
+): SharedPreferencesMigration<Preferences> =
+    if (keysToMigrate === MIGRATE_ALL_KEYS) {
+        SharedPreferencesMigration(
+            context = context,
+            sharedPreferencesName = sharedPreferencesName,
+            shouldRunMigration = getShouldRunMigration(keysToMigrate),
+            migrate = getMigrationFunction()
+        )
+    } else {
+        SharedPreferencesMigration(
+            context = context,
+            sharedPreferencesName = sharedPreferencesName,
+            keysToMigrate = keysToMigrate,
+            shouldRunMigration = getShouldRunMigration(keysToMigrate),
+            migrate = getMigrationFunction()
+        )
+    }
 
 private fun getMigrationFunction(): suspend (SharedPreferencesView, Preferences) -> Preferences =
     { sharedPrefs: SharedPreferencesView, currentData: Preferences ->
@@ -122,12 +137,17 @@ private fun getMigrationFunction(): suspend (SharedPreferencesView, Preferences)
         mutablePreferences.toPreferences()
     }
 
-private fun getShouldRunMigration(keysToMigrate: Set<String>?): suspend (Preferences) -> Boolean =
+private fun getShouldRunMigration(keysToMigrate: Set<String>): suspend (Preferences) -> Boolean =
     { prefs ->
         // If any key hasn't been migrated to currentData, we can't skip the migration. If
         // the key set is not specified, we can't skip the migration.
         val allKeys = prefs.asMap().keys.map { it.name }
-        keysToMigrate?.any { it !in allKeys } ?: true
+
+        if (keysToMigrate === MIGRATE_ALL_KEYS) {
+            true
+        } else {
+            keysToMigrate.any { it !in allKeys }
+        }
     }
 
-internal val MIGRATE_ALL_KEYS = null
+internal val MIGRATE_ALL_KEYS: Set<String> = mutableSetOf()
