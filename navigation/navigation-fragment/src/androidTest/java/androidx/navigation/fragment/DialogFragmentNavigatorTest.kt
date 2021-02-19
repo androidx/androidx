@@ -72,7 +72,7 @@ class DialogFragmentNavigatorTest {
         val dialogNavigator = DialogFragmentNavigator(emptyActivity, fragmentManager)
         val destination = dialogNavigator.createDestination().apply {
             id = INITIAL_FRAGMENT
-            className = EmptyDialogFragment::class.java.name
+            setClassName(EmptyDialogFragment::class.java.name)
         }
 
         assertThat(dialogNavigator.navigate(destination, null, null, null))
@@ -121,7 +121,7 @@ class DialogFragmentNavigatorTest {
         val dialogNavigator = DialogFragmentNavigator(emptyActivity, fragmentManager)
         val destination = dialogNavigator.createDestination().apply {
             id = INITIAL_FRAGMENT
-            className = EmptyDialogFragment::class.java.name
+            setClassName(EmptyDialogFragment::class.java.name)
         }
 
         assertThat(dialogNavigator.navigate(destination, null, null, null))
