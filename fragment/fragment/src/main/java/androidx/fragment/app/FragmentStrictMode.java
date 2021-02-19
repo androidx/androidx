@@ -17,6 +17,7 @@
 package androidx.fragment.app;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -128,7 +129,7 @@ public final class FragmentStrictMode {
 
             /**
              * Call #{@link OnViolationListener#onViolation} for every violation. The listener will
-             * be called on the thread which caused the violation.
+             * be called on the main thread of the fragment host.
              */
             @NonNull
             @SuppressLint("BuilderSetStyle")
@@ -183,21 +184,39 @@ public final class FragmentStrictMode {
     }
 
     @VisibleForTesting
-    static void onPolicyViolation(@NonNull Fragment fragment, @NonNull Violation violation) {
-        Policy policy = getNearestPolicy(fragment);
-        String fragmentName = fragment.getClass().getName();
+    static void onPolicyViolation(@NonNull Fragment fragment, @NonNull final Violation violation) {
+        final Policy policy = getNearestPolicy(fragment);
+        final String fragmentName = fragment.getClass().getName();
 
         if (policy.flags.contains(Flag.PENALTY_LOG)) {
             Log.d(TAG, "Policy violation in " + fragmentName, violation);
         }
 
         if (policy.listener != null) {
-            policy.listener.onViolation(violation);
+            runOnHostThread(fragment.mHost, new Runnable() {
+                @Override
+                public void run() {
+                    policy.listener.onViolation(violation);
+                }
+            });
         }
 
         if (policy.flags.contains(Flag.PENALTY_DEATH)) {
-            Log.e(TAG, "Policy violation with PENALTY_DEATH in " + fragmentName, violation);
-            throw violation;
+            runOnHostThread(fragment.mHost, new Runnable() {
+                @Override
+                public void run() {
+                    Log.e(TAG, "Policy violation with PENALTY_DEATH in " + fragmentName, violation);
+                    throw violation;
+                }
+            });
+        }
+    }
+
+    private static void runOnHostThread(FragmentHostCallback<?> host, Runnable runnable) {
+        if (host == null || host.getHandler().getLooper() == Looper.myLooper()) {
+            runnable.run(); // Already on correct thread -> run synchronously
+        } else {
+            host.getHandler().post(runnable); // Switch to correct thread
         }
     }
 }
