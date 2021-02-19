@@ -149,11 +149,17 @@ public final class CarIconSpan extends CarSpan {
         mAlignment = ALIGN_BASELINE;
     }
 
-    @Nullable
+    /**
+     * Returns the {@link CarIcon} instance associated with this span.
+     */
+    @NonNull
     public CarIcon getIcon() {
-        return mIcon;
+        return requireNonNull(mIcon);
     }
 
+    /**
+     * Returns the alignment that should be used with this span.
+     */
     @Alignment
     public int getAlignment() {
         return mAlignment;

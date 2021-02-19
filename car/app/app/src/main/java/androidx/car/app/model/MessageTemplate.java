@@ -18,6 +18,7 @@ package androidx.car.app.model;
 
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 
+import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
 
 import android.util.Log;
@@ -87,10 +88,11 @@ public final class MessageTemplate implements Template {
      *
      * @see Builder#Builder(CharSequence)
      */
-    @Nullable
+    @NonNull
     public CarText getMessage() {
-        return mMessage;
+        return requireNonNull(mMessage);
     }
+
 
     /**
      * Returns a debug message to display in the template or {@code null} if not set.
@@ -131,7 +133,7 @@ public final class MessageTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mTitle, mMessage, mDebugMessage, mHeaderAction, mActionList, mIcon);
+        return hash(mTitle, mMessage, mDebugMessage, mHeaderAction, mActionList, mIcon);
     }
 
     @Override
