@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
 
 import java.util.ArrayList;
@@ -98,8 +99,28 @@ final class BackStackRecordState implements Parcelable {
         mReorderingAllowed = in.readInt() != 0;
     }
 
-    public BackStackRecord instantiate(FragmentManager fm) {
+    /**
+     * Instantiates a {@link BackStackRecord} from this state that mirrors the
+     * exact state it was in when the FragmentManager's state was saved. This
+     * assumes that all fragments included in this transactions are already
+     * added as active fragments to the FragmentManager.
+     */
+    @NonNull
+    public BackStackRecord instantiate(@NonNull FragmentManager fm) {
         BackStackRecord bse = new BackStackRecord(fm);
+        fillInBackStackRecord(bse);
+        bse.mIndex = mIndex;
+        for (int num = 0; num < mFragmentWhos.size(); num++) {
+            String fWho = mFragmentWhos.get(num);
+            if (fWho != null) {
+                bse.mOps.get(num).mFragment = fm.findActiveFragment(fWho);
+            }
+        }
+        bse.bumpBackStackNesting(1);
+        return bse;
+    }
+
+    private void fillInBackStackRecord(@NonNull BackStackRecord bse) {
         int pos = 0;
         int num = 0;
         while (pos < mOps.length) {
@@ -108,13 +129,6 @@ final class BackStackRecordState implements Parcelable {
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(TAG, "Instantiate " + bse
                         + " op #" + num + " base fragment #" + mOps[pos]);
-            }
-            String fWho = mFragmentWhos.get(num);
-            if (fWho != null) {
-                Fragment f = fm.findActiveFragment(fWho);
-                op.mFragment = f;
-            } else {
-                op.mFragment = null;
             }
             op.mOldMaxState = Lifecycle.State.values()[mOldMaxLifecycleStates[num]];
             op.mCurrentMaxState = Lifecycle.State.values()[mCurrentMaxLifecycleStates[num]];
@@ -132,7 +146,6 @@ final class BackStackRecordState implements Parcelable {
         }
         bse.mTransition = mTransition;
         bse.mName = mName;
-        bse.mIndex = mIndex;
         bse.mAddToBackStack = true;
         bse.mBreadCrumbTitleRes = mBreadCrumbTitleRes;
         bse.mBreadCrumbTitleText = mBreadCrumbTitleText;
@@ -141,8 +154,6 @@ final class BackStackRecordState implements Parcelable {
         bse.mSharedElementSourceNames = mSharedElementSourceNames;
         bse.mSharedElementTargetNames = mSharedElementTargetNames;
         bse.mReorderingAllowed = mReorderingAllowed;
-        bse.bumpBackStackNesting(1);
-        return bse;
     }
 
     @Override
