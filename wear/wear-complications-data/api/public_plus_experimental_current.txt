@@ -556,3 +556,10 @@ package androidx.wear.complications.data {
 
 }
 
+package androidx.wear.utility {
+
+  public final class TraceEventKt {
+  }
+
+}
+

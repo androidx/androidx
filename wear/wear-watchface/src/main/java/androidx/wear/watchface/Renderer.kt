@@ -36,6 +36,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.Px
 import androidx.annotation.UiThread
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.Renderer.CanvasRenderer
 import androidx.wear.watchface.Renderer.GlesRenderer
 import androidx.wear.watchface.style.UserStyleRepository
@@ -324,7 +325,7 @@ public sealed class Renderer(
         internal override fun takeScreenshot(
             calendar: Calendar,
             renderParameters: RenderParameters
-        ): Bitmap {
+        ): Bitmap = TraceEvent("CanvasRenderer.takeScreenshot").use {
             val bitmap = Bitmap.createBitmap(
                 screenBounds.width(),
                 screenBounds.height(),
@@ -586,7 +587,7 @@ public sealed class Renderer(
         internal override fun takeScreenshot(
             calendar: Calendar,
             renderParameters: RenderParameters
-        ): Bitmap {
+        ): Bitmap = TraceEvent("GlesRenderer.takeScreenshot").use {
             val width = screenBounds.width()
             val height = screenBounds.height()
             val pixelBuf = ByteBuffer.allocateDirect(width * height * 4)

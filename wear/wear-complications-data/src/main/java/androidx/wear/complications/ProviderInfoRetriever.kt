@@ -31,8 +31,8 @@ import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.asApiComplicationData
+import androidx.wear.utility.TraceEvent
 import kotlinx.coroutines.CompletableDeferred
-import java.lang.Exception
 
 /**
  * Retrieves [ComplicationProviderInfo] for a watch face's complications.
@@ -114,11 +114,13 @@ public class ProviderInfoRetriever : AutoCloseable {
     public suspend fun retrieveProviderInfo(
         watchFaceComponent: ComponentName,
         watchFaceComplicationIds: IntArray
-    ): Array<ProviderInfo>? = deferredService.await().getProviderInfos(
-        watchFaceComponent, watchFaceComplicationIds
-    )?.mapIndexed { index, info ->
-        ProviderInfo(watchFaceComplicationIds[index], info)
-    }?.toTypedArray()
+    ): Array<ProviderInfo>? = TraceEvent("ProviderInfoRetriever.retrieveProviderInfo").use {
+        awaitDeferredService().getProviderInfos(
+            watchFaceComponent, watchFaceComplicationIds
+        )?.mapIndexed { index, info ->
+            ProviderInfo(watchFaceComplicationIds[index], info)
+        }?.toTypedArray()
+    }
 
     /**
      * Requests preview [ComplicationData] for a provider [ComponentName] and
@@ -136,8 +138,10 @@ public class ProviderInfoRetriever : AutoCloseable {
     public suspend fun requestPreviewComplicationData(
         providerComponent: ComponentName,
         complicationType: ComplicationType
-    ): ComplicationData? {
-        val service = deferredService.await()
+    ): ComplicationData? = TraceEvent(
+        "ProviderInfoRetriever.requestPreviewComplicationData"
+    ).use {
+        val service = awaitDeferredService()
         if (service.apiVersion < 1) {
             return null
         }
@@ -164,6 +168,11 @@ public class ProviderInfoRetriever : AutoCloseable {
         }
         return result.await()
     }
+
+    private suspend fun awaitDeferredService(): IProviderInfoService =
+        TraceEvent("ProviderInfoRetriever.awaitDeferredService").use {
+            deferredService.await()
+        }
 
     /**
      * Releases the connection to the complication system used by this class. This must

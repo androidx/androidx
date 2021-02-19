@@ -23,6 +23,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
@@ -136,7 +137,9 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
 
     constructor(binder: IBinder) : this(IInteractiveWatchFaceWCS.Stub.asInterface(binder))
 
-    override fun updateComplicationData(idToComplicationData: Map<Int, ComplicationData>) {
+    override fun updateComplicationData(
+        idToComplicationData: Map<Int, ComplicationData>
+    ) = TraceEvent("InteractiveWatchFaceWcsClientImpl.updateComplicationData").use {
         iInteractiveWatchFaceWcs.updateComplicationData(
             idToComplicationData.map {
                 IdAndComplicationDataWireFormat(it.key, it.value.asWireComplicationData())
@@ -152,31 +155,37 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
-        iInteractiveWatchFaceWcs.takeWatchFaceScreenshot(
-            WatchfaceScreenshotParams(
-                renderParameters.toWireFormat(),
-                compressionQuality,
-                calendarTimeMillis,
-                userStyle?.toWireFormat(),
-                idAndComplicationData?.map {
-                    IdAndComplicationDataWireFormat(
-                        it.key,
-                        it.value.asWireComplicationData()
-                    )
-                }
+    ): Bitmap = TraceEvent("InteractiveWatchFaceWcsClientImpl.takeWatchFaceScreenshot").use {
+        SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            iInteractiveWatchFaceWcs.takeWatchFaceScreenshot(
+                WatchfaceScreenshotParams(
+                    renderParameters.toWireFormat(),
+                    compressionQuality,
+                    calendarTimeMillis,
+                    userStyle?.toWireFormat(),
+                    idAndComplicationData?.map {
+                        IdAndComplicationDataWireFormat(
+                            it.key,
+                            it.value.asWireComplicationData()
+                        )
+                    }
+                )
             )
         )
-    )
+    }
 
     override val previewReferenceTimeMillis: Long
         get() = iInteractiveWatchFaceWcs.previewReferenceTimeMillis
 
-    override fun setUserStyle(userStyle: UserStyle) {
+    override fun setUserStyle(userStyle: UserStyle) = TraceEvent(
+        "InteractiveWatchFaceWcsClientImpl.setUserStyle"
+    ).use {
         iInteractiveWatchFaceWcs.setCurrentUserStyle(userStyle.toWireFormat())
     }
 
-    override fun setUserStyle(userStyle: Map<String, String>) {
+    override fun setUserStyle(userStyle: Map<String, String>) = TraceEvent(
+        "InteractiveWatchFaceWcsClientImpl.setUserStyle"
+    ).use {
         iInteractiveWatchFaceWcs.setCurrentUserStyle(UserStyleWireFormat(userStyle))
     }
 
@@ -192,13 +201,15 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
             { ComplicationState(it.complicationState) }
         )
 
-    override fun close() {
+    override fun close() = TraceEvent("InteractiveWatchFaceWcsClientImpl.close").use {
         iInteractiveWatchFaceWcs.release()
     }
 
     override fun asBinder(): IBinder = iInteractiveWatchFaceWcs.asBinder()
 
-    override fun bringAttentionToComplication(complicationId: Int) {
+    override fun bringAttentionToComplication(complicationId: Int) = TraceEvent(
+        "InteractiveWatchFaceWcsClientImpl.bringAttentionToComplication"
+    ).use {
         iInteractiveWatchFaceWcs.bringAttentionToComplication(complicationId)
     }
 }

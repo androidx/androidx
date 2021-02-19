@@ -41,6 +41,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
+import androidx.wear.utility.TraceEvent
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.IdAndComplicationData
@@ -652,7 +653,7 @@ internal class WatchFaceImpl(
             renderParameters: RenderParameters,
             calendarTimeMillis: Long,
             idToComplicationData: Map<Int, ComplicationData>?
-        ): Bitmap {
+        ): Bitmap = TraceEvent("WFEditorDelegate.takeScreenshot").use {
             val oldComplicationData =
                 complicationsManager.complications.values.map {
                     it.renderer.getIdAndData() ?: IdAndComplicationData(
@@ -684,7 +685,7 @@ internal class WatchFaceImpl(
             return screenShot
         }
 
-        override fun onDestroy() {
+        override fun onDestroy(): Unit = TraceEvent("WFEditorDelegate.onDestroy").use {
             if (watchState.isHeadless) {
                 this@WatchFaceImpl.onDestroy()
             }
