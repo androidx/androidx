@@ -38,6 +38,9 @@ data class Database(
     val exportSchema: Boolean,
     val enableForeignKeys: Boolean
 ) {
+    // This variable will be set once auto-migrations are processed given the DatabaseBundle from
+    // this object. This is necessary for tracking the versions involved in the auto-migration.
+    lateinit var autoMigrations: List<AutoMigrationResult>
     val typeName: ClassName by lazy { element.className }
 
     private val implClassName by lazy {

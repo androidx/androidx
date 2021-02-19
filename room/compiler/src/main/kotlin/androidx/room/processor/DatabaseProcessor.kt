@@ -22,8 +22,10 @@ import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
+import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
+import androidx.room.vo.AutoMigrationResult
 import androidx.room.vo.Dao
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
@@ -115,7 +117,40 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             exportSchema = dbAnnotation.value.exportSchema,
             enableForeignKeys = hasForeignKeys
         )
+        database.autoMigrations = processAutoMigrations(element, database.bundle)
         return database
+    }
+
+    private fun processAutoMigrations(
+        element: XTypeElement,
+        latestDbSchema: DatabaseBundle
+    ): List<AutoMigrationResult> {
+        val dbAnnotation = element.toAnnotationBox(androidx.room.Database::class)!!
+        val autoMigrationList = dbAnnotation.getAsTypeList("autoMigrations")
+        context.checker.check(
+            autoMigrationList.isEmpty() || dbAnnotation.value.exportSchema,
+            element,
+            ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
+        )
+
+        return autoMigrationList.mapNotNull {
+            val typeElement = it.typeElement
+            if (typeElement == null) {
+                context.logger.e(
+                    element,
+                    ProcessorErrors.invalidAutoMigrationTypeInDatabaseAnnotation(
+                        it.typeName
+                    )
+                )
+                null
+            } else {
+                AutoMigrationProcessor(
+                    context = context,
+                    element = typeElement,
+                    latestDbSchema = latestDbSchema
+                ).process()
+            }
+        }
     }
 
     private fun validateForeignKeys(element: XTypeElement, entities: List<Entity>) {
