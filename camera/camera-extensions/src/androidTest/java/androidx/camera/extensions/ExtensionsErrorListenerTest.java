@@ -26,19 +26,24 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import android.app.Instrumentation;
 import android.content.Context;
+import android.hardware.camera2.CameraAccessException;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
+import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
@@ -210,7 +215,8 @@ public final class ExtensionsErrorListenerTest {
 
     @Test
     public void notReceiveErrorCode_whenEnableBothImageCapturePreview_ByExtenderAPI()
-            throws InterruptedException {
+            throws InterruptedException, CameraAccessException, CameraInfoUnavailableException {
+        assumeTrue(canSupportImageCaptureTogetherWithPreview(mEffectMode, mEffectMode));
         ExtensionsErrorListener mockExtensionsErrorListener = mock(ExtensionsErrorListener.class);
         ExtensionsManager.setExtensionsErrorListener(mockExtensionsErrorListener);
 
@@ -228,14 +234,7 @@ public final class ExtensionsErrorListenerTest {
 
     @Test
     public void receiveErrorCode_whenEnableMismatchedImageCapturePreview_ByExtenderAPI()
-            throws InterruptedException {
-        ExtensionsManager.setExtensionsErrorListener(mExtensionsErrorListener);
-
-        // Creates ImageCapture
-        ImageCapture imageCapture = ExtensionsTestUtil.createImageCaptureWithEffect(mEffectMode,
-                mLensFacing);
-
-        // Creates mismatched Preview
+            throws InterruptedException, CameraAccessException, CameraInfoUnavailableException {
         EffectMode mismatchedEffectMode;
 
         if (mEffectMode != EffectMode.BOKEH) {
@@ -248,6 +247,14 @@ public final class ExtensionsErrorListenerTest {
             mismatchedEffectMode = EffectMode.HDR;
         }
 
+        assumeTrue(canSupportImageCaptureTogetherWithPreview(mEffectMode, mismatchedEffectMode));
+        ExtensionsManager.setExtensionsErrorListener(mExtensionsErrorListener);
+
+        // Creates ImageCapture
+        ImageCapture imageCapture = ExtensionsTestUtil.createImageCaptureWithEffect(mEffectMode,
+                mLensFacing);
+
+        // Creates mismatched Preview
         Preview preview = ExtensionsTestUtil.createPreviewWithEffect(mismatchedEffectMode,
                 mLensFacing);
 
@@ -302,7 +309,9 @@ public final class ExtensionsErrorListenerTest {
     }
 
     @Test
-    public void notReceiveErrorCode_whenBindBothImageCapturePreview() throws InterruptedException {
+    public void notReceiveErrorCode_whenBindBothImageCapturePreview()
+            throws InterruptedException, CameraAccessException, CameraInfoUnavailableException {
+        assumeTrue(canSupportImageCaptureTogetherWithPreview(mEffectMode, mEffectMode));
         ExtensionsErrorListener mockExtensionsErrorListener = mock(ExtensionsErrorListener.class);
         ExtensionsManager.setExtensionsErrorListener(mockExtensionsErrorListener);
 
@@ -317,5 +326,36 @@ public final class ExtensionsErrorListenerTest {
         // Waits for one second to get error code.
         Thread.sleep(1000);
         verifyZeroInteractions(mockExtensionsErrorListener);
+    }
+
+    private boolean canSupportImageCaptureTogetherWithPreview(
+            @NonNull EffectMode imageCaptureEffectMode, @NonNull EffectMode previewEffectMode)
+            throws CameraAccessException, CameraInfoUnavailableException {
+
+        CameraUseCaseAdapter camera = CameraUtil.createCameraUseCaseAdapter(mContext,
+                mCameraSelector);
+        String type = ((CameraInfoInternal) camera.getCameraInfo()).getImplementationType();
+
+        // Non-Legacy devices can support ImageCapture together with Preview
+        if (!type.equals(CameraInfoInternal.IMPLEMENTATION_TYPE_CAMERA2_LEGACY)) {
+            return true;
+        }
+
+        ImageCaptureExtenderImpl imageCaptureExtenderImpl =
+                ExtensionsTestUtil.createImageCaptureExtenderImpl(imageCaptureEffectMode,
+                        mLensFacing);
+
+        PreviewExtenderImpl previewExtenderImpl =
+                ExtensionsTestUtil.createPreviewExtenderImpl(previewEffectMode, mLensFacing);
+
+        // If the device is Legacy level and both ImageCapture and Preview need YUV streams, it
+        // can't be supported.
+        if (imageCaptureExtenderImpl.getCaptureProcessor() != null
+                && previewExtenderImpl.getProcessorType()
+                == PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR) {
+            return false;
+        }
+
+        return true;
     }
 }
