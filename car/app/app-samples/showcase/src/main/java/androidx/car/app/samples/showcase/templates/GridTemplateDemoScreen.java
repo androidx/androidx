@@ -84,17 +84,17 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
     @NonNull
     @Override
     public Template onGetTemplate() {
-        ItemList.Builder gridItemlistBuilder = new ItemList.Builder();
+        ItemList.Builder gridItemListBuilder = new ItemList.Builder();
 
         // Grid item with an icon and a title.
-        gridItemlistBuilder.addItem(
+        gridItemListBuilder.addItem(
                 new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mIcon).build())
                         .setTitle("Non-actionable")
                         .build());
 
         // Grid item with a large icon, a title, onClickListener and no text.
-        gridItemlistBuilder.addItem(
+        gridItemListBuilder.addItem(
                 new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mIcon).build(), GridItem.IMAGE_TYPE_LARGE)
                         .setTitle("Second Item")
@@ -108,7 +108,7 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
                         .build());
 
         // Grid item with an icon marked as icon, a title, a text and a toggle in unchecked state.
-        gridItemlistBuilder.addItem(
+        gridItemListBuilder.addItem(
                 new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mIcon).build(), GridItem.IMAGE_TYPE_ICON)
                         .setTitle("Third Item")
@@ -128,27 +128,25 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
         // Grid item with an image, a title, a long text and a toggle that takes some time to
         // update.
         if (mIsFourthItemLoading) {
-            gridItemlistBuilder.addItem(
+            gridItemListBuilder.addItem(
                     new GridItem.Builder()
                             .setTitle("Fourth")
                             .setText(mFourthItemToggleState ? "On" : "Off")
                             .setLoading(true)
                             .build());
         } else {
-            gridItemlistBuilder.addItem(
+            gridItemListBuilder.addItem(
                     new GridItem.Builder()
                             .setImage(new CarIcon.Builder(mImage).build())
                             .setTitle("Fourth")
                             .setText(mFourthItemToggleState ? "On" : "Off")
                             .setOnClickListener(
-                                    () -> {
-                                        triggerFourthItemLoading();
-                                    })
+                                    this::triggerFourthItemLoading)
                             .build());
         }
 
         // Grid item with a large image, a long title, no text and a toggle in unchecked state.
-        gridItemlistBuilder.addItem(
+        gridItemListBuilder.addItem(
                 new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mImage).build(), GridItem.IMAGE_TYPE_LARGE)
                         .setTitle("Fifth Item has a long title set")
@@ -165,7 +163,7 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
                         .build());
 
         // Grid item with an image marked as an icon, a long title, a long text and onClickListener.
-        gridItemlistBuilder.addItem(
+        gridItemListBuilder.addItem(
                 new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mImage).build(), GridItem.IMAGE_TYPE_ICON)
                         .setTitle("Sixth Item has a long title set")
@@ -181,7 +179,7 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
 
         return new GridTemplate.Builder()
                 .setHeaderAction(Action.APP_ICON)
-                .setSingleList(gridItemlistBuilder.build())
+                .setSingleList(gridItemListBuilder.build())
                 .setTitle("Grid Template Demo")
                 .setActionStrip(
                         new ActionStrip.Builder()

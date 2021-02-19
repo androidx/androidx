@@ -27,7 +27,7 @@ import androidx.car.app.samples.showcase.common.SamplePlaces;
 
 /** Creates a screen using the {@link PlaceListNavigationTemplate} */
 public final class PlaceListNavigationTemplateDemoScreen extends Screen {
-    private SamplePlaces mPlaces;
+    private final SamplePlaces mPlaces;
 
     public PlaceListNavigationTemplateDemoScreen(@NonNull CarContext carContext) {
         super(carContext);

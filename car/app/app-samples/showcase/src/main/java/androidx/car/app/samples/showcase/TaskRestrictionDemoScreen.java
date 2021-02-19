@@ -144,8 +144,4 @@ public final class TaskRestrictionDemoScreen extends Screen {
                                 .build())
                 .build();
     }
-
-    boolean isToggleChecked() {
-        return mToggleState;
-    }
 }
