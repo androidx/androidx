@@ -22,6 +22,7 @@ import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.Serializer
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.dataStoreFile
 import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
@@ -59,9 +60,9 @@ public class RxDataStoreBuilder<T : Any> {
      * time.
      *
      * @param context the context from which we retrieve files directory.
-     * @param fileName the filename relative to Context.filesDir that DataStore acts on. The File is
-     * obtained by calling File(context.filesDir, "datastore/" + fileName). No two instances of
-     * DataStore should act on the same file at the same time.
+     * @param fileName the filename relative to Context.applicationContext.filesDir that DataStore
+     * acts on. The File is obtained from [dataStoreFile]. It is created in the "/datastore"
+     * subdirectory.
      * @param serializer the serializer for the type that this DataStore acts on.
      */
     public constructor(context: Context, fileName: String, serializer: Serializer<T>) {
@@ -151,7 +152,7 @@ public class RxDataStoreBuilder<T : Any> {
             )
         } else if (context != null && name != null) {
             DataStoreFactory.create(
-                produceFile = { File(context!!.filesDir, "datastore/$name") },
+                produceFile = { context!!.dataStoreFile(name!!) },
                 serializer = serializer!!,
                 scope = scope,
                 corruptionHandler = corruptionHandler,

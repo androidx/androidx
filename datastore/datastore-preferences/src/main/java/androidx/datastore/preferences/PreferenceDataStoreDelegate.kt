@@ -28,7 +28,6 @@ import androidx.datastore.preferences.core.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import java.io.File
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -47,8 +46,9 @@ import kotlin.reflect.KProperty
  * ```
  *
  *
- * @param name The name of the preferences. The preferences will be stored in a file obtained
- * by calling: File(context.filesDir, "datastore/" + name + ".preferences_pb")
+ * @param name The name of the preferences. The preferences will be stored in a file in the
+ * "datastore/" subdirectory in the application context's files directory and is generated using
+ * [preferencesDataStoreFile].
  * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
  * [androidx.datastore.core.CorruptionException] when attempting to read data. CorruptionExceptions
  * are thrown by serializers when data can not be de-serialized.
@@ -99,9 +99,7 @@ internal class PreferenceDataStoreSingletonDelegate internal constructor(
                     migrations = migrations,
                     scope = scope
                 ) {
-                    File(
-                        thisRef.applicationContext.filesDir, "datastore/$name.preferences_pb"
-                    )
+                    thisRef.preferencesDataStoreFile(name)
                 }
             }
             INSTANCE!!
