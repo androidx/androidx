@@ -16,6 +16,7 @@
 
 package androidx.work.impl;
 
+import static android.app.PendingIntent.FLAG_MUTABLE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.text.TextUtils.isEmpty;
 
@@ -31,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.util.Function;
+import androidx.core.os.BuildCompat;
 import androidx.lifecycle.LiveData;
 import androidx.work.Configuration;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -475,7 +477,11 @@ public class WorkManagerImpl extends WorkManager {
     @Override
     public PendingIntent createCancelPendingIntent(@NonNull UUID id) {
         Intent intent = createCancelWorkIntent(mContext, id.toString());
-        return PendingIntent.getService(mContext, 0, intent, FLAG_UPDATE_CURRENT);
+        int flags = FLAG_UPDATE_CURRENT;
+        if (BuildCompat.isAtLeastS()) {
+            flags |= FLAG_MUTABLE;
+        }
+        return PendingIntent.getService(mContext, 0, intent, flags);
     }
 
     @Override

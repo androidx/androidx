@@ -17,6 +17,7 @@
 package androidx.work.impl.utils;
 
 import static android.app.AlarmManager.RTC_WAKEUP;
+import static android.app.PendingIntent.FLAG_MUTABLE;
 import static android.app.PendingIntent.FLAG_NO_CREATE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
@@ -40,6 +41,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.os.BuildCompat;
 import androidx.work.Configuration;
 import androidx.work.InitializationExceptionHandler;
 import androidx.work.Logger;
@@ -296,7 +298,11 @@ public class ForceStopRunnable implements Runnable {
     static void setAlarm(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         // Using FLAG_UPDATE_CURRENT, because we only ever want once instance of this alarm.
-        PendingIntent pendingIntent = getPendingIntent(context, FLAG_UPDATE_CURRENT);
+        int flags = FLAG_UPDATE_CURRENT;
+        if (BuildCompat.isAtLeastS()) {
+            flags |= FLAG_MUTABLE;
+        }
+        PendingIntent pendingIntent = getPendingIntent(context, flags);
         long triggerAt = System.currentTimeMillis() + TEN_YEARS;
         if (alarmManager != null) {
             if (Build.VERSION.SDK_INT >= 19) {
