@@ -14,7 +14,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="androidx.navigation.testapp">
-
+    <!-- TODO: Remove this override after androidx.window lowers the level -->
+    <uses-sdk tools:overrideLibrary="androidx.slidingpanelayout, androidx.window" />
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
