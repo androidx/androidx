@@ -339,9 +339,7 @@ public abstract class BaseEditorSession internal constructor(
     internal suspend fun getPreviewData(
         providerInfoRetriever: ProviderInfoRetriever,
         providerInfo: ComplicationProviderInfo?
-    ): ComplicationData? = TraceEvent(
-        "BaseEditorSession.getPreviewData for ${providerInfo?.providerComponentName}"
-    ).use {
+    ): ComplicationData? = TraceEvent("BaseEditorSession.getPreviewData").use {
         if (providerInfo == null) {
             return null
         }
