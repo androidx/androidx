@@ -16,25 +16,16 @@
 
 import static androidx.build.dependencies.DependenciesKt.*
 
-import androidx.build.BundleInsideHelper
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
-import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
 
-BundleInsideHelper.forInsideAar(
-        project,
-        /* from = */ "com.google.protobuf",
-        /* to =   */ "androidx.wear.tiles.protobuf"
-)
-
 dependencies {
-    bundleInside(project(path: ":wear:wear-tiles:wear-tiles-proto", configuration: "export"))
     api("androidx.annotation:annotation:1.1.0")
     api(GUAVA_LISTENABLE_FUTURE)
     implementation(PROTOBUF_LITE)
@@ -42,6 +33,7 @@ dependencies {
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation "androidx.core:core:1.3.2"
     implementation(project(":wear:wear-tiles"))
+    implementation(project(":wear:wear-tiles-proto"))
 
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
     testImplementation(ANDROIDX_TEST_EXT_TRUTH)
@@ -55,7 +47,6 @@ dependencies {
 android {
     defaultConfig {
         minSdkVersion 25
-        targetSdkVersion 28
     }
 
     // Use Robolectric 4.+
