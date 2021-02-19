@@ -60,8 +60,7 @@ public final class FontRequest {
         mQuery = Preconditions.checkNotNull(query);
         mCertificates = Preconditions.checkNotNull(certificates);
         mCertificatesArray = 0;
-        mIdentifier = new StringBuilder(mProviderAuthority).append("-").append(mProviderPackage)
-                .append("-").append(mQuery).toString();
+        mIdentifier = createIdentifier(providerAuthority, providerPackage, query);
     }
 
     /**
@@ -83,8 +82,16 @@ public final class FontRequest {
         mCertificates = null;
         Preconditions.checkArgument(certificates != 0);
         mCertificatesArray = certificates;
-        mIdentifier = new StringBuilder(mProviderAuthority).append("-").append(mProviderPackage)
-                .append("-").append(mQuery).toString();
+        mIdentifier = createIdentifier(providerAuthority, providerPackage, query);
+    }
+
+    private String createIdentifier(
+            @NonNull String providerAuthority,
+            @NonNull String providerPackage,
+            @NonNull String query
+    ) {
+        return new StringBuilder(providerAuthority).append("-").append(providerPackage)
+                .append("-").append(query).toString();
     }
 
     /**
