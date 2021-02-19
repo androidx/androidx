@@ -1,6 +1,6 @@
 package androidx.car.app.activity.renderer.surface;
 
-import androidx.car.app.activity.renderer.surface.SurfaceWrapper;
+import androidx.car.app.serialization.Bundleable;
 
 /**
  * Interface implemented by an off-process renderer to receive events affecting the
@@ -10,7 +10,7 @@ import androidx.car.app.activity.renderer.surface.SurfaceWrapper;
  */
 interface ISurfaceControl {
   /** Notifies that the underlying surface changed. */
-  void setSurfaceWrapper(in SurfaceWrapper surfaceWrapper) = 1;
+  void setSurfaceWrapper(in Bundleable surfaceWrapper) = 1;
 
   /** Notifies that the surface received a new touch event. */
   void onTouchEvent(in MotionEvent event) = 2;

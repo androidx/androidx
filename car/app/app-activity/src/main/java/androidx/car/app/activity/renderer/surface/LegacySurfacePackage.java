@@ -16,14 +16,18 @@
 
 package androidx.car.app.activity.renderer.surface;
 
+import static androidx.car.app.activity.LogTags.TAG;
+
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.util.Log;
 import android.view.MotionEvent;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.serialization.BundlerException;
 
 /**
  * A serializable class containing all the data required to render and interact with a surface from
@@ -32,10 +36,9 @@ import androidx.annotation.NonNull;
  * This class exists for compatibility with Q devices. In Android R and later,
  * {@link android.view.SurfaceControlViewHost.SurfacePackage} will be used instead.
  */
-//TODO(179714355): Investigate using Bundleable instead of Parcelable
-@SuppressLint({"BanParcelableUsage"})
-public final class LegacySurfacePackage implements Parcelable {
-    private final ISurfaceControl mSurfaceControl;
+public final class LegacySurfacePackage {
+    @Keep
+    private ISurfaceControl mISurfaceControl;
 
     /**
      * Creates a {@link LegacySurfacePackage}.
@@ -46,14 +49,19 @@ public final class LegacySurfacePackage implements Parcelable {
      */
     @SuppressLint("ExecutorRegistration")
     public LegacySurfacePackage(@NonNull SurfaceControlCallback callback) {
-        mSurfaceControl = new ISurfaceControl.Stub() {
+        mISurfaceControl = new ISurfaceControl.Stub() {
             final SurfaceControlCallback mCallback = callback;
 
             @Override
-            public void setSurfaceWrapper(@NonNull SurfaceWrapper surfaceWrapper) {
+            public void setSurfaceWrapper(@NonNull Bundleable surfaceWrapper) {
                 requireNonNull(surfaceWrapper);
                 if (mCallback != null) {
-                    mCallback.setSurfaceWrapper(surfaceWrapper);
+                    try {
+                        mCallback.setSurfaceWrapper((SurfaceWrapper) surfaceWrapper.get());
+                    } catch (BundlerException e) {
+                        //TODO(b/179930319): Surface error on the CarAppActivity
+                        Log.e(TAG, "Unable to deserialize surface wrapper", e);
+                    }
                 }
             }
 
@@ -74,39 +82,13 @@ public final class LegacySurfacePackage implements Parcelable {
         };
     }
 
-    LegacySurfacePackage(@NonNull Parcel parcel) {
-        mSurfaceControl = ISurfaceControl.Stub.asInterface(parcel.readStrongBinder());
-    }
-
-    @Override
-    public void writeToParcel(@NonNull Parcel parcel, int flags) {
-        parcel.writeStrongInterface(mSurfaceControl);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
+    /** Empty constructor needed for serializations. **/
+    private LegacySurfacePackage() {
     }
 
     @NonNull
     ISurfaceControl getSurfaceControl() {
-        return mSurfaceControl;
+        return mISurfaceControl;
     }
-
-    @NonNull
-    public static final Creator<LegacySurfacePackage> CREATOR =
-            new Creator<LegacySurfacePackage>() {
-                @NonNull
-                @Override
-                public LegacySurfacePackage createFromParcel(@NonNull Parcel parcel) {
-                    return new LegacySurfacePackage(parcel);
-                }
-
-                @NonNull
-                @Override
-                public LegacySurfacePackage[] newArray(int size) {
-                    return new LegacySurfacePackage[size];
-                }
-            };
 }
 
