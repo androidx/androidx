@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.os.SharedMemory
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.wear.utility.TraceEvent
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
@@ -42,9 +43,14 @@ public class SharedMemoryImage {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Suppress("DEPRECATION")
-        public fun ashmemCompressedImageBundle(bitmap: Bitmap, quality: Int): Bundle {
+        public fun ashmemCompressedImageBundle(
+            bitmap: Bitmap,
+            quality: Int
+        ): Bundle = TraceEvent("SharedMemoryImage.ashmemCompressedImageBundle").use {
             val stream = ByteArrayOutputStream()
-            bitmap.compress(CompressFormat.WEBP, quality, stream)
+            TraceEvent("Bitmap.compress").use {
+                bitmap.compress(CompressFormat.WEBP, quality, stream)
+            }
             val bytes = stream.toByteArray()
             val ashmem = SharedMemory.create("WatchFace.Screenshot.Bitmap", bytes.size)
             var byteBuffer: ByteBuffer? = null
@@ -65,7 +71,9 @@ public class SharedMemoryImage {
          * Deserializes a [Bundle] containing a [Bitmap] serialized by
          * [ashmemCompressedImageBundle].
          */
-        public fun ashmemCompressedImageBundleToBitmap(bundle: Bundle): Bitmap {
+        public fun ashmemCompressedImageBundleToBitmap(
+            bundle: Bundle
+        ): Bitmap = TraceEvent("SharedMemoryImage.ashmemCompressedImageBundleToBitmap").use {
             bundle.classLoader = SharedMemory::class.java.classLoader
             val ashmem = bundle.getParcelable<SharedMemory>(Constants.KEY_SCREENSHOT)
                 ?: throw IllegalStateException("Bundle did not contain " + Constants.KEY_SCREENSHOT)

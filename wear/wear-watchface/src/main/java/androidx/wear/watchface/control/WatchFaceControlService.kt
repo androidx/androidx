@@ -25,11 +25,13 @@ import android.os.IBinder
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.wear.utility.AsyncTraceEvent
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.editor.EditorService
-import androidx.wear.watchface.runOnHandler
+import androidx.wear.watchface.runOnHandlerWithTracing
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -82,51 +84,70 @@ private class IWatchFaceInstanceServiceStub(
     override fun getApiVersion() = IWatchFaceControlService.API_VERSION
 
     override fun getInteractiveWatchFaceInstanceSysUI(instanceId: String) =
-        uiThreadHandler.runOnHandler {
+        uiThreadHandler.runOnHandlerWithTracing(
+            "IWatchFaceInstanceServiceStub.getInteractiveWatchFaceInstanceSysUI"
+        ) {
             InteractiveInstanceManager.getAndRetainInstance(instanceId)?.createSysUiApi()
         }
 
     override fun createHeadlessWatchFaceInstance(
         params: HeadlessWatchFaceInstanceParams
-    ): IHeadlessWatchFace? =
-        uiThreadHandler.runOnHandler {
-            val engine = createEngine(params.watchFaceName, context)
-            engine?.let {
-                // This is serviced on a background thread so it should be fine to block.
-                runBlocking { it.createHeadlessInstance(params) }
-            }
+    ): IHeadlessWatchFace? = uiThreadHandler.runOnHandlerWithTracing(
+        "IWatchFaceInstanceServiceStub.createHeadlessWatchFaceInstance"
+    ) {
+        val engine = createEngine(params.watchFaceName, context)
+        engine?.let {
+            // This is serviced on a background thread so it should be fine to block.
+            runBlocking { it.createHeadlessInstance(params) }
         }
+    }
 
     private fun createEngine(
         watchFaceName: ComponentName,
         context: Context
-    ): WatchFaceService.EngineWrapper? {
+    ) = TraceEvent("IWatchFaceInstanceServiceStub.createEngine").use {
         // Attempt to construct the class for the specified watchFaceName, failing if it either
         // doesn't exist or isn't a [WatchFaceService].
         try {
             val watchFaceServiceClass = Class.forName(watchFaceName.className) ?: return null
             if (!WatchFaceService::class.java.isAssignableFrom(WatchFaceService::class.java)) {
-                return null
+                null
+            } else {
+                val watchFaceService =
+                    watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
+                watchFaceService.setContext(context)
+                val engine = watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+                engine
             }
-            val watchFaceService =
-                watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
-            watchFaceService.setContext(context)
-            return watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         } catch (e: ClassNotFoundException) {
-            return null
+            null
         }
     }
 
     override fun getOrCreateInteractiveWatchFaceWCS(
         params: WallpaperInteractiveWatchFaceInstanceParams,
         callback: IPendingInteractiveWatchFaceWCS
-    ) = InteractiveInstanceManager
-        .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
-            InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
-                params,
-                callback
+    ): IInteractiveWatchFaceWCS? {
+        val asyncTraceEvent =
+            AsyncTraceEvent("IWatchFaceInstanceServiceStub.getOrCreateInteractiveWatchFaceWCS")
+        return InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    params,
+                    // Wrapped IPendingInteractiveWatchFaceWCS to support tracing.
+                    object : IPendingInteractiveWatchFaceWCS.Stub() {
+                        override fun getApiVersion() = callback.apiVersion
+
+                        override fun onInteractiveWatchFaceWcsCreated(
+                            iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS?
+                        ) {
+                            asyncTraceEvent.close()
+                            callback.onInteractiveWatchFaceWcsCreated(iInteractiveWatchFaceWcs)
+                        }
+                    }
+                )
             )
-        )
+    }
 
     override fun getEditorService() = EditorService.globalEditorService
 }

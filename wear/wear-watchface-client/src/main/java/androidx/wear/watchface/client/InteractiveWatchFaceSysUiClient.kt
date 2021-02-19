@@ -28,6 +28,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
@@ -173,7 +174,11 @@ internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
 
     constructor(binder: IBinder) : this(IInteractiveWatchFaceSysUI.Stub.asInterface(binder))
 
-    override fun sendTouchEvent(xPosition: Int, yPosition: Int, @TapType tapType: Int) {
+    override fun sendTouchEvent(
+        xPosition: Int,
+        yPosition: Int,
+        @TapType tapType: Int
+    ) = TraceEvent("InteractiveWatchFaceSysUiClientImpl.sendTouchEvent").use {
         iInteractiveWatchFaceSysUI.sendTouchEvent(xPosition, yPosition, tapType)
     }
 
@@ -195,7 +200,7 @@ internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap =
+    ): Bitmap = TraceEvent("InteractiveWatchFaceSysUiClientImpl.takeWatchFaceScreenshot").use {
         SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
             iInteractiveWatchFaceSysUI.takeWatchFaceScreenshot(
                 WatchfaceScreenshotParams(
@@ -212,11 +217,14 @@ internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
                 )
             )
         )
+    }
 
     override val previewReferenceTimeMillis: Long
         get() = iInteractiveWatchFaceSysUI.previewReferenceTimeMillis
 
-    override fun setSystemState(systemState: SystemState) {
+    override fun setSystemState(systemState: SystemState) = TraceEvent(
+        "InteractiveWatchFaceSysUiClientImpl.setSystemState"
+    ).use {
         iInteractiveWatchFaceSysUI.setSystemState(
             androidx.wear.watchface.data.SystemState(
                 systemState.inAmbientMode,
@@ -228,11 +236,13 @@ internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
     override val instanceId: String
         get() = iInteractiveWatchFaceSysUI.instanceId
 
-    override fun performAmbientTick() {
+    override fun performAmbientTick() = TraceEvent(
+        "InteractiveWatchFaceSysUiClientImpl.performAmbientTick"
+    ).use {
         iInteractiveWatchFaceSysUI.ambientTickUpdate()
     }
 
-    override fun close() {
+    override fun close() = TraceEvent("InteractiveWatchFaceSysUiClientImpl.close").use {
         iInteractiveWatchFaceSysUI.release()
     }
 

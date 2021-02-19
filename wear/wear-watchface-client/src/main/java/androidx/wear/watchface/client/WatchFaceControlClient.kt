@@ -23,6 +23,8 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.utility.AsyncTraceEvent
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.IPendingInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.IWatchFaceControlService
@@ -178,7 +180,9 @@ internal class WatchFaceControlClientImpl internal constructor(
         deviceConfig: DeviceConfig,
         surfaceWidth: Int,
         surfaceHeight: Int
-    ): HeadlessWatchFaceClient? {
+    ): HeadlessWatchFaceClient? = TraceEvent(
+        "WatchFaceControlClientImpl.createHeadlessWatchFaceClient"
+    ).use {
         requireNotClosed()
         return service.createHeadlessWatchFaceInstance(
             HeadlessWatchFaceInstanceParams(
@@ -205,6 +209,10 @@ internal class WatchFaceControlClientImpl internal constructor(
         idToComplicationData: Map<Int, ComplicationData>?
     ): Deferred<InteractiveWatchFaceWcsClient> {
         requireNotClosed()
+        val traceEvent = AsyncTraceEvent(
+            "WatchFaceControlClientImpl" +
+                ".getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync"
+        )
         val deferredClient = CompletableDeferred<InteractiveWatchFaceWcsClient>()
 
         // [IWatchFaceControlService.getOrCreateInteractiveWatchFaceWCS] has an asynchronous
@@ -246,6 +254,7 @@ internal class WatchFaceControlClientImpl internal constructor(
                     iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS
                 ) {
                     serviceBinder.unlinkToDeath(deathObserver, 0)
+                    traceEvent.close()
                     deferredClient.complete(
                         InteractiveWatchFaceWcsClientImpl(iInteractiveWatchFaceWcs)
                     )
@@ -254,6 +263,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         )?.let {
             // There was an existing watchface.onInteractiveWatchFaceWcsCreated
             serviceBinder.unlinkToDeath(deathObserver, 0)
+            traceEvent.close()
             deferredClient.complete(InteractiveWatchFaceWcsClientImpl(it))
         }
 
@@ -261,7 +271,9 @@ internal class WatchFaceControlClientImpl internal constructor(
         return deferredClient
     }
 
-    override fun getEditorServiceClient(): EditorServiceClient {
+    override fun getEditorServiceClient(): EditorServiceClient = TraceEvent(
+        "WatchFaceControlClientImpl.getEditorServiceClient"
+    ).use {
         requireNotClosed()
         return EditorServiceClientImpl(service.editorService)
     }
@@ -272,7 +284,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         }
     }
 
-    override fun close() {
+    override fun close() = TraceEvent("WatchFaceControlClientImpl.close").use {
         closed = true
         context.unbindService(serviceConnection)
     }
