@@ -70,7 +70,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination().apply {
             id = INITIAL_FRAGMENT
-            className = EmptyFragment::class.java.name
+            setClassName(EmptyFragment::class.java.name)
         }
 
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -95,7 +95,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination().apply {
             id = INITIAL_FRAGMENT
-            className = NonEmptyConstructorFragment::class.java.name
+            setClassName(NonEmptyConstructorFragment::class.java.name)
         }
 
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -119,7 +119,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination().apply {
             id = INITIAL_FRAGMENT
-            className = EmptyFragment::class.java.name
+            setClassName(EmptyFragment::class.java.name)
         }
 
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -159,7 +159,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.className = EmptyFragment::class.java.name
+        destination.setClassName(EmptyFragment::class.java.name)
 
         // Push initial fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -195,7 +195,7 @@ class FragmentNavigatorTest {
     fun testSingleTopInitial() {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
-        destination.className = EmptyFragment::class.java.name
+        destination.setClassName(EmptyFragment::class.java.name)
 
         fragmentNavigator.navigate(destination, null, null, null)
         fragmentManager.executePendingTransactions()
@@ -236,7 +236,7 @@ class FragmentNavigatorTest {
     fun testSingleTop() {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
-        destination.className = EmptyFragment::class.java.name
+        destination.setClassName(EmptyFragment::class.java.name)
 
         // First push an initial Fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -303,7 +303,7 @@ class FragmentNavigatorTest {
         )
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.className = EmptyFragment::class.java.name
+        destination.setClassName(EmptyFragment::class.java.name)
 
         // First push an initial Fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -325,7 +325,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.className = EmptyFragment::class.java.name
+        destination.setClassName(EmptyFragment::class.java.name)
 
         // First push an initial Fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -366,7 +366,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.className = EmptyFragment::class.java.name
+        destination.setClassName(EmptyFragment::class.java.name)
 
         // First push an initial Fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -423,7 +423,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.className = EmptyFragment::class.java.name
+        destination.setClassName(EmptyFragment::class.java.name)
 
         // First push an initial Fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -473,7 +473,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.className = EmptyFragment::class.java.name
+        destination.setClassName(EmptyFragment::class.java.name)
 
         // First push two Fragments as our 'deep link'
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -517,7 +517,7 @@ class FragmentNavigatorTest {
         )
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.className = EmptyFragment::class.java.name
+        destination.setClassName(EmptyFragment::class.java.name)
 
         // First push two Fragments as our 'deep link'
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -543,7 +543,7 @@ class FragmentNavigatorTest {
         )
 
         // Create a new FragmentNavigator, replacing the previous one
-        val savedState = fragmentNavigator.onSaveState()
+        val savedState = fragmentNavigator.onSaveState() as Bundle
         fragmentNavigator = FragmentNavigator(
             emptyActivity,
             fragmentManager, R.id.container
@@ -569,7 +569,7 @@ class FragmentNavigatorTest {
         )
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.className = EmptyFragment::class.java.name
+        destination.setClassName(EmptyFragment::class.java.name)
 
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
             .isEqualTo(destination)
@@ -602,7 +602,7 @@ class FragmentNavigatorTest {
         )
 
         // Create a new FragmentNavigator, replacing the previous one
-        val savedState = fragmentNavigator.onSaveState()
+        val savedState = fragmentNavigator.onSaveState() as Bundle
         fragmentNavigator = FragmentNavigator(
             emptyActivity,
             fragmentManager, R.id.container
@@ -643,9 +643,9 @@ class FragmentNavigatorTest {
             fragmentManager, R.id.container
         )
         val destination = fragmentNavigator.createDestination()
-        destination.className = EmptyFragment::class.java.name
+        destination.setClassName(EmptyFragment::class.java.name)
         val destination2 = fragmentNavigator.createDestination()
-        destination2.className = Fragment::class.java.name
+        destination2.setClassName(Fragment::class.java.name)
 
         // Push 3 fragments without executing pending transactions.
         destination.id = INITIAL_FRAGMENT
@@ -677,7 +677,7 @@ class FragmentNavigatorTest {
             fragmentManager, R.id.container
         )
         val destination = fragmentNavigator.createDestination()
-        destination.className = EmptyFragment::class.java.name
+        destination.setClassName(EmptyFragment::class.java.name)
 
         // Push 4 fragments
         destination.id = INITIAL_FRAGMENT
@@ -704,7 +704,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination().apply {
             id = INITIAL_FRAGMENT
-            className = EmptyFragment::class.java.name
+            setClassName(EmptyFragment::class.java.name)
             label = TEST_LABEL
         }
         val expected = "Destination(0x${INITIAL_FRAGMENT.toString(16)}) label=test_label " +
