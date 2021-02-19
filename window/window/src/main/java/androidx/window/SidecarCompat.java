@@ -69,10 +69,6 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         }
     }
 
-    DeviceState getDeviceState() {
-        return mSidecarAdapter.translate(mSidecar.getDeviceState());
-    }
-
     @VisibleForTesting
     SidecarCompat(@NonNull SidecarInterface sidecar, SidecarAdapter sidecarAdapter) {
         // Empty implementation to avoid null checks.

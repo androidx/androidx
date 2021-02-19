@@ -43,9 +43,6 @@ package androidx.window {
   }
 
   public interface WindowBackend {
-    method @Deprecated public androidx.window.DeviceState getDeviceState();
-    method @Deprecated public androidx.window.WindowLayoutInfo getWindowLayoutInfo(android.app.Activity);
-    method @Deprecated public androidx.window.WindowLayoutInfo getWindowLayoutInfo(android.content.Context);
     method public void registerDeviceStateChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.DeviceState!>);
     method public void registerLayoutChangeCallback(android.app.Activity, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
     method @Deprecated public void registerLayoutChangeCallback(android.content.Context, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
@@ -65,14 +62,10 @@ package androidx.window {
 
   public final class WindowManager {
     ctor public WindowManager(android.content.Context);
-    ctor @Deprecated public WindowManager(android.content.Context, androidx.window.WindowBackend?);
+    ctor public WindowManager(android.content.Context, androidx.window.WindowBackend);
     method public androidx.window.WindowMetrics getCurrentWindowMetrics();
-    method @Deprecated public androidx.window.DeviceState getDeviceState();
     method public androidx.window.WindowMetrics getMaximumWindowMetrics();
-    method @Deprecated public androidx.window.WindowLayoutInfo getWindowLayoutInfo();
-    method @Deprecated public void registerDeviceStateChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.DeviceState!>);
     method public void registerLayoutChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
-    method @Deprecated public void unregisterDeviceStateChangeCallback(androidx.core.util.Consumer<androidx.window.DeviceState!>);
     method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
   }
 

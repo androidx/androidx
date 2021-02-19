@@ -31,33 +31,6 @@ import java.util.concurrent.Executor;
 public interface WindowBackend {
 
     /**
-     * @return the {@link DeviceState} when the Sidecar library is present and a {@link DeviceState}
-     * with {@code POSTURE_UNKNOWN} otherwise.
-     * @deprecated will be removed in the next alpha
-     */
-    @Deprecated
-    @NonNull
-    DeviceState getDeviceState();
-
-    /**
-     * @return the {@link WindowLayoutInfo} when Sidecar library is present and an empty info
-     * otherwise
-     * @deprecated will be removed in the next alpha
-     */
-    @Deprecated
-    @NonNull
-    WindowLayoutInfo getWindowLayoutInfo(@NonNull Activity activity);
-
-    /**
-     * @return the {@link WindowLayoutInfo} when Sidecar library is present and an empty info
-     * otherwise
-     * @deprecated will be removed in the next alpha
-     */
-    @Deprecated
-    @NonNull
-    WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context);
-
-    /**
      * Registers a callback for layout changes of the window for the supplied {@link Activity}.
      * Must be called only after the it is attached to the window.
      */
