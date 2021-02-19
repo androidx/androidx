@@ -757,7 +757,7 @@ class SingleProcessDataStoreTest {
     fun testClosingOutputStreamDoesntCloseUnderlyingStream() = runBlockingTest {
         val delegate = TestingSerializer()
         val serializer = object : Serializer<Byte> by delegate {
-            override fun writeTo(t: Byte, output: OutputStream) {
+            override suspend fun writeTo(t: Byte, output: OutputStream) {
                 delegate.writeTo(t, output)
                 output.close() // This will be a no-op so the fd.sync() call will succeed.
             }
@@ -898,11 +898,11 @@ class SingleProcessDataStoreTest {
 
             override val defaultValue = ByteWrapper(delegate.defaultValue)
 
-            override fun readFrom(input: InputStream): ByteWrapper {
+            override suspend fun readFrom(input: InputStream): ByteWrapper {
                 return ByteWrapper(delegate.readFrom(input))
             }
 
-            override fun writeTo(t: ByteWrapper, output: OutputStream) {
+            override suspend fun writeTo(t: ByteWrapper, output: OutputStream) {
                 delegate.writeTo(t.byte, output)
             }
         }
