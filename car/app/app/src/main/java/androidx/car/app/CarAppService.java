@@ -175,14 +175,15 @@ public abstract class CarAppService extends Service {
      * only accepts connections from hosts holding
      * {@link HostValidator#TEMPLATE_RENDERER_PERMISSION} permission.
      *
-     * <p>Application developers are expected to also allow connections from known hosts (e.g.:
-     * Android Auto and Android Automotive OS hosts) which currently don't hold the above mentioned
-     * permission by allow listing these hosts signatures.
+     * <p>Application developers are expected to also allow connections from known hosts which
+     * don't hold the aforementioned permission (for example, Android Auto and Android
+     * Automotive OS hosts below API level 31), by allow-listing the signatures of those hosts.
+     *
+     * <p>Please refer to {@link androidx.car.app.R.array#hosts_allowlist_sample} to obtain a list
+     * of package names and signatures that should be allow-listed by default.
      *
      * <p>It is also advised to allow connections from unknown hosts in debug builds to facilitate
-     * debugging and testing, or if the information exposed through this service has no privacy
-     * concerns (e.g.: no user credentials and no personal user information (PII) is exchanged with
-     * the hosts).
+     * debugging and testing.
      *
      * <p>Below is an example of this method implementation:
      *
@@ -199,12 +200,6 @@ public abstract class CarAppService extends Service {
      *     }
      * }
      * </pre>
-     *
-     * <p>Please, refer to <a href="https://developer.android.com/training/cars/navigation">Build
-     * navigation, parking, and charging apps for Android Auto</a> and
-     * <a href="https://github.com/android/car-samples/tree/main/Auto/car_app_library">Android for
-     * Cars App Library Samples</a> to obtain a list of package names and signatures that should
-     * be allow-listed by default.
      */
     @NonNull
     public abstract HostValidator createHostValidator();
