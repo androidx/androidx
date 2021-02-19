@@ -19,6 +19,7 @@ package androidx.wear.watchface
 import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
+import androidx.wear.watchface.data.LayerParameterWireFormat
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.Layer
 
@@ -147,7 +148,7 @@ public class RenderParameters constructor(
     public fun toWireFormat(): RenderParametersWireFormat = RenderParametersWireFormat(
         drawMode.ordinal,
         layerParameters.map {
-            RenderParametersWireFormat.LayerParameterWireFormat(
+            LayerParameterWireFormat(
                 it.key.ordinal,
                 it.value.ordinal
             )

@@ -232,24 +232,24 @@ package androidx.wear.watchface.data {
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.IdAndComplicationStateWireFormat!>! CREATOR;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class RenderParametersWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public RenderParametersWireFormat(int, java.util.List<androidx.wear.watchface.data.RenderParametersWireFormat.LayerParameterWireFormat!>, Integer?, @ColorInt int);
-    method public int describeContents();
-    method public int getDrawMode();
-    method public java.util.List<androidx.wear.watchface.data.RenderParametersWireFormat.LayerParameterWireFormat!> getLayerParameters();
-    method @ColorInt public int getOutlineTint();
-    method public Integer? getSelectedComplicationId();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.RenderParametersWireFormat!>! CREATOR;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public static class RenderParametersWireFormat.LayerParameterWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public RenderParametersWireFormat.LayerParameterWireFormat(int, int);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class LayerParameterWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public LayerParameterWireFormat(int, int);
     method public int describeContents();
     method public int getLayer();
     method public int getLayerMode();
     method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.RenderParametersWireFormat.LayerParameterWireFormat!>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.LayerParameterWireFormat!>! CREATOR;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class RenderParametersWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public RenderParametersWireFormat(int, java.util.List<androidx.wear.watchface.data.LayerParameterWireFormat!>, Integer?, @ColorInt int);
+    method public int describeContents();
+    method public int getDrawMode();
+    method public java.util.List<androidx.wear.watchface.data.LayerParameterWireFormat!> getLayerParameters();
+    method @ColorInt public int getOutlineTint();
+    method public Integer? getSelectedComplicationId();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.RenderParametersWireFormat!>! CREATOR;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true) public final class SystemState implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {

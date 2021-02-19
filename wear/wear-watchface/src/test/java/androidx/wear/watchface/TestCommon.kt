@@ -46,7 +46,8 @@ internal class TestWatchFaceService(
     private val userStyleRepository: UserStyleRepository,
     private val watchState: MutableWatchState,
     private val handler: Handler,
-    private val tapListener: WatchFace.TapListener?
+    private val tapListener: WatchFace.TapListener?,
+    private val preAndroidR: Boolean
 ) : WatchFaceService() {
     var singleTapCount = 0
     var complicationSingleTapped: Int? = null
@@ -119,6 +120,8 @@ internal class TestWatchFaceService(
         fileName: String,
         prefs: WallpaperInteractiveWatchFaceInstanceParams
     ) {}
+
+    override fun expectPreRInitFlow() = preAndroidR
 }
 
 /**

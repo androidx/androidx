@@ -358,6 +358,8 @@ public abstract class WatchFaceService : WallpaperService() {
         private var initialUserStyle: UserStyleWireFormat? = null
         private lateinit var interactiveInstanceId: String
 
+        private var createdBy = "?"
+
         init {
             maybeCreateWCSApi()
         }
@@ -374,7 +376,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     coroutineScope.launch {
                         // In tests a watchface may already have been created.
                         if (!watchFaceCreatedOrPending()) {
-                            createInteractiveInstance(params).createWCSApi()
+                            createInteractiveInstance(params, "DirectBoot").createWCSApi()
                         }
                         keepSerializedDirectBootParamsUpdated(params)
                     }
@@ -385,7 +387,10 @@ public abstract class WatchFaceService : WallpaperService() {
             if (pendingWallpaperInstance != null) {
                 coroutineScope.launch {
                     pendingWallpaperInstance.callback.onInteractiveWatchFaceWcsCreated(
-                        createInteractiveInstance(pendingWallpaperInstance.params).createWCSApi()
+                        createInteractiveInstance(
+                            pendingWallpaperInstance.params,
+                            "Boot with pendingWallpaperInstance"
+                        ).createWCSApi()
                     )
                     keepSerializedDirectBootParamsUpdated(pendingWallpaperInstance.params)
                 }
@@ -731,6 +736,11 @@ public abstract class WatchFaceService : WallpaperService() {
             extras: Bundle?,
             resultRequested: Boolean
         ): Bundle? {
+            // From android R onwards the integration changes and no wallpaper commands are allowed
+            // or expected and can/should be ignored.
+            if (!expectPreRInitFlow()) {
+                return null
+            }
             when (action) {
                 Constants.COMMAND_AMBIENT_UPDATE ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_AMBIENT_UPDATE") {
@@ -825,7 +835,9 @@ public abstract class WatchFaceService : WallpaperService() {
         suspend fun createHeadlessInstance(
             params: HeadlessWatchFaceInstanceParams
         ): HeadlessWatchFaceImpl = TraceEvent("EngineWrapper.createHeadlessInstance").use {
-            require(!watchFaceCreatedOrPending()) { "WatchFace already exists!" }
+            require(!watchFaceCreatedOrPending()) {
+                "WatchFace already exists! Created by $createdBy"
+            }
             setImmutableSystemState(params.deviceConfig)
 
             // Fake SurfaceHolder with just enough methods implemented for headless rendering.
@@ -887,7 +899,11 @@ public abstract class WatchFaceService : WallpaperService() {
             mutableWatchState.isHeadless = true
             val watchState = mutableWatchState.asWatchState()
 
-            createWatchFaceInternal(watchState, fakeSurfaceHolder)
+            createWatchFaceInternal(
+                watchState,
+                fakeSurfaceHolder,
+                "createHeadlessInstance"
+            )
 
             mutableWatchState.isVisible.value = true
             mutableWatchState.isAmbient.value = false
@@ -899,11 +915,14 @@ public abstract class WatchFaceService : WallpaperService() {
         @UiThread
         @RequiresApi(27)
         suspend fun createInteractiveInstance(
-            params: WallpaperInteractiveWatchFaceInstanceParams
+            params: WallpaperInteractiveWatchFaceInstanceParams,
+            _createdBy: String
         ): InteractiveWatchFaceImpl = TraceEvent(
             "EngineWrapper.createInteractiveInstance"
         ).use {
-            require(!watchFaceCreatedOrPending()) { "WatchFace already exists!" }
+            require(!watchFaceCreatedOrPending()) {
+                "WatchFace already exists! Created by $createdBy"
+            }
 
             setImmutableSystemState(params.deviceConfig)
             setSystemState(params.systemState)
@@ -913,7 +932,8 @@ public abstract class WatchFaceService : WallpaperService() {
 
             createWatchFaceInternal(
                 watchState,
-                getWallpaperSurfaceHolderOverride() ?: surfaceHolder
+                getWallpaperSurfaceHolderOverride() ?: surfaceHolder,
+                _createdBy
             )
 
             asyncWatchFaceConstructionPending = false
@@ -952,9 +972,11 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private suspend fun createWatchFaceInternal(
             watchState: WatchState,
-            surfaceHolder: SurfaceHolder
+            surfaceHolder: SurfaceHolder,
+            _createdBy: String
         ) {
             asyncWatchFaceConstructionPending = true
+            createdBy = _createdBy
             val watchface = TraceEvent("WatchFaceService.createWatchFace").use {
                 createWatchFace(surfaceHolder, watchState)
             }
@@ -979,7 +1001,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 pendingProperties = null
 
                 val watchState = mutableWatchState.asWatchState()
-                createWatchFaceInternal(watchState, surfaceHolder)
+                createWatchFaceInternal(watchState, surfaceHolder, "maybeCreateWatchFace")
                 watchFaceImpl.renderer.onPostCreate()
 
                 val backgroundAction = pendingBackgroundAction
@@ -1204,6 +1226,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     writer.println("iWatchFaceService.apiVersion=${iWatchFaceService.apiVersion}")
                 }
             }
+            writer.println("createdBy=$createdBy")
             writer.println("watchFaceInitStarted=$watchFaceInitStarted")
             writer.println("asyncWatchFaceConstructionPending=$asyncWatchFaceConstructionPending")
 
