@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 @SuppressLint("BanParcelableUsage")
 final class BackStackRecordState implements Parcelable {
@@ -117,6 +118,27 @@ final class BackStackRecordState implements Parcelable {
             }
         }
         bse.bumpBackStackNesting(1);
+        return bse;
+    }
+
+    /**
+     * Instantiates a {@link BackStackRecord} from a saved state that allows
+     * the returned BackStackRecord to be applied to the given FragmentManager
+     * as if it was a new transaction. Any fragments in the transactions will
+     * be pulled from the provided fragments map.
+     */
+    @NonNull
+    public BackStackRecord instantiate(@NonNull FragmentManager fm,
+            @NonNull Map<String, Fragment> fragments) {
+        BackStackRecord bse = new BackStackRecord(fm);
+        fillInBackStackRecord(bse);
+
+        for (int num = 0; num < mFragmentWhos.size(); num++) {
+            String fWho = mFragmentWhos.get(num);
+            if (fWho != null) {
+                bse.mOps.get(num).mFragment = fragments.get(fWho);
+            }
+        }
         return bse;
     }
 
