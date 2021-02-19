@@ -17,7 +17,6 @@
 package androidx.camera.video
 
 import androidx.camera.testing.asFlow
-import androidx.camera.video.internal.VideoOutput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -38,5 +37,15 @@ class VideoOutputTest {
 
         val streamState = videoOutput.streamState.asFlow().first()
         assertThat(streamState).isEqualTo(VideoOutput.StreamState.ACTIVE)
+    }
+
+    @Test
+    fun getMediaSpec_defaultsToNull(): Unit = runBlocking {
+        // Create an anonymous subclass of VideoOutput. Don't override
+        // VideoOutput#getMediaSpec() so the default implementation is used.
+        val videoOutput = VideoOutput { request -> request.willNotProvideSurface() }
+
+        val mediaSpec = videoOutput.mediaSpec.asFlow().first()
+        assertThat(mediaSpec).isNull()
     }
 }

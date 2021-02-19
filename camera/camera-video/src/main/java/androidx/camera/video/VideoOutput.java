@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal;
+package androidx.camera.video;
 
 import android.view.Surface;
 
@@ -106,5 +106,25 @@ public interface VideoOutput {
     @RestrictTo(Scope.LIBRARY)
     default Observable<StreamState> getStreamState() {
         return StreamState.ALWAYS_ACTIVE_OBSERVABLE;
+    }
+
+    /**
+     * Returns an observable {@link MediaSpec} which contains hints about what kind of input the
+     * {@link VideoOutput} is expecting.
+     *
+     * <p>All values contained in the media specification are considered hints and may be ignored
+     * by the video frame producer. The {@link VideoOutput} should always respect the surface
+     * requirements given in the {@link SurfaceRequest} in
+     * {@link #onSurfaceRequested(SurfaceRequest)}, or the video frame producer may not be able
+     * to produce frames.
+     *
+     * <p>Implementations should be careful about updating the {@link MediaSpec} too often, as
+     * changes may not come for free and may require the video frame producer to re-initialize,
+     * which could cause a new {@link SurfaceRequest} to be sent to
+     * {@link #onSurfaceRequested(SurfaceRequest)}.
+     */
+    @NonNull
+    default Observable<MediaSpec> getMediaSpec() {
+        return ConstantObservable.withValue(null);
     }
 }
