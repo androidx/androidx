@@ -1371,7 +1371,7 @@ class FragmentLifecycleTest {
     }
 
     @Test
-    fun inflatedFragmentAfterResume() {
+    fun inflatedFragmentTagAfterResume() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = withActivity {
                 setContentView(R.layout.activity_inflated_fragment)
@@ -1381,6 +1381,77 @@ class FragmentLifecycleTest {
 
             assertThat(fragment).isNotNull()
             assertThat(fragment.isResumed).isTrue()
+        }
+    }
+
+    @Test
+    fun inflatedFragmentContainerViewAfterResume() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            var fragment = withActivity {
+                setContentView(R.layout.inflated_fragment_container_view)
+                val fm = supportFragmentManager
+                fm.findFragmentById(R.id.fragment_container_view) as InflatedFragment
+            }
+
+            assertThat(fragment).isNotNull()
+            assertThat(fragment.isResumed).isTrue()
+
+            recreate()
+
+            fragment = withActivity {
+                setContentView(R.layout.inflated_fragment_container_view)
+                val fm = supportFragmentManager
+                fm.findFragmentById(R.id.fragment_container_view) as InflatedFragment
+            }
+
+            assertThat(fragment).isNotNull()
+            assertThat(fragment.requireView().parent).isNotNull()
+            assertThat(fragment.isResumed).isTrue()
+        }
+    }
+
+    @Test
+    fun inflatedFragmentContainerViewWithMultipleFragmentsAfterResume() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val addedFragment1 = StrictViewFragment()
+            val addedFragment2 = StrictViewFragment()
+            var fragment = withActivity {
+                setContentView(R.layout.inflated_fragment_container_view)
+                val fm = supportFragmentManager
+                fm.beginTransaction()
+                    .add(R.id.fragment_container_view, addedFragment1, "addedFragment1")
+                    .add(R.id.fragment_container_view, addedFragment2, "addedFragment2")
+                    .commitNow()
+                fm.findFragmentByTag("fragment1") as InflatedFragment
+            }
+
+            assertThat(fragment).isNotNull()
+            assertThat(fragment.isResumed).isTrue()
+            assertThat(addedFragment1.isResumed).isTrue()
+            assertThat(addedFragment2.isResumed).isTrue()
+
+            recreate()
+
+            val fm = withActivity {
+                setContentView(R.layout.inflated_fragment_container_view)
+                supportFragmentManager
+            }
+
+            fragment = fm.findFragmentByTag("fragment1") as InflatedFragment
+            val restoredAddedFragment1 =
+                fm.findFragmentByTag("addedFragment1") as StrictViewFragment
+            val restoredAddedFragment2 =
+                fm.findFragmentByTag("addedFragment2") as StrictViewFragment
+
+            assertThat(fragment).isNotNull()
+
+            assertThat(fragment.requireView().parent).isNotNull()
+            assertThat(restoredAddedFragment1.requireView().parent).isNotNull()
+            assertThat(restoredAddedFragment2.requireView().parent).isNotNull()
+
+            assertThat(fragment.isResumed).isTrue()
+            assertThat(restoredAddedFragment1.isResumed).isTrue()
+            assertThat(restoredAddedFragment2.isResumed).isTrue()
         }
     }
 
