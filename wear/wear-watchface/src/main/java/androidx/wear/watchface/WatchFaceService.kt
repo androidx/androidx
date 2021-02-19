@@ -335,6 +335,9 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private val invalidateRunnable = Runnable(this::invalidate)
 
+        // If non-null then changes to the style must be persisted.
+        private var directBootParams: WallpaperInteractiveWatchFaceInstanceParams? = null
+
         // State to support the old WSL style initialzation flow.
         private var pendingBackgroundAction: Bundle? = null
         private var pendingProperties: Bundle? = null
@@ -371,14 +374,16 @@ public abstract class WatchFaceService : WallpaperService() {
 
             // In a direct boot scenario attempt to load the previously serialized parameters.
             if (pendingWallpaperInstance == null && !expectPreRInitFlow()) {
-                val params = readDirectBootPrefs(_context, DIRECT_BOOT_PREFS)
-                if (params != null) {
+                directBootParams = readDirectBootPrefs(_context, DIRECT_BOOT_PREFS)
+                if (directBootParams != null) {
                     coroutineScope.launch {
                         // In tests a watchface may already have been created.
                         if (!watchFaceCreatedOrPending()) {
-                            createInteractiveInstance(params, "DirectBoot").createWCSApi()
+                            createInteractiveInstance(
+                                directBootParams!!,
+                                "DirectBoot"
+                            ).createWCSApi()
                         }
-                        keepSerializedDirectBootParamsUpdated(params)
                     }
                 }
             }
@@ -392,29 +397,33 @@ public abstract class WatchFaceService : WallpaperService() {
                             "Boot with pendingWallpaperInstance"
                         ).createWCSApi()
                     )
-                    keepSerializedDirectBootParamsUpdated(pendingWallpaperInstance.params)
+                    val params = pendingWallpaperInstance.params
+                    directBootParams = params
+                    // We don't want to display complications in direct boot mode so replace with an
+                    // empty list. NB we can't actually serialise complications anyway so that's
+                    // just as well...
+                    params.idAndComplicationDataWireFormats = emptyList()
+                    writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
                 }
             }
         }
 
-        private fun keepSerializedDirectBootParamsUpdated(
-            directBootParams: WallpaperInteractiveWatchFaceInstanceParams
-        ) {
+        override fun onUserStyleChanged() {
+            val params = directBootParams
+            if (!this::watchFaceImpl.isInitialized || params == null) {
+                return
+            }
+
+            val currentStyle = watchFaceImpl.userStyleRepository.userStyle.toWireFormat()
+            if (params.userStyle.equals(currentStyle)) {
+                return
+            }
+            params.userStyle = currentStyle
             // We don't want to display complications in direct boot mode so replace with an
             // empty list. NB we can't actually serialise complications anyway so that's just as
             // well...
-            directBootParams.idAndComplicationDataWireFormats = emptyList()
-
-            watchFaceImpl.userStyleRepository.addUserStyleListener(
-                object : UserStyleRepository.UserStyleListener {
-                    @SuppressLint("SyntheticAccessor")
-                    override fun onUserStyleChanged(userStyle: UserStyle) {
-                        directBootParams.userStyle = userStyle.toWireFormat()
-                        writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, directBootParams)
-                    }
-                })
-
-            writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, directBootParams)
+            params.idAndComplicationDataWireFormats = emptyList()
+            writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
         }
 
         @UiThread
@@ -450,6 +459,7 @@ public abstract class WatchFaceService : WallpaperService() {
             watchFaceImpl.onSetStyleInternal(
                 UserStyle(userStyle, watchFaceImpl.userStyleRepository.schema)
             )
+            onUserStyleChanged()
         }
 
         @UiThread

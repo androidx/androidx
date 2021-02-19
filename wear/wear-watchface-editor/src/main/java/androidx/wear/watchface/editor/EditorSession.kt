@@ -444,7 +444,7 @@ internal class OnWatchFaceEditorSessionImpl(
 
     override val userStyleSchema by lazy {
         requireNotClosed()
-        editorDelegate.userStyleRepository.schema
+        editorDelegate.userStyleSchema
     }
 
     override val previewReferenceTimeMillis by lazy { editorDelegate.previewReferenceTimeMillis }
@@ -473,14 +473,14 @@ internal class OnWatchFaceEditorSessionImpl(
         get() {
             requireNotClosed()
             if (_userStyle == null) {
-                _userStyle = UserStyle(editorDelegate.userStyleRepository.userStyle)
+                _userStyle = UserStyle(editorDelegate.userStyle)
             }
             return _userStyle!!
         }
         set(value) {
             requireNotClosed()
             _userStyle = value
-            editorDelegate.userStyleRepository.userStyle = UserStyle(value)
+            editorDelegate.userStyle = UserStyle(value)
         }
 
     private lateinit var previousWatchFaceUserStyle: UserStyle
@@ -509,13 +509,13 @@ internal class OnWatchFaceEditorSessionImpl(
     fun setEditorDelegate(editorDelegate: WatchFace.EditorDelegate) {
         this.editorDelegate = editorDelegate
 
-        previousWatchFaceUserStyle = UserStyle(editorDelegate.userStyleRepository.userStyle)
+        previousWatchFaceUserStyle = UserStyle(editorDelegate.userStyle)
 
         // Apply any initial style from the intent.  Note we don't restore the previous style at
         // the end since we assume we're editing the current active watchface.
         if (initialEditorUserStyle != null) {
-            editorDelegate.userStyleRepository.userStyle =
-                UserStyle(initialEditorUserStyle, editorDelegate.userStyleRepository.schema)
+            editorDelegate.userStyle =
+                UserStyle(initialEditorUserStyle, editorDelegate.userStyleSchema)
         }
 
         fetchComplicationPreviewData()
