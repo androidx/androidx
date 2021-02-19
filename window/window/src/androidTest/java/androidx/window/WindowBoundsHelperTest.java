@@ -17,6 +17,7 @@
 package androidx.window;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
@@ -286,6 +287,8 @@ public final class WindowBoundsHelperTest {
             Point realDisplaySize = WindowBoundsHelper.getRealSizeForDisplay(display);
 
             Rect bounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
+            assertNotEquals("Device can not have zero width", 0, realDisplaySize.x);
+            assertNotEquals("Device can not have zero height", 0, realDisplaySize.y);
             assertEquals("Window bounds width does not match real display width",
                     realDisplaySize.x, bounds.width());
             assertEquals("Window bounds height does not match real display height",
