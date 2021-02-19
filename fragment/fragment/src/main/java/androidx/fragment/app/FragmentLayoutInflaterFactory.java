@@ -158,9 +158,11 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
                 new View.OnAttachStateChangeListener() {
                     @Override
                     public void onViewAttachedToWindow(View v) {
+                        Fragment fragment = fragmentStateManager.getFragment();
                         fragmentStateManager.moveToExpectedState();
                         SpecialEffectsController controller = SpecialEffectsController
-                                .getOrCreateController((ViewGroup) parent, mFragmentManager);
+                                .getOrCreateController((ViewGroup) fragment.mView.getParent(),
+                                        mFragmentManager);
                         controller.forceCompleteAllOperations();
                     }
 
