@@ -147,4 +147,12 @@ public abstract class AudioSpec {
         @NonNull
         public abstract AudioSpec build();
     }
+
+    /**
+     * An audio specification that corresponds to no audio.
+     *
+     * <p>This is equivalent to creating an {@link AudioSpec} with channel count set to
+     * {@link #CHANNEL_COUNT_NONE}.
+     */
+    public static final AudioSpec NO_AUDIO = builder().setChannelCount(CHANNEL_COUNT_NONE).build();
 }
