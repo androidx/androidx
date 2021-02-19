@@ -24,18 +24,21 @@ import androidx.testing.TestMessageProto.ExtensionProto
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.ExtensionRegistryLite
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
+@ExperimentalCoroutinesApi
 class ProtoSerializerTest {
     @get:Rule
     val temporaryFolder = TemporaryFolder()
 
     @Test
-    fun testReadWriteProto() {
+    fun testReadWriteProto() = runBlockingTest {
         val file = temporaryFolder.newFile("test_file.pb")
 
         val fooProtoWithText = FooProto.newBuilder().setText("abc").build()
@@ -55,7 +58,7 @@ class ProtoSerializerTest {
     }
 
     @Test
-    fun testReadWriteProtoWithExtension() {
+    fun testReadWriteProtoWithExtension() = runBlockingTest {
         val file = temporaryFolder.newFile("test_file.pb")
 
         val registry = ExtensionRegistryLite.newInstance()
@@ -80,7 +83,7 @@ class ProtoSerializerTest {
     }
 
     @Test
-    fun testThrowsCorruptionException() {
+    fun testThrowsCorruptionException() = runBlockingTest {
         val file = temporaryFolder.newFile("test_file.pb")
         file.writeBytes(byteArrayOf(0x00, 0x02)) // Protos cannot start with 0x00.
 
