@@ -131,13 +131,11 @@ public abstract class RoutingDemoModels {
                 .addAction(
                         new Action.Builder()
                                 .setOnClickListener(
-                                        () -> {
-                                            CarToast.makeText(
-                                                    carContext,
-                                                    "Bug reported!",
-                                                    CarToast.LENGTH_SHORT)
-                                                    .show();
-                                        })
+                                        () -> CarToast.makeText(
+                                                carContext,
+                                                "Bug reported!",
+                                                CarToast.LENGTH_SHORT)
+                                                .show())
                                 .setIcon(
                                         new CarIcon.Builder(
                                                 IconCompat.createWithResource(

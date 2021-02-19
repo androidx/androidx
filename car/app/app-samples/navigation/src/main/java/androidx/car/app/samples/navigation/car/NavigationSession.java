@@ -28,7 +28,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -65,14 +64,18 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
     static final String URI_SCHEME = "samples";
     static final String URI_HOST = "navigation";
 
-    @Nullable NavigationScreen mNavigationScreen;
+    @Nullable
+    NavigationScreen mNavigationScreen;
 
-    @Nullable SurfaceRenderer mNavigationCarSurface;
+    @Nullable
+    SurfaceRenderer mNavigationCarSurface;
 
     // A reference to the navigation service used to get location updates and routing.
-    @Nullable NavigationService mService;
+    @Nullable
+    NavigationService mService;
 
-    @NonNull Action mSettingsAction;
+    @NonNull
+    Action mSettingsAction;
 
     final NavigationService.Listener mServiceListener =
             new NavigationService.Listener() {
@@ -109,15 +112,6 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
                 public void onLocationChanged(Location location) {
                     mNavigationCarSurface.updateLocationString(getLocationString(location));
                 }
-
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-                @Override
-                public void onProviderEnabled(String provider) {}
-
-                @Override
-                public void onProviderDisabled(String provider) {}
             };
 
     // Monitors the state of the connection to the Navigation service.
@@ -200,8 +194,8 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
                 new Action.Builder()
                         .setIcon(
                                 new CarIcon.Builder(
-                                                IconCompat.createWithResource(
-                                                        getCarContext(), R.drawable.ic_settings))
+                                        IconCompat.createWithResource(
+                                                getCarContext(), R.drawable.ic_settings))
                                         .build())
                         .setOnClickListener(
                                 () -> {
@@ -218,9 +212,9 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
         String action = intent.getAction();
         if (action != null && CarContext.ACTION_NAVIGATE.equals(action)) {
             CarToast.makeText(
-                            getCarContext(),
-                            "Navigation intent: " + intent.getDataString(),
-                            CarToast.LENGTH_LONG)
+                    getCarContext(),
+                    "Navigation intent: " + intent.getDataString(),
+                    CarToast.LENGTH_LONG)
                     .show();
         }
 
