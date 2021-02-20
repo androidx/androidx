@@ -250,17 +250,15 @@ class DatabaseRegistry {
      * Consumer of this method must release the reference when done using it.
      * Thread-safe
      */
-    // TODO: rename as can be confused with {@link SQLiteDatabase#acquireReference}.
     @Nullable
-    SQLiteDatabase acquireReference(int databaseId) {
+    SQLiteDatabase getConnection(int databaseId) {
         synchronized (mLock) {
-            return acquireReferenceImpl(databaseId);
+            return getConnectionImpl(databaseId);
         }
     }
 
-    // TODO: rename as can be confused with {@link SQLiteDatabase#acquireReference}.
     @GuardedBy("mLock")
-    private SQLiteDatabase acquireReferenceImpl(int databaseId) {
+    private SQLiteDatabase getConnectionImpl(int databaseId) {
         KeepOpenReference keepOpenReference = mKeepOpenReferences.get(databaseId);
         if (keepOpenReference != null) {
             return keepOpenReference.mDatabase;
@@ -313,7 +311,7 @@ class DatabaseRegistry {
         }
 
         // Try secure a keep-open reference
-        SQLiteDatabase reference = acquireReferenceImpl(id);
+        SQLiteDatabase reference = getConnectionImpl(id);
         if (reference != null) {
             mKeepOpenReferences.put(id, new KeepOpenReference(reference));
         }
