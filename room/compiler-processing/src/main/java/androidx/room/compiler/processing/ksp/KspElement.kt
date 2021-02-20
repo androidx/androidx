@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XEquality
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import java.util.Locale
@@ -45,5 +46,15 @@ internal abstract class KspElement(
 
     override fun hashCode(): Int {
         return XEquality.hashCode(equalityItems)
+    }
+
+    /**
+     * Return a reference to the containing file that implements the
+     * [javax.lang.model.element.Element] API so that we can report it to JavaPoet.
+     */
+    fun containingFileAsOriginatingElement(): KSFileAsOriginatingElement? {
+        return (declaration as? KSDeclaration)?.containingFile?.let {
+            KSFileAsOriginatingElement(it)
+        }
     }
 }
