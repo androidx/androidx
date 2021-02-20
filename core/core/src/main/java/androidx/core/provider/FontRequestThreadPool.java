@@ -97,7 +97,6 @@ class FontRequestThreadPool {
         });
     }
 
-    // TODO Remove
     @VisibleForTesting
     boolean isRunning() {
         return mExecutor.getPoolSize() != 0;
