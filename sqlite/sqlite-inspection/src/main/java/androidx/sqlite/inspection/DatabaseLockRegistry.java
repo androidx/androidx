@@ -21,7 +21,9 @@ import android.os.CancellationSignal;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.sqlite.inspection.SqliteInspector.DatabaseConnection;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -95,6 +97,19 @@ public class DatabaseLockRegistry {
                 mLockIdToLockMap.remove(lock.mLockId);
                 mDatabaseIdToLockMap.remove(lock.mDatabaseId);
             }
+        }
+    }
+
+    /**
+     * @return `null` if the database is not locked; the database and the executor that locked the
+     * database otherwise
+     */
+    @Nullable DatabaseConnection getConnection(int databaseId) {
+        synchronized (mLock) {
+            Lock lock = mDatabaseIdToLockMap.get(databaseId);
+            return (lock == null)
+                    ? null
+                    : new DatabaseConnection(lock.mDatabase, mExecutor);
         }
     }
 
