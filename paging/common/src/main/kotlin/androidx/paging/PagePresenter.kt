@@ -200,11 +200,6 @@ internal class PagePresenter<T : Any>(
                 }
             }
         }
-        /*
-        insert.combinedLoadStates.forEach { type, fromMediator, state ->
-            callback.onStateUpdate(type, fromMediator, state)
-        }
-         */
 
         callback.onStateUpdate(insert.combinedLoadStates)
     }
@@ -273,12 +268,6 @@ internal class PagePresenter<T : Any>(
             }
 
             // Dropping from prepend direction implies NotLoading(endOfPaginationReached = false).
-            /*
-            callback.onStateUpdate(
-                loadType = PREPEND,
-                fromMediator = false,
-                loadState = NotLoading.Incomplete
-            )*/
             callback.onStateUpdate(CombinedLoadStates.IDLE_SOURCE)
         } else {
             val oldPlaceholdersAfter = placeholdersAfter
@@ -318,12 +307,6 @@ internal class PagePresenter<T : Any>(
             }
 
             // Dropping from append direction implies NotLoading(endOfPaginationReached = false).
-            /*
-            callback.onStateUpdate(
-                loadType = APPEND,
-                fromMediator = false,
-                loadState = NotLoading.Incomplete
-            )*/
             callback.onStateUpdate(CombinedLoadStates.IDLE_SOURCE)
         }
     }
@@ -342,7 +325,6 @@ internal class PagePresenter<T : Any>(
         fun onChanged(position: Int, count: Int)
         fun onInserted(position: Int, count: Int)
         fun onRemoved(position: Int, count: Int)
-        // fun onStateUpdate(loadType: LoadType, fromMediator: Boolean, loadState: LoadState)
         fun onStateUpdate(combinedLoadStates: CombinedLoadStates)
     }
 }

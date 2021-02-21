@@ -199,16 +199,6 @@ internal sealed class PageEvent<T : Any> {
              */
             internal fun canDispatchWithoutInsert(loadState: LoadState, fromMediator: Boolean) =
                 loadState is LoadState.Loading || loadState is LoadState.Error || fromMediator
-
-            internal fun canDispatchWithoutInsert(combinedLoadStates: CombinedLoadStates): Boolean {
-                var canDispatch = true
-                combinedLoadStates.forEach { _, fromMediator, loadState ->
-                    if (!canDispatchWithoutInsert(loadState, fromMediator)) {
-                        canDispatch = false
-                    }
-                }
-                return canDispatch
-            }
         }
     }
 

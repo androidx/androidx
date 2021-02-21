@@ -317,7 +317,6 @@ class PagePresenterTest {
             callback = callback
         )
 
-        // StateEvent(APPEND, false, NotLoading.Incomplete)
         assertThat(callback.getAllAndClear()).isEqualTo(
             events + listOf(StateEvent(CombinedLoadStates.IDLE_SOURCE))
         )
@@ -359,7 +358,6 @@ class PagePresenterTest {
             callback = callback
         )
 
-        // StateEvent(PREPEND, false, NotLoading.Incomplete)
         assertThat(callback.getAllAndClear()).isEqualTo(
             events + listOf(StateEvent(CombinedLoadStates.IDLE_SOURCE))
         )
@@ -550,11 +548,6 @@ class PagePresenterTest {
     companion object {
         val IDLE_EVENTS = listOf<PresenterEvent>(
             StateEvent(CombinedLoadStates.IDLE_SOURCE)
-            /*
-            StateEvent(REFRESH, false, NotLoading.Incomplete),
-            StateEvent(PREPEND, false, NotLoading.Incomplete),
-            StateEvent(APPEND, false, NotLoading.Incomplete)
-             */
         )
     }
 }
