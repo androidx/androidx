@@ -32,20 +32,24 @@ import android.os.Process;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.LruCache;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.content.res.FontResourcesParserCompat;
 import androidx.core.graphics.TypefaceCompat;
-import androidx.core.provider.FontRequestThreadPool.ReplyCallback;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.provider.FontsContractCompat.FontRequestCallback.FontRequestFailReason;
+import androidx.core.util.Consumer;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Given a {@link FontRequest}, loads the Typeface. Handles the sync/async nature of the calls,
- * and also makes use of {@link FontRequestThreadPool} to load Typeface asynchronously.
+ * and also makes use of {@link RequestExecutor#createDefaultExecutor} to load Typeface
+ * asynchronously.
  */
 class FontRequestWorker {
 
@@ -53,18 +57,19 @@ class FontRequestWorker {
 
     static final LruCache<String, Typeface> sTypefaceCache = new LruCache<>(16);
 
-    private static final FontRequestThreadPool BACKGROUND_THREAD = new FontRequestThreadPool(
-            "fonts-androidx",
-            Process.THREAD_PRIORITY_BACKGROUND,
-            10000 /* keepAliveTime */
-    );
+    private static final ExecutorService DEFAULT_EXECUTOR_SERVICE = RequestExecutor
+            .createDefaultExecutor(
+                    "fonts-androidx",
+                    Process.THREAD_PRIORITY_BACKGROUND,
+                    10000 /* keepAliveTime */
+            );
 
     /** Package protected to prevent synthetic accessor */
     static final Object LOCK = new Object();
 
     /** Package protected to prevent synthetic accessor */
     @GuardedBy("LOCK")
-    static final SimpleArrayMap<String, ArrayList<ReplyCallback<TypefaceResult>>> PENDING_REPLIES =
+    static final SimpleArrayMap<String, ArrayList<Consumer<TypefaceResult>>> PENDING_REPLIES =
             new SimpleArrayMap<>();
 
     static void resetTypefaceCache() {
@@ -72,62 +77,28 @@ class FontRequestWorker {
     }
 
     /**
-     * Loads a Typeface on the given executorHandler.
+     * Requests a Font to be loaded synchronously.
+     * - If timeoutInMillis is infinite -> calls in the same thread as callee.
+     * - If timeoutInMillis is NOT infinite -> calls in a bg thread with the timeout, and waits
+     * on the bg task.
      *
-     * @param appContext Context
-     * @param request FontRequest to fetch the font file from {@link FontProvider}
-     * @param callback callback to call when Typeface is loaded.
-     * @param executorHandler the handler to fetch the font
-     */
-    static void requestFont(
-            final @NonNull Context appContext,
-            final @NonNull FontRequest request,
-            final @NonNull FontRequestCallbackWithHandler callback,
-            final @NonNull Handler executorHandler
-    ) {
-        final int defaultStyle = Typeface.NORMAL;
-
-        final String id = createCacheId(request, defaultStyle);
-        Typeface cached = sTypefaceCache.get(id);
-        if (cached != null) {
-            callback.onTypefaceResult(new TypefaceResult(cached));
-        }
-
-        executorHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                TypefaceResult typefaceResult = getFontInternal(id, appContext, request,
-                        defaultStyle);
-                callback.onTypefaceResult(typefaceResult);
-            }
-        });
-    }
-
-    /**
-     * Loads a Typeface. Based on the parameters isBlockingFetch, and timeoutInMillis, the fetch
-     * is either sync or async.
-     * - If timeoutInMillis is infinite, and isBlockingFetch is true -> sync
-     * - If timeoutInMillis is NOT infinite, and isBlockingFetch is true -> sync with timeout
-     * - else -> async without timeout.
+     * Before returning the result, callback is called with the request result.
      *
-     * @param context Context
+     * @param context
      * @param request FontRequest that defines the font to be loaded.
      * @param callback the callback to be called.
-     * @param isBlockingFetch when true the call will be synchronous.
-     * @param timeoutInMillis timeout in milliseconds for the request. It is not used for async
-     *                        request.
      * @param style Typeface Style such as {@link Typeface#NORMAL}, {@link Typeface#BOLD}
      *              {@link Typeface#ITALIC}, {@link Typeface#BOLD_ITALIC}.
-     *
-     * @return the resulting Typeface if it is not an async request.
+     * @param timeoutInMillis timeout in milliseconds for the request.
+     * @return
      */
-    static Typeface requestFont(
+    static Typeface requestFontSync(
             @NonNull final Context context,
             @NonNull final FontRequest request,
-            @NonNull final FontRequestCallbackWithHandler callback,
-            boolean isBlockingFetch,
-            int timeoutInMillis,
-            final int style) {
+            @NonNull final CallbackWithHandler callback,
+            final int style,
+            int timeoutInMillis
+    ) {
         final String id = createCacheId(request, style);
         Typeface cached = sTypefaceCache.get(id);
         if (cached != null) {
@@ -136,10 +107,9 @@ class FontRequestWorker {
         }
 
         // when timeout is infinite, do not post to bg thread, since it will block other requests
-        if (isBlockingFetch
-                && timeoutInMillis == FontResourcesParserCompat.INFINITE_TIMEOUT_VALUE) {
+        if (timeoutInMillis == FontResourcesParserCompat.INFINITE_TIMEOUT_VALUE) {
             // Wait forever. No need to post to the thread.
-            TypefaceResult typefaceResult = getFontInternal(id, context, request, style);
+            TypefaceResult typefaceResult = getFontSync(id, context, request, style);
             callback.onTypefaceResult(typefaceResult);
             return typefaceResult.mTypeface;
         }
@@ -147,63 +117,104 @@ class FontRequestWorker {
         final Callable<TypefaceResult> fetcher = new Callable<TypefaceResult>() {
             @Override
             public TypefaceResult call() {
-                TypefaceResult typeface = getFontInternal(id, context, request, style);
-                return typeface;
+                return getFontSync(id, context, request, style);
             }
         };
 
-        if (isBlockingFetch) {
-            try {
-                TypefaceResult typefaceResult = BACKGROUND_THREAD.postAndWait(fetcher,
-                        timeoutInMillis);
-                callback.onTypefaceResult(typefaceResult);
-                return typefaceResult.mTypeface;
-            } catch (InterruptedException e) {
-                callback.onTypefaceResult(new TypefaceResult(FAIL_REASON_FONT_LOAD_ERROR));
-                return null;
-            }
-        } else {
-            final ReplyCallback<TypefaceResult> reply = new ReplyCallback<TypefaceResult>() {
-                @Override
-                public void onReply(final TypefaceResult typefaceResult) {
-                    callback.onTypefaceResult(typefaceResult);
-                }
-            };
-
-            synchronized (LOCK) {
-                ArrayList<ReplyCallback<TypefaceResult>> pendingReplies = PENDING_REPLIES.get(id);
-                if (pendingReplies != null) {
-                    // Already requested. Do not request the same provider again and insert the
-                    // reply to the queue instead.
-                    if (reply != null) {
-                        pendingReplies.add(reply);
-                    }
-                    return null;
-                }
-                if (reply != null) {
-                    pendingReplies = new ArrayList<>();
-                    pendingReplies.add(reply);
-                    PENDING_REPLIES.put(id, pendingReplies);
-                }
-            }
-            BACKGROUND_THREAD.postAndReply(fetcher, new ReplyCallback<TypefaceResult>() {
-                @Override
-                public void onReply(final TypefaceResult typeface) {
-                    final ArrayList<ReplyCallback<TypefaceResult>> replies;
-                    synchronized (LOCK) {
-                        replies = PENDING_REPLIES.get(id);
-                        if (replies == null) {
-                            return;  // Nobody requested replies. Do nothing.
-                        }
-                        PENDING_REPLIES.remove(id);
-                    }
-                    for (int i = 0; i < replies.size(); ++i) {
-                        replies.get(i).onReply(typeface);
-                    }
-                }
-            });
+        try {
+            TypefaceResult typefaceResult = RequestExecutor.submit(
+                    DEFAULT_EXECUTOR_SERVICE,
+                    fetcher,
+                    timeoutInMillis
+            );
+            callback.onTypefaceResult(typefaceResult);
+            return typefaceResult.mTypeface;
+        } catch (InterruptedException e) {
+            callback.onTypefaceResult(new TypefaceResult(FAIL_REASON_FONT_LOAD_ERROR));
             return null;
         }
+    }
+
+    /**
+     * Request a Font to be loaded async.
+     *
+     * The {@link FontRequest} is executed on executor, and the callback is called on the
+     * {@link Handler} that is contained in {@link CallbackWithHandler}.
+     *
+     *
+     * @param context
+     * @param request FontRequest for the font to be loaded.
+     * @param style Typeface Style such as {@link Typeface#NORMAL}, {@link Typeface#BOLD} ads asd
+     *             {@link Typeface#ITALIC}, {@link Typeface#BOLD_ITALIC}.
+     * @param executor Executor instance to execute the request. If null is provided
+     *                 DEFAULT_EXECUTOR_SERVICE will be used.
+     * @param callback callback to be called for async FontRequest result.
+     *                 {@link CallbackWithHandler} contains the Handler to call the
+     *                 callback on.
+     * @return
+     */
+    static Typeface requestFontAsync(
+            @NonNull final Context context,
+            @NonNull final FontRequest request,
+            final int style,
+            @Nullable final Executor executor,
+            @NonNull final CallbackWithHandler callback
+    ) {
+
+        final String id = createCacheId(request, style);
+        Typeface cached = sTypefaceCache.get(id);
+        if (cached != null) {
+            callback.onTypefaceResult(new TypefaceResult(cached));
+            return cached;
+        }
+
+        final Consumer<TypefaceResult> reply = new Consumer<TypefaceResult>() {
+            @Override
+            public void accept(TypefaceResult typefaceResult) {
+                callback.onTypefaceResult(typefaceResult);
+            }
+        };
+
+        synchronized (LOCK) {
+            ArrayList<Consumer<TypefaceResult>> pendingReplies = PENDING_REPLIES.get(id);
+            if (pendingReplies != null) {
+                // Already requested. Do not request the same provider again and insert the
+                // reply to the queue instead.
+                pendingReplies.add(reply);
+                return null;
+            }
+            pendingReplies = new ArrayList<>();
+            pendingReplies.add(reply);
+            PENDING_REPLIES.put(id, pendingReplies);
+        }
+
+        final Callable<TypefaceResult> fetcher = new Callable<TypefaceResult>() {
+            @Override
+            public TypefaceResult call() {
+                TypefaceResult typeface = getFontSync(id, context, request, style);
+                return typeface;
+            }
+        };
+        Executor finalExecutor = executor == null ? DEFAULT_EXECUTOR_SERVICE : executor;
+
+        RequestExecutor.execute(finalExecutor, fetcher, new Consumer<TypefaceResult>() {
+            @Override
+            public void accept(TypefaceResult typefaceResult) {
+                final ArrayList<Consumer<TypefaceResult>> replies;
+                synchronized (LOCK) {
+                    replies = PENDING_REPLIES.get(id);
+                    if (replies == null) {
+                        return;  // Nobody requested replies. Do nothing.
+                    }
+                    PENDING_REPLIES.remove(id);
+                }
+                for (int i = 0; i < replies.size(); ++i) {
+                    replies.get(i).accept(typefaceResult);
+                }
+            }
+        });
+
+        return null;
     }
 
     private static String createCacheId(@NonNull FontRequest request, int style) {
@@ -212,12 +223,17 @@ class FontRequestWorker {
 
     /** Package protected to prevent synthetic accessor */
     @NonNull
-    static TypefaceResult getFontInternal(
+    static TypefaceResult getFontSync(
             @NonNull final String cacheId,
             @NonNull final Context context,
             @NonNull final FontRequest request,
             int style
     ) {
+        Typeface cached = sTypefaceCache.get(cacheId);
+        if (cached != null) {
+            return new TypefaceResult(cached);
+        }
+
         FontFamilyResult result;
         try {
             result = FontProvider.getFontFamilyResult(context, request, null);

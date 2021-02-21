@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import android.os.Process;
 
 import androidx.annotation.GuardedBy;
+import androidx.core.util.Consumer;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
@@ -34,21 +35,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Tests for {@link SelfDestructiveThread}
+ * Tests for Default Executor
  */
-// TODO Remove
 @RunWith(AndroidJUnit4.class)
 @MediumTest
-public class SelfDestructiveThreadTest {
+public class DefaultExecutorServiceTest {
     private static final int DEFAULT_TIMEOUT = 1000;
 
-    private void waitUntilDestruction(FontRequestThreadPool thread, long timeoutMs) {
-        if (!thread.isRunning()) {
+    private void waitUntilDestruction(ThreadPoolExecutor thread, long timeoutMs) {
+        if (!isRunning(thread)) {
             return;
         }
         final long deadlineNanoTime =
@@ -60,7 +61,7 @@ public class SelfDestructiveThreadTest {
             } catch (InterruptedException e) {
                 // ignore.
             }
-            if (!thread.isRunning()) {
+            if (!isRunning(thread)) {
                 return;
             }
         } while (System.nanoTime() < deadlineNanoTime);
@@ -85,16 +86,16 @@ public class SelfDestructiveThreadTest {
     @Test
     public void testDestruction() throws InterruptedException {
         final int destructAfterLastActivityInMs = 300;
-        final FontRequestThreadPool thread = new FontRequestThreadPool(
+        final ThreadPoolExecutor thread = RequestExecutor.createDefaultExecutor(
                 "test", Process.THREAD_PRIORITY_BACKGROUND, destructAfterLastActivityInMs);
-        thread.postAndWait(new Callable<Object>() {
+        RequestExecutor.submit(thread, new Callable<Object>() {
             @Override
             public Object call() {
                 return null;
             }
         }, DEFAULT_TIMEOUT);
         waitUntilDestruction(thread, DEFAULT_TIMEOUT);
-        assertFalse(thread.isRunning());
+        assertFalse(isRunning(thread));
     }
 
     private static class IdCallable implements Callable<Integer> {
@@ -107,12 +108,14 @@ public class SelfDestructiveThreadTest {
     @Test
     public void testReconstruction() throws InterruptedException {
         final int destructAfterLastActivityInMs = 300;
-        final FontRequestThreadPool thread = new FontRequestThreadPool(
+        final ThreadPoolExecutor thread = RequestExecutor.createDefaultExecutor(
                 "test", Process.THREAD_PRIORITY_BACKGROUND, destructAfterLastActivityInMs);
-        Integer generation = thread.postAndWait(new IdCallable(), DEFAULT_TIMEOUT);
+        Integer generation = RequestExecutor.submit(thread, new IdCallable(),
+                DEFAULT_TIMEOUT);
         assertNotNull(generation);
         waitUntilDestruction(thread, DEFAULT_TIMEOUT);
-        Integer nextGeneration = thread.postAndWait(new IdCallable(), DEFAULT_TIMEOUT);
+        Integer nextGeneration = RequestExecutor.submit(thread, new IdCallable(),
+                DEFAULT_TIMEOUT);
         assertNotNull(nextGeneration);
         assertNotEquals(generation.intValue(), nextGeneration.intValue());
     }
@@ -120,11 +123,13 @@ public class SelfDestructiveThreadTest {
     @Test
     public void testReuseSameThread() throws InterruptedException {
         final int destructAfterLastActivityInMs = 300;
-        final FontRequestThreadPool thread = new FontRequestThreadPool(
+        final ThreadPoolExecutor thread = RequestExecutor.createDefaultExecutor(
                 "test", Process.THREAD_PRIORITY_BACKGROUND, destructAfterLastActivityInMs);
-        Integer generation = thread.postAndWait(new IdCallable(), DEFAULT_TIMEOUT);
+        Integer generation = RequestExecutor.submit(thread, new IdCallable(),
+                DEFAULT_TIMEOUT);
         assertNotNull(generation);
-        Integer nextGeneration = thread.postAndWait(new IdCallable(), DEFAULT_TIMEOUT);
+        Integer nextGeneration = RequestExecutor.submit(thread, new IdCallable(),
+                DEFAULT_TIMEOUT);
         assertNotNull(nextGeneration);
         waitUntilDestruction(thread, DEFAULT_TIMEOUT);
         assertEquals(generation.intValue(), nextGeneration.intValue());
@@ -134,16 +139,18 @@ public class SelfDestructiveThreadTest {
     @Test
     public void testReuseSameThread_Multiple() throws InterruptedException {
         final int destructAfterLastActivityInMs = 300;
-        final FontRequestThreadPool thread = new FontRequestThreadPool(
+        final ThreadPoolExecutor thread = RequestExecutor.createDefaultExecutor(
                 "test", Process.THREAD_PRIORITY_BACKGROUND, destructAfterLastActivityInMs);
-        Integer generation = thread.postAndWait(new IdCallable(), DEFAULT_TIMEOUT);
+        Integer generation = RequestExecutor.submit(thread, new IdCallable(),
+                DEFAULT_TIMEOUT);
         assertNotNull(generation);
         int firstGeneration = generation.intValue();
 
         for (int i = 0; i < 10; ++i) {
             // Less than renewal duration, so that the same thread must be used.
             waitMillis(destructAfterLastActivityInMs / 2);
-            Integer nextGeneration = thread.postAndWait(new IdCallable(), DEFAULT_TIMEOUT);
+            Integer nextGeneration = RequestExecutor.submit(thread, new IdCallable(),
+                    DEFAULT_TIMEOUT);
             assertNotNull(nextGeneration);
             assertEquals(firstGeneration, nextGeneration.intValue());
         }
@@ -153,12 +160,12 @@ public class SelfDestructiveThreadTest {
     @Test
     public void testTimeout() {
         final int destructAfterLastActivityInMs = 300;
-        final FontRequestThreadPool thread = new FontRequestThreadPool(
+        final ThreadPoolExecutor thread = RequestExecutor.createDefaultExecutor(
                 "test", Process.THREAD_PRIORITY_BACKGROUND, destructAfterLastActivityInMs);
 
         final int timeoutMs = 300;
         try {
-            thread.postAndWait(new Callable<Object>() {
+            RequestExecutor.submit(thread, new Callable<Object>() {
                 @Override
                 public Object call() {
                     waitMillis(timeoutMs * 3);  // Wait longer than timeout.
@@ -171,7 +178,35 @@ public class SelfDestructiveThreadTest {
         }
     }
 
-    private class WaitableReplyCallback implements FontRequestThreadPool.ReplyCallback<Integer> {
+    @Test
+    public void testPostAndReply() {
+        final int destructAfterLastActivityInMs = 300;
+        final Integer expectedResult = 123;
+
+        final Callable<Integer> callable = new Callable<Integer>() {
+            @Override
+            public Integer call() {
+                return expectedResult;
+            }
+        };
+        final WaitableConsumer reply = new WaitableConsumer();
+        final ThreadPoolExecutor thread = RequestExecutor.createDefaultExecutor(
+                "test", Process.THREAD_PRIORITY_BACKGROUND, destructAfterLastActivityInMs);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                RequestExecutor.execute(thread, callable, reply);
+            }
+        });
+
+        assertEquals(expectedResult, reply.waitUntil(DEFAULT_TIMEOUT));
+    }
+
+    private static boolean isRunning(ThreadPoolExecutor executor) {
+        return executor.getPoolSize() != 0;
+    }
+
+    private class WaitableConsumer implements Consumer<Integer> {
         private final ReentrantLock mLock = new ReentrantLock();
         private final Condition mCond = mLock.newCondition();
 
@@ -185,12 +220,13 @@ public class SelfDestructiveThreadTest {
         @GuardedBy("mLock")
         int mState = NOT_STARTED;
 
+
         @Override
-        public void onReply(Integer value) {
+        public void accept(Integer integer) {
             mLock.lock();
             try {
                 if (mState != TIMEOUT) {
-                    mValue = value;
+                    mValue = integer;
                     mState = FINISHED;
                 }
                 mCond.signalAll();
@@ -226,29 +262,5 @@ public class SelfDestructiveThreadTest {
                 mLock.unlock();
             }
         }
-    }
-
-    @Test
-    public void testPostAndReply() {
-        final int destructAfterLastActivityInMs = 300;
-        final Integer expectedResult = 123;
-
-        final Callable<Integer> callable = new Callable<Integer>() {
-            @Override
-            public Integer call() {
-                return expectedResult;
-            }
-        };
-        final WaitableReplyCallback reply = new WaitableReplyCallback();
-        final FontRequestThreadPool thread = new FontRequestThreadPool(
-                "test", Process.THREAD_PRIORITY_BACKGROUND, destructAfterLastActivityInMs);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                thread.postAndReply(callable, reply);
-            }
-        });
-
-        assertEquals(expectedResult, reply.waitUntil(DEFAULT_TIMEOUT));
     }
 }
