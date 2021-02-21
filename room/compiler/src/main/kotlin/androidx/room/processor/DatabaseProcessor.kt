@@ -376,6 +376,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
     ) {
         for ((viewElement, view) in map) {
             if (viewElement.hasAnnotation(SkipQueryVerification::class)) {
+                view.query.skippedVerification = true
                 continue
             }
             view.query.resultInfo = dbVerifier.analyze(view.query.original)

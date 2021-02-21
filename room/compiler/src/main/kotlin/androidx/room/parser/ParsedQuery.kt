@@ -76,6 +76,9 @@ data class ParsedQuery(
      * always handle not having it.
      */
     var resultInfo: QueryResultInfo? = null
+
+    var skippedVerification: Boolean = false
+
     val sections by lazy {
         val lines = original.lines()
         val inputsByLine = inputs.groupBy { it.symbol.line }

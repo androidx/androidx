@@ -532,9 +532,10 @@ class TypeAdapterStore private constructor(
                 rowAdapterLogs?.writeTo(context)
                 return rowAdapter
             }
-            if (query.runtimeQueryPlaceholder) {
+            if (query.runtimeQueryPlaceholder || query.skippedVerification) {
                 // just go w/ pojo and hope for the best. this happens for @RawQuery where we
                 // try to guess user's intention and hope that their query fits the result.
+                // or when @SkipVerification was used on a query that returns a pojo.
                 val pojo = PojoProcessor.createFor(
                     context = context,
                     element = typeElement,
