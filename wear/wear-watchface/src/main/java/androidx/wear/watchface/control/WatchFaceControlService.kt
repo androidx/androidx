@@ -56,10 +56,12 @@ public class WatchFaceControlService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? =
-        if (ACTION_WATCHFACE_CONTROL_SERVICE == intent?.action) {
-            watchFaceInstanceServiceStub
-        } else {
-            null
+        TraceEvent("WatchFaceControlService.onBind").use {
+            if (ACTION_WATCHFACE_CONTROL_SERVICE == intent?.action) {
+                watchFaceInstanceServiceStub
+            } else {
+                null
+            }
         }
 
     // Required for testing
@@ -97,9 +99,8 @@ private class IWatchFaceInstanceServiceStub(
     override fun getApiVersion() = IWatchFaceControlService.API_VERSION
 
     override fun getInteractiveWatchFaceInstanceSysUI(instanceId: String) =
-        uiThreadHandler.runOnHandlerWithTracing(
-            "IWatchFaceInstanceServiceStub.getInteractiveWatchFaceInstanceSysUI"
-        ) {
+        TraceEvent("IWatchFaceInstanceServiceStub.getInteractiveWatchFaceInstanceSysUI").use {
+            // This call is thread safe so we don't need to trampoline via the UI thread.
             InteractiveInstanceManager.getAndRetainInstance(instanceId)?.createSysUiApi()
         }
 
