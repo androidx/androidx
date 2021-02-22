@@ -16,6 +16,7 @@
 
 package androidx.core.provider;
 
+import android.os.Handler;
 import android.os.Process;
 
 import androidx.annotation.IntRange;
@@ -74,6 +75,7 @@ class FontRequestThreadPool {
             @NonNull final Callable<T> callable,
             @NonNull final ReplyCallback<T> callback
     ) {
+        final Handler calleeHandler = CalleeHandler.create();
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -84,7 +86,13 @@ class FontRequestThreadPool {
                     t = null;
                 }
                 final T result = t;
-                callback.onReply(result);
+
+                calleeHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onReply(result);
+                    }
+                });
             }
         });
     }
