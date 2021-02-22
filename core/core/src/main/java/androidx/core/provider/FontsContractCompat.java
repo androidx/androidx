@@ -53,6 +53,7 @@ import java.util.Map;
 public class FontsContractCompat {
     private FontsContractCompat() { }
 
+    // TODO deprecated from here, move to TypefaceCompat
     /**
      * Build a Typeface from an array of {@link FontInfo}
      *
@@ -123,16 +124,6 @@ public class FontsContractCompat {
 
     /**
      * Used by TypefaceCompat and tests.
-     * @param context Context
-     * @param request FontRequest that defines the font to be loaded.
-     * @param fontCallback the callback to be called for async loading
-     * @param handler the Handler that the callback will be called on.
-     * @param isBlockingFetch when boolean the call will be synchronous
-     * @param timeout timeout the timeout for blocking requests
-     * @param style Typeface Style such as NORMAL, BOLD, ITALIC, BOLD_ITALIC
-     *
-     * @return Typeface the resulting Typeface if it is not an asynch request.
-     *
      * @hide
      */
     @RestrictTo(LIBRARY)
