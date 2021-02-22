@@ -324,6 +324,7 @@ public class EditorSessionTest {
         ).build()
 
     private val fakeBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+    private val onDestroyLatch = CountDownLatch(1)
 
     private class TestEditorObserver : IEditorObserver.Stub() {
         private lateinit var editorState: EditorStateWireFormat
@@ -340,6 +341,8 @@ public class EditorSessionTest {
             require(latch.await(timeout, unit))
             return editorState
         }
+
+        fun stateChangeObserved() = this::editorState.isInitialized
     }
 
     private fun createOnWatchFaceEditingTestActivity(
@@ -369,6 +372,7 @@ public class EditorSessionTest {
             ) = fakeBitmap
 
             override fun onDestroy() {
+                onDestroyLatch.countDown()
             }
         }
         WatchFace.registerEditorDelegate(testComponentName, editorDelegate)
@@ -951,5 +955,40 @@ public class EditorSessionTest {
             assertThat(editorRequest.watchFaceComponentName).isEqualTo(testComponentName)
             assertThat(editorRequest.watchFaceInstanceId).isEqualTo(testInstanceId)
         }
+    }
+
+    @Test
+    public fun forceCloseEditorSession() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            listOf(leftComplication, rightComplication)
+        )
+
+        val editorObserver = TestEditorObserver()
+        val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
+
+        scenario.onActivity { activity ->
+            runBlocking {
+                // Select [blueStyleOption] and [gothicStyleOption].
+                val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
+                for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
+                    styleMap[userStyleSetting] = userStyleSetting.options.last()
+                }
+                activity.editorSession.userStyle = UserStyle(styleMap)
+            }
+        }
+
+        EditorService.globalEditorService.closeEditor()
+        assertTrue(onDestroyLatch.await(5L, TimeUnit.SECONDS))
+
+        // We don't expect the observer to have fired.
+        assertFalse(editorObserver.stateChangeObserved())
+
+        // The style change should not have been applied to the watchface.
+        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id).isEqualTo(redStyleOption.id)
+        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id)
+            .isEqualTo(classicStyleOption.id)
+
+        EditorService.globalEditorService.unregisterObserver(observerId)
     }
 }

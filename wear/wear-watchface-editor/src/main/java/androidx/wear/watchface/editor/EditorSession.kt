@@ -245,12 +245,23 @@ internal interface ProviderInfoRetrieverProvider {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class BaseEditorSession internal constructor(
-    activity: ComponentActivity,
+    private val activity: ComponentActivity,
     private val providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
     public val coroutineScope: CoroutineScope
 ) : EditorSession() {
     protected var closed: Boolean = false
+    protected var forceClosed: Boolean = false
+
     private val editorSessionTraceEvent = AsyncTraceEvent("EditorSession")
+    private val closeCallback = object : EditorService.CloseCallback() {
+        override fun onClose() {
+            forceClose()
+        }
+    }
+
+    init {
+        EditorService.globalEditorService.addCloseCallback(closeCallback)
+    }
 
     // This is completed when [fetchComplicationPreviewData] has called [getPreviewData] for
     // each complication and each of those have been completed.
@@ -403,7 +414,12 @@ public abstract class BaseEditorSession internal constructor(
     }
 
     override fun close() {
+        // Silently do nothing if we've been force closed, this simplifies the editor activity.
+        if (forceClosed) {
+            return
+        }
         requireNotClosed()
+        EditorService.globalEditorService.removeCloseCallback(closeCallback)
         coroutineScope.launchWithTracing("BaseEditorSession.close") {
             val editorState = EditorStateWireFormat(
                 instanceId,
@@ -423,8 +439,18 @@ public abstract class BaseEditorSession internal constructor(
         }
     }
 
+    internal fun forceClose() {
+        commitChangesOnClose = false
+        closed = true
+        forceClosed = true
+        releaseResources()
+        activity.finish()
+        EditorService.globalEditorService.removeCloseCallback(closeCallback)
+        editorSessionTraceEvent.close()
+    }
+
     protected fun requireNotClosed() {
-        require(!closed) {
+        require(!closed or forceClosed) {
             "EditorSession method called after close()"
         }
     }

@@ -363,14 +363,22 @@ package androidx.wear.watchface.control {
 package androidx.wear.watchface.editor {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class EditorService extends android.os.Binder implements android.os.IInterface {
+    method public void addCloseCallback(androidx.wear.watchface.editor.EditorService.CloseCallback closeCallback);
     method public android.os.IBinder! asBinder();
     method public void broadcastEditorState(androidx.wear.watchface.editor.data.EditorStateWireFormat editorState);
+    method public void closeEditor();
     method public int getApiVersion();
     method public boolean onTransact(int, android.os.Parcel!, android.os.Parcel!, int) throws android.os.RemoteException;
     method public int registerObserver(androidx.wear.watchface.editor.IEditorObserver observer);
+    method public void removeCloseCallback(androidx.wear.watchface.editor.EditorService.CloseCallback closeCallback);
     method public void unregisterObserver(int observerId);
     field public static final int API_VERSION = 1; // 0x1
     field public static final androidx.wear.watchface.editor.EditorService.Companion Companion;
+  }
+
+  public abstract static class EditorService.CloseCallback {
+    ctor public EditorService.CloseCallback();
+    method public abstract void onClose();
   }
 
   public static final class EditorService.Companion {

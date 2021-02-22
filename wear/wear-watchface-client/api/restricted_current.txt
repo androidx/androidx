@@ -39,6 +39,7 @@ package androidx.wear.watchface.client {
   }
 
   public interface EditorServiceClient {
+    method public void closeEditor();
     method public void registerObserver(androidx.wear.watchface.client.EditorObserverCallback editorObserverCallback);
     method public void registerObserver(optional java.util.concurrent.Executor? observerCallbackExecutor, androidx.wear.watchface.client.EditorObserverCallback editorObserverCallback);
     method public void unregisterObserver(androidx.wear.watchface.client.EditorObserverCallback editorObserverCallback);
