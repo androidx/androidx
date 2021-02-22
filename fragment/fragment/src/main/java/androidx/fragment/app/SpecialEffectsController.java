@@ -709,16 +709,16 @@ abstract class SpecialEffectsController {
 
         @Override
         void onStart() {
-            Fragment fragment = mFragmentStateManager.getFragment();
-            View focusedView = fragment.mView.findFocus();
-            if (focusedView != null) {
-                fragment.setFocusedView(focusedView);
-                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                    Log.v(FragmentManager.TAG, "requestFocus: Saved focused view " + focusedView
-                            + " for Fragment " + fragment);
-                }
-            }
             if (getLifecycleImpact() == Operation.LifecycleImpact.ADDING) {
+                Fragment fragment = mFragmentStateManager.getFragment();
+                View focusedView = fragment.mView.findFocus();
+                if (focusedView != null) {
+                    fragment.setFocusedView(focusedView);
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG, "requestFocus: Saved focused view " + focusedView
+                                + " for Fragment " + fragment);
+                    }
+                }
                 View view = getFragment().requireView();
                 // We need to ensure that the fragment's view is re-added
                 // for ADDING operations to properly handle cases where the
