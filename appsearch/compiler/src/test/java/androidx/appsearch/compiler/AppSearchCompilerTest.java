@@ -377,6 +377,17 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testVersion() throws Exception {
+        Compilation compilation = compile(
+                "@Document(version=42)\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Uri String uri;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
     public void testRepeatedFields() throws Exception {
         Compilation compilation = compile(
                 "import java.util.*;\n"
