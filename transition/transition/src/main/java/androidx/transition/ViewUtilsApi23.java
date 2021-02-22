@@ -34,7 +34,7 @@ class ViewUtilsApi23 extends ViewUtilsApi22 {
     @Override
     @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
     public void setTransitionVisibility(@NonNull View view, int visibility) {
-        // on P this method is blacklisted, so we have to resort to reflecting on mViewFlags
+        // on P access to this method is blocked, so we have to resort to reflecting on mViewFlags
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
             super.setTransitionVisibility(view, visibility);
         } else {

@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Entity;
@@ -147,11 +148,12 @@ public class InvalidationTrackerTest {
 
         mDb.getItemDao().insert(new Item(1, "v1"));
 
-        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
+        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner(
+                Lifecycle.State.INITIALIZED);
         TestObserver<Item> observer = new MyObserver<>();
         TestUtil.observeOnMainThread(liveData, lifecycleOwner, observer);
         assertThat(observer.hasValue(), is(false));
-        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         drain();
         assertThat(observer.get(), is(new Item(1, "v1")));
 

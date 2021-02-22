@@ -25,7 +25,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,8 +35,11 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class ImmediateNavigationTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(ImmediateNavigationActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(
+        ImmediateNavigationActivity::class.java
+    )
 
     @Test
     fun testNavigateInOnResume() {
@@ -89,8 +91,8 @@ class NavigateOnResumeFragment : Fragment() {
         // Only automatically navigate in onResume the first time to avoid getting
         // stuck in a loop
         if (shouldNavigateInOnResume) {
-            NavHostFragment.findNavController(this).navigate(R.id.deep_link_test)
             shouldNavigateInOnResume = false
+            NavHostFragment.findNavController(this).navigate(R.id.deep_link_test)
         }
     }
 }

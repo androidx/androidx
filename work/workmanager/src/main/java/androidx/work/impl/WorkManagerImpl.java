@@ -17,6 +17,7 @@
 package androidx.work.impl;
 
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+import static android.text.TextUtils.isEmpty;
 
 import static androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent;
 
@@ -42,10 +43,12 @@ import androidx.work.R;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+import androidx.work.WorkQuery;
 import androidx.work.WorkRequest;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
+import androidx.work.impl.model.RawWorkInfoDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.CancelWorkRunnable;
@@ -53,12 +56,14 @@ import androidx.work.impl.utils.ForceStopRunnable;
 import androidx.work.impl.utils.LiveDataUtils;
 import androidx.work.impl.utils.PreferenceUtils;
 import androidx.work.impl.utils.PruneWorkRunnable;
+import androidx.work.impl.utils.RawQueries;
 import androidx.work.impl.utils.StartWorkRunnable;
 import androidx.work.impl.utils.StatusRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
+import androidx.work.multiprocess.RemoteWorkManager;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -75,8 +80,11 @@ import java.util.UUID;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerImpl extends WorkManager {
 
+    private static final String TAG = Logger.tagWithPrefix("WorkManagerImpl");
     public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 22;
     public static final int MIN_JOB_SCHEDULER_API_LEVEL = 23;
+    public static final String REMOTE_WORK_MANAGER_CLIENT =
+            "androidx.work.multiprocess.RemoteWorkManagerClient";
 
     private Context mContext;
     private Configuration mConfiguration;
@@ -87,6 +95,7 @@ public class WorkManagerImpl extends WorkManager {
     private PreferenceUtils mPreferenceUtils;
     private boolean mForceStopRunnableCompleted;
     private BroadcastReceiver.PendingResult mRescheduleReceiverResult;
+    private volatile RemoteWorkManager mRemoteWorkManager;
 
     private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
@@ -114,6 +123,7 @@ public class WorkManagerImpl extends WorkManager {
      */
     @Deprecated
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressWarnings("NullableProblems")
     public static @Nullable WorkManagerImpl getInstance() {
         synchronized (sLock) {
             if (sDelegatedInstance != null) {
@@ -254,7 +264,8 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull WorkDatabase database) {
         Context applicationContext = context.getApplicationContext();
         Logger.setLogger(new Logger.LogcatLogger(configuration.getMinimumLoggingLevel()));
-        List<Scheduler> schedulers = createSchedulers(applicationContext, workTaskExecutor);
+        List<Scheduler> schedulers =
+                createSchedulers(applicationContext, configuration, workTaskExecutor);
         Processor processor = new Processor(
                 context,
                 configuration,
@@ -410,7 +421,11 @@ public class WorkManagerImpl extends WorkManager {
                 .enqueue();
     }
 
-    private WorkContinuationImpl createWorkContinuationForUniquePeriodicWork(
+    /**
+     * Creates a {@link WorkContinuation} for the given unique {@link PeriodicWorkRequest}.
+     */
+    @NonNull
+    public WorkContinuationImpl createWorkContinuationForUniquePeriodicWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork) {
@@ -558,6 +573,30 @@ public class WorkManagerImpl extends WorkManager {
         return runnable.getFuture();
     }
 
+    @NonNull
+    @Override
+    public LiveData<List<WorkInfo>> getWorkInfosLiveData(
+            @NonNull WorkQuery workQuery) {
+        RawWorkInfoDao rawWorkInfoDao = mWorkDatabase.rawWorkInfoDao();
+        LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
+                rawWorkInfoDao.getWorkInfoPojosLiveData(
+                        RawQueries.workQueryToRawQuery(workQuery));
+        return LiveDataUtils.dedupedMappedLiveDataFor(
+                inputLiveData,
+                WorkSpec.WORK_INFO_MAPPER,
+                mWorkTaskExecutor);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<List<WorkInfo>> getWorkInfos(
+            @NonNull WorkQuery workQuery) {
+        StatusRunnable<List<WorkInfo>> runnable =
+                StatusRunnable.forWorkQuerySpec(this, workQuery);
+        mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
+        return runnable.getFuture();
+    }
+
     LiveData<List<WorkInfo>> getWorkInfosById(@NonNull List<String> workSpecIds) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
@@ -566,6 +605,29 @@ public class WorkManagerImpl extends WorkManager {
                 inputLiveData,
                 WorkSpec.WORK_INFO_MAPPER,
                 mWorkTaskExecutor);
+    }
+
+    /**
+     * @hide
+     */
+    @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public RemoteWorkManager getRemoteWorkManager() {
+        if (mRemoteWorkManager == null) {
+            synchronized (sLock) {
+                if (mRemoteWorkManager == null) {
+                    // Initialize multi-process support.
+                    tryInitializeMultiProcessSupport();
+                    if (mRemoteWorkManager == null && !isEmpty(
+                            mConfiguration.getDefaultProcessName())) {
+                        String message = "Invalid multiprocess configuration. Define an "
+                                + "`implementation` dependency on :work:work-multiprocess library";
+                        throw new IllegalStateException(message);
+                    }
+                }
+            }
+        }
+        return mRemoteWorkManager;
     }
 
     /**
@@ -693,6 +755,11 @@ public class WorkManagerImpl extends WorkManager {
         mPreferenceUtils = new PreferenceUtils(workDatabase);
         mForceStopRunnableCompleted = false;
 
+        // Check for direct boot mode
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && context.isDeviceProtectedStorage()) {
+            throw new IllegalStateException("Cannot initialize WorkManager in direct boot mode");
+        }
+
         // Checks for app force stops.
         mWorkTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
     }
@@ -704,12 +771,27 @@ public class WorkManagerImpl extends WorkManager {
     @NonNull
     public List<Scheduler> createSchedulers(
             @NonNull Context context,
+            @NonNull Configuration configuration,
             @NonNull TaskExecutor taskExecutor) {
 
         return Arrays.asList(
                 Schedulers.createBestAvailableBackgroundScheduler(context, this),
                 // Specify the task executor directly here as this happens before internalInit.
                 // GreedyScheduler creates ConstraintTrackers and controllers eagerly.
-                new GreedyScheduler(context, taskExecutor, this));
+                new GreedyScheduler(context, configuration, taskExecutor, this));
+    }
+
+    /**
+     * Tries to find a multi-process safe implementation for  {@link WorkManager}.
+     */
+    private void tryInitializeMultiProcessSupport() {
+        try {
+            Class<?> klass = Class.forName(REMOTE_WORK_MANAGER_CLIENT);
+            mRemoteWorkManager = (RemoteWorkManager) klass.getConstructor(
+                    Context.class, WorkManagerImpl.class
+            ).newInstance(mContext, this);
+        } catch (Throwable throwable) {
+            Logger.get().debug(TAG, "Unable to initialize multi-process support", throwable);
+        }
     }
 }

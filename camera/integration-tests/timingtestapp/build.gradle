@@ -20,7 +20,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-android-extensions")
 }
 
 android {
@@ -31,22 +30,22 @@ android {
         versionName "1.35"
     }
     sourceSets {
-        main.manifest.srcFile 'src/main/AndroidManifest.xml'
-        main.java.srcDirs = ['src/main/java']
-        main.java.excludes = ['**/build/**']
-        main.java.includes = ['**/*.java']
-        main.res.srcDirs = ['src/main/res']
+        main.manifest.srcFile "src/main/AndroidManifest.xml"
+        main.java.srcDirs = ["src/main/java"]
+        main.java.excludes = ["**/build/**"]
+        main.java.includes = ["**/*.java"]
+        main.res.srcDirs = ["src/main/res"]
     }
     buildTypes {
         release {
             minifyEnabled false
         }
-        debug {
-            testCoverageEnabled true
-        }
     }
     testOptions {
         animationsDisabled = true
+    }
+    buildFeatures {
+        viewBinding true
     }
 }
 
@@ -54,15 +53,19 @@ dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-core"))
+    implementation(project(":camera:camera-lifecycle"))
 
     // Android support library
-    implementation(project(":fragment:fragment"))
+    implementation(project(":concurrent:concurrent-futures-ktx"))
+    implementation("androidx.fragment:fragment-ktx:1.3.0")
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
     implementation("androidx.preference:preference:1.1.0")
     implementation("androidx.exifinterface:exifinterface:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation(KOTLIN_STDLIB)
+    implementation(KOTLIN_COROUTINES_ANDROID)
 
     // Testing framework
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

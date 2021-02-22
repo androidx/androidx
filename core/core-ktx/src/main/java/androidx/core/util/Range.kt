@@ -27,15 +27,16 @@ import androidx.annotation.RequiresApi
  * @throws IllegalArgumentException if this value is comparatively smaller than [that].
  */
 @RequiresApi(21)
-inline infix fun <T : Comparable<T>> T.rangeTo(that: T): Range<T> = Range(this, that)
+public inline infix fun <T : Comparable<T>> T.rangeTo(that: T): Range<T> = Range(this, that)
 
 /** Return the smallest range that includes this and [value]. */
 @RequiresApi(21)
-inline operator fun <T : Comparable<T>> Range<T>.plus(value: T): Range<T> = extend(value)
+public inline operator fun <T : Comparable<T>> Range<T>.plus(value: T): Range<T> = extend(value)
 
 /** Return the smallest range that includes this and [other]. */
 @RequiresApi(21)
-inline operator fun <T : Comparable<T>> Range<T>.plus(other: Range<T>): Range<T> = extend(other)
+public inline operator fun <T : Comparable<T>> Range<T>.plus(other: Range<T>): Range<T> =
+    extend(other)
 
 /**
  * Return the intersection of this range and [other].
@@ -43,15 +44,16 @@ inline operator fun <T : Comparable<T>> Range<T>.plus(other: Range<T>): Range<T>
  * @throws IllegalArgumentException if this is disjoint from [other].
  */
 @RequiresApi(21)
-inline infix fun <T : Comparable<T>> Range<T>.and(other: Range<T>): Range<T> = intersect(other)
+public inline infix fun <T : Comparable<T>> Range<T>.and(other: Range<T>): Range<T> =
+    intersect(other)
 
 /** Returns this [Range] as a [ClosedRange]. */
 @RequiresApi(21)
-fun <T : Comparable<T>> Range<T>.toClosedRange(): ClosedRange<T> = object : ClosedRange<T> {
+public fun <T : Comparable<T>> Range<T>.toClosedRange(): ClosedRange<T> = object : ClosedRange<T> {
     override val endInclusive get() = upper
     override val start get() = lower
 }
 
 /** Returns this [ClosedRange] as a [Range]. */
 @RequiresApi(21)
-fun <T : Comparable<T>> ClosedRange<T>.toRange(): Range<T> = Range(start, endInclusive)
+public fun <T : Comparable<T>> ClosedRange<T>.toRange(): Range<T> = Range(start, endInclusive)

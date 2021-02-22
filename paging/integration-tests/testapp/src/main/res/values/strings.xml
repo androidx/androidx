@@ -18,4 +18,6 @@
     <string name="clear">Clear</string>
     <string name="insert">Insert</string>
     <string name="loading">loading</string>
+    <string name="retry">Retry</string>
+    <string name="error_occurred">An error occurred while loading.</string>
 </resources>

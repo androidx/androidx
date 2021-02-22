@@ -20,6 +20,7 @@ import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.CodeGenScope
@@ -31,9 +32,10 @@ import androidx.room.vo.RelationCollector
 import androidx.room.vo.Warning
 import androidx.room.vo.findFieldByColumnName
 import androidx.room.writer.FieldReadWriteWriter
+import capitalize
 import com.squareup.javapoet.TypeName
 import stripNonJava
-import javax.lang.model.type.TypeMirror
+import java.util.Locale
 
 /**
  * Creates the entity from the given info.
@@ -42,67 +44,66 @@ import javax.lang.model.type.TypeMirror
  */
 class PojoRowAdapter(
     context: Context,
+    private val info: QueryResultInfo?,
     val pojo: Pojo,
-    out: TypeMirror
+    out: XType
 ) : RowAdapter(out) {
+    val mapping: Mapping
+    val relationCollectors: List<RelationCollector>
 
-    var mapping = Mapping(
-        matchedFields = pojo.fields,
-        unusedColumns = emptyList(),
-        unusedFields = emptyList(),
-        verified = false
-    )
-        private set
+    init {
 
-    val relationCollectors: List<RelationCollector> =
-        RelationCollector.createCollectors(context, pojo.relations)
-
-    fun verifyMapping(context: Context, info: QueryResultInfo) {
         // toMutableList documentation is not clear if it copies so lets be safe.
         val remainingFields = pojo.fields.mapTo(mutableListOf(), { it })
         val unusedColumns = arrayListOf<String>()
         val matchedFields: List<Field>
-        matchedFields = info.columns.mapNotNull { column ->
-            // first check remaining, otherwise check any. maybe developer wants to map the same
-            // column into 2 fields. (if they want to post process etc)
-            val field = remainingFields.firstOrNull { it.columnName == column.name }
-                ?: pojo.findFieldByColumnName(column.name)
-            if (field == null) {
-                unusedColumns.add(column.name)
-                null
-            } else {
-                remainingFields.remove(field)
-                field
+        if (info != null) {
+            matchedFields = info.columns.mapNotNull { column ->
+                // first check remaining, otherwise check any. maybe developer wants to map the same
+                // column into 2 fields. (if they want to post process etc)
+                val field = remainingFields.firstOrNull { it.columnName == column.name }
+                    ?: pojo.findFieldByColumnName(column.name)
+                if (field == null) {
+                    unusedColumns.add(column.name)
+                    null
+                } else {
+                    remainingFields.remove(field)
+                    field
+                }
             }
-        }
-        if (unusedColumns.isNotEmpty() || remainingFields.isNotEmpty()) {
-            val warningMsg = ProcessorErrors.cursorPojoMismatch(
-                pojoTypeName = pojo.typeName,
-                unusedColumns = unusedColumns,
-                allColumns = info.columns.map { it.name },
-                unusedFields = remainingFields,
-                allFields = pojo.fields
-            )
-            context.logger.w(Warning.CURSOR_MISMATCH, null, warningMsg)
-        }
-        val nonNulls = remainingFields.filter { it.nonNull }
-        if (nonNulls.isNotEmpty()) {
-            context.logger.e(
-                ProcessorErrors.pojoMissingNonNull(
+            if (unusedColumns.isNotEmpty() || remainingFields.isNotEmpty()) {
+                val warningMsg = ProcessorErrors.cursorPojoMismatch(
                     pojoTypeName = pojo.typeName,
-                    missingPojoFields = nonNulls.map { it.name },
-                    allQueryColumns = info.columns.map { it.name })
-            )
+                    unusedColumns = unusedColumns,
+                    allColumns = info.columns.map { it.name },
+                    unusedFields = remainingFields,
+                    allFields = pojo.fields
+                )
+                context.logger.w(Warning.CURSOR_MISMATCH, null, warningMsg)
+            }
+            val nonNulls = remainingFields.filter { it.nonNull }
+            if (nonNulls.isNotEmpty()) {
+                context.logger.e(
+                    ProcessorErrors.pojoMissingNonNull(
+                        pojoTypeName = pojo.typeName,
+                        missingPojoFields = nonNulls.map { it.name },
+                        allQueryColumns = info.columns.map { it.name }
+                    )
+                )
+            }
+            if (matchedFields.isEmpty()) {
+                context.logger.e(ProcessorErrors.cannotFindQueryResultAdapter(out.typeName))
+            }
+        } else {
+            matchedFields = remainingFields.map { it }
+            remainingFields.clear()
         }
-        if (matchedFields.isEmpty()) {
-            context.logger.e(ProcessorErrors.cannotFindQueryResultAdapter(out.toString()))
-        }
+        relationCollectors = RelationCollector.createCollectors(context, pojo.relations)
 
         mapping = Mapping(
             matchedFields = matchedFields,
             unusedColumns = unusedColumns,
-            unusedFields = remainingFields,
-            verified = true
+            unusedFields = remainingFields
         )
     }
 
@@ -119,14 +120,20 @@ class PojoRowAdapter(
 
     override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
         mapping.fieldsWithIndices = mapping.matchedFields.map {
-            val indexVar = scope.getTmpVar("_cursorIndexOf${it.name.stripNonJava().capitalize()}")
-            val indexMethod = if (mapping.verified) "getColumnIndexOrThrow" else "getColumnIndex"
+            val indexVar = scope.getTmpVar(
+                "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}"
+            )
+            val indexMethod = if (info == null) {
+                "getColumnIndex"
+            } else {
+                "getColumnIndexOrThrow"
+            }
             scope.builder().addStatement(
                 "final $T $L = $T.$L($L, $S)",
                 TypeName.INT, indexVar, RoomTypeNames.CURSOR_UTIL, indexMethod, cursorVarName,
                 it.columnName
             )
-            FieldWithIndex(field = it, indexVar = indexVar, alwaysExists = mapping.verified)
+            FieldWithIndex(field = it, indexVar = indexVar, alwaysExists = info != null)
         }
         if (relationCollectors.isNotEmpty()) {
             relationCollectors.forEach { it.writeInitCode(scope) }
@@ -159,8 +166,7 @@ class PojoRowAdapter(
     data class Mapping(
         val matchedFields: List<Field>,
         val unusedColumns: List<String>,
-        val unusedFields: List<Field>,
-        internal val verified: Boolean
+        val unusedFields: List<Field>
     ) {
         // set when cursor is ready.
         lateinit var fieldsWithIndices: List<FieldWithIndex>

@@ -20,24 +20,26 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -50,7 +52,7 @@ import androidx.annotation.RestrictTo;
  * @deprecated Use {@link PreferenceDialogFragmentCompat} instead
  */
 @Deprecated
-public abstract class PreferenceDialogFragment extends DialogFragment implements
+public abstract class PreferenceDialogFragment extends android.app.DialogFragment implements
         DialogInterface.OnClickListener {
 
     /**
@@ -82,6 +84,7 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
     /**
      * @deprecated Use {@link PreferenceDialogFragmentCompat} instead
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public PreferenceDialogFragment() {}
 
@@ -89,7 +92,7 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final Fragment rawFragment = getTargetFragment();
+        final android.app.Fragment rawFragment = getTargetFragment();
         if (!(rawFragment instanceof DialogPreference.TargetFragment)) {
             throw new IllegalStateException("Target fragment must implement TargetFragment"
                     + " interface");
@@ -224,10 +227,19 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
 
     /**
      * Sets the required flags on the dialog window to enable input method window to show up.
+     * <p>
+     * Note that starting from Android R, the new WindowInsets API supports showing soft-input
+     * on-demand, so there is no longer a need to rely on the
+     * {@link WindowManager.LayoutParams#SOFT_INPUT_STATE_ALWAYS_VISIBLE} flag to show the
+     * soft-input when there is no focused editor.</p>
      */
     private void requestInputMethod(Dialog dialog) {
         Window window = dialog.getWindow();
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Api30Impl.showIme(window);
+        } else {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
     }
 
     /**
@@ -301,4 +313,21 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
      */
     @Deprecated
     public abstract void onDialogClosed(boolean positiveResult);
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in R.
+     */
+    @RequiresApi(Build.VERSION_CODES.R)
+    private static class Api30Impl {
+        // Prevent instantiation.
+        private Api30Impl() {}
+
+        /**
+         * Shows the IME on demand for the given {@link Window}.
+         */
+        @DoNotInline
+        static void showIme(@NonNull Window dialogWindow) {
+            dialogWindow.getDecorView().getWindowInsetsController().show(WindowInsets.Type.ime());
+        }
+    }
 }

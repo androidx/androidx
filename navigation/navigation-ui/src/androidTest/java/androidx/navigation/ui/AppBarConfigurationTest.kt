@@ -21,11 +21,11 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.createGraph
 import androidx.navigation.plusAssign
-import androidx.navigation.testing.TestNavigator
-import androidx.navigation.testing.test
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.TestNavigator
+import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -70,12 +70,12 @@ class AppBarConfigurationTest {
     }
 
     @Test
-    fun testSetDrawerLayout() {
+    fun testSetOpenableLayout() {
         val builder = AppBarConfiguration.Builder()
         val drawerLayout = DrawerLayout(context)
-        builder.setDrawerLayout(drawerLayout)
+        builder.setOpenableLayout(drawerLayout)
         val appBarConfiguration = builder.build()
-        assertThat(appBarConfiguration.drawerLayout).isEqualTo(drawerLayout)
+        assertThat(appBarConfiguration.openableLayout).isEqualTo(drawerLayout)
     }
 
     @Test

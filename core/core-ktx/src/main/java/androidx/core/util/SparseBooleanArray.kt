@@ -21,16 +21,16 @@ package androidx.core.util
 import android.util.SparseBooleanArray
 
 /** Returns the number of key/value pairs in the collection. */
-inline val SparseBooleanArray.size get() = size()
+public inline val SparseBooleanArray.size: Int get() = size()
 
 /** Returns true if the collection contains [key]. */
-inline operator fun SparseBooleanArray.contains(key: Int) = indexOfKey(key) >= 0
+public inline operator fun SparseBooleanArray.contains(key: Int): Boolean = indexOfKey(key) >= 0
 
 /** Allows the use of the index operator for storing values in the collection. */
-inline operator fun SparseBooleanArray.set(key: Int, value: Boolean) = put(key, value)
+public inline operator fun SparseBooleanArray.set(key: Int, value: Boolean): Unit = put(key, value)
 
 /** Creates a new collection by adding or replacing entries from [other]. */
-operator fun SparseBooleanArray.plus(other: SparseBooleanArray): SparseBooleanArray {
+public operator fun SparseBooleanArray.plus(other: SparseBooleanArray): SparseBooleanArray {
     val new = SparseBooleanArray(size() + other.size())
     new.putAll(this)
     new.putAll(other)
@@ -38,28 +38,30 @@ operator fun SparseBooleanArray.plus(other: SparseBooleanArray): SparseBooleanAr
 }
 
 /** Returns true if the collection contains [key]. */
-inline fun SparseBooleanArray.containsKey(key: Int) = indexOfKey(key) >= 0
+public inline fun SparseBooleanArray.containsKey(key: Int): Boolean = indexOfKey(key) >= 0
 
 /** Returns true if the collection contains [value]. */
-inline fun SparseBooleanArray.containsValue(value: Boolean) = indexOfValue(value) != -1
+public inline fun SparseBooleanArray.containsValue(value: Boolean): Boolean =
+    indexOfValue(value) >= 0
 
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
-inline fun SparseBooleanArray.getOrDefault(key: Int, defaultValue: Boolean) = get(key, defaultValue)
+public inline fun SparseBooleanArray.getOrDefault(key: Int, defaultValue: Boolean): Boolean =
+    get(key, defaultValue)
 
 /** Return the value corresponding to [key], or from [defaultValue] when not present. */
-inline fun SparseBooleanArray.getOrElse(key: Int, defaultValue: () -> Boolean) =
-    indexOfKey(key).let { if (it != -1) valueAt(it) else defaultValue() }
+public inline fun SparseBooleanArray.getOrElse(key: Int, defaultValue: () -> Boolean): Boolean =
+    indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }
 
 /** Return true when the collection contains no elements. */
-inline fun SparseBooleanArray.isEmpty() = size() == 0
+public inline fun SparseBooleanArray.isEmpty(): Boolean = size() == 0
 
 /** Return true when the collection contains elements. */
-inline fun SparseBooleanArray.isNotEmpty() = size() != 0
+public inline fun SparseBooleanArray.isNotEmpty(): Boolean = size() != 0
 
 /** Removes the entry for [key] only if it is mapped to [value]. */
-fun SparseBooleanArray.remove(key: Int, value: Boolean): Boolean {
+public fun SparseBooleanArray.remove(key: Int, value: Boolean): Boolean {
     val index = indexOfKey(key)
-    if (index != -1 && value == valueAt(index)) {
+    if (index >= 0 && value == valueAt(index)) {
         // Delete by key because of https://issuetracker.google.com/issues/70934959.
         delete(key)
         return true
@@ -68,24 +70,24 @@ fun SparseBooleanArray.remove(key: Int, value: Boolean): Boolean {
 }
 
 /** Update this collection by adding or replacing entries from [other]. */
-fun SparseBooleanArray.putAll(other: SparseBooleanArray) = other.forEach(::put)
+public fun SparseBooleanArray.putAll(other: SparseBooleanArray): Unit = other.forEach(::put)
 
 /** Performs the given [action] for each key/value entry. */
-inline fun SparseBooleanArray.forEach(action: (key: Int, value: Boolean) -> Unit) {
+public inline fun SparseBooleanArray.forEach(action: (key: Int, value: Boolean) -> Unit) {
     for (index in 0 until size()) {
         action(keyAt(index), valueAt(index))
     }
 }
 
 /** Return an iterator over the collection's keys. */
-fun SparseBooleanArray.keyIterator(): IntIterator = object : IntIterator() {
+public fun SparseBooleanArray.keyIterator(): IntIterator = object : IntIterator() {
     var index = 0
     override fun hasNext() = index < size()
     override fun nextInt() = keyAt(index++)
 }
 
 /** Return an iterator over the collection's values. */
-fun SparseBooleanArray.valueIterator(): BooleanIterator = object : BooleanIterator() {
+public fun SparseBooleanArray.valueIterator(): BooleanIterator = object : BooleanIterator() {
     var index = 0
     override fun hasNext() = index < size()
     override fun nextBoolean() = valueAt(index++)

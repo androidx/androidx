@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+ArrayReturn: androidx.documentfile.provider.DocumentFile#listFiles():
+    Method should return Collection<DocumentFile> (or subclass) instead of raw array; was `androidx.documentfile.provider.DocumentFile[]`
+
+
+StreamFiles: androidx.documentfile.provider.DocumentFile#fromFile(java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.documentfile.provider.DocumentFile.fromFile(java.io.File)

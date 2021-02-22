@@ -16,60 +16,70 @@
 
 package androidx.build.metalava
 
-import androidx.build.SupportConfig
 import androidx.build.Version
-import androidx.build.checkapi.getApiLocation
-import androidx.build.checkapi.isValidApiVersion
+import androidx.build.checkapi.getApiFileVersion
+import androidx.build.checkapi.getVersionedApiLocation
+import androidx.build.checkapi.isValidArtifactVersion
+import androidx.build.getCheckoutRoot
 import androidx.build.java.JavaCompileInputs
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.artifacts.ivyservice.DefaultLenientConfiguration
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.util.PatternFilterable
+import org.gradle.workers.WorkerExecutor
 import java.io.File
+import javax.inject.Inject
 
 /** Generate API signature text files using previously built .jar/.aar artifacts. */
-abstract class RegenerateOldApisTask : DefaultTask() {
+abstract class RegenerateOldApisTask @Inject constructor(
+    private val workerExecutor: WorkerExecutor
+) : DefaultTask() {
+
+    @Input
+    var generateRestrictToLibraryGroupAPIs = true
+
     @TaskAction
     fun exec() {
         val groupId = project.group.toString()
         val artifactId = project.name
-        val internalPrebuiltsDir =
-            File(SupportConfig.getSupportRoot(project), "../../prebuilts/androidx/internal")
+        val internalPrebuiltsDir = File(project.getCheckoutRoot(), "prebuilts/androidx/internal")
         val projectPrebuiltsDir =
             File(internalPrebuiltsDir, groupId.replace(".", "/") + "/" + artifactId)
 
-        val versions = listVersions(projectPrebuiltsDir)
+        val artifactVersions = listVersions(projectPrebuiltsDir)
 
-        for (version in versions) {
-            if (version != project.version.toString()) {
-                regenerate(project.rootProject, groupId, artifactId, version)
+        var prevApiFileVersion = getApiFileVersion(project.version as Version)
+        for (artifactVersion in artifactVersions.reversed()) {
+            val apiFileVersion = getApiFileVersion(artifactVersion)
+            // If two artifacts correspond to the same API file, don't regenerate the
+            // same api file again
+            if (apiFileVersion != prevApiFileVersion) {
+                regenerate(project.rootProject, groupId, artifactId, artifactVersion)
+                prevApiFileVersion = apiFileVersion
             }
         }
     }
 
-    // Returns the artifact versions that appear to exist in <dir>
-    fun listVersions(dir: File): List<String> {
+    // Returns all (valid) artifact versions that appear to exist in <dir>
+    fun listVersions(dir: File): List<Version> {
         val pathNames: Array<String> = dir.list() ?: arrayOf()
         val files = pathNames.map({ name -> File(dir, name) })
         val subdirs = files.filter({ child -> child.isDirectory() })
-        val versions = subdirs.map({ child -> child.name })
-        return versions.sorted()
+        val versions = subdirs.map({ child -> Version(child.name) })
+        val validVersions = versions.filter({ v -> isValidArtifactVersion(v) })
+        return validVersions.sorted()
     }
 
     fun regenerate(
         runnerProject: Project,
         groupId: String,
         artifactId: String,
-        versionString: String
+        version: Version
     ) {
-        val mavenId = "$groupId:$artifactId:$versionString"
-        val version = Version(versionString)
-        if (!isValidApiVersion(version)) {
-            runnerProject.logger.info("Skipping illegal version $version from $mavenId")
-            return
-        }
+        val mavenId = "$groupId:$artifactId:$version"
         val inputs: JavaCompileInputs?
         try {
             inputs = getFiles(runnerProject, mavenId)
@@ -78,13 +88,13 @@ abstract class RegenerateOldApisTask : DefaultTask() {
             return
         }
 
-        val outputApiLocation = project.getApiLocation(version)
-        val tempDir = File(project.buildDir, "api")
+        val outputApiLocation = project.getVersionedApiLocation(version)
         if (outputApiLocation.publicApiFile.exists()) {
             project.logger.lifecycle("Regenerating $mavenId")
-            val generateRestrictedAPIs = outputApiLocation.restrictedApiFile.exists()
-            project.generateApi(
-                inputs, outputApiLocation, tempDir, ApiLintMode.Skip, generateRestrictedAPIs)
+            generateApi(
+                project.getMetalavaClasspath(), inputs, outputApiLocation, ApiLintMode.Skip,
+                generateRestrictToLibraryGroupAPIs, workerExecutor
+            )
         }
     }
 
@@ -125,7 +135,7 @@ abstract class RegenerateOldApisTask : DefaultTask() {
         return runnerProject.files()
     }
 
-    fun getSources(runnerProject: Project, mavenId: String): Collection<File> {
+    fun getSources(runnerProject: Project, mavenId: String): FileCollection {
         val configuration = runnerProject.configurations.detachedConfiguration(
             runnerProject.dependencies.create(mavenId)
         )
@@ -137,7 +147,7 @@ abstract class RegenerateOldApisTask : DefaultTask() {
             copySpec.from(runnerProject.zipTree(configuration.singleFile))
             copySpec.into(unzippedDir)
         })
-        return listOf(unzippedDir)
+        return project.files(unzippedDir)
     }
 
     fun getEmbeddedLibs(runnerProject: Project, mavenId: String): Collection<File> {

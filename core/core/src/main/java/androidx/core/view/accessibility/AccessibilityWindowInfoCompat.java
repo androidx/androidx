@@ -324,7 +324,7 @@ public class AccessibilityWindowInfoCompat {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof AccessibilityWindowInfoCompat)) {
             return false;
         }
         AccessibilityWindowInfoCompat other = (AccessibilityWindowInfoCompat) obj;

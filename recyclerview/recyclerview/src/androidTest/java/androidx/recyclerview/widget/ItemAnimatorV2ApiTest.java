@@ -65,8 +65,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.waitForLayout(2);
         // changed item should not be laid out and should just receive disappear
         LoggingInfo pre = mAnimator.preLayoutInfoMap.get(target);
-        assertNotNull("test sanity", pre);
-        assertNull("test sanity", mAnimator.postLayoutInfoMap.get(target));
+        assertNotNull("Assumption check", pre);
+        assertNull("Assumption check", mAnimator.postLayoutInfoMap.get(target));
         assertTrue(mAnimator.animateChangeList.isEmpty());
         assertEquals(1, mAnimator.animateDisappearanceList.size());
         assertEquals(new AnimateDisappearance(target, pre, null),
@@ -122,16 +122,16 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         checkForMainThreadException();
         final RecyclerView.ViewHolder oldTarget = targets[0];
         final RecyclerView.ViewHolder newTarget = targets[1];
-        assertNotNull("test sanity", targets[0]);
-        assertNotNull("test sanity", targets[1]);
+        assertNotNull("Assumption check", targets[0]);
+        assertNotNull("Assumption check", targets[1]);
         // changed item should not be laid out and should just receive disappear
         LoggingInfo pre = mAnimator.preLayoutInfoMap.get(oldTarget);
-        assertNotNull("test sanity", pre);
-        assertNull("test sanity", mAnimator.postLayoutInfoMap.get(oldTarget));
+        assertNotNull("Assumption check", pre);
+        assertNull("Assumption check", mAnimator.postLayoutInfoMap.get(oldTarget));
 
-        assertNull("test sanity", mAnimator.preLayoutInfoMap.get(newTarget));
+        assertNull("Assumption check", mAnimator.preLayoutInfoMap.get(newTarget));
         LoggingInfo post = mAnimator.postLayoutInfoMap.get(newTarget);
-        assertNotNull("test sanity", post);
+        assertNotNull("Assumption check", post);
         assertEquals(1, mAnimator.animateChangeList.size());
         assertEquals(1, mAnimator.animateDisappearanceList.size());
 
@@ -139,9 +139,9 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
                 mAnimator.animateChangeList.get(0));
 
         LoggingInfo singleItemPre = mAnimator.preLayoutInfoMap.get(singleItemTarget);
-        assertNotNull("test sanity", singleItemPre);
+        assertNotNull("Assumption check", singleItemPre);
         LoggingInfo singleItemPost = mAnimator.postLayoutInfoMap.get(singleItemTarget);
-        assertNotNull("test sanity", singleItemPost);
+        assertNotNull("Assumption check", singleItemPost);
 
         assertEquals(new AnimateDisappearance(singleItemTarget, singleItemPre, singleItemPost),
                 mAnimator.animateDisappearanceList.get(0));
@@ -169,9 +169,9 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         checkForMainThreadException();
         // changed item should not be laid out and should just receive disappear
         LoggingInfo pre = mAnimator.preLayoutInfoMap.get(target);
-        assertNotNull("test sanity", pre);
+        assertNotNull("Assumption check", pre);
         LoggingInfo postInfo = mAnimator.postLayoutInfoMap.get(target);
-        assertNotNull("test sanity", postInfo);
+        assertNotNull("Assumption check", postInfo);
         assertTrue(mAnimator.animateChangeList.isEmpty());
         assertEquals(2, mAnimator.animateDisappearanceList.size());
         try {

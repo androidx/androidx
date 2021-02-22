@@ -17,8 +17,6 @@
 package androidx.slice.builders.impl;
 
 import static android.app.slice.Slice.HINT_HORIZONTAL;
-import static android.app.slice.Slice.HINT_LARGE;
-import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_TITLE;
@@ -26,8 +24,7 @@ import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
-import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
+import static androidx.slice.core.SliceHints.HINT_OVERLAY;
 
 import android.app.PendingIntent;
 import android.net.Uri;
@@ -43,7 +40,6 @@ import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.GridRowBuilder.CellBuilder;
 import androidx.slice.builders.SliceAction;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -81,7 +77,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
     /**
      */
     @Override
-    public void apply(Slice.Builder builder) {
+    public void apply(@NonNull Slice.Builder builder) {
         builder.addHints(HINT_HORIZONTAL);
         if (mPrimaryAction != null) {
             mPrimaryAction.setPrimaryAction(builder);
@@ -152,6 +148,9 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
             if (builder.getContentIntent() != null) {
                 setContentIntent(builder.getContentIntent());
             }
+            if (builder.getSliceAction() != null) {
+                setSliceAction(builder.getSliceAction());
+            }
             List<Object> objs = builder.getObjects();
             List<Integer> types = builder.getTypes();
             List<Boolean> loadings = builder.getLoadings();
@@ -167,6 +166,9 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
                         Pair<IconCompat, Integer> pair = (Pair<IconCompat, Integer>) objs.get(i);
                         addImage(pair.first, pair.second, loadings.get(i));
                         break;
+                    case CellBuilder.TYPE_OVERLAY:
+                        addOverlayText((CharSequence) objs.get(i), loadings.get(i));
+                        break;
                 }
             }
         }
@@ -175,13 +177,6 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
          */
         private CellBuilderImpl(@NonNull Uri uri) {
             super(new Slice.Builder(uri), null);
-        }
-
-        /**
-         */
-        @NonNull
-        private void addText(@NonNull CharSequence text) {
-            addText(text, false /* isLoading */);
         }
 
         /**
@@ -195,56 +190,49 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
 
         /**
          */
-        @NonNull
-        private void addTitleText(@NonNull CharSequence text) {
-            addTitleText(text, false /* isLoading */);
-        }
-
-        /**
-         */
-        @NonNull
         private void addTitleText(@Nullable CharSequence text, boolean isLoading) {
             @Slice.SliceHint String[] hints = isLoading
-                    ? new String[] {HINT_PARTIAL, HINT_TITLE}
-                    : new String[] {HINT_TITLE};
+                    ? new String[]{HINT_PARTIAL, HINT_TITLE}
+                    : new String[]{HINT_TITLE};
             getBuilder().addText(text, null, hints);
         }
 
         /**
+         *
          */
-        @NonNull
-        private void addImage(@NonNull IconCompat image, int imageMode) {
-            addImage(image, imageMode, false /* isLoading */);
-        }
-
-        /**
-         */
-        @NonNull
         private void addImage(@Nullable IconCompat image, int imageMode, boolean isLoading) {
-            ArrayList<String> hints = new ArrayList<>();
-            if (imageMode != ICON_IMAGE) {
-                hints.add(HINT_NO_TINT);
-            }
-            if (imageMode == LARGE_IMAGE) {
-                hints.add(HINT_LARGE);
-            }
-            if (isLoading) {
-                hints.add(HINT_PARTIAL);
-            }
-            getBuilder().addIcon(image, null, hints);
+            getBuilder().addIcon(image, null, parseImageMode(imageMode, isLoading));
         }
 
         /**
+         *
          */
-        @NonNull
+        private void addOverlayText(@Nullable CharSequence text, boolean isLoading) {
+            @Slice.SliceHint String[] hints = isLoading
+                    ? new String[]{HINT_PARTIAL, HINT_OVERLAY}
+                    : new String[]{HINT_OVERLAY};
+            getBuilder().addText(text, null, hints);
+        }
+
+        /**
+         *
+         */
         private void setContentIntent(@NonNull PendingIntent intent) {
             mContentIntent = intent;
         }
 
         /**
+         *
          */
         private void setContentDescription(CharSequence description) {
             getBuilder().addText(description, SUBTYPE_CONTENT_DESCRIPTION);
+        }
+
+        /**
+         *
+         */
+        public void setSliceAction(@NonNull SliceAction action) {
+            action.setPrimaryAction(getBuilder());
         }
 
         /**
@@ -252,7 +240,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
          */
         @RestrictTo(LIBRARY)
         @Override
-        public void apply(Slice.Builder b) {
+        public void apply(@NonNull Slice.Builder b) {
             getBuilder().addHints(HINT_HORIZONTAL);
             if (mContentIntent != null) {
                 b.addAction(mContentIntent, getBuilder().build(), null);

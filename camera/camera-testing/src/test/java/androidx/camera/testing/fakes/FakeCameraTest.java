@@ -23,10 +23,9 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.BaseCamera;
-import androidx.camera.core.Observable;
+import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -37,18 +36,17 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class FakeCameraTest {
 
     private FakeCamera mCamera;
-    private BaseCamera.State mLatestState;
-    private Observable.Observer<BaseCamera.State> mStateObserver =
-            new Observable.Observer<BaseCamera.State>() {
+    private CameraInternal.State mLatestState;
+    private Observable.Observer<CameraInternal.State> mStateObserver =
+            new Observable.Observer<CameraInternal.State>() {
                 @Override
-                public void onNewData(@Nullable BaseCamera.State value) {
+                public void onNewData(@Nullable CameraInternal.State value) {
                     mLatestState = value;
                 }
 
@@ -74,12 +72,12 @@ public final class FakeCameraTest {
     public void cameraEntersOpenState_whenOpened() {
         mCamera.open();
         ShadowLooper.runUiThreadTasks();
-        assertThat(mLatestState).isEqualTo(BaseCamera.State.OPEN);
+        assertThat(mLatestState).isEqualTo(CameraInternal.State.OPEN);
     }
 
     @Test
     public void cameraIsInClosedState_whenInitialized() {
-        assertThat(mLatestState).isEqualTo(BaseCamera.State.CLOSED);
+        assertThat(mLatestState).isEqualTo(CameraInternal.State.CLOSED);
     }
 
     @Test
@@ -87,7 +85,7 @@ public final class FakeCameraTest {
         mCamera.setAvailableCameraCount(0);
         mCamera.open();
         ShadowLooper.runUiThreadTasks();
-        assertThat(mLatestState).isEqualTo(BaseCamera.State.PENDING_OPEN);
+        assertThat(mLatestState).isEqualTo(CameraInternal.State.PENDING_OPEN);
     }
 
     @Test
@@ -95,24 +93,24 @@ public final class FakeCameraTest {
         mCamera.setAvailableCameraCount(0);
         mCamera.open();
         ShadowLooper.runUiThreadTasks();
-        BaseCamera.State intermediateState = mLatestState;
+        CameraInternal.State intermediateState = mLatestState;
         mCamera.setAvailableCameraCount(1);
         ShadowLooper.runUiThreadTasks();
 
-        assertThat(intermediateState).isEqualTo(BaseCamera.State.PENDING_OPEN);
-        assertThat(mLatestState).isEqualTo(BaseCamera.State.OPEN);
+        assertThat(intermediateState).isEqualTo(CameraInternal.State.PENDING_OPEN);
+        assertThat(mLatestState).isEqualTo(CameraInternal.State.OPEN);
     }
 
     @Test
     public void cameraCanBeClosed_afterOpened() {
         mCamera.open();
         ShadowLooper.runUiThreadTasks();
-        BaseCamera.State intermediateState = mLatestState;
+        CameraInternal.State intermediateState = mLatestState;
         mCamera.close();
         ShadowLooper.runUiThreadTasks();
 
-        assertThat(intermediateState).isEqualTo(BaseCamera.State.OPEN);
-        assertThat(mLatestState).isEqualTo(BaseCamera.State.CLOSED);
+        assertThat(intermediateState).isEqualTo(CameraInternal.State.OPEN);
+        assertThat(mLatestState).isEqualTo(CameraInternal.State.CLOSED);
     }
 
     @Test
@@ -120,12 +118,12 @@ public final class FakeCameraTest {
         mCamera.setAvailableCameraCount(0);
         mCamera.open();
         ShadowLooper.runUiThreadTasks();
-        BaseCamera.State intermediateState = mLatestState;
+        CameraInternal.State intermediateState = mLatestState;
         mCamera.close();
         ShadowLooper.runUiThreadTasks();
 
-        assertThat(intermediateState).isEqualTo(BaseCamera.State.PENDING_OPEN);
-        assertThat(mLatestState).isEqualTo(BaseCamera.State.CLOSED);
+        assertThat(intermediateState).isEqualTo(CameraInternal.State.PENDING_OPEN);
+        assertThat(mLatestState).isEqualTo(CameraInternal.State.CLOSED);
     }
 
     @Test

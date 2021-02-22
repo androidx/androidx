@@ -25,7 +25,7 @@ import android.text.TextUtils
  *
  * @see TextUtils.isDigitsOnly
  */
-inline fun CharSequence.isDigitsOnly() = TextUtils.isDigitsOnly(this)
+public inline fun CharSequence.isDigitsOnly(): Boolean = TextUtils.isDigitsOnly(this)
 
 /**
  * Returns the length that the specified [CharSequence] would have if spaces and ASCII control
@@ -33,4 +33,4 @@ inline fun CharSequence.isDigitsOnly() = TextUtils.isDigitsOnly(this)
  *
  * @see TextUtils.getTrimmedLength
  */
-inline fun CharSequence.trimmedLength() = TextUtils.getTrimmedLength(this)
+public inline fun CharSequence.trimmedLength(): Int = TextUtils.getTrimmedLength(this)

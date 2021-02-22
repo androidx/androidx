@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * Sample adapter which uses a AsyncPagedListDiffer.
  */
+@SuppressWarnings("deprecation")
 class PagedListCustomerAdapter extends PagedListAdapter<Customer, RecyclerView.ViewHolder> {
     private RecyclerView mRecyclerView;
     private boolean mSetObserved;
@@ -47,22 +48,24 @@ class PagedListCustomerAdapter extends PagedListAdapter<Customer, RecyclerView.V
         mScrollToKey = key;
     }
 
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder holder = new RecyclerView.ViewHolder(
-                new TextView(parent.getContext())) {};
+                new TextView(parent.getContext())) {
+        };
         holder.itemView.setMinimumHeight(400);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Customer customer = getItem(position);
 
         if (customer != null) {
-            ((TextView) (holder.itemView)).setText(customer.getId() + " " + customer.getLastName());
+            ((TextView) holder.itemView).setText(customer.getId() + " " + customer.getLastName());
         } else {
-            ((TextView) (holder.itemView)).setText(R.string.loading);
+            ((TextView) holder.itemView).setText(R.string.loading);
         }
     }
 
@@ -103,12 +106,12 @@ class PagedListCustomerAdapter extends PagedListAdapter<Customer, RecyclerView.V
     }
 
     @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
     }
 
     @Override
-    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         mRecyclerView = null;
     }
 }

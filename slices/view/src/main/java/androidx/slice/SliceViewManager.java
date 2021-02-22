@@ -193,6 +193,6 @@ public abstract class SliceViewManager {
          * @param s The updated slice.
          * @see #registerSliceCallback
          */
-        void onSliceUpdated(@NonNull Slice s);
+        void onSliceUpdated(@Nullable Slice s);
     }
 }

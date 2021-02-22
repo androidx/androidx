@@ -90,7 +90,7 @@ public class Selection<K> implements Iterable<K> {
      * {@inheritDoc}
      */
     @Override
-    public Iterator<K> iterator() {
+    public @NonNull Iterator<K> iterator() {
         return mSelection.iterator();
     }
 

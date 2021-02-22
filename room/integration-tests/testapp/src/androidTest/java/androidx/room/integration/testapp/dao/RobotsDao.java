@@ -19,14 +19,17 @@ package androidx.room.integration.testapp.dao;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.RoomWarnings;
 import androidx.room.integration.testapp.vo.Cluster;
 import androidx.room.integration.testapp.vo.Hivemind;
 import androidx.room.integration.testapp.vo.Robot;
+import androidx.room.integration.testapp.vo.RobotAndHivemind;
 
 import java.util.List;
 import java.util.UUID;
 
 @Dao
+@SuppressWarnings(RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION)
 public interface RobotsDao {
 
     @Insert
@@ -40,4 +43,7 @@ public interface RobotsDao {
 
     @Query("SELECT * FROM Robot WHERE mHiveId = :hiveId")
     List<Robot> getHiveRobots(UUID hiveId);
+
+    @Query("SELECT * FROM Robot")
+    List<RobotAndHivemind> getRobotsWithHivemind();
 }

@@ -23,7 +23,6 @@ import android.content.pm.PackageManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -33,8 +32,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavUtilsTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(NavUtilsActivity::class.java, false, false)
+    val activityRule = androidx.test.rule.ActivityTestRule(
+        NavUtilsActivity::class.java,
+        false,
+        false
+    )
 
     @Test
     fun testGetParentActivityName() {
@@ -47,11 +51,13 @@ class NavUtilsTest {
     fun testGetParentActivityNameWithAlias() {
         val aliasComponentName = ComponentName(
             InstrumentationRegistry.getInstrumentation().context,
-            "androidx.core.app.NavUtilsAliasActivity")
+            "androidx.core.app.NavUtilsAliasActivity"
+        )
         val activity = activityRule.launchActivity(
             Intent().apply {
                 component = aliasComponentName
-            })
+            }
+        )
         assertThat(NavUtils.getParentActivityName(activity))
             .isEqualTo(NavUtilsParentActivity::class.java.name)
     }
@@ -60,22 +66,28 @@ class NavUtilsTest {
     fun testGetParentActivityNameWithDisabledAlias() {
         val aliasComponentName = ComponentName(
             InstrumentationRegistry.getInstrumentation().context,
-            "androidx.core.app.NavUtilsAliasActivity")
+            "androidx.core.app.NavUtilsAliasActivity"
+        )
         val activity = activityRule.launchActivity(
             Intent().apply {
                 component = aliasComponentName
-            })
+            }
+        )
         val packageManager = activity.packageManager
-        packageManager.setComponentEnabledSetting(aliasComponentName,
+        packageManager.setComponentEnabledSetting(
+            aliasComponentName,
             PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            PackageManager.DONT_KILL_APP)
+            PackageManager.DONT_KILL_APP
+        )
         try {
             assertThat(NavUtils.getParentActivityName(activity))
                 .isEqualTo(NavUtilsParentActivity::class.java.name)
         } finally {
-            packageManager.setComponentEnabledSetting(aliasComponentName,
+            packageManager.setComponentEnabledSetting(
+                aliasComponentName,
                 PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
-                PackageManager.DONT_KILL_APP)
+                PackageManager.DONT_KILL_APP
+            )
         }
     }
 }

@@ -27,7 +27,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.navigation.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
@@ -41,8 +40,9 @@ private const val TEST_ARG_VALUE = "value"
 @RunWith(AndroidJUnit4::class)
 class StartDestinationArgsTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(StartDestinationArgsActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(StartDestinationArgsActivity::class.java)
 
     @Test
     fun testNavigateInOnResume() {
@@ -64,12 +64,14 @@ class StartDestinationArgsActivity : FragmentActivity() {
             val args = Bundle().apply {
                 putString(TEST_ARG, TEST_ARG_VALUE)
             }
-            val navHostFragment = NavHostFragment.create(R.navigation.nav_fragment_start_args,
-                    args)
+            val navHostFragment = NavHostFragment.create(
+                R.navigation.nav_fragment_start_args,
+                args
+            )
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.nav_host, navHostFragment)
-                    .setPrimaryNavigationFragment(navHostFragment)
-                    .commit()
+                .replace(R.id.nav_host, navHostFragment)
+                .setPrimaryNavigationFragment(navHostFragment)
+                .commit()
         }
     }
 }

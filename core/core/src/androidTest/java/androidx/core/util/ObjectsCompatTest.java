@@ -57,4 +57,13 @@ public class ObjectsCompatTest {
         assertEquals(ObjectsCompat.hashCode(a), a.hashCode());
         assertEquals(ObjectsCompat.hashCode(n), 0);
     }
+
+    @Test
+    public void testToString() {
+        String a = "aaa";
+        String b = "bbb";
+
+        assertEquals(ObjectsCompat.toString(a, b), a);
+        assertEquals(ObjectsCompat.toString(null, b), b);
+    }
 }

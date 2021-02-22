@@ -54,6 +54,7 @@ public class BatteryChargingTrackerTest {
     private ConstraintListener<Boolean> mListener;
     private Context mMockContext;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
         mMockContext = mock(Context.class);

@@ -21,8 +21,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
 import androidx.paging.DataSource.KeyType.POSITIONAL
-import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
-import androidx.paging.PositionalDataSource.LoadInitialCallback
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -47,6 +46,13 @@ import kotlin.coroutines.resume
  *
  * @param T Type of items being loaded by the [PositionalDataSource].
  */
+@Deprecated(
+    message = "PositionalDataSource is deprecated and has been replaced by PagingSource",
+    replaceWith = ReplaceWith(
+        "PagingSource<Int, T>",
+        "androidx.paging.PagingSource"
+    )
+)
 abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
 
     /**
@@ -81,7 +87,19 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
          */
         @JvmField
         val placeholdersEnabled: Boolean
-    )
+    ) {
+        init {
+            check(requestedStartPosition >= 0) {
+                "invalid start position: $requestedStartPosition"
+            }
+            check(requestedLoadSize >= 0) {
+                "invalid load size: $requestedLoadSize"
+            }
+            check(pageSize >= 0) {
+                "invalid page size: $pageSize"
+            }
+        }
+    }
 
     /**
      * Holder object for inputs to [loadRange].
@@ -175,7 +193,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
     }
 
     /**
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     companion object {
@@ -309,7 +327,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                     initialPosition = maxOf(0, idealStart / params.pageSize * params.pageSize)
                 } else {
                     // not tiled, so don't try to snap or force multiple of a page size
-                    initialPosition -= initialLoadSize / 2
+                    initialPosition = maxOf(0, initialPosition - initialLoadSize / 2)
                 }
             }
             val initParams = LoadInitialParams(
@@ -322,7 +340,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
         } else {
             var startIndex = params.key!!
             var loadSize = params.pageSize
-            if (params.type == LoadType.START) {
+            if (params.type == LoadType.PREPEND) {
                 // clamp load size to positive indices only, and shift start index by load size
                 loadSize = minOf(loadSize, startIndex)
                 startIndex -= loadSize
@@ -341,47 +359,60 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
     @VisibleForTesting
     internal suspend fun loadInitial(params: LoadInitialParams) =
         suspendCancellableCoroutine<BaseResult<T>> { cont ->
-            loadInitial(params, object : LoadInitialCallback<T>() {
-                override fun onResult(data: List<T>, position: Int, totalCount: Int) {
-                    if (isInvalid) {
-                        // NOTE: this isInvalid check works around
-                        // https://issuetracker.google.com/issues/124511903
-                        cont.resume(BaseResult.empty())
-                    } else {
-                        resume(params, BaseResult(
-                            data = data,
-                            prevKey = position,
-                            nextKey = position + data.size,
-                            itemsBefore = position,
-                            itemsAfter = totalCount - data.size - position
-                        ))
+            loadInitial(
+                params,
+                object : LoadInitialCallback<T>() {
+                    override fun onResult(data: List<T>, position: Int, totalCount: Int) {
+                        if (isInvalid) {
+                            // NOTE: this isInvalid check works around
+                            // https://issuetracker.google.com/issues/124511903
+                            cont.resume(BaseResult.empty())
+                        } else {
+                            val nextKey = position + data.size
+                            resume(
+                                params,
+                                BaseResult(
+                                    data = data,
+                                    // skip passing prevKey if nothing else to load
+                                    prevKey = if (position == 0) null else position,
+                                    // skip passing nextKey if nothing else to load
+                                    nextKey = if (nextKey == totalCount) null else nextKey,
+                                    itemsBefore = position,
+                                    itemsAfter = totalCount - data.size - position
+                                )
+                            )
+                        }
                     }
-                }
 
-                override fun onResult(data: List<T>, position: Int) {
-                    if (isInvalid) {
-                        // NOTE: this isInvalid check works around
-                        // https://issuetracker.google.com/issues/124511903
-                        cont.resume(BaseResult.empty())
-                    } else {
-                        // always pass prevKey/nextKey, since we let position
-                        resume(params, BaseResult(
-                            data = data,
-                            prevKey = position,
-                            nextKey = position + data.size,
-                            itemsBefore = position,
-                            itemsAfter = COUNT_UNDEFINED
-                        ))
+                    override fun onResult(data: List<T>, position: Int) {
+                        if (isInvalid) {
+                            // NOTE: this isInvalid check works around
+                            // https://issuetracker.google.com/issues/124511903
+                            cont.resume(BaseResult.empty())
+                        } else {
+                            resume(
+                                params,
+                                BaseResult(
+                                    data = data,
+                                    // skip passing prevKey if nothing else to load
+                                    prevKey = if (position == 0) null else position,
+                                    // can't do same for nextKey, since we don't know if load is terminal
+                                    nextKey = position + data.size,
+                                    itemsBefore = position,
+                                    itemsAfter = COUNT_UNDEFINED
+                                )
+                            )
+                        }
                     }
-                }
 
-                private fun resume(params: LoadInitialParams, result: BaseResult<T>) {
-                    if (params.placeholdersEnabled) {
-                        result.validateForInitialTiling(params.pageSize)
+                    private fun resume(params: LoadInitialParams, result: BaseResult<T>) {
+                        if (params.placeholdersEnabled) {
+                            result.validateForInitialTiling(params.pageSize)
+                        }
+                        cont.resume(result)
                     }
-                    cont.resume(result)
                 }
-            })
+            )
         }
 
     /**
@@ -396,18 +427,26 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
      */
     private suspend fun loadRange(params: LoadRangeParams) =
         suspendCancellableCoroutine<BaseResult<T>> { cont ->
-            loadRange(params, object : LoadRangeCallback<T>() {
-                override fun onResult(data: List<T>) {
-                    when {
-                        isInvalid -> cont.resume(BaseResult.empty())
-                        else -> cont.resume(BaseResult(
-                            data = data,
-                            prevKey = params.startPosition,
-                            nextKey = params.startPosition + data.size
-                        ))
+            loadRange(
+                params,
+                object : LoadRangeCallback<T>() {
+                    override fun onResult(data: List<T>) {
+                        // skip passing prevKey if nothing else to load. We only do this for prepend
+                        // direction, since 0 as first index is well defined, but max index may not be
+                        val prevKey = if (params.startPosition == 0) null else params.startPosition
+                        when {
+                            isInvalid -> cont.resume(BaseResult.empty())
+                            else -> cont.resume(
+                                BaseResult(
+                                    data = data,
+                                    prevKey = prevKey,
+                                    nextKey = params.startPosition + data.size
+                                )
+                            )
+                        }
                     }
                 }
-            })
+            )
         }
 
     /**
@@ -447,17 +486,21 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
     internal final override fun getKeyInternal(item: T): Int =
         throw IllegalStateException("Cannot get key by item in positionalDataSource")
 
+    @Suppress("DEPRECATION")
     final override fun <V : Any> mapByPage(
         function: Function<List<T>, List<V>>
     ): PositionalDataSource<V> = WrapperPositionalDataSource(this, function)
 
+    @Suppress("DEPRECATION")
     final override fun <V : Any> mapByPage(
         function: (List<T>) -> List<V>
     ): PositionalDataSource<V> = mapByPage(Function { function(it) })
 
+    @Suppress("DEPRECATION")
     final override fun <V : Any> map(function: Function<T, V>): PositionalDataSource<V> =
         mapByPage(Function { list -> list.map { function.apply(it) } })
 
+    @Suppress("DEPRECATION")
     final override fun <V : Any> map(function: (T) -> V): PositionalDataSource<V> =
         mapByPage(Function { list -> list.map(function) })
 }

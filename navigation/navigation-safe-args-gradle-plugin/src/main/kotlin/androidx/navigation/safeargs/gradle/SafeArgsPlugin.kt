@@ -18,13 +18,13 @@ package androidx.navigation.safeargs.gradle
 
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.FeatureExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.BaseVariant
 import groovy.util.XmlSlurper
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
@@ -45,23 +45,23 @@ abstract class SafeArgsPlugin protected constructor(
             extension is AppExtension -> extension.applicationVariants.all(action)
             extension is LibraryExtension -> {
                 extension.libraryVariants.all(action)
-                if (extension is FeatureExtension) {
-                    extension.featureVariants.all(action)
-                }
             }
-            else -> throw GradleException("safeargs plugin must be used with android app," +
-                    "library or feature plugin")
+            else -> throw GradleException(
+                "safeargs plugin must be used with android app," +
+                    "library or feature plugin"
+            )
         }
     }
 
     override fun apply(project: Project) {
         val extension = project.extensions.findByType(BaseExtension::class.java)
-                ?: throw GradleException("safeargs plugin must be used with android plugin")
+            ?: throw GradleException("safeargs plugin must be used with android plugin")
         val isKotlinProject =
             project.extensions.findByType(KotlinProjectExtension::class.java) != null
         if (!isKotlinProject && generateKotlin) {
             throw GradleException(
-                "androidx.navigation.safeargs.kotlin plugin must be used with kotlin plugin")
+                "androidx.navigation.safeargs.kotlin plugin must be used with kotlin plugin"
+            )
         }
         forEachVariant(extension) { variant ->
             val task = project.tasks.create(
@@ -70,7 +70,7 @@ abstract class SafeArgsPlugin protected constructor(
             ) { task ->
                 setApplicationId(task, variant)
                 task.rFilePackage = variant.rFilePackage()
-                task.navigationFiles = navigationFiles(variant)
+                task.navigationFiles = navigationFiles(variant, project)
                 task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
                 task.incrementalFolder = File(project.buildDir, "$INCREMENTAL_PATH/${task.name}")
                 task.useAndroidX = (project.findProperty("android.useAndroidX") == "true").also {
@@ -108,18 +108,21 @@ abstract class SafeArgsPlugin protected constructor(
         parsed.getProperty("@package").toString()
     }
 
-    private fun navigationFiles(variant: BaseVariant) = providerFactory.provider {
-        variant.sourceSets
-            .flatMap { it.resDirectories }
-            .mapNotNull {
-                File(it, "navigation").let { navFolder ->
-                    if (navFolder.exists() && navFolder.isDirectory) navFolder else null
+    private fun navigationFiles(variant: BaseVariant, project: Project): FileCollection {
+        val fileProvider = providerFactory.provider {
+            variant.sourceSets
+                .flatMap { it.resDirectories }
+                .mapNotNull {
+                    File(it, "navigation").let { navFolder ->
+                        if (navFolder.exists() && navFolder.isDirectory) navFolder else null
+                    }
                 }
-            }
-            .flatMap { navFolder -> navFolder.listFiles().asIterable() }
-            .filter { file -> file.isFile }
-            .groupBy { file -> file.name }
-            .map { entry -> entry.value.last() }
+                .flatMap { navFolder -> navFolder.listFiles().asIterable() }
+                .filter { file -> file.isFile }
+                .groupBy { file -> file.name }
+                .map { entry -> entry.value.last() }
+        }
+        return project.files(fileProvider)
     }
 }
 

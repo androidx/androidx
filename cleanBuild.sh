@@ -59,15 +59,28 @@ function confirm() {
 }
 confirm
 
-export OUT_DIR=../../out
+scriptDir="$(cd $(dirname $0) && pwd)"
+checkoutDir="$(cd $scriptDir/../.. && pwd)"
+export OUT_DIR="$checkoutDir/out"
 function removeCaches() {
   echo removing caches
   rm -rf .gradle
   rm -rf buildSrc/.gradle
   rm -f local.properties
-  rm -rf ../../out
+  # We move the Gradle cache (via the OUT_DIR) variable during this build to prevent
+  # Other Gradle builds in other directories from sharing it, to be extra-sure that the
+  # build will be clean. However, if the user subsequently runs `./gradlew`, it will use
+  # ~/.gradle as the Gradle cache dir, which could surprise users because it might hold
+  # different state. So, we preemptively remove ~/.gradle too, just in case the user
+  # is going to want that for their following build
+  rm ~/.gradle -rf
+  # AGP should (also) do this automatically (b/170640263)
+  rm -rf appsearch/appsearch/.cxx
+  rm -rf appsearch/local-backend/.cxx
+  rm -rf appsearch/local-storage/.cxx
+  rm -rf $OUT_DIR
 }
 removeCaches
 
 echo running build
-GRADLE_USER_HOME=../../out ./gradlew --no-daemon $goals
+./gradlew --no-daemon $goals

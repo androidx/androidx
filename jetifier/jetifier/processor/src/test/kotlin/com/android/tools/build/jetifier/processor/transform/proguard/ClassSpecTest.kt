@@ -50,23 +50,23 @@ class ClassSpecTest {
             )
             .testThatGivenProGuard(
                 "-keep class support.Activity \n" +
-                "-keepclassmembers class support.Activity \n" +
-                "-keepclasseswithmembers class support.Activity \n" +
-                "-keepnames class support.Activity \n" +
-                "-keepclassmembernames class support.Activity \n" +
-                "-keepclasseswithmembernames class support.Activity \n" +
-                "-whyareyoukeeping class support.Activity \n" +
-                "-assumenosideeffects class support.Activity"
+                    "-keepclassmembers class support.Activity \n" +
+                    "-keepclasseswithmembers class support.Activity \n" +
+                    "-keepnames class support.Activity \n" +
+                    "-keepclassmembernames class support.Activity \n" +
+                    "-keepclasseswithmembernames class support.Activity \n" +
+                    "-whyareyoukeeping class support.Activity \n" +
+                    "-assumenosideeffects class support.Activity"
             )
             .rewritesTo(
                 "-keep class test.Activity \n" +
-                "-keepclassmembers class test.Activity \n" +
-                "-keepclasseswithmembers class test.Activity \n" +
-                "-keepnames class test.Activity \n" +
-                "-keepclassmembernames class test.Activity \n" +
-                "-keepclasseswithmembernames class test.Activity \n" +
-                "-whyareyoukeeping class test.Activity \n" +
-                "-assumenosideeffects class test.Activity"
+                    "-keepclassmembers class test.Activity \n" +
+                    "-keepclasseswithmembers class test.Activity \n" +
+                    "-keepnames class test.Activity \n" +
+                    "-keepclassmembernames class test.Activity \n" +
+                    "-keepclasseswithmembernames class test.Activity \n" +
+                    "-whyareyoukeeping class test.Activity \n" +
+                    "-assumenosideeffects class test.Activity"
             )
     }
 
@@ -82,21 +82,23 @@ class ClassSpecTest {
             )
             .testThatGivenProGuard(
                 "-keep includedescriptorclasses class support.Activity \n" +
-                "-keep allowshrinking class support.Activity \n" +
-                "-keep allowoptimization class support.Activity \n" +
-                "-keep allowobfuscation class support.Activity \n" +
-                "-keep allowshrinking allowoptimization allowobfuscation class support.Activity" +
-                " \n" +
-                "-keep allowshrinking   allowoptimization   allowobfuscation  class " +
-                "support.Activity"
+                    "-keep allowshrinking class support.Activity \n" +
+                    "-keep allowoptimization class support.Activity \n" +
+                    "-keep allowobfuscation class support.Activity \n" +
+                    "-keep allowshrinking allowoptimization allowobfuscation class " +
+                    "support.Activity \n" +
+                    "-keep allowshrinking   allowoptimization   allowobfuscation  class " +
+                    "support.Activity"
             )
             .rewritesTo(
                 "-keep includedescriptorclasses class test.Activity \n" +
-                "-keep allowshrinking class test.Activity \n" +
-                "-keep allowoptimization class test.Activity \n" +
-                "-keep allowobfuscation class test.Activity \n" +
-                "-keep allowshrinking allowoptimization allowobfuscation class test.Activity \n" +
-                "-keep allowshrinking   allowoptimization   allowobfuscation  class test.Activity"
+                    "-keep allowshrinking class test.Activity \n" +
+                    "-keep allowoptimization class test.Activity \n" +
+                    "-keep allowobfuscation class test.Activity \n" +
+                    "-keep allowshrinking allowoptimization allowobfuscation class " +
+                    "test.Activity \n" +
+                    "-keep allowshrinking   allowoptimization   allowobfuscation  class " +
+                    "test.Activity"
             )
     }
 
@@ -112,11 +114,11 @@ class ClassSpecTest {
             )
             .testThatGivenProGuard(
                 "-keep class * extends support.Activity \n" +
-                "-keep class support.Fragment extends support.Activity"
+                    "-keep class support.Fragment extends support.Activity"
             )
             .rewritesTo(
                 "-keep class * extends test.Activity \n" +
-                "-keep class test.Fragment extends test.Activity"
+                    "-keep class test.Fragment extends test.Activity"
             )
     }
 
@@ -130,11 +132,11 @@ class ClassSpecTest {
             )
             .testThatGivenProGuard(
                 "-keep !public enum * extends support.Activity \n" +
-                "-keep public !final enum * extends support.Activity"
+                    "-keep public !final enum * extends support.Activity"
             )
             .rewritesTo(
                 "-keep !public enum * extends test.Activity \n" +
-                "-keep public !final enum * extends test.Activity"
+                    "-keep public !final enum * extends test.Activity"
             )
     }
 
@@ -150,11 +152,11 @@ class ClassSpecTest {
             )
             .testThatGivenProGuard(
                 "-keep @support.Annotation public class support.Activity \n" +
-                "-keep @some.Annotation public class support.Activity"
+                    "-keep @some.Annotation public class support.Activity"
             )
             .rewritesTo(
                 "-keep @test.Annotation public class test.Activity \n" +
-                "-keep @some.Annotation public class test.Activity"
+                    "-keep @some.Annotation public class test.Activity"
             )
     }
 
@@ -170,11 +172,11 @@ class ClassSpecTest {
             )
             .testThatGivenProGuard(
                 "-keep @support.Annotation public class * extends support.Activity\n" +
-                "-keep @some.Annotation !public class * extends support.Activity"
+                    "-keep @some.Annotation !public class * extends support.Activity"
             )
             .rewritesTo(
                 "-keep @test.Annotation public class * extends test.Activity\n" +
-                "-keep @some.Annotation !public class * extends test.Activity"
+                    "-keep @some.Annotation !public class * extends test.Activity"
             )
     }
 
@@ -202,13 +204,14 @@ class ClassSpecTest {
                 "support/"
             )
             .forGivenProGuardMapSet(
-                "support.**" to setOf("support.**", "androidx.**"))
+                "support.**" to setOf("support.**", "androidx.**")
+            )
             .testThatGivenProGuard(
                 "-keep class support.**"
             )
             .rewritesTo(
                 "-keep class support.**\n" +
-                "-keep class androidx.**"
+                    "-keep class androidx.**"
             )
     }
 
@@ -219,15 +222,16 @@ class ClassSpecTest {
             )
             .forGivenProGuardMapSet(
                 "support.Activity*" to setOf("test.Activity1*", "test.Activity2*"),
-                "support.Annotation*" to setOf("test.Annotation1*", "test.Annotation2*"))
+                "support.Annotation*" to setOf("test.Annotation1*", "test.Annotation2*")
+            )
             .testThatGivenProGuard(
                 "-keep @support.Annotation* public class * extends support.Activity*"
             )
             .rewritesTo(
                 "-keep @test.Annotation1* public class * extends test.Activity1*\n" +
-                "-keep @test.Annotation2* public class * extends test.Activity1*\n" +
-                "-keep @test.Annotation1* public class * extends test.Activity2*\n" +
-                "-keep @test.Annotation2* public class * extends test.Activity2*"
+                    "-keep @test.Annotation2* public class * extends test.Activity1*\n" +
+                    "-keep @test.Annotation1* public class * extends test.Activity2*\n" +
+                    "-keep @test.Annotation2* public class * extends test.Activity2*"
             )
     }
 }

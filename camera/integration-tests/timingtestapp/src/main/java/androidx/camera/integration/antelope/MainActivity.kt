@@ -32,26 +32,17 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.result.launch
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.integration.antelope.cameracontrollers.camera2Abort
 import androidx.camera.integration.antelope.cameracontrollers.cameraXAbort
 import androidx.camera.integration.antelope.cameracontrollers.closeAllCameras
-import androidx.core.app.ActivityCompat
+import androidx.camera.integration.antelope.databinding.ActivityMainBinding
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.idling.CountingIdlingResource
-import kotlinx.android.synthetic.main.activity_main.button_abort
-import kotlinx.android.synthetic.main.activity_main.button_multi
-import kotlinx.android.synthetic.main.activity_main.button_single
-import kotlinx.android.synthetic.main.activity_main.progress_test
-import kotlinx.android.synthetic.main.activity_main.scroll_log
-import kotlinx.android.synthetic.main.activity_main.surface_preview
-import kotlinx.android.synthetic.main.activity_main.text_log
-import kotlinx.android.synthetic.main.activity_main.texture_preview
-
-private const val REQUEST_CAMERA_PERMISSION = 1
-private const val REQUEST_FILE_WRITE_PERMISSION = 2
 
 /**
  * Main Antelope Activity
@@ -110,12 +101,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val requestPermission = registerForActivityResult(RequestPermission()) { granted ->
+        if (granted) {
+            // We now have permission, restart the app
+            val intent = this.intent
+            finish()
+            startActivity(intent)
+        }
+    }
+
+    lateinit var binding: ActivityMainBinding
+
     /**
      * Check camera permissions and set up UI
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         camViewModel = ViewModelProvider(this)
             .get(CamViewModel::class.java)
@@ -127,30 +131,31 @@ class MainActivity : AppCompatActivity() {
             setupCameraNames()
         }
 
-        button_single.setOnClickListener {
-            val testDiag = SettingsDialog.newInstance(SettingsDialog.DIALOG_TYPE_SINGLE,
+        binding.buttonSingle.setOnClickListener {
+            val testDiag = SettingsDialog.newInstance(
+                SettingsDialog.DIALOG_TYPE_SINGLE,
                 getString(R.string.settings_single_test_dialog_title),
-                cameras.toTypedArray(), cameraIds.toTypedArray())
+                cameras.toTypedArray(), cameraIds.toTypedArray()
+            )
             testDiag.show(supportFragmentManager, SettingsDialog.DIALOG_TYPE_SINGLE)
         }
 
-        button_multi.setOnClickListener {
-            val testDiag = SettingsDialog.newInstance(SettingsDialog.DIALOG_TYPE_MULTI,
+        binding.buttonMulti.setOnClickListener {
+            val testDiag = SettingsDialog.newInstance(
+                SettingsDialog.DIALOG_TYPE_MULTI,
                 getString(R.string.settings_multi_test_dialog_title),
-                cameras.toTypedArray(), cameraIds.toTypedArray())
+                cameras.toTypedArray(), cameraIds.toTypedArray()
+            )
             testDiag.show(supportFragmentManager, SettingsDialog.DIALOG_TYPE_MULTI)
         }
 
-        button_abort.setOnClickListener {
+        binding.buttonAbort.setOnClickListener {
             abortTests()
         }
 
         // Human readable report
-        val humanReadableReportObserver = object : Observer<String> {
-            override fun onChanged(newReport: String?) {
-                text_log.text = newReport ?: ""
-            }
-        }
+        val humanReadableReportObserver =
+            Observer<String> { newReport -> binding.textLog.text = newReport ?: "" }
         camViewModel.getHumanReadableReport().observe(this, humanReadableReportObserver)
     }
 
@@ -209,8 +214,10 @@ class MainActivity : AppCompatActivity() {
                     as android.content.ClipboardManager
                 val clip = ClipData.newPlainText("Log", log)
                 clipboard.setPrimaryClip(clip)
-                Toast.makeText(this, getString(R.string.log_copied),
-                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this, getString(R.string.log_copied),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -245,58 +252,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Act on the result of a permissions request. If permission granted simply restart the activity
-     */
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-
-        when (requestCode) {
-            REQUEST_CAMERA_PERMISSION -> {
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // We now have permission, restart the app
-                    val intent = this.intent
-                    finish()
-                    startActivity(intent)
-                } else {
-                }
-                return
-            }
-            REQUEST_FILE_WRITE_PERMISSION -> {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // We now have permission, restart the app
-                    val intent = this.intent
-                    finish()
-                    startActivity(intent)
-                } else {
-                }
-                return
-            }
-        }
-    }
-
-    /**
      * Check if we have been granted the need camera and file-system permissions
      */
     fun checkCameraPermissions(): Boolean {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED) {
-
-            // No explanation needed; request the permission
-            ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.CAMERA),
-                REQUEST_CAMERA_PERMISSION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Launch the permission request for CAMERA
+            requestPermission.launch(Manifest.permission.CAMERA)
             return false
-        } else if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-            // No explanation needed; request the permission
-            ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                REQUEST_FILE_WRITE_PERMISSION)
+        } else if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Launch the permission request for WRITE_EXTERNAL_STORAGE
+            requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             return false
         }
 
@@ -345,11 +316,11 @@ class MainActivity : AppCompatActivity() {
     fun showProgressBar(visible: Boolean = true, percentage: Int = PROGRESS_SINGLE_PERCENTAGE) {
         runOnUiThread {
             if (visible) {
-                progress_test.progress = percentage
-                progress_test.visibility = View.VISIBLE
+                binding.progressTest.progress = percentage
+                binding.progressTest.visibility = View.VISIBLE
             } else {
-                progress_test.progress = 0
-                progress_test.visibility = View.INVISIBLE
+                binding.progressTest.progress = 0
+                binding.progressTest.visibility = View.INVISIBLE
             }
         }
     }
@@ -357,10 +328,10 @@ class MainActivity : AppCompatActivity() {
     /** Enable/disable controls during a test run */
     fun toggleControls(enabled: Boolean = true) {
         runOnUiThread {
-            button_multi.isEnabled = enabled
-            button_single.isEnabled = enabled
-            button_single.isEnabled = enabled
-            button_abort.isEnabled = !enabled // note: inverse of others
+            binding.buttonMulti.isEnabled = enabled
+            binding.buttonSingle.isEnabled = enabled
+            binding.buttonSingle.isEnabled = enabled
+            binding.buttonAbort.isEnabled = !enabled // note: inverse of others
         }
     }
 
@@ -434,7 +405,7 @@ class MainActivity : AppCompatActivity() {
             toggleControls(true)
             toggleRotationLock(false)
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            progress_test.progress = 0
+            binding.progressTest.progress = 0
             showProgressBar(false)
             updateLog("\nABORTED", true)
         }
@@ -474,17 +445,17 @@ class MainActivity : AppCompatActivity() {
                 MainActivity.camViewModel.getCurrentFocusMode().postValue(focusMode)
 
             if (CameraAPI.CAMERAX == api) {
-                surface_preview.visibility = View.INVISIBLE
-                texture_preview.visibility = View.VISIBLE
+                binding.surfacePreview.visibility = View.INVISIBLE
+                binding.texturePreview.visibility = View.VISIBLE
             } else {
-                surface_preview.visibility = View.VISIBLE
-                texture_preview.visibility = View.INVISIBLE
+                binding.surfacePreview.visibility = View.VISIBLE
+                binding.texturePreview.visibility = View.INVISIBLE
             }
 
             toggleControls(false)
             toggleRotationLock(true)
-            updateLog("Running: " + testName + "\n", append, false)
-            scroll_log.fullScroll(View.FOCUS_DOWN)
+            updateLog("Running: $testName\n", append, false)
+            binding.scrollLog.fullScroll(View.FOCUS_DOWN)
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
     }

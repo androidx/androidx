@@ -16,50 +16,44 @@
 
 package androidx.benchmark
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class StatsTest {
     @Test
     fun repeat() {
-        val stats = Stats(listOf(10, 10, 10, 10))
+        val stats = Stats(longArrayOf(10, 10, 10, 10), "test")
         assertEquals(10.0, stats.mean, 0.0)
         assertEquals(10, stats.median)
         assertEquals(10, stats.max)
         assertEquals(10, stats.min)
         assertEquals(0.0, stats.standardDeviation, 0.0)
-        assertEquals(10, stats.percentile90)
-        assertEquals(10, stats.percentile95)
     }
 
     @Test
     fun one() {
-        val stats = Stats(listOf(10))
+        val stats = Stats(longArrayOf(10), "test")
         assertEquals(10.0, stats.mean, 0.0)
         assertEquals(10, stats.median)
         assertEquals(10, stats.max)
         assertEquals(10, stats.min)
         assertEquals(Double.NaN, stats.standardDeviation, 0.0)
-        assertEquals(10, stats.percentile90)
-        assertEquals(10, stats.percentile95)
     }
 
     @Test
     fun simple() {
-        val stats = Stats((1L..100L).toList())
+        val stats = Stats((1L..100L).toList().toLongArray(), "test")
         assertEquals(50.5, stats.mean, 0.0)
         assertTrue(stats.median == 50L || stats.median == 51L)
         assertEquals(100, stats.max)
         assertEquals(1, stats.min)
         assertEquals(29.01, stats.standardDeviation, 0.05)
-        assertEquals(90, stats.percentile90)
-        assertEquals(95, stats.percentile95)
     }
 
     @Test
@@ -75,12 +69,5 @@ class StatsTest {
         (0..100).forEach {
             assertEquals(it.toLong(), Stats.getPercentile(listOf(0L, 25L, 50L, 75L, 100L), it))
         }
-    }
-
-    @Test
-    fun fractionalPercentile() {
-        val stats = Stats(listOf(0L, 25L, 50L, 75L, 100L))
-        assertEquals(90, stats.percentile90)
-        assertEquals(95, stats.percentile95)
     }
 }

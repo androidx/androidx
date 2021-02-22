@@ -19,34 +19,39 @@ package androidx.paging
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
-import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
-import androidx.paging.LoadType.END
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
-import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * @hide
+ * @suppress
  */
+@Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 open class ContiguousPagedList<K : Any, V : Any>(
-    final override val pagedSource: PagedSource<K, V>,
-    internal val coroutineScope: CoroutineScope,
-    internal val notifyDispatcher: CoroutineDispatcher,
+    final override val pagingSource: PagingSource<K, V>,
+    coroutineScope: CoroutineScope,
+    notifyDispatcher: CoroutineDispatcher,
     backgroundDispatcher: CoroutineDispatcher,
     internal val boundaryCallback: BoundaryCallback<V>?,
     config: Config,
-    initialPage: PagedSource.LoadResult.Page<K, V>,
+    initialPage: PagingSource.LoadResult.Page<K, V>,
     private val initialLastKey: K?
 ) : PagedList<V>(
-    pagedSource,
+    pagingSource,
+    coroutineScope,
+    notifyDispatcher,
     PagedStorage<V>(),
-    config
-), PagedStorage.Callback, Pager.PageConsumer<V> {
+    config,
+),
+    PagedStorage.Callback,
+    LegacyPageFetcher.PageConsumer<V> {
     internal companion object {
         internal fun getPrependItemsRequested(
             prefetchDistance: Int,
@@ -79,25 +84,22 @@ open class ContiguousPagedList<K : Any, V : Any>(
     private val shouldTrim = config.maxSize != Config.MAX_SIZE_UNBOUNDED
 
     @Suppress("UNCHECKED_CAST")
-    private val pager = Pager(
+    private val pager = LegacyPageFetcher(
         coroutineScope,
         config,
-        pagedSource,
+        pagingSource,
         notifyDispatcher,
         backgroundDispatcher,
         this,
-        storage as Pager.KeyProvider<K>
+        storage as LegacyPageFetcher.KeyProvider<K>
     )
 
     @Suppress("UNCHECKED_CAST")
     override val lastKey: K?
         get() {
-            return storage.getLastPageAndIndex()?.run {
-                pagedSource.getRefreshKeyFromPage(
-                    second,
-                    first as PagedSource.LoadResult.Page<K, V>
-                )
-            }
+            return (storage.getRefreshKeyInfo(config) as PagingState<K, V>?)
+                ?.let { pagingSource.getRefreshKey(it) }
+                ?: initialLastKey
         }
 
     override val isDetached
@@ -108,7 +110,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
      */
     override fun onPageResult(
         type: LoadType,
-        page: PagedSource.LoadResult.Page<*, V>
+        page: PagingSource.LoadResult.Page<*, V>
     ): Boolean {
         var continueLoading = false
         val list = page.data
@@ -123,7 +125,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
             list.size
         )
 
-        if (type == END) {
+        if (type == APPEND) {
             if (skipNewPage && !trimFromFront) {
                 // don't append this data, drop it
                 appendItemsRequested = 0
@@ -134,7 +136,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                     continueLoading = true
                 }
             }
-        } else if (type == START) {
+        } else if (type == PREPEND) {
             if (skipNewPage && trimFromFront) {
                 // don't append this data, drop it
                 prependItemsRequested = 0
@@ -151,7 +153,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
 
         if (shouldTrim) {
             // Try and trim, but only if the side being trimmed isn't actually fetching.
-            // For simplicity (both of impl here, and contract w/ PagedSource) we don't
+            // For simplicity (both of impl here, and contract w/ PagingSource) we don't
             // allow fetches in same direction - this means reading the load state is safe.
             if (trimFromFront) {
                 if (pager.loadStateManager.startState !is Loading) {
@@ -163,7 +165,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                         )
                     ) {
                         // trimmed from front, ensure we can fetch in that dir
-                        pager.loadStateManager.setState(START, Idle)
+                        pager.loadStateManager.setState(PREPEND, NotLoading.Incomplete)
                     }
                 }
             } else {
@@ -175,7 +177,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                             this@ContiguousPagedList
                         )
                     ) {
-                        pager.loadStateManager.setState(END, Idle)
+                        pager.loadStateManager.setState(APPEND, NotLoading.Incomplete)
                     }
                 }
             }
@@ -185,14 +187,15 @@ open class ContiguousPagedList<K : Any, V : Any>(
         return continueLoading
     }
 
-    override fun onStateChanged(type: LoadType, state: LoadState) =
-        dispatchStateChange(type, state)
+    override fun onStateChanged(type: LoadType, state: LoadState) {
+        dispatchStateChangeAsync(type, state)
+    }
 
     private fun triggerBoundaryCallback(type: LoadType, page: List<V>) {
         if (boundaryCallback != null) {
             val deferEmpty = storage.size == 0
-            val deferBegin = (!deferEmpty && type == START && page.isEmpty())
-            val deferEnd = (!deferEmpty && type == END && page.isEmpty())
+            val deferBegin = (!deferEmpty && type == PREPEND && page.isEmpty())
+            val deferEnd = (!deferEmpty && type == APPEND && page.isEmpty())
             deferBoundaryCallbacks(deferEmpty, deferBegin, deferEnd)
         }
     }
@@ -252,9 +255,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
      */
     private fun tryDispatchBoundaryCallbacks(post: Boolean) {
         val dispatchBegin = boundaryCallbackBeginDeferred &&
-                lowestIndexAccessed <= config.prefetchDistance
+            lowestIndexAccessed <= config.prefetchDistance
         val dispatchEnd = boundaryCallbackEndDeferred &&
-                highestIndexAccessed >= size - 1 - config.prefetchDistance
+            highestIndexAccessed >= size - 1 - config.prefetchDistance
 
         if (!dispatchBegin && !dispatchEnd) return
 
@@ -305,10 +308,10 @@ open class ContiguousPagedList<K : Any, V : Any>(
                 0,
                 this,
                 initialPage.itemsBefore != COUNT_UNDEFINED &&
-                        initialPage.itemsAfter != COUNT_UNDEFINED
+                    initialPage.itemsAfter != COUNT_UNDEFINED
             )
         } else {
-            // If placeholder are disabled, avoid passing leading/trailing nulls, since PagedSource
+            // If placeholder are disabled, avoid passing leading/trailing nulls, since PagingSource
             // may have passed them anyway.
             storage.init(
                 0,
@@ -323,7 +326,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
         triggerBoundaryCallback(REFRESH, initialPage.data)
     }
 
-    override fun dispatchCurrentLoadState(callback: LoadStateListener) {
+    override fun dispatchCurrentLoadState(callback: (LoadType, LoadState) -> Unit) {
         pager.loadStateManager.dispatchCurrentLoadState(callback)
     }
 
@@ -334,11 +337,11 @@ open class ContiguousPagedList<K : Any, V : Any>(
     @MainThread
     override fun loadAroundInternal(index: Int) {
         val prependItems =
-            getPrependItemsRequested(config.prefetchDistance, index, storage.leadingNullCount)
+            getPrependItemsRequested(config.prefetchDistance, index, storage.placeholdersBefore)
         val appendItems = getAppendItemsRequested(
             config.prefetchDistance,
             index,
-            storage.leadingNullCount + storage.storageCount
+            storage.placeholdersBefore + storage.storageCount
         )
 
         prependItemsRequested = maxOf(prependItems, prependItemsRequested)
@@ -373,8 +376,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
         // Simple heuristic to decide if, when dropping pages, we should replace with placeholders.
         // If we're not presenting placeholders at initialization time, we won't add them when
         // we drop a page. Note that we don't use config.enablePlaceholders, since the
-        // PagedSource may have opted not to load any.
-        replacePagesWithNulls = storage.leadingNullCount > 0 || storage.trailingNullCount > 0
+        // PagingSource may have opted not to load any.
+        replacePagesWithNulls = storage.placeholdersBefore > 0 ||
+            storage.placeholdersAfter > 0
     }
 
     @MainThread

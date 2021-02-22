@@ -15,5 +15,5 @@
   ~ limitations under the License
   -->
 <resources>
-    <color name="notification_action_color_filter">@color/secondary_text_default_material_light</color>
+    <color name="notification_action_color_filter">@color/androidx_core_secondary_text_default_material_light</color>
 </resources>

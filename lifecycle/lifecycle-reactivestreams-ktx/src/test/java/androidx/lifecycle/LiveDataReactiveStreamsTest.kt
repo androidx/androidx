@@ -17,9 +17,11 @@
 package androidx.lifecycle
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.testing.TestLifecycleOwner
 import com.google.common.truth.Truth.assertThat
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.processors.ReplayProcessor
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -30,17 +32,8 @@ class LiveDataReactiveStreamsTest {
     private lateinit var lifecycleOwner: LifecycleOwner
 
     @Before fun init() {
-        lifecycleOwner = object : LifecycleOwner {
-            internal var registry = LifecycleRegistry(this)
-
-            init {
-                registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-            }
-
-            override fun getLifecycle(): Lifecycle {
-                return registry
-            }
-        }
+        @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+        lifecycleOwner = TestLifecycleOwner(coroutineDispatcher = TestCoroutineDispatcher())
     }
 
     @Test fun convertsFromPublisher() {

@@ -16,6 +16,8 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.processing.XRawType
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.PagingTypeNames
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
@@ -25,39 +27,37 @@ import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
-    private val dataSourceFactoryTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.elementUtils
-                .getTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY.toString())?.asType()
+    private val dataSourceFactoryType: XRawType? by lazy {
+        context.processingEnv.findType(PagingTypeNames.DATA_SOURCE_FACTORY)?.rawType
     }
 
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
         if (query.tables.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
         val typeArg = declared.typeArguments[1]
         val adapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
-            ListQueryResultAdapter(it)
+            ListQueryResultAdapter(typeArg, it)
         }
 
-        val tableNames = ((adapter?.accessedTableNames() ?: emptyList()) +
-                query.tables.map { it.name }).toSet()
+        val tableNames = (
+            (adapter?.accessedTableNames() ?: emptyList()) +
+                query.tables.map { it.name }
+            ).toSet()
         val countedBinder = PositionalDataSourceQueryResultBinder(adapter, tableNames)
         return DataSourceFactoryQueryResultBinder(countedBinder)
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
-            declared.typeArguments.size == 2 && isLivePagedList(declared)
+    override fun matches(declared: XType): Boolean =
+        declared.typeArguments.size == 2 && isLivePagedList(declared)
 
-    private fun isLivePagedList(declared: DeclaredType): Boolean {
-        if (dataSourceFactoryTypeMirror == null) {
+    private fun isLivePagedList(declared: XType): Boolean {
+        if (dataSourceFactoryType == null) {
             return false
         }
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
         // we don't want to return paged list unless explicitly requested
-        return context.processingEnv.typeUtils.isAssignable(dataSourceFactoryTypeMirror, erasure)
+        return declared.rawType.isAssignableFrom(dataSourceFactoryType!!)
     }
 }

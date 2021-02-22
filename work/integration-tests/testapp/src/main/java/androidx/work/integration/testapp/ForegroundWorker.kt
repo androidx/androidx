@@ -39,20 +39,21 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
     private var progress: Data = Data.EMPTY
 
     override suspend fun doWork(): Result {
+        val notificationId = inputData.getInt(InputNotificationId, NotificationId)
+        val delayTime = inputData.getLong(InputDelayTime, Delay)
         // Run in the context of a Foreground service
-        setForeground(getNotification())
-
+        setForeground(getForegroundInfo(notificationId))
         val range = 20
         for (i in 1..range) {
-            delay(1000)
+            delay(delayTime)
             progress = workDataOf(Progress to i * (100 / range))
             setProgress(progress)
-            setForeground(getNotification())
+            setForeground(getForegroundInfo(notificationId))
         }
         return Result.success()
     }
 
-    private fun getNotification(): ForegroundInfo {
+    private fun getForegroundInfo(notificationId: Int): ForegroundInfo {
         val percent = progress.getInt(Progress, 0)
         val id = applicationContext.getString(R.string.channel_id)
         val title = applicationContext.getString(R.string.notification_title)
@@ -69,7 +70,7 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
             .setOngoing(true)
             .build()
 
-        return ForegroundInfo(notification)
+        return ForegroundInfo(notificationId, notification)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -85,6 +86,9 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
 
     companion object {
         private const val NotificationId = 10
+        private const val Delay = 1000L
         private const val Progress = "Progress"
+        const val InputNotificationId = "NotificationId"
+        const val InputDelayTime = "DelayTime"
     }
 }

@@ -43,9 +43,11 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
+import java.util.UUID
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+import kotlin.jvm.Throws
 
 @RunWith(AndroidJUnit4::class)
 class TestWorkerBuilderTest {
@@ -126,6 +128,21 @@ class TestWorkerBuilderTest {
 
         val worker: TestWorker =
             TestWorkerBuilder.from(context, TestWorker::class.java, executor).build()
+
+        assertThat(listenableWorker, notNullValue())
+        assertThat(worker, notNullValue())
+    }
+
+    @Test
+    @SmallTest
+    fun testWorkerBuilder_returnsExpectedType2() {
+        val listenableWorker: TestWorker = TestListenableWorkerBuilder<TestWorker>(context)
+            .setId(UUID.randomUUID())
+            .build()
+
+        val worker: TestWorker = TestWorkerBuilder<TestWorker>(context, executor)
+            .setId(UUID.randomUUID())
+            .build()
 
         assertThat(listenableWorker, notNullValue())
         assertThat(worker, notNullValue())

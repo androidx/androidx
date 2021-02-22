@@ -120,7 +120,6 @@ public class OnboardingDemoFragment extends OnboardingFragment {
             mContentAnimator.cancel();
         }
         ((AnimationDrawable) mContentAnimationView.getDrawable()).stop();
-        ArrayList<Animator> animators = new ArrayList<>();
         Animator fadeOut = createFadeOutAnimator(mContentView);
         fadeOut.addListener(new AnimatorListenerAdapter() {
             @Override

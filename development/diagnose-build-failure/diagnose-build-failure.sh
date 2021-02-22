@@ -5,17 +5,28 @@ set -u
 scriptName="$(basename $0)"
 
 function usage() {
-  echo "usage: $0 <tasks>"
-  echo "Attempts to diagnose why "'`'"./gradlew <tasks>"'`'" fails"
+  echo "NAME"
+  echo "  diagnose-build-failure.sh"
   echo
-  echo "For example:"
+  echo "SYNOPSIS"
+  echo "  ./development/diagnose-build-failure/diagnose-build-failure.sh [--message <message>] '<tasks>'"
   echo
+  echo "DESCRIPTION"
+  echo "  Attempts to identify why "'`'"./gradlew <tasks>"'`'" fails"
+  echo
+  echo "OPTIONS"
+  echo "--message <message>"
+  echo "  Replaces the requirement for "'`'"./gradlew <tasks>"'`'" to fail with the requirement that it produces the given message"
+  echo
+  echo "SAMPLE USAGE"
   echo "  $0 assembleDebug # or any other arguments you would normally give to ./gradlew"
   echo
-  echo "These are the types of diagnoses that $scriptName can make:"
+  echo "OUTPUT"
+  echo "  diagnose-build-failure will conclude one of the following:"
   echo
   echo "  A) Some state saved in memory by the Gradle daemon is triggering an error"
   echo "  B) Your source files have been changed"
+  echo "     To (slowly) generate a simpler reproduction case, you can run simplify-build-failure.sh"
   echo "  C) Some file in the out/ dir is triggering an error"
   echo "     If this happens, $scriptName will identify which file(s) specifically"
   echo "  D) The build is nondeterministic and/or affected by timestamps"
@@ -23,9 +34,28 @@ function usage() {
   exit 1
 }
 
-gradleArgs="$*"
+expectedMessage=""
+while true; do
+  if [ "$#" -lt 1 ]; then
+    usage
+  fi
+  arg="$1"
+  shift
+  if [ "$arg" == "--message" ]; then
+    expectedMessage="$1"
+    shift
+    continue
+  fi
+  gradleArgs="$arg"
+  break
+done
 if [ "$gradleArgs" == "" ]; then
   usage
+fi
+
+if [ "$#" -gt 0 ]; then
+  echo "Unrecognized argument: $1"
+  exit 1
 fi
 
 workingDir="$(pwd)"
@@ -36,9 +66,10 @@ if [ ! -e "$workingDir/gradlew" ]; then
 fi
 
 scriptPath="$(cd $(dirname $0) && pwd)"
+vgrep="$scriptPath/impl/vgrep.sh"
 supportRoot="$(cd $scriptPath/../.. && pwd)"
 checkoutRoot="$(cd $supportRoot/../.. && pwd)"
-tempDir="/tmp/diagnose-build-failure"
+tempDir="$checkoutRoot/diagnose-build-failure/"
 if [ "${GRADLE_USER_HOME:-}" == "" ]; then
   GRADLE_USER_HOME="$(cd ~ && pwd)/.gradle"
 fi
@@ -63,19 +94,27 @@ function checkStatus() {
   fi
 }
 
+function getBuildCommand() {
+  if [ "$expectedMessage" == "" ]; then
+    testCommand="$*"
+  else
+    testCommand="$* 2>&1 | $vgrep '$expectedMessage'"
+  fi
+  echo "$testCommand"
+}
+
 function runBuild() {
-  echo -e "$COLOR_GREEN"
-  args="$*"
-  cd "$supportRoot"
-  if eval $args; then
+  testCommand="$(getBuildCommand $*)"
+  cd "$workingDir"
+  if eval $testCommand; then
     echo -e "$COLOR_WHITE"
     echo
-    echo '`'$args'`' succeeded
+    echo '`'$testCommand'`' succeeded
     return 0
   else
     echo -e "$COLOR_WHITE"
     echo
-    echo '`'$args'`' failed
+    echo '`'$testCommand'`' failed
     return 1
   fi
 }
@@ -146,9 +185,10 @@ if runBuild ./gradlew --no-daemon $gradleArgs; then
   backupState "$tempDir/clean"
 else
   echo
-  echo "The clean build also failed."
-  echo "This may mean that the build is failing for everyone"
+  echo "The clean build also reproduced the issue."
+  echo "This may mean that everyone is observing this issue"
   echo "This may mean that something about your checkout is different from others'"
+  echo "You may be interested in running development/simplify-build-failure/simplify-build-failure.sh to identify the minimal set of source files required to reproduce this error"
   echo "Checking the status of your checkout:"
   checkStatus
   exit 1
@@ -191,7 +231,8 @@ echo
 echo "Binary-searching the contents of the two output directories until the relevant differences are identified."
 echo "This may take a while."
 echo
-if runBuild "$supportRoot/development/file-utils/diff-filterer.py --assume-no-side-effects --assume-input-states-are-correct $successState $tempDir/prev \"$scriptPath/impl/restore-state.sh . $workingDir && cd $supportRoot && ./gradlew --no-daemon $gradleArgs\""; then
+filtererCommand="$(getBuildCommand "$scriptPath/impl/restore-state.sh . $workingDir && cd $workingDir && ./gradlew --no-daemon $gradleArgs")"
+if $supportRoot/development/file-utils/diff-filterer.py --assume-no-side-effects --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$filtererCommand"; then
   echo
   echo "There should be something wrong with the above file state"
   echo "Hopefully the output from diff-filterer.py above is enough information for you to figure out what is wrong"

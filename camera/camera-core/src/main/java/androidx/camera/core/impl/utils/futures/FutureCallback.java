@@ -17,7 +17,6 @@
 package androidx.camera.core.impl.utils.futures;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -35,10 +34,8 @@ import java.util.concurrent.Future;
  *
  * @author Anthony Zana
  * @since 10.0
- * @hide
  * @param <V>
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface FutureCallback<V> {
     /** Invoked with the result of the {@code Future} computation when it is successful. */
     void onSuccess(@Nullable V result);

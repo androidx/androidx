@@ -20,9 +20,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -218,7 +217,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         layoutManager.waitForLayout(1);
 
         assertEquals(layoutCount, recyclerView.getChildCount());
-        final ArrayList<View> children = new ArrayList();
+        final ArrayList<View> children = new ArrayList<>();
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -229,9 +228,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     AccessibilityNodeInfo info = recyclerView.getChildAt(i)
                             .createAccessibilityNodeInfo();
                     assertTrue("custom delegate sets isChecked", info.isChecked());
-                    if (Build.VERSION.SDK_INT >= 19) {
-                        assertNotNull(info.getCollectionItemInfo());
-                    }
                     children.add(view);
                 }
             }
@@ -254,9 +250,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     assertTrue(children.contains(view));
                     AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
                     assertTrue("custom delegate sets isChecked", info.isChecked());
-                    if (Build.VERSION.SDK_INT >= 19) {
-                        assertNotNull(info.getCollectionItemInfo());
-                    }
                 }
             }
         });
@@ -306,10 +299,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     View view = recyclerView.getChildAt(i);
                     assertEquals(i, recyclerView.getChildAdapterPosition(view));
                     assertTrue(accessibiltyDelegateIsItemDelegate(recyclerView, view));
-                    AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
-                    if (Build.VERSION.SDK_INT >= 19) {
-                        assertNotNull(info.getCollectionItemInfo());
-                    }
                 }
             }
         });
@@ -317,7 +306,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         // let all items go to recycler pool
         layoutManager.expectLayouts(1);
         layoutCount[0] = 0;
-        adapter.resetItemsTo(new ArrayList());
+        adapter.resetItemsTo(new ArrayList<Item>());
         layoutManager.waitForLayout(1);
         assertEquals(0, recyclerView.getChildCount());
         assertEquals(firstPassLayoutCount, recyclerView.getRecycledViewPool()

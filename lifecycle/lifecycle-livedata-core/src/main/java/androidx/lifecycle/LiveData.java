@@ -69,6 +69,8 @@ public abstract class LiveData<T> {
     // how many observers are in active state
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mActiveCount = 0;
+    // to handle active/inactive reentry, we guard with this boolean
+    private boolean mChangingActiveState;
     private volatile Object mData;
     // when setData is called, we set the pending data and actual data swap happens on the main
     // thread
@@ -329,7 +331,7 @@ public abstract class LiveData<T> {
     }
 
     /**
-     * Called when the number of active observers change to 1 from 0.
+     * Called when the number of active observers change from 0 to 1.
      * <p>
      * This callback can be used to know that this LiveData is being used thus should be kept
      * up to date.
@@ -371,6 +373,30 @@ public abstract class LiveData<T> {
         return mActiveCount > 0;
     }
 
+    @MainThread
+    void changeActiveCounter(int change) {
+        int previousActiveCount = mActiveCount;
+        mActiveCount += change;
+        if (mChangingActiveState) {
+            return;
+        }
+        mChangingActiveState = true;
+        try {
+            while (previousActiveCount != mActiveCount) {
+                boolean needToCallActive = previousActiveCount == 0 && mActiveCount > 0;
+                boolean needToCallInactive = previousActiveCount > 0 && mActiveCount == 0;
+                previousActiveCount = mActiveCount;
+                if (needToCallActive) {
+                    onActive();
+                } else if (needToCallInactive) {
+                    onInactive();
+                }
+            }
+        } finally {
+            mChangingActiveState = false;
+        }
+    }
+
     class LifecycleBoundObserver extends ObserverWrapper implements LifecycleEventObserver {
         @NonNull
         final LifecycleOwner mOwner;
@@ -388,11 +414,17 @@ public abstract class LiveData<T> {
         @Override
         public void onStateChanged(@NonNull LifecycleOwner source,
                 @NonNull Lifecycle.Event event) {
-            if (mOwner.getLifecycle().getCurrentState() == DESTROYED) {
+            Lifecycle.State currentState = mOwner.getLifecycle().getCurrentState();
+            if (currentState == DESTROYED) {
                 removeObserver(mObserver);
                 return;
             }
-            activeStateChanged(shouldBeActive());
+            Lifecycle.State prevState = null;
+            while (prevState != currentState) {
+                prevState = currentState;
+                activeStateChanged(shouldBeActive());
+                currentState = mOwner.getLifecycle().getCurrentState();
+            }
         }
 
         @Override
@@ -431,14 +463,7 @@ public abstract class LiveData<T> {
             // immediately set active state, so we'd never dispatch anything to inactive
             // owner
             mActive = newActive;
-            boolean wasInactive = LiveData.this.mActiveCount == 0;
-            LiveData.this.mActiveCount += mActive ? 1 : -1;
-            if (wasInactive && mActive) {
-                onActive();
-            }
-            if (LiveData.this.mActiveCount == 0 && !mActive) {
-                onInactive();
-            }
+            changeActiveCounter(mActive ? 1 : -1);
             if (mActive) {
                 dispatchingValue(this);
             }

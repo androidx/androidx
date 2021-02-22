@@ -55,7 +55,8 @@ object Jacoco {
     fun registerClassFilesTask(project: Project, extension: TestedExtension) {
         extension.testVariants.all { v ->
             if (v.buildType.isTestCoverageEnabled &&
-                v.sourceSets.any { it.javaDirectories.isNotEmpty() }) {
+                v.sourceSets.any { it.javaDirectories.isNotEmpty() }
+            ) {
                 val jarifyTask = project.tasks.register(
                     "package${v.name.capitalize()}ClassFilesForCoverageReport",
                     Jar::class.java
@@ -66,7 +67,8 @@ object Jacoco {
                     it.from(v.testedVariant.javaCompileProvider.get().destinationDir)
                     it.exclude("**/R.class", "**/R\$*.class", "**/BuildConfig.class")
                     it.destinationDirectory.set(project.buildDir)
-                    it.archiveFileName.set("${project.name}-${v.baseName}-allclasses.jar")
+                    val sanitizedPath = project.path.removePrefix(":").replace(':', '_')
+                    it.archiveFileName.set("$sanitizedPath-${v.baseName}-allclasses.jar")
                 }
                 project.rootProject.tasks.named(
                     "packageAllClassFilesForCoverageReport",
@@ -84,7 +86,7 @@ object Jacoco {
             Jar::class.java
         ) {
             it.destinationDirectory.set(project.getDistributionDirectory())
-            it.archiveFileName.set("jacoco-report-classes-all.jar")
+            it.archiveFileName.set("jacoco-report-classes.jar")
         }
     }
 
@@ -94,18 +96,22 @@ object Jacoco {
      */
     fun createZipEcFilesTask(project: Project): TaskProvider<Zip> {
         // Examples of the two types of ec file :
-        //"./out/androidx/ads-identifier-common/build/outputs/code_coverage/debugAndroidTest/connected/coverage.ec"
-        //./out/androidx/lifecycle/lifecycle-runtime-ktx-lint/build/jacoco/test.exec
+        // "./out/androidx/ads-identifier-common/build/outputs/code_coverage/debugAndroidTest/connected/coverage.ec"
+        // ./out/androidx/lifecycle/lifecycle-runtime-ktx-lint/build/jacoco/test.exec
         Preconditions.checkArgument(project.isRoot, "Must be root project")
-        var ecFilesTree: ConfigurableFileTree = project.fileTree(mapOf("dir" to project
-            .getRootOutDirectory(), "include" to listOf("**/jacoco/*.exec", "**/coverage.ec")))
+        var ecFilesTree: ConfigurableFileTree = project.fileTree(
+            mapOf(
+                "dir" to project.getRootOutDirectory(),
+                "include" to listOf("**/jacoco/*.exec", "**/coverage.ec")
+            )
+        )
         val zipTask = project.tasks.register(EC_FILE_ZIP_TASK_NAME, Zip::class.java) {
             it.from(ecFilesTree)
             it.archiveFileName.set("coverage_ec_files.zip")
             it.destinationDirectory.set(project.getDistributionDirectory())
             it.includeEmptyDirs = false
             it.description = "Task for creating a zip file from all of the .ec and .exec files " +
-                    "created as part of host-side test coverage analysis with jacoco."
+                "created as part of host-side test coverage analysis with jacoco."
         }
         return zipTask
     }
@@ -114,7 +120,7 @@ object Jacoco {
      * Returns the execution-file-zipping-task associated with the root project.
      * This should only be called after the task is created.
      */
-    fun getZipEcFilesTask(project: Project): Task {
-        return project.rootProject.tasks.getByName(EC_FILE_ZIP_TASK_NAME)
+    fun getZipEcFilesTask(project: Project): TaskProvider<Task> {
+        return project.rootProject.tasks.named(EC_FILE_ZIP_TASK_NAME)
     }
 }

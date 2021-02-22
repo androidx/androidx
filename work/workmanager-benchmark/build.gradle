@@ -30,9 +30,10 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation(project(':work:work-runtime-ktx'))
-    androidTestImplementation(project(":benchmark:benchmark-junit4"))
-    androidTestImplementation("androidx.room:room-runtime:2.2.0")
+    androidTestImplementation(project(":work:work-runtime-ktx"))
+    androidTestImplementation(project(":work:work-multiprocess"))
+    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
+    androidTestImplementation("androidx.room:room-runtime:2.2.5")
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -45,9 +46,7 @@ dependencies {
 androidx {
     name = "Android WorkManager Benchmarks"
      publish = Publish.NONE
-    mavenVersion = LibraryVersions.WORK
     mavenGroup = LibraryGroups.WORK
     inceptionYear = "2019"
     description = "Android WorkManager Benchmark Library"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

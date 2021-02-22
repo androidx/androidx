@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.sqlite.db {
 
   public final class SimpleSQLiteQuery implements androidx.sqlite.db.SupportSQLiteQuery {
@@ -20,6 +20,7 @@ package androidx.sqlite.db {
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public void disableWriteAheadLogging();
     method public boolean enableWriteAheadLogging();
     method public void endTransaction();
+    method public default void execPerConnectionSQL(String, Object![]?);
     method public void execSQL(String!) throws android.database.SQLException;
     method public void execSQL(String!, Object![]!) throws android.database.SQLException;
     method public java.util.List<android.util.Pair<java.lang.String!,java.lang.String!>!>! getAttachedDbs();
@@ -31,6 +32,7 @@ package androidx.sqlite.db {
     method public long insert(String!, int, android.content.ContentValues!) throws android.database.SQLException;
     method public boolean isDatabaseIntegrityOk();
     method public boolean isDbLockedByCurrentThread();
+    method public default boolean isExecPerConnectionSQLSupported();
     method public boolean isOpen();
     method public boolean isReadOnly();
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public boolean isWriteAheadLoggingEnabled();

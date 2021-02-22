@@ -25,10 +25,12 @@ import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
+import androidx.testutils.ActivityScenarioResetRule
+import androidx.testutils.ResettableActivityScenarioRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,10 +39,12 @@ import org.junit.runner.RunWith
 @SmallTest
 class RecyclerViewWithTransitionsTest {
 
+    val activity: TestActivity get() = mActivityRule.getActivity()
+
     @Rule
     @JvmField
-    val activityRule = ActivityTestRule(TestActivity::class.java)
-    val activity: TestActivity get() = (activityRule.activity as TestActivity)
+    val mActivityResetRule: ActivityScenarioResetRule<TestActivity> =
+        TestActivity.ResetRule(mActivityRule.scenario)
 
     @Test
     fun ignoreCachedViewWhileItIsAttachedToOverlay() {
@@ -49,13 +53,13 @@ class RecyclerViewWithTransitionsTest {
             layoutManager = LinearLayoutManager(context)
             adapter = testAdapter
         }
-        activityRule.runOnUiThread {
+        activity.runOnUiThread {
             activity.container.addView(recyclerView)
         }
 
         // helper fun to change itemCount, wait for it to be applied and validate childCount
         val changeItemCount = { itemsCount: Int ->
-            activityRule.runOnUiThread {
+            activity.runOnUiThread {
                 testAdapter.itemCount = itemsCount
                 testAdapter.notifyDataSetChanged()
             }
@@ -126,5 +130,11 @@ class RecyclerViewWithTransitionsTest {
         override fun onBindViewHolder(holder: TransitionHolder, position: Int) {}
 
         override fun getItemCount() = itemCount
+    }
+
+    companion object {
+        @ClassRule
+        @JvmField
+        val mActivityRule = ResettableActivityScenarioRule(TestActivity::class.java)
     }
 }

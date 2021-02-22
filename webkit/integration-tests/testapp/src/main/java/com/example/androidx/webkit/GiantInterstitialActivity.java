@@ -36,6 +36,7 @@ public class GiantInterstitialActivity extends AppCompatActivity {
     private static final double SCALE_FACTOR = 1.1;
 
     @Override
+    @SuppressWarnings("deprecation") /* defaultDisplay */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_giant_interstitial);

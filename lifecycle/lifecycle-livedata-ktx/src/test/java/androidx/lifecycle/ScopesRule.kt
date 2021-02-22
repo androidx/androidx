@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+
 package androidx.lifecycle
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import com.google.common.truth.Truth
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -31,7 +32,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
-@ExperimentalCoroutinesApi
 class ScopesRule : TestWatcher() {
     private val mainDispatcher = TestCoroutineDispatcher()
     val mainScope = TestCoroutineScope(mainDispatcher)
@@ -113,7 +113,6 @@ class ScopesRule : TestWatcher() {
     }
 }
 
-@ExperimentalCoroutinesApi
 fun <T> LiveData<T>.addObserver(scopes: ScopesRule): CollectingObserver<T> {
     return scopes.runOnMain {
         val observer = CollectingObserver(this, scopes)
@@ -122,7 +121,6 @@ fun <T> LiveData<T>.addObserver(scopes: ScopesRule): CollectingObserver<T> {
     }
 }
 
-@ExperimentalCoroutinesApi
 class CollectingObserver<T>(
     private val liveData: LiveData<T>,
     private val scopes: ScopesRule

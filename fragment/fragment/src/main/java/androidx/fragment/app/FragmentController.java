@@ -160,6 +160,7 @@ public class FragmentController {
      * to automatically restore the Fragment's non configuration state and use
      * {@link #restoreSaveState(Parcelable)} to restore the Fragment's save state.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public void restoreAllState(@Nullable Parcelable state,
             @Nullable List<Fragment> nonConfigList) {
@@ -175,6 +176,7 @@ public class FragmentController {
      * to automatically restore the Fragment's non configuration state and use
      * {@link #restoreSaveState(Parcelable)} to restore the Fragment's save state.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public void restoreAllState(@Nullable Parcelable state,
             @Nullable FragmentManagerNonConfig nonConfig) {
@@ -203,6 +205,7 @@ public class FragmentController {
      * @deprecated Have your {@link FragmentHostCallback} implement {@link ViewModelStoreOwner}
      * to automatically retain the Fragment's non configuration state.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     @Nullable
     public List<Fragment> retainNonConfig() {
@@ -219,6 +222,7 @@ public class FragmentController {
      * @deprecated Have your {@link FragmentHostCallback} implement {@link ViewModelStoreOwner}
      * to automatically retain the Fragment's non configuration state.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     @Nullable
     public FragmentManagerNonConfig retainNestedNonConfig() {

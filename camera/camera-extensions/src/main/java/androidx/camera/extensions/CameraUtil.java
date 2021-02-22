@@ -17,19 +17,16 @@
 package androidx.camera.extensions;
 
 import android.content.Context;
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraDeviceConfig;
-import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
+import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.LensFacingCameraIdFilter;
-
-import java.util.Set;
+import androidx.camera.core.Logger;
+import androidx.core.util.Preconditions;
 
 /**
  * Utility functions for accessing camera related parameters
@@ -38,35 +35,36 @@ class CameraUtil {
     private static final String TAG = "CameraUtil";
 
     @Nullable
-    static String getCameraId(CameraDeviceConfig config) {
+    static String getCameraIdUnchecked(@NonNull CameraSelector cameraSelector) {
         try {
-            return CameraX.getCameraWithCameraDeviceConfig(config);
-        } catch (CameraInfoUnavailableException e) {
-            Log.w(TAG, "Unable to get camera id for the camera device config.");
+            return CameraX.getCameraWithCameraSelector(
+                    cameraSelector).getCameraInfoInternal().getCameraId();
+        } catch (IllegalArgumentException e) {
+            Logger.w(TAG, "Unable to get camera id for the camera selector.");
             // Returns null if there's no camera id can be found.
             return null;
         }
     }
 
-    @NonNull
-    static Set<String> getCameraIdSetWithLensFacing(CameraX.LensFacing lensFacing)
-            throws CameraInfoUnavailableException {
-        Set<String> availableCameraIds = CameraX.getCameraFactory().getAvailableCameraIds();
-        LensFacingCameraIdFilter lensFacingCameraIdFilter =
-                LensFacingCameraIdFilter.createLensFacingCameraIdFilter(lensFacing);
-        availableCameraIds = lensFacingCameraIdFilter.filter(availableCameraIds);
+    @Nullable
+    static String getCameraIdWithLensFacingUnchecked(@Nullable Integer lensFacing) {
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
-        return availableCameraIds;
+        return getCameraIdUnchecked(cameraSelector);
     }
 
     static CameraCharacteristics getCameraCharacteristics(String cameraId) {
+        Preconditions.checkNotNull(cameraId, "Invalid camera id.");
+        // TODO(b/161302102): Remove usage of deprecated CameraX.getContext()
+        @SuppressWarnings("deprecation")
         Context context = CameraX.getContext();
-        CameraManager cameraManager = (CameraManager) context.getSystemService(
-                Context.CAMERA_SERVICE);
+        CameraManagerCompat cameraManager = CameraManagerCompat.from(context);
         CameraCharacteristics cameraCharacteristics = null;
         try {
-            cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
-        } catch (CameraAccessException e) {
+            cameraCharacteristics = cameraManager.getCameraCharacteristicsCompat(cameraId)
+                    .toCameraCharacteristics();
+        } catch (CameraAccessExceptionCompat e) {
             throw new IllegalArgumentException(
                     "Unable to retrieve info for camera with id " + cameraId + ".", e);
         }

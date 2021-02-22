@@ -25,8 +25,14 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.Atomics;
-import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.Uninterruptibles;
+
+import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
+
+import org.junit.internal.runners.JUnit38ClassRunner;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,12 +53,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
-
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
-
-import org.junit.internal.runners.JUnit38ClassRunner;
-import org.junit.runner.RunWith;
 
 /**
  * Tests for {@link AbstractResolvableFuture}.
@@ -232,7 +232,7 @@ public class AbstractResolvableFutureTest extends TestCase {
      * ranges
      * derived from observing how much time actually passed for various operations.
      */
-    @SuppressWarnings({"DeprecatedThreadMethods", "ThreadPriorityCheck"})
+    @SuppressWarnings({"DeprecatedThreadMethods", "ThreadPriorityCheck", "deprecation"})
     public void testToString_delayedTimeout() throws Exception {
         TimedWaiterThread thread =
                 new TimedWaiterThread(new AbstractResolvableFuture<Object>() {
@@ -375,11 +375,6 @@ public class AbstractResolvableFutureTest extends TestCase {
         executor.shutdown();
     }
 
-    /**
-     * He did the bash, he did the future bash The future bash, it was a concurrency smash He did
-     * the
-     * bash, it caught on in a flash He did the bash, he did the future bash
-     */
 //    @Sequential // messing with class loading MOE:strip_line
     public void testFutureBash() {
         final CyclicBarrier barrier =

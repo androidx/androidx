@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  * You can control when the work executes in the period interval more exactly - see
  * {@link PeriodicWorkRequest.Builder} for documentation on {@code flexInterval}s.
  * <p>
- * Periodic work has a minimum interval of 15 minutes and it cannot have an initial delay.
+ * Periodic work has a minimum interval of 15 minutes.
  * <p>
  * Periodic work is intended for use cases where you want a fairly consistent delay between
  * consecutive runs, and you are willing to accept inexactness due to battery optimizations and doze
@@ -120,10 +120,9 @@ public final class PeriodicWorkRequest extends WorkRequest {
 
         /**
          * Creates a {@link PeriodicWorkRequest} to run periodically once within the
-         * <strong>flex period</strong> of every interval period. See diagram below.  Note that flex
-         * intervals are ignored for certain OS versions (in particular, API 23).  The flex period
-         * begins at {@code repeatInterval - flexInterval} to the end of the interval.  The repeat
-         * interval must be greater than or equal to
+         * <strong>flex period</strong> of every interval period. See diagram below.  The flex
+         * period begins at {@code repeatInterval - flexInterval} to the end of the interval.
+         * The repeat interval must be greater than or equal to
          * {@link PeriodicWorkRequest#MIN_PERIODIC_INTERVAL_MILLIS} and the flex interval must
          * be greater than or equal to {@link PeriodicWorkRequest#MIN_PERIODIC_FLEX_MILLIS}.
          *
@@ -155,10 +154,9 @@ public final class PeriodicWorkRequest extends WorkRequest {
 
         /**
          * Creates a {@link PeriodicWorkRequest} to run periodically once within the
-         * <strong>flex period</strong> of every interval period. See diagram below. Note that flex
-         * intervals are ignored for certain OS versions (in particular, API 23).  The flex period
-         * begins at {@code repeatInterval - flexInterval} to the end of the interval.  The repeat
-         * interval must be greater than or equal to
+         * <strong>flex period</strong> of every interval period. See diagram below.  The flex
+         * period begins at {@code repeatInterval - flexInterval} to the end of the interval.
+         * The repeat interval must be greater than or equal to
          * {@link PeriodicWorkRequest#MIN_PERIODIC_INTERVAL_MILLIS} and the flex interval must
          * be greater than or equal to {@link PeriodicWorkRequest#MIN_PERIODIC_FLEX_MILLIS}.
          *

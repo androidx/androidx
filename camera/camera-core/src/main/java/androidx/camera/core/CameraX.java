@@ -16,10 +16,14 @@
 
 package androidx.camera.core;
 
+import android.app.Application;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.res.Resources;
 import android.os.Handler;
-import android.util.Log;
-import android.util.Size;
+import android.os.HandlerThread;
+import android.os.Process;
+import android.os.SystemClock;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
@@ -27,25 +31,27 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.utils.Threads;
+import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.core.impl.CameraDeviceSurfaceManager;
+import androidx.camera.core.impl.CameraFactory;
+import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.CameraRepository;
+import androidx.camera.core.impl.CameraThreadConfig;
+import androidx.camera.core.impl.CameraValidator;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.core.internal.compat.quirk.IncompleteCameraListQuirk;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.os.HandlerCompat;
 import androidx.core.util.Preconditions;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -54,513 +60,87 @@ import java.util.concurrent.TimeoutException;
 /**
  * Main interface for accessing CameraX library.
  *
- * <p>This is a singleton class responsible for managing the set of camera instances and
- * attached use cases (such as {@link Preview}, {@link ImageAnalysis}, or {@link ImageCapture}.
- * Use cases are bound to a {@link LifecycleOwner} by calling
- * {@link #bindToLifecycle(LifecycleOwner, UseCase...)}   Once bound, the lifecycle of the
- * {@link LifecycleOwner} determines when the camera is started and stopped, and when camera data
- * is available to the use case.
+ * <p>This is a singleton class responsible for managing the set of camera instances.
  *
- * <p>It is often sufficient to just bind the use cases once when the activity is created, and
- * let the lifecycle handle the rest, so application code generally does not need to call
- * {@link #unbind(UseCase...)} nor call {@link #bindToLifecycle} more than once.
- *
- * <p>A lifecycle transition from {@link Lifecycle.State#CREATED} to {@link Lifecycle.State#STARTED}
- * state (via {@link Lifecycle.Event#ON_START}) initializes the camera asynchronously on a
- * CameraX managed thread. After initialization, the camera is opened and a camera capture
- * session is created.   If a {@link Preview} or {@link ImageAnalysis} is bound, those use cases
- * will begin to receive camera data after initialization completes. {@link ImageCapture} can
- * receive data via specific calls (such as {@link ImageCapture#takePicture}) after initialization
- * completes. Calling {@link #bindToLifecycle} with no Use Cases does nothing.
- *
- * <p>Binding to a {@link LifecycleOwner} when the state is {@link Lifecycle.State#STARTED} or
- * greater will also initialize and start data capture as though an
- * {@link Lifecycle.Event#ON_START} transition had occurred.  If the camera was already running
- * this may cause a new initialization to occur, temporarily stopping data from the camera before
- * restarting it.
- *
- * <p>After a lifecycle transition from {@link Lifecycle.State#STARTED} to
- * {@link Lifecycle.State#CREATED} state (via {@link Lifecycle.Event#ON_STOP}), use cases will no
- * longer receive camera data.  The camera capture session is destroyed and the camera device is
- * closed.  Use cases can remain bound and will become active again on the next
- * {@link Lifecycle.Event#ON_START} transition.
- *
- * <p>When the lifecycle transitions from {@link Lifecycle.State#CREATED} to the
- * {@link Lifecycle.State#DESTROYED} state (via {@link Lifecycle.Event#ON_DESTROY}) any
- * bound use cases are unbound and use case resources are freed.  Calls to {@link #bindToLifecycle}
- * when the lifecycle is in the {@link Lifecycle.State#DESTROYED} state will fail.
- * A call to {@link #bindToLifecycle} will need to be made with another lifecycle to rebind the
- * UseCase that has been unbound.
- *
- * <p>If the camera is not already closed, unbinding all use cases will cause the camera to close
- * asynchronously.
- *
- * <pre>{@code
- * public void setup() {
- *   // Initialize UseCase
- *   useCase = ...;
- *
- *   // UseCase binding event
- *   CameraX.bindToLifecycle(lifecycleOwner, useCase);
- *
- *   // Make calls on useCase
- * }
- *
- * public void operateOnUseCase() {
- *   if (CameraX.isBound(useCase)) {
- *     // Make calls on useCase
- *   }
- * }
- *
- * public void prematureTearDown() {
- *   // Not required since the lifecycle automatically stops the use case.  Can be used to
- *   // disassociate use cases from the lifecycle to move a use case to a different lifecycle.
- *   CameraX.unbindAll();
- * }
- * }</pre>
- *
- * <p>All operations on a use case, including binding and unbinding, should be done on the main
- * thread.  This is because lifecycle events are triggered on main thread and so accessing the use
- * case on the main thread guarantees that lifecycle state changes will not occur during execution
- * of a method call or binding/unbinding.
+ * @hide
  */
 @MainThread
+@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraX {
     private static final String TAG = "CameraX";
-    private static final long WAIT_INITIALIZED_TIMEOUT = 3L;
+    private static final String RETRY_TOKEN = "retry_token";
+    private static final long WAIT_INITIALIZED_TIMEOUT_MILLIS = 3000L;
+    private static final long RETRY_SLEEP_MILLIS = 500L;
 
-    static final Object sInitializeLock = new Object();
+    static final Object INSTANCE_LOCK = new Object();
 
-    @GuardedBy("sInitializeLock")
-    @Nullable
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @GuardedBy("INSTANCE_LOCK")
     static CameraX sInstance = null;
 
-    @GuardedBy("sInitializeLock")
-    private static boolean sTargetInitialized = false;
+    @GuardedBy("INSTANCE_LOCK")
+    private static CameraXConfig.Provider sConfigProvider = null;
 
-    @GuardedBy("sInitializeLock")
-    @NonNull
-    private static ListenableFuture<Void> sInitializeFuture = Futures.immediateFailedFuture(
-            new IllegalStateException("CameraX is not initialized."));
+    @GuardedBy("INSTANCE_LOCK")
+    private static ListenableFuture<Void> sInitializeFuture =
+            Futures.immediateFailedFuture(new IllegalStateException("CameraX is not initialized."));
 
-    @GuardedBy("sInitializeLock")
-    @NonNull
+    @GuardedBy("INSTANCE_LOCK")
     private static ListenableFuture<Void> sShutdownFuture = Futures.immediateFuture(null);
 
     final CameraRepository mCameraRepository = new CameraRepository();
     private final Object mInitializeLock = new Object();
-    private final UseCaseGroupRepository mUseCaseGroupRepository = new UseCaseGroupRepository();
-    private final ErrorHandler mErrorHandler = new ErrorHandler();
+
+    private final CameraXConfig mCameraXConfig;
+
     private final Executor mCameraExecutor;
+    private final Handler mSchedulerHandler;
+    @Nullable
+    private final HandlerThread mSchedulerThread;
     private CameraFactory mCameraFactory;
     private CameraDeviceSurfaceManager mSurfaceManager;
     private UseCaseConfigFactory mDefaultConfigFactory;
-    private Context mContext;
+    // TODO(b/161302102): Remove the stored context. Only make use of the context within the
+    //  called method.
+    private Context mAppContext;
+
     @GuardedBy("mInitializeLock")
     private InternalInitState mInitState = InternalInitState.UNINITIALIZED;
     @GuardedBy("mInitializeLock")
     private ListenableFuture<Void> mShutdownInternalFuture = Futures.immediateFuture(null);
 
-    /** Prevents construction. */
-    CameraX(@NonNull Executor executor) {
-        Preconditions.checkNotNull(executor);
-        mCameraExecutor = executor;
-    }
+    CameraX(@NonNull CameraXConfig cameraXConfig) {
+        mCameraXConfig = Preconditions.checkNotNull(cameraXConfig);
 
-    /**
-     * Binds the collection of {@link UseCase} to a {@link LifecycleOwner}.
-     *
-     * <p>The state of the lifecycle will determine when the cameras are open, started, stopped
-     * and closed.  When started, the use cases receive camera data.
-     *
-     * <p>Binding to a lifecycleOwner in state currently in {@link Lifecycle.State#STARTED} or
-     * greater will also initialize and start data capture. If the camera was already running
-     * this may cause a new initialization to occur temporarily stopping data from the camera
-     * before restarting it.
-     *
-     * <p>Multiple use cases can be bound via adding them all to a single bindToLifecycle call, or
-     * by using multiple bindToLifecycle calls.  Using a single call that includes all the use
-     * cases helps to set up a camera session correctly for all uses cases, such as by allowing
-     * determination of resolutions depending on all the use cases bound being bound.
-     * If the use cases are bound separately, it will find the supported resolution with the
-     * priority depending on the binding sequence. If the use cases are bound with a single call,
-     * it will find the supported resolution with the priority in sequence of {@link ImageCapture},
-     * {@link Preview} and then {@link ImageAnalysis}. The resolutions that can be supported depends
-     * on the camera device hardware level that there are some default guaranteed resolutions
-     * listed in {@link android.hardware.camera2.CameraDevice#createCaptureSession(List,
-     * CameraCaptureSession.StateCallback, Handler)}.
-     *
-     * <p>Currently up to 3 use cases may be bound to a {@link Lifecycle} at any time. Exceeding
-     * capability of target camera device will throw an IllegalArgumentException.
-     *
-     * <p>A UseCase should only be bound to a single lifecycle at a time.  Attempting to bind a
-     * UseCase to a Lifecycle when it is already bound to another Lifecycle is an error, and the
-     * UseCase binding will not change.
-     *
-     * <p>Only {@link UseCase} bound to latest active {@link Lifecycle} can keep alive.
-     * {@link UseCase} bound to other {@link Lifecycle} will be stopped.
-     *
-     * @param lifecycleOwner The lifecycleOwner which controls the lifecycle transitions of the use
-     *                       cases.
-     * @param useCases       The use cases to bind to a lifecycle.
-     * @throws IllegalStateException If the use case has already been bound to another lifecycle
-     *                               or method is not called on main thread.
-     */
-    public static void bindToLifecycle(LifecycleOwner lifecycleOwner, UseCase... useCases) {
-        Threads.checkMainThread();
-        CameraX cameraX = checkInitialized();
-
-        UseCaseGroupLifecycleController useCaseGroupLifecycleController =
-                cameraX.getOrCreateUseCaseGroup(lifecycleOwner);
-        UseCaseGroup useCaseGroupToBind = useCaseGroupLifecycleController.getUseCaseGroup();
-
-        Collection<UseCaseGroupLifecycleController> controllers =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
-        for (UseCase useCase : useCases) {
-            for (UseCaseGroupLifecycleController controller : controllers) {
-                UseCaseGroup useCaseGroup = controller.getUseCaseGroup();
-                if (useCaseGroup.contains(useCase) && useCaseGroup != useCaseGroupToBind) {
-                    throw new IllegalStateException(
-                            String.format(
-                                    "Use case %s already bound to a different lifecycle.",
-                                    useCase));
-                }
-            }
-        }
-
-        for (UseCase useCase : useCases) {
-            useCase.onBind();
-        }
-
-        calculateSuggestedResolutions(lifecycleOwner, useCases);
-
-        for (UseCase useCase : useCases) {
-            useCaseGroupToBind.addUseCase(useCase);
-            for (String cameraId : useCase.getAttachedCameraIds()) {
-                attach(cameraId, useCase);
-            }
-        }
-
-        useCaseGroupLifecycleController.notifyState();
-    }
-
-    /**
-     * Returns true if the {@link UseCase} is bound to a lifecycle. Otherwise returns false.
-     *
-     * <p>After binding a use case with {@link #bindToLifecycle}, use cases remain bound until the
-     * lifecycle reaches a {@link Lifecycle.State#DESTROYED} state or if is unbound by calls to
-     * {@link #unbind(UseCase...)} or {@link #unbindAll()}.
-     */
-    public static boolean isBound(UseCase useCase) {
-        CameraX cameraX = checkInitialized();
-
-        Collection<UseCaseGroupLifecycleController> controllers =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
-
-        for (UseCaseGroupLifecycleController controller : controllers) {
-            UseCaseGroup useCaseGroup = controller.getUseCaseGroup();
-            if (useCaseGroup.contains(useCase)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Unbinds all specified use cases from the lifecycle.
-     *
-     * <p>This will initiate a close of every open camera which has zero {@link UseCase}
-     * associated with it at the end of this call.
-     *
-     * <p>If a use case in the argument list is not bound, then it is simply ignored.
-     *
-     * <p>After unbinding a UseCase, the UseCase can be and bound to another {@link Lifecycle}
-     * however listeners and settings should be reset by the application.
-     *
-     * @param useCases The collection of use cases to remove.
-     * @throws IllegalStateException If not called on main thread.
-     */
-    public static void unbind(UseCase... useCases) {
-        Threads.checkMainThread();
-        CameraX cameraX = checkInitialized();
-
-        Collection<UseCaseGroupLifecycleController> useCaseGroups =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
-
-        Map<String, List<UseCase>> detachingUseCaseMap = new HashMap<>();
-
-        for (UseCase useCase : useCases) {
-            for (UseCaseGroupLifecycleController useCaseGroupLifecycleController : useCaseGroups) {
-                UseCaseGroup useCaseGroup = useCaseGroupLifecycleController.getUseCaseGroup();
-                if (useCaseGroup.removeUseCase(useCase)) {
-                    // Saves all detaching use cases and detach them at once.
-                    for (String cameraId : useCase.getAttachedCameraIds()) {
-                        List<UseCase> useCasesOnCameraId = detachingUseCaseMap.get(cameraId);
-                        if (useCasesOnCameraId == null) {
-                            useCasesOnCameraId = new ArrayList<>();
-                            detachingUseCaseMap.put(cameraId, useCasesOnCameraId);
-                        }
-                        useCasesOnCameraId.add(useCase);
-                    }
-                }
-            }
-        }
-
-        for (String cameraId : detachingUseCaseMap.keySet()) {
-            detach(cameraId, detachingUseCaseMap.get(cameraId));
-        }
-
-        for (UseCase useCase : useCases) {
-            useCase.clear();
-        }
-    }
-
-    /**
-     * Unbinds all use cases from the lifecycle and removes them from CameraX.
-     *
-     * <p>This will initiate a close of every currently open camera.
-     *
-     * @throws IllegalStateException If not called on main thread.
-     */
-    public static void unbindAll() {
-        Threads.checkMainThread();
-        CameraX cameraX = checkInitialized();
-
-        Collection<UseCaseGroupLifecycleController> useCaseGroups =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
-
-        List<UseCase> useCases = new ArrayList<>();
-        for (UseCaseGroupLifecycleController useCaseGroupLifecycleController : useCaseGroups) {
-            UseCaseGroup useCaseGroup = useCaseGroupLifecycleController.getUseCaseGroup();
-            useCases.addAll(useCaseGroup.getUseCases());
-        }
-
-        unbind(useCases.toArray(new UseCase[0]));
-    }
-
-    /**
-     * Checks if the device supports specified lens facing.
-     *
-     * @param lensFacing the lens facing
-     * @return true if the device has at least one camera with the specified lens facing,
-     * otherwise false.
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions
-     */
-    public static boolean hasCameraWithLensFacing(LensFacing lensFacing)
-            throws CameraInfoUnavailableException {
-        checkInitialized();
-
-        return getCameraFactory().cameraIdForLensFacing(lensFacing) != null;
-    }
-
-    /**
-     * Returns the camera id for a camera with the specified lens facing.
-     *
-     * <p>This only gives the first (primary) camera found with the specified facing.
-     *
-     * @param lensFacing the lens facing of the camera
-     * @return the cameraId if camera exists or {@code null} if no camera with specified facing
-     * exists
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public static String getCameraWithLensFacing(LensFacing lensFacing)
-            throws CameraInfoUnavailableException {
-        checkInitialized();
-        return getCameraFactory().cameraIdForLensFacing(lensFacing);
-    }
-
-    /**
-     * Returns the camera id for a camera defined by the CameraDeviceConfig.
-     *
-     * <p>This will first selects the cameras with lens facing specified in the config. Then
-     * filter those with camera id filters if there's any.
-     *
-     * @param config the config of the camera device
-     * @return the cameraId if camera exists or {@code null} if no camera found with the config
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
-     * @throws IllegalArgumentException       if there's no lens facing set in the config.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public static String getCameraWithCameraDeviceConfig(CameraDeviceConfig config)
-            throws CameraInfoUnavailableException {
-        checkInitialized();
-
-        Set<String> availableCameraIds = getCameraFactory().getAvailableCameraIds();
-        LensFacing lensFacing = config.getLensFacing(null);
-        if (lensFacing != null) {
-            // Filters camera ids with lens facing.
-            availableCameraIds =
-                    LensFacingCameraIdFilter.createLensFacingCameraIdFilter(lensFacing)
-                            .filter(availableCameraIds);
+        Executor executor = cameraXConfig.getCameraExecutor(null);
+        Handler schedulerHandler = cameraXConfig.getSchedulerHandler(null);
+        mCameraExecutor = executor == null ? new CameraExecutor() : executor;
+        if (schedulerHandler == null) {
+            mSchedulerThread = new HandlerThread(CameraXThreads.TAG + "scheduler",
+                    Process.THREAD_PRIORITY_BACKGROUND);
+            mSchedulerThread.start();
+            mSchedulerHandler = HandlerCompat.createAsync(mSchedulerThread.getLooper());
         } else {
-            throw new IllegalArgumentException("Lens facing isn't set in the config.");
-        }
-
-        CameraIdFilter cameraIdFilter = config.getCameraIdFilter(null);
-        if (cameraIdFilter != null) {
-            // Filters camera ids with other filters.
-            availableCameraIds = cameraIdFilter.filter(availableCameraIds);
-        }
-
-        if (!availableCameraIds.isEmpty()) {
-            return availableCameraIds.iterator().next();
-        } else {
-            return null;
+            mSchedulerThread = null;
+            mSchedulerHandler = schedulerHandler;
         }
     }
 
     /**
-     * Gets the default lens facing or {@code null} if there is no available camera.
+     * Returns the camera id for a camera defined by the given {@link CameraSelector}.
      *
-     * @return The default lens facing or {@code null}.
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
+     * @param cameraSelector the camera selector
+     * @return the camera id if camera exists or {@code null} if no camera can be resolved with
+     * the camera selector.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public static LensFacing getDefaultLensFacing() throws CameraInfoUnavailableException {
-        checkInitialized();
-
-        LensFacing lensFacingCandidate = null;
-        List<LensFacing> lensFacingList = Arrays.asList(LensFacing.BACK, LensFacing.FRONT);
-        for (LensFacing lensFacing : lensFacingList) {
-            String cameraId = getCameraFactory().cameraIdForLensFacing(lensFacing);
-            if (cameraId != null) {
-                lensFacingCandidate = lensFacing;
-                break;
-            }
-        }
-        return lensFacingCandidate;
-    }
-
-    /**
-     * Returns the camera info for the camera with the given camera id.
-     *
-     * @param cameraId the internal id of the camera
-     * @return the camera info if it can be retrieved for the given id.
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public static CameraInfoInternal getCameraInfo(String cameraId)
-            throws CameraInfoUnavailableException {
-        CameraX cameraX = checkInitialized();
-
-        return cameraX.getCameraRepository().getCamera(cameraId).getCameraInfoInternal();
-    }
-
-    /**
-     * Returns the camera info for the camera with the given lens facing.
-     *
-     * @param lensFacing the lens facing of the camera
-     * @return the camera info if it can be retrieved for the given lens facing.
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
-     */
     @NonNull
-    public static CameraInfo getCameraInfo(@NonNull LensFacing lensFacing)
-            throws CameraInfoUnavailableException {
-        CameraX cameraX = checkInitialized();
-        try {
-            String cameraId = getCameraWithLensFacing(lensFacing);
-            return cameraX.getCameraRepository().getCamera(cameraId).getCameraInfoInternal();
-        } catch (IllegalArgumentException e) {
-            throw new CameraInfoUnavailableException("Unable to retrieve info for camera with "
-                    + "lens facing: " + lensFacing, e);
-        }
-    }
-
-    /**
-     * Returns the camera control for the camera with the given lens facing.
-     *
-     * @param lensFacing the lens facing of the camera
-     * @return the {@link CameraControl}.
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
-     */
-    public static CameraControl getCameraControl(LensFacing lensFacing)
-            throws CameraInfoUnavailableException {
+    public static CameraInternal getCameraWithCameraSelector(
+            @NonNull CameraSelector cameraSelector) {
         CameraX cameraX = checkInitialized();
 
-        String cameraId = getCameraWithLensFacing(lensFacing);
-        return (CameraControl) cameraX.getCameraRepository().getCamera(
-                cameraId).getCameraControlInternal();
-    }
-
-    /**
-     * Returns the {@link CameraDeviceSurfaceManager} which can be used to query for valid surface
-     * configurations.
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public static CameraDeviceSurfaceManager getSurfaceManager() {
-        CameraX cameraX = checkInitialized();
-
-        return cameraX.getCameraDeviceSurfaceManager();
-    }
-
-    /**
-     * Returns the default configuration for the given use case configuration type.
-     *
-     * <p>The options contained in this configuration serve as fallbacks if they are not included in
-     * the user-provided configuration used to create a use case.
-     *
-     * @param configType the configuration type
-     * @param lensFacing The {@link LensFacing} that the default configuration will target to.
-     * @return the default configuration for the given configuration type
-     * @throws IllegalStateException if Camerax has not yet been initialized.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(
-            Class<C> configType, LensFacing lensFacing) {
-        CameraX cameraX = checkInitialized();
-
-        return cameraX.getDefaultConfigFactory().getConfig(configType, lensFacing);
-    }
-
-    /**
-     * Sets an {@link ErrorListener} which will get called any time a CameraX specific error is
-     * encountered.
-     *
-     * @param errorListener the listener which will get all the error messages. If this is set to
-     *                      {@code null} then the default error listener will be set.
-     * @param handler       the handler for the thread to run the error handling on. If this is
-     *                      set to
-     *                      {@code null} then it will default to run on the main thread.
-     */
-    public static void setErrorListener(ErrorListener errorListener, Handler handler) {
-        CameraX cameraX = checkInitialized();
-
-        cameraX.mErrorHandler.setErrorListener(errorListener, handler);
-    }
-
-    /**
-     * Posts an error which can be handled by the {@link ErrorListener}.
-     *
-     * @param errorCode the type of error that occurred
-     * @param message   the associated message with more details of the error
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public static void postError(ErrorCode errorCode, String message) {
-        CameraX cameraX = checkInitialized();
-
-        cameraX.mErrorHandler.postError(errorCode, message);
+        return cameraSelector.select(cameraX.getCameraRepository().getCameras());
     }
 
     /**
@@ -569,63 +149,92 @@ public final class CameraX {
      * <p>The context enables CameraX to obtain access to necessary services, including the camera
      * service. For example, the context can be provided by the application.
      *
-     * @param context   to attach
-     * @param appConfig configuration options for this application session.
-     * @return A {@link ListenableFuture} representing the initialization task.
+     * @param context       to attach
+     * @param cameraXConfig configuration options for this application session.
+     * @return A {@link ListenableFuture} representing the initialization task. This future may
+     * fail with an {@link InitializationException} and associated cause that can be retrieved by
+     * {@link Throwable#getCause()). The cause will be a {@link CameraUnavailableException} if it
+     * fails to access any camera during initialization.
+     * @hide
      */
+    @RestrictTo(Scope.TESTS)
     @NonNull
     public static ListenableFuture<Void> initialize(@NonNull Context context,
-            @NonNull AppConfig appConfig) {
-        Preconditions.checkNotNull(context);
-        Preconditions.checkNotNull(appConfig);
-
-        synchronized (sInitializeLock) {
-            Preconditions.checkState(!sTargetInitialized, "Must call CameraX.shutdown() first.");
-            sTargetInitialized = true;
-
-            Executor executor = appConfig.getCameraExecutor(null);
-            // Set a default camera executor if not set.
-            if (executor == null) {
-                executor = new CameraExecutor();
-            }
-
-            CameraX cameraX = new CameraX(executor);
-            sInstance = cameraX;
-
-            sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
-                synchronized (sInitializeLock) {
-                    // The sShutdownFuture should always be successful, otherwise it will not
-                    // propagate to transformAsync() due to the behavior of FutureChain.
-                    ListenableFuture<Void> future = FutureChain.from(sShutdownFuture)
-                            .transformAsync(input -> cameraX.initInternal(context, appConfig),
-                                    CameraXExecutors.directExecutor());
-
-                    Futures.addCallback(future, new FutureCallback<Void>() {
-                        @Override
-                        public void onSuccess(@Nullable Void result) {
-                            completer.set(null);
-                        }
-
-                        @Override
-                        public void onFailure(Throwable t) {
-                            Log.w(TAG, "CameraX initialize() failed", t);
-                            // Call shutdown() automatically, if initialization fails.
-                            synchronized (sInitializeLock) {
-                                // Make sure it is the same instance to prevent reinitialization
-                                // during initialization.
-                                if (sInstance == cameraX) {
-                                    shutdown();
-                                }
-                            }
-                            completer.setException(t);
-                        }
-                    }, CameraXExecutors.directExecutor());
-                    return "CameraX-initialize";
-                }
-            });
-
+            @NonNull CameraXConfig cameraXConfig) {
+        synchronized (INSTANCE_LOCK) {
+            Preconditions.checkNotNull(context);
+            configureInstanceLocked(() -> cameraXConfig);
+            initializeInstanceLocked(context);
             return sInitializeFuture;
         }
+    }
+
+    /**
+     * Configures the CameraX singleton with the given {@link androidx.camera.core.CameraXConfig}.
+     *
+     * @param cameraXConfig configuration options for the singleton instance.
+     */
+    public static void configureInstance(@NonNull CameraXConfig cameraXConfig) {
+        synchronized (INSTANCE_LOCK) {
+            configureInstanceLocked(() -> cameraXConfig);
+        }
+    }
+
+    @GuardedBy("INSTANCE_LOCK")
+    private static void configureInstanceLocked(@NonNull CameraXConfig.Provider configProvider) {
+        Preconditions.checkNotNull(configProvider);
+        Preconditions.checkState(sConfigProvider == null, "CameraX has already been configured. "
+                + "To use a different configuration, shutdown() must be called.");
+
+        sConfigProvider = configProvider;
+
+        // Set the minimum logging level inside CameraX before it's initialization begins
+        final Integer minLogLevel = configProvider.getCameraXConfig().retrieveOption(
+                CameraXConfig.OPTION_MIN_LOGGING_LEVEL, null);
+        if (minLogLevel != null) {
+            Logger.setMinLogLevel(minLogLevel);
+        }
+    }
+
+    @GuardedBy("INSTANCE_LOCK")
+    private static void initializeInstanceLocked(@NonNull Context context) {
+        Preconditions.checkNotNull(context);
+        Preconditions.checkState(sInstance == null, "CameraX already initialized.");
+        Preconditions.checkNotNull(sConfigProvider);
+        CameraX cameraX = new CameraX(sConfigProvider.getCameraXConfig());
+        sInstance = cameraX;
+        sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
+            synchronized (INSTANCE_LOCK) {
+                // The sShutdownFuture should always be successful, otherwise it will not
+                // propagate to transformAsync() due to the behavior of FutureChain.
+                ListenableFuture<Void> future = FutureChain.from(sShutdownFuture)
+                        .transformAsync(input -> cameraX.initInternal(context),
+                                CameraXExecutors.directExecutor());
+
+                Futures.addCallback(future, new FutureCallback<Void>() {
+                    @Override
+                    public void onSuccess(@Nullable Void result) {
+                        completer.set(null);
+                    }
+
+                    @SuppressWarnings("FutureReturnValueIgnored")
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Logger.w(TAG, "CameraX initialize() failed", t);
+                        // Call shutdown() automatically, if initialization fails.
+                        synchronized (INSTANCE_LOCK) {
+                            // Make sure it is the same instance to prevent reinitialization
+                            // during initialization.
+                            if (sInstance == cameraX) {
+                                shutdownLocked();
+                            }
+                        }
+                        completer.setException(t);
+                    }
+                }, CameraXExecutors.directExecutor());
+                return "CameraX-initialize";
+            }
+        });
     }
 
     /**
@@ -635,84 +244,66 @@ public final class CameraX {
      */
     @NonNull
     public static ListenableFuture<Void> shutdown() {
-        synchronized (sInitializeLock) {
-            if (!sTargetInitialized) {
-                // If it is already or will be shutdown, return the future directly.
-                return sShutdownFuture;
-            }
-            sTargetInitialized = false;
+        synchronized (INSTANCE_LOCK) {
+            sConfigProvider = null;
+            Logger.resetMinLogLevel();
+            return shutdownLocked();
+        }
+    }
 
-            CameraX cameraX = sInstance;
-            sInstance = null;
-
-            // Do not use FutureChain to chain the initFuture, because FutureChain.transformAsync()
-            // will not propagate if the input initFuture is failed. We want to always
-            // shutdown the CameraX instance to ensure that resources are freed.
-            sShutdownFuture = CallbackToFutureAdapter.getFuture(
-                    completer -> {
-                        synchronized (sInitializeLock) {
-                            // Wait initialize complete
-                            sInitializeFuture.addListener(() -> {
-                                // Wait shutdownInternal complete
-                                Futures.propagate(cameraX.shutdownInternal(), completer);
-                            }, CameraXExecutors.directExecutor());
-                            return "CameraX shutdown";
-                        }
-                    });
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @GuardedBy("INSTANCE_LOCK")
+    @NonNull
+    static ListenableFuture<Void> shutdownLocked() {
+        if (sInstance == null) {
+            // If it is already or will be shutdown, return the future directly.
             return sShutdownFuture;
         }
+
+        CameraX cameraX = sInstance;
+        sInstance = null;
+
+        // Do not use FutureChain to chain the initFuture, because FutureChain.transformAsync()
+        // will not propagate if the input initFuture is failed. We want to always
+        // shutdown the CameraX instance to ensure that resources are freed.
+        sShutdownFuture = Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    synchronized (INSTANCE_LOCK) {
+                        // Wait initialize complete
+                        sInitializeFuture.addListener(() -> {
+                            // Wait shutdownInternal complete
+                            Futures.propagate(cameraX.shutdownInternal(), completer);
+                        }, CameraXExecutors.directExecutor());
+                        return "CameraX shutdown";
+                    }
+                }));
+        return sShutdownFuture;
     }
 
     /**
      * Returns the context used for CameraX.
      *
      * @hide
+     * @deprecated This method will be removed. New code should not rely on it. See b/161302102.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
+    @Deprecated
     public static Context getContext() {
         CameraX cameraX = checkInitialized();
-        return cameraX.mContext;
+        return cameraX.mAppContext;
     }
 
     /**
      * Returns true if CameraX is initialized.
      *
-     * <p>Any previous call to {@link #initialize(Context, AppConfig)} would have initialized
-     * CameraX.
-     *
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.TESTS)
     public static boolean isInitialized() {
-        synchronized (sInitializeLock) {
+        synchronized (INSTANCE_LOCK) {
             return sInstance != null && sInstance.isInitializedInternal();
         }
-    }
-
-    /**
-     * Returns currently active {@link UseCase}
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public static Collection<UseCase> getActiveUseCases() {
-        CameraX cameraX = checkInitialized();
-
-        Collection<UseCase> activeUseCases = null;
-
-        Collection<UseCaseGroupLifecycleController> controllers =
-                cameraX.mUseCaseGroupRepository.getUseCaseGroups();
-
-        for (UseCaseGroupLifecycleController controller : controllers) {
-            if (controller.getUseCaseGroup().isActive()) {
-                activeUseCases = controller.getUseCaseGroup().getUseCases();
-                break;
-            }
-        }
-
-        return activeUseCases;
     }
 
     /**
@@ -724,14 +315,12 @@ public final class CameraX {
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public static CameraFactory getCameraFactory() {
-        CameraX cameraX = checkInitialized();
-
-        if (cameraX.mCameraFactory == null) {
+    public CameraFactory getCameraFactory() {
+        if (mCameraFactory == null) {
             throw new IllegalStateException("CameraX not initialized yet.");
         }
 
-        return cameraX.mCameraFactory;
+        return mCameraFactory;
     }
 
     /**
@@ -743,9 +332,136 @@ public final class CameraX {
     @NonNull
     private static CameraX checkInitialized() {
         CameraX cameraX = waitInitialized();
-        Preconditions.checkState(cameraX != null && cameraX.isInitializedInternal(),
+        Preconditions.checkState(cameraX.isInitializedInternal(),
                 "Must call CameraX.initialize() first");
         return cameraX;
+    }
+
+    /**
+     * Returns a future which contains a CameraX instance after initialization is complete.
+     *
+     * @hide
+     */
+    @SuppressWarnings("FutureReturnValueIgnored") // shutdownLocked() should always succeed.
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static ListenableFuture<CameraX> getOrCreateInstance(@NonNull Context context) {
+        Preconditions.checkNotNull(context, "Context must not be null.");
+        synchronized (INSTANCE_LOCK) {
+            boolean isConfigured = sConfigProvider != null;
+            ListenableFuture<CameraX> instanceFuture = getInstanceLocked();
+            if (instanceFuture.isDone()) {
+                try {
+                    instanceFuture.get();
+                } catch (InterruptedException e) {
+                    // Should not be possible since future is complete.
+                    throw new RuntimeException("Unexpected thread interrupt. Should not be "
+                            + "possible since future is already complete.", e);
+                } catch (ExecutionException e) {
+                    // Either initialization failed or initialize() has not been called, ensure we
+                    // can try to reinitialize.
+                    shutdownLocked();
+                    instanceFuture = null;
+                }
+            }
+
+            if (instanceFuture == null) {
+                if (!isConfigured) {
+                    // Attempt initialization through Application or Resources
+                    CameraXConfig.Provider configProvider = getConfigProvider(context);
+                    if (configProvider == null) {
+                        throw new IllegalStateException("CameraX is not configured properly. "
+                                + "The most likely cause is you did not include a default "
+                                + "implementation in your build such as 'camera-camera2'.");
+                    }
+
+                    configureInstanceLocked(configProvider);
+                }
+
+                initializeInstanceLocked(context);
+                instanceFuture = getInstanceLocked();
+            }
+
+            return instanceFuture;
+        }
+    }
+
+    @Nullable
+    private static CameraXConfig.Provider getConfigProvider(@NonNull Context context) {
+        CameraXConfig.Provider configProvider = null;
+        Application application = getApplicationFromContext(context);
+        if (application instanceof CameraXConfig.Provider) {
+            // Application is a CameraXConfig.Provider, use this directly
+            configProvider = (CameraXConfig.Provider) application;
+        } else {
+            // Try to retrieve the CameraXConfig.Provider through the application's resources
+            try {
+                Resources resources = context.getApplicationContext().getResources();
+                String defaultProviderClassName =
+                        resources.getString(
+                                R.string.androidx_camera_default_config_provider);
+                Class<?> providerClass =
+                        Class.forName(defaultProviderClassName);
+                configProvider = (CameraXConfig.Provider) providerClass
+                        .getDeclaredConstructor()
+                        .newInstance();
+            } catch (Resources.NotFoundException
+                    | ClassNotFoundException
+                    | InstantiationException
+                    | InvocationTargetException
+                    | NoSuchMethodException
+                    | IllegalAccessException
+                    | NullPointerException e) {
+                Logger.e(TAG, "Failed to retrieve default CameraXConfig.Provider from "
+                        + "resources", e);
+            }
+        }
+
+        return configProvider;
+    }
+
+    /**
+     * Attempts to retrieve an {@link Application} object from the provided {@link Context}.
+     *
+     * <p>Because the contract does not specify that {@code Context.getApplicationContext()} must
+     * return an {@code Application} object, this method will attempt to retrieve the
+     * {@code Application} by unwrapping the context via {@link ContextWrapper#getBaseContext()} if
+     * {@code Context.getApplicationContext()}} does not succeed.
+     */
+    @Nullable
+    private static Application getApplicationFromContext(@NonNull Context context) {
+        Application application = null;
+        Context appContext = context.getApplicationContext();
+        while (appContext instanceof ContextWrapper) {
+            if (appContext instanceof Application) {
+                application = (Application) appContext;
+                break;
+            } else {
+                appContext = ((ContextWrapper) appContext).getBaseContext();
+            }
+        }
+
+        return application;
+    }
+
+    @NonNull
+    private static ListenableFuture<CameraX> getInstance() {
+        synchronized (INSTANCE_LOCK) {
+            return getInstanceLocked();
+        }
+    }
+
+    @GuardedBy("INSTANCE_LOCK")
+    @NonNull
+    private static ListenableFuture<CameraX> getInstanceLocked() {
+        CameraX cameraX = sInstance;
+        if (cameraX == null) {
+            return Futures.immediateFailedFuture(new IllegalStateException("Must "
+                    + "call CameraX.initialize() first"));
+        }
+
+        return Futures.transform(sInitializeFuture, nullVoid -> cameraX,
+                CameraXExecutors.directExecutor());
     }
 
     /**
@@ -753,130 +469,13 @@ public final class CameraX {
      *
      * @throws IllegalStateException if the initialization is fail or timeout
      */
-    @Nullable
+    @NonNull
     private static CameraX waitInitialized() {
-        ListenableFuture<Void> future;
-        CameraX cameraX;
-        synchronized (sInitializeLock) {
-            if (!sTargetInitialized) {
-                return null;
-            }
-            future = sInitializeFuture;
-            cameraX = sInstance;
-        }
-        if (!future.isDone()) {
-            try {
-                future.get(WAIT_INITIALIZED_TIMEOUT, TimeUnit.SECONDS);
-            } catch (ExecutionException e) {
-                throw new IllegalStateException(e);
-            } catch (TimeoutException e) {
-                throw new IllegalStateException(e);
-            } catch (InterruptedException e) {
-                // Throw exception when get interrupted because the initialization could not be
-                // finished yet.
-                throw new IllegalStateException(e);
-            }
-        }
-        return cameraX;
-    }
-
-    /**
-     * Registers the callbacks for the {@link BaseCamera} to the {@link UseCase}.
-     *
-     * @param cameraId the id for the {@link BaseCamera}
-     * @param useCase  the use case to register the callback for
-     */
-    private static void attach(String cameraId, UseCase useCase) {
-        CameraX cameraX = checkInitialized();
-
-        BaseCamera camera = cameraX.getCameraRepository().getCamera(cameraId);
-        if (camera == null) {
-            throw new IllegalArgumentException("Invalid camera: " + cameraId);
-        }
-
-        useCase.addStateChangeCallback(camera);
-        useCase.attachCameraControl(cameraId, camera.getCameraControlInternal());
-    }
-
-    /**
-     * Removes the callbacks registered by the {@link BaseCamera} to the {@link UseCase}.
-     *
-     * @param cameraId the id for the {@link BaseCamera}
-     * @param useCases the list of use case to remove the callback from.
-     */
-    private static void detach(String cameraId, List<UseCase> useCases) {
-        CameraX cameraX = checkInitialized();
-
-        BaseCamera camera = cameraX.getCameraRepository().getCamera(cameraId);
-        if (camera == null) {
-            throw new IllegalArgumentException("Invalid camera: " + cameraId);
-        }
-
-        for (UseCase useCase : useCases) {
-            useCase.removeStateChangeCallback(camera);
-            useCase.detachCameraControl(cameraId);
-        }
-        camera.removeOnlineUseCase(useCases);
-    }
-
-    private static void calculateSuggestedResolutions(LifecycleOwner lifecycleOwner,
-            UseCase... useCases) {
-        CameraX cameraX = checkInitialized();
-
-        // There will only one lifecycleOwner active. Therefore, only collect use cases belong to
-        // same lifecycleOwner and calculate the suggested resolutions.
-        UseCaseGroupLifecycleController useCaseGroupLifecycleController =
-                cameraX.getOrCreateUseCaseGroup(lifecycleOwner);
-        UseCaseGroup useCaseGroupToBind = useCaseGroupLifecycleController.getUseCaseGroup();
-        Map<String, List<UseCase>> originalCameraIdUseCaseMap = new HashMap<>();
-        Map<String, List<UseCase>> newCameraIdUseCaseMap = new HashMap<>();
-
-        // Collect original use cases for different camera devices
-        for (UseCase useCase : useCaseGroupToBind.getUseCases()) {
-            for (String cameraId : useCase.getAttachedCameraIds()) {
-                List<UseCase> useCaseList = originalCameraIdUseCaseMap.get(cameraId);
-                if (useCaseList == null) {
-                    useCaseList = new ArrayList<>();
-                    originalCameraIdUseCaseMap.put(cameraId, useCaseList);
-                }
-                useCaseList.add(useCase);
-            }
-        }
-
-        // Collect new use cases for different camera devices
-        for (UseCase useCase : useCases) {
-            String cameraId = null;
-            try {
-                cameraId = getCameraWithCameraDeviceConfig(
-                        (CameraDeviceConfig) useCase.getUseCaseConfig());
-            } catch (CameraInfoUnavailableException e) {
-                throw new IllegalArgumentException(
-                        "Unable to get camera id for the camera device config.", e);
-            }
-
-            List<UseCase> useCaseList = newCameraIdUseCaseMap.get(cameraId);
-            if (useCaseList == null) {
-                useCaseList = new ArrayList<>();
-                newCameraIdUseCaseMap.put(cameraId, useCaseList);
-            }
-            useCaseList.add(useCase);
-        }
-
-        // Get suggested resolutions and update the use case session configuration
-        for (String cameraId : newCameraIdUseCaseMap.keySet()) {
-            Map<UseCase, Size> suggestResolutionsMap =
-                    getSurfaceManager()
-                            .getSuggestedResolutions(
-                                    cameraId,
-                                    originalCameraIdUseCaseMap.get(cameraId),
-                                    newCameraIdUseCaseMap.get(cameraId));
-
-            for (UseCase useCase : newCameraIdUseCaseMap.get(cameraId)) {
-                Size resolution = suggestResolutionsMap.get(useCase);
-                Map<String, Size> suggestedCameraSurfaceResolutionMap = new HashMap<>();
-                suggestedCameraSurfaceResolutionMap.put(cameraId, resolution);
-                useCase.updateSuggestedResolution(suggestedCameraSurfaceResolutionMap);
-            }
+        ListenableFuture<CameraX> future = getInstance();
+        try {
+            return future.get(WAIT_INITIALIZED_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -885,8 +484,11 @@ public final class CameraX {
      *
      * @throws IllegalStateException if the {@link CameraDeviceSurfaceManager} has not been set, due
      *                               to being uninitialized.
+     * @hide
      */
-    private CameraDeviceSurfaceManager getCameraDeviceSurfaceManager() {
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public CameraDeviceSurfaceManager getCameraDeviceSurfaceManager() {
         if (mSurfaceManager == null) {
             throw new IllegalStateException("CameraX not initialized yet.");
         }
@@ -894,7 +496,25 @@ public final class CameraX {
         return mSurfaceManager;
     }
 
-    private UseCaseConfigFactory getDefaultConfigFactory() {
+    /**
+     * Returns the {@link CameraRepository} instance.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public CameraRepository getCameraRepository() {
+        return mCameraRepository;
+    }
+
+    /**
+     * Returns the {@link UseCaseConfigFactory} instance.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public UseCaseConfigFactory getDefaultConfigFactory() {
         if (mDefaultConfigFactory == null) {
             throw new IllegalStateException("CameraX not initialized yet.");
         }
@@ -902,68 +522,129 @@ public final class CameraX {
         return mDefaultConfigFactory;
     }
 
-    private ListenableFuture<Void> initInternal(Context context, AppConfig appConfig) {
+    private ListenableFuture<Void> initInternal(@NonNull Context context) {
         synchronized (mInitializeLock) {
             Preconditions.checkState(mInitState == InternalInitState.UNINITIALIZED,
                     "CameraX.initInternal() should only be called once per instance");
             mInitState = InternalInitState.INITIALIZING;
-
             return CallbackToFutureAdapter.getFuture(
                     completer -> {
-                        mCameraExecutor.execute(() -> {
-                            Exception e = null;
-                            try {
-                                mContext = context.getApplicationContext();
-                                mCameraFactory = appConfig.getCameraFactory(null);
-                                if (mCameraFactory == null) {
-                                    e = new IllegalArgumentException(
-                                            "Invalid app configuration provided. Missing "
-                                                    + "CameraFactory.");
-                                    return;
-                                }
-
-                                mSurfaceManager = appConfig.getDeviceSurfaceManager(null);
-                                if (mSurfaceManager == null) {
-                                    e = new IllegalArgumentException(
-                                            "Invalid app configuration provided. Missing "
-                                                    + "CameraDeviceSurfaceManager.");
-                                    return;
-                                }
-                                mSurfaceManager.init();
-
-                                mDefaultConfigFactory = appConfig.getUseCaseConfigRepository(null);
-                                if (mDefaultConfigFactory == null) {
-                                    e = new IllegalArgumentException(
-                                            "Invalid app configuration provided. Missing "
-                                                    + "UseCaseConfigFactory.");
-                                    return;
-                                }
-
-                                if (mCameraExecutor instanceof CameraExecutor) {
-                                    CameraExecutor executor = (CameraExecutor) mCameraExecutor;
-                                    executor.init(mCameraFactory);
-                                }
-
-                                mCameraRepository.init(mCameraFactory);
-                            } finally {
-                                synchronized (mInitializeLock) {
-                                    mInitState = InternalInitState.INITIALIZED;
-                                }
-                                if (e != null) {
-                                    completer.setException(e);
-                                } else {
-                                    completer.set(null);
-                                }
-                            }
-                        });
+                        initAndRetryRecursively(mCameraExecutor, SystemClock.elapsedRealtime(),
+                                context, completer);
                         return "CameraX initInternal";
                     });
+        }
+    }
+
+    /**
+     * Initializes camera stack on the given thread and retry recursively until timeout.
+     */
+    @UseExperimental(markerClass = ExperimentalAvailableCamerasLimiter.class)
+    private void initAndRetryRecursively(
+            @NonNull Executor cameraExecutor,
+            long startMs,
+            @NonNull Context context,
+            @NonNull CallbackToFutureAdapter.Completer<Void> completer) {
+        cameraExecutor.execute(() -> {
+            try {
+                // TODO(b/161302102): Remove the stored context. Only make use of
+                //  the context within the called method.
+                mAppContext = getApplicationFromContext(context);
+                if (mAppContext == null) {
+                    mAppContext = context.getApplicationContext();
+                }
+                CameraFactory.Provider cameraFactoryProvider =
+                        mCameraXConfig.getCameraFactoryProvider(null);
+                if (cameraFactoryProvider == null) {
+                    throw new InitializationException(new IllegalArgumentException(
+                            "Invalid app configuration provided. Missing "
+                                    + "CameraFactory."));
+                }
+
+                CameraThreadConfig cameraThreadConfig = CameraThreadConfig.create(mCameraExecutor,
+                        mSchedulerHandler);
+
+                CameraSelector availableCamerasLimiter =
+                        mCameraXConfig.getAvailableCamerasLimiter(null);
+                mCameraFactory = cameraFactoryProvider.newInstance(mAppContext,
+                        cameraThreadConfig, availableCamerasLimiter);
+                CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                        mCameraXConfig.getDeviceSurfaceManagerProvider(null);
+                if (surfaceManagerProvider == null) {
+                    throw new InitializationException(new IllegalArgumentException(
+                            "Invalid app configuration provided. Missing "
+                                    + "CameraDeviceSurfaceManager."));
+                }
+                mSurfaceManager = surfaceManagerProvider.newInstance(mAppContext,
+                        mCameraFactory.getCameraManager(),
+                        mCameraFactory.getAvailableCameraIds());
+
+                UseCaseConfigFactory.Provider configFactoryProvider =
+                        mCameraXConfig.getUseCaseConfigFactoryProvider(null);
+                if (configFactoryProvider == null) {
+                    throw new InitializationException(new IllegalArgumentException(
+                            "Invalid app configuration provided. Missing "
+                                    + "UseCaseConfigFactory."));
+                }
+                mDefaultConfigFactory = configFactoryProvider.newInstance(mAppContext);
+
+                if (cameraExecutor instanceof CameraExecutor) {
+                    CameraExecutor executor = (CameraExecutor) cameraExecutor;
+                    executor.init(mCameraFactory);
+                }
+
+                mCameraRepository.init(mCameraFactory);
+
+                // Only verify the devices might have the b/167201193
+                if (DeviceQuirks.get(IncompleteCameraListQuirk.class) != null) {
+                    // Please ensure only validate the camera at the last of the initialization.
+                    CameraValidator.validateCameras(mAppContext, mCameraRepository);
+                }
+
+                // Set completer to null if the init was successful.
+                setStateToInitialized();
+                completer.set(null);
+            } catch (CameraValidator.CameraIdListIncorrectException | InitializationException
+                    | RuntimeException e) {
+                if (SystemClock.elapsedRealtime() - startMs
+                        < WAIT_INITIALIZED_TIMEOUT_MILLIS - RETRY_SLEEP_MILLIS) {
+                    Logger.w(TAG, "Retry init. Start time " + startMs + " current time "
+                            + SystemClock.elapsedRealtime(), e);
+                    HandlerCompat.postDelayed(mSchedulerHandler, () -> initAndRetryRecursively(
+                            cameraExecutor, startMs, mAppContext, completer), RETRY_TOKEN,
+                            RETRY_SLEEP_MILLIS);
+
+                } else {
+                    // Set the state to initialized so it can be shut down properly.
+                    setStateToInitialized();
+                    if (e instanceof CameraValidator.CameraIdListIncorrectException) {
+                        // Ignore the camera validation failure if it reaches the maximum retry
+                        // time. Set complete.
+                        Logger.e(TAG, "The device might underreport the amount of the cameras. "
+                                + "Finish the initialize task since we are already reaching the "
+                                + "maximum number of retries.");
+                        completer.set(null);
+                    } else if (e instanceof InitializationException) {
+                        completer.setException(e);
+                    } else {
+                        // For any unexpected RuntimeException, catch it instead of crashing.
+                        completer.setException(new InitializationException(e));
+                    }
+                }
+            }
+        });
+    }
+
+    private void setStateToInitialized() {
+        synchronized (mInitializeLock) {
+            mInitState = InternalInitState.INITIALIZED;
         }
     }
 
     @NonNull
     private ListenableFuture<Void> shutdownInternal() {
         synchronized (mInitializeLock) {
+            mSchedulerHandler.removeCallbacksAndMessages(RETRY_TOKEN);
             switch (mInitState) {
                 case UNINITIALIZED:
                     mInitState = InternalInitState.SHUTDOWN;
@@ -975,18 +656,23 @@ public final class CameraX {
 
                 case INITIALIZED:
                     mInitState = InternalInitState.SHUTDOWN;
-
                     mShutdownInternalFuture = CallbackToFutureAdapter.getFuture(
                             completer -> {
                                 ListenableFuture<Void> future = mCameraRepository.deinit();
 
                                 // Deinit camera executor at last to avoid RejectExecutionException.
                                 future.addListener(() -> {
-                                    if (mCameraExecutor instanceof CameraExecutor) {
-                                        CameraExecutor executor = (CameraExecutor) mCameraExecutor;
-                                        executor.deinit();
+                                    if (mSchedulerThread != null) {
+                                        // Ensure we shutdown the camera executor before
+                                        // exiting the scheduler thread
+                                        if (mCameraExecutor instanceof CameraExecutor) {
+                                            CameraExecutor executor =
+                                                    (CameraExecutor) mCameraExecutor;
+                                            executor.deinit();
+                                        }
+                                        mSchedulerThread.quit();
+                                        completer.set(null);
                                     }
-                                    completer.set(null);
                                 }, mCameraExecutor);
                                 return "CameraX shutdownInternal";
                             }
@@ -1004,48 +690,6 @@ public final class CameraX {
         synchronized (mInitializeLock) {
             return mInitState == InternalInitState.INITIALIZED;
         }
-    }
-
-    private UseCaseGroupLifecycleController getOrCreateUseCaseGroup(LifecycleOwner lifecycleOwner) {
-        return mUseCaseGroupRepository.getOrCreateUseCaseGroup(
-                lifecycleOwner, new UseCaseGroupRepository.UseCaseGroupSetup() {
-                    @Override
-                    public void setup(UseCaseGroup useCaseGroup) {
-                        useCaseGroup.setListener(mCameraRepository);
-                    }
-                });
-    }
-
-    private CameraRepository getCameraRepository() {
-        return mCameraRepository;
-    }
-
-    /** The types of error states that can occur. */
-    public enum ErrorCode {
-        /** The camera has moved into an unexpected state from which it can not recover from. */
-        CAMERA_STATE_INCONSISTENT,
-        /** A {@link UseCase} has encountered an error from which it can not recover from. */
-        USE_CASE_ERROR
-    }
-
-    /** The direction the camera faces relative to device screen. */
-    public enum LensFacing {
-        /** A camera on the device facing the same direction as the device's screen. */
-        FRONT,
-        /** A camera on the device facing the opposite direction as the device's screen. */
-        BACK
-    }
-
-    /** Listener called whenever an error condition occurs within CameraX. */
-    public interface ErrorListener {
-
-        /**
-         * Called whenever an error occurs within CameraX.
-         *
-         * @param error   the type of error that occurred
-         * @param message detailed message of the error condition
-         */
-        void onError(@NonNull ErrorCode error, @NonNull String message);
     }
 
     /** Internal initialization state. */

@@ -71,7 +71,7 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
     public void setCallback(@Nullable OnConstraintUpdatedCallback callback) {
         if (mCallback != callback) {
             mCallback = callback;
-            updateCallback();
+            updateCallback(mCallback, mCurrentValue);
         }
     }
 
@@ -98,7 +98,7 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
         } else {
             mTracker.addListener(this);
         }
-        updateCallback();
+        updateCallback(mCallback, mCurrentValue);
     }
 
     /**
@@ -123,21 +123,27 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
                 && mMatchingWorkSpecIds.contains(workSpecId);
     }
 
-    private void updateCallback() {
-        if (mMatchingWorkSpecIds.isEmpty() || mCallback == null) {
+    private void updateCallback(
+            @Nullable OnConstraintUpdatedCallback callback,
+            @Nullable T currentValue) {
+
+        // We pass copies of references (callback, currentValue) to updateCallback because public
+        // APIs on ConstraintController may be called from any thread, and onConstraintChanged() is
+        // called from the main thread.
+        if (mMatchingWorkSpecIds.isEmpty() || callback == null) {
             return;
         }
 
-        if (mCurrentValue == null || isConstrained(mCurrentValue)) {
-            mCallback.onConstraintNotMet(mMatchingWorkSpecIds);
+        if (currentValue == null || isConstrained(currentValue)) {
+            callback.onConstraintNotMet(mMatchingWorkSpecIds);
         } else {
-            mCallback.onConstraintMet(mMatchingWorkSpecIds);
+            callback.onConstraintMet(mMatchingWorkSpecIds);
         }
     }
 
     @Override
     public void onConstraintChanged(@Nullable T newValue) {
         mCurrentValue = newValue;
-        updateCallback();
+        updateCallback(mCallback, mCurrentValue);
     }
 }

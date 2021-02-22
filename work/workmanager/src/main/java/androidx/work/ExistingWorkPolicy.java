@@ -39,6 +39,20 @@ public enum ExistingWorkPolicy {
      * If there is existing pending (uncompleted) work with the same unique name, append the
      * newly-specified work as a child of all the leaves of that work sequence.  Otherwise, insert
      * the newly-specified work as the start of a new sequence.
+     * <br/>
+     * <b>Note:</b> When using APPEND with failed or cancelled prerequisites, newly enqueued work
+     * will also be marked as failed or cancelled respectively. Use
+     * {@link ExistingWorkPolicy#APPEND_OR_REPLACE} to create a new chain of work.
      */
-    APPEND
+    APPEND,
+
+    /**
+     * If there is existing pending (uncompleted) work with the same unique name, append the
+     * newly-specified work as the child of all the leaves of that work sequence. Otherwise, insert
+     * the newly-specified work as the start of a new sequence.
+     * <br/>
+     * <b>Note:</b> If there are failed or cancelled prerequisites, these prerequisites are
+     * <i>dropped</i> and the newly-specified work is the start of a new sequence.
+     */
+    APPEND_OR_REPLACE,
 }

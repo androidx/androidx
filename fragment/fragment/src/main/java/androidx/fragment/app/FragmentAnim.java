@@ -42,8 +42,7 @@ class FragmentAnim {
     }
 
     static AnimationOrAnimator loadAnimation(@NonNull Context context,
-            @NonNull FragmentContainer fragmentContainer, @NonNull Fragment fragment,
-            boolean enter) {
+            @NonNull Fragment fragment, boolean enter) {
         int transit = fragment.getNextTransition();
         int nextAnim = fragment.getNextAnim();
         // Clear the Fragment animation
@@ -53,10 +52,9 @@ class FragmentAnim {
         // removing fragment will be cleared. If reordering is allowed, this will only be true
         // after all records in a transaction have been executed and the visible removing
         // fragment has the correct animation, so it is time to clear it.
-        View container = fragmentContainer.onFindViewById(fragment.mContainerId);
-        if (container != null
-                && container.getTag(R.id.visible_removing_fragment_view_tag) != null) {
-            container.setTag(R.id.visible_removing_fragment_view_tag, null);
+        if (fragment.mContainer != null
+                && fragment.mContainer.getTag(R.id.visible_removing_fragment_view_tag) != null) {
+            fragment.mContainer.setTag(R.id.visible_removing_fragment_view_tag, null);
         }
         // If there is a transition on the container, clear those set on the fragment
         if (fragment.mContainer != null && fragment.mContainer.getLayoutTransition() != null) {
@@ -71,6 +69,11 @@ class FragmentAnim {
         if (animator != null) {
             return new AnimationOrAnimator(animator);
         }
+
+        if (nextAnim == 0 && transit != 0) {
+            nextAnim = transitToAnimResourceId(transit, enter);
+        }
+
 
         if (nextAnim != 0) {
             String dir = context.getResources().getResourceTypeName(nextAnim);
@@ -111,20 +114,7 @@ class FragmentAnim {
                 }
             }
         }
-
-        if (transit == 0) {
-            return null;
-        }
-
-        int animResourceId = transitToAnimResourceId(transit, enter);
-        if (animResourceId < 0) {
-            return null;
-        }
-
-        return new AnimationOrAnimator(AnimationUtils.loadAnimation(
-                context,
-                animResourceId
-        ));
+        return null;
     }
 
     /**
@@ -209,13 +199,13 @@ class FragmentAnim {
         int animAttr = -1;
         switch (transit) {
             case FragmentTransaction.TRANSIT_FRAGMENT_OPEN:
-                animAttr = enter ? R.anim.fragment_open_enter : R.anim.fragment_open_exit;
+                animAttr = enter ? R.animator.fragment_open_enter : R.animator.fragment_open_exit;
                 break;
             case FragmentTransaction.TRANSIT_FRAGMENT_CLOSE:
-                animAttr = enter ? R.anim.fragment_close_enter : R.anim.fragment_close_exit;
+                animAttr = enter ? R.animator.fragment_close_enter : R.animator.fragment_close_exit;
                 break;
             case FragmentTransaction.TRANSIT_FRAGMENT_FADE:
-                animAttr = enter ? R.anim.fragment_fade_enter : R.anim.fragment_fade_exit;
+                animAttr = enter ? R.animator.fragment_fade_enter : R.animator.fragment_fade_exit;
                 break;
         }
         return animAttr;
@@ -251,7 +241,7 @@ class FragmentAnim {
      * with Views remaining in the hierarchy as disappearing children after the view has been
      * removed in some edge cases.
      */
-    private static class EndViewTransitionAnimation extends AnimationSet implements Runnable {
+    static class EndViewTransitionAnimation extends AnimationSet implements Runnable {
         private final ViewGroup mParent;
         private final View mChild;
         private boolean mEnded;

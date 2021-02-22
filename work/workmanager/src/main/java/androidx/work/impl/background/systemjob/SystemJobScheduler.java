@@ -18,6 +18,7 @@ package androidx.work.impl.background.systemjob;
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
 
 import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_ID;
+import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -25,6 +26,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
 import android.os.PersistableBundle;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,11 +40,14 @@ import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.IdGenerator;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * A class that schedules work using {@link android.app.job.JobScheduler}.
@@ -218,6 +223,11 @@ public class SystemJobScheduler implements Scheduler {
         }
     }
 
+    @Override
+    public boolean hasLimitedSchedulingSlots() {
+        return true;
+    }
+
     private static void cancelJobById(@NonNull JobScheduler jobScheduler, int id) {
         try {
             jobScheduler.cancel(id);
@@ -250,25 +260,73 @@ public class SystemJobScheduler implements Scheduler {
     }
 
     /**
-     * Cancels invalid jobs owned by WorkManager.  This iterates all the jobs set for our
-     * {@link SystemJobService} but with invalid extras.  These jobs are invalid (inactionable on
-     * our part) but occupy slots in JobScheduler.  This method is meant to help mitigate problems
-     * like b/134058261, where we have faulty implementations of JobScheduler.
+     * Returns <code>true</code> if the list of jobs in {@link JobScheduler} are out of sync with
+     * what {@link androidx.work.WorkManager} expects to see.
+     * <p>
+     * If {@link JobScheduler} knows about things {@link androidx.work.WorkManager} does not know
+     * know about (or does not care about), cancel them.
+     * <p>
+     * If {@link androidx.work.WorkManager} does not see backing jobs in {@link JobScheduler} for
+     * expected {@link WorkSpec}s, reset the {@code scheduleRequestedAt} bit, so that jobs can be
+     * rescheduled.
      *
-     * @param context The {@link Context} for the {@link JobScheduler}
+     * @param context     The application {@link Context}
+     * @param workManager The {@link WorkManagerImpl} instance
+     * @return <code>true</code> if jobs need to be reconciled.
      */
-    public static void cancelInvalidJobs(@NonNull Context context) {
+    public static boolean reconcileJobs(
+            @NonNull Context context,
+            @NonNull WorkManagerImpl workManager) {
+
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
-        if (jobScheduler != null) {
-            List<JobInfo> jobs = getPendingJobs(context, jobScheduler);
-            if (jobs != null && !jobs.isEmpty()) {
-                for (JobInfo jobInfo : jobs) {
-                    if (getWorkSpecIdFromJobInfo(jobInfo) == null) {
-                        cancelJobById(jobScheduler, jobInfo.getId());
-                    }
+        List<JobInfo> jobs = getPendingJobs(context, jobScheduler);
+        List<String> workManagerWorkSpecs =
+                workManager.getWorkDatabase().systemIdInfoDao().getWorkSpecIds();
+
+        int jobSize = jobs != null ? jobs.size() : 0;
+        Set<String> jobSchedulerWorkSpecs = new HashSet<>(jobSize);
+        if (jobs != null && !jobs.isEmpty()) {
+            for (JobInfo jobInfo : jobs) {
+                String workSpecId = getWorkSpecIdFromJobInfo(jobInfo);
+                if (!TextUtils.isEmpty(workSpecId)) {
+                    jobSchedulerWorkSpecs.add(workSpecId);
+                } else {
+                    // Cancels invalid jobs owned by WorkManager.
+                    // These jobs are invalid (in-actionable on our part) but occupy slots in
+                    // JobScheduler. This is meant to help mitigate problems like b/134058261,
+                    // where we have faulty implementations of JobScheduler.
+                    cancelJobById(jobScheduler, jobInfo.getId());
                 }
             }
         }
+        boolean needsReconciling = false;
+        for (String workSpecId : workManagerWorkSpecs) {
+            if (!jobSchedulerWorkSpecs.contains(workSpecId)) {
+                Logger.get().debug(TAG, "Reconciling jobs");
+                needsReconciling = true;
+                break;
+            }
+        }
+
+        if (needsReconciling) {
+            WorkDatabase workDatabase = workManager.getWorkDatabase();
+            workDatabase.beginTransaction();
+            try {
+                WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+                for (String workSpecId : workManagerWorkSpecs) {
+                    // Mark every WorkSpec instance with SCHEDULE_NOT_REQUESTED_AT = -1
+                    // so that it can be picked up by JobScheduler again. This is required
+                    // because from WorkManager's perspective this job was actually scheduled
+                    // (but subsequently dropped). For this job to be picked up by schedulers
+                    // observing scheduling limits this bit needs to be reset.
+                    workSpecDao.markWorkSpecScheduled(workSpecId, SCHEDULE_NOT_REQUESTED_YET);
+                }
+                workDatabase.setTransactionSuccessful();
+            } finally {
+                workDatabase.endTransaction();
+            }
+        }
+        return needsReconciling;
     }
 
     @Nullable

@@ -28,9 +28,10 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.core:core:1.0.1")
-    implementation("androidx.collection:collection:1.0.0")
+    implementation("androidx.core:core-ktx:1.1.0")
+    implementation("androidx.collection:collection-ktx:1.1.0")
 
+    api(KOTLIN_STDLIB)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TRUTH)
@@ -46,23 +47,23 @@ dependencies {
     androidTestImplementation(KOTLIN_STDLIB)
 }
 
-//used by testCompile safe-args-generator
+//used by testImplementation safe-args-generator
 android.libraryVariants.all { variant ->
     def name = variant.name
     def suffix = name.capitalize()
-    project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn variant.javaCompileProvider.get()
-        from variant.javaCompileProvider.get().destinationDir
-        destinationDir new File(project.buildDir, "libJar")
+    project.tasks.register("jar${suffix}", Copy).configure {
+        dependsOn("assemble$suffix")
+        from(zipTree("${project.buildDir}/outputs/aar/navigation-common-${name}.aar")) {
+            include("classes.jar")
+        }
+        destinationDir(new File(project.buildDir, "libJar"))
     }
 }
 
 androidx {
     name = "Android Navigation Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation-Common"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

@@ -57,7 +57,7 @@
  * <pre>
  * // File: Song.java
  * {@literal @}Entity
- * public class User {
+ * public class Song {
  *   {@literal @}PrimaryKey
  *   private int id;
  *   private String name;
@@ -82,7 +82,7 @@
  * // File: MusicDatabase.java
  * {@literal @}Database(entities = {Song.java})
  * public abstract class MusicDatabase extends RoomDatabase {
- *   public abstract SongDao userDao();
+ *   public abstract SongDao songDao();
  * }
  * </pre>
  * You can create an instance of {@code MusicDatabase} as follows:
@@ -118,7 +118,7 @@
  *   String header;
  * }
  * // DAO
- * {@literal @}Query("SELECT id, name || '-' || release_year AS header FROM user")
+ * {@literal @}Query("SELECT id, name || '-' || release_year AS header FROM song")
  * public IdAndSongHeader[] loadSongHeaders();
  * </pre>
  * If there is a mismatch between the query result and the POJO, Room will print a warning during

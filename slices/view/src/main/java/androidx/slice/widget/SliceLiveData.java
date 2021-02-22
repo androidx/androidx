@@ -22,7 +22,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Looper;
 import android.util.Log;
 
@@ -212,6 +211,7 @@ public final class SliceLiveData {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @SuppressWarnings("deprecation") /* AsyncTask */
         protected synchronized void loadInitialSlice() {
             if (mInitialSliceLoaded) {
                 return;
@@ -247,7 +247,7 @@ public final class SliceLiveData {
                 mPendingIntent.add(intent);
             }
             if (mActive && !mSliceCallbackRegistered) {
-                AsyncTask.execute(mUpdateSlice);
+                android.os.AsyncTask.execute(mUpdateSlice);
                 mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
                 mSliceCallbackRegistered = true;
             }
@@ -257,7 +257,7 @@ public final class SliceLiveData {
         protected void onActive() {
             mActive = true;
             if (!mInitialSliceLoaded) {
-                AsyncTask.execute(new Runnable() {
+                android.os.AsyncTask.execute(new Runnable() {
                     @Override
                     public void run() {
                         loadInitialSlice();
@@ -265,7 +265,7 @@ public final class SliceLiveData {
                 });
             }
             if (mLive && !mSliceCallbackRegistered) {
-                AsyncTask.execute(mUpdateSlice);
+                android.os.AsyncTask.execute(mUpdateSlice);
                 mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
                 mSliceCallbackRegistered = true;
             }
@@ -315,7 +315,7 @@ public final class SliceLiveData {
         final SliceViewManager.SliceCallback mSliceCallback =
                 new SliceViewManager.SliceCallback() {
             @Override
-            public void onSliceUpdated(@NonNull Slice s) {
+            public void onSliceUpdated(@Nullable Slice s) {
                 if (mPendingUri.size() > 0) {
                     if (s == null) {
                         onSliceError(OnErrorListener.ERROR_SLICE_NO_LONGER_PRESENT, null);
@@ -376,8 +376,9 @@ public final class SliceLiveData {
         }
 
         @Override
+        @SuppressWarnings("deprecation") /* AsyncTask */
         protected void onActive() {
-            AsyncTask.execute(mUpdateSlice);
+            android.os.AsyncTask.execute(mUpdateSlice);
             if (mUri != null) {
                 mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
             }
@@ -396,38 +397,29 @@ public final class SliceLiveData {
                 try {
                     Slice s = mUri != null ? mSliceViewManager.bindSlice(mUri)
                             : mSliceViewManager.bindSlice(mIntent);
-                    if (s == null) {
-                        onSliceError(OnErrorListener.ERROR_SLICE_NO_LONGER_PRESENT, null);
-                        return;
-                    }
-                    if (mUri == null) {
+                    if (mUri == null && s != null) {
                         mUri = s.getUri();
                         mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
                     }
                     postValue(s);
                 } catch (IllegalArgumentException e) {
                     onSliceError(OnErrorListener.ERROR_INVALID_INPUT, e);
+                    postValue(null);
                 } catch (Exception e) {
                     onSliceError(OnErrorListener.ERROR_UNKNOWN, e);
+                    postValue(null);
                 }
             }
         };
 
-        final SliceViewManager.SliceCallback mSliceCallback = this::postValue;
+        final SliceViewManager.SliceCallback mSliceCallback = value -> postValue(value);
 
         void onSliceError(int error, Throwable t) {
-            if (mUri != null) {
-                mSliceViewManager.unregisterSliceCallback(mUri, mSliceCallback);
-            }
             if (mListener != null) {
                 mListener.onSliceError(error, t);
                 return;
             }
-            if (t != null) {
-                Log.e(TAG, "Error binding slice", t);
-            } else {
-                Log.e(TAG, "Error binding slice, error code: " + error);
-            }
+            Log.e(TAG, "Error binding slice", t);
         }
     }
 

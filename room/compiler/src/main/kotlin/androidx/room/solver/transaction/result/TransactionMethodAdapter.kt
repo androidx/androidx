@@ -20,11 +20,10 @@ import androidx.room.ext.DEFAULT_IMPLS_CLASS_NAME
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.TransactionMethod
 import com.squareup.javapoet.ClassName
-import java.lang.IllegalStateException
-import javax.lang.model.type.TypeMirror
 
 /**
  * Class that knows how to generate the transaction method delegate statement.
@@ -34,7 +33,7 @@ class TransactionMethodAdapter(
     private val callType: TransactionMethod.CallType
 ) {
     fun createDelegateToSuperStatement(
-        returnType: TypeMirror,
+        returnType: XType,
         parameterNames: List<String>,
         daoName: ClassName,
         daoImplName: ClassName,
@@ -47,10 +46,11 @@ class TransactionMethodAdapter(
             val format = buildString {
                 if (resultVar != null && returnStmt) {
                     throw IllegalStateException(
-                        "Can't assign to var and return in the same statement.")
+                        "Can't assign to var and return in the same statement."
+                    )
                 } else if (resultVar != null) {
                     append("$T $L = ")
-                    params.add(returnType)
+                    params.add(returnType.typeName)
                     params.add(resultVar)
                 } else if (returnStmt) {
                     append("return ")

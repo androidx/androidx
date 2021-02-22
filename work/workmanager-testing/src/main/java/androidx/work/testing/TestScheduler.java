@@ -57,6 +57,11 @@ class TestScheduler implements Scheduler, ExecutionListener {
     }
 
     @Override
+    public boolean hasLimitedSchedulingSlots() {
+        return true;
+    }
+
+    @Override
     public void schedule(@NonNull WorkSpec... workSpecs) {
         if (workSpecs == null || workSpecs.length <= 0) {
             return;
@@ -74,12 +79,20 @@ class TestScheduler implements Scheduler, ExecutionListener {
 
     @Override
     public void cancel(@NonNull String workSpecId) {
+        InternalWorkState internalWorkState = mPendingWorkStates.get(workSpecId);
         // We don't need to keep track of cancelled workSpecs. This is because subsequent calls
         // to enqueue() will no-op because insertWorkSpec in WorkDatabase has a conflict
         // policy of @Ignore. So TestScheduler will _never_ be asked to schedule those
         // WorkSpecs.
         WorkManagerImpl.getInstance(mContext).stopWork(workSpecId);
-        mPendingWorkStates.remove(workSpecId);
+        if (internalWorkState != null && !internalWorkState.mWorkSpec.isPeriodic()) {
+            // Don't remove PeriodicWorkRequests from the list of pending work states.
+            // This is because we keep track of mPeriodDelayMet for PeriodicWorkRequests.
+            // `mPeriodDelayMet` is set to `false` when `onExecuted()` is called as a result of a
+            // successful run or a cancellation. That way subsequent calls to schedule() no-op
+            // until a developer explicitly calls setPeriodDelayMet().
+            mPendingWorkStates.remove(workSpecId);
+        }
     }
 
     /**

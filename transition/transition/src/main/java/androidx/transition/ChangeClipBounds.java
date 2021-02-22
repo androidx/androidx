@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 
 /**
@@ -44,6 +45,7 @@ public class ChangeClipBounds extends Transition {
     };
 
     @Override
+    @NonNull
     public String[] getTransitionProperties() {
         return sTransitionProperties;
     }
@@ -51,7 +53,7 @@ public class ChangeClipBounds extends Transition {
     public ChangeClipBounds() {
     }
 
-    public ChangeClipBounds(Context context, AttributeSet attrs) {
+    public ChangeClipBounds(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -79,9 +81,11 @@ public class ChangeClipBounds extends Transition {
         captureValues(transitionValues);
     }
 
+    @Nullable
     @Override
-    public Animator createAnimator(@NonNull final ViewGroup sceneRoot, TransitionValues startValues,
-            TransitionValues endValues) {
+    public Animator createAnimator(@NonNull final ViewGroup sceneRoot,
+            @Nullable TransitionValues startValues,
+            @Nullable TransitionValues endValues) {
         if (startValues == null || endValues == null
                 || !startValues.values.containsKey(PROPNAME_CLIP)
                 || !endValues.values.containsKey(PROPNAME_CLIP)) {

@@ -71,7 +71,7 @@ public class StaggeredGridLayoutManagerCacheTest extends BaseStaggeredGridLayout
     private boolean cachedViewsContains(int position) {
         // Note: can't make assumptions about order here, so just check all cached views
         for (int i = 0; i < cachedViews().size(); i++) {
-            if (cachedViews().get(i).getAdapterPosition() == position) return true;
+            if (cachedViews().get(i).getAbsoluteAdapterPosition() == position) return true;
         }
         return false;
     }

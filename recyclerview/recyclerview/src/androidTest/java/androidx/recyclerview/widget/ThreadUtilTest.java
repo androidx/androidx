@@ -26,9 +26,11 @@ import android.os.Looper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.rule.ActivityTestRule;
+import androidx.testutils.ActivityScenarioResetRule;
+import androidx.testutils.ResettableActivityScenarioRule;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,9 +43,12 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class ThreadUtilTest {
+    @ClassRule
+    public static ResettableActivityScenarioRule<TestActivity> mActivityRule =
+            new ResettableActivityScenarioRule<>(TestActivity.class);
     @Rule
-    public ActivityTestRule<TestActivity> mActivityRule =
-            new ActivityTestRule<>(TestActivity.class);
+    public ActivityScenarioResetRule<TestActivity> mActivityResetRule =
+            new TestActivity.ResetRule(mActivityRule.getScenario());
 
     Map<String, LockedObject> results = new HashMap<>();
 

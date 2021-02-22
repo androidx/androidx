@@ -122,7 +122,7 @@ class Alarms {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent delayMet = CommandHandler.createDelayMetIntent(context, workSpecId);
         PendingIntent pendingIntent = PendingIntent.getService(
-                context, alarmId, delayMet, PendingIntent.FLAG_ONE_SHOT);
+                context, alarmId, delayMet, PendingIntent.FLAG_UPDATE_CURRENT);
         if (alarmManager != null) {
             if (Build.VERSION.SDK_INT >= 19) {
                 alarmManager.setExact(RTC_WAKEUP, triggerAtMillis, pendingIntent);

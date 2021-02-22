@@ -1,0 +1,85 @@
+// Signature format: 4.0
+package androidx.window {
+
+  @Deprecated public final class DeviceState {
+    method @Deprecated public int getPosture();
+    field @Deprecated public static final int POSTURE_CLOSED = 1; // 0x1
+    field @Deprecated public static final int POSTURE_FLIPPED = 4; // 0x4
+    field @Deprecated public static final int POSTURE_HALF_OPENED = 2; // 0x2
+    field @Deprecated public static final int POSTURE_OPENED = 3; // 0x3
+    field @Deprecated public static final int POSTURE_UNKNOWN = 0; // 0x0
+  }
+
+  @Deprecated public static final class DeviceState.Builder {
+    ctor @Deprecated public DeviceState.Builder();
+    method @Deprecated public androidx.window.DeviceState build();
+    method @Deprecated public androidx.window.DeviceState.Builder setPosture(int);
+  }
+
+  public interface DisplayFeature {
+    method public android.graphics.Rect getBounds();
+    method @Deprecated public int getType();
+    field @Deprecated public static final int TYPE_FOLD = 1; // 0x1
+    field @Deprecated public static final int TYPE_HINGE = 2; // 0x2
+  }
+
+  @Deprecated public static class DisplayFeature.Builder {
+    ctor @Deprecated public DisplayFeature.Builder();
+    method @Deprecated public androidx.window.DisplayFeature build();
+    method @Deprecated public androidx.window.DisplayFeature.Builder setBounds(android.graphics.Rect);
+    method @Deprecated public androidx.window.DisplayFeature.Builder setType(int);
+  }
+
+  public class FoldingFeature implements androidx.window.DisplayFeature {
+    ctor public FoldingFeature(android.graphics.Rect, int, int);
+    method public android.graphics.Rect getBounds();
+    method public int getState();
+    method public int getType();
+    field public static final int STATE_FLAT = 1; // 0x1
+    field public static final int STATE_FLIPPED = 3; // 0x3
+    field public static final int STATE_HALF_OPENED = 2; // 0x2
+    field public static final int TYPE_FOLD = 1; // 0x1
+    field public static final int TYPE_HINGE = 2; // 0x2
+  }
+
+  public interface WindowBackend {
+    method @Deprecated public androidx.window.DeviceState getDeviceState();
+    method @Deprecated public androidx.window.WindowLayoutInfo getWindowLayoutInfo(android.app.Activity);
+    method @Deprecated public androidx.window.WindowLayoutInfo getWindowLayoutInfo(android.content.Context);
+    method public void registerDeviceStateChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.DeviceState!>);
+    method public void registerLayoutChangeCallback(android.app.Activity, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+    method @Deprecated public void registerLayoutChangeCallback(android.content.Context, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+    method public void unregisterDeviceStateChangeCallback(androidx.core.util.Consumer<androidx.window.DeviceState!>);
+    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+  }
+
+  public final class WindowLayoutInfo {
+    method public java.util.List<androidx.window.DisplayFeature!> getDisplayFeatures();
+  }
+
+  public static final class WindowLayoutInfo.Builder {
+    ctor public WindowLayoutInfo.Builder();
+    method public androidx.window.WindowLayoutInfo build();
+    method public androidx.window.WindowLayoutInfo.Builder setDisplayFeatures(java.util.List<androidx.window.DisplayFeature!>);
+  }
+
+  public final class WindowManager {
+    ctor public WindowManager(android.content.Context);
+    ctor @Deprecated public WindowManager(android.content.Context, androidx.window.WindowBackend?);
+    method public androidx.window.WindowMetrics getCurrentWindowMetrics();
+    method @Deprecated public androidx.window.DeviceState getDeviceState();
+    method public androidx.window.WindowMetrics getMaximumWindowMetrics();
+    method @Deprecated public androidx.window.WindowLayoutInfo getWindowLayoutInfo();
+    method @Deprecated public void registerDeviceStateChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.DeviceState!>);
+    method public void registerLayoutChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+    method @Deprecated public void unregisterDeviceStateChangeCallback(androidx.core.util.Consumer<androidx.window.DeviceState!>);
+    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+  }
+
+  public final class WindowMetrics {
+    ctor public WindowMetrics(android.graphics.Rect);
+    method public android.graphics.Rect getBounds();
+  }
+
+}
+

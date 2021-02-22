@@ -21,6 +21,7 @@ import android.content.Context;
 import android.os.Message;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -116,6 +117,13 @@ public abstract class KeyedAppStatesReporter {
     }
 
     /**
+     * @deprecated use {@link #setStates(Collection, KeyedAppStatesCallback)} which reports
+     * errors.
+     */
+    @Deprecated
+    public abstract void setStates(@NonNull Collection<KeyedAppState> states);
+
+    /**
      * Set app states to be sent to an EMM (enterprise mobility management). The EMM can then
      * display this information to the management organization.
      *
@@ -134,17 +142,38 @@ public abstract class KeyedAppStatesReporter {
      * <p>EMMs can access these states either directly in a custom DPC (device policy manager), via
      * Android Management APIs, or via Play EMM APIs.
      *
-     * @see #setStatesImmediate(Collection)
+     * <p>{@link KeyedAppStatesCallback#onResult(int, Throwable)} will be called when an
+     * error occurs.
+     *
+     * @see #setStatesImmediate(Collection, KeyedAppStatesCallback)
      */
-    public abstract void setStates(@NonNull Collection<KeyedAppState> states);
+    public void setStates(@NonNull Collection<KeyedAppState> states,
+            @Nullable KeyedAppStatesCallback callback) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
-     * Performs the same function as {@link #setStates(Collection)}, except it
-     * also requests that the states are immediately uploaded to be accessible
+     * @deprecated use {@link #setStatesImmediate(Collection, KeyedAppStatesCallback)} which
+     * reports errors.
+     */
+    @Deprecated
+    public abstract void setStatesImmediate(@NonNull Collection<KeyedAppState> states);
+
+    /**
+     * Performs the same function as {@link #setStates(Collection, KeyedAppStatesCallback)},
+     * except it also requests that the states are immediately uploaded to be accessible
      * via server APIs.
      *
      * <p>The receiver is not obligated to meet this immediate upload request.
      * For example, Play and Android Management APIs have daily quotas.
+     *
+     * <p>{@link KeyedAppStatesCallback#onResult(int, Throwable)} will be called
+     * when an error occurs.
+     *
+     * @see #setStates(Collection, KeyedAppStatesCallback)
      */
-    public abstract void setStatesImmediate(@NonNull Collection<KeyedAppState> states);
+    public void setStatesImmediate(@NonNull Collection<KeyedAppState> states,
+            @Nullable KeyedAppStatesCallback callback) {
+        throw new UnsupportedOperationException();
+    }
 }

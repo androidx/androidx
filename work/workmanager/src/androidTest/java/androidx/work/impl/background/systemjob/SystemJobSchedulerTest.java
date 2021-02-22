@@ -43,6 +43,7 @@ import android.os.PersistableBundle;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -232,7 +233,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     @SdkSuppress(minSdkVersion = 23)
     public void testSystemJobScheduler_cancelsInvalidJobs() {
         List<JobInfo> allJobInfos = new ArrayList<>(2);
@@ -257,7 +258,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         when(mockContext.getPackageName()).thenReturn(
                 ApplicationProvider.getApplicationContext().getPackageName());
         when(mockContext.getSystemService(Context.JOB_SCHEDULER_SERVICE)).thenReturn(mJobScheduler);
-        SystemJobScheduler.cancelInvalidJobs(mockContext);
+        SystemJobScheduler.reconcileJobs(mockContext, mWorkManager);
 
         verify(mJobScheduler).cancel(invalidJob.getId());
         verify(mJobScheduler, never()).cancel(validJob.getId());

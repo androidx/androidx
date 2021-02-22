@@ -35,6 +35,7 @@ public final class ConfigurationCompat {
      *
      * @return The locale list.
      */
+    @SuppressWarnings("deprecation")
     @NonNull
     public static LocaleListCompat getLocales(@NonNull Configuration configuration) {
         if (SDK_INT >= 24) {

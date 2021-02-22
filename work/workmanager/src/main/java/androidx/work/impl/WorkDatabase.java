@@ -21,6 +21,8 @@ import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_4_5;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_6_7;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_7_8;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_8_9;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_10;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_11;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_5;
@@ -36,11 +38,14 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import androidx.work.Data;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.Preference;
 import androidx.work.impl.model.PreferenceDao;
+import androidx.work.impl.model.RawWorkInfoDao;
 import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.SystemIdInfoDao;
 import androidx.work.impl.model.WorkName;
@@ -70,7 +75,7 @@ import java.util.concurrent.TimeUnit;
         WorkName.class,
         WorkProgress.class,
         Preference.class},
-        version = 10)
+        version = 11)
 @TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
     // Delete rows in the workspec table that...
@@ -86,7 +91,7 @@ public abstract class WorkDatabase extends RoomDatabase {
             + "    work_spec_id NOT IN "
             + "        (SELECT id FROM workspec WHERE state IN " + COMPLETED_STATES + "))";
 
-    private static final long PRUNE_THRESHOLD_MILLIS = TimeUnit.DAYS.toMillis(7);
+    private static final long PRUNE_THRESHOLD_MILLIS = TimeUnit.DAYS.toMillis(1);
 
     /**
      * Creates an instance of the WorkDatabase.
@@ -100,7 +105,7 @@ public abstract class WorkDatabase extends RoomDatabase {
      */
     @NonNull
     public static WorkDatabase create(
-            @NonNull Context context,
+            @NonNull final Context context,
             @NonNull Executor queryExecutor,
             boolean useTestDatabase) {
         RoomDatabase.Builder<WorkDatabase> builder;
@@ -108,8 +113,23 @@ public abstract class WorkDatabase extends RoomDatabase {
             builder = Room.inMemoryDatabaseBuilder(context, WorkDatabase.class)
                     .allowMainThreadQueries();
         } else {
-            String path = WorkDatabasePathHelper.getDatabasePath(context).getPath();
-            builder = Room.databaseBuilder(context, WorkDatabase.class, path);
+            String name = WorkDatabasePathHelper.getWorkDatabaseName();
+            builder = Room.databaseBuilder(context, WorkDatabase.class, name);
+            builder.openHelperFactory(new SupportSQLiteOpenHelper.Factory() {
+                @NonNull
+                @Override
+                public SupportSQLiteOpenHelper create(
+                        @NonNull SupportSQLiteOpenHelper.Configuration configuration) {
+                    SupportSQLiteOpenHelper.Configuration.Builder configBuilder =
+                            SupportSQLiteOpenHelper.Configuration.builder(context);
+                    configBuilder.name(configuration.name)
+                            .callback(configuration.callback)
+                            .noBackupDirectory(true);
+                    FrameworkSQLiteOpenHelperFactory factory =
+                            new FrameworkSQLiteOpenHelperFactory();
+                    return factory.create(configBuilder.build());
+                }
+            });
         }
 
         return builder.setQueryExecutor(queryExecutor)
@@ -127,6 +147,9 @@ public abstract class WorkDatabase extends RoomDatabase {
                 .addMigrations(MIGRATION_7_8)
                 .addMigrations(MIGRATION_8_9)
                 .addMigrations(new WorkDatabaseMigrations.WorkMigration9To10(context))
+                .addMigrations(
+                        new WorkDatabaseMigrations.RescheduleMigration(context, VERSION_10,
+                                VERSION_11))
                 .fallbackToDestructiveMigration()
                 .build();
     }
@@ -200,4 +223,10 @@ public abstract class WorkDatabase extends RoomDatabase {
      */
     @NonNull
     public abstract PreferenceDao preferenceDao();
+
+    /**
+     * @return The Data Access Object which can be used to execute raw queries.
+     */
+    @NonNull
+    public abstract RawWorkInfoDao rawWorkInfoDao();
 }

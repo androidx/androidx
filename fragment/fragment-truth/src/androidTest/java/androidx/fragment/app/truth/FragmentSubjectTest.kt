@@ -23,7 +23,6 @@ import androidx.fragment.app.truth.FragmentSubject.Companion.assertThat
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.assertThrows
 import org.junit.Before
 import org.junit.Rule
@@ -33,8 +32,9 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class FragmentSubjectTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(TestActivity::class.java)
+    val activityRule = androidx.test.rule.ActivityTestRule(TestActivity::class.java)
 
     private lateinit var activity: TestActivity
 

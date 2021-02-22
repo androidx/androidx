@@ -19,7 +19,6 @@ package androidx.testutils
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertTrue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -70,8 +69,8 @@ open class RecreatedAppCompatActivity(
  *
  * @return The newly-restarted [RecreatedAppCompatActivity]
  */
-@Suppress("UNCHECKED_CAST")
-fun <T : RecreatedAppCompatActivity> ActivityTestRule<T>.recreate(): T {
+@Suppress("UNCHECKED_CAST", "DEPRECATION")
+fun <T : RecreatedAppCompatActivity> androidx.test.rule.ActivityTestRule<T>.recreate(): T {
     // Now switch the orientation
     RecreatedAppCompatActivity.resumedLatch = CountDownLatch(1)
     RecreatedAppCompatActivity.destroyedLatch = CountDownLatch(1)

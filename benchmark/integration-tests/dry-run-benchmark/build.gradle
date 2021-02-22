@@ -26,6 +26,7 @@ plugins {
 dependencies {
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(JUNIT)
     androidTestImplementation(KOTLIN_STDLIB)
 }

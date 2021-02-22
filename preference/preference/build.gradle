@@ -26,13 +26,12 @@ plugins {
 }
 
 dependencies {
-    // TODO: change to alpha02 after release
-    implementation("androidx.annotation:annotation:1.1.0")
+    api(project(":annotation:annotation"))
     api("androidx.appcompat:appcompat:1.1.0")
-    // TODO: change to alpha05 after release
-    api("androidx.core:core:1.1.0")
+    // Use the latest version of core library for verifying insets visibility
+    api(project(":core:core"))
     implementation("androidx.collection:collection:1.0.0")
-    api("androidx.fragment:fragment:1.1.0")
+    api("androidx.fragment:fragment:1.2.4")
     api("androidx.recyclerview:recyclerview:1.0.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -43,6 +42,8 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(MULTIDEX)
 }
 
 android {
@@ -52,27 +53,25 @@ android {
     }
     sourceSets {
         main.res.srcDirs = [
-                'res',
-                'res-public'
+                "res",
+                "res-public"
         ]
     }
 
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
     }
 
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 
 androidx {
     name = "AndroidX Preference"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.PREFERENCE
     mavenGroup = LibraryGroups.PREFERENCE
     inceptionYear = "2015"
     description = "AndroidX Preference"
-    // TODO: remove when PreferenceFragment / PreferenceDialogFragment are removed
-    failOnDeprecationWarnings = false
 }

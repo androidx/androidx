@@ -24,7 +24,6 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
@@ -42,73 +41,74 @@ abstract class CheckApiEquivalenceTask : DefaultTask() {
     @get:Input
     abstract val checkedInApis: ListProperty<ApiLocation>
 
-    /**
-     * Whether to check restricted APIs too
-     */
-    @get:Input
-    var checkRestrictedAPIs = false
-
     @InputFiles
     fun getTaskInputs(): List<File> {
-        if (checkRestrictedAPIs) {
-            return checkedInApis.get().flatMap { it.files() }
+        val checkedInApiLocations = checkedInApis.get()
+        val checkedInApiFiles = checkedInApiLocations.flatMap { checkedInApiLocation ->
+            listOf(
+                checkedInApiLocation.publicApiFile,
+                checkedInApiLocation.removedApiFile,
+                checkedInApiLocation.experimentalApiFile,
+                checkedInApiLocation.restrictedApiFile
+            )
         }
-        return checkedInApis.get().flatMap { it.nonRestrictedFiles() }
+
+        val builtApiLocation = builtApi.get()
+        val builtApiFiles = listOf(
+            builtApiLocation.publicApiFile,
+            builtApiLocation.removedApiFile,
+            builtApiLocation.experimentalApiFile,
+            builtApiLocation.restrictedApiFile
+        )
+
+        return checkedInApiFiles + builtApiFiles
     }
 
-    /**
-     * A dummy output file so that Gradle will consider this task up-to-date after it runs once
-     */
-    @OutputFile
-    fun getDummyOutput(): File {
-        return getTaskInputs().first()
+    @TaskAction
+    fun exec() {
+        val builtApiLocation = builtApi.get()
+        for (checkedInApi in checkedInApis.get()) {
+            checkEqual(checkedInApi.publicApiFile, builtApiLocation.publicApiFile)
+            checkEqual(checkedInApi.removedApiFile, builtApiLocation.removedApiFile)
+            checkEqual(checkedInApi.experimentalApiFile, builtApiLocation.experimentalApiFile)
+            checkEqual(checkedInApi.restrictedApiFile, builtApiLocation.restrictedApiFile)
+        }
     }
+}
 
-    private fun summarizeDiff(a: File, b: File): String {
-        if (!a.exists()) {
-            return "${a.toString()} does not exist"
-        }
-        if (!b.exists()) {
-            return "${b.toString()} does not exist"
-        }
-        val process = ProcessBuilder(listOf("diff", a.toString(), b.toString()))
-                .redirectOutput(ProcessBuilder.Redirect.PIPE)
-                .start()
-        process.waitFor()
-        var diffLines = process.inputStream.bufferedReader().readLines().toMutableList()
-        val maxSummaryLines = 50
-        if (diffLines.size > maxSummaryLines) {
-            diffLines = diffLines.subList(0, maxSummaryLines)
-            diffLines.plusAssign("[long diff was truncated]")
-        }
-        return diffLines.joinToString("\n")
+private fun summarizeDiff(a: File, b: File): String {
+    if (!a.exists()) {
+        return "$a does not exist"
     }
+    if (!b.exists()) {
+        return "$b does not exist"
+    }
+    val process = ProcessBuilder(listOf("diff", a.toString(), b.toString()))
+        .redirectOutput(ProcessBuilder.Redirect.PIPE)
+        .start()
+    process.waitFor()
+    var diffLines = process.inputStream.bufferedReader().readLines().toMutableList()
+    val maxSummaryLines = 50
+    if (diffLines.size > maxSummaryLines) {
+        diffLines = diffLines.subList(0, maxSummaryLines)
+        diffLines.plusAssign("[long diff was truncated]")
+    }
+    return diffLines.joinToString("\n")
+}
 
-    private fun checkEqual(expected: File, actual: File) {
-        if (!FileUtils.contentEquals(expected, actual)) {
-            val diff = summarizeDiff(expected, actual)
-            val message = """API definition has changed
+fun checkEqual(expected: File, actual: File) {
+    if (!FileUtils.contentEquals(expected, actual)) {
+        val diff = summarizeDiff(expected, actual)
+        val message = """API definition has changed
 
-                    Declared definition is ${expected}
-                    True     definition is ${actual}
+                    Declared definition is $expected
+                    True     definition is $actual
 
                     Please run `./gradlew updateApi` to confirm these changes are
                     intentional by updating the API definition.
 
                     Difference between these files:
                     $diff"""
-            throw GradleException(message)
-        }
-    }
-
-    @TaskAction
-    fun exec() {
-        for (checkedInApi in checkedInApis.get()) {
-            checkEqual(checkedInApi.publicApiFile, builtApi.get().publicApiFile)
-            checkEqual(checkedInApi.experimentalApiFile, builtApi.get().experimentalApiFile)
-            if (checkRestrictedAPIs) {
-                checkEqual(checkedInApi.restrictedApiFile, builtApi.get().restrictedApiFile)
-            }
-        }
+        throw GradleException(message)
     }
 }

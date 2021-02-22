@@ -17,8 +17,8 @@
 package androidx.room.solver.shortcut.binder
 
 import androidx.room.solver.CodeGenScope
-import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
+import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.TypeSpec
 

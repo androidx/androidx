@@ -71,8 +71,9 @@ class SliceViewManagerCompat extends SliceViewManagerBase {
         return SliceProviderCompat.mapIntentToUri(mContext, intent);
     }
 
+    @NonNull
     @Override
-    public Collection<Uri> getSliceDescendants(Uri uri) {
+    public Collection<Uri> getSliceDescendants(@NonNull Uri uri) {
         return SliceProviderCompat.getSliceDescendants(mContext, uri);
     }
 }

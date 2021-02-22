@@ -1,8 +1,66 @@
 // Baseline format: 1.0
-CallbackMethodName: androidx.preference.PreferenceManager.PreferenceComparisonCallback:
+ArrayReturn: androidx.preference.DropDownPreference#setEntries(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.ListPreference#getEntries():
+    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.ListPreference#getEntryValues():
+    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.ListPreference#setEntries(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.ListPreference#setEntryValues(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.MultiSelectListPreference#getEntries():
+    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.MultiSelectListPreference#getEntryValues():
+    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.MultiSelectListPreference#setEntries(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.MultiSelectListPreference#setEntryValues(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+
+
+CallbackMethodName: androidx.preference.PreferenceGroup.PreferencePositionCallback#getPreferenceAdapterPosition(String):
+    Callback method names must follow the on<Something> style: getPreferenceAdapterPosition
+CallbackMethodName: androidx.preference.PreferenceGroup.PreferencePositionCallback#getPreferenceAdapterPosition(androidx.preference.Preference):
+    Callback method names must follow the on<Something> style: getPreferenceAdapterPosition
+CallbackMethodName: androidx.preference.PreferenceManager.PreferenceComparisonCallback#arePreferenceContentsTheSame(androidx.preference.Preference, androidx.preference.Preference):
+    Callback method names must follow the on<Something> style: arePreferenceContentsTheSame
+CallbackMethodName: androidx.preference.PreferenceManager.PreferenceComparisonCallback#arePreferenceItemsTheSame(androidx.preference.Preference, androidx.preference.Preference):
     Callback method names must follow the on<Something> style: arePreferenceItemsTheSame
-CallbackMethodName: androidx.preference.PreferenceManager.SimplePreferenceComparisonCallback:
+CallbackMethodName: androidx.preference.PreferenceManager.SimplePreferenceComparisonCallback#arePreferenceContentsTheSame(androidx.preference.Preference, androidx.preference.Preference):
+    Callback method names must follow the on<Something> style: arePreferenceContentsTheSame
+CallbackMethodName: androidx.preference.PreferenceManager.SimplePreferenceComparisonCallback#arePreferenceItemsTheSame(androidx.preference.Preference, androidx.preference.Preference):
     Callback method names must follow the on<Something> style: arePreferenceItemsTheSame
+
+
+ExecutorRegistration: androidx.preference.EditTextPreference#setOnBindEditTextListener(androidx.preference.EditTextPreference.OnBindEditTextListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnBindEditTextListener`
+ExecutorRegistration: androidx.preference.Preference#setOnPreferenceChangeListener(androidx.preference.Preference.OnPreferenceChangeListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnPreferenceChangeListener`
+ExecutorRegistration: androidx.preference.Preference#setOnPreferenceClickListener(androidx.preference.Preference.OnPreferenceClickListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnPreferenceClickListener`
+ExecutorRegistration: androidx.preference.PreferenceManager#setOnDisplayPreferenceDialogListener(androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnDisplayPreferenceDialogListener`
+ExecutorRegistration: androidx.preference.PreferenceManager#setOnNavigateToScreenListener(androidx.preference.PreferenceManager.OnNavigateToScreenListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnNavigateToScreenListener`
+ExecutorRegistration: androidx.preference.PreferenceManager#setOnPreferenceTreeClickListener(androidx.preference.PreferenceManager.OnPreferenceTreeClickListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnPreferenceTreeClickListener`
+ExecutorRegistration: androidx.preference.PreferenceManager#setPreferenceComparisonCallback(androidx.preference.PreferenceManager.PreferenceComparisonCallback):
+    Registration methods should have overload that accepts delivery Executor: `setPreferenceComparisonCallback`
+
+
+GetterSetterNames: androidx.preference.Preference#setKey(String):
+    Symmetric method for `hasKey` must be named `setHasKey`; was `setKey`
+GetterSetterNames: androidx.preference.SeekBarPreference#getShowSeekBarValue():
+    Symmetric method for `setShowSeekBarValue` must be named `isShowSeekBarValue`; was `getShowSeekBarValue`
+GetterSetterNames: androidx.preference.SeekBarPreference#getUpdatesContinuously():
+    Symmetric method for `setUpdatesContinuously` must be named `isUpdatesContinuously`; was `getUpdatesContinuously`
+GetterSetterNames: androidx.preference.TwoStatePreference#getDisableDependentsState():
+    Symmetric method for `setDisableDependentsState` must be named `isDisableDependentsState`; was `getDisableDependentsState`
+
+
+InternalField: androidx.preference.TwoStatePreference#mChecked:
+    Internal field mChecked must not be exposed
 
 
 MissingNullability: androidx.preference.CheckBoxPreference#CheckBoxPreference(android.content.Context) parameter #0:
@@ -341,8 +399,6 @@ MissingNullability: androidx.preference.Preference#setSummary(CharSequence) para
     Missing nullability on parameter `summary` in method `setSummary`
 MissingNullability: androidx.preference.Preference#setTitle(CharSequence) parameter #0:
     Missing nullability on parameter `title` in method `setTitle`
-MissingNullability: androidx.preference.Preference#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.preference.Preference.BaseSavedState#BaseSavedState(android.os.Parcel) parameter #0:
     Missing nullability on parameter `source` in method `BaseSavedState`
 MissingNullability: androidx.preference.Preference.BaseSavedState#BaseSavedState(android.os.Parcelable) parameter #0:
@@ -373,8 +429,6 @@ MissingNullability: androidx.preference.PreferenceCategory#PreferenceCategory(an
     Missing nullability on parameter `attrs` in method `PreferenceCategory`
 MissingNullability: androidx.preference.PreferenceCategory#onBindViewHolder(androidx.preference.PreferenceViewHolder) parameter #0:
     Missing nullability on parameter `holder` in method `onBindViewHolder`
-MissingNullability: androidx.preference.PreferenceCategory#onInitializeAccessibilityNodeInfo(androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #0:
-    Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`
 MissingNullability: androidx.preference.PreferenceDataStore#getBoolean(String, boolean) parameter #0:
     Missing nullability on parameter `key` in method `getBoolean`
 MissingNullability: androidx.preference.PreferenceDataStore#getFloat(String, float) parameter #0:
@@ -587,8 +641,6 @@ MissingNullability: androidx.preference.PreferenceManager#getPreferenceCompariso
     Missing nullability on method `getPreferenceComparisonCallback` return
 MissingNullability: androidx.preference.PreferenceManager#getPreferenceScreen():
     Missing nullability on method `getPreferenceScreen` return
-MissingNullability: androidx.preference.PreferenceManager#getSharedPreferences():
-    Missing nullability on method `getSharedPreferences` return
 MissingNullability: androidx.preference.PreferenceManager#getSharedPreferencesName():
     Missing nullability on method `getSharedPreferencesName` return
 MissingNullability: androidx.preference.PreferenceManager#setDefaultValues(android.content.Context, String, int, int, boolean) parameter #0:
@@ -745,6 +797,10 @@ MissingNullability: androidx.preference.TwoStatePreference#setSummaryOn(CharSequ
     Missing nullability on parameter `summary` in method `setSummaryOn`
 MissingNullability: androidx.preference.TwoStatePreference#syncSummaryView(androidx.preference.PreferenceViewHolder) parameter #0:
     Missing nullability on parameter `holder` in method `syncSummaryView`
+
+
+MutableBareField: androidx.preference.TwoStatePreference#mChecked:
+    Bare field mChecked must be marked final, or moved behind accessors if mutable
 
 
 ParcelConstructor: androidx.preference.Preference.BaseSavedState#BaseSavedState(android.os.Parcel):

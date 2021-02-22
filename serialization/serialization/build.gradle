@@ -24,21 +24,26 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":serialization:serialization-annotation"))
-    lintPublish(project(":serialization:serialization-lint"))
+    api(project(":serialization:serialization-annotation"))
+    api(project(":serialization:serialization-runtime"))
+    api(project(":serialization:serialization-runtime-parcel"))
+    api(project(":serialization:serialization-runtime-proto"))
 }
 
 android {
     defaultConfig {
         minSdkVersion 14
     }
+
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
 }
 
 androidx {
     name = "AndroidX Serialization"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SERIALIZATION
     mavenGroup = LibraryGroups.SERIALIZATION
-    inceptionYear = "2019"
+    inceptionYear = "2020"
     description = "A lightweight serialization solution for AndroidX libraries"
 }

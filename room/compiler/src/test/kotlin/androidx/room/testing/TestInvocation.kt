@@ -16,21 +16,22 @@
 
 package androidx.room.testing
 
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XRoundEnv
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.processor.Context
-import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
-import javax.lang.model.element.TypeElement
 
 data class TestInvocation(
-    val processingEnv: ProcessingEnvironment,
-    val annotations: MutableSet<out TypeElement>,
-    val roundEnv: RoundEnvironment
+    val processingEnv: XProcessingEnv,
+    val annotations: Set<XTypeElement>,
+    val roundEnv: XRoundEnv
 ) {
+    constructor(
+        processingEnv: XProcessingEnv,
+        annotations: Set<XTypeElement>,
+        roundEnv: RoundEnvironment
+    ) : this(processingEnv, annotations, XRoundEnv.create(processingEnv, roundEnv))
+
     val context = Context(processingEnv)
-
-    fun typeElement(qName: String): TypeElement {
-        return processingEnv.elementUtils.getTypeElement(qName)
-    }
-
-    val typeUtils by lazy { processingEnv.typeUtils }
 }

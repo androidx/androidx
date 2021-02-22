@@ -44,6 +44,43 @@ public class WorkSpecDaoTest extends DatabaseTest {
 
     @Test
     @SmallTest
+    public void testWorkSpecsForInserting() {
+        long startTime = System.currentTimeMillis();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(
+                        startTime + TimeUnit.HOURS.toMillis(1),
+                        TimeUnit.MILLISECONDS)
+                .build();
+        OneTimeWorkRequest succeeded = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .setInitialState(SUCCEEDED)
+                .build();
+        OneTimeWorkRequest scheduled = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .build();
+        OneTimeWorkRequest enqueued = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .build();
+
+        insertWork(work);
+        insertWork(succeeded);
+        insertWork(scheduled);
+        insertWork(enqueued);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        List<String> allWorkSpecIds =
+                workSpecDao.getAllWorkSpecIds();
+        assertThat(allWorkSpecIds.size(), equalTo(4));
+        assertThat(allWorkSpecIds, containsInAnyOrder(
+                work.getStringId(),
+                enqueued.getStringId(),
+                scheduled.getStringId(),
+                succeeded.getStringId()
+        ));
+    }
+
+    @Test
+    @SmallTest
     public void testEligibleWorkSpecsForScheduling() {
         long startTime = System.currentTimeMillis();
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)

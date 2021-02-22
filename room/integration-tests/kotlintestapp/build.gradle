@@ -17,53 +17,110 @@
 //./gradlew :r:in:k:clean :r:in:k:cC --no-daemon
 // -Dorg.gradle.debug=true
 // -Dkotlin.compiler.execution.strategy="in-process"
+
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-kapt")
+}
+// If set to `true`, we'll use KSP instead of KAPT.
+// Note that the CI does not run tests with KSP yet so this is only for local usage.
+// Once variants are properly supported by both ksp and AndroidX, we'll add support for this.
+// (b/153917176)
+def useKsp = project.properties.getOrDefault("useKsp", "false").toBoolean()
+if (useKsp) {
+    apply plugin: "com.google.devtools.ksp"
+} else {
+    apply plugin: "kotlin-kapt"
 }
 
 android {
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+                arguments = [
+                        "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                        "room.expandProjection": "true"
+                ]
             }
         }
+        buildConfigField("boolean", "KSP", "$useKsp")
     }
+
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
+
+// TODO re-enable flavors when b/153917176 is fixed
+//    flavorDimensions "processorConfiguration"
+//    productFlavors {
+//        withExpandProjection {
+//            dimension "processorConfiguration"
+//            javaCompileOptions {
+//                annotationProcessorOptions {
+//                    arguments = [
+//                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
+//                            "room.expandProjection"  : "true"
+//                    ]
+//                }
+//            }
+//        }
+//        withoutExpandProjection {
+//            dimension "processorConfiguration"
+//            javaCompileOptions {
+//                annotationProcessorOptions {
+//                    arguments = [
+//                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
+//                            "room.expandProjection"  : "false"
+//                    ]
+//                }
+//            }
+//        }
+//    }
 }
 
 dependencies {
     implementation(project(":room:room-common"))
-    implementation(project(":sqlite:sqlite"))
-    implementation(project(":sqlite:sqlite-framework"))
     implementation(project(":room:room-runtime"))
-    implementation(project(":arch:core-runtime"))
-    implementation(project(":lifecycle:lifecycle-livedata"))
+    implementation(projectOrArtifact(":arch:core:core-runtime"))
+    implementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
+    implementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_COROUTINES_ANDROID)
-    kaptAndroidTest project(":room:room-compiler")
-
+    // depend on the shadowed version so that it tests with the shipped artifact
+    // this is a temporary attribute until KSP and AndroidX plugin supports variants.
+    if (useKsp) {
+        kspAndroidTest(
+                project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+        )
+    } else {
+        kaptAndroidTest(
+                project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+        )
+    }
+    androidTestImplementation(projectOrArtifact(":arch:core:core-runtime")) // Added for b/155802460
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER) {
-        exclude module: 'support-annotations'
-        exclude module: 'hamcrest-core'
+        exclude module: "support-annotations"
+        exclude module: "hamcrest-core"
     }
     androidTestImplementation(ESPRESSO_CORE, {
-        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude group: "com.android.support", module: "support-annotations"
         exclude module: "hamcrest-core"
     })
     androidTestImplementation(TRUTH)
-    androidTestImplementation project(':room:room-guava')
-    androidTestImplementation project(':room:room-testing')
-    androidTestImplementation project(':room:room-rxjava2')
+    androidTestImplementation(project(":room:room-guava"))
+    androidTestImplementation(project(":room:room-testing"))
+    androidTestImplementation(project(":room:room-rxjava2"))
+    androidTestImplementation(project(":room:room-rxjava3"))
     androidTestImplementation(project(":room:room-ktx"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(GUAVA_ANDROID)
@@ -71,3 +128,9 @@ dependencies {
     testImplementation(MOCKITO_CORE)
 }
 
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
+}

@@ -25,6 +25,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Handler which stores the most recently handled message in a public field. */
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 class TestHandler extends Handler {
 
     @Nullable

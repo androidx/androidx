@@ -31,8 +31,10 @@ class NavigatorProviderTest {
         val navigator = NoNameNavigator()
         try {
             provider.addNavigator(navigator)
-            fail("Adding a provider with no @Navigator.Name should cause an " +
-                    "IllegalArgumentException")
+            fail(
+                "Adding a provider with no @Navigator.Name should cause an " +
+                    "IllegalArgumentException"
+            )
         } catch (e: IllegalArgumentException) {
             // Expected
         }
@@ -70,8 +72,10 @@ class NavigatorProviderTest {
         provider.addNavigator("name", navigator)
         try {
             provider.getNavigator(NoNameNavigator::class.java)
-            fail("getNavigator(Class) with no @Navigator.Name should cause an " +
-                    "IllegalArgumentException")
+            fail(
+                "getNavigator(Class) with no @Navigator.Name should cause an " +
+                    "IllegalArgumentException"
+            )
         } catch (e: IllegalArgumentException) {
             // Expected
         }

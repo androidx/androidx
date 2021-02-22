@@ -16,10 +16,10 @@
 
 package androidx.camera.extensions;
 
-import android.util.Log;
-
-import androidx.camera.core.ImageCaptureConfig;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
+import androidx.annotation.NonNull;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Logger;
 import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
 
 /**
@@ -34,12 +34,13 @@ public class BeautyImageCaptureExtender extends ImageCaptureExtender {
      * @param builder Builder that will be used to create the configurations for the
      * {@link androidx.camera.core.ImageCapture}.
      */
-    public static BeautyImageCaptureExtender create(ImageCaptureConfig.Builder builder) {
+    @NonNull
+    public static BeautyImageCaptureExtender create(@NonNull ImageCapture.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorBeautyImageCaptureExtender(builder);
             } catch (NoClassDefFoundError e) {
-                Log.d(TAG, "No beauty image capture extender found. Falling back to default.");
+                Logger.d(TAG, "No beauty image capture extender found. Falling back to default.");
             }
         }
 
@@ -52,12 +53,12 @@ public class BeautyImageCaptureExtender extends ImageCaptureExtender {
         }
 
         @Override
-        public boolean isExtensionAvailable() {
+        public boolean isExtensionAvailable(@NonNull CameraSelector selector) {
             return false;
         }
 
         @Override
-        public void enableExtension() {
+        public void enableExtension(@NonNull CameraSelector selector) {
         }
     }
 
@@ -65,9 +66,9 @@ public class BeautyImageCaptureExtender extends ImageCaptureExtender {
     static class VendorBeautyImageCaptureExtender extends BeautyImageCaptureExtender {
         private final BeautyImageCaptureExtenderImpl mImpl;
 
-        VendorBeautyImageCaptureExtender(ImageCaptureConfig.Builder builder) {
+        VendorBeautyImageCaptureExtender(ImageCapture.Builder builder) {
             mImpl = new BeautyImageCaptureExtenderImpl();
-            init(builder, mImpl, EffectMode.BEAUTY);
+            init(builder, mImpl, Extensions.EXTENSION_MODE_BEAUTY);
         }
     }
 

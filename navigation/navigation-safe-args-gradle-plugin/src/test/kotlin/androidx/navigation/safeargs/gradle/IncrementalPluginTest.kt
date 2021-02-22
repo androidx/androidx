@@ -182,6 +182,6 @@ class IncrementalPluginTest(private val generateKotlin: Boolean) : BasePluginTes
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "generateKotlin={0}")
-        fun data() = listOf(false, true)
+        fun data() = listOf(false) // , true) testing with kotlin is disabled b/165307851
     }
 }

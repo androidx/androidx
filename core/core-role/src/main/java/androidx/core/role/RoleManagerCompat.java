@@ -178,11 +178,27 @@ public final class RoleManagerCompat {
      * <p>
      * To qualify for this role, an application needs to implement
      * {@link android.telecom.CallScreeningService}. The application will be able to screen calls
-     * and provide call identification.
+     * and provide call identification. The application will also be able to display over other apps
+     * on Android 11 or above.
      *
      * @see android.telecom.CallScreeningService
      */
     public static final String ROLE_CALL_SCREENING = "android.app.role.CALL_SCREENING";
+
+    /**
+     * The name of the system gallery role.
+     * <p>
+     * You can not request for this role because it's hidden and only for system apps. It's meant to
+     * be granted out-of-the-box to a gallery app that shipped with the device.
+     * <p>
+     * The application will gain full read and write access to all image and video files on external
+     * storage, including access to location metadata.
+     *
+     * @see android.provider.MediaStore.Images
+     * @see android.provider.MediaStore.Video
+     * @see android.Manifest.permission#ACCESS_MEDIA_LOCATION
+     */
+    public static final String ROLE_SYSTEM_GALLERY = "android.app.role.SYSTEM_GALLERY";
 
     private RoleManagerCompat() {}
 }

@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.work.Configuration;
+import androidx.work.ForegroundInfo;
 import androidx.work.Logger;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.foreground.ForegroundProcessor;
@@ -113,7 +114,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
         synchronized (mLock) {
             // Work may get triggered multiple times if they have passing constraints
             // and new work with those constraints are added.
-            if (mEnqueuedWorkMap.containsKey(id)) {
+            if (isEnqueued(id)) {
                 Logger.get().debug(
                         TAG,
                         String.format("Work %s is already enqueued for processing", id));
@@ -143,7 +144,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     }
 
     @Override
-    public void startForeground(@NonNull String workSpecId) {
+    public void startForeground(@NonNull String workSpecId, @NonNull ForegroundInfo info) {
         synchronized (mLock) {
             Logger.get().info(TAG, String.format("Moving WorkSpec (%s) to the foreground",
                     workSpecId));
@@ -154,7 +155,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                     mForegroundLock.acquire();
                 }
                 mForegroundWorkMap.put(workSpecId, wrapper);
-                Intent intent = createStartForegroundIntent(mAppContext, workSpecId);
+                Intent intent = createStartForegroundIntent(mAppContext, workSpecId, info);
                 ContextCompat.startForegroundService(mAppContext, intent);
             }
         }
@@ -201,11 +202,16 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
             WorkerWrapper wrapper;
             // Check if running in the context of a foreground service
             wrapper = mForegroundWorkMap.remove(id);
+            boolean isForegroundWork = wrapper != null;
             if (wrapper == null) {
                 // Fallback to enqueued Work
                 wrapper = mEnqueuedWorkMap.remove(id);
             }
-            return interrupt(id, wrapper);
+            boolean interrupted = interrupt(id, wrapper);
+            if (isForegroundWork) {
+                stopForegroundService();
+            }
+            return interrupted;
         }
     }
 
@@ -213,18 +219,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     public void stopForeground(@NonNull String workSpecId) {
         synchronized (mLock) {
             mForegroundWorkMap.remove(workSpecId);
-            boolean hasForegroundWork = !mForegroundWorkMap.isEmpty();
-            if (!hasForegroundWork) {
-                Logger.get().debug(TAG,
-                        "No more foreground work. Stopping SystemForegroundService");
-                Intent intent = createStopForegroundIntent(mAppContext);
-                mAppContext.startService(intent);
-                // Release wake lock if there is no more pending work.
-                if (mForegroundLock != null) {
-                    mForegroundLock.release();
-                    mForegroundLock = null;
-                }
-            }
+            stopForegroundService();
         }
     }
 
@@ -262,6 +257,16 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     }
 
     /**
+     * @param workSpecId The {@link androidx.work.impl.model.WorkSpec} id
+     * @return {@code true} if the id was enqueued as foreground work in the processor.
+     */
+    public boolean isEnqueuedInForeground(@NonNull String workSpecId) {
+        synchronized (mLock) {
+            return mForegroundWorkMap.containsKey(workSpecId);
+        }
+    }
+
+    /**
      * Adds an {@link ExecutionListener} to track when work finishes.
      *
      * @param executionListener The {@link ExecutionListener} to add
@@ -295,6 +300,28 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
 
             for (ExecutionListener executionListener : mOuterListeners) {
                 executionListener.onExecuted(workSpecId, needsReschedule);
+            }
+        }
+    }
+
+    private void stopForegroundService() {
+        synchronized (mLock) {
+            boolean hasForegroundWork = !mForegroundWorkMap.isEmpty();
+            if (!hasForegroundWork) {
+                Intent intent = createStopForegroundIntent(mAppContext);
+                try {
+                    // Wrapping this inside a try..catch, because there are bugs the platform
+                    // that cause an IllegalStateException when an intent is dispatched to stop
+                    // the foreground service that is running.
+                    mAppContext.startService(intent);
+                } catch (Throwable throwable) {
+                    Logger.get().error(TAG, "Unable to stop foreground service", throwable);
+                }
+                // Release wake lock if there is no more pending work.
+                if (mForegroundLock != null) {
+                    mForegroundLock.release();
+                    mForegroundLock = null;
+                }
             }
         }
     }

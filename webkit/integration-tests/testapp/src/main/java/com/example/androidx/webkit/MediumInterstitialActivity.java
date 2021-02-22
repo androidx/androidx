@@ -26,6 +26,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
+
 /**
  * An {@link android.app.Activity} to demonstrate medium ("Quiet") interstitials. WebView displays a
  * grey error page with a small bit of description when it's "medium" sized (large enough to show
@@ -60,13 +64,13 @@ public class MediumInterstitialActivity extends AppCompatActivity {
 
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        String[] urls = {
-                SafeBrowsingHelpers.MALWARE_URL,
-                SafeBrowsingHelpers.PHISHING_URL,
-                SafeBrowsingHelpers.UNWANTED_SOFTWARE_URL,
-                SafeBrowsingHelpers.BILLING_URL,
-                // Add more threat types, if we support more in the future.
-        };
+        Map<Integer, String> map = new ImmutableMap.Builder()
+                .put(R.id.malware_webview, SafeBrowsingHelpers.MALWARE_URL)
+                .put(R.id.phishing_webview, SafeBrowsingHelpers.PHISHING_URL)
+                .put(R.id.unwanted_software_webview, SafeBrowsingHelpers.UNWANTED_SOFTWARE_URL)
+                .put(R.id.billing_webview, SafeBrowsingHelpers.BILLING_URL)
+                .build();
+        // Add more threat types (here and in the layout), if we support more in the future.
 
         int width = isHorizontal
                 ? STRETCH_THIS_DIMENSION
@@ -78,10 +82,11 @@ public class MediumInterstitialActivity extends AppCompatActivity {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(width, height, weight);
         params.setMargins(MARGIN_DP, MARGIN_DP, MARGIN_DP, MARGIN_DP);
 
-        for (String url : urls) {
-            WebView webView = new WebView(this);
+        for (Map.Entry<Integer, String> entry : map.entrySet()) {
+            int id = entry.getKey();
+            String url = entry.getValue();
+            WebView webView = findViewById(id);
             setupWebView(webView, params);
-            layout.addView(webView);
             webView.loadUrl(url);
         }
     }

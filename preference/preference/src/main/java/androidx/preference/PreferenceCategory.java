@@ -25,8 +25,6 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.TypedArrayUtils;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat;
 
 /**
  * A container that is used to group similar {@link Preference}s. A PreferenceCategory displays a
@@ -80,7 +78,8 @@ public class PreferenceCategory extends PreferenceGroup {
             // PreferenceFragmentCompat with an AppCompat theme, and to set the category title
             // accordingly.
             final TypedValue value = new TypedValue();
-            if (!getContext().getTheme().resolveAttribute(R.attr.colorAccent, value, true)) {
+            if (!getContext().getTheme().resolveAttribute(
+                    androidx.appcompat.R.attr.colorAccent, value, true)) {
                 // Return if the attribute could not be resolved
                 return;
             }
@@ -97,30 +96,6 @@ public class PreferenceCategory extends PreferenceGroup {
                 return;
             }
             titleView.setTextColor(value.data);
-        }
-    }
-
-    /**
-     * @deprecated Super class Preference deprecated this API.
-     */
-    @Deprecated
-    @Override
-    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfoCompat info) {
-        super.onInitializeAccessibilityNodeInfo(info);
-        if (Build.VERSION.SDK_INT < VERSION_CODES.P) {
-            CollectionItemInfoCompat existingItemInfo = info.getCollectionItemInfo();
-            if (existingItemInfo == null) {
-                return;
-            }
-
-            final CollectionItemInfoCompat newItemInfo = CollectionItemInfoCompat.obtain(
-                    existingItemInfo.getRowIndex(),
-                    existingItemInfo.getRowSpan(),
-                    existingItemInfo.getColumnIndex(),
-                    existingItemInfo.getColumnSpan(),
-                    true /* heading */,
-                    existingItemInfo.isSelected());
-            info.setCollectionItemInfo(newItemInfo);
         }
     }
 }

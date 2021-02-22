@@ -23,6 +23,7 @@ import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -48,6 +49,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.impl.background.systemjob.SystemJobService;
+import androidx.work.impl.workers.ConstraintTrackingWorker;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
 
@@ -61,12 +63,14 @@ import java.util.concurrent.TimeUnit;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static final String CONSTRAINT_TRACKING_TAG = "ConstraintTrackingWorker";
     private static final String UNIQUE_WORK_NAME = "importantUniqueWork";
     private static final String REPLACE_COMPLETED_WORK = "replaceCompletedWork";
     private static final int NUM_WORKERS = 150;
 
     // Synthetic access
     WorkRequest mLastForegroundWorkRequest;
+    int mLastNotificationId = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -361,11 +365,49 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.run_constraint_tracking_worker).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Data inputData = new Data.Builder()
+                                .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME,
+                                        ForegroundWorker.class.getName())
+                                .build();
+
+                        OneTimeWorkRequest request =
+                                new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
+                                        .setConstraints(new Constraints.Builder()
+                                                .setRequiredNetworkType(NetworkType.CONNECTED)
+                                                .build())
+                                        .setInputData(inputData)
+                                        .addTag(CONSTRAINT_TRACKING_TAG)
+                                        .build();
+
+                        WorkManager.getInstance(MainActivity.this).enqueue(request);
+                    }
+                });
+
+        findViewById(R.id.cancel_constraint_tracking_worker).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        WorkManager.getInstance(MainActivity.this)
+                                .cancelAllWorkByTag(CONSTRAINT_TRACKING_TAG);
+                    }
+                });
+
         findViewById(R.id.run_foreground_worker).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mLastNotificationId += 1;
+
+                Data inputData = new Data.Builder()
+                        .putInt(ForegroundWorker.InputNotificationId, mLastNotificationId)
+                        .build();
+
                 OneTimeWorkRequest request =
                         new OneTimeWorkRequest.Builder(ForegroundWorker.class)
+                                .setInputData(inputData)
                                 .setConstraints(new Constraints.Builder()
                                         .setRequiredNetworkType(NetworkType.CONNECTED).build()
                                 ).build();
@@ -378,8 +420,14 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.cancel_foreground_worker).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WorkManager.getInstance(MainActivity.this)
-                        .cancelAllWorkByTag(ForegroundWorker.class.getName());
+                if (mLastForegroundWorkRequest != null) {
+                    WorkManager.getInstance(MainActivity.this)
+                            .cancelWorkById(mLastForegroundWorkRequest.getId());
+                    mLastForegroundWorkRequest = null;
+                } else {
+                    WorkManager.getInstance(MainActivity.this)
+                            .cancelAllWorkByTag(ForegroundWorker.class.getName());
+                }
             }
         });
 
@@ -396,12 +444,63 @@ public class MainActivity extends AppCompatActivity {
 
                             try {
                                 pendingIntent.send(0);
+                                mLastForegroundWorkRequest = null;
                             } catch (PendingIntent.CanceledException exception) {
                                 Log.e(TAG, "Pending intent was cancelled.", exception);
                             }
                         } else {
                             Log.d(TAG, "No work to cancel");
                         }
+                    }
+                });
+
+        findViewById(R.id.enqueue_work_multi_process).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.enqueueIntent(context);
+                        context.startService(intent);
+                    }
+                });
+
+        findViewById(R.id.enqueue_continuation_multi_process).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.enqueueContinuationIntent(context);
+                        context.startService(intent);
+                    }
+                });
+
+        findViewById(R.id.cancel_work_tag_multiprocess).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.cancelWorkByTagIntent(context);
+                        context.startService(intent);
+                    }
+                });
+
+        findViewById(R.id.cancel_all_work_multiprocess).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.cancelAllWorkIntent(context);
+                        context.startService(intent);
+                    }
+                });
+
+        findViewById(R.id.query_work_multiprocess).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.queryWorkInfoIntent(context);
+                        context.startService(intent);
                     }
                 });
 

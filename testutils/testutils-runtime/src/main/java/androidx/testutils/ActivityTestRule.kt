@@ -18,13 +18,13 @@ package androidx.testutils
 
 import android.app.Activity
 import android.os.Looper
-import androidx.test.rule.ActivityTestRule
 
 /**
  * Wait for execution, by default waiting 2 cycles to ensure that posted transitions are
  * executed and have had a chance to run.
  */
-fun ActivityTestRule<out Activity>.waitForExecution(cycles: Int = 2) {
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out Activity>.waitForExecution(cycles: Int = 2) {
     // Wait for two cycles. When starting a postponed transition, it will post to
     // the UI thread and then the execution will be added onto the queue after that.
     // The two-cycle wait makes sure fragments have the opportunity to complete both
@@ -38,7 +38,8 @@ fun ActivityTestRule<out Activity>.waitForExecution(cycles: Int = 2) {
     }
 }
 
-fun ActivityTestRule<out Activity>.runOnUiThreadRethrow(block: () -> Unit) {
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out Activity>.runOnUiThreadRethrow(block: () -> Unit) {
     if (Looper.getMainLooper() == Looper.myLooper()) {
         block()
     } else {

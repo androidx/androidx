@@ -38,12 +38,14 @@ import androidx.navigation.NavController
  *                      in the title of the Toolbar.
  * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button
  */
-fun Toolbar.setupWithNavController(
+public fun Toolbar.setupWithNavController(
     navController: NavController,
     drawerLayout: DrawerLayout?
 ) {
-    NavigationUI.setupWithNavController(this, navController,
-        AppBarConfiguration(navController.graph, drawerLayout))
+    NavigationUI.setupWithNavController(
+        this, navController,
+        AppBarConfiguration(navController.graph, drawerLayout)
+    )
 }
 
 /**
@@ -63,7 +65,7 @@ fun Toolbar.setupWithNavController(
  * @param configuration Additional configuration options for customizing the behavior of the
  *                      Toolbar
  */
-fun Toolbar.setupWithNavController(
+public fun Toolbar.setupWithNavController(
     navController: NavController,
     configuration: AppBarConfiguration = AppBarConfiguration(navController.graph)
 ) {

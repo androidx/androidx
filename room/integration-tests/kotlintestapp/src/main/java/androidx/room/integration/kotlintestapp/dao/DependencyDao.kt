@@ -21,6 +21,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.integration.kotlintestapp.vo.DataClassFromDependency
 import androidx.room.integration.kotlintestapp.vo.EmbeddedFromDependency
 import androidx.room.integration.kotlintestapp.vo.PojoFromDependency
@@ -41,6 +42,7 @@ interface DependencyDao {
     fun findById(id: Int): DataClassFromDependency
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    @Transaction
     @Query("WITH nameTable( sharedName ) AS ( SELECT :name ) SELECT * from nameTable")
     fun relation(name: String): RelationFromDependency
 

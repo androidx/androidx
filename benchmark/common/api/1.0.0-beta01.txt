@@ -2,7 +2,6 @@
 package androidx.benchmark {
 
   public final class ArgumentsKt {
-    ctor public ArgumentsKt();
   }
 
   public final class BenchmarkState {

@@ -20,7 +20,6 @@ import androidx.preference.ktx.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.assertThrows
 import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
@@ -35,9 +34,10 @@ import org.junit.Test
 @LargeTest
 class PreferenceGroupTest {
 
+    @Suppress("DEPRECATION")
     @JvmField
     @Rule
-    val rule = ActivityTestRule(PreferenceTestHelperActivity::class.java)
+    val rule = androidx.test.rule.ActivityTestRule(PreferenceTestHelperActivity::class.java)
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
     private lateinit var preferenceGroup: PreferenceGroup
 
@@ -45,7 +45,7 @@ class PreferenceGroupTest {
     @UiThreadTest
     fun setup() {
         preferenceGroup =
-                rule.activity.setupPreferenceHierarchy(R.xml.test_preferencegroup).preferenceScreen
+            rule.activity.setupPreferenceHierarchy(R.xml.test_preferencegroup).preferenceScreen
     }
 
     @UiThreadTest

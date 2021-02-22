@@ -23,9 +23,11 @@ import static androidx.recyclerview.widget.ItemTouchHelper.START;
 import static androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.animation.ValueAnimator;
 import android.os.Build;
 import android.view.Gravity;
 import android.view.ViewConfiguration;
@@ -36,8 +38,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.Suppress;
+import androidx.testutils.AnimationDurationScaleRule;
 import androidx.testutils.PollingCheck;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -59,6 +63,11 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
     private LoggingItemTouchHelper mItemTouchHelper;
 
     private Boolean mSetupRTL;
+
+    @Rule
+    public final AnimationDurationScaleRule mAnimationDurationScaleRule =
+            AnimationDurationScaleRule.create();
+
 
     public ItemTouchHelperTest() {
         super(false);
@@ -274,6 +283,59 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
         assertTrue(mCallback.isCleared(target));
     }
 
+    @Test
+    public void attachToRecyclerView_recoveryAnimRunningNullRv_recoveryAnimStopped()
+            throws Throwable {
+        // enable animations for this test
+        mAnimationDurationScaleRule.setAnimationDurationScale(1f);
+        // Arrange
+        final RecyclerViewState rvs = setupItemTouchHelper(setupRecyclerView(), 0,
+                LEFT | RIGHT);
+        rvs.mLayoutManager.expectLayouts(1);
+        setRecyclerView(rvs.mWrappedRecyclerView);
+        rvs.mLayoutManager.waitForLayout(1);
+
+        // Drag the child view to the right by as many pixels as the child is wide, then release
+        // without waiting for idle sync.
+        int targetX = mRecyclerView.getChildAt(0).getWidth();
+        final RecyclerView.ViewHolder target = mRecyclerView.findViewHolderForAdapterPosition(
+                1);
+        TouchUtils.dragViewToX(getInstrumentation(), target.itemView, Gravity.CENTER, targetX,
+                false);
+
+        // Wait for there to be a recovery animation which means that the item is in the process
+        // of animating.
+        PollingCheck.waitFor(1000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mItemTouchHelper.mRecoverAnimations.size() > 0;
+            }
+        });
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Verify the assumption that at this time there should be one, and only one,
+                // recovery animation running.
+                assertEquals(1, mItemTouchHelper.mRecoverAnimations.size());
+                ValueAnimator valueAnimator =
+                        mItemTouchHelper.mRecoverAnimations.get(0).mValueAnimator;
+                // Verify the assumption that the animator should be currently running.
+                assertTrue(valueAnimator.isRunning());
+
+                // Act
+
+                mItemTouchHelper.attachToRecyclerView(null);
+
+                // Assert
+
+                // After we attach to a null RecyclerView, the animation should no longer be
+                // running.
+                assertFalse(valueAnimator.isRunning());
+            }
+        });
+    }
+
     private void waitForAnimations() throws InterruptedException {
         while (mRecyclerView.getItemAnimator().isRunning()) {
             Thread.sleep(100);
@@ -371,8 +433,8 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
         MoveRecord(RecyclerView.ViewHolder from, RecyclerView.ViewHolder to) {
             this.from = from;
             this.to = to;
-            fromPos = from.getAdapterPosition();
-            toPos = to.getAdapterPosition();
+            fromPos = from.getAbsoluteAdapterPosition();
+            toPos = to.getAbsoluteAdapterPosition();
         }
     }
 }

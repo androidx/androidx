@@ -24,7 +24,3 @@ plugins {
 dependencies {
     implementation(KOTLIN_STDLIB)
 }
-
-androidx {
-    toolingProject = true
-}

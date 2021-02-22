@@ -23,7 +23,6 @@ import androidx.room.Fts4
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.FtsEntity
-import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -71,39 +70,51 @@ abstract class BaseFtsEntityParserTest {
             " extends $baseClass"
         }
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(jfos + JavaFileObjects.forSourceString("foo.bar.MyEntity",
-                        ENTITY_PREFIX.format(entityAttributesReplacement, ftsVersion,
-                                ftsAttributesReplacement, baseClassReplacement) + input +
-                                ENTITY_SUFFIX))
-                .apply {
-                    if (classpathFiles.isNotEmpty()) {
-                        withClasspath(classpathFiles)
-                    }
+            .that(
+                jfos + JavaFileObjects.forSourceString(
+                    "foo.bar.MyEntity",
+                    ENTITY_PREFIX.format(
+                        entityAttributesReplacement, ftsVersion,
+                        ftsAttributesReplacement, baseClassReplacement
+                    ) + input +
+                        ENTITY_SUFFIX
+                )
+            )
+            .apply {
+                if (classpathFiles.isNotEmpty()) {
+                    withClasspath(classpathFiles)
                 }
-                .processedWith(TestProcessor.builder()
-                        .forAnnotations(androidx.room.Entity::class,
-                                Fts3::class,
-                                Fts4::class,
-                                androidx.room.PrimaryKey::class,
-                                androidx.room.Ignore::class,
-                                Embedded::class,
-                                androidx.room.ColumnInfo::class,
-                                NonNull::class)
-                        .nextRunHandler { invocation ->
-                            val fts3AnnotatedElements = invocation.roundEnv
-                                    .getElementsAnnotatedWith(Fts3::class.java)
-                            val fts4AnnotatedElements = invocation.roundEnv
-                                    .getElementsAnnotatedWith(Fts4::class.java)
-                            val entity = (fts3AnnotatedElements + fts4AnnotatedElements).first {
-                                it.toString() == "foo.bar.MyEntity"
-                            }
-                            val processor = FtsTableEntityProcessor(invocation.context,
-                                    MoreElements.asType(entity))
-                            val processedEntity = processor.process()
-                            handler(processedEntity, invocation)
-                            true
+            }
+            .processedWith(
+                TestProcessor.builder()
+                    .forAnnotations(
+                        androidx.room.Entity::class,
+                        Fts3::class,
+                        Fts4::class,
+                        androidx.room.PrimaryKey::class,
+                        androidx.room.Ignore::class,
+                        Embedded::class,
+                        androidx.room.ColumnInfo::class,
+                        NonNull::class
+                    )
+                    .nextRunHandler { invocation ->
+                        val fts3AnnotatedElements = invocation.roundEnv
+                            .getTypeElementsAnnotatedWith(Fts3::class.java)
+                        val fts4AnnotatedElements = invocation.roundEnv
+                            .getTypeElementsAnnotatedWith(Fts4::class.java)
+                        val entity = (fts3AnnotatedElements + fts4AnnotatedElements).first {
+                            it.toString() == "foo.bar.MyEntity"
                         }
-                        .build())
+                        val processor = FtsTableEntityProcessor(
+                            invocation.context,
+                            entity
+                        )
+                        val processedEntity = processor.process()
+                        handler(processedEntity, invocation)
+                        true
+                    }
+                    .build()
+            )
     }
 
     abstract fun getFtsVersion(): Int

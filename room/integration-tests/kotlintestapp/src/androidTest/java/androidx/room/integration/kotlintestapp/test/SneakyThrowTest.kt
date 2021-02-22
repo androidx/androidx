@@ -32,10 +32,12 @@ class SneakyThrowTest : TestDatabaseTest() {
     @Test
     fun testCheckedException() {
         try {
-            database.runInTransaction(Callable<String> {
-                val json = JSONObject()
-                json.getString("key") // method declares that it throws JSONException
-            })
+            database.runInTransaction(
+                Callable<String> {
+                    val json = JSONObject()
+                    json.getString("key") // method declares that it throws JSONException
+                }
+            )
             fail("runInTransaction should have thrown an exception")
         } catch (ex: JSONException) {
             // no-op on purpose

@@ -51,8 +51,10 @@ public abstract class InspectorFactory<T extends Inspector> {
      * Creates a new inspector with the provided connection.
      *
      * @param connection a connection to send events.
+     * @param environment an environment that provides tooling utilities.
      * @return a new instance of an inspector.
      */
     @NonNull
-    public abstract T createInspector(@NonNull Connection connection);
+    public abstract T createInspector(@NonNull Connection connection,
+            @NonNull InspectorEnvironment environment);
 }

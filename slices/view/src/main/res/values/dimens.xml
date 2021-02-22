@@ -42,6 +42,8 @@
     <dimen name="abc_slice_row_active_input_height">120dp</dimen>
     <!-- Size of range area in a row to fit a slider or progress bar -->
     <dimen name="abc_slice_row_range_height">48dp</dimen>
+    <!-- Size of row view when range is inline -->
+    <dimen name="abc_slice_row_range_inline_height">60dp</dimen>
     <!-- Size of text area of row view with two lines of text and then a range element -->
     <dimen name="abc_slice_row_range_multi_text_height">56dp</dimen>
     <!-- Size of text area row with one line of text and then a range element-->
@@ -59,6 +61,8 @@
     <!-- Height of a grid row displaying only large images; also used for min-width of large images
          to calculate # of images in a row -->
     <dimen name="abc_slice_grid_image_only_height">86dp</dimen>
+    <!-- Height of space to reserve for raw images with text-->
+    <dimen name="abc_slice_grid_raw_image_text_offset">30dp</dimen>
     <!-- Minimum width of a cell displaying an icon / small image; used to calculate #
          of images in a row -->
     <dimen name="abc_slice_grid_image_min_width">60dp</dimen>

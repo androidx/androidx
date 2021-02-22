@@ -71,7 +71,7 @@ public class GridLayoutManagerNoOpUpdateTest extends BaseGridLayoutManagerTest {
         Map<Long, Rect> before = takeSnapshot();
 
         View chosen = mGlm.findViewByPosition(1);
-        assertNotNull("test sanity", chosen);
+        assertNotNull("Assumption check", chosen);
         mGlm.expectLayout(2);
         mAdapter.changeAndNotify(1, 1);
         mGlm.waitForLayout(2);

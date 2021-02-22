@@ -104,6 +104,7 @@ class SparseBooleanArrayTest {
         assertFalse(array.getOrElse(1) { false })
         array.put(1, true)
         assertTrue(array.getOrElse(1) { fail() })
+        assertFalse(array.getOrElse(2) { false })
     }
 
     @Test fun isEmpty() {
@@ -123,7 +124,7 @@ class SparseBooleanArrayTest {
     @Test fun removeValue() {
         val array = SparseBooleanArray()
         array.put(1, true)
-        assertFalse(array.remove(0, true))
+        assertFalse(array.remove(2, true))
         assertEquals(1, array.size())
         assertFalse(array.remove(1, false))
         assertEquals(1, array.size())

@@ -61,8 +61,10 @@ class ProGuardTester {
     fun forGivenProGuardMapSet(vararg rules: Pair<String, Set<String>>): ProGuardTester {
         this.proGuardTypes = rules.map {
             ProGuardType.fromDotNotation(it.first) to it.second.map {
-                ProGuardType.fromDotNotation(it) }
-            .toSet() }.toList()
+                ProGuardType.fromDotNotation(it)
+            }
+                .toSet()
+        }.toList()
         return this
     }
 
@@ -81,13 +83,16 @@ class ProGuardTester {
     private fun createConfig(): Config {
         return Config.fromOptional(
             restrictToPackagePrefixes = prefixes,
-            rulesMap = RewriteRulesMap(rewriteRules
-                .map { RewriteRule(it.first, it.second) }
-                .toList()),
+            rulesMap = RewriteRulesMap(
+                rewriteRules
+                    .map { RewriteRule(it.first, it.second) }
+                    .toList()
+            ),
             typesMap = TypesMap(
                 types = javaTypes.map { JavaType(it.first) to JavaType(it.second) }.toMap()
             ),
-            proGuardMap = ProGuardTypesMap(proGuardTypes.toMap()))
+            proGuardMap = ProGuardTypesMap(proGuardTypes.toMap())
+        )
     }
 
     class ProGuardTesterForFile(private val config: Config, private val given: String) {

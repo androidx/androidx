@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import androidx.annotation.ArrayRes;
@@ -166,7 +167,7 @@ public class MultiSelectListPreference extends DialogPreference {
     public int findIndexOfValue(String value) {
         if (value != null && mEntryValues != null) {
             for (int i = mEntryValues.length - 1; i >= 0; i--) {
-                if (mEntryValues[i].equals(value)) {
+                if (TextUtils.equals(mEntryValues[i].toString(), value)) {
                     return i;
                 }
             }

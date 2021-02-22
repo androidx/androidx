@@ -54,12 +54,14 @@ final class Range {
      * provisional selection will not affect the primary selection where the two may intersect.
      */
     static final int TYPE_PROVISIONAL = 1;
+
     @IntDef({
             TYPE_PRIMARY,
             TYPE_PROVISIONAL
     })
     @Retention(RetentionPolicy.SOURCE)
-    @interface RangeType {}
+    @interface RangeType {
+    }
 
     private static final String TAG = "Range";
 
@@ -69,9 +71,6 @@ final class Range {
 
     /**
      * Creates a new range anchored at {@code position}.
-     *
-     * @param position
-     * @param callbacks
      */
     Range(int position, @NonNull Callbacks callbacks) {
         mBegin = position;
@@ -118,7 +117,7 @@ final class Range {
         } else if (mEnd < mBegin) {
             reviseDescending(position, type);
         }
-        // the "else" case is covered by checkState at beginning of method.
+        // the "else" case is covered by checkArgument at beginning of method.
 
         mEnd = position;
     }

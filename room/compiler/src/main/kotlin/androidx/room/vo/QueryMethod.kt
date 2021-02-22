@@ -17,20 +17,20 @@
 package androidx.room.vo
 
 import androidx.room.parser.ParsedQuery
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.TypeMirror
 
 /**
  * A class that holds information about a QueryMethod.
  * It is self sufficient and must have all generics etc resolved once created.
  */
 sealed class QueryMethod(
-    val element: ExecutableElement,
+    val element: XMethodElement,
     val query: ParsedQuery,
     val name: String,
-    val returnType: TypeMirror,
+    val returnType: XType,
     val parameters: List<QueryParameter>
 ) {
     val sectionToParamMapping by lazy {
@@ -39,9 +39,12 @@ sealed class QueryMethod(
                 Pair(it, parameters.firstOrNull())
             } else if (it.text.startsWith(":")) {
                 val subName = it.text.substring(1)
-                Pair(it, parameters.firstOrNull {
-                    it.sqlName == subName
-                })
+                Pair(
+                    it,
+                    parameters.firstOrNull {
+                        it.sqlName == subName
+                    }
+                )
             } else {
                 Pair(it, null)
             }
@@ -53,10 +56,10 @@ sealed class QueryMethod(
  * A query method who's query is a SELECT statement.
  */
 class ReadQueryMethod(
-    element: ExecutableElement,
+    element: XMethodElement,
     query: ParsedQuery,
     name: String,
-    returnType: TypeMirror,
+    returnType: XType,
     parameters: List<QueryParameter>,
     val inTransaction: Boolean,
     val queryResultBinder: QueryResultBinder
@@ -66,10 +69,10 @@ class ReadQueryMethod(
  * A query method who's query is a INSERT, UPDATE or DELETE statement.
  */
 class WriteQueryMethod(
-    element: ExecutableElement,
+    element: XMethodElement,
     query: ParsedQuery,
     name: String,
-    returnType: TypeMirror,
+    returnType: XType,
     parameters: List<QueryParameter>,
     val preparedQueryResultBinder: PreparedQueryResultBinder
 ) : QueryMethod(element, query, name, returnType, parameters)

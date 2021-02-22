@@ -31,6 +31,6 @@ class EntityRowAdapter(val entity: Entity) : RowAdapter(entity.type) {
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder()
-                .addStatement("$L = $N($L)", outVarName, methodSpec, cursorVarName)
+            .addStatement("$L = $N($L)", outVarName, methodSpec, cursorVarName)
     }
 }

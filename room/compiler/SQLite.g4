@@ -171,7 +171,7 @@ insert_stmt
                 | K_INSERT K_OR K_FAIL
                 | K_INSERT K_OR K_IGNORE ) K_INTO
    ( schema_name '.' )? table_name ( K_AS table_alias )? ( '(' column_name ( ',' column_name )* ')' )?
-   ( K_VALUES '(' expr ( ',' expr )* ')' ( ',' '(' expr ( ',' expr )* ')' )*
+   ( K_VALUES '(' comma_separated_expr ')' ( ',' '(' comma_separated_expr ')' )*
    | select_stmt
    | K_DEFAULT K_VALUES
    )
@@ -220,8 +220,8 @@ select_or_values
  : K_SELECT ( K_DISTINCT | K_ALL )? result_column ( ',' result_column )*
    ( K_FROM ( table_or_subquery ( ',' table_or_subquery )* | join_clause ) )?
    ( K_WHERE expr )?
-   ( K_GROUP K_BY expr ( ',' expr )* ( K_HAVING expr )? )?
- | K_VALUES '(' expr ( ',' expr )* ')' ( ',' '(' expr ( ',' expr )* ')' )*
+   ( K_GROUP K_BY comma_separated_expr ( K_HAVING expr )? )?
+ | K_VALUES '(' comma_separated_expr ')' ( ',' '(' comma_separated_expr ')' )*
  ;
 
 update_stmt
@@ -286,20 +286,24 @@ expr
  | ( ( schema_name '.' )? table_name '.' )? column_name
  | unary_operator expr
  | expr binary_operator expr
- | function_name '(' ( K_DISTINCT? expr ( ',' expr )* | '*' )? ')'
- | '(' expr ( ',' expr )* ')'
+ | function_name '(' ( K_DISTINCT? comma_separated_expr | '*' )? ')'
+ | '(' comma_separated_expr ')'
  | K_CAST '(' expr K_AS type_name ')'
  | expr K_COLLATE collation_name
  | expr K_NOT? ( K_LIKE | K_GLOB | K_REGEXP | K_MATCH ) expr ( K_ESCAPE expr )?
  | expr ( K_ISNULL | K_NOTNULL | K_NOT K_NULL )
  | expr K_IS K_NOT? expr
  | expr K_NOT? K_BETWEEN expr K_AND expr
- | expr K_NOT? K_IN ( '(' ( select_stmt | expr ( ',' expr )* )? ')'
+ | expr K_NOT? K_IN ( '(' ( select_stmt | comma_separated_expr )? ')'
                     | ( schema_name '.' )? table_name
-                    | ( schema_name '.' )? table_function '(' ( expr ( ',' expr )* )? ')' )
+                    | ( schema_name '.' )? table_function '(' ( comma_separated_expr )? ')' )
  | ( ( K_NOT )? K_EXISTS )? '(' select_stmt ')'
  | K_CASE expr? ( K_WHEN expr K_THEN expr )+ ( K_ELSE expr )? K_END
  | raise_function
+ ;
+
+comma_separated_expr
+ : expr ( ',' expr )*
  ;
 
 foreign_key_clause

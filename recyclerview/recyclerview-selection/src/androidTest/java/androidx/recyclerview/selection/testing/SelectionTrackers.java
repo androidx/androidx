@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.selection.testing;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.DefaultSelectionTracker;
 import androidx.recyclerview.selection.EventBridge;
 import androidx.recyclerview.selection.ItemKeyProvider;
@@ -37,7 +38,7 @@ public final class SelectionTrackers {
                 SelectionPredicates.createSelectAnything(),
                 StorageStrategy.createStringStorage());
 
-        EventBridge.install(adapter, tracker, keyProvider);
+        EventBridge.install(adapter, tracker, keyProvider, SelectionTrackers::runImmediately);
 
         return tracker;
     }
@@ -52,8 +53,13 @@ public final class SelectionTrackers {
                 SelectionPredicates.createSelectAnything(),
                 StorageStrategy.createLongStorage());
 
-        EventBridge.install(adapter, tracker, keyProvider);
+        EventBridge.install(adapter, tracker, keyProvider, SelectionTrackers::runImmediately);
 
         return tracker;
+    }
+
+    // Test stand-in for RecyclerView::postOnAnimation.
+    private static void runImmediately(@NonNull Runnable runnable) {
+        runnable.run();
     }
 }

@@ -55,7 +55,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -293,6 +295,17 @@ public class SimpleEntityReadWriteTest {
     }
 
     @Test
+    public void deleteUser() {
+        User[] users = TestUtil.createUsersArray(3, 5, 7, 9);
+        mUserDao.insertAll(users);
+        assertThat(mUserDao.loadByIds(3, 5, 7, 9), is(users));
+        // Using the void return value version of delete
+        mUserDao.deleteUser(new User[]{users[0], users[3],
+                TestUtil.createUser(9)});
+        assertThat(mUserDao.loadByIds(3, 5, 7, 9), is(new User[]{users[1], users[2]}));
+    }
+
+    @Test
     public void deleteEverything() {
         User user = TestUtil.createUser(3);
         mUserDao.insert(user);
@@ -493,8 +506,21 @@ public class SimpleEntityReadWriteTest {
         mBlobEntityDao.insert(b);
         List<BlobEntity> list = mBlobEntityDao.selectAll();
         assertThat(list, hasSize(2));
+        ImmutableList<BlobEntity> immutableList = mBlobEntityDao.selectAllImmutable();
+        assertThat(immutableList, hasSize(2));
         mBlobEntityDao.updateContent(2, "ghi".getBytes(Charsets.UTF_8));
         assertThat(mBlobEntityDao.getContent(2), is(equalTo("ghi".getBytes(Charsets.UTF_8))));
+    }
+
+    @Test
+    public void blobImmutable() {
+        BlobEntity a = new BlobEntity(1, "abc".getBytes(Charsets.UTF_8));
+        BlobEntity b = new BlobEntity(2, "def".getBytes(Charsets.UTF_8));
+        mBlobEntityDao.insert(a);
+        mBlobEntityDao.insert(b);
+        ImmutableList<BlobEntity> immutableList = mBlobEntityDao.selectAllImmutable();
+        assertThat(immutableList, hasSize(2));
+        assertThat(immutableList.get(1).content, is(equalTo("def".getBytes(Charsets.UTF_8))));
     }
 
     @Test
@@ -701,6 +727,18 @@ public class SimpleEntityReadWriteTest {
         User result = mUserDao.load(1);
         assertThat(result.getName(), is("same"));
         assertThat(result.getLastName(), is("same"));
+    }
+
+    @Test
+    public void projectionWithTablePrefix() {
+        User user1 = TestUtil.createUser(1);
+        mUserDao.insert(user1);
+        List<NameAndLastName> read = mUserDao.selectByName_withTablePrefixAndUnion(user1.getName());
+        NameAndLastName expected = new NameAndLastName(
+                user1.getName(),
+                user1.getLastName()
+        );
+        assertThat(read, CoreMatchers.equalTo(Arrays.asList(expected)));
     }
 
     private Set<Day> toSet(Day... days) {

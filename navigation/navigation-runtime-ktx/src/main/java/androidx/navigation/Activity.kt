@@ -26,5 +26,6 @@ import androidx.annotation.IdRes
  * Calling this on a View that is not a [NavHost] or within a [NavHost]
  * will result in an [IllegalStateException]
  */
-fun Activity.findNavController(@IdRes viewId: Int): NavController =
-        Navigation.findNavController(this, viewId)
+public fun Activity.findNavController(
+    @IdRes viewId: Int
+): NavController = Navigation.findNavController(this, viewId)

@@ -18,7 +18,6 @@ package androidx.core.os;
 
 import android.os.Build;
 import android.os.Handler;
-import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
@@ -54,7 +53,7 @@ public final class HandlerCompat {
         }
         if (Build.VERSION.SDK_INT >= 16) {
             try {
-                return Handler.class.getDeclaredConstructor(Looper.class, Callback.class,
+                return Handler.class.getDeclaredConstructor(Looper.class, Handler.Callback.class,
                         boolean.class)
                         .newInstance(looper, null, true);
             } catch (IllegalAccessException ignored) {
@@ -89,13 +88,13 @@ public final class HandlerCompat {
      * @see Handler#createAsync(Looper, Callback)
      */
     @NonNull
-    public static Handler createAsync(@NonNull Looper looper, @NonNull Callback callback) {
+    public static Handler createAsync(@NonNull Looper looper, @NonNull Handler.Callback callback) {
         if (Build.VERSION.SDK_INT >= 28) {
             return Handler.createAsync(looper, callback);
         }
         if (Build.VERSION.SDK_INT >= 16) {
             try {
-                return Handler.class.getDeclaredConstructor(Looper.class, Callback.class,
+                return Handler.class.getDeclaredConstructor(Looper.class, Handler.Callback.class,
                         boolean.class)
                         .newInstance(looper, callback, true);
             } catch (IllegalAccessException ignored) {

@@ -17,6 +17,7 @@
 package androidx.enterprise.feedback;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,24 +55,48 @@ public class FakeKeyedAppStatesReporter extends KeyedAppStatesReporter {
             Collections.synchronizedMap(new HashMap<String, KeyedAppState>());
     private AtomicInteger mNumberOfUploads = new AtomicInteger();
 
+    /** @deprecated see {@link #setStates(Collection, KeyedAppStatesCallback)}. **/
     @Override
+    @Deprecated
     public void setStates(@NonNull Collection<KeyedAppState> states) {
+        setStates(states, /* callback= */ null);
+    }
+
+    /**
+     * Record the states set.
+     *
+     * <p>Does not enforce any limit on total size of states collection.
+     */
+    @Override
+    public void setStates(@NonNull Collection<KeyedAppState> states,
+            @Nullable KeyedAppStatesCallback callback) {
         for (KeyedAppState state : states) {
             mOnDeviceKeyedAppStates.add(state);
             mOnDeviceKeyedAppStatesByKey.put(state.getKey(), state);
             mKeyedAppStates.add(state);
             mKeyedAppStatesByKey.put(state.getKey(), state);
         }
+        if (callback != null) {
+            callback.onResult(KeyedAppStatesCallback.STATUS_SUCCESS, /* throwable= */ null);
+        }
+    }
+
+    /** @deprecated See {@link #setStatesImmediate(Collection, KeyedAppStatesCallback)}. **/
+    @Override
+    @Deprecated
+    public void setStatesImmediate(@NonNull Collection<KeyedAppState> states) {
+        setStatesImmediate(states, /* callback= */ null);
     }
 
     /**
      * Record the set states and immediately mark all states as having been uploaded.
      *
-     * <p>Does not enforce any quota on uploading.
+     * <p>Does not enforce any quota on uploading, or limit on total size of states collection.
      */
     @Override
-    public void setStatesImmediate(@NonNull Collection<KeyedAppState> states) {
-        setStates(states);
+    public void setStatesImmediate(@NonNull Collection<KeyedAppState> states,
+            @Nullable KeyedAppStatesCallback callback) {
+        setStates(states, callback);
         upload();
     }
 

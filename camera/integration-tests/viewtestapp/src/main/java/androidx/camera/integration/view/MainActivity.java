@@ -17,9 +17,11 @@
 package androidx.camera.integration.view;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,12 +29,21 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 /** The main activity. */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+
+    // Possible values for this intent key (case-insensitive): "PreviewView", "CameraView".
+    private static final String INTENT_EXTRA_VIEW_TYPE = "view_type";
+    private static final String VIEW_TYPE_PREVIEW_VIEW = "PreviewView";
+    private static final String VIEW_TYPE_CAMERA_VIEW = "CameraView";
+
     private static final String[] REQUIRED_PERMISSIONS =
             new String[]{
                     Manifest.permission.CAMERA,
@@ -42,21 +53,39 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_PERMISSIONS = 10;
 
     private boolean mCheckedPermissions = false;
+    private Mode mMode = Mode.CAMERA_VIEW;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // Get extra option for checking whether it need to be implemented with PreviewView
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            final String viewTypeString = bundle.getString(INTENT_EXTRA_VIEW_TYPE);
+            final boolean isViewTypeValid =
+                    viewTypeString != null && (viewTypeString.equalsIgnoreCase(
+                            VIEW_TYPE_PREVIEW_VIEW) || viewTypeString.equalsIgnoreCase(
+                            VIEW_TYPE_CAMERA_VIEW));
+            if (isViewTypeValid && viewTypeString.equalsIgnoreCase(VIEW_TYPE_PREVIEW_VIEW)) {
+                mMode = Mode.PREVIEW_VIEW;
+            }
+        }
+        // TODO(b/173019455): make this penaltyDeath after we fix the IO in test apps.
+        StrictMode.ThreadPolicy threadPolicy =
+                new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build();
+        StrictMode.setThreadPolicy(threadPolicy);
         if (null == savedInstanceState) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (allPermissionsGranted()) {
-                    startCameraView();
+                    startFragment();
                 } else if (!mCheckedPermissions) {
-                    requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
+                    ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS,
+                            REQUEST_CODE_PERMISSIONS);
                     mCheckedPermissions = true;
                 }
             } else {
-                startCameraView();
+                startFragment();
             }
         }
     }
@@ -66,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
-                startCameraView();
+                startFragment();
             } else {
                 report("Permissions not granted by the user.");
             }
@@ -80,18 +109,22 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.camera_view:
-                startCameraView();
-                return true;
+                mMode = Mode.CAMERA_VIEW;
+                break;
             case R.id.preview_view:
-                startPreviewView();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+                mMode = Mode.PREVIEW_VIEW;
+                break;
+            case R.id.camera_controller:
+                mMode = Mode.CAMERA_CONTROLLER;
+                break;
         }
+        startFragment();
+        return true;
     }
 
     private boolean allPermissionsGranted() {
@@ -104,24 +137,34 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void startCameraView() {
-        getSupportActionBar().setTitle(R.string.camera_view);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content, new CameraViewFragment())
-                .commit();
+    private void startFragment() {
+        switch (mMode) {
+            case CAMERA_VIEW:
+                startFragment(R.string.camera_view, new CameraViewFragment());
+                break;
+            case PREVIEW_VIEW:
+                startFragment(R.string.preview_view, new PreviewViewFragment());
+                break;
+            case CAMERA_CONTROLLER:
+                startFragment(R.string.camera_controller, new CameraControllerFragment());
+                break;
+        }
     }
 
-    private void startPreviewView() {
-        getSupportActionBar().setTitle(R.string.preview_view);
+    private void startFragment(int titleRes, Fragment fragment) {
+        getSupportActionBar().setTitle(titleRes);
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.content, new PreviewViewFragment())
+                .replace(R.id.content, fragment)
                 .commit();
     }
 
     private void report(String msg) {
         Log.d(TAG, msg);
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    private enum Mode {
+        CAMERA_VIEW, PREVIEW_VIEW, CAMERA_CONTROLLER
     }
 }

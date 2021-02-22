@@ -23,17 +23,49 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.TargetTracking
 import androidx.transition.test.R
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.runOnUiThreadRethrow
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.WeakReference
 import java.util.ArrayList
 
-fun ActivityTestRule<out FragmentActivity>.executePendingTransactions(
+fun FragmentTransaction.setReorderingAllowed(
+    reorderingAllowed: ReorderingAllowed
+) = setReorderingAllowed(reorderingAllowed is Reordered)
+
+sealed class ReorderingAllowed {
+    override fun toString(): String = this.javaClass.simpleName
+}
+object Reordered : ReorderingAllowed()
+object Ordered : ReorderingAllowed()
+
+sealed class StateManager {
+    abstract fun setup()
+
+    override fun toString(): String = this.javaClass.simpleName
+
+    fun teardown() {
+        // Reset it back to the default
+        FragmentManager.enableNewStateManager(true)
+    }
+}
+object NewStateManager : StateManager() {
+    override fun setup() {
+        FragmentManager.enableNewStateManager(true)
+    }
+}
+object OldStateManager : StateManager() {
+    override fun setup() {
+        FragmentManager.enableNewStateManager(false)
+    }
+}
+
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.executePendingTransactions(
     fm: FragmentManager = activity.supportFragmentManager
 ): Boolean {
     var ret = false
@@ -41,7 +73,8 @@ fun ActivityTestRule<out FragmentActivity>.executePendingTransactions(
     return ret
 }
 
-fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(): Boolean {
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.popBackStackImmediate(): Boolean {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     var ret = false
     instrumentation.runOnMainSync {
@@ -50,7 +83,8 @@ fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(): Boolean {
     return ret
 }
 
-fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
     id: Int,
     flags: Int = 0
 ): Boolean {
@@ -62,7 +96,8 @@ fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
     return ret
 }
 
-fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
     name: String,
     flags: Int = 0
 ): Boolean {
@@ -74,7 +109,10 @@ fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
     return ret
 }
 
-fun ActivityTestRule<out FragmentActivity>.setContentView(@LayoutRes layoutId: Int) {
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.setContentView(
+    @LayoutRes layoutId: Int
+) {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     instrumentation.runOnMainSync { activity.setContentView(layoutId) }
 }
@@ -91,72 +129,63 @@ fun assertChildren(container: ViewGroup, vararg fragments: Fragment) {
     }
 }
 
+@Suppress("DEPRECATION")
 // Transition test methods start
-fun ActivityTestRule<out FragmentActivity>.findGreen(): View {
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.findGreen(): View {
     return activity.findViewById(R.id.greenSquare)
 }
 
-fun ActivityTestRule<out FragmentActivity>.findBlue(): View {
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.findBlue(): View {
     return activity.findViewById(R.id.blueSquare)
 }
 
-fun ActivityTestRule<out FragmentActivity>.findRed(): View? {
+@Suppress("DEPRECATION")
+fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.findRed(): View? {
     return activity.findViewById(R.id.redSquare)
 }
 
-fun verifyAndClearTransition(
-    transition: TargetTracking,
-    epicenter: Rect?,
-    vararg expected: View
-) {
-    if (epicenter == null) {
-        assertThat(transition.capturedEpicenter).isNull()
-    } else {
-        assertThat(transition.capturedEpicenter).isEqualTo(epicenter)
+val View.boundsOnScreen: Rect
+    get() {
+        val loc = IntArray(2)
+        getLocationOnScreen(loc)
+        return Rect(loc[0], loc[1], loc[0] + width, loc[1] + height)
     }
-    val targets = transition.trackedTargets
-    val sb = StringBuilder()
-    sb.append("Expected: [")
-        .append(expected.size)
-        .append("] {")
-    var isFirst = true
-    for (view in expected) {
-        if (isFirst) {
-            isFirst = false
-        } else {
-            sb.append(", ")
-        }
-        sb.append(view)
-    }
-    sb.append("}, but got: [")
-        .append(targets.size)
-        .append("] {")
-    isFirst = true
-    for (view in targets) {
-        if (isFirst) {
-            isFirst = false
-        } else {
-            sb.append(", ")
-        }
-        sb.append(view)
-    }
-    sb.append("}")
-    val errorMessage = sb.toString()
 
-    assertWithMessage(errorMessage).that(targets.size).isEqualTo(expected.size)
-    for (view in expected) {
-        assertWithMessage(errorMessage).that(targets.contains(view)).isTrue()
+data class TransitionVerificationInfo(
+    var epicenter: Rect? = null,
+    val exitingViews: MutableList<View> = mutableListOf(),
+    val enteringViews: MutableList<View> = mutableListOf()
+)
+
+fun TargetTracking.verifyAndClearTransition(block: TransitionVerificationInfo.() -> Unit) {
+    val (epicenter, exitingViews, enteringViews) = TransitionVerificationInfo().apply { block() }
+
+    assertThat(exitingTargets).containsExactlyElementsIn(exitingViews)
+    assertThat(enteringTargets).containsExactlyElementsIn(enteringViews)
+    if (epicenter == null) {
+        assertThat(capturedEpicenter).isNull()
+    } else {
+        assertThat(capturedEpicenter).isEqualTo(epicenter)
     }
-    transition.clearTargets()
+    clearTargets()
 }
 
 fun verifyNoOtherTransitions(fragment: TransitionFragment) {
-    assertThat(fragment.enterTransition.targets.size).isEqualTo(0)
-    assertThat(fragment.exitTransition.targets.size).isEqualTo(0)
-    assertThat(fragment.reenterTransition.targets.size).isEqualTo(0)
-    assertThat(fragment.returnTransition.targets.size).isEqualTo(0)
-    assertThat(fragment.sharedElementEnter.targets.size).isEqualTo(0)
-    assertThat(fragment.sharedElementReturn.targets.size).isEqualTo(0)
+    assertThat(fragment.enterTransition.enteringTargets).isEmpty()
+    assertThat(fragment.enterTransition.exitingTargets).isEmpty()
+    assertThat(fragment.exitTransition.enteringTargets).isEmpty()
+    assertThat(fragment.exitTransition.exitingTargets).isEmpty()
+
+    assertThat(fragment.reenterTransition.enteringTargets).isEmpty()
+    assertThat(fragment.reenterTransition.exitingTargets).isEmpty()
+    assertThat(fragment.returnTransition.enteringTargets).isEmpty()
+    assertThat(fragment.returnTransition.exitingTargets).isEmpty()
+
+    assertThat(fragment.sharedElementEnter.enteringTargets).isEmpty()
+    assertThat(fragment.sharedElementEnter.exitingTargets).isEmpty()
+    assertThat(fragment.sharedElementReturn.enteringTargets).isEmpty()
+    assertThat(fragment.sharedElementReturn.exitingTargets).isEmpty()
 }
 // Transition test methods end
 

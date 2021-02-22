@@ -16,102 +16,71 @@
 
 package androidx.camera.integration.core
 
-import android.content.Context
-import android.content.Intent
-import androidx.camera.core.ImageCapture
+import android.Manifest
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
-import androidx.test.core.app.ApplicationProvider
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import androidx.test.rule.GrantPermissionRule
-import androidx.test.uiautomator.UiDevice
-import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
-@androidx.test.filters.Suppress
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class TakePictureTest {
-    private val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-    private val mContext = ApplicationProvider.getApplicationContext<Context>()
-    private val mIntent = mContext.packageManager.getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)
+    @get:Rule
+    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
     @get:Rule
-    var mCameraPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
-    @get:Rule
-    var mStoragePermissionRule =
-        GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-    @Rule
-    @JvmField
-    var mActivityRule = ActivityTestRule(
-        CameraXActivity::class.java, true,
-        false
-    )
+    val mPermissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO
+        )
 
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
 
-        // In case the lock screen on top, the action to dismiss it.
-        mDevice.pressKeyCode(DISMISS_LOCK_SCREEN_CODE)
-        mDevice.pressHome()
-
-        // Launch Activity
-        mActivityRule.launchActivity(mIntent)
-
-        // Close system dialogs first to avoid interrupt.
-        mActivityRule.activity.sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
-
-        // Register idlingResource so Espresso will synchronize with it.
-        IdlingRegistry.getInstance().register(mActivityRule.activity.imageSavedIdlingResource)
-    }
-
-    @After
-    fun tearDown() {
-        // Unregister idlingResource, no need to synchronize with it anymore.
-        IdlingRegistry.getInstance().unregister(mActivityRule.activity.imageSavedIdlingResource)
-        pressBackAndReturnHome()
-        mActivityRule.finishActivity()
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
     }
 
     // Take a photo, wait for callback via imageSavedIdlingResource resource.
     @Test
     fun testPictureButton() {
-        checkPreviewReady()
-
-        val imageCapture: ImageCapture? = mActivityRule.activity.imageCapture
-
-        if (imageCapture != null) {
-            onView(withId(R.id.Picture)).perform(click())
+        with(ActivityScenario.launch(CameraXActivity::class.java)) {
+            use { // Ensure ActivityScenario is cleaned up properly.
+                waitForViewfinderIdle()
+                takePictureAndWaitForImageSavedIdle()
+            }
         }
     }
 
-    private fun pressBackAndReturnHome() {
-        mDevice.pressBack()
-
-        // Returns to Home to restart next test.
-        mDevice.pressHome()
-    }
-
-    private fun checkPreviewReady() {
-        onView(withId(R.id.textureView))
-    }
-
-    companion object {
-        const val BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.core"
-        const val DISMISS_LOCK_SCREEN_CODE = 82
+    // Initiate photo capture but close the lifecycle before photo completes to trigger
+    // onError path.
+    @Test
+    fun testTakePictureAndRestartWhileCapturing() { // Launch activity check for view idle.
+        with(ActivityScenario.launch(CameraXActivity::class.java)) {
+            use { // Ensure ActivityScenario is cleaned up properly.
+                waitForViewfinderIdle()
+                onView(withId(R.id.Picture)).perform(click())
+                // Immediately .recreate() this allows the test to reach the onError callback path.
+                // Note, moveToState(DESTROYED) doesn't trigger the same code path.
+                it!!.recreate()
+                waitForViewfinderIdle()
+            }
+        }
     }
 }

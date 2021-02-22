@@ -16,6 +16,7 @@
 
 package androidx.core.content;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 
@@ -28,6 +29,25 @@ public final class IntentCompat {
     private IntentCompat() {
         /* Hide constructor */
     }
+
+    /**
+     * Activity Action: Creates a reminder.
+     * <p>Input: {@link android.content.Intent#EXTRA_TITLE} The title of the
+     * reminder that will be shown to the user.
+     * {@link android.content.Intent#EXTRA_TEXT} The reminder text that will be
+     * shown to the user. The intent should at least specify a title or a text.
+     * {@link #EXTRA_TIME} The time when the reminder will
+     * be shown to the user. The time is specified in milliseconds since the
+     * Epoch (optional).
+     * </p>
+     * <p>Output: Nothing.</p>
+     *
+     * @see android.content.Intent#EXTRA_TITLE
+     * @see android.content.Intent#EXTRA_TEXT
+     * @see #EXTRA_TIME
+     */
+    @SuppressLint("ActionValue")
+    public static final String ACTION_CREATE_REMINDER = "android.intent.action.CREATE_REMINDER";
 
     /**
      * A constant String that is associated with the Intent, used with
@@ -44,6 +64,16 @@ public final class IntentCompat {
      * require additional user input, e.g. a profile selection screen or a details page.
      */
     public static final String EXTRA_START_PLAYBACK = "android.intent.extra.START_PLAYBACK";
+
+    /**
+     * Optional extra specifying a time in milliseconds since the Epoch. The value must be
+     * non-negative.
+     * <p>
+     * Type: long
+     * </p>
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_TIME = "android.intent.extra.TIME";
 
     /**
      * Indicates an activity optimized for Leanback mode, and that should

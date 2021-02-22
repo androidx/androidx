@@ -25,16 +25,18 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
+import android.view.WindowInsets;
 import android.widget.TextView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
@@ -135,16 +137,15 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
     @Override
     public @NonNull
     Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Context context = getActivity();
         mWhichButtonClicked = DialogInterface.BUTTON_NEGATIVE;
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context)
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                 .setTitle(mDialogTitle)
                 .setIcon(mDialogIcon)
                 .setPositiveButton(mPositiveButtonText, this)
                 .setNegativeButton(mNegativeButtonText, this);
 
-        View contentView = onCreateDialogView(context);
+        View contentView = onCreateDialogView(getContext());
         if (contentView != null) {
             onBindDialogView(contentView);
             builder.setView(contentView);
@@ -204,11 +205,31 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
     }
 
     /**
+     * Uses to schedule showing soft input method when the dialog has an editor focused.
+     * <p>
+     * Note that starting from Android R, the new WindowInsets API supports showing soft-input
+     * on-demand, so there is no longer a need to schedule showing soft-input when input connection
+     * established by the focused editor.</p>
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    protected void scheduleShowSoftInput() {
+    }
+
+    /**
      * Sets the required flags on the dialog window to enable input method window to show up.
+     * <p>
+     * Note that starting from Android R, the new WindowInsets API supports showing soft-input
+     * on-demand, so there is no longer a need to schedule showing soft-input when input connection
+     * established by the focused editor.</p>
      */
     private void requestInputMethod(Dialog dialog) {
         Window window = dialog.getWindow();
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Api30Impl.showIme(window);
+        } else {
+            scheduleShowSoftInput();
+        }
     }
 
     /**
@@ -224,8 +245,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
             return null;
         }
 
-        LayoutInflater inflater = LayoutInflater.from(context);
-        return inflater.inflate(resId, null);
+        return getLayoutInflater().inflate(resId, null);
     }
 
     /**
@@ -268,4 +288,21 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
     }
 
     public abstract void onDialogClosed(boolean positiveResult);
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in R.
+     */
+    @RequiresApi(Build.VERSION_CODES.R)
+    private static class Api30Impl {
+        // Prevent instantiation.
+        private Api30Impl() {}
+
+        /**
+         * Shows the IME on demand for the given {@link Window}.
+         */
+        @DoNotInline
+        static void showIme(@NonNull Window dialogWindow) {
+            dialogWindow.getDecorView().getWindowInsetsController().show(WindowInsets.Type.ime());
+        }
+    }
 }

@@ -26,7 +26,9 @@ import androidx.annotation.RequiresApi
  * @throws IllegalArgumentException When a value is not a supported type of [PersistableBundle].
  */
 @RequiresApi(21)
-fun persistableBundleOf(vararg pairs: Pair<String, Any?>) = PersistableBundle(pairs.size).apply {
+public fun persistableBundleOf(
+    vararg pairs: Pair<String, Any?>
+): PersistableBundle = PersistableBundle(pairs.size).apply {
     for ((key, value) in pairs) {
         when (value) {
             null -> putString(key, null) // Any nullable type will suffice.
@@ -69,7 +71,8 @@ fun persistableBundleOf(vararg pairs: Pair<String, Any?>) = PersistableBundle(pa
                     else -> {
                         val valueType = componentType.canonicalName
                         throw IllegalArgumentException(
-                            "Illegal value array type $valueType for key \"$key\"")
+                            "Illegal value array type $valueType for key \"$key\""
+                        )
                     }
                 }
             }

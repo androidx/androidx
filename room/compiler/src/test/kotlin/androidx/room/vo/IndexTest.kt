@@ -29,27 +29,33 @@ class IndexTest {
     @Test
     fun createSimpleSQL() {
         val index = Index("foo", false, listOf(mockField("bar"), mockField("baz")))
-        MatcherAssert.assertThat(index.createQuery("my_table"), CoreMatchers.`is`(
+        MatcherAssert.assertThat(
+            index.createQuery("my_table"),
+            CoreMatchers.`is`(
                 "CREATE INDEX IF NOT EXISTS `foo` ON `my_table` (`bar`, `baz`)"
-        ))
+            )
+        )
     }
 
     @Test
     fun createUnique() {
         val index = Index("foo", true, listOf(mockField("bar"), mockField("baz")))
-        MatcherAssert.assertThat(index.createQuery("my_table"), CoreMatchers.`is`(
+        MatcherAssert.assertThat(
+            index.createQuery("my_table"),
+            CoreMatchers.`is`(
                 "CREATE UNIQUE INDEX IF NOT EXISTS `foo` ON `my_table` (`bar`, `baz`)"
-        ))
+            )
+        )
     }
 
     private fun mockField(columnName: String): Field {
         val (element, type) = mockElementAndType()
         return Field(
-                element = element,
-                name = columnName + "_field",
-                affinity = SQLTypeAffinity.TEXT,
-                type = type,
-                columnName = columnName
+            element = element,
+            name = columnName + "_field",
+            affinity = SQLTypeAffinity.TEXT,
+            type = type,
+            columnName = columnName
         )
     }
 }

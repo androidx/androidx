@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.recyclerview.widget {
 
   public final class AdapterListUpdateCallback implements androidx.recyclerview.widget.ListUpdateCallback {
@@ -68,6 +68,43 @@ package androidx.recyclerview.widget {
     method public void onInserted(int, int);
     method public void onMoved(int, int);
     method public void onRemoved(int, int);
+  }
+
+  public final class ConcatAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder> {
+    ctor @java.lang.SafeVarargs public ConcatAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!...);
+    ctor @java.lang.SafeVarargs public ConcatAdapter(androidx.recyclerview.widget.ConcatAdapter.Config, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!...);
+    ctor public ConcatAdapter(java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>>);
+    ctor public ConcatAdapter(androidx.recyclerview.widget.ConcatAdapter.Config, java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>>);
+    method public boolean addAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
+    method public boolean addAdapter(int, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
+    method public java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>> getAdapters();
+    method public int getItemCount();
+    method public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
+    method public androidx.recyclerview.widget.RecyclerView.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
+    method public boolean onFailedToRecycleView(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onViewAttachedToWindow(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onViewDetachedFromWindow(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void onViewRecycled(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public boolean removeAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
+  }
+
+  public static final class ConcatAdapter.Config {
+    field public static final androidx.recyclerview.widget.ConcatAdapter.Config DEFAULT;
+    field public final boolean isolateViewTypes;
+    field public final androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode stableIdMode;
+  }
+
+  public static final class ConcatAdapter.Config.Builder {
+    ctor public ConcatAdapter.Config.Builder();
+    method public androidx.recyclerview.widget.ConcatAdapter.Config build();
+    method public androidx.recyclerview.widget.ConcatAdapter.Config.Builder setIsolateViewTypes(boolean);
+    method public androidx.recyclerview.widget.ConcatAdapter.Config.Builder setStableIdMode(androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode);
+  }
+
+  public enum ConcatAdapter.Config.StableIdMode {
+    enum_constant public static final androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode ISOLATED_STABLE_IDS;
+    enum_constant public static final androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode NO_STABLE_IDS;
+    enum_constant public static final androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode SHARED_STABLE_IDS;
   }
 
   public class DefaultItemAnimator extends androidx.recyclerview.widget.SimpleItemAnimator {
@@ -353,7 +390,6 @@ package androidx.recyclerview.widget {
   public class PagerSnapHelper extends androidx.recyclerview.widget.SnapHelper {
     ctor public PagerSnapHelper();
     method public int[]? calculateDistanceToFinalSnap(androidx.recyclerview.widget.RecyclerView.LayoutManager, android.view.View);
-    method protected androidx.recyclerview.widget.LinearSmoothScroller! createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
     method public android.view.View? findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
     method public int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager!, int, int);
   }
@@ -367,6 +403,7 @@ package androidx.recyclerview.widget {
     method public void addOnChildAttachStateChangeListener(androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener);
     method public void addOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
     method public void addOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
+    method public void addRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener);
     method public void clearOnChildAttachStateChangeListeners();
     method public void clearOnScrollListeners();
     method public int computeHorizontalScrollExtent();
@@ -414,6 +451,7 @@ package androidx.recyclerview.widget {
     method public boolean isComputingLayout();
     method @Deprecated public boolean isLayoutFrozen();
     method public final boolean isLayoutSuppressed();
+    method public void nestedScrollBy(int, int);
     method public void offsetChildrenHorizontal(@Px int);
     method public void offsetChildrenVertical(@Px int);
     method public void onChildAttachedToWindow(android.view.View);
@@ -426,6 +464,7 @@ package androidx.recyclerview.widget {
     method public void removeOnChildAttachStateChangeListener(androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener);
     method public void removeOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
     method public void removeOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
+    method public void removeRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener);
     method public void scrollToPosition(int);
     method public void setAccessibilityDelegateCompat(androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate?);
     method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter?);
@@ -441,7 +480,7 @@ package androidx.recyclerview.widget {
     method @Deprecated public void setOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener?);
     method public void setPreserveFocusAfterLayout(boolean);
     method public void setRecycledViewPool(androidx.recyclerview.widget.RecyclerView.RecycledViewPool?);
-    method public void setRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener?);
+    method @Deprecated public void setRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener?);
     method public void setScrollingTouchSlop(int);
     method public void setViewCacheExtension(androidx.recyclerview.widget.RecyclerView.ViewCacheExtension?);
     method public void smoothScrollBy(@Px int, @Px int);
@@ -470,9 +509,11 @@ package androidx.recyclerview.widget {
     ctor public RecyclerView.Adapter();
     method public final void bindViewHolder(VH, int);
     method public final VH createViewHolder(android.view.ViewGroup, int);
+    method public int findRelativeAdapterPositionIn(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>, androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
     method public abstract int getItemCount();
     method public long getItemId(int);
     method public int getItemViewType(int);
+    method public final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy getStateRestorationPolicy();
     method public final boolean hasObservers();
     method public final boolean hasStableIds();
     method public final void notifyDataSetChanged();
@@ -496,7 +537,14 @@ package androidx.recyclerview.widget {
     method public void onViewRecycled(VH);
     method public void registerAdapterDataObserver(androidx.recyclerview.widget.RecyclerView.AdapterDataObserver);
     method public void setHasStableIds(boolean);
+    method public void setStateRestorationPolicy(androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy);
     method public void unregisterAdapterDataObserver(androidx.recyclerview.widget.RecyclerView.AdapterDataObserver);
+  }
+
+  public enum RecyclerView.Adapter.StateRestorationPolicy {
+    enum_constant public static final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy ALLOW;
+    enum_constant public static final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy PREVENT;
+    enum_constant public static final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy PREVENT_WHEN_EMPTY;
   }
 
   public abstract static class RecyclerView.AdapterDataObserver {
@@ -507,6 +555,7 @@ package androidx.recyclerview.widget {
     method public void onItemRangeInserted(int, int);
     method public void onItemRangeMoved(int, int, int);
     method public void onItemRangeRemoved(int, int);
+    method public void onStateRestorationPolicyChanged();
   }
 
   public static interface RecyclerView.ChildDrawingOrderCallback {
@@ -522,7 +571,7 @@ package androidx.recyclerview.widget {
     field public static final int DIRECTION_TOP = 1; // 0x1
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_LEFT, androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_TOP, androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_RIGHT, androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_BOTTOM}) public static @interface RecyclerView.EdgeEffectFactory.EdgeDirection {
+  @IntDef({androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_LEFT, androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_TOP, androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_RIGHT, androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.DIRECTION_BOTTOM}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface RecyclerView.EdgeEffectFactory.EdgeDirection {
   }
 
   public abstract static class RecyclerView.ItemAnimator {
@@ -752,7 +801,9 @@ package androidx.recyclerview.widget {
     ctor public RecyclerView.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
     ctor public RecyclerView.LayoutParams(android.view.ViewGroup.LayoutParams!);
     ctor public RecyclerView.LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams!);
-    method public int getViewAdapterPosition();
+    method public int getAbsoluteAdapterPosition();
+    method public int getBindingAdapterPosition();
+    method @Deprecated public int getViewAdapterPosition();
     method public int getViewLayoutPosition();
     method @Deprecated public int getViewPosition();
     method public boolean isItemChanged();
@@ -880,7 +931,10 @@ package androidx.recyclerview.widget {
 
   public abstract static class RecyclerView.ViewHolder {
     ctor public RecyclerView.ViewHolder(android.view.View);
-    method public final int getAdapterPosition();
+    method public final int getAbsoluteAdapterPosition();
+    method @Deprecated public final int getAdapterPosition();
+    method public final androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>? getBindingAdapter();
+    method public final int getBindingAdapterPosition();
     method public final long getItemId();
     method public final int getItemViewType();
     method public final int getLayoutPosition();
@@ -935,8 +989,8 @@ package androidx.recyclerview.widget {
     method public void attachToRecyclerView(androidx.recyclerview.widget.RecyclerView?) throws java.lang.IllegalStateException;
     method public abstract int[]? calculateDistanceToFinalSnap(androidx.recyclerview.widget.RecyclerView.LayoutManager, android.view.View);
     method public int[]! calculateScrollDistance(int, int);
-    method protected androidx.recyclerview.widget.RecyclerView.SmoothScroller? createScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
-    method @Deprecated protected androidx.recyclerview.widget.LinearSmoothScroller? createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
+    method protected androidx.recyclerview.widget.RecyclerView.SmoothScroller? createScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager);
+    method @Deprecated protected androidx.recyclerview.widget.LinearSmoothScroller? createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager);
     method public abstract android.view.View? findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
     method public abstract int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager!, int, int);
     method public boolean onFling(int, int);

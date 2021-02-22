@@ -16,6 +16,7 @@
 
 package androidx.fragment.app;
 
+import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
@@ -25,9 +26,9 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,13 +38,18 @@ import android.view.Window;
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
+import androidx.activity.contextaware.OnContextAvailableListener;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.ActivityResultRegistryOwner;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.collection.SparseArrayCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.lifecycle.Lifecycle;
@@ -52,6 +58,7 @@ import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.LoaderManager;
+import androidx.savedstate.SavedStateRegistry;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -71,13 +78,8 @@ import java.util.Collection;
 public class FragmentActivity extends ComponentActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
         ActivityCompat.RequestPermissionsRequestCodeValidator {
-    private static final String TAG = "FragmentActivity";
 
     static final String FRAGMENTS_TAG = "android:support:fragments";
-    static final String NEXT_CANDIDATE_REQUEST_INDEX_TAG = "android:support:next_request_index";
-    static final String ALLOCATED_REQUEST_INDICIES_TAG = "android:support:request_indicies";
-    static final String REQUEST_FRAGMENT_WHO_TAG = "android:support:request_fragment_who";
-    static final int MAX_NUM_PENDING_FRAGMENT_ACTIVITY_RESULTS = 0xffff - 1;
 
     final FragmentController mFragments = FragmentController.createController(new HostCallbacks());
     /**
@@ -92,32 +94,6 @@ public class FragmentActivity extends ComponentActivity implements
     boolean mResumed;
     boolean mStopped = true;
 
-    boolean mRequestedPermissionsFromFragment;
-
-    // We need to keep track of whether startIntentSenderForResult originated from a Fragment, so we
-    // can conditionally check whether the requestCode collides with our reserved ID space for the
-    // request index (see above). Unfortunately we can't just call
-    // super.startIntentSenderForResult(...) to bypass the check when the call didn't come from a
-    // fragment, since we need to use the ActivityCompat version for backward compatibility.
-    boolean mStartedIntentSenderFromFragment;
-    // We need to keep track of whether startActivityForResult originated from a Fragment, so we
-    // can conditionally check whether the requestCode collides with our reserved ID space for the
-    // request index (see above). Unfortunately we can't just call
-    // super.startActivityForResult(...) to bypass the check when the call didn't come from a
-    // fragment, since we need to use the ActivityCompat version for backward compatibility.
-    boolean mStartedActivityFromFragment;
-
-    // A hint for the next candidate request index. Request indicies are ints between 0 and 2^16-1
-    // which are encoded into the upper 16 bits of the requestCode for
-    // Fragment.startActivityForResult(...) calls. This allows us to dispatch onActivityResult(...)
-    // to the appropriate Fragment. Request indicies are allocated by allocateRequestIndex(...).
-    int mNextCandidateRequestIndex;
-    // A map from request index to Fragment "who" (i.e. a Fragment's unique identifier). Used to
-    // keep track of the originating Fragment for Fragment.startActivityForResult(...) calls, so we
-    // can dispatch the onActivityResult(...) to the appropriate Fragment. Will only contain entries
-    // for startActivityForResult calls where a result has not yet been delivered.
-    SparseArrayCompat<String> mPendingFragmentActivityResults;
-
     /**
      * Default constructor for FragmentActivity. All Activities must have a default constructor
      * for API 27 and lower devices or when using the default
@@ -125,6 +101,7 @@ public class FragmentActivity extends ComponentActivity implements
      */
     public FragmentActivity() {
         super();
+        init();
     }
 
     /**
@@ -140,46 +117,53 @@ public class FragmentActivity extends ComponentActivity implements
     @ContentView
     public FragmentActivity(@LayoutRes int contentLayoutId) {
         super(contentLayoutId);
+        init();
+    }
+
+    private void init() {
+        // TODO: Directly connect FragmentManager to SavedStateRegistry
+        getSavedStateRegistry().registerSavedStateProvider(FRAGMENTS_TAG,
+                new SavedStateRegistry.SavedStateProvider() {
+                    @NonNull
+                    @Override
+                    public Bundle saveState() {
+                        Bundle outState = new Bundle();
+                        markFragmentsCreated();
+                        mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+                        Parcelable p = mFragments.saveAllState();
+                        if (p != null) {
+                            outState.putParcelable(FRAGMENTS_TAG, p);
+                        }
+                        return outState;
+                    }
+                });
+        addOnContextAvailableListener(new OnContextAvailableListener() {
+            @Override
+            public void onContextAvailable(@NonNull Context context) {
+                mFragments.attachHost(null /*parent*/);
+                Bundle savedInstanceState = getSavedStateRegistry()
+                        .consumeRestoredStateForKey(FRAGMENTS_TAG);
+
+                if (savedInstanceState != null) {
+                    Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
+                    mFragments.restoreSaveState(p);
+                }
+            }
+        });
     }
 
     // ------------------------------------------------------------------------
     // HOOKS INTO ACTIVITY
     // ------------------------------------------------------------------------
 
-    /**
-     * Dispatch incoming result to the correct fragment.
-     */
+    @SuppressWarnings("deprecation")
     @Override
     @CallSuper
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         mFragments.noteStateNotSaved();
-        int requestIndex = requestCode>>16;
-        if (requestIndex != 0) {
-            requestIndex--;
-
-            String who = mPendingFragmentActivityResults.get(requestIndex);
-            mPendingFragmentActivityResults.remove(requestIndex);
-            if (who == null) {
-                Log.w(TAG, "Activity result delivered for unknown Fragment.");
-                return;
-            }
-            Fragment targetFragment = mFragments.findFragmentByWho(who);
-            if (targetFragment == null) {
-                Log.w(TAG, "Activity result no fragment exists for who: " + who);
-            } else {
-                targetFragment.onActivityResult(requestCode & 0xffff, resultCode, data);
-            }
-            return;
-        }
-        ActivityCompat.PermissionCompatDelegate delegate =
-                ActivityCompat.getPermissionCompatDelegate();
-        if (delegate != null && delegate.onActivityResult(this, requestCode, resultCode, data)) {
-            // Delegate has handled the activity result
-            return;
-        }
-
         super.onActivityResult(requestCode, resultCode, data);
     }
+
 
     /**
      * Reverses the Activity Scene entry Transition and triggers the calling Activity
@@ -244,6 +228,7 @@ public class FragmentActivity extends ComponentActivity implements
      *
      * @param isInMultiWindowMode True if the activity is in multi-window mode.
      */
+    @SuppressWarnings("deprecation")
     @Override
     @CallSuper
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
@@ -259,6 +244,7 @@ public class FragmentActivity extends ComponentActivity implements
      *
      * @param isInPictureInPictureMode True if the activity is in picture-in-picture mode.
      */
+    @SuppressWarnings("deprecation")
     @Override
     @CallSuper
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
@@ -280,35 +266,6 @@ public class FragmentActivity extends ComponentActivity implements
      */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        mFragments.attachHost(null /*parent*/);
-
-        if (savedInstanceState != null) {
-            Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
-            mFragments.restoreSaveState(p);
-
-            // Check if there are any pending onActivityResult calls to descendent Fragments.
-            if (savedInstanceState.containsKey(NEXT_CANDIDATE_REQUEST_INDEX_TAG)) {
-                mNextCandidateRequestIndex =
-                        savedInstanceState.getInt(NEXT_CANDIDATE_REQUEST_INDEX_TAG);
-                int[] requestCodes = savedInstanceState.getIntArray(ALLOCATED_REQUEST_INDICIES_TAG);
-                String[] fragmentWhos = savedInstanceState.getStringArray(REQUEST_FRAGMENT_WHO_TAG);
-                if (requestCodes == null || fragmentWhos == null ||
-                            requestCodes.length != fragmentWhos.length) {
-                    Log.w(TAG, "Invalid requestCode mapping in savedInstanceState.");
-                } else {
-                    mPendingFragmentActivityResults = new SparseArrayCompat<>(requestCodes.length);
-                    for (int i = 0; i < requestCodes.length; i++) {
-                        mPendingFragmentActivityResults.put(requestCodes[i], fragmentWhos[i]);
-                    }
-                }
-            }
-        }
-
-        if (mPendingFragmentActivityResults == null) {
-            mPendingFragmentActivityResults = new SparseArrayCompat<>();
-            mNextCandidateRequestIndex = 0;
-        }
-
         super.onCreate(savedInstanceState);
 
         mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
@@ -401,10 +358,8 @@ public class FragmentActivity extends ComponentActivity implements
      */
     @Override
     public void onPanelClosed(int featureId, @NonNull Menu menu) {
-        switch (featureId) {
-            case Window.FEATURE_OPTIONS_PANEL:
-                mFragments.dispatchOptionsMenuClosed(menu);
-                break;
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            mFragments.dispatchOptionsMenuClosed(menu);
         }
         super.onPanelClosed(featureId, menu);
     }
@@ -440,6 +395,7 @@ public class FragmentActivity extends ComponentActivity implements
     /**
      * Hook in to note that fragment state is no longer saved.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void onStateNotSaved() {
         mFragments.noteStateNotSaved();
@@ -481,6 +437,7 @@ public class FragmentActivity extends ComponentActivity implements
     /**
      * Dispatch onPrepareOptionsMenu() to fragments.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onPreparePanel(int featureId, @Nullable View view, @NonNull Menu menu) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
@@ -495,36 +452,11 @@ public class FragmentActivity extends ComponentActivity implements
      * @hide
      * @deprecated Override {@link #onPreparePanel(int, View, Menu)}.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Deprecated
     protected boolean onPrepareOptionsPanel(@Nullable View view, @NonNull Menu menu) {
         return super.onPreparePanel(Window.FEATURE_OPTIONS_PANEL, view, menu);
-    }
-
-    /**
-     * Save all appropriate fragment state.
-     */
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        markFragmentsCreated();
-        mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        Parcelable p = mFragments.saveAllState();
-        if (p != null) {
-            outState.putParcelable(FRAGMENTS_TAG, p);
-        }
-        if (mPendingFragmentActivityResults.size() > 0) {
-            outState.putInt(NEXT_CANDIDATE_REQUEST_INDEX_TAG, mNextCandidateRequestIndex);
-
-            int[] requestCodes = new int[mPendingFragmentActivityResults.size()];
-            String[] fragmentWhos = new String[mPendingFragmentActivityResults.size()];
-            for (int i = 0; i < mPendingFragmentActivityResults.size(); i++) {
-                requestCodes[i] = mPendingFragmentActivityResults.keyAt(i);
-                fragmentWhos[i] = mPendingFragmentActivityResults.valueAt(i);
-            }
-            outState.putIntArray(ALLOCATED_REQUEST_INDICIES_TAG, requestCodes);
-            outState.putStringArray(REQUEST_FRAGMENT_WHO_TAG, fragmentWhos);
-        }
     }
 
     /**
@@ -577,6 +509,7 @@ public class FragmentActivity extends ComponentActivity implements
      *
      * @deprecated Call {@link Activity#invalidateOptionsMenu} directly.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void supportInvalidateOptionsMenu() {
         invalidateOptionsMenu();
@@ -592,6 +525,7 @@ public class FragmentActivity extends ComponentActivity implements
      * closed for you after you return.
      * @param args additional arguments to the dump request.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
             @NonNull PrintWriter writer, @Nullable String[] args) {
@@ -621,8 +555,17 @@ public class FragmentActivity extends ComponentActivity implements
      * <p>This is called after the attached fragment's <code>onAttach</code> and before
      * the attached fragment's <code>onCreate</code> if the fragment has not yet had a previous
      * call to <code>onCreate</code>.</p>
+     *
+     * @deprecated The responsibility for listening for fragments being attached has been moved
+     * to FragmentManager. You can add a listener to
+     * {@link #getSupportFragmentManager() this Activity's FragmentManager} by calling
+     * {@link FragmentManager#addFragmentOnAttachListener(FragmentOnAttachListener)}
+     * in your constructor to get callbacks when a fragment is attached directly to
+     * the activity's FragmentManager.
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "DeprecatedIsStillUsed"})
+    @Deprecated
+    @MainThread
     public void onAttachFragment(@NonNull Fragment fragment) {
     }
 
@@ -646,132 +589,30 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
-     * Modifies the standard behavior to allow results to be delivered to fragments.
-     * This imposes a restriction that requestCode be <= 0xffff.
+     * @deprecated there are no longer any restrictions on permissions requestCodes.
      */
     @Override
-    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
-            int requestCode) {
-        // If this was started from a Fragment we've already checked the upper 16 bits were not in
-        // use, and then repurposed them for the Fragment's index.
-        if (!mStartedActivityFromFragment) {
-            if (requestCode != -1) {
-                checkForValidRequestCode(requestCode);
-            }
-        }
-        super.startActivityForResult(intent, requestCode);
-    }
+    @Deprecated
+    public final void validateRequestPermissionsRequestCode(int requestCode) { }
 
-    @Override
-    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
-            int requestCode, @Nullable Bundle options) {
-        // If this was started from a Fragment we've already checked the upper 16 bits were not in
-        // use, and then repurposed them for the Fragment's index.
-        if (!mStartedActivityFromFragment) {
-            if (requestCode != -1) {
-                checkForValidRequestCode(requestCode);
-            }
-        }
-        super.startActivityForResult(intent, requestCode, options);
-    }
-
-    @Override
-    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
-            int requestCode, @Nullable Intent fillInIntent, int flagsMask,
-            int flagsValues, int extraFlags) throws IntentSender.SendIntentException {
-        // If this was started from a Fragment we've already checked the upper 16 bits were not in
-        // use, and then repurposed them for the Fragment's index.
-        if (!mStartedIntentSenderFromFragment) {
-            if (requestCode != -1) {
-                checkForValidRequestCode(requestCode);
-            }
-        }
-        super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
-                extraFlags);
-    }
-
-    @Override
-    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
-            int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
-            int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
-        // If this was started from a Fragment we've already checked the upper 16 bits were not in
-        // use, and then repurposed them for the Fragment's index.
-        if (!mStartedIntentSenderFromFragment) {
-            if (requestCode != -1) {
-                checkForValidRequestCode(requestCode);
-            }
-        }
-        super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
-                extraFlags, options);
-    }
-
-    /**
-     * Checks whether the given request code is a valid code by masking it with 0xffff0000. Throws
-     * an {@link IllegalArgumentException} if the code is not valid.
-     */
-    static void checkForValidRequestCode(int requestCode) {
-        if ((requestCode & 0xffff0000) != 0) {
-            throw new IllegalArgumentException("Can only use lower 16 bits for requestCode");
-        }
-    }
-
-    @Override
-    public final void validateRequestPermissionsRequestCode(int requestCode) {
-        // We use 16 bits of the request code to encode the fragment id when
-        // requesting permissions from a fragment. Hence, requestPermissions()
-        // should validate the code against that but we cannot override it as
-        // we can not then call super and also the ActivityCompat would call
-        // back to this override. To handle this we use dependency inversion
-        // where we are the validator of request codes when requesting
-        // permissions in ActivityCompat.
-        if (!mRequestedPermissionsFromFragment
-                && requestCode != -1) {
-            checkForValidRequestCode(requestCode);
-        }
-    }
-
-    /**
-     * Callback for the result from requesting permissions. This method
-     * is invoked for every call on {@link #requestPermissions(String[], int)}.
-     * <p>
-     * <strong>Note:</strong> It is possible that the permissions request interaction
-     * with the user is interrupted. In this case you will receive empty permissions
-     * and results arrays which should be treated as a cancellation.
-     * </p>
-     *
-     * @param requestCode The request code passed in {@link #requestPermissions(String[], int)}.
-     * @param permissions The requested permissions. Never null.
-     * @param grantResults The grant results for the corresponding permissions
-     *     which is either {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
-     *     or {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
-     *
-     * @see #requestPermissions(String[], int)
-     */
+    @SuppressWarnings("deprecation")
+    @CallSuper
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
         mFragments.noteStateNotSaved();
-        int index = (requestCode >> 16) & 0xffff;
-        if (index != 0) {
-            index--;
-
-            String who = mPendingFragmentActivityResults.get(index);
-            mPendingFragmentActivityResults.remove(index);
-            if (who == null) {
-                Log.w(TAG, "Activity result delivered for unknown Fragment.");
-                return;
-            }
-            Fragment frag = mFragments.findFragmentByWho(who);
-            if (frag == null) {
-                Log.w(TAG, "Activity result no fragment exists for who: " + who);
-            } else {
-                frag.onRequestPermissionsResult(requestCode & 0xffff, permissions, grantResults);
-            }
-        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     /**
      * Called by Fragment.startActivityForResult() to implement its behavior.
+     *
+     * @param fragment the Fragment to start the activity from.
+     * @param intent The intent to start.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
      */
     public void startActivityFromFragment(@NonNull Fragment fragment,
             @SuppressLint("UnknownNullness") Intent intent, int requestCode) {
@@ -780,93 +621,74 @@ public class FragmentActivity extends ComponentActivity implements
 
     /**
      * Called by Fragment.startActivityForResult() to implement its behavior.
+     *
+     * @param fragment the Fragment to start the activity from.
+     * @param intent The intent to start.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     * @param options Additional options for how the Activity should be started. See
+     * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
      */
+    @SuppressWarnings("deprecation")
     public void startActivityFromFragment(@NonNull Fragment fragment,
             @SuppressLint("UnknownNullness") Intent intent, int requestCode,
             @Nullable Bundle options) {
-        mStartedActivityFromFragment = true;
-        try {
-            if (requestCode == -1) {
-                ActivityCompat.startActivityForResult(this, intent, -1, options);
-                return;
-            }
-            checkForValidRequestCode(requestCode);
-            int requestIndex = allocateRequestIndex(fragment);
-            ActivityCompat.startActivityForResult(
-                    this, intent, ((requestIndex + 1) << 16) + (requestCode & 0xffff), options);
-        } finally {
-            mStartedActivityFromFragment = false;
+        // request code will be -1 if called from fragment.startActivity
+        if (requestCode == -1) {
+            ActivityCompat.startActivityForResult(this, intent, -1, options);
+            return;
         }
+        // If for some reason this method is being called directly with a requestCode that is not
+        // -1, redirect it to the fragment.startActivityForResult method
+        fragment.startActivityForResult(intent, requestCode, options);
     }
 
     /**
      * Called by Fragment.startIntentSenderForResult() to implement its behavior.
+     *
+     * @param fragment the Fragment to start the intent sender from.
+     * @param intent The IntentSender to launch.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     * @param fillInIntent If non-null, this will be provided as the intent parameter to
+     * {@link IntentSender#sendIntent(Context, int, Intent, IntentSender.OnFinished, Handler)}.
+     *                     This value may be null.
+     * @param flagsMask Intent flags in the original IntentSender that you would like to change.
+     * @param flagsValues Desired values for any bits set in <code>flagsMask</code>.
+     * @param extraFlags Always set to 0.
+     * @param options Additional options for how the Activity should be started. See
+     * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
+     * @throws IntentSender.SendIntentException if the call fails to execute.
+     *
+     * @deprecated Fragments should use
+     * {@link Fragment#registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * with the {@link StartIntentSenderForResult} contract. This method will still be called when
+     * Fragments call the deprecated <code>startIntentSenderForResult()</code> method.
      */
+    @SuppressWarnings({"deprecation"})
+    @Deprecated
     public void startIntentSenderFromFragment(@NonNull Fragment fragment,
             @SuppressLint("UnknownNullness") IntentSender intent, int requestCode,
             @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags,
             @Nullable Bundle options) throws IntentSender.SendIntentException {
-        mStartedIntentSenderFromFragment = true;
-        try {
-            if (requestCode == -1) {
-                ActivityCompat.startIntentSenderForResult(this, intent, requestCode, fillInIntent,
-                        flagsMask, flagsValues, extraFlags, options);
-                return;
-            }
-            checkForValidRequestCode(requestCode);
-            int requestIndex = allocateRequestIndex(fragment);
-            ActivityCompat.startIntentSenderForResult(this, intent,
-                    ((requestIndex + 1) << 16) + (requestCode & 0xffff), fillInIntent,
-                    flagsMask, flagsValues, extraFlags, options);
-        } finally {
-            mStartedIntentSenderFromFragment = false;
-        }
-    }
-
-    // Allocates the next available startActivityForResult request index.
-    private int allocateRequestIndex(@NonNull Fragment fragment) {
-        // Sanity check that we havn't exhaused the request index space.
-        if (mPendingFragmentActivityResults.size() >= MAX_NUM_PENDING_FRAGMENT_ACTIVITY_RESULTS) {
-            throw new IllegalStateException("Too many pending Fragment activity results.");
-        }
-
-        // Find an unallocated request index in the mPendingFragmentActivityResults map.
-        while (mPendingFragmentActivityResults.indexOfKey(mNextCandidateRequestIndex) >= 0) {
-            mNextCandidateRequestIndex =
-                    (mNextCandidateRequestIndex + 1) % MAX_NUM_PENDING_FRAGMENT_ACTIVITY_RESULTS;
-        }
-
-        int requestIndex = mNextCandidateRequestIndex;
-        mPendingFragmentActivityResults.put(requestIndex, fragment.mWho);
-        mNextCandidateRequestIndex =
-                (mNextCandidateRequestIndex + 1) % MAX_NUM_PENDING_FRAGMENT_ACTIVITY_RESULTS;
-
-        return requestIndex;
-    }
-
-    /**
-     * Called by Fragment.requestPermissions() to implement its behavior.
-     */
-    void requestPermissionsFromFragment(@NonNull Fragment fragment, @NonNull String[] permissions,
-            int requestCode) {
         if (requestCode == -1) {
-            ActivityCompat.requestPermissions(this, permissions, requestCode);
+            ActivityCompat.startIntentSenderForResult(this, intent, requestCode, fillInIntent,
+                    flagsMask, flagsValues, extraFlags, options);
             return;
         }
-        checkForValidRequestCode(requestCode);
-        try {
-            mRequestedPermissionsFromFragment = true;
-            int requestIndex = allocateRequestIndex(fragment);
-            ActivityCompat.requestPermissions(this, permissions,
-                    ((requestIndex + 1) << 16) + (requestCode & 0xffff));
-        } finally {
-            mRequestedPermissionsFromFragment = false;
-        }
+        fragment.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask,
+                flagsValues, extraFlags, options);
     }
 
     class HostCallbacks extends FragmentHostCallback<FragmentActivity> implements
             ViewModelStoreOwner,
-            OnBackPressedDispatcherOwner {
+            OnBackPressedDispatcherOwner,
+            ActivityResultRegistryOwner,
+            FragmentOnAttachListener {
         public HostCallbacks() {
             super(FragmentActivity.this /*fragmentActivity*/);
         }
@@ -921,34 +743,6 @@ public class FragmentActivity extends ComponentActivity implements
         }
 
         @Override
-        public void onStartActivityFromFragment(@NonNull Fragment fragment, Intent intent,
-                int requestCode) {
-            FragmentActivity.this.startActivityFromFragment(fragment, intent, requestCode);
-        }
-
-        @Override
-        public void onStartActivityFromFragment(@NonNull Fragment fragment, Intent intent,
-                int requestCode, @Nullable Bundle options) {
-            FragmentActivity.this.startActivityFromFragment(fragment, intent, requestCode, options);
-        }
-
-        @Override
-        public void onStartIntentSenderFromFragment(
-                @NonNull Fragment fragment, IntentSender intent, int requestCode,
-                @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
-                int extraFlags, Bundle options) throws IntentSender.SendIntentException {
-            FragmentActivity.this.startIntentSenderFromFragment(fragment, intent, requestCode,
-                    fillInIntent, flagsMask, flagsValues, extraFlags, options);
-        }
-
-        @Override
-        public void onRequestPermissionsFromFragment(@NonNull Fragment fragment,
-                @NonNull String[] permissions, int requestCode) {
-            FragmentActivity.this.requestPermissionsFromFragment(fragment, permissions,
-                    requestCode);
-        }
-
-        @Override
         public boolean onShouldShowRequestPermissionRationale(@NonNull String permission) {
             return ActivityCompat.shouldShowRequestPermissionRationale(
                     FragmentActivity.this, permission);
@@ -965,8 +759,10 @@ public class FragmentActivity extends ComponentActivity implements
             return (w == null) ? 0 : w.getAttributes().windowAnimations;
         }
 
+        @SuppressWarnings("deprecation")
         @Override
-        public void onAttachFragment(@NonNull Fragment fragment) {
+        public void onAttachFragment(@NonNull FragmentManager fragmentManager,
+                @NonNull Fragment fragment) {
             FragmentActivity.this.onAttachFragment(fragment);
         }
 
@@ -981,9 +777,15 @@ public class FragmentActivity extends ComponentActivity implements
             final Window w = getWindow();
             return (w != null && w.peekDecorView() != null);
         }
+
+        @NonNull
+        @Override
+        public ActivityResultRegistry getActivityResultRegistry() {
+            return FragmentActivity.this.getActivityResultRegistry();
+        }
     }
 
-    private void markFragmentsCreated() {
+    void markFragmentsCreated() {
         boolean reiterate;
         do {
             reiterate = markState(getSupportFragmentManager(), Lifecycle.State.CREATED);
@@ -997,14 +799,18 @@ public class FragmentActivity extends ComponentActivity implements
             if (fragment == null) {
                 continue;
             }
-            if (fragment.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
-                fragment.mLifecycleRegistry.setCurrentState(state);
-                hadNotMarked = true;
-            }
-
             if (fragment.getHost() != null) {
                 FragmentManager childFragmentManager = fragment.getChildFragmentManager();
                 hadNotMarked |= markState(childFragmentManager, state);
+            }
+            if (fragment.mViewLifecycleOwner != null && fragment.mViewLifecycleOwner
+                    .getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+                fragment.mViewLifecycleOwner.setCurrentState(state);
+                hadNotMarked = true;
+            }
+            if (fragment.mLifecycleRegistry.getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+                fragment.mLifecycleRegistry.setCurrentState(state);
+                hadNotMarked = true;
             }
         }
         return hadNotMarked;

@@ -28,20 +28,14 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-android {
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
-        }
-    }
-}
-
 dependencies {
     api(project(":navigation:navigation-runtime-ktx"))
     api(TRUTH)
     api(KOTLIN_STDLIB)
     androidTestImplementation(project(":internal-testutils-truth"))
-    androidTestImplementation(project(":navigation:navigation-testing"))
+    androidTestImplementation(project(":internal-testutils-navigation"), {
+        exclude group: "androidx.navigation", module: "navigation-common-ktx"
+    })
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -52,9 +46,7 @@ dependencies {
 androidx {
     name = "Android Navigation Runtime Truth"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2019"
     description = "Android Navigation-Runtime-Truth"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

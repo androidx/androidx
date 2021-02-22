@@ -20,6 +20,8 @@ import android.graphics.Rect;
 import android.media.Image;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -50,20 +52,22 @@ abstract class ForwardingImageProxy implements ImageProxy {
         mImage = image;
     }
 
-    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
     @Override
     public void close() {
-        mImage.close();
+        synchronized (this) {
+            mImage.close();
+        }
         notifyOnImageCloseListeners();
     }
 
     @Override
+    @NonNull
     public synchronized Rect getCropRect() {
         return mImage.getCropRect();
     }
 
     @Override
-    public synchronized void setCropRect(Rect rect) {
+    public synchronized void setCropRect(@Nullable Rect rect) {
         mImage.setCropRect(rect);
     }
 
@@ -83,26 +87,19 @@ abstract class ForwardingImageProxy implements ImageProxy {
     }
 
     @Override
-    public synchronized long getTimestamp() {
-        return mImage.getTimestamp();
-    }
-
-    @Override
-    public synchronized void setTimestamp(long timestamp) {
-        mImage.setTimestamp(timestamp);
-    }
-
-    @Override
+    @NonNull
     public synchronized ImageProxy.PlaneProxy[] getPlanes() {
         return mImage.getPlanes();
     }
 
     @Override
+    @NonNull
     public synchronized ImageInfo getImageInfo() {
         return mImage.getImageInfo();
     }
 
     @Override
+    @ExperimentalGetImage
     public synchronized Image getImage() {
         return mImage.getImage();
     }

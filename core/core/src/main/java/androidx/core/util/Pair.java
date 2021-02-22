@@ -17,7 +17,6 @@
 package androidx.core.util;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * Container to ease passing around a tuple of two objects. This object provides a sensible
@@ -25,8 +24,8 @@ import androidx.annotation.Nullable;
  * objects.
  */
 public class Pair<F, S> {
-    public final @Nullable F first;
-    public final @Nullable S second;
+    public final F first;
+    public final S second;
 
     /**
      * Constructor for a Pair.
@@ -34,7 +33,8 @@ public class Pair<F, S> {
      * @param first the first object in the Pair
      * @param second the second object in the pair
      */
-    public Pair(@Nullable F first, @Nullable S second) {
+    @SuppressWarnings("UnknownNullness") // Generic nullness should come from type annotations.
+    public Pair(F first, S second) {
         this.first = first;
         this.second = second;
     }
@@ -69,7 +69,7 @@ public class Pair<F, S> {
     @NonNull
     @Override
     public String toString() {
-        return "Pair{" + String.valueOf(first) + " " + String.valueOf(second) + "}";
+        return "Pair{" + first + " " + second + "}";
     }
 
     /**
@@ -79,7 +79,8 @@ public class Pair<F, S> {
      * @return a Pair that is templatized with the types of a and b
      */
     @NonNull
-    public static <A, B> Pair <A, B> create(@Nullable A a, @Nullable B b) {
-        return new Pair<A, B>(a, b);
+    @SuppressWarnings("UnknownNullness") // Generic nullness should come from type annotations.
+    public static <A, B> Pair<A, B> create(A a, B b) {
+        return new Pair<>(a, b);
     }
 }

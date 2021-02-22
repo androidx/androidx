@@ -16,23 +16,36 @@
 
 package androidx.room.solver.types
 
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.L
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.CodeGenScope
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.TypeKind
+import com.squareup.javapoet.TypeName
 
-class ByteArrayColumnTypeAdapter(env: ProcessingEnvironment) : ColumnTypeAdapter(
-        out = env.typeUtils.getArrayType(env.typeUtils.getPrimitiveType(TypeKind.BYTE)),
-        typeAffinity = SQLTypeAffinity.BLOB) {
+class ByteArrayColumnTypeAdapter private constructor(
+    out: XType
+) : ColumnTypeAdapter(
+    out = out,
+    typeAffinity = SQLTypeAffinity.BLOB
+) {
     override fun readFromCursor(
         outVarName: String,
         cursorVarName: String,
         indexVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder()
-                .addStatement("$L = $L.getBlob($L)", outVarName, cursorVarName, indexVarName)
+        scope.builder().apply {
+            // according to docs, getBlob might throw if the value is null
+            // https://developer.android.com/reference/android/database/Cursor#getBlob(int)
+            beginControlFlow("if ($L.isNull($L))", cursorVarName, indexVarName).apply {
+                addStatement("$L = null", outVarName)
+            }
+            nextControlFlow("else").apply {
+                addStatement("$L = $L.getBlob($L)", outVarName, cursorVarName, indexVarName)
+            }
+            endControlFlow()
+        }
     }
 
     override fun bindToStmt(
@@ -43,10 +56,28 @@ class ByteArrayColumnTypeAdapter(env: ProcessingEnvironment) : ColumnTypeAdapter
     ) {
         scope.builder().apply {
             beginControlFlow("if ($L == null)", valueVarName)
-                    .addStatement("$L.bindNull($L)", stmtName, indexVarName)
+                .addStatement("$L.bindNull($L)", stmtName, indexVarName)
             nextControlFlow("else")
-                    .addStatement("$L.bindBlob($L, $L)", stmtName, indexVarName, valueVarName)
+                .addStatement("$L.bindBlob($L, $L)", stmtName, indexVarName, valueVarName)
             endControlFlow()
+        }
+    }
+
+    companion object {
+        fun create(env: XProcessingEnv): List<ByteArrayColumnTypeAdapter> {
+            val arrayType = env.getArrayType(TypeName.BYTE)
+            return if (env.backend == XProcessingEnv.Backend.KSP) {
+                listOf(
+                    ByteArrayColumnTypeAdapter(arrayType.makeNonNullable()),
+                    ByteArrayColumnTypeAdapter(arrayType.makeNullable())
+                )
+            } else {
+                listOf(
+                    ByteArrayColumnTypeAdapter(
+                        out = arrayType
+                    )
+                )
+            }
         }
     }
 }

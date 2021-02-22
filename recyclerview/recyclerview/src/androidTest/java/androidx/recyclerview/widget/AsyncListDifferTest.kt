@@ -16,7 +16,8 @@
 
 package androidx.recyclerview.widget
 
-import androidx.test.filters.SmallTest
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.testutils.TestExecutor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotSame
@@ -24,17 +25,15 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.verifyZeroInteractions
-import java.lang.UnsupportedOperationException
 import java.util.Collections.emptyList
 
-@SmallTest
-@RunWith(JUnit4::class)
+@MediumTest
+@RunWith(AndroidJUnit4::class)
 class AsyncListDifferTest {
     private val mMainThread = TestExecutor()
     private val mBackgroundThread = TestExecutor()
@@ -42,11 +41,13 @@ class AsyncListDifferTest {
     private fun createDiffer(
         listUpdateCallback: ListUpdateCallback = IGNORE_CALLBACK
     ): AsyncListDiffer<String> {
-        return AsyncListDiffer(listUpdateCallback,
-                AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
-                        .setMainThreadExecutor(mMainThread)
-                        .setBackgroundThreadExecutor(mBackgroundThread)
-                        .build())
+        return AsyncListDiffer(
+            listUpdateCallback,
+            AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
+                .setMainThreadExecutor(mMainThread)
+                .setBackgroundThreadExecutor(mBackgroundThread)
+                .build()
+        )
     }
 
     @Test
@@ -293,7 +294,7 @@ class AsyncListDifferTest {
 
         @Suppress("UNCHECKED_CAST")
         val listener = mock(AsyncListDiffer.ListListener::class.java)
-                as AsyncListDiffer.ListListener<String>
+            as AsyncListDiffer.ListListener<String>
         differ.addListListener(listener)
 
         val callback = mock(Runnable::class.java)

@@ -32,7 +32,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import androidx.lifecycle.Observer;
 import androidx.slice.Slice;
@@ -58,6 +57,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 
+@SuppressWarnings("unchecked")
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 19)
@@ -169,7 +169,7 @@ public class CachedSliceLiveDataTest {
         verify(mObserver, times(1)).onChanged(mSlice.capture());
         clearInvocations(mObserver);
 
-        AsyncTask.execute(new Runnable() {
+        android.os.AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -302,7 +302,7 @@ public class CachedSliceLiveDataTest {
 
     private void waitForAsync() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
-        AsyncTask.execute(new Runnable() {
+        android.os.AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
                 latch.countDown();

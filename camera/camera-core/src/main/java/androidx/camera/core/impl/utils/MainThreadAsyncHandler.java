@@ -19,16 +19,12 @@ package androidx.camera.core.impl.utils;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.core.os.HandlerCompat;
 
 /**
  * Singleton instance of an async main thread {@link Handler}.
  * @see HandlerCompat#createAsync(Looper)
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class MainThreadAsyncHandler {
     private static volatile Handler sHandler;
 

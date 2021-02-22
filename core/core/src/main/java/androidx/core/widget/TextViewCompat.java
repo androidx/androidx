@@ -711,7 +711,7 @@ public final class TextViewCompat {
         // in settings). At the moment, we don't.
 
         if (firstBaselineToTopHeight > Math.abs(fontMetricsTop)) {
-            final int paddingTop = firstBaselineToTopHeight - (-fontMetricsTop);
+            final int paddingTop = firstBaselineToTopHeight + fontMetricsTop;
             textView.setPadding(textView.getPaddingLeft(), paddingTop,
                     textView.getPaddingRight(), textView.getPaddingBottom());
         }
@@ -984,14 +984,14 @@ public final class TextViewCompat {
     /**
      * Applies a tint to any compound drawables.
      * <p>
-     * This will always take effect when running on API v23 or newer. When running on platforms
-     * previous to API v23, it will only take effect if {@code textView} implements the
+     * This will always take effect when running on API v24 or newer. When running on platforms
+     * previous to API v24, it will only take effect if {@code textView} implements the
      * {@code TintableCompoundDrawablesView} interface.
      */
     public static void setCompoundDrawableTintList(@NonNull TextView textView,
             @Nullable ColorStateList tint) {
         Preconditions.checkNotNull(textView);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= 24) {
             textView.setCompoundDrawableTintList(tint);
         } else if (textView instanceof TintableCompoundDrawablesView) {
             ((TintableCompoundDrawablesView) textView).setSupportCompoundDrawablesTintList(tint);
@@ -1001,13 +1001,13 @@ public final class TextViewCompat {
     /**
      * Return the tint applied to any compound drawables.
      * <p>
-     * Only returns meaningful info when running on API v23 or newer, or if {@code textView}
+     * Only returns meaningful info when running on API v24 or newer, or if {@code textView}
      * implements the {@code TintableCompoundDrawablesView} interface.
      */
     @Nullable
     public static ColorStateList getCompoundDrawableTintList(@NonNull TextView textView) {
         Preconditions.checkNotNull(textView);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= 24) {
             return textView.getCompoundDrawableTintList();
         } else if (textView instanceof TintableCompoundDrawablesView) {
             return ((TintableCompoundDrawablesView) textView).getSupportCompoundDrawablesTintList();
@@ -1018,14 +1018,14 @@ public final class TextViewCompat {
     /**
      * Applies a tint mode to any compound drawables.
      * <p>
-     * This will always take effect when running on API v23 or newer. When running on platforms
-     * previous to API v23, it will only take effect if {@code textView} implements the
+     * This will always take effect when running on API v24 or newer. When running on platforms
+     * previous to API v24, it will only take effect if {@code textView} implements the
      * {@code TintableCompoundDrawablesView} interface.
      */
     public static void setCompoundDrawableTintMode(@NonNull TextView textView,
             @Nullable PorterDuff.Mode tintMode) {
         Preconditions.checkNotNull(textView);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= 24) {
             textView.setCompoundDrawableTintMode(tintMode);
         } else if (textView instanceof TintableCompoundDrawablesView) {
             ((TintableCompoundDrawablesView) textView).setSupportCompoundDrawablesTintMode(
@@ -1036,13 +1036,13 @@ public final class TextViewCompat {
     /**
      * Return the tint mode applied to any compound drawables.
      * <p>
-     * Only returns meaningful info when running on API v23 or newer, or if {@code textView}
+     * Only returns meaningful info when running on API v24 or newer, or if {@code textView}
      * implements the {@code TintableCompoundDrawablesView} interface.
      */
     @Nullable
     public static PorterDuff.Mode getCompoundDrawableTintMode(@NonNull TextView textView) {
         Preconditions.checkNotNull(textView);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= 24) {
             return textView.getCompoundDrawableTintMode();
         } else if (textView instanceof TintableCompoundDrawablesView) {
             return ((TintableCompoundDrawablesView) textView).getSupportCompoundDrawablesTintMode();

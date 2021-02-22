@@ -16,9 +16,12 @@
 
 package androidx.room.vo
 
+import java.util.Locale
+
 /**
  * Internal representation of supported warnings
  */
+// If these warnings are updated also update androidx.room.RoomWarnings
 enum class Warning(val publicKey: String) {
     ALL("ALL"),
     CURSOR_MISMATCH("ROOM_CURSOR_MISMATCH"),
@@ -34,14 +37,20 @@ enum class Warning(val publicKey: String) {
     MISSING_INDEX_ON_FOREIGN_KEY_CHILD("ROOM_MISSING_FOREIGN_KEY_CHILD_INDEX"),
     RELATION_QUERY_WITHOUT_TRANSACTION("ROOM_RELATION_QUERY_WITHOUT_TRANSACTION"),
     DEFAULT_CONSTRUCTOR("ROOM_DEFAULT_CONSTRUCTOR"),
+    // TODO(danysantiago): These warning keys should have 'ROOM_' prefix.
     MISSING_COPY_ANNOTATIONS("MISSING_COPY_ANNOTATIONS"),
     MISSING_INDEX_ON_JUNCTION("MISSING_INDEX_ON_JUNCTION"),
-    JDK_VERSION_HAS_BUG("JDK_VERSION_HAS_BUG");
+    JDK_VERSION_HAS_BUG("JDK_VERSION_HAS_BUG"),
+    MISMATCHED_GETTER_TYPE("ROOM_MISMATCHED_GETTER_TYPE"),
+    MISMATCHED_SETTER_TYPE("ROOM_MISMATCHED_SETTER_TYPE"),
+    // NOTE there is no constant for this in RoomWarnings since this is a temporary case until
+    // expand projection is removed.
+    EXPAND_PROJECTION_WITH_REMOVE_UNUSED_COLUMNS("ROOM_EXPAND_PROJECTION_WITH_UNUSED_COLUMNS");
 
     companion object {
-        val PUBLIC_KEY_MAP = Warning.values().associateBy { it.publicKey }
+        val PUBLIC_KEY_MAP = values().associateBy { it.publicKey }
         fun fromPublicKey(publicKey: String): Warning? {
-            return PUBLIC_KEY_MAP[publicKey.toUpperCase()]
+            return PUBLIC_KEY_MAP[publicKey.toUpperCase(Locale.US)]
         }
     }
 }

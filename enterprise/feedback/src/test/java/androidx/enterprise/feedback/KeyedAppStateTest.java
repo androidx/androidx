@@ -32,7 +32,6 @@ import static junit.framework.TestCase.fail;
 import android.os.Bundle;
 
 import androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +40,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests {@link KeyedAppState}. */
+@SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = 21)
@@ -53,7 +53,6 @@ public class KeyedAppStateTest {
     private static final int INVALID_SEVERITY = 100;
 
     @Test
-    @SmallTest
     public void toStateBundle() {
         KeyedAppState keyedAppState =
                 KeyedAppState.builder()
@@ -72,7 +71,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void isValid() {
         Bundle bundle = new Bundle();
         bundle.putString(APP_STATE_KEY, KEY);
@@ -82,7 +80,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void isValid_missingKey_isFalse() {
         Bundle bundle = buildTestBundle();
         bundle.remove(APP_STATE_KEY);
@@ -91,7 +88,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void isValid_missingSeverity_isFalse() {
         Bundle bundle = buildTestBundle();
         bundle.remove(APP_STATE_SEVERITY);
@@ -100,7 +96,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void isValid_invalidSeverity_isFalse() {
         Bundle bundle = buildTestBundle();
         bundle.putInt(APP_STATE_SEVERITY, INVALID_SEVERITY);
@@ -109,7 +104,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void isValid_maxKeyLength_isTrue() {
         Bundle bundle = buildTestBundle();
         bundle.putString(APP_STATE_KEY, buildStringOfLength(MAX_KEY_LENGTH));
@@ -118,7 +112,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void isValid_tooHighKeyLength_isFalse() {
         Bundle bundle = buildTestBundle();
         bundle.putString(APP_STATE_KEY, buildStringOfLength(MAX_KEY_LENGTH + 1));
@@ -127,7 +120,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void isValid_maxMessageLength_isTrue() {
         Bundle bundle = buildTestBundle();
         bundle.putString(APP_STATE_MESSAGE, buildStringOfLength(MAX_MESSAGE_LENGTH));
@@ -136,7 +128,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void isValid_tooHighMessageLength_isFalse() {
         Bundle bundle = buildTestBundle();
         bundle.putString(APP_STATE_MESSAGE, buildStringOfLength(MAX_MESSAGE_LENGTH + 1));
@@ -145,7 +136,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void isValid_maxDataLength_isTrue() {
         Bundle bundle = buildTestBundle();
         bundle.putString(APP_STATE_DATA, buildStringOfLength(MAX_DATA_LENGTH));
@@ -154,7 +144,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void isValid_tooHighDataLength_isFalse() {
         Bundle bundle = buildTestBundle();
         bundle.putString(APP_STATE_DATA, buildStringOfLength(MAX_DATA_LENGTH + 1));
@@ -163,7 +152,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void fromBundle() {
         Bundle bundle = new Bundle();
         bundle.putString(APP_STATE_KEY, KEY);
@@ -180,7 +168,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void fromBundle_invalidBundle_throwsIllegalArgumentException() {
         Bundle bundle = buildTestBundle();
         bundle.remove(APP_STATE_SEVERITY);
@@ -192,7 +179,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void severityDefaultsToInfo() {
         KeyedAppState keyedAppState = KeyedAppState.builder().setKey(KEY).build();
 
@@ -200,7 +186,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void messageDefaultsToNull() {
         KeyedAppState keyedAppState = KeyedAppState.builder().setKey(KEY).build();
 
@@ -208,7 +193,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void dataDefaultsToNull() {
         KeyedAppState keyedAppState = KeyedAppState.builder().setKey(KEY).build();
 
@@ -216,13 +200,11 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void buildWithMaxKeyLength_builds() {
         createDefaultKeyedAppStateBuilder().setKey(buildStringOfLength(MAX_KEY_LENGTH)).build();
     }
 
     @Test
-    @SmallTest
     public void buildWithTooHighKeyLength_throwsIllegalStateException() {
         KeyedAppStateBuilder builder =
                 createDefaultKeyedAppStateBuilder().setKey(buildStringOfLength(MAX_KEY_LENGTH + 1));
@@ -234,14 +216,12 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void buildWithMaxMessageLength_builds() {
         createDefaultKeyedAppStateBuilder().setMessage(
                 buildStringOfLength(MAX_MESSAGE_LENGTH)).build();
     }
 
     @Test
-    @SmallTest
     public void buildWithTooHighMessageLength_throwsIllegalStateException() {
         KeyedAppStateBuilder builder =
                 createDefaultKeyedAppStateBuilder().setMessage(
@@ -254,13 +234,11 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void buildWithMaxDataLength_builds() {
         createDefaultKeyedAppStateBuilder().setData(buildStringOfLength(MAX_DATA_LENGTH)).build();
     }
 
     @Test
-    @SmallTest
     public void buildWithTooHighDataLength_throwsIllegalStateException() {
         KeyedAppStateBuilder builder =
                 createDefaultKeyedAppStateBuilder().setData(
@@ -284,7 +262,6 @@ public class KeyedAppStateTest {
     }
 
     @Test
-    @SmallTest
     public void keyIsRequired() {
         KeyedAppStateBuilder builder =
                 KeyedAppState.builder().setSeverity(SEVERITY_INFO).setMessage(MESSAGE).setData(

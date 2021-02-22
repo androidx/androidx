@@ -17,6 +17,7 @@
 package androidx.work.impl.utils;
 
 import static androidx.work.ExistingWorkPolicy.APPEND;
+import static androidx.work.ExistingWorkPolicy.APPEND_OR_REPLACE;
 import static androidx.work.ExistingWorkPolicy.KEEP;
 import static androidx.work.WorkInfo.State.BLOCKED;
 import static androidx.work.WorkInfo.State.CANCELLED;
@@ -56,6 +57,7 @@ import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -101,6 +103,7 @@ public class EnqueueRunnable implements Runnable {
     /**
      * @return The {@link Operation} that encapsulates the state of the {@link EnqueueRunnable}.
      */
+    @NonNull
     public Operation getOperation() {
         return mOperation;
     }
@@ -224,7 +227,7 @@ public class EnqueueRunnable implements Runnable {
 
             if (!existingWorkSpecIdAndStates.isEmpty()) {
                 // If appending, these are the new prerequisites.
-                if (existingWorkPolicy == APPEND) {
+                if (existingWorkPolicy == APPEND || existingWorkPolicy == APPEND_OR_REPLACE) {
                     DependencyDao dependencyDao = workDatabase.dependencyDao();
                     List<String> newPrerequisiteIds = new ArrayList<>();
                     for (WorkSpec.IdAndState idAndState : existingWorkSpecIdAndStates) {
@@ -236,6 +239,21 @@ public class EnqueueRunnable implements Runnable {
                                 hasCancelledPrerequisites = true;
                             }
                             newPrerequisiteIds.add(idAndState.id);
+                        }
+                    }
+                    if (existingWorkPolicy == APPEND_OR_REPLACE) {
+                        if (hasCancelledPrerequisites || hasFailedPrerequisites) {
+                            // Delete all WorkSpecs with this name
+                            WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+                            List<WorkSpec.IdAndState> idAndStates =
+                                    workSpecDao.getWorkSpecIdAndStatesForName(name);
+                            for (WorkSpec.IdAndState idAndState : idAndStates) {
+                                workSpecDao.delete(idAndState.id);
+                            }
+                            // Treat this as a new chain of work.
+                            newPrerequisiteIds = Collections.emptyList();
+                            hasCancelledPrerequisites = false;
+                            hasFailedPrerequisites = false;
                         }
                     }
                     prerequisiteIds = newPrerequisiteIds.toArray(prerequisiteIds);
@@ -286,6 +304,13 @@ public class EnqueueRunnable implements Runnable {
                 // Set scheduled times only for work without prerequisites and that are
                 // not periodic. Dependent work will set their scheduled times when they are
                 // unblocked.
+
+                // We only set the periodStartTime for OneTimeWorkRequest's here. For
+                // PeriodicWorkRequests the first interval duration is effective immediately, and
+                // WorkerWrapper special cases the first run for a PeriodicWorkRequest. This is
+                // essential because we de-dupe multiple runs of the same PeriodicWorkRequest for a
+                // given interval. JobScheduler has bugs that cause PeriodicWorkRequests to run too
+                // frequently otherwise.
                 if (!workSpec.isPeriodic()) {
                     workSpec.periodStartTime = currentTimeMillis;
                 } else {
@@ -330,8 +355,18 @@ public class EnqueueRunnable implements Runnable {
         // requiresBatteryNotLow and requiresStorageNotLow require API 26 for JobScheduler.
         // Delegate to ConstraintTrackingWorker between API 23-25.
         Constraints constraints = workSpec.constraints;
-        if (constraints.requiresBatteryNotLow() || constraints.requiresStorageNotLow()) {
-            String workerClassName = workSpec.workerClassName;
+        String workerClassName = workSpec.workerClassName;
+        // Check if the Worker is a ConstraintTrackingWorker already. Otherwise we could end up
+        // wrapping a ConstraintTrackingWorker with another and build a taller stack.
+        // This usually happens when a developer accidentally enqueues() a named WorkRequest
+        // with an ExistingWorkPolicy.KEEP and subsequent inserts no-op (while the state of the
+        // Worker is not ENQUEUED or RUNNING i.e. the Worker probably just got done & the app is
+        // holding on to a reference of WorkSpec which got updated). We end up reusing the
+        // WorkSpec, and get a ConstraintTrackingWorker (instead of the original Worker class).
+        boolean isConstraintTrackingWorker =
+                workerClassName.equals(ConstraintTrackingWorker.class.getName());
+        if (!isConstraintTrackingWorker
+                && (constraints.requiresBatteryNotLow() || constraints.requiresStorageNotLow())) {
             Data.Builder builder = new Data.Builder();
             // Copy all arguments
             builder.putAll(workSpec.input)

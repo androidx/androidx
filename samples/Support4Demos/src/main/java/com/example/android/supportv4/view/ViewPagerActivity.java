@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.PagerTitleStrip;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.android.supportv4.R;
@@ -33,7 +32,6 @@ import java.util.ArrayList;
 
 public class ViewPagerActivity extends Activity {
     private ViewPager mPager;
-    private PagerTitleStrip mTitles;
     private ColorPagerAdapter mAdapter;
 
     @Override
@@ -49,8 +47,6 @@ public class ViewPagerActivity extends Activity {
 
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(mAdapter);
-
-        mTitles = findViewById(R.id.titles);
     }
 
     private static class ColorPagerAdapter extends PagerAdapter {

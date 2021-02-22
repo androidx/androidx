@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Map;
 
@@ -74,7 +75,7 @@ public class ChangeImageTransform extends Transition {
     public ChangeImageTransform() {
     }
 
-    public ChangeImageTransform(Context context, AttributeSet attrs) {
+    public ChangeImageTransform(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -111,6 +112,7 @@ public class ChangeImageTransform extends Transition {
     }
 
     @Override
+    @NonNull
     public String[] getTransitionProperties() {
         return sTransitionProperties;
     }
@@ -125,9 +127,11 @@ public class ChangeImageTransform extends Transition {
      * @return An Animator to move an ImageView or null if the View is not an ImageView,
      * the Drawable changed, the View is not VISIBLE, or there was no change.
      */
+    @Nullable
     @Override
-    public Animator createAnimator(@NonNull ViewGroup sceneRoot, TransitionValues startValues,
-            final TransitionValues endValues) {
+    public Animator createAnimator(@NonNull ViewGroup sceneRoot,
+            @Nullable TransitionValues startValues,
+            final @Nullable TransitionValues endValues) {
         if (startValues == null || endValues == null) {
             return null;
         }
@@ -190,6 +194,8 @@ public class ChangeImageTransform extends Transition {
                     return fitXYMatrix(view);
                 case CENTER_CROP:
                     return centerCropMatrix(view);
+                default:
+                    return new Matrix(view.getImageMatrix());
             }
         }
         return new Matrix(view.getImageMatrix());

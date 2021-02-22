@@ -16,33 +16,46 @@
 
 package androidx.build.metalava
 
-import java.io.File
 import org.gradle.api.DefaultTask
-import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Classpath
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.workers.WorkerExecutor
+import java.io.File
+import javax.inject.Inject
 
 /** Base class for invoking Metalava. */
-abstract class MetalavaTask : DefaultTask() {
-    /** Configuration containing Metalava and its dependencies. */
+abstract class MetalavaTask @Inject constructor(
+    @Internal
+    protected val workerExecutor: WorkerExecutor
+) : DefaultTask() {
+    /** Classpath containing Metalava and its dependencies. */
     @get:Classpath
-    @get:InputFiles
-    lateinit var configuration: Configuration
+    abstract val metalavaClasspath: ConfigurableFileCollection
 
     /** Android's boot classpath. Obtained from [BaseExtension.getBootClasspath]. */
-    @get:InputFiles
+    @get:Classpath
     lateinit var bootClasspath: Collection<File>
 
     /** Dependencies of [sourcePaths]. */
-    @get:InputFiles
+    @get:Classpath
     lateinit var dependencyClasspath: FileCollection
 
     /** Source files against which API signatures will be validated. */
-    @get:InputFiles
-    var sourcePaths: Collection<File> = emptyList()
+    @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
+    var sourcePaths: FileCollection = project.files()
 
-    protected fun runWithArgs(args: List<String>) {
-        project.runMetalavaWithArgs(configuration, args)
+    @get:[Optional InputFile PathSensitive(PathSensitivity.NONE)]
+    abstract val manifestPath: RegularFileProperty
+
+    fun runWithArgs(args: List<String>) {
+        runMetalavaWithArgs(metalavaClasspath, args, workerExecutor)
     }
 }

@@ -1,0 +1,229 @@
+// Baseline format: 1.0
+MissingNullability: androidx.exifinterface.media.ExifInterface#BITS_PER_SAMPLE_GREYSCALE_1:
+    Missing nullability on field `BITS_PER_SAMPLE_GREYSCALE_1` in class `class androidx.exifinterface.media.ExifInterface`
+MissingNullability: androidx.exifinterface.media.ExifInterface#BITS_PER_SAMPLE_GREYSCALE_2:
+    Missing nullability on field `BITS_PER_SAMPLE_GREYSCALE_2` in class `class androidx.exifinterface.media.ExifInterface`
+MissingNullability: androidx.exifinterface.media.ExifInterface#BITS_PER_SAMPLE_RGB:
+    Missing nullability on field `BITS_PER_SAMPLE_RGB` in class `class androidx.exifinterface.media.ExifInterface`
+MissingNullability: androidx.exifinterface.media.ExifInterface#getLatLong(float[]) parameter #0:
+    Missing nullability on parameter `output` in method `getLatLong`
+MissingNullability: androidx.exifinterface.media.ExifInterface#setGpsInfo(android.location.Location) parameter #0:
+    Missing nullability on parameter `location` in method `setGpsInfo`
+
+
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#ALTITUDE_ABOVE_SEA_LEVEL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.ALTITUDE_ABOVE_SEA_LEVEL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#ALTITUDE_BELOW_SEA_LEVEL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.ALTITUDE_BELOW_SEA_LEVEL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#CONTRAST_HARD:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.CONTRAST_HARD
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#CONTRAST_NORMAL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.CONTRAST_NORMAL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#CONTRAST_SOFT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.CONTRAST_SOFT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#EXPOSURE_MODE_AUTO:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.EXPOSURE_MODE_AUTO
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#EXPOSURE_MODE_AUTO_BRACKET:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.EXPOSURE_MODE_AUTO_BRACKET
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#EXPOSURE_MODE_MANUAL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.EXPOSURE_MODE_MANUAL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#EXPOSURE_PROGRAM_ACTION:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.EXPOSURE_PROGRAM_ACTION
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#EXPOSURE_PROGRAM_APERTURE_PRIORITY:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.EXPOSURE_PROGRAM_APERTURE_PRIORITY
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#EXPOSURE_PROGRAM_CREATIVE:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.EXPOSURE_PROGRAM_CREATIVE
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#EXPOSURE_PROGRAM_LANDSCAPE_MODE:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.EXPOSURE_PROGRAM_LANDSCAPE_MODE
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#EXPOSURE_PROGRAM_MANUAL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.EXPOSURE_PROGRAM_MANUAL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#EXPOSURE_PROGRAM_NORMAL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.EXPOSURE_PROGRAM_NORMAL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#EXPOSURE_PROGRAM_NOT_DEFINED:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.EXPOSURE_PROGRAM_NOT_DEFINED
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#EXPOSURE_PROGRAM_PORTRAIT_MODE:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.EXPOSURE_PROGRAM_PORTRAIT_MODE
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#EXPOSURE_PROGRAM_SHUTTER_PRIORITY:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.EXPOSURE_PROGRAM_SHUTTER_PRIORITY
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FILE_SOURCE_DSC:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FILE_SOURCE_DSC
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FILE_SOURCE_OTHER:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FILE_SOURCE_OTHER
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FILE_SOURCE_REFLEX_SCANNER:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FILE_SOURCE_REFLEX_SCANNER
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FILE_SOURCE_TRANSPARENT_SCANNER:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FILE_SOURCE_TRANSPARENT_SCANNER
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FLAG_FLASH_FIRED:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FLAG_FLASH_FIRED
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FLAG_FLASH_MODE_AUTO:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FLAG_FLASH_MODE_AUTO
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FLAG_FLASH_MODE_COMPULSORY_FIRING:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FLAG_FLASH_MODE_COMPULSORY_FIRING
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FLAG_FLASH_MODE_COMPULSORY_SUPPRESSION:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FLAG_FLASH_MODE_COMPULSORY_SUPPRESSION
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FLAG_FLASH_NO_FLASH_FUNCTION:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FLAG_FLASH_NO_FLASH_FUNCTION
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FLAG_FLASH_RED_EYE_SUPPORTED:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FLAG_FLASH_RED_EYE_SUPPORTED
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FLAG_FLASH_RETURN_LIGHT_DETECTED:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FLAG_FLASH_RETURN_LIGHT_DETECTED
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FLAG_FLASH_RETURN_LIGHT_NOT_DETECTED:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FLAG_FLASH_RETURN_LIGHT_NOT_DETECTED
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FORMAT_CHUNKY:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FORMAT_CHUNKY
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#FORMAT_PLANAR:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.FORMAT_PLANAR
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#GAIN_CONTROL_HIGH_GAIN_DOWN:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.GAIN_CONTROL_HIGH_GAIN_DOWN
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#GAIN_CONTROL_HIGH_GAIN_UP:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.GAIN_CONTROL_HIGH_GAIN_UP
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#GAIN_CONTROL_LOW_GAIN_DOWN:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.GAIN_CONTROL_LOW_GAIN_DOWN
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#GAIN_CONTROL_LOW_GAIN_UP:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.GAIN_CONTROL_LOW_GAIN_UP
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#GAIN_CONTROL_NONE:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.GAIN_CONTROL_NONE
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#GPS_MEASUREMENT_DIFFERENTIAL_CORRECTED:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.GPS_MEASUREMENT_DIFFERENTIAL_CORRECTED
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#GPS_MEASUREMENT_NO_DIFFERENTIAL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.GPS_MEASUREMENT_NO_DIFFERENTIAL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_CLOUDY_WEATHER:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_CLOUDY_WEATHER
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_COOL_WHITE_FLUORESCENT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_COOL_WHITE_FLUORESCENT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_D50:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_D50
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_D55:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_D55
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_D65:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_D65
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_D75:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_D75
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_DAYLIGHT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_DAYLIGHT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_DAYLIGHT_FLUORESCENT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_DAYLIGHT_FLUORESCENT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_DAY_WHITE_FLUORESCENT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_DAY_WHITE_FLUORESCENT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_FINE_WEATHER:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_FINE_WEATHER
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_FLASH:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_FLASH
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_FLUORESCENT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_FLUORESCENT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_ISO_STUDIO_TUNGSTEN:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_ISO_STUDIO_TUNGSTEN
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_OTHER:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_OTHER
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_SHADE:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_SHADE
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_STANDARD_LIGHT_A:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_STANDARD_LIGHT_A
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_STANDARD_LIGHT_B:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_STANDARD_LIGHT_B
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_STANDARD_LIGHT_C:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_STANDARD_LIGHT_C
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_TUNGSTEN:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_TUNGSTEN
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_UNKNOWN:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_UNKNOWN
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_WARM_WHITE_FLUORESCENT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_WARM_WHITE_FLUORESCENT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#LIGHT_SOURCE_WHITE_FLUORESCENT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.LIGHT_SOURCE_WHITE_FLUORESCENT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#METERING_MODE_AVERAGE:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.METERING_MODE_AVERAGE
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#METERING_MODE_CENTER_WEIGHT_AVERAGE:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.METERING_MODE_CENTER_WEIGHT_AVERAGE
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#METERING_MODE_MULTI_SPOT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.METERING_MODE_MULTI_SPOT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#METERING_MODE_OTHER:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.METERING_MODE_OTHER
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#METERING_MODE_PARTIAL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.METERING_MODE_PARTIAL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#METERING_MODE_PATTERN:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.METERING_MODE_PATTERN
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#METERING_MODE_SPOT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.METERING_MODE_SPOT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#METERING_MODE_UNKNOWN:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.METERING_MODE_UNKNOWN
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#RENDERED_PROCESS_CUSTOM:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.RENDERED_PROCESS_CUSTOM
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#RENDERED_PROCESS_NORMAL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.RENDERED_PROCESS_NORMAL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#RESOLUTION_UNIT_CENTIMETERS:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.RESOLUTION_UNIT_CENTIMETERS
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#RESOLUTION_UNIT_INCHES:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.RESOLUTION_UNIT_INCHES
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SATURATION_HIGH:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SATURATION_HIGH
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SATURATION_LOW:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SATURATION_LOW
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SATURATION_NORMAL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SATURATION_NORMAL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SCENE_CAPTURE_TYPE_LANDSCAPE:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SCENE_CAPTURE_TYPE_LANDSCAPE
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SCENE_CAPTURE_TYPE_NIGHT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SCENE_CAPTURE_TYPE_NIGHT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SCENE_CAPTURE_TYPE_PORTRAIT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SCENE_CAPTURE_TYPE_PORTRAIT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SCENE_CAPTURE_TYPE_STANDARD:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SCENE_CAPTURE_TYPE_STANDARD
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SCENE_TYPE_DIRECTLY_PHOTOGRAPHED:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SCENE_TYPE_DIRECTLY_PHOTOGRAPHED
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSITIVITY_TYPE_ISO_SPEED:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSITIVITY_TYPE_ISO_SPEED
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSITIVITY_TYPE_REI:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSITIVITY_TYPE_REI
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSITIVITY_TYPE_REI_AND_ISO:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSITIVITY_TYPE_REI_AND_ISO
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSITIVITY_TYPE_SOS:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSITIVITY_TYPE_SOS
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSITIVITY_TYPE_SOS_AND_ISO:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSITIVITY_TYPE_SOS_AND_ISO
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSITIVITY_TYPE_SOS_AND_REI:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSITIVITY_TYPE_SOS_AND_REI
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSITIVITY_TYPE_SOS_AND_REI_AND_ISO:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSITIVITY_TYPE_SOS_AND_REI_AND_ISO
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSITIVITY_TYPE_UNKNOWN:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSITIVITY_TYPE_UNKNOWN
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSOR_TYPE_COLOR_SEQUENTIAL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSOR_TYPE_COLOR_SEQUENTIAL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSOR_TYPE_COLOR_SEQUENTIAL_LINEAR:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSOR_TYPE_COLOR_SEQUENTIAL_LINEAR
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSOR_TYPE_NOT_DEFINED:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSOR_TYPE_NOT_DEFINED
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSOR_TYPE_ONE_CHIP:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSOR_TYPE_ONE_CHIP
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSOR_TYPE_THREE_CHIP:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSOR_TYPE_THREE_CHIP
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSOR_TYPE_TRILINEAR:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSOR_TYPE_TRILINEAR
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SENSOR_TYPE_TWO_CHIP:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SENSOR_TYPE_TWO_CHIP
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SHARPNESS_HARD:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SHARPNESS_HARD
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SHARPNESS_NORMAL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SHARPNESS_NORMAL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SHARPNESS_SOFT:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SHARPNESS_SOFT
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SUBJECT_DISTANCE_RANGE_CLOSE_VIEW:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SUBJECT_DISTANCE_RANGE_CLOSE_VIEW
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SUBJECT_DISTANCE_RANGE_DISTANT_VIEW:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SUBJECT_DISTANCE_RANGE_DISTANT_VIEW
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SUBJECT_DISTANCE_RANGE_MACRO:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SUBJECT_DISTANCE_RANGE_MACRO
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#SUBJECT_DISTANCE_RANGE_UNKNOWN:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.SUBJECT_DISTANCE_RANGE_UNKNOWN
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#WHITE_BALANCE_AUTO:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.WHITE_BALANCE_AUTO
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#WHITE_BALANCE_MANUAL:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.WHITE_BALANCE_MANUAL
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#Y_CB_CR_POSITIONING_CENTERED:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.Y_CB_CR_POSITIONING_CENTERED
+NoByteOrShort: androidx.exifinterface.media.ExifInterface#Y_CB_CR_POSITIONING_CO_SITED:
+    Should avoid odd sized primitives; use `int` instead of `short` in field androidx.exifinterface.media.ExifInterface.Y_CB_CR_POSITIONING_CO_SITED
+
+
+UseParcelFileDescriptor: androidx.exifinterface.media.ExifInterface#ExifInterface(java.io.FileDescriptor) parameter #0:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fileDescriptor in androidx.exifinterface.media.ExifInterface(java.io.FileDescriptor fileDescriptor)

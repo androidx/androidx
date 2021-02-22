@@ -25,8 +25,6 @@ import org.junit.runners.JUnit4
 class VersionTest {
     @Test
     fun testComparisons() {
-        assert(true > false)
-
         val version2600 = Version("26.0.0")
         val version2610 = Version("26.1.0")
         val version2611 = Version("26.1.1")

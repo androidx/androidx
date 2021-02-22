@@ -16,8 +16,8 @@
 
 package androidx.room.integration.testapp.database;
 
-import androidx.core.util.ObjectsCompat;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 /**
@@ -30,6 +30,15 @@ public class Product {
     private int mId;
 
     private String mName;
+
+    public Product() {
+    }
+
+    @Ignore
+    public Product(int id, String name) {
+        mId = id;
+        mName = name;
+    }
 
     public int getId() {
         return mId;
@@ -55,13 +64,17 @@ public class Product {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Product)) return false;
         Product product = (Product) o;
-        return mId == product.mId && ObjectsCompat.equals(mName, product.mName);
+
+        if (mId != product.mId) return false;
+        return mName != null ? mName.equals(product.mName) : product.mName == null;
     }
 
     @Override
     public int hashCode() {
-        return ObjectsCompat.hash(mId, mName);
+        int result = mId;
+        result = 31 * result + (mName != null ? mName.hashCode() : 0);
+        return result;
     }
 }

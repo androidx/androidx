@@ -204,6 +204,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         init(context, attrs, defStyleAttr, defStyleRes);
     }
 
+    @SuppressWarnings("deprecation")
     private void init(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         mSliceStyle = new SliceStyle(context, attrs, defStyleAttr, defStyleRes);
         mThemeTintColor = mSliceStyle.getTintColor();
@@ -232,6 +233,17 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
         setClipToPadding(false);
         super.setOnClickListener(this);
+    }
+
+    /**
+     * Allows subclasses to set the current view to a custom view.
+     */
+    public void setCurrentView(@NonNull SliceChildView currentView) {
+        removeView(mCurrentView);
+        mCurrentView = currentView;
+        mCurrentView.setPolicy(mViewPolicy);
+        addView(mCurrentView, getChildLp(mCurrentView));
+        applyConfigurations();
     }
 
     @VisibleForTesting
@@ -344,7 +356,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         }
     }
 
-    private void configureViewPolicy(int maxHeight) {
+    /**
+     * Sets the maximum height for a slice through the view policy.
+     */
+    protected void configureViewPolicy(int maxHeight) {
         if (mListContent != null && mListContent.isValid() && getMode() != MODE_SHORTCUT) {
             if (maxHeight > 0 && maxHeight < mSliceStyle.getRowMaxHeight()) {
                 if (maxHeight <= mMinTemplateHeight) {
@@ -394,7 +409,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
                     childrenHeight = requiredHeight;
                 } else {
                     // Not enough space available for slice in current mode
-                    if (getMode() == MODE_LARGE
+                    if (mSliceStyle.getExpandToAvailableHeight()) {
+                        // Don't request more space than we're allowed to have.
+                        requiredHeight = childrenHeight;
+                    } else if (getMode() == MODE_LARGE
                             && childrenHeight >= mLargeHeight + actionHeight) {
                         childrenHeight = mLargeHeight + actionHeight;
                     } else if (childrenHeight <= mMinTemplateHeight) {
@@ -604,6 +622,13 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
+     * Sets the {@link RowStyleFactory} which allows multiple children to have different styles.
+     */
+    public void setRowStyleFactory(@Nullable RowStyleFactory rowStyleFactory) {
+        mSliceStyle.setRowStyleFactory(rowStyleFactory);
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -709,6 +734,21 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
+     * Returns the number of slice items not displayed in this view.
+     *
+     * <ul>
+     * <li> In {@link #MODE_LARGE}: If the slice is not scrollable, this is the number
+     * of slice items that don't fit into the available height. If it is scrollable, this method
+     * returns 0.</li>
+     * <li> In {@link #MODE_SMALL}: Returns the number of items not presented to the user.</li>
+     * <li> In {@link #MODE_SHORTCUT}: Returns 0.</li>
+     * </ul>
+     */
+    public int getHiddenItemCount() {
+        return mCurrentView.getHiddenItemCount();
+    }
+
+    /**
      * Updates the current view to represent the correct type of view for the current mode.
      * If the view is changed for the mode any configurations are also applied to it.
      */
@@ -745,7 +785,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     private void applyConfigurations() {
         mCurrentView.setSliceActionListener(mSliceObserver);
-        mCurrentView.setStyle(mSliceStyle);
+        mCurrentView.setStyle(mSliceStyle, mSliceStyle.getRowStyle(/* sliceItem= */ null));
         mCurrentView.setTint(getTintColor());
 
         if (mListContent != null && mListContent.getLayoutDir() != -1) {

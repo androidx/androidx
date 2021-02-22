@@ -18,7 +18,7 @@ package androidx.security.crypto;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import static androidx.security.crypto.MasterKeys.KEYSTORE_PATH_URI;
+import static androidx.security.crypto.MasterKey.KEYSTORE_PATH_URI;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -27,16 +27,16 @@ import android.content.SharedPreferences;
 import android.util.ArraySet;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.DeterministicAead;
 import com.google.crypto.tink.KeysetHandle;
-import com.google.crypto.tink.aead.AeadFactory;
-import com.google.crypto.tink.aead.AeadKeyTemplates;
-import com.google.crypto.tink.config.TinkConfig;
-import com.google.crypto.tink.daead.DeterministicAeadFactory;
-import com.google.crypto.tink.daead.DeterministicAeadKeyTemplates;
+import com.google.crypto.tink.aead.AeadConfig;
+import com.google.crypto.tink.aead.AesGcmKeyManager;
+import com.google.crypto.tink.daead.AesSivKeyManager;
+import com.google.crypto.tink.daead.DeterministicAeadConfig;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
 import com.google.crypto.tink.subtle.Base64;
 
@@ -44,7 +44,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -53,11 +52,11 @@ import java.util.Map;
 import java.util.Set;
 
 @MediumTest
-@RunWith(JUnit4.class)
+@RunWith(AndroidJUnit4.class)
 public class EncryptedSharedPreferencesTest {
 
     private Context mContext;
-    private String mKeyAlias;
+    private MasterKey mMasterKey;
 
     private static final String PREFS_FILE = "test_shared_prefs";
 
@@ -101,15 +100,18 @@ public class EncryptedSharedPreferencesTest {
         keyStore.load(null);
         keyStore.deleteEntry("_androidx_security_master_key_");
 
-        mKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+        mMasterKey = new MasterKey.Builder(mContext)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build();
     }
 
     @Test
     public void testWriteSharedPrefs() throws Exception {
 
         SharedPreferences sharedPreferences = EncryptedSharedPreferences
-                .create(PREFS_FILE,
-                        mKeyAlias, mContext,
+                .create(mContext,
+                        PREFS_FILE,
+                        mMasterKey,
                         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
 
@@ -216,7 +218,7 @@ public class EncryptedSharedPreferencesTest {
 
         // Test Remove
         editor.remove(nullKey);
-        editor.commit();
+        editor.apply();
 
         Assert.assertEquals(nullKey + " should have been removed.",
                 null,
@@ -258,7 +260,7 @@ public class EncryptedSharedPreferencesTest {
                 sharedPreferences.getString(twiceKey, null));
 
         // Test getAll
-        Map all = sharedPreferences.getAll();
+        Map<String, ?> all = sharedPreferences.getAll();
 
         Assert.assertTrue("Get all should have supplied " + twiceKey,
                 all.containsKey(twiceKey));
@@ -332,8 +334,20 @@ public class EncryptedSharedPreferencesTest {
         Assert.assertEquals("Data should not exist", null,
                 sharedPreferences.getString(twiceKey, null));
 
+        editor.clear();
+        editor.commit();
+
+        // test clear after put with apply
+        editor.putString("New Data", "New");
+        editor.apply();
+        editor.clear();
+        editor.apply();
+
+        Assert.assertEquals("Get all size should be equal", 0,
+                sharedPreferences.getAll().size());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testWriteSharedPrefsTink() throws Exception {
         String tinkTestPrefs = "TinkTestPrefs";
@@ -341,8 +355,9 @@ public class EncryptedSharedPreferencesTest {
         String testValue = "TestValue";
 
         SharedPreferences encryptedSharedPreferences = EncryptedSharedPreferences
-                .create(tinkTestPrefs,
-                        mKeyAlias, mContext,
+                .create(mContext,
+                        tinkTestPrefs,
+                        mMasterKey,
                         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
 
@@ -351,17 +366,18 @@ public class EncryptedSharedPreferencesTest {
         encryptedEditor.commit();
 
         // Set up Tink
-        TinkConfig.register();
+        DeterministicAeadConfig.register();
+        AeadConfig.register();
 
         KeysetHandle daeadKeysetHandle = new AndroidKeysetManager.Builder()
-                .withKeyTemplate(DeterministicAeadKeyTemplates.AES256_SIV)
+                .withKeyTemplate(AesSivKeyManager.aes256SivTemplate())
                 .withSharedPref(mContext,
                         "__androidx_security_crypto_encrypted_prefs_key_keyset__", tinkTestPrefs)
                 .withMasterKeyUri(KEYSTORE_PATH_URI + "_androidx_security_master_key_")
                 .build().getKeysetHandle();
 
-        DeterministicAead deterministicAead = DeterministicAeadFactory.getPrimitive(
-                daeadKeysetHandle);
+        DeterministicAead deterministicAead =
+                daeadKeysetHandle.getPrimitive(DeterministicAead.class);
         byte[] encryptedKey = deterministicAead.encryptDeterministically(testKey.getBytes(UTF_8),
                 tinkTestPrefs.getBytes());
         String encodedKey = Base64.encode(encryptedKey);
@@ -372,14 +388,12 @@ public class EncryptedSharedPreferencesTest {
         Assert.assertTrue("Key should exist if Tink is compatible.", keyExists);
 
         KeysetHandle aeadKeysetHandle = new AndroidKeysetManager.Builder()
-                .withKeyTemplate(AeadKeyTemplates.AES256_GCM)
+                .withKeyTemplate(AesGcmKeyManager.aes256GcmTemplate())
                 .withSharedPref(mContext,
                         "__androidx_security_crypto_encrypted_prefs_value_keyset__", tinkTestPrefs)
                 .withMasterKeyUri(KEYSTORE_PATH_URI + "_androidx_security_master_key_")
                 .build().getKeysetHandle();
-
-        Aead aead = AeadFactory.getPrimitive(aeadKeysetHandle);
-
+        Aead aead = aeadKeysetHandle.getPrimitive(Aead.class);
         String encryptedValue = sharedPreferences.getString(encodedKey, null);
         byte[] cipherText = Base64.decode(encryptedValue);
         ByteBuffer values = ByteBuffer.wrap(aead.decrypt(cipherText, encodedKey.getBytes(UTF_8)));
@@ -391,6 +405,34 @@ public class EncryptedSharedPreferencesTest {
         Assert.assertEquals("String should have been equal to original",
                 actualValue,
                 testValue);
+    }
+
+    @Test
+    public void testReentrantCallbackCalls() throws Exception {
+        SharedPreferences encryptedSharedPreferences = EncryptedSharedPreferences
+                .create(mContext,
+                        PREFS_FILE,
+                        mMasterKey,
+                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+
+        encryptedSharedPreferences.registerOnSharedPreferenceChangeListener(
+                new SharedPreferences.OnSharedPreferenceChangeListener() {
+                    @Override
+                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+                            String key) {
+                        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+                    }
+                });
+
+        encryptedSharedPreferences.registerOnSharedPreferenceChangeListener(
+                (sharedPreferences, key) -> {
+                    // No-op
+                });
+
+        SharedPreferences.Editor editor = encryptedSharedPreferences.edit();
+        editor.putString("someKey", "someValue");
+        editor.apply();
     }
 
 }

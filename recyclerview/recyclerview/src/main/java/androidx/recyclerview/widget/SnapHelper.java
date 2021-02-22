@@ -205,7 +205,8 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      * @return a {@link RecyclerView.SmoothScroller} which will handle the scrolling.
      */
     @Nullable
-    protected RecyclerView.SmoothScroller createScroller(RecyclerView.LayoutManager layoutManager) {
+    protected RecyclerView.SmoothScroller createScroller(
+            @NonNull RecyclerView.LayoutManager layoutManager) {
         return createSnapScroller(layoutManager);
     }
 
@@ -220,7 +221,8 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      */
     @Nullable
     @Deprecated
-    protected LinearSmoothScroller createSnapScroller(RecyclerView.LayoutManager layoutManager) {
+    protected LinearSmoothScroller createSnapScroller(
+            @NonNull RecyclerView.LayoutManager layoutManager) {
         if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) {
             return null;
         }

@@ -20,8 +20,10 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
-import androidx.wear.ambient.AmbientMode;
+import androidx.wear.ambient.AmbientModeSupport;
 
 import com.example.android.support.wear.R;
 
@@ -29,23 +31,24 @@ import com.example.android.support.wear.R;
  * Main activity for the AmbientMode demo.
  */
 public class AmbientModeDemo extends FragmentActivity implements
-        AmbientMode.AmbientCallbackProvider {
+        AmbientModeSupport.AmbientCallbackProvider {
     private TextView mStateTextView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ambient_demo);
         mStateTextView = findViewById(R.id.ambient_text);
-        AmbientMode.AmbientController controller = AmbientMode.attachAmbientSupport(this);
+        AmbientModeSupport.attach(this);
     }
 
+    @NonNull
     @Override
-    public AmbientMode.AmbientCallback getAmbientCallback() {
+    public AmbientModeSupport.AmbientCallback getAmbientCallback() {
         return new MyAmbientCallback();
     }
 
-    private class MyAmbientCallback extends AmbientMode.AmbientCallback {
+    class MyAmbientCallback extends AmbientModeSupport.AmbientCallback {
 
         @Override
         public void onEnterAmbient(Bundle ambientDetails) {

@@ -33,8 +33,8 @@ class FragmentNavigatorExtrasTest {
     fun testAddSharedElement() {
         val view = View(InstrumentationRegistry.getInstrumentation().targetContext)
         val extras = FragmentNavigator.Extras.Builder()
-                .addSharedElement(view, "test")
-                .build()
+            .addSharedElement(view, "test")
+            .build()
         val sharedElements = extras.sharedElements
         assertEquals("Should be one shared element", 1, sharedElements.size)
         val name = sharedElements[view]
@@ -46,10 +46,11 @@ class FragmentNavigatorExtrasTest {
     fun testAddSharedElements() {
         val map = mapOf(
             View(InstrumentationRegistry.getInstrumentation().targetContext) to "test1",
-            View(InstrumentationRegistry.getInstrumentation().targetContext) to "test2")
+            View(InstrumentationRegistry.getInstrumentation().targetContext) to "test2"
+        )
         val extras = FragmentNavigator.Extras.Builder()
-                .addSharedElements(map)
-                .build()
+            .addSharedElements(map)
+            .build()
         val sharedElements = extras.sharedElements
         assertEquals("Should be ${map.size} shared elements", map.size, sharedElements.size)
         map.forEach { (view, expected) ->

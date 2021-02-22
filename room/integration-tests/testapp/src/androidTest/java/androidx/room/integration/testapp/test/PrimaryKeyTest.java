@@ -118,6 +118,9 @@ public class PrimaryKeyTest {
         final long[] ids = mDatabase.integerAutoIncPKeyDao().insertAndGetIds(entity, entity2);
         assertThat(mDatabase.integerAutoIncPKeyDao().loadDataById(ids),
                 is(Arrays.asList("foo", "foo2")));
+        Long[] boxedIds = mDatabase.integerAutoIncPKeyDao().insertAndGetIdsBoxed(entity, entity2);
+        assertThat(mDatabase.integerAutoIncPKeyDao().loadDataById(boxedIds),
+                is(Arrays.asList("foo", "foo2")));
     }
 
     @Test

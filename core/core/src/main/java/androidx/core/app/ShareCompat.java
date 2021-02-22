@@ -21,8 +21,10 @@ import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -39,6 +41,7 @@ import android.widget.ShareActionProvider;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.core.content.IntentCompat;
 
@@ -227,7 +230,10 @@ public final class ShareCompat {
      *
      * @param item MenuItem to configure for sharing
      * @param shareIntent IntentBuilder with data about the content to share
+     *
+     * @deprecated Use the system sharesheet. See https://developer.android.com/training/sharing/send
      */
+    @Deprecated
     public static void configureMenuItem(@NonNull MenuItem item,
             @NonNull IntentBuilder shareIntent) {
         ActionProvider itemProvider = item.getActionProvider();
@@ -256,7 +262,10 @@ public final class ShareCompat {
      * @param menuItemId ID of the share item within menu
      * @param shareIntent IntentBuilder with data about the content to share
      * @see #configureMenuItem(MenuItem, IntentBuilder)
+     *
+     * @deprecated Use the system sharesheet. See https://developer.android.com/training/sharing/send
      */
+    @Deprecated
     public static void configureMenuItem(@NonNull Menu menu, @IdRes int menuItemId,
             @NonNull IntentBuilder shareIntent) {
         MenuItem item = menu.findItem(menuItemId);
@@ -288,34 +297,45 @@ public final class ShareCompat {
          *
          * @param launchingActivity Activity that the share will be launched from
          * @return a new IntentBuilder instance
+         * @deprecated Use the constructor of IntentBuilder
          */
         @NonNull
+        @Deprecated
         public static IntentBuilder from(@NonNull Activity launchingActivity) {
-            return from(checkNotNull(launchingActivity), launchingActivity.getComponentName());
+            return new IntentBuilder(launchingActivity);
         }
 
         /**
          * Create a new IntentBuilder for launching a sharing action from launchingContext.
          *
+         * <p>Note that builders that are not constructed with an {@link Activity} context
+         * (or a wrapped activity context) will not set the
+         * {@link #EXTRA_CALLING_ACTIVITY calling activity} on the returned intent.</p>
+         *
          * @param launchingContext Context that the share will be launched from
-         * @param componentName Component that the share will be launched from, if any
-         * @return a new IntentBuilder instance
          */
-        @NonNull
-        private static IntentBuilder from(@NonNull Context launchingContext,
-                @Nullable ComponentName componentName) {
-            return new IntentBuilder(launchingContext, componentName);
-        }
-
-        private IntentBuilder(@NonNull Context launchingContext,
-                @Nullable ComponentName componentName) {
+        public IntentBuilder(@NonNull Context launchingContext) {
             mContext = checkNotNull(launchingContext);
             mIntent = new Intent().setAction(Intent.ACTION_SEND);
             mIntent.putExtra(EXTRA_CALLING_PACKAGE, launchingContext.getPackageName());
             mIntent.putExtra(EXTRA_CALLING_PACKAGE_INTEROP, launchingContext.getPackageName());
-            mIntent.putExtra(EXTRA_CALLING_ACTIVITY, componentName);
-            mIntent.putExtra(EXTRA_CALLING_ACTIVITY_INTEROP, componentName);
             mIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+
+            Activity activity = null;
+            Context context = launchingContext;
+            while (context instanceof ContextWrapper) {
+                if (context instanceof Activity) {
+                    activity = (Activity) context;
+                    break;
+                }
+                context = ((ContextWrapper) context).getBaseContext();
+            }
+
+            if (activity != null) {
+                ComponentName componentName = activity.getComponentName();
+                mIntent.putExtra(EXTRA_CALLING_ACTIVITY, componentName);
+                mIntent.putExtra(EXTRA_CALLING_ACTIVITY_INTEROP, componentName);
+            }
         }
 
         /**
@@ -342,30 +362,26 @@ public final class ShareCompat {
                 mBccAddresses = null;
             }
 
-            // Check if we need to change the action.
             boolean needsSendMultiple = mStreams != null && mStreams.size() > 1;
-            boolean isSendMultiple = Intent.ACTION_SEND_MULTIPLE.equals(mIntent.getAction());
 
-            if (!needsSendMultiple && isSendMultiple) {
-                // Change back to a single send action; place the first stream into the
-                // intent for single sharing.
+            if (!needsSendMultiple) {
                 mIntent.setAction(Intent.ACTION_SEND);
                 if (mStreams != null && !mStreams.isEmpty()) {
                     mIntent.putExtra(Intent.EXTRA_STREAM, mStreams.get(0));
+                    if (SDK_INT >= 16) {
+                        Api16Impl.migrateExtraStreamToClipData(mIntent, mStreams);
+                    }
                 } else {
                     mIntent.removeExtra(Intent.EXTRA_STREAM);
+                    if (SDK_INT >= 16) {
+                        Api16Impl.removeClipData(mIntent);
+                    }
                 }
-                mStreams = null;
-            }
-
-            if (needsSendMultiple && !isSendMultiple) {
-                // Change to a multiple send action; place the relevant ArrayList into the
-                // intent for multiple sharing.
+            } else {
                 mIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-                if (mStreams != null && !mStreams.isEmpty()) {
-                    mIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, mStreams);
-                } else {
-                    mIntent.removeExtra(Intent.EXTRA_STREAM);
+                mIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, mStreams);
+                if (SDK_INT >= 16) {
+                    Api16Impl.migrateExtraStreamToClipData(mIntent, mStreams);
                 }
             }
 
@@ -413,12 +429,6 @@ public final class ShareCompat {
 
         /**
          * Start a chooser activity for the current share intent.
-         *
-         * <p>Note that under most circumstances you should use
-         * {@link ShareCompat#configureMenuItem(MenuItem, IntentBuilder)
-         *  ShareCompat.configureMenuItem()} to add a Share item to the menu while
-         * presenting a detail view of the content to be shared instead
-         * of invoking this directly.</p>
          */
         public void startChooser() {
             mContext.startActivity(createChooserIntent());
@@ -507,11 +517,10 @@ public final class ShareCompat {
          */
         @NonNull
         public IntentBuilder setStream(@Nullable Uri streamUri) {
-            if (!Intent.ACTION_SEND.equals(mIntent.getAction())) {
-                mIntent.setAction(Intent.ACTION_SEND);
-            }
             mStreams = null;
-            mIntent.putExtra(Intent.EXTRA_STREAM, streamUri);
+            if (streamUri != null) {
+                addStream(streamUri);
+            }
             return this;
         }
 
@@ -528,16 +537,8 @@ public final class ShareCompat {
          */
         @NonNull
         public IntentBuilder addStream(@NonNull Uri streamUri) {
-            Uri currentStream = mIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if (mStreams == null && currentStream == null) {
-                return setStream(streamUri);
-            }
             if (mStreams == null) {
                 mStreams = new ArrayList<>();
-            }
-            if (currentStream != null) {
-                mIntent.removeExtra(Intent.EXTRA_STREAM);
-                mStreams.add(currentStream);
             }
             mStreams.add(streamUri);
             return this;
@@ -722,26 +723,32 @@ public final class ShareCompat {
          *
          * @param activity Activity that was started to share content
          * @return IntentReader for parsing sharing data
+         * @deprecated Use the constructor of IntentReader instead
          */
         @NonNull
+        @Deprecated
         public static IntentReader from(@NonNull Activity activity) {
-            return from(checkNotNull(activity), activity.getIntent());
+            return new IntentReader(activity);
         }
 
         /**
-         * Get an IntentReader for parsing and interpreting the sharing intent
+         * Create an IntentReader for parsing and interpreting the sharing intent
          * used to start the given activity.
+         *
+         * @param activity Activity that was started to share content
+         */
+        public IntentReader(@NonNull Activity activity) {
+            this(checkNotNull(activity), activity.getIntent());
+        }
+
+
+        /**
+         * Create an IntentReader for parsing and interpreting the given sharing intent.
          *
          * @param context Context that was started to share content
          * @param intent Intent that was used to start the context
-         * @return IntentReader for parsing sharing data
          */
-        @NonNull
-        private static IntentReader from(@NonNull Context context, @NonNull Intent intent) {
-            return new IntentReader(context, intent);
-        }
-
-        private IntentReader(@NonNull Context context, @NonNull Intent intent) {
+        public IntentReader(@NonNull Context context, @NonNull Intent intent) {
             mContext = checkNotNull(context);
             mIntent = checkNotNull(intent);
             mCallingPackage = ShareCompat.getCallingPackage(intent);
@@ -1068,6 +1075,35 @@ public final class ShareCompat {
                 Log.e(TAG, "Could not retrieve label for calling application", e);
             }
             return null;
+        }
+    }
+
+    @RequiresApi(16)
+    private static class Api16Impl {
+        // Prevent instantiation.
+        private Api16Impl() {}
+
+        static void migrateExtraStreamToClipData(@NonNull Intent intent,
+                @NonNull ArrayList<Uri> streams) {
+            CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+            String htmlText = intent.getStringExtra(IntentCompat.EXTRA_HTML_TEXT);
+
+            ClipData clipData = new ClipData(
+                    null, new String[] { intent.getType() },
+                    new ClipData.Item(text, htmlText, null, streams.get(0)));
+
+            for (int i = 1, end = streams.size(); i < end; i++) {
+                Uri uri = streams.get(i);
+                clipData.addItem(new ClipData.Item(uri));
+            }
+
+            intent.setClipData(clipData);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+
+        static void removeClipData(@NonNull Intent intent) {
+            intent.setClipData(null);
+            intent.setFlags(intent.getFlags() & ~Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
     }
 }

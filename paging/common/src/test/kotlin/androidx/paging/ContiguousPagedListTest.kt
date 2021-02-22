@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.paging
 
 import androidx.paging.ItemKeyedDataSourceTest.ItemDataSource
+import androidx.paging.LoadState.Error
+import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.PagedList.BoundaryCallback
 import androidx.paging.PagedList.Callback
 import androidx.paging.PagedList.Config
-import androidx.paging.PagedSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Page
 import androidx.testutils.TestDispatcher
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
@@ -30,12 +37,12 @@ import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotSame
+import kotlin.test.assertTrue
 
 @RunWith(Parameterized::class)
 class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
@@ -54,20 +61,20 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
      * and alignment restrictions. These tests were written before positional+contiguous enforced
      * these behaviors.
      */
-    private inner class TestPagedSource(val listData: List<Item> = ITEMS) :
-        PagedSource<Int, Item>() {
-        override fun getRefreshKeyFromPage(
-            indexInPage: Int,
-            page: Page<Int, Item>
-        ): Int? {
-            return page.data[indexInPage].pos
+    private inner class TestPagingSource(
+        val listData: List<Item> = ITEMS
+    ) : PagingSource<Int, Item>() {
+        override fun getRefreshKey(state: PagingState<Int, Item>): Int? {
+            return state.anchorPosition
+                ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition)?.pos }
+                ?: 0
         }
 
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
-            return when (params.loadType) {
-                LoadType.REFRESH -> loadInitial(params)
-                LoadType.START -> loadBefore(params)
-                LoadType.END -> loadAfter(params)
+            return when (params) {
+                is LoadParams.Refresh -> loadInitial(params)
+                is LoadParams.Prepend -> loadBefore(params)
+                is LoadParams.Append -> loadAfter(params)
             }
         }
 
@@ -130,8 +137,8 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         }
     }
 
-    private fun PagedSource<*, Item>.enqueueErrorForIndex(index: Int) {
-        (this as TestPagedSource).enqueueErrorForIndex(index)
+    private fun PagingSource<*, Item>.enqueueErrorForIndex(index: Int) {
+        (this as TestPagingSource).enqueueErrorForIndex(index)
     }
 
     private fun <E> MutableList<E>.getAllAndClear(): List<E> {
@@ -142,16 +149,16 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     }
 
     private fun <E : Any> PagedList<E>.addLoadStateCapture(desiredType: LoadType):
-            Pair<Any, MutableList<StateChange>> {
-        val list = mutableListOf<StateChange>()
-        val listener: LoadStateListener = { type, state ->
-            if (type == desiredType) {
-                list.add(StateChange(type, state))
+        Pair<Any, MutableList<StateChange>> {
+            val list = mutableListOf<StateChange>()
+            val listener = { type: LoadType, state: LoadState ->
+                if (type == desiredType) {
+                    list.add(StateChange(type, state))
+                }
             }
+            addWeakLoadStateListener(listener)
+            return Pair(listener, list)
         }
-        addWeakLoadStateListener(listener)
-        return Pair(listener, list)
-    }
 
     private fun verifyRange(start: Int, count: Int, actual: PagedStorage<Item>) {
         if (placeholdersEnabled) {
@@ -162,14 +169,14 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
             val expectedTrailing = ITEMS.size - start - count
             assertEquals(ITEMS.size, actual.size)
-            assertEquals(start, actual.leadingNullCount)
-            assertEquals(expectedTrailing, actual.trailingNullCount)
+            assertEquals(start, actual.placeholdersBefore)
+            assertEquals(expectedTrailing, actual.placeholdersAfter)
         } else {
             assertEquals(ITEMS.subList(start, start + count), actual)
 
             assertEquals(count, actual.size)
-            assertEquals(0, actual.leadingNullCount)
-            assertEquals(0, actual.trailingNullCount)
+            assertEquals(0, actual.placeholdersBefore)
+            assertEquals(0, actual.placeholdersAfter)
         }
         assertEquals(count, actual.storageCount)
     }
@@ -179,19 +186,15 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         assertEquals(count, actual.loadedCount)
     }
 
-    private fun PagedSource<Int, Item>.getInitialPage(
+    private fun PagingSource<Int, Item>.getInitialPage(
         initialKey: Int,
-        loadSize: Int,
-        pageSize:
-        Int
+        loadSize: Int
     ): Page<Int, Item> = runBlocking {
         val result = load(
-            PagedSource.LoadParams(
-                LoadType.REFRESH,
+            PagingSource.LoadParams.Refresh(
                 initialKey,
                 loadSize,
                 placeholdersEnabled,
-                pageSize
             )
         )
 
@@ -206,12 +209,11 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         listData: List<Item> = ITEMS,
         boundaryCallback: BoundaryCallback<Item>? = null,
         maxSize: Int = Config.MAX_SIZE_UNBOUNDED,
-        pagedSource: PagedSource<Int, Item> = TestPagedSource(listData)
+        pagingSource: PagingSource<Int, Item> = TestPagingSource(listData)
     ): PagedList<Item> {
-        val initialPage = pagedSource.getInitialPage(
+        val initialPage = pagingSource.getInitialPage(
             initialPosition ?: 0,
-            initLoadSize,
-            pageSize
+            initLoadSize
         )
 
         val config = Config.Builder()
@@ -222,7 +224,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             .setEnablePlaceholders(placeholdersEnabled)
             .build()
 
-        return PagedList.Builder(pagedSource, initialPage, config)
+        return PagedList.Builder(pagingSource, initialPage, config)
             .setBoundaryCallback(boundaryCallback)
             .setFetchDispatcher(backgroundThread)
             .setNotifyDispatcher(mainThread)
@@ -238,11 +240,12 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
     @Test
     fun getDataSource() {
-        // Create a pagedList with a pagedSource directly.
-        val pagedListWithPagedSource = createCountedPagedList(0)
+        // Create a pagedList with a pagingSource directly.
+        val pagedListWithPagingSource = createCountedPagedList(0)
         @Suppress("DEPRECATION")
-        assertFailsWith<IllegalStateException> { pagedListWithPagedSource.dataSource }
+        assertFailsWith<IllegalStateException> { pagedListWithPagingSource.dataSource }
 
+        @Suppress("DEPRECATION")
         val pagedListWithDataSource = PagedList.Builder(ItemDataSource(), 10).build()
 
         @Suppress("DEPRECATION")
@@ -257,15 +260,15 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     }
 
     @Test
-    fun getPagedSource() {
+    fun getPagingSource() {
         val pagedList = createCountedPagedList(0)
-        assertTrue(pagedList.pagedSource is TestPagedSource)
+        assertTrue(pagedList.pagingSource is TestPagingSource)
 
         // snapshot keeps same DataSource
         @Suppress("DEPRECATION")
         assertSame(
-            pagedList.pagedSource,
-            (pagedList.snapshot() as SnapshotPagedList<Item>).pagedSource
+            pagedList.pagingSource,
+            (pagedList.snapshot() as SnapshotPagedList<Item>).pagingSource
         )
     }
 
@@ -307,10 +310,6 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         } else {
             verify(callback).onRemoved(uncountedPosition, 20)
         }
-    }
-
-    private fun verifyDropCallback(callback: Callback, position: Int) {
-        verifyDropCallback(callback, position, position)
     }
 
     @Test
@@ -459,7 +458,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         drain()
         verifyRange(20, 60, pagedList)
         verifyCallback(callback, 60)
-        verifyDropCallback(callback, 0)
+        verifyDropCallback(callback, 0, 0)
         verifyNoMoreInteractions(callback)
     }
 
@@ -590,12 +589,17 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     @Test
     fun loadingListenerAppend() {
         val pagedList = createCountedPagedList(0)
-        val capture = pagedList.addLoadStateCapture(LoadType.END)
+        val capture = pagedList.addLoadStateCapture(APPEND)
         val states = capture.second
 
         // No loading going on currently
         assertEquals(
-            listOf(StateChange(LoadType.END, LoadState.Idle)),
+            listOf(
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false)
+                )
+            ),
             states.getAllAndClear()
         )
         verifyRange(0, 40, pagedList)
@@ -604,7 +608,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.loadAround(35)
         mainThread.executeAll()
         assertEquals(
-            listOf(StateChange(LoadType.END, LoadState.Loading)),
+            listOf(StateChange(APPEND, Loading)),
             states.getAllAndClear()
         )
         verifyRange(0, 40, pagedList)
@@ -612,18 +616,23 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         // load finishes
         drain()
         assertEquals(
-            listOf(StateChange(LoadType.END, LoadState.Idle)),
+            listOf(
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false)
+                )
+            ),
             states.getAllAndClear()
         )
         verifyRange(0, 60, pagedList)
 
-        pagedList.pagedSource.enqueueErrorForIndex(65)
+        pagedList.pagingSource.enqueueErrorForIndex(65)
 
         // trigger load which will error
         pagedList.loadAround(55)
         mainThread.executeAll()
         assertEquals(
-            listOf(StateChange(LoadType.END, LoadState.Loading)),
+            listOf(StateChange(APPEND, Loading)),
             states.getAllAndClear()
         )
         verifyRange(0, 60, pagedList)
@@ -631,7 +640,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         // load now in error state
         drain()
         assertEquals(
-            listOf(StateChange(LoadType.END, LoadState.Error(EXCEPTION))),
+            listOf(StateChange(APPEND, Error(EXCEPTION))),
             states.getAllAndClear()
         )
         verifyRange(0, 60, pagedList)
@@ -640,14 +649,19 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.retry()
         mainThread.executeAll()
         assertEquals(
-            listOf(StateChange(LoadType.END, LoadState.Loading)),
+            listOf(StateChange(APPEND, Loading)),
             states.getAllAndClear()
         )
 
         // load finishes
         drain()
         assertEquals(
-            listOf(StateChange(LoadType.END, LoadState.Idle)),
+            listOf(
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false)
+                )
+            ),
             states.getAllAndClear()
         )
         verifyRange(0, 80, pagedList)
@@ -663,7 +677,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             prefetchDistance = 1,
             maxSize = 3
         )
-        val capture = pagedList.addLoadStateCapture(LoadType.START)
+        val capture = pagedList.addLoadStateCapture(PREPEND)
         val states = capture.second
 
         // load 3 pages - 2nd, 3rd, 4th
@@ -672,22 +686,28 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(1, 3, pagedList)
         assertEquals(
             listOf(
-                StateChange(LoadType.START, LoadState.Idle),
-                StateChange(LoadType.START, LoadState.Loading),
-                StateChange(LoadType.START, LoadState.Idle)
+                StateChange(
+                    PREPEND,
+                    NotLoading(endOfPaginationReached = false)
+                ),
+                StateChange(PREPEND, Loading),
+                StateChange(
+                    PREPEND,
+                    NotLoading(endOfPaginationReached = false)
+                )
             ),
             states.getAllAndClear()
         )
 
         // start a load at the beginning, which will fail
-        pagedList.pagedSource.enqueueErrorForIndex(0)
+        pagedList.pagingSource.enqueueErrorForIndex(0)
         pagedList.loadAround(if (placeholdersEnabled) 1 else 0)
         drain()
         verifyRange(1, 3, pagedList)
         assertEquals(
             listOf(
-                StateChange(LoadType.START, LoadState.Loading),
-                StateChange(LoadType.START, LoadState.Error(EXCEPTION))
+                StateChange(PREPEND, Loading),
+                StateChange(PREPEND, Error(EXCEPTION))
             ),
             states.getAllAndClear()
         )
@@ -696,7 +716,12 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.loadAround(if (placeholdersEnabled) 3 else 2)
         drain()
         assertEquals(
-            listOf(StateChange(LoadType.START, LoadState.Idle)),
+            listOf(
+                StateChange(
+                    PREPEND,
+                    NotLoading(endOfPaginationReached = false)
+                )
+            ),
             states.getAllAndClear()
         )
         verifyRange(2, 3, pagedList)
@@ -712,7 +737,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             prefetchDistance = 1,
             maxSize = 3
         )
-        val capture = pagedList.addLoadStateCapture(LoadType.END)
+        val capture = pagedList.addLoadStateCapture(APPEND)
         val states = capture.second
 
         // load 3 pages - 2nd, 3rd, 4th
@@ -721,22 +746,28 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(1, 3, pagedList)
         assertEquals(
             listOf(
-                StateChange(LoadType.END, LoadState.Idle),
-                StateChange(LoadType.END, LoadState.Loading),
-                StateChange(LoadType.END, LoadState.Idle)
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false)
+                ),
+                StateChange(APPEND, Loading),
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false)
+                )
             ),
             states.getAllAndClear()
         )
 
         // start a load at the end, which will fail
-        pagedList.pagedSource.enqueueErrorForIndex(4)
+        pagedList.pagingSource.enqueueErrorForIndex(4)
         pagedList.loadAround(if (placeholdersEnabled) 3 else 2)
         drain()
         verifyRange(1, 3, pagedList)
         assertEquals(
             listOf(
-                StateChange(LoadType.END, LoadState.Loading),
-                StateChange(LoadType.END, LoadState.Error(EXCEPTION))
+                StateChange(APPEND, Loading),
+                StateChange(APPEND, Error(EXCEPTION))
             ),
             states.getAllAndClear()
         )
@@ -745,7 +776,12 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.loadAround(if (placeholdersEnabled) 1 else 0)
         drain()
         assertEquals(
-            listOf(StateChange(LoadType.END, LoadState.Idle)),
+            listOf(
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false)
+                )
+            ),
             states.getAllAndClear()
         )
         verifyRange(0, 3, pagedList)
@@ -755,17 +791,20 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     fun errorIntoDrop() {
         // have an error, move loading range, error goes away
         val pagedList = createCountedPagedList(0)
-        val capture = pagedList.addLoadStateCapture(LoadType.END)
+        val capture = pagedList.addLoadStateCapture(APPEND)
         val states = capture.second
 
-        pagedList.pagedSource.enqueueErrorForIndex(45)
+        pagedList.pagingSource.enqueueErrorForIndex(45)
         pagedList.loadAround(35)
         drain()
         assertEquals(
             listOf(
-                StateChange(LoadType.END, LoadState.Idle),
-                StateChange(LoadType.END, LoadState.Loading),
-                StateChange(LoadType.END, LoadState.Error(EXCEPTION))
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false)
+                ),
+                StateChange(APPEND, Loading),
+                StateChange(APPEND, Error(EXCEPTION))
             ),
             states.getAllAndClear()
         )
@@ -870,7 +909,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         )
         verifyRange(0, 20, pagedList)
 
-        // lastKey is initialized to middle of initial load
+        // lastKey should return result of PagingSource.getRefreshKey after loading 20 items.
         assertEquals(10, pagedList.lastKey)
 
         // but in practice will be immediately overridden by quick loadAround call
@@ -934,6 +973,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     @Test
     fun boundaryCallback_singleInitialLoad() {
         val shortList = ITEMS.subList(0, 4)
+
         @Suppress("UNCHECKED_CAST")
         val boundaryCallback = mock<BoundaryCallback<Item>>()
         val pagedList = createCountedPagedList(
@@ -997,6 +1037,19 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         drain()
         verify(boundaryCallback).onItemAtFrontLoaded(ITEMS.first())
         verifyNoMoreInteractions(boundaryCallback)
+    }
+
+    @Test
+    fun dispatchStateChange_dispatchesOnNotifyDispatcher() {
+        val pagedList = createCountedPagedList(0)
+
+        assertTrue { mainThread.queue.isEmpty() }
+
+        pagedList.dispatchStateChangeAsync(LoadType.REFRESH, Loading)
+        assertEquals(1, mainThread.queue.size)
+
+        pagedList.dispatchStateChangeAsync(LoadType.REFRESH, NotLoading.Incomplete)
+        assertEquals(2, mainThread.queue.size)
     }
 
     private fun drain() {

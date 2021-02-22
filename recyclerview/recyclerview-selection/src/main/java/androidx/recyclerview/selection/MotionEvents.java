@@ -27,10 +27,19 @@ import androidx.annotation.NonNull;
  */
 final class MotionEvents {
 
-    private MotionEvents() {}
+    private MotionEvents() {
+    }
 
     static boolean isMouseEvent(@NonNull MotionEvent e) {
         return e.getToolType(0) == MotionEvent.TOOL_TYPE_MOUSE;
+    }
+
+    static boolean isFingerEvent(@NonNull MotionEvent e) {
+        return e.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER;
+    }
+
+    static boolean isActionDown(@NonNull MotionEvent e) {
+        return e.getActionMasked() == MotionEvent.ACTION_DOWN;
     }
 
     static boolean isActionMove(@NonNull MotionEvent e) {
@@ -99,7 +108,6 @@ final class MotionEvents {
     /**
      * Returns true if the event is a drag event (which is presumbaly, but not
      * explicitly required to be a mouse event).
-     * @param e
      */
     static boolean isPointerDragEvent(MotionEvent e) {
         return isPrimaryMouseButtonPressed(e)
@@ -108,5 +116,16 @@ final class MotionEvents {
 
     private static boolean hasBit(int metaState, int bit) {
         return (metaState & bit) != 0;
+    }
+
+    static MotionEvent createCancelEvent() {
+        return MotionEvent.obtain(
+                0,     // down time
+                1,     // event time
+                MotionEvent.ACTION_CANCEL,
+                0,  // x
+                0,  // y
+                0  // metaState
+        );
     }
 }

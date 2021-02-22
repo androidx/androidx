@@ -17,6 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.room.integration.testapp">
     <application
+        android:name="androidx.multidex.MultiDexApplication"
         android:allowBackup="true"
         android:supportsRtl="true">
         <service

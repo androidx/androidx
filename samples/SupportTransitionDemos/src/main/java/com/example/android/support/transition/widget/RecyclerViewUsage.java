@@ -68,7 +68,7 @@ public class RecyclerViewUsage extends TransitionUsageBase {
         @Override
         public void onBindViewHolder(@NonNull TransitionHolder holder, int position) {
             holder.itemView.setOnClickListener(v -> {
-                final int clickedPosition = holder.getAdapterPosition();
+                final int clickedPosition = holder.getBindingAdapterPosition();
                 if (clickedPosition == RecyclerView.NO_POSITION) return;
 
                 TransitionManager.beginDelayedTransition(mRecyclerView,

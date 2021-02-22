@@ -16,10 +16,17 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.os.OperationCanceledException;
+
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Abstract Analyzer that wraps around {@link ImageAnalysis.Analyzer} and implements
@@ -30,49 +37,131 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImageAvailableListener {
 
+    private static final String TAG = "ImageAnalysisAnalyzer";
+
     // Member variables from ImageAnalysis.
-    private final AtomicReference<ImageAnalysis.Analyzer> mSubscribedAnalyzer;
-    private final AtomicInteger mRelativeRotation;
-    final AtomicReference<Executor> mUserExecutor;
+    @GuardedBy("mAnalyzerLock")
+    private ImageAnalysis.Analyzer mSubscribedAnalyzer;
+    private volatile int mRelativeRotation;
+    @GuardedBy("mAnalyzerLock")
+    private Executor mUserExecutor;
 
-    // Flag that reflects the state of ImageAnalysis.
-    private AtomicBoolean mIsClosed;
+    // Lock that synchronizes the access to mSubscribedAnalyzer/mUserExecutor to prevent mismatch.
+    private final Object mAnalyzerLock = new Object();
 
-    ImageAnalysisAbstractAnalyzer(AtomicReference<ImageAnalysis.Analyzer> subscribedAnalyzer,
-            AtomicInteger relativeRotation, AtomicReference<Executor> userExecutor) {
-        mSubscribedAnalyzer = subscribedAnalyzer;
-        mRelativeRotation = relativeRotation;
-        mUserExecutor = userExecutor;
-        mIsClosed = new AtomicBoolean(false);
+    // Flag that reflects the attaching state of the holding ImageAnalysis object.
+    protected boolean mIsAttached = true;
+
+    @Override
+    public void onImageAvailable(@NonNull ImageReaderProxy imageReaderProxy) {
+        try {
+            ImageProxy imageProxy = acquireImage(imageReaderProxy);
+            if (imageProxy != null) {
+                onValidImageAvailable(imageProxy);
+            }
+        } catch (IllegalStateException e) {
+            // This happens if image is not closed in STRATEGY_BLOCK_PRODUCER mode. Catch the
+            // exception and fail with an error log.
+            // TODO(b/175851631): it may also happen when STRATEGY_KEEP_ONLY_LATEST not closing
+            //  the cached image properly. We are unclear why it happens but catching the
+            //  exception should improve the situation by not crashing.
+            Logger.e(TAG, "Failed to acquire image.", e);
+        }
     }
 
     /**
-     * Analyzes a {@link ImageProxy} using the wrapped {@link ImageAnalysis.Analyzer}.
+     * Implemented by children to acquireImage via {@link ImageReaderProxy#acquireLatestImage()} or
+     * {@link ImageReaderProxy#acquireNextImage()}.
      */
-    void analyzeImage(ImageProxy imageProxy) {
-        ImageAnalysis.Analyzer analyzer = mSubscribedAnalyzer.get();
-        if (analyzer != null && !isClosed()) {
+    @Nullable
+    abstract ImageProxy acquireImage(@NonNull ImageReaderProxy imageReaderProxy);
+
+    /**
+     * Called when a new valid {@link ImageProxy} becomes available via
+     * {@link ImageReaderProxy.OnImageAvailableListener}.
+     */
+    abstract void onValidImageAvailable(@NonNull ImageProxy imageProxy);
+
+    /**
+     * Called by {@link ImageAnalysis} to release cached images.
+     */
+    abstract void clearCache();
+
+    /**
+     * Analyzes a {@link ImageProxy} using the wrapped {@link ImageAnalysis.Analyzer}.
+     *
+     * <p> The analysis will run on the executor provided by {@link #setAnalyzer(Executor,
+     * ImageAnalysis.Analyzer)}. Once the analysis successfully finishes the returned
+     * ListenableFuture will succeed. If the future fails then it means the {@link
+     * androidx.camera.core.ImageAnalysis.Analyzer} was not called so the image needs to be closed.
+     *
+     * @return The future which will complete once analysis has finished or it failed.
+     */
+    ListenableFuture<Void> analyzeImage(ImageProxy imageProxy) {
+        Executor executor;
+        ImageAnalysis.Analyzer analyzer;
+        synchronized (mAnalyzerLock) {
+            executor = mUserExecutor;
+            analyzer = mSubscribedAnalyzer;
+        }
+
+        ListenableFuture<Void> future;
+
+        if (analyzer != null && executor != null) {
             // When the analyzer exists and ImageAnalysis is active.
-            analyzer.analyze(imageProxy, mRelativeRotation.get());
+            future = CallbackToFutureAdapter.getFuture(
+                    completer -> {
+                        executor.execute(() -> {
+                            if (mIsAttached) {
+                                ImageInfo imageInfo = ImmutableImageInfo.create(
+                                        imageProxy.getImageInfo().getTagBundle(),
+                                        imageProxy.getImageInfo().getTimestamp(),
+                                        mRelativeRotation);
+
+                                analyzer.analyze(new SettableImageProxy(imageProxy, imageInfo));
+                                completer.set(null);
+                            } else {
+                                completer.setException(new OperationCanceledException(
+                                        "ImageAnalysis is detached"));
+                            }
+                        });
+                        return "analyzeImage";
+                    });
+        } else {
+            future = Futures.immediateFailedFuture(new OperationCanceledException(
+                    "No analyzer or executor currently set."));
+        }
+
+        return future;
+    }
+
+    void setRelativeRotation(int relativeRotation) {
+        mRelativeRotation = relativeRotation;
+    }
+
+    void setAnalyzer(@Nullable Executor userExecutor,
+            @Nullable ImageAnalysis.Analyzer subscribedAnalyzer) {
+        synchronized (mAnalyzerLock) {
+            if (subscribedAnalyzer == null) {
+                clearCache();
+            }
+            mSubscribedAnalyzer = subscribedAnalyzer;
+            mUserExecutor = userExecutor;
         }
     }
 
     /**
      * Initialize the callback.
      */
-    void open() {
-        mIsClosed.set(false);
+    void attach() {
+        mIsAttached = true;
     }
 
     /**
      * Closes the callback so that it will stop posting to analyzer.
      */
-    void close() {
-        mIsClosed.set(true);
+    void detach() {
+        mIsAttached = false;
+        clearCache();
     }
-
-    boolean isClosed() {
-        return mIsClosed.get();
-    }
-
 }

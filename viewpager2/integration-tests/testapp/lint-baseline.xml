@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class null is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="                        textDirection = View.TEXT_DIRECTION_LOCALE"
+        errorLine2="                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager2/integration/testapp/MutableCollectionBaseActivity.kt"
+            line="65"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class null is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="                        textDirection = View.TEXT_DIRECTION_LOCALE"
+        errorLine2="                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager2/integration/testapp/MutableCollectionBaseActivity.kt"
+            line="65"
+            column="25"/>
+    </issue>
+
+</issues>

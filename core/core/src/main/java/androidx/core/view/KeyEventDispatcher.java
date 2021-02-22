@@ -159,7 +159,7 @@ public class KeyEventDispatcher {
 
     private static boolean dialogSuperDispatchKeyEventPre28(Dialog dialog, KeyEvent event) {
         DialogInterface.OnKeyListener onKeyListener = getDialogKeyListenerPre28(dialog);
-        if ((onKeyListener != null) && (onKeyListener.onKey(dialog, event.getKeyCode(), event))) {
+        if ((onKeyListener != null) && onKeyListener.onKey(dialog, event.getKeyCode(), event)) {
             return true;
         }
         Window win = dialog.getWindow();

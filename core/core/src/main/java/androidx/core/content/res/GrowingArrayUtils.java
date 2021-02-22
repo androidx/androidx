@@ -39,8 +39,6 @@ final class GrowingArrayUtils {
      */
     @SuppressWarnings("unchecked")
     public static <T> T[] append(T[] array, int currentSize, T element) {
-        assert currentSize <= array.length;
-
         if (currentSize + 1 > array.length) {
             T[] newArray = (T[]) Array.newInstance(array.getClass().getComponentType(),
                     growSize(currentSize));
@@ -55,8 +53,6 @@ final class GrowingArrayUtils {
      * Primitive int version of {@link #append(Object[], int, Object)}.
      */
     public static int[] append(int[] array, int currentSize, int element) {
-        assert currentSize <= array.length;
-
         if (currentSize + 1 > array.length) {
             int[] newArray = new int[growSize(currentSize)];
             System.arraycopy(array, 0, newArray, 0, currentSize);
@@ -70,8 +66,6 @@ final class GrowingArrayUtils {
      * Primitive long version of {@link #append(Object[], int, Object)}.
      */
     public static long[] append(long[] array, int currentSize, long element) {
-        assert currentSize <= array.length;
-
         if (currentSize + 1 > array.length) {
             long[] newArray = new long[growSize(currentSize)];
             System.arraycopy(array, 0, newArray, 0, currentSize);
@@ -85,8 +79,6 @@ final class GrowingArrayUtils {
      * Primitive boolean version of {@link #append(Object[], int, Object)}.
      */
     public static boolean[] append(boolean[] array, int currentSize, boolean element) {
-        assert currentSize <= array.length;
-
         if (currentSize + 1 > array.length) {
             boolean[] newArray = new boolean[growSize(currentSize)];
             System.arraycopy(array, 0, newArray, 0, currentSize);
@@ -109,8 +101,6 @@ final class GrowingArrayUtils {
      */
     @SuppressWarnings("unchecked")
     public static <T> T[] insert(T[] array, int currentSize, int index, T element) {
-        assert currentSize <= array.length;
-
         if (currentSize + 1 <= array.length) {
             System.arraycopy(array, index, array, index + 1, currentSize - index);
             array[index] = element;
@@ -129,8 +119,6 @@ final class GrowingArrayUtils {
      * Primitive int version of {@link #insert(Object[], int, int, Object)}.
      */
     public static int[] insert(int[] array, int currentSize, int index, int element) {
-        assert currentSize <= array.length;
-
         if (currentSize + 1 <= array.length) {
             System.arraycopy(array, index, array, index + 1, currentSize - index);
             array[index] = element;
@@ -148,8 +136,6 @@ final class GrowingArrayUtils {
      * Primitive long version of {@link #insert(Object[], int, int, Object)}.
      */
     public static long[] insert(long[] array, int currentSize, int index, long element) {
-        assert currentSize <= array.length;
-
         if (currentSize + 1 <= array.length) {
             System.arraycopy(array, index, array, index + 1, currentSize - index);
             array[index] = element;
@@ -167,8 +153,6 @@ final class GrowingArrayUtils {
      * Primitive boolean version of {@link #insert(Object[], int, int, Object)}.
      */
     public static boolean[] insert(boolean[] array, int currentSize, int index, boolean element) {
-        assert currentSize <= array.length;
-
         if (currentSize + 1 <= array.length) {
             System.arraycopy(array, index, array, index + 1, currentSize - index);
             array[index] = element;

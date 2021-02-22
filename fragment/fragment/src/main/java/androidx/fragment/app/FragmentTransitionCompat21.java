@@ -146,6 +146,14 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
         exitTransition.addListener(new Transition.TransitionListener() {
             @Override
             public void onTransitionStart(Transition transition) {
+                // If any of the exiting views are not shared elements, the TransitionManager
+                // adds additional listeners to the this transition. If those listeners are
+                // DisappearListeners for a view that is going away, they can change the state of
+                // views after our onTransitionEnd callback.
+                // We need to make sure this listener gets the onTransitionEnd callback last to
+                // ensure that exiting views are made visible once the Transition is complete.
+                transition.removeListener(this);
+                transition.addListener(this);
             }
 
             @Override

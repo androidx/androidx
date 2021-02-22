@@ -19,16 +19,19 @@ import static androidx.emoji.util.Emoji.EMOJI_SINGLE_CODEPOINT;
 import static androidx.emoji.util.EmojiMatcher.hasEmoji;
 import static androidx.emoji.util.EmojiMatcher.hasEmojiCount;
 
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -160,6 +163,47 @@ public class ConfigTest {
 
         verify(loader, never()).load(any(EmojiCompat.MetadataRepoLoaderCallback.class));
         assertEquals(EmojiCompat.LOAD_STATE_DEFAULT, EmojiCompat.get().getLoadState());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testGlyphCheckerInstance_EmojiSpan_isNotAdded_whenHasGlyph_returnsTrue() {
+        final EmojiCompat.GlyphChecker glyphChecker = mock(EmojiCompat.GlyphChecker.class);
+        when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt(), anyInt()))
+                .thenReturn(true);
+
+        final EmojiCompat.Config config = TestConfigBuilder.freshConfig()
+                .setReplaceAll(false)
+                .setGlyphChecker(glyphChecker);
+        EmojiCompat.reset(config);
+
+        final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
+        CharSequence processed = EmojiCompat.get().process(original, 0, original.length());
+
+        verify(glyphChecker, times(1))
+                .hasGlyph(any(CharSequence.class), anyInt(), anyInt(), anyInt());
+        assertThat(processed, not(hasEmoji()));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testGlyphCheckerInstance_EmojiSpan_isAdded_whenHasGlyph_returnsFalse() {
+        final EmojiCompat.GlyphChecker glyphChecker = mock(EmojiCompat.GlyphChecker.class);
+        when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt(), anyInt()))
+                .thenReturn(false);
+
+        final EmojiCompat.Config config = TestConfigBuilder.freshConfig()
+                .setReplaceAll(false)
+                .setGlyphChecker(glyphChecker);
+        EmojiCompat.reset(config);
+
+        final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
+
+        CharSequence processed = EmojiCompat.get().process(original, 0, original.length());
+
+        verify(glyphChecker, times(1))
+                .hasGlyph(any(CharSequence.class), anyInt(), anyInt(), anyInt());
+        assertThat(processed, hasEmoji());
     }
 
     private static class ValidTestConfig extends EmojiCompat.Config {

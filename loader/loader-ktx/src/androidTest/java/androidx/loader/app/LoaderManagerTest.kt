@@ -17,7 +17,8 @@
 package androidx.loader.app
 
 import android.content.Context
-import androidx.loader.app.test.LoaderOwner
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.loader.content.Loader
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -38,7 +39,7 @@ class LoaderManagerTest {
 
     @Before
     fun setup() {
-        loaderManager = LoaderManager.getInstance(LoaderOwner())
+        loaderManager = LoaderManager.getInstance(TestLifecycleOwner(), ViewModelStore())
     }
 
     @Test

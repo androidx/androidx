@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.CameraFactory;
 import androidx.core.util.Preconditions;
 
 import java.util.Locale;
@@ -73,12 +74,7 @@ class CameraExecutor implements Executor {
             executor = mThreadPoolExecutor;
         }
 
-        int cameraNumber = 0;
-        try {
-            cameraNumber = cameraFactory.getAvailableCameraIds().size();
-        } catch (CameraInfoUnavailableException e) {
-            e.printStackTrace();
-        }
+        int cameraNumber = cameraFactory.getAvailableCameraIds().size();
         // According to the document of ThreadPoolExecutor, "If there are more than corePoolSize
         // but less than maximumPoolSize threads running, a new thread will be created only if
         // the queue is full."
@@ -110,8 +106,6 @@ class CameraExecutor implements Executor {
         Preconditions.checkNotNull(runnable);
 
         synchronized (mExecutorLock) {
-            Preconditions.checkState(!mThreadPoolExecutor.isShutdown(),
-                    "CameraExecutor is deinit");
             mThreadPoolExecutor.execute(runnable);
         }
     }

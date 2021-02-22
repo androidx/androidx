@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2019 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="biometric_test_app_name">Biometric Test App</string>
+    <string name="select_activity_label">Select a test activity:</string>
+    <string name="biometric_prompt_test_title">BiometricPrompt Test</string>
+    <string name="auth_prompt_test_title">AuthPrompt Test</string>
+
+    <string name="biometric_prompt_title">Title</string>
+    <string name="biometric_prompt_subtitle">Subtitle</string>
+    <string name="biometric_prompt_description">Description</string>
+    <string name="biometric_prompt_negative_text">Negative button</string>
+
+    <string name="authenticator_types_label">Authenticator types:</string>
+    <string name="biometric_strong_label">BIOMETRIC_STRONG</string>
+    <string name="biometric_weak_label">BIOMETRIC_WEAK</string>
+    <string name="device_credential_label">DEVICE_CREDENTIAL</string>
+
+    <string name="auth_type_label">Authentication type:</string>
+    <string name="class2_biometric_label">Class 2 biometric only</string>
+    <string name="class3_biometric_label">Class 3 biometric only</string>
+    <string name="class2_biometric_or_credential_label">Class 2 biometric or credential</string>
+    <string name="class3_biometric_or_credential_label">Class 3 biometric or credential</string>
+    <string name="credential_label">Credential only</string>
+
+    <string name="other_options_label">Other options:</string>
+    <string name="cancel_config_change_label">Cancel on configuration changes</string>
+    <string name="require_confirmation_label">Require confirmation</string>
+    <string name="use_crypto_auth_label">Use crypto-based authentication</string>
+
+    <string name="authenticate_button_label">Authenticate</string>
+    <string name="can_authenticate_button_label">Can authenticate</string>
+    <string name="clear_log_label">Clear log</string>
+</resources>

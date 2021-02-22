@@ -22,7 +22,6 @@ import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert
@@ -30,12 +29,14 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@Suppress("DEPRECATION")
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class TargetFragmentLifeCycleTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
 
     @Test
     fun targetFragmentNoCycles() {
@@ -49,8 +50,10 @@ class TargetFragmentLifeCycleTest {
             three.setTargetFragment(one, 0)
             Assert.fail("creating a fragment target cycle did not throw IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
-            assertThat(e).hasMessageThat().contains("Setting $one as the target of $three would" +
-                    " create a target cycle")
+            assertThat(e).hasMessageThat().contains(
+                "Setting $one as the target of $three would" +
+                    " create a target cycle"
+            )
         }
     }
 
@@ -287,6 +290,7 @@ class TargetFragmentLifeCycleTest {
      * Test the availability of getTargetFragment() when the target fragment is
      * retained and the referrer fragment is not retained.
      */
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun targetFragmentRetainedNonRetained() {
@@ -323,6 +327,7 @@ class TargetFragmentLifeCycleTest {
      * Test the availability of getTargetFragment() when the target fragment is
      * not retained and the referrer fragment is retained.
      */
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun targetFragmentNonRetainedRetained() {
@@ -358,6 +363,7 @@ class TargetFragmentLifeCycleTest {
      * Test the availability of getTargetFragment() when the target fragment is
      * retained and the referrer fragment is also retained.
      */
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun targetFragmentRetainedRetained() {

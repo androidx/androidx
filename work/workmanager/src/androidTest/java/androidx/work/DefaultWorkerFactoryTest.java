@@ -18,6 +18,7 @@ package androidx.work;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -78,5 +79,29 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
         assertThat(worker,
                 is(CoreMatchers.<ListenableWorker>instanceOf(TestWorker.class)));
         assertThat(worker.getId(), is(work.getId()));
+    }
+
+    @Test
+    @SmallTest
+    public void testCreateWorker_throwsException() {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        insertWork(work);
+
+        Executor executor = new SynchronousExecutor();
+        ListenableWorker worker = mDefaultWorkerFactory.createWorkerWithDefaultFallback(
+                mContext.getApplicationContext(),
+                DefaultWorkerFactoryTest.class.getName(),
+                new WorkerParameters(
+                        work.getId(),
+                        Data.EMPTY,
+                        work.getTags(),
+                        new WorkerParameters.RuntimeExtras(),
+                        1,
+                        executor,
+                        new WorkManagerTaskExecutor(executor),
+                        mDefaultWorkerFactory,
+                        mProgressUpdater,
+                        mForegroundUpdater));
+        assertThat(worker, is(nullValue()));
     }
 }

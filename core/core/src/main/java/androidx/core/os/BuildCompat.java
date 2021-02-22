@@ -16,7 +16,10 @@
 
 package androidx.core.os;
 
+import android.os.Build;
 import android.os.Build.VERSION;
+
+import androidx.annotation.ChecksSdkIntAtLeast;
 
 /**
  * This class contains additional platform version checking methods for targeting pre-release
@@ -34,6 +37,7 @@ public class BuildCompat {
      *             be removed in a future release of the Support Library. Instead, use
      *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.N}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.N)
     @Deprecated
     public static boolean isAtLeastN() {
         return VERSION.SDK_INT >= 24;
@@ -47,75 +51,94 @@ public class BuildCompat {
      *             will be removed in a future release of the Support Library. Instead, use
      *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.N_MR1)
     @Deprecated
     public static boolean isAtLeastNMR1() {
         return VERSION.SDK_INT >= 25;
     }
 
     /**
-     * Checks if the device is running on a pre-release version of Android O or newer.
+     * Checks if the device is running on a release version of Android O or newer.
      * <p>
      * @return {@code true} if O APIs are available for use, {@code false} otherwise
      * @deprecated Android O is a finalized release and this method is no longer necessary. It will
      *             be removed in a future release of the Support Library. Instead use
      *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.O}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O)
     @Deprecated
     public static boolean isAtLeastO() {
         return VERSION.SDK_INT >= 26;
     }
 
     /**
-     * Checks if the device is running on a pre-release version of Android O MR1 or newer.
+     * Checks if the device is running on a release version of Android O MR1 or newer.
      * <p>
      * @return {@code true} if O MR1 APIs are available for use, {@code false} otherwise
      * @deprecated Android O MR1 is a finalized release and this method is no longer necessary. It
      *             will be removed in a future release of the Support Library. Instead, use
      *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O_MR1)
     @Deprecated
     public static boolean isAtLeastOMR1() {
         return VERSION.SDK_INT >= 27;
     }
 
     /**
-     * Checks if the device is running on a pre-release version of Android P or newer.
+     * Checks if the device is running on a release version of Android P or newer.
      * <p>
      * @return {@code true} if P APIs are available for use, {@code false} otherwise
      * @deprecated Android P is a finalized release and this method is no longer necessary. It
      *             will be removed in a future release of the Support Library. Instead, use
      *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.P}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)
     @Deprecated
     public static boolean isAtLeastP() {
         return VERSION.SDK_INT >= 28;
     }
 
     /**
-     * Checks if the device is running on a pre-release version of Android Q or newer.
+     * Checks if the device is running on release version of Android Q or newer.
      * <p>
      * @return {@code true} if Q APIs are available for use, {@code false} otherwise
      * @deprecated Android Q is a finalized release and this method is no longer necessary. It
      *             will be removed in a future release of the Support Library. Instead, use
      *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.Q)
     @Deprecated
     public static boolean isAtLeastQ() {
         return VERSION.SDK_INT >= 29;
     }
 
     /**
-     * Checks if the device is running on a pre-release version of Android R or newer.
+     * Checks if the device is running on release version of Android R or newer.
      * <p>
-     * <strong>Note:</strong> This method will return {@code false} on devices running release
-     * versions of Android. When Android R is finalized for release, this method will be deprecated
-     * and all calls should be replaced with {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.R}.
-     *
      * @return {@code true} if R APIs are available for use, {@code false} otherwise
+     * @deprecated Android R is a finalized release and this method is no longer necessary. It
+     *             will be removed in a future release of the Support Library. Instead, use
+     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.R}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.R)
+    @Deprecated
     public static boolean isAtLeastR() {
-        return VERSION.CODENAME.length() == 1
-                && VERSION.CODENAME.charAt(0) >= 'R'
-                && VERSION.CODENAME.charAt(0) <= 'Z';
+        return VERSION.SDK_INT >= 30;
+    }
+
+    /**
+     * Checks if the device is running on a pre-release version of Android S or a release version of
+     * Android S or newer.
+     * <p>
+     * <strong>Note:</strong> When Android S is finalized for release, this method will be
+     * deprecated and all calls should be replaced with {@code Build.VERSION.SDK_INT >=
+     * Build.VERSION_CODES.S}.
+     *
+     * @return {@code true} if S APIs are available for use, {@code false} otherwise
+     */
+    @ChecksSdkIntAtLeast(codename = "S")
+    public static boolean isAtLeastS() {
+        return VERSION.CODENAME.equals("S");
     }
 }

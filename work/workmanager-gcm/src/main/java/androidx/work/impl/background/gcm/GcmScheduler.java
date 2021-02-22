@@ -64,4 +64,9 @@ public class GcmScheduler implements Scheduler {
         Logger.get().debug(TAG, String.format("Cancelling %s", workSpecId));
         mNetworkManager.cancelTask(workSpecId, WorkManagerGcmService.class);
     }
+
+    @Override
+    public boolean hasLimitedSchedulingSlots() {
+        return true;
+    }
 }

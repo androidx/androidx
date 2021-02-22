@@ -25,6 +25,6 @@ import java.util.Locale
  *
  * @see TextUtils.getLayoutDirectionFromLocale
  */
-inline val Locale.layoutDirection: Int
+public inline val Locale.layoutDirection: Int
     @RequiresApi(17)
     get() = TextUtils.getLayoutDirectionFromLocale(this)

@@ -83,10 +83,13 @@ fun generateFlingData(context: Context, velocityPixelsPerSecond: Float? = null):
     val targetPixelsPerMilli =
         if (velocityPixelsPerSecond != null) {
             if (velocityPixelsPerSecond < minimumVelocity * 1.1 - .001f ||
-                velocityPixelsPerSecond > maximumVelocity * .9 + .001f) {
-                throw IllegalArgumentException("velocityPixelsPerSecond must be between " +
+                velocityPixelsPerSecond > maximumVelocity * .9 + .001f
+            ) {
+                throw IllegalArgumentException(
+                    "velocityPixelsPerSecond must be between " +
                         "ViewConfiguration.scaledMinimumFlingVelocity * 1.1 and " +
-                        "ViewConfiguration.scaledMinimumFlingVelocity * .9, inclusive")
+                        "ViewConfiguration.scaledMinimumFlingVelocity * .9, inclusive"
+                )
             }
             velocityPixelsPerSecond / 1000f
         } else {
@@ -118,42 +121,42 @@ fun FlingData.generateFlingMotionEventData(
     originY: Float,
     fingerDirection: Direction
 ):
-        List<MotionEventData> {
+    List<MotionEventData> {
 
-    // Ceiling the time and distance to match up with motion event intervals.
-    val time: Int = ceilToInterval(this.time, MOTION_EVENT_INTERVAL_MILLIS)
-    val distance: Float = velocity * time
+        // Ceiling the time and distance to match up with motion event intervals.
+        val time: Int = ceilToInterval(this.time, MOTION_EVENT_INTERVAL_MILLIS)
+        val distance: Float = velocity * time
 
-    val dx: Float = when (fingerDirection) {
-        Direction.LEFT -> -distance
-        Direction.RIGHT -> distance
-        else -> 0f
+        val dx: Float = when (fingerDirection) {
+            Direction.LEFT -> -distance
+            Direction.RIGHT -> distance
+            else -> 0f
+        }
+        val dy: Float = when (fingerDirection) {
+            Direction.UP -> -distance
+            Direction.DOWN -> distance
+            else -> 0f
+        }
+        val toX = originX + dx
+        val toY = originY + dy
+
+        val numberOfInnerEvents = (time / MOTION_EVENT_INTERVAL_MILLIS) - 1
+        val dxIncrement = dx / (numberOfInnerEvents + 1)
+        val dyIncrement = dy / (numberOfInnerEvents + 1)
+
+        val motionEventData = ArrayList<MotionEventData>()
+        motionEventData.add(MotionEventData(0, MotionEvent.ACTION_DOWN, originX, originY, 0))
+        for (i in 1..(numberOfInnerEvents)) {
+            val timeDelta = i * MOTION_EVENT_INTERVAL_MILLIS
+            val x = originX + (i * dxIncrement)
+            val y = originY + (i * dyIncrement)
+            motionEventData.add(MotionEventData(timeDelta, MotionEvent.ACTION_MOVE, x, y, 0))
+        }
+        motionEventData.add(MotionEventData(time, MotionEvent.ACTION_MOVE, toX, toY, 0))
+        motionEventData.add(MotionEventData(time, MotionEvent.ACTION_UP, toX, toY, 0))
+
+        return motionEventData
     }
-    val dy: Float = when (fingerDirection) {
-        Direction.UP -> -distance
-        Direction.DOWN -> distance
-        else -> 0f
-    }
-    val toX = originX + dx
-    val toY = originY + dy
-
-    val numberOfInnerEvents = (time / MOTION_EVENT_INTERVAL_MILLIS) - 1
-    val dxIncrement = dx / (numberOfInnerEvents + 1)
-    val dyIncrement = dy / (numberOfInnerEvents + 1)
-
-    val motionEventData = ArrayList<MotionEventData>()
-    motionEventData.add(MotionEventData(0, MotionEvent.ACTION_DOWN, originX, originY, 0))
-    for (i in 1..(numberOfInnerEvents)) {
-        val timeDelta = i * MOTION_EVENT_INTERVAL_MILLIS
-        val x = originX + (i * dxIncrement)
-        val y = originY + (i * dyIncrement)
-        motionEventData.add(MotionEventData(timeDelta, MotionEvent.ACTION_MOVE, x, y, 0))
-    }
-    motionEventData.add(MotionEventData(time, MotionEvent.ACTION_MOVE, toX, toY, 0))
-    motionEventData.add(MotionEventData(time, MotionEvent.ACTION_UP, toX, toY, 0))
-
-    return motionEventData
-}
 
 /**
  * Dispatches an array of [MotionEvent] to a [View].

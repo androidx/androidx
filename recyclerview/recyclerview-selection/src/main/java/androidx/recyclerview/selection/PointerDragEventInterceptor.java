@@ -50,7 +50,7 @@ final class PointerDragEventInterceptor implements OnItemTouchListener {
         if (delegate != null) {
             mDelegate = delegate;
         } else {
-            mDelegate = new DummyOnItemTouchListener();
+            mDelegate = new StubOnItemTouchListener();
         }
     }
 

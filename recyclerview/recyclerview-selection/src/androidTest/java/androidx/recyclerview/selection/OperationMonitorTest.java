@@ -75,6 +75,19 @@ public class OperationMonitorTest {
         mListener.assertLastState(false);
     }
 
+    @Test
+    public void testRequiresReset() {
+        mMonitor.start();
+        assertTrue(mMonitor.asResettable().isResetRequired());
+    }
+
+    @Test
+    public void testReset() {
+        mMonitor.start();
+        mMonitor.asResettable().reset();
+        assertFalse(mMonitor.asResettable().isResetRequired());
+    }
+
     private static final class TestListener implements OperationMonitor.OnChangeListener {
 
         private boolean mLastState;

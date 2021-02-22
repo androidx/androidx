@@ -57,6 +57,7 @@ import android.view.Surface;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Objects;
 
 /**
  * A renderer that takes an {@link Image} and renders it to a {@link Surface} that is backed by a
@@ -80,7 +81,6 @@ final class GLImage2SurfaceRenderer {
     private int mPositionHandle;
 
     private int mTextureYHandle;
-    private int mTextureIdY;
 
     private FloatBuffer mVerticesFloatBuffer;
     private ByteBuffer mVerticesByteBuffer;
@@ -105,12 +105,10 @@ final class GLImage2SurfaceRenderer {
                     + "  gl_FragColor = vec4(y,y,y, 1.0);"
                     + "}";
 
-    // TODO(b/141961733): Suppressed during upgrade to AGP 3.6.
-    @SuppressWarnings("ReferenceEquality")
     GLImage2SurfaceRenderer() {
         // Initialize
         mEGLDisplay = EGL14.eglGetDisplay(EGL_DEFAULT_DISPLAY);
-        if (mEGLDisplay == EGL_NO_DISPLAY) {
+        if (Objects.equals(mEGLDisplay, EGL_NO_DISPLAY)) {
             throw new RuntimeException("Unable to get GL display");
         }
 
@@ -154,7 +152,7 @@ final class GLImage2SurfaceRenderer {
         mEGLContext = EGL14.eglCreateContext(
                 mEGLDisplay, mEGLConfigs[0], EGL_NO_CONTEXT, contextAttribs, 0);
 
-        if (mEGLContext == EGL_NO_CONTEXT) {
+        if (Objects.equals(mEGLContext, EGL_NO_CONTEXT)) {
             throw new RuntimeException("EGL has no context");
         }
 
@@ -164,7 +162,7 @@ final class GLImage2SurfaceRenderer {
         mEGLPbufferSurface = EGL14.eglCreatePbufferSurface(mEGLDisplay, mEGLConfigs[0],
                 pbufferAttribs, 0);
 
-        if (mEGLPbufferSurface == EGL_NO_SURFACE) {
+        if (Objects.equals(mEGLPbufferSurface, EGL_NO_SURFACE)) {
             throw new RuntimeException("No EGL surface");
         }
 
@@ -186,7 +184,6 @@ final class GLImage2SurfaceRenderer {
 
         int[] textureIds = new int[1];
         GLES20.glGenTextures(1, textureIds, 0);
-        mTextureIdY = textureIds[0];
 
         GLES20.glUniform1i(mTextureYHandle, 0);
 
@@ -197,8 +194,6 @@ final class GLImage2SurfaceRenderer {
         mInputSize = size;
     }
 
-    // TODO(b/141961733): Suppressed during upgrade to AGP 3.6.
-    @SuppressWarnings("ReferenceEquality")
     void setWindowSurface(Surface surface, int width, int height) {
         // Destroy previously connected surface
         destroySurface();
@@ -208,10 +203,15 @@ final class GLImage2SurfaceRenderer {
             return;
         }
 
-        mWindowSurface = EGL14.eglCreateWindowSurface(mEGLDisplay, mEGLConfigs[0], surface, null,
+        int[] surfaceAttribs = {
+                EGL14.EGL_NONE
+        };
+
+        mWindowSurface = EGL14.eglCreateWindowSurface(mEGLDisplay, mEGLConfigs[0], surface,
+                surfaceAttribs,
                 0);
 
-        if (mWindowSurface == EGL_NO_SURFACE) {
+        if (Objects.equals(mWindowSurface, EGL_NO_SURFACE)) {
             throw new RuntimeException("Unable to create window surface");
         }
 

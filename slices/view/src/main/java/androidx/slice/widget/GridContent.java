@@ -30,18 +30,23 @@ import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.slice.core.SliceHints.ICON_IMAGE;
-import static androidx.slice.core.SliceHints.LARGE_IMAGE;
-import static androidx.slice.core.SliceHints.SMALL_IMAGE;
+import static androidx.slice.core.SliceHints.HINT_OVERLAY;
+import static androidx.slice.core.SliceHints.SUBTYPE_DATE_PICKER;
+import static androidx.slice.core.SliceHints.SUBTYPE_TIME_PICKER;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 
-import android.app.slice.Slice;
+import android.content.Context;
+import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.SliceItem;
+import androidx.slice.SliceUtils;
+import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 
@@ -50,24 +55,27 @@ import java.util.List;
 
 /**
  * Extracts information required to present content in a grid format from a slice.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
 public class GridContent extends SliceContent {
 
     private boolean mAllImages;
     private SliceItem mPrimaryAction;
-    private ArrayList<CellContent> mGridContent = new ArrayList<>();
+    private final ArrayList<CellContent> mGridContent = new ArrayList<>();
     private SliceItem mSeeMoreItem;
     private int mMaxCellLineCount;
-    private boolean mHasImage;
     private int mLargestImageMode = UNKNOWN_IMAGE;
     private boolean mIsLastIndex;
+    private IconCompat mFirstImage = null;
+    private Point mFirstImageSize = null;
 
     private SliceItem mTitleItem;
 
-    public GridContent(SliceItem gridItem, int position) {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public GridContent(@NonNull SliceItem gridItem, int position) {
         super(gridItem, position);
         populate(gridItem);
     }
@@ -114,7 +122,9 @@ public class GridContent extends SliceContent {
                 mAllImages = false;
             }
             mMaxCellLineCount = Math.max(mMaxCellLineCount, cc.getTextCount());
-            mHasImage |= cc.hasImage();
+            if (mFirstImage == null && cc.hasImage()) {
+                mFirstImage = cc.getImageIcon();
+            }
             mLargestImageMode = mLargestImageMode == UNKNOWN_IMAGE
                     ? cc.getImageMode()
                     : Math.max(mLargestImageMode, cc.getImageMode());
@@ -123,7 +133,9 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the title of this grid row, if it exists.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
     public CharSequence getTitle() {
         if (mTitleItem != null) {
@@ -136,7 +148,9 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the list of cell content for this grid.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @NonNull
     public ArrayList<CellContent> getGridContent() {
         return mGridContent;
@@ -144,7 +158,9 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the content intent item for this grid.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
     public SliceItem getContentIntent() {
         return mPrimaryAction;
@@ -152,7 +168,9 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the see more item to use when not all items in the grid can be displayed.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
     public SliceItem getSeeMoreItem() {
         return mSeeMoreItem;
@@ -168,22 +186,43 @@ public class GridContent extends SliceContent {
 
     /**
      * @return whether the contents of this grid is just images.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public boolean isAllImages() {
         return mAllImages;
     }
 
     /**
      * @return the largest image size in this row, if there are images.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public int getLargestImageMode() {
         return mLargestImageMode;
+    }
+
+    /**
+     * @return the first image dimensions in this row, if there are images. If there are no images,
+     * return {-1, -1}.
+     */
+    @NonNull
+    public Point getFirstImageSize(@NonNull Context context) {
+        if (mFirstImage == null) {
+            return new Point(-1, -1);
+        }
+        if (mFirstImageSize == null) {
+            Drawable d = mFirstImage.loadDrawable(context);
+            mFirstImageSize = new Point(d.getIntrinsicWidth(), d.getIntrinsicHeight());
+        }
+        return mFirstImageSize;
     }
 
     /**
      * Filters non-cell items out of the list of items and finds content description.
      */
     private List<SliceItem> filterAndProcessItems(List<SliceItem> items) {
+
         List<SliceItem> filteredItems = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
             SliceItem item = items.get(i);
@@ -191,7 +230,7 @@ public class GridContent extends SliceContent {
             boolean containsSeeMore = SliceQuery.find(item, null, HINT_SEE_MORE, null) != null;
             boolean isNonCellContent = containsSeeMore
                     || item.hasAnyHints(HINT_SHORTCUT, HINT_SEE_MORE, HINT_KEYWORDS, HINT_TTL,
-                            HINT_LAST_UPDATED);
+                    HINT_LAST_UPDATED, HINT_OVERLAY);
             if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
                 mContentDescr = item;
             } else if (!isNonCellContent) {
@@ -203,102 +242,151 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the max number of lines of text in the cells of this grid row.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public int getMaxCellLineCount() {
         return mMaxCellLineCount;
     }
 
     /**
      * @return whether this row contains an image.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public boolean hasImage() {
-        return mHasImage;
+        return mFirstImage != null;
     }
 
     /**
      * @return whether this content is being displayed last in a list.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public boolean getIsLastIndex() { return mIsLastIndex; }
 
     /**
      * Sets whether this content is being displayed last in a list.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public void setIsLastIndex(boolean isLast) {
         mIsLastIndex = isLast;
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
-    public int getHeight(SliceStyle style, SliceViewPolicy policy) {
+    public int getHeight(@NonNull SliceStyle style, @NonNull SliceViewPolicy policy) {
         return style.getGridHeight(this, policy);
     }
 
     /**
      * Extracts information required to present content in a cell.
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static class CellContent {
         private SliceItem mContentIntent;
-        private ArrayList<SliceItem> mCellItems = new ArrayList<>();
+        private SliceItem mPicker;
+        private final ArrayList<SliceItem> mCellItems = new ArrayList<>();
         private SliceItem mContentDescr;
         private int mTextCount;
-        private boolean mHasImage;
+        private int mImageCount;
+        private IconCompat mImage;
+        private SliceItem mOverlayItem;
         private int mImageMode = -1;
         private SliceItem mTitleItem;
+        private SliceItem mToggleItem;
 
-        public CellContent(SliceItem cellItem) {
+        public CellContent(@NonNull SliceItem cellItem) {
             populate(cellItem);
         }
 
         /**
          * @return whether this row has content that is valid to display.
          */
-        public boolean populate(SliceItem cellItem) {
+        public boolean populate(@NonNull SliceItem cellItem) {
             final String format = cellItem.getFormat();
             if (!cellItem.hasHint(HINT_SHORTCUT)
                     && (FORMAT_SLICE.equals(format) || FORMAT_ACTION.equals(format))) {
                 List<SliceItem> items = cellItem.getSlice().getItems();
-                // If we've only got one item that's a slice / action use those items instead
-                if (items.size() == 1 && (FORMAT_ACTION.equals(items.get(0).getFormat())
-                        || FORMAT_SLICE.equals(items.get(0).getFormat()))) {
-                    mContentIntent = items.get(0);
-                    items = items.get(0).getSlice().getItems();
+                List<SliceItem> sliceActionItems = null;
+
+                // Fill the sliceActionItems with the first showing SliceAction in items.
+                for (SliceItem item : items) {
+                    if ((FORMAT_ACTION.equals(item.getFormat())
+                            || FORMAT_SLICE.equals(item.getFormat()))
+                            && !(SUBTYPE_DATE_PICKER.equals(item.getSubType())
+                            || SUBTYPE_TIME_PICKER.equals(item.getSubType()))) {
+                        sliceActionItems = item.getSlice().getItems();
+                        SliceAction ac = new SliceActionImpl(item);
+                        if (ac.isToggle()) {
+                            mToggleItem = item;
+                        } else {
+                            mContentIntent = items.get(0);
+                        }
+                        break;
+                    }
                 }
                 if (FORMAT_ACTION.equals(format)) {
                     mContentIntent = cellItem;
                 }
                 mTextCount = 0;
-                int imageCount = 0;
-                for (int i = 0; i < items.size(); i++) {
-                    final SliceItem item = items.get(i);
-                    final String itemFormat = item.getFormat();
-                    if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
-                        mContentDescr = item;
-                    } else if (mTextCount < 2 && (FORMAT_TEXT.equals(itemFormat)
-                            || FORMAT_LONG.equals(itemFormat))) {
-                        mTextCount++;
-                        mCellItems.add(item);
-                        if (mTitleItem == null
-                                || (!mTitleItem.hasHint(HINT_TITLE) && item.hasHint(HINT_TITLE))) {
-                            mTitleItem = item;
-                        }
-                    } else if (imageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
-                        if (item.hasHint(Slice.HINT_NO_TINT)) {
-                            mImageMode = item.hasHint(Slice.HINT_LARGE)
-                                    ? LARGE_IMAGE
-                                    : SMALL_IMAGE;
-                        } else {
-                            mImageMode = ICON_IMAGE;
-                        }
-                        imageCount++;
-                        mHasImage = true;
-                        mCellItems.add(item);
-                    }
+                mImageCount = 0;
+                fillCellItems(items);
+
+                if (mTextCount == 0 && mImageCount == 0 && sliceActionItems != null) {
+                    fillCellItems(sliceActionItems);
                 }
             } else if (isValidCellContent(cellItem)) {
                 mCellItems.add(cellItem);
             }
             return isValid();
+        }
+
+        private void fillCellItems(List<SliceItem> items) {
+            for (int i = 0; i < items.size(); i++) {
+                final SliceItem item = items.get(i);
+                final String itemFormat = item.getFormat();
+                if (mPicker == null && (SUBTYPE_DATE_PICKER.equals(item.getSubType())
+                        || SUBTYPE_TIME_PICKER.equals(item.getSubType()))) {
+                    mPicker = item;
+                } else if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
+                    mContentDescr = item;
+                } else if (mTextCount < 2 && (FORMAT_TEXT.equals(itemFormat)
+                        || FORMAT_LONG.equals(itemFormat))) {
+                    if (mTitleItem == null
+                            || (!mTitleItem.hasHint(HINT_TITLE) && item.hasHint(HINT_TITLE))) {
+                        mTitleItem = item;
+                    }
+                    if (item.hasHint(HINT_OVERLAY)) {
+                        if (mOverlayItem == null) {
+                            mOverlayItem = item;
+                        }
+                    } else {
+                        mTextCount++;
+                        mCellItems.add(item);
+                    }
+                } else if (mImageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
+                    mImageMode = SliceUtils.parseImageMode(item);
+                    mImageCount++;
+                    mImage = item.getIcon();
+                    mCellItems.add(item);
+                }
+            }
+        }
+
+
+        /**
+         * @return toggle slice item if this cell has one.
+         */
+        @Nullable
+        public SliceItem getToggleItem() {
+            return mToggleItem;
         }
 
         /**
@@ -310,15 +398,33 @@ public class GridContent extends SliceContent {
         }
 
         /**
+         * @return image overlay text slice item if this cell has one.
+         */
+        @Nullable
+        public SliceItem getOverlayItem() {
+            return mOverlayItem;
+        }
+
+        /**
          * @return the action to activate when this cell is tapped.
          */
+        @Nullable
         public SliceItem getContentIntent() {
             return mContentIntent;
         }
 
         /**
+         * @return the Picker to use when this cell is tapped.
+         */
+        @Nullable
+        public SliceItem getPicker() {
+            return mPicker;
+        }
+
+        /**
          * @return the slice items to display in this cell.
          */
+        @NonNull
         public ArrayList<SliceItem> getCellItems() {
             return mCellItems;
         }
@@ -340,7 +446,7 @@ public class GridContent extends SliceContent {
          * @return whether this grid has content that is valid to display.
          */
         public boolean isValid() {
-            return mCellItems.size() > 0 && mCellItems.size() <= 3;
+            return mPicker != null || (mCellItems.size() > 0 && mCellItems.size() <= 3);
         }
 
         /**
@@ -361,7 +467,7 @@ public class GridContent extends SliceContent {
          * @return whether this cell contains an image.
          */
         public boolean hasImage() {
-            return mHasImage;
+            return mImage != null;
         }
 
         /**
@@ -369,6 +475,14 @@ public class GridContent extends SliceContent {
          */
         public int getImageMode() {
             return mImageMode;
+        }
+
+        /**
+         * @return the IconCompat of the image.
+         */
+        @Nullable
+        public IconCompat getImageIcon() {
+            return mImage;
         }
 
         @Nullable

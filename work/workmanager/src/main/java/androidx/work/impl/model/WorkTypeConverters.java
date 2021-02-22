@@ -252,6 +252,7 @@ public class WorkTypeConverters {
      * @return corresponding byte array representation
      */
     @TypeConverter
+    @SuppressWarnings("CatchAndPrintStackTrace")
     public static byte[] contentUriTriggersToByteArray(ContentUriTriggers triggers) {
         if (triggers.size() == 0) {
             return null;
@@ -290,6 +291,7 @@ public class WorkTypeConverters {
      * @return list of {@link ContentUriTriggers.Trigger}s
      */
     @TypeConverter
+    @SuppressWarnings("CatchAndPrintStackTrace")
     public static ContentUriTriggers byteArrayToContentUriTriggers(byte[] bytes) {
         ContentUriTriggers triggers = new ContentUriTriggers();
         if (bytes == null) {

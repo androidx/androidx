@@ -22,9 +22,10 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.camera.core.CaptureProcessor;
+import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.ImageProxyBundle;
+import androidx.camera.core.impl.CaptureProcessor;
+import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -76,6 +77,7 @@ public class TimestampCaptureProcessor implements CaptureProcessor {
     }
 
     @Override
+    @ExperimentalGetImage
     public void process(@NonNull ImageProxyBundle bundle) {
         List<Integer> ids = bundle.getCaptureIds();
         Preconditions.checkArgument(ids.size() == 1,

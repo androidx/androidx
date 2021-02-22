@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -83,12 +84,14 @@ public class InvalidationTracker {
             + " WHERE " + INVALIDATED_COLUMN_NAME + " = 1;";
 
     @NonNull
-    @VisibleForTesting
     final HashMap<String, Integer> mTableIdLookup;
     final String[] mTableNames;
 
     @NonNull
     private Map<String, Set<String>> mViewTables;
+
+    @Nullable
+    AutoCloser mAutoCloser = null;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final RoomDatabase mDatabase;
@@ -161,6 +164,23 @@ public class InvalidationTracker {
     }
 
     /**
+     * Sets the auto closer for this invalidation tracker so that the invalidation tracker can
+     * ensure that the database is not closed if there are pending invalidations that haven't yet
+     * been flushed.
+     *
+     * This also adds a callback to the autocloser to ensure that the InvalidationTracker is in
+     * an ok state once the table is invalidated.
+     *
+     * This must be called before the database is used.
+     *
+     * @param autoCloser the autocloser associated with the db
+     */
+    void setAutoCloser(AutoCloser autoCloser) {
+        this.mAutoCloser = autoCloser;
+        mAutoCloser.setAutoCloseCallback(this::onAutoCloseCallback);
+    }
+
+    /**
      * Internal method to initialize table tracking.
      * <p>
      * You should never call this method, it is called by the generated code.
@@ -180,6 +200,13 @@ public class InvalidationTracker {
             syncTriggers(database);
             mCleanupStatement = database.compileStatement(RESET_UPDATED_TABLES_SQL);
             mInitialized = true;
+        }
+    }
+
+    void onAutoCloseCallback() {
+        synchronized (this) {
+            mInitialized = false;
+            mObservedTableTracker.resetTriggerState();
         }
     }
 
@@ -250,6 +277,9 @@ public class InvalidationTracker {
      * <p>
      * If one of the tables in the Observer does not exist in the database, this method throws an
      * {@link IllegalArgumentException}.
+     * <p>
+     * This method should be called on a background/worker thread as it performs database
+     * operations.
      *
      * @param observer The observer which listens the database for changes.
      */
@@ -306,6 +336,15 @@ public class InvalidationTracker {
         return tables.toArray(new String[tables.size()]);
     }
 
+    private static void beginTransactionInternal(SupportSQLiteDatabase database) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                && database.isWriteAheadLoggingEnabled()) {
+            database.beginTransactionNonExclusive();
+        } else {
+            database.beginTransaction();
+        }
+    }
+
     /**
      * Adds an observer but keeps a weak reference back to it.
      * <p>
@@ -323,6 +362,9 @@ public class InvalidationTracker {
 
     /**
      * Removes the observer from the observers list.
+     * <p>
+     * This method should be called on a background/worker thread as it performs database
+     * operations.
      *
      * @param observer The observer to remove.
      */
@@ -361,8 +403,8 @@ public class InvalidationTracker {
         public void run() {
             final Lock closeLock = mDatabase.getCloseLock();
             Set<Integer> invalidatedTableIds = null;
+            closeLock.lock();
             try {
-                closeLock.lock();
 
                 if (!ensureInitialization()) {
                     return;
@@ -384,7 +426,7 @@ public class InvalidationTracker {
                     // This transaction has to be on the underlying DB rather than the RoomDatabase
                     // in order to avoid a recursive loop after endTransaction.
                     SupportSQLiteDatabase db = mDatabase.getOpenHelper().getWritableDatabase();
-                    db.beginTransaction();
+                    db.beginTransactionNonExclusive();
                     try {
                         invalidatedTableIds = checkUpdatedTable();
                         db.setTransactionSuccessful();
@@ -400,6 +442,10 @@ public class InvalidationTracker {
                         exception);
             } finally {
                 closeLock.unlock();
+
+                if (mAutoCloser != null) {
+                    mAutoCloser.decrementCountAndScheduleClose();
+                }
             }
             if (invalidatedTableIds != null && !invalidatedTableIds.isEmpty()) {
                 synchronized (mObserverMap) {
@@ -440,6 +486,13 @@ public class InvalidationTracker {
     public void refreshVersionsAsync() {
         // TODO we should consider doing this sync instead of async.
         if (mPendingRefresh.compareAndSet(false, true)) {
+            if (mAutoCloser != null) {
+                // refreshVersionsAsync is called with the ref count incremented from
+                // RoomDatabase, so the db can't be closed here, but we need to be sure that our
+                // db isn't closed until refresh is completed. This increment call must be
+                // matched with a corresponding call in mRefreshRunnable.
+                mAutoCloser.incrementCountAndEnsureDbIsOpen();
+            }
             mDatabase.getQueryExecutor().execute(mRefreshRunnable);
         }
     }
@@ -452,6 +505,10 @@ public class InvalidationTracker {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @WorkerThread
     public void refreshVersionsSync() {
+        if (mAutoCloser != null) {
+            // This increment call must be matched with a corresponding call in mRefreshRunnable.
+            mAutoCloser.incrementCountAndEnsureDbIsOpen();
+        }
         syncTriggers();
         mRefreshRunnable.run();
     }
@@ -496,7 +553,7 @@ public class InvalidationTracker {
                         return;
                     }
                     final int limit = tablesToSync.length;
-                    database.beginTransaction();
+                    beginTransactionInternal(database);
                     try {
                         for (int tableId = 0; tableId < limit; tableId++) {
                             switch (tablesToSync[tableId]) {
@@ -784,6 +841,17 @@ public class InvalidationTracker {
                 }
             }
             return needTriggerSync;
+        }
+
+        /**
+         * If we are re-opening the db we'll need to add all the triggers that we need so change
+         * the current state to false for all.
+         */
+        void resetTriggerState() {
+            synchronized (this) {
+                Arrays.fill(mTriggerStates, false);
+                mNeedsSync = true;
+            }
         }
 
         /**

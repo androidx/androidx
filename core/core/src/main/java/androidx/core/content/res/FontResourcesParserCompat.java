@@ -16,6 +16,7 @@
 
 package androidx.core.content.res;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.res.Resources;
@@ -77,12 +78,21 @@ public class FontResourcesParserCompat {
         private final @NonNull FontRequest mRequest;
         private final int mTimeoutMs;
         private final @FetchStrategy int mStrategy;
+        private final @Nullable String mSystemFontFamilyName;
 
+        /** @hide */
+        @RestrictTo(LIBRARY)
         public ProviderResourceEntry(@NonNull FontRequest request, @FetchStrategy int strategy,
-                int timeoutMs) {
+                int timeoutMs, @Nullable String systemFontFamilyName) {
             mRequest = request;
             mStrategy = strategy;
             mTimeoutMs = timeoutMs;
+            mSystemFontFamilyName = systemFontFamilyName;
+        }
+
+        public ProviderResourceEntry(@NonNull FontRequest request, @FetchStrategy int strategy,
+                int timeoutMs) {
+            this(request, strategy, timeoutMs, null /*systemFontFamilyName*/);
         }
 
         public @NonNull FontRequest getRequest() {
@@ -95,6 +105,12 @@ public class FontResourcesParserCompat {
 
         public int getTimeout() {
             return mTimeoutMs;
+        }
+
+        /** @hide */
+        @RestrictTo(LIBRARY)
+        public @Nullable String getSystemFontFamilyName() {
+            return mSystemFontFamilyName;
         }
     }
 
@@ -200,6 +216,9 @@ public class FontResourcesParserCompat {
                 FETCH_STRATEGY_ASYNC);
         int timeoutMs = array.getInteger(R.styleable.FontFamily_fontProviderFetchTimeout,
                 DEFAULT_TIMEOUT_MILLIS);
+        String systemFontFamilyName = array
+                .getString(R.styleable.FontFamily_fontProviderSystemFontFamily);
+
         array.recycle();
         if (authority != null && providerPackage != null && query != null) {
             while (parser.next() != XmlPullParser.END_TAG) {
@@ -207,7 +226,11 @@ public class FontResourcesParserCompat {
             }
             List<List<byte[]>> certs = readCerts(resources, certsId);
             return new ProviderResourceEntry(
-                    new FontRequest(authority, providerPackage, query, certs), strategy, timeoutMs);
+                    new FontRequest(authority, providerPackage, query, certs),
+                    strategy,
+                    timeoutMs,
+                    systemFontFamilyName
+            );
         }
         List<FontFileResourceEntry> fonts = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -242,6 +265,7 @@ public class FontResourcesParserCompat {
      *
      * Provider cert entry must be cert string array or array of cert string array.
      */
+    @SuppressWarnings("MixedMutabilityReturnType")
     public static List<List<byte[]>> readCerts(Resources resources, @ArrayRes int certsId) {
         if (certsId == 0) {
             return Collections.<List<byte[]>>emptyList();

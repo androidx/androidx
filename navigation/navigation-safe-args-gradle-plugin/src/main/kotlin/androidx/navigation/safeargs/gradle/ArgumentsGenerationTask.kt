@@ -22,23 +22,32 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.FileCollection
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Provider
 import org.gradle.api.resources.TextResource
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.incremental.IncrementalTaskInputs
+import org.gradle.work.ChangeType
+import org.gradle.work.Incremental
+import org.gradle.work.InputChanges
 import java.io.File
+import javax.inject.Inject
 
 private const val MAPPING_FILE = "file_mappings.json"
 
-open class ArgumentsGenerationTask : DefaultTask() {
+open class ArgumentsGenerationTask @Inject constructor(private val projectLayout: ProjectLayout) :
+    DefaultTask() {
     @get:Input
     lateinit var rFilePackage: Provider<String>
 
+    @get:Internal
     var applicationIdResource: TextResource? = null // null on AGP 3.2.1 and below
 
+    @get:Internal
     var applicationId: String? = null // null on AGP 3.3.0 and above
 
     @get:Input
@@ -50,8 +59,9 @@ open class ArgumentsGenerationTask : DefaultTask() {
     @get:OutputDirectory
     lateinit var outputDir: File
 
+    @get:Incremental
     @get:InputFiles
-    lateinit var navigationFiles: Provider<List<File>>
+    lateinit var navigationFiles: FileCollection
 
     @get:OutputDirectory
     lateinit var incrementalFolder: File
@@ -71,8 +81,14 @@ open class ArgumentsGenerationTask : DefaultTask() {
             navigationXml = file,
             outputDir = out,
             useAndroidX = useAndroidX,
-            generateKotlin = generateKotlin).generate()
-        Mapping(file.relativeTo(project.projectDir).path, output.fileNames) to output.errors
+            generateKotlin = generateKotlin
+        ).generate()
+        Mapping(
+            file.relativeTo(
+                projectLayout.projectDirectory.asFile
+            ).path,
+            output.fileNames
+        ) to output.errors
     }.unzip().let { (mappings, errorLists) -> mappings to errorLists.flatten() }
 
     private fun writeMappings(mappings: List<Mapping>) {
@@ -90,51 +106,56 @@ open class ArgumentsGenerationTask : DefaultTask() {
     }
 
     @TaskAction
-    internal fun taskAction(inputs: IncrementalTaskInputs) {
+    internal fun taskAction(inputs: InputChanges) {
         if (inputs.isIncremental) {
             doIncrementalTaskAction(inputs)
         } else {
-            project.logger.info("Unable do incremental execution: full task run")
+            logger.info("Unable do incremental execution: full task run")
             doFullTaskAction()
         }
     }
 
     private fun doFullTaskAction() {
         if (outputDir.exists() && !outputDir.deleteRecursively()) {
-            project.logger.warn("Failed to clear directory for navigation arguments")
+            logger.warn("Failed to clear directory for navigation arguments")
         }
         if (!outputDir.exists() && !outputDir.mkdirs()) {
             throw GradleException("Failed to create directory for navigation arguments")
         }
-        val (mappings, errors) = generateArgs(navigationFiles.get(), outputDir)
+        val (mappings, errors) = generateArgs(navigationFiles.files, outputDir)
         writeMappings(mappings)
         failIfErrors(errors)
     }
 
-    private fun doIncrementalTaskAction(inputs: IncrementalTaskInputs) {
+    private fun doIncrementalTaskAction(inputs: InputChanges) {
         val modifiedFiles = mutableSetOf<File>()
         val removedFiles = mutableSetOf<File>()
-        inputs.outOfDate { change -> modifiedFiles.add(change.file) }
-        inputs.removed { change -> removedFiles.add(change.file) }
+        inputs.getFileChanges(navigationFiles).forEach { change ->
+            if (change.changeType == ChangeType.MODIFIED || change.changeType == ChangeType.ADDED) {
+                modifiedFiles.add(change.file)
+            } else if (change.changeType == ChangeType.REMOVED) {
+                removedFiles.add(change.file)
+            }
+        }
 
         val oldMapping = readMappings()
         val (newMapping, errors) = generateArgs(modifiedFiles, outputDir)
         val newJavaFiles = newMapping.flatMap { it.javaFiles }.toSet()
         val changedInputs = removedFiles + modifiedFiles
         val (modified, unmodified) = oldMapping.partition {
-            File(project.projectDir, it.navFile) in changedInputs
+            File(projectLayout.projectDirectory.asFile, it.navFile) in changedInputs
         }
         modified.flatMap { it.javaFiles }
-                .filter { name -> name !in newJavaFiles }
-                .forEach { javaName ->
-                    val fileExtension = if (generateKotlin) { ".kt" } else { ".java" }
-                    val fileName =
-                        "${javaName.replace('.', File.separatorChar)}$fileExtension"
-                    val file = File(outputDir, fileName)
-                    if (file.exists()) {
-                        file.delete()
-                    }
+            .filter { name -> name !in newJavaFiles }
+            .forEach { javaName ->
+                val fileExtension = if (generateKotlin) { ".kt" } else { ".java" }
+                val fileName =
+                    "${javaName.replace('.', File.separatorChar)}$fileExtension"
+                val file = File(outputDir, fileName)
+                if (file.exists()) {
+                    file.delete()
                 }
+            }
         writeMappings(unmodified + newMapping)
         failIfErrors(errors)
     }
@@ -143,14 +164,15 @@ open class ArgumentsGenerationTask : DefaultTask() {
         if (errors.isNotEmpty()) {
             val errString = errors.joinToString("\n") { it.toClickableText() }
             throw GradleException(
-                    "androidx.navigation.safeargs plugin failed.\n " +
-                            "Following errors found: \n$errString")
+                "androidx.navigation.safeargs plugin failed.\n " +
+                    "Following errors found: \n$errString"
+            )
         }
     }
 }
 
 private fun ErrorMessage.toClickableText() = "$path:$line:$column " +
-        "(${File(path).name}:$line): \n" +
-        "error: $message"
+    "(${File(path).name}:$line): \n" +
+    "error: $message"
 
 private data class Mapping(val navFile: String, val javaFiles: List<String>)

@@ -20,6 +20,7 @@ import static androidx.room.ForeignKey.CASCADE;
 
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.RoomWarnings;
 
 @Entity(
         primaryKeys = {"friendA", "friendB"},
@@ -35,6 +36,7 @@ import androidx.room.ForeignKey;
                         childColumns = "friendB",
                         onDelete = CASCADE),
         })
+@SuppressWarnings(RoomWarnings.MISSING_INDEX_ON_FOREIGN_KEY_CHILD)
 public class FriendsJunction {
     public final int friendA;
     public final int friendB;

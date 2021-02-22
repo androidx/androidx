@@ -1,10 +1,32 @@
 // Baseline format: 1.0
-CallbackMethodName: androidx.activity.OnBackPressedCallback:
-    Callback method names must follow the on<Something> style: setEnabled
+CallbackMethodName: androidx.activity.OnBackPressedCallback#handleOnBackPressed():
+    Callback method names must follow the on<Something> style: handleOnBackPressed
+
+
+ExecutorRegistration: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback):
+    Registration methods should have overload that accepts delivery Executor: `addCallback`
+ExecutorRegistration: androidx.activity.contextaware.ContextAware#addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener):
+    Registration methods should have overload that accepts delivery Executor: `addOnContextAvailableListener`
+ExecutorRegistration: androidx.activity.contextaware.ContextAwareHelper#addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener):
+    Registration methods should have overload that accepts delivery Executor: `addOnContextAvailableListener`
 
 
 ForbiddenSuperClass: androidx.activity.ComponentActivity:
     ComponentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
+
+
+MissingGetterMatchingBuilder: androidx.activity.result.IntentSenderRequest.Builder#setFlags(int, int):
+    androidx.activity.result.IntentSenderRequest does not declare a `getFlags()` method matching method androidx.activity.result.IntentSenderRequest.Builder.setFlags(int,int)
+
+
+MissingNullability: androidx.activity.ComponentActivity#startActivityForResult(android.content.Intent, int) parameter #0:
+    Missing nullability on parameter `intent` in method `startActivityForResult`
+MissingNullability: androidx.activity.ComponentActivity#startActivityForResult(android.content.Intent, int, android.os.Bundle) parameter #0:
+    Missing nullability on parameter `intent` in method `startActivityForResult`
+MissingNullability: androidx.activity.ComponentActivity#startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent, int, int, int) parameter #0:
+    Missing nullability on parameter `intent` in method `startIntentSenderForResult`
+MissingNullability: androidx.activity.ComponentActivity#startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) parameter #0:
+    Missing nullability on parameter `intent` in method `startIntentSenderForResult`
 
 
 RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.activity.OnBackPressedCallback):

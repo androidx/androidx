@@ -22,8 +22,6 @@ import static android.app.slice.Slice.SUBTYPE_SOURCE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 
-import static androidx.slice.widget.SliceView.MODE_LARGE;
-
 import android.app.slice.Slice;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -32,8 +30,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.slice.SliceItem;
@@ -47,9 +45,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @hide
+ * RecyclerView.Adapter for the Slice components.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHolder>
         implements SliceActionView.SliceActionLoadingListener {
@@ -69,7 +66,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     SliceView.OnSliceActionListener mSliceObserver;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    int mColor;
+    int mTintColor;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     SliceStyle mSliceStyle;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -97,13 +94,14 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     SliceViewPolicy mPolicy;
 
-    public SliceAdapter(Context context) {
+    public SliceAdapter(@NonNull Context context) {
         mContext = context;
         setHasStableIds(true);
     }
 
     /**
      * Sets the SliceView parent and the template parent.
+     * @hide
      */
     public void setParents(SliceView parent, TemplateView templateView) {
         mParent = parent;
@@ -114,6 +112,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
      * Sets the insets (padding) for slice view. SliceAdapter will handle determining
      * if a child needs a particular padding, i.e. if it's the first row then the top inset
      * will be applied to it whereas subsequent rows would get a top inset of 0.
+     * @hide
      */
     public void setInsets(int l, int t, int r, int b) {
         mInsetStart = l;
@@ -124,6 +123,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets the observer to pass down to child views.
+     * @hide
      */
     public void setSliceObserver(SliceView.OnSliceActionListener observer) {
         mSliceObserver = observer;
@@ -131,6 +131,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets the actions to display for this slice, this adjusts what's displayed in the header item.
+     * @hide
      */
     public void setSliceActions(List<SliceAction> actions) {
         mSliceActions = actions;
@@ -139,6 +140,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Set the {@link SliceItem}'s to be displayed in the adapter and the accent color.
+     * @hide
      */
     public void setSliceItems(List<SliceContent> slices, int color, int mode) {
         if (slices == null) {
@@ -151,12 +153,13 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
                 mSlices.add(new SliceWrapper(s, mIdGen, mode));
             }
         }
-        mColor = color;
+        mTintColor = color;
         notifyDataSetChanged();
     }
 
     /**
      * Sets the style information to use for views in this adapter.
+     * @hide
      */
     public void setStyle(SliceStyle style) {
         mSliceStyle = style;
@@ -165,6 +168,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets the policy information to use for views in this adapter.
+     * @hide
      */
     public void setPolicy(SliceViewPolicy p) {
         mPolicy = p;
@@ -172,6 +176,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets whether the last updated time should be shown on the slice.
+     * @hide
      */
     public void setShowLastUpdated(boolean showLastUpdated) {
         if (mShowLastUpdated != showLastUpdated) {
@@ -182,6 +187,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets when the slice was last updated.
+     * @hide
      */
     public void setLastUpdated(long lastUpdated) {
         if (mLastUpdated != lastUpdated) {
@@ -192,6 +198,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Indicates that no actions should be loading and updates the views.
+     * @hide
      */
     public void setLoadingActions(Set<SliceItem> actions) {
         if (actions == null) {
@@ -204,11 +211,15 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Returns the currently loading actions.
+     * @hide
      */
     public Set<SliceItem> getLoadingActions() {
         return mLoadingActions;
     }
 
+    /**
+     * @hide
+     */
     @Override
     public void onSliceActionLoading(SliceItem actionItem, int position) {
         mLoadingActions.add(actionItem);
@@ -221,6 +232,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Sets whether this slice can have 2 lines of subtitle text in the first row.
+     * @hide
      */
     public void setAllowTwoLines(boolean allowTwoLines) {
         mAllowTwoLines = allowTwoLines;
@@ -229,6 +241,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * Notifies that content in the header of this adapter has changed.
+     * @hide
      */
     public void notifyHeaderChanged() {
         if (getItemCount() > 0) {
@@ -236,8 +249,12 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
         }
     }
 
+    /**
+     * @hide
+     */
     @Override
-    public SliceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    @NonNull
+    public SliceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = inflateForType(viewType);
         v.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         return new SliceViewHolder(v);
@@ -258,8 +275,11 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
         return mSlices.size();
     }
 
+    /**
+     * @hide
+     */
     @Override
-    public void onBindViewHolder(SliceViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull SliceViewHolder holder, int position) {
         SliceWrapper slice = mSlices.get(position);
         holder.bind(slice.mItem, position);
     }
@@ -267,17 +287,40 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
     private View inflateForType(int viewType) {
         switch (viewType) {
             case TYPE_GRID:
-                return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_grid, null);
+                return getGridRowView();
             case TYPE_MESSAGE:
                 return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message, null);
             case TYPE_MESSAGE_LOCAL:
                 return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message_local,
                         null);
             default:
-                return new RowView(mContext);
+                return getRowView();
         }
     }
 
+    /**
+     * Provides an opportunity for sub SliceAdapter to pass a custom GridRowView.
+     */
+    @NonNull
+    public GridRowView getGridRowView() {
+        View view = LayoutInflater.from(mContext).inflate(R.layout.abc_slice_grid, null);
+        if (view instanceof GridRowView) {
+            return (GridRowView) view;
+        }
+        return new GridRowView(mContext, null);
+    }
+
+    /**
+     * Provides an opportunity for sub SliceAdapter to pass a custom RowView.
+     */
+    @NonNull
+    public RowView getRowView() {
+        return new RowView(mContext);
+    }
+
+    /**
+     * @hide
+     */
     protected static class SliceWrapper {
         final SliceContent mItem;
         final int mType;
@@ -310,6 +353,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
 
     /**
      * A {@link RecyclerView.ViewHolder} for presenting slices in {@link SliceAdapter}.
+     * @hide
      */
     public class SliceViewHolder extends RecyclerView.ViewHolder implements View.OnTouchListener,
             View.OnClickListener {
@@ -324,18 +368,21 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
             if (mSliceChildView == null || item == null) {
                 return;
             }
+
+            RowStyle rowStyle = mSliceStyle.getRowStyle(item.getSliceItem());
+
             // Click listener used to pipe click events to parent
             mSliceChildView.setOnClickListener(this);
             // Touch listener used to pipe events to touch feedback drawable
             mSliceChildView.setOnTouchListener(this);
             mSliceChildView.setSliceActionLoadingListener(SliceAdapter.this);
 
-            final boolean isHeader = position == HEADER_INDEX;
-            int mode = mParent != null ? mParent.getMode() : MODE_LARGE;
+            final boolean isHeader = item instanceof RowContent
+                    ? ((RowContent) item).getIsHeader() : position == HEADER_INDEX;
             mSliceChildView.setLoadingActions(mLoadingActions);
             mSliceChildView.setPolicy(mPolicy);
-            mSliceChildView.setTint(mColor);
-            mSliceChildView.setStyle(mSliceStyle);
+            mSliceChildView.setTint(rowStyle.getTintColor());
+            mSliceChildView.setStyle(mSliceStyle, rowStyle);
             mSliceChildView.setShowLastUpdated(isHeader && mShowLastUpdated);
             mSliceChildView.setLastUpdated(isHeader ? mLastUpdated : -1);
             // Only apply top / bottom insets to first / last rows

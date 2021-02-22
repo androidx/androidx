@@ -162,6 +162,19 @@ public class TestSchedulerTest {
     }
 
     @Test
+    public void testWorker_withPeriod_cancelAndResume_shouldRun()
+            throws InterruptedException, ExecutionException {
+
+        PeriodicWorkRequest request = createWorkRequestWithPeriodDelay();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        workManager.cancelWorkById(request.getId());
+        mTestDriver.setPeriodDelayMet(request.getId());
+        WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(requestStatus.getState().isFinished(), is(true));
+    }
+
+    @Test
     public void testWorker_withPeriodDelay_shouldRunAfterEachSetPeriodDelay()
             throws InterruptedException, ExecutionException {
 

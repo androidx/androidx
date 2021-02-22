@@ -15,8 +15,9 @@ limitations under the License.
 -->
 <!-- Definitions of attributes to be exposed as public -->
 <resources>
-    <!-- CameraView -->
     <public name="scaleType" type="attr" />
+    <public name="implementationMode" type="attr" />
+    <!-- TODO(b/148791439): remove below when CameraView is deleted. -->
     <public name="direction" type="attr" />
     <public name="captureMode" type="attr" />
     <public name="flash" type="attr" />

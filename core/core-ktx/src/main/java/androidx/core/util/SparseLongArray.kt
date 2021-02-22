@@ -23,19 +23,19 @@ import androidx.annotation.RequiresApi
 
 /** Returns the number of key/value entries in the collection. */
 @get:RequiresApi(18)
-inline val SparseLongArray.size get() = size()
+public inline val SparseLongArray.size: Int get() = size()
 
 /** Returns true if the collection contains [key]. */
 @RequiresApi(18)
-inline operator fun SparseLongArray.contains(key: Int) = indexOfKey(key) >= 0
+public inline operator fun SparseLongArray.contains(key: Int): Boolean = indexOfKey(key) >= 0
 
 /** Allows the use of the index operator for storing values in the collection. */
 @RequiresApi(18)
-inline operator fun SparseLongArray.set(key: Int, value: Long) = put(key, value)
+public inline operator fun SparseLongArray.set(key: Int, value: Long): Unit = put(key, value)
 
 /** Creates a new collection by adding or replacing entries from [other]. */
 @RequiresApi(18)
-operator fun SparseLongArray.plus(other: SparseLongArray): SparseLongArray {
+public operator fun SparseLongArray.plus(other: SparseLongArray): SparseLongArray {
     val new = SparseLongArray(size() + other.size())
     new.putAll(this)
     new.putAll(other)
@@ -44,34 +44,35 @@ operator fun SparseLongArray.plus(other: SparseLongArray): SparseLongArray {
 
 /** Returns true if the collection contains [key]. */
 @RequiresApi(18)
-inline fun SparseLongArray.containsKey(key: Int) = indexOfKey(key) >= 0
+public inline fun SparseLongArray.containsKey(key: Int): Boolean = indexOfKey(key) >= 0
 
 /** Returns true if the collection contains [value]. */
 @RequiresApi(18)
-inline fun SparseLongArray.containsValue(value: Long) = indexOfValue(value) != -1
+public inline fun SparseLongArray.containsValue(value: Long): Boolean = indexOfValue(value) >= 0
 
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
 @RequiresApi(18)
-inline fun SparseLongArray.getOrDefault(key: Int, defaultValue: Long) = get(key, defaultValue)
+public inline fun SparseLongArray.getOrDefault(key: Int, defaultValue: Long): Long =
+    get(key, defaultValue)
 
 /** Return the value corresponding to [key], or from [defaultValue] when not present. */
 @RequiresApi(18)
-inline fun SparseLongArray.getOrElse(key: Int, defaultValue: () -> Long) =
-    indexOfKey(key).let { if (it != -1) valueAt(it) else defaultValue() }
+public inline fun SparseLongArray.getOrElse(key: Int, defaultValue: () -> Long): Long =
+    indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }
 
 /** Return true when the collection contains no elements. */
 @RequiresApi(18)
-inline fun SparseLongArray.isEmpty() = size() == 0
+public inline fun SparseLongArray.isEmpty(): Boolean = size() == 0
 
 /** Return true when the collection contains elements. */
 @RequiresApi(18)
-inline fun SparseLongArray.isNotEmpty() = size() != 0
+public inline fun SparseLongArray.isNotEmpty(): Boolean = size() != 0
 
 /** Removes the entry for [key] only if it is set to [value]. */
 @RequiresApi(18)
-fun SparseLongArray.remove(key: Int, value: Long): Boolean {
+public fun SparseLongArray.remove(key: Int, value: Long): Boolean {
     val index = indexOfKey(key)
-    if (index != -1 && value == valueAt(index)) {
+    if (index >= 0 && value == valueAt(index)) {
         removeAt(index)
         return true
     }
@@ -80,11 +81,11 @@ fun SparseLongArray.remove(key: Int, value: Long): Boolean {
 
 /** Update this collection by adding or replacing entries from [other]. */
 @RequiresApi(18)
-fun SparseLongArray.putAll(other: SparseLongArray) = other.forEach(::put)
+public fun SparseLongArray.putAll(other: SparseLongArray): Unit = other.forEach(::put)
 
 /** Performs the given [action] for each key/value entry. */
 @RequiresApi(18)
-inline fun SparseLongArray.forEach(action: (key: Int, value: Long) -> Unit) {
+public inline fun SparseLongArray.forEach(action: (key: Int, value: Long) -> Unit) {
     for (index in 0 until size()) {
         action(keyAt(index), valueAt(index))
     }
@@ -92,7 +93,7 @@ inline fun SparseLongArray.forEach(action: (key: Int, value: Long) -> Unit) {
 
 /** Return an iterator over the collection's keys. */
 @RequiresApi(18)
-fun SparseLongArray.keyIterator(): IntIterator = object : IntIterator() {
+public fun SparseLongArray.keyIterator(): IntIterator = object : IntIterator() {
     var index = 0
     override fun hasNext() = index < size()
     override fun nextInt() = keyAt(index++)
@@ -100,7 +101,7 @@ fun SparseLongArray.keyIterator(): IntIterator = object : IntIterator() {
 
 /** Return an iterator over the collection's values. */
 @RequiresApi(18)
-fun SparseLongArray.valueIterator(): LongIterator = object : LongIterator() {
+public fun SparseLongArray.valueIterator(): LongIterator = object : LongIterator() {
     var index = 0
     override fun hasNext() = index < size()
     override fun nextLong() = valueAt(index++)

@@ -191,13 +191,13 @@ public final class AccessibilityServiceInfoCompat {
      * @param packageManager The current package manager
      * @return The localized description.
      */
+    @SuppressWarnings("deprecation")
     @Nullable
     public static String loadDescription(
             @NonNull AccessibilityServiceInfo info, @NonNull PackageManager packageManager) {
         if (Build.VERSION.SDK_INT >= 16) {
             return info.loadDescription(packageManager);
         } else {
-            //noinspection deprecation
             return info.getDescription();
         }
     }
@@ -282,11 +282,11 @@ public final class AccessibilityServiceInfoCompat {
      * @see #CAPABILITY_CAN_REQUEST_ENHANCED_WEB_ACCESSIBILITY
      * @see #CAPABILITY_CAN_FILTER_KEY_EVENTS
      */
+    @SuppressWarnings("deprecation")
     public static int getCapabilities(@NonNull AccessibilityServiceInfo info) {
         if (Build.VERSION.SDK_INT >= 18) {
             return info.getCapabilities();
         } else {
-            //noinspection deprecation
             if (info.getCanRetrieveWindowContent()) {
                 return CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT;
             }

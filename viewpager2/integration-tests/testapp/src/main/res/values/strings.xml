@@ -35,4 +35,9 @@
     <string name="choose_a_page">Choose a page:</string>
     <string name="toolbox">Toolbox</string>
     <string name="viewpager2">ViewPager2</string>
+    <string name="first_rv">Horizontal RecyclerView</string>
+    <string name="second_rv">Vertical RecyclerView</string>
+    <string name="page_position">Page %1$d</string>
+    <string name="item_position">Item %1$d</string>
+    <string name="image_content_description">Android</string>
 </resources>

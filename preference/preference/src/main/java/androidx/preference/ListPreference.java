@@ -148,9 +148,9 @@ public class ListPreference extends DialogPreference {
     @Override
     public void setSummary(CharSequence summary) {
         super.setSummary(summary);
-        if (summary == null && mSummary != null) {
+        if (summary == null) {
             mSummary = null;
-        } else if (summary != null && !summary.equals(mSummary)) {
+        } else {
             mSummary = summary.toString();
         }
     }
@@ -222,7 +222,7 @@ public class ListPreference extends DialogPreference {
     public int findIndexOfValue(String value) {
         if (value != null && mEntryValues != null) {
             for (int i = mEntryValues.length - 1; i >= 0; i--) {
-                if (mEntryValues[i].equals(value)) {
+                if (TextUtils.equals(mEntryValues[i].toString(), value)) {
                     return i;
                 }
             }

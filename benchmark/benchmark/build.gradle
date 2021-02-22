@@ -22,10 +22,20 @@ plugins {
     id("androidx.benchmark")
 }
 
+android {
+    defaultConfig {
+        // 18 needed for UI automator dependency, via benchmark-macro-junit4
+        minSdkVersion 18
+    }
+}
+
 dependencies {
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
+    androidTestImplementation(project(":benchmark:benchmark-macro-junit4"))
+    androidTestImplementation(project(":tracing:tracing-ktx"))
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(JUNIT)
     androidTestImplementation(KOTLIN_STDLIB)
 }

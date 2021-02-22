@@ -20,11 +20,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -45,12 +45,7 @@ public class ActionBarFragmentMenu extends AppCompatActivity {
     CheckBox mMenuVisibility;
 
     // Update fragment visibility when check boxes are changed.
-    final OnClickListener mClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            updateFragmentVisibility();
-        }
-    };
+    final OnClickListener mClickListener = v -> updateFragmentVisibility();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,15 +68,15 @@ public class ActionBarFragmentMenu extends AppCompatActivity {
         ft.commit();
 
         // Watch check box clicks.
-        mCheckBox1 = (CheckBox)findViewById(R.id.menu1);
+        mCheckBox1 = findViewById(R.id.menu1);
         mCheckBox1.setOnClickListener(mClickListener);
-        mCheckBox2 = (CheckBox)findViewById(R.id.menu2);
+        mCheckBox2 = findViewById(R.id.menu2);
         mCheckBox2.setOnClickListener(mClickListener);
-        mCheckBox3 = (CheckBox)findViewById(R.id.menu3);
+        mCheckBox3 = findViewById(R.id.menu3);
         mCheckBox3.setOnClickListener(mClickListener);
-        mHasOptionsMenu = (CheckBox)findViewById(R.id.has_options_menu);
+        mHasOptionsMenu = findViewById(R.id.has_options_menu);
         mHasOptionsMenu.setOnClickListener(mClickListener);
-        mMenuVisibility = (CheckBox)findViewById(R.id.menu_visibility);
+        mMenuVisibility = findViewById(R.id.menu_visibility);
         mMenuVisibility.setOnClickListener(mClickListener);
 
         // Make sure fragments start out with correct visibility.
@@ -89,7 +84,7 @@ public class ActionBarFragmentMenu extends AppCompatActivity {
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         // Make sure fragments are updated after check box view state is restored.
         updateFragmentVisibility();
@@ -135,7 +130,7 @@ public class ActionBarFragmentMenu extends AppCompatActivity {
         }
 
         @Override
-        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        public void onCreateOptionsMenu(Menu menu, @NonNull MenuInflater inflater) {
             menu.add("Menu 1a").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             menu.add("Menu 1b").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             super.onCreateOptionsMenu(menu, inflater);
@@ -143,11 +138,11 @@ public class ActionBarFragmentMenu extends AppCompatActivity {
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
-            if (item.getTitle().equals("Menu 1a")) {
+            if (item.getTitle().toString().equals("Menu 1a")) {
                 Toast.makeText(getActivity(), "Selected Menu 1a.", Toast.LENGTH_SHORT).show();
                 return true;
             }
-            if (item.getTitle().equals("Menu 1b")) {
+            if (item.getTitle().toString().equals("Menu 1b")) {
                 Toast.makeText(getActivity(), "Selected Menu 1b.", Toast.LENGTH_SHORT).show();
                 return true;
             }
@@ -177,13 +172,13 @@ public class ActionBarFragmentMenu extends AppCompatActivity {
         }
 
         @Override
-        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        public void onCreateOptionsMenu(Menu menu, @NonNull MenuInflater inflater) {
             menu.add("Menu 2").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
-            if (item.getTitle().equals("Menu 2")) {
+            if (item.getTitle().toString().equals("Menu 2")) {
                 Toast.makeText(getActivity(), "Selected Menu 2.", Toast.LENGTH_SHORT).show();
                 return true;
             }
@@ -203,7 +198,7 @@ public class ActionBarFragmentMenu extends AppCompatActivity {
         }
 
         @Override
-        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
             Toast.makeText(getActivity(), "Created nested fragment's menu.",
                     Toast.LENGTH_SHORT).show();
             inflater.inflate(R.menu.display_options_actions, menu);
@@ -218,7 +213,7 @@ public class ActionBarFragmentMenu extends AppCompatActivity {
         }
 
         @Override
-        public void onPrepareOptionsMenu(Menu menu) {
+        public void onPrepareOptionsMenu(@NonNull Menu menu) {
             Toast.makeText(getActivity(), "Prepared nested fragment's menu.",
                     Toast.LENGTH_SHORT).show();
             super.onPrepareOptionsMenu(menu);

@@ -27,10 +27,12 @@ import androidx.core.app.ActivityOptionsCompat
  * @param flags `Intent.FLAG_ACTIVITY_` flags to add to the Intent.
  */
 @Suppress("FunctionName")
-fun ActivityNavigatorExtras(activityOptions: ActivityOptionsCompat? = null, flags: Int = 0) =
-        ActivityNavigator.Extras.Builder().apply {
-            if (activityOptions != null) {
-                setActivityOptions(activityOptions)
-            }
-            addFlags(flags)
-        }.build()
+public fun ActivityNavigatorExtras(
+    activityOptions: ActivityOptionsCompat? = null,
+    flags: Int = 0
+): ActivityNavigator.Extras = ActivityNavigator.Extras.Builder().apply {
+    if (activityOptions != null) {
+        setActivityOptions(activityOptions)
+    }
+    addFlags(flags)
+}.build()

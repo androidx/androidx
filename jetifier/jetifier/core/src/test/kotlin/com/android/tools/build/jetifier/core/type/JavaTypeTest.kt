@@ -45,6 +45,6 @@ class JavaTypeTest {
         val remapWith = JavaType.fromDotVersion("hello.NewClass")
 
         Truth.assertThat(type.remapWithNewRootType(remapWith).toDotNotation())
-                .isEqualTo("hello.NewClass\$Inner")
+            .isEqualTo("hello.NewClass\$Inner")
     }
 }

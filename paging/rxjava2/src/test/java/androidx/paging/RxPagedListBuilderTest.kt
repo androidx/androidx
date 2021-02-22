@@ -17,8 +17,9 @@
 package androidx.paging
 
 import androidx.paging.LoadState.Error
-import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.REFRESH
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import io.reactivex.schedulers.TestScheduler
@@ -30,9 +31,9 @@ import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class RxPagedListBuilderTest {
-    private data class LoadState(
+    private data class LoadStateEvent(
         val type: LoadType,
-        val state: androidx.paging.LoadState
+        val state: LoadState
     )
 
     /**
@@ -44,14 +45,14 @@ class RxPagedListBuilderTest {
             override fun create(): DataSource<Int, String> {
                 val currentList = localData.first()
                 localData = localData.drop(1)
-                return ListDataSource(currentList)
+                return TestPositionalDataSource(currentList)
             }
         }
     }
 
     class MockDataSourceFactory {
-        fun create(): PagedSource<Int, String> {
-            return MockPagedSource()
+        fun create(): PagingSource<Int, String> {
+            return MockPagingSource()
         }
 
         var throwable: Throwable? = null
@@ -60,14 +61,20 @@ class RxPagedListBuilderTest {
             throwable = EXCEPTION
         }
 
-        private inner class MockPagedSource : PagedSource<Int, String>() {
-            override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
-                LoadType.REFRESH -> loadInitial(params)
+        private inner class MockPagingSource : PagingSource<Int, String>() {
+            override suspend fun load(params: LoadParams<Int>) = when (params) {
+                is LoadParams.Refresh -> loadInitial(params)
                 else -> loadRange()
             }
 
+            override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
+
             private fun loadInitial(params: LoadParams<Int>): LoadResult<Int, String> {
-                assertEquals(2, params.pageSize)
+                if (params is LoadParams.Refresh) {
+                    assertEquals(6, params.loadSize)
+                } else {
+                    assertEquals(2, params.loadSize)
+                }
 
                 throwable?.let { error ->
                     throwable = null
@@ -100,10 +107,14 @@ class RxPagedListBuilderTest {
             )
         )
         val scheduler = TestScheduler()
+
+        @Suppress("DEPRECATION")
         val observable = RxPagedListBuilder(factory, 10)
             .setFetchScheduler(scheduler)
             .setNotifyScheduler(scheduler)
             .buildObservable()
+
+        @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
 
         observable.subscribe(observer)
@@ -123,7 +134,7 @@ class RxPagedListBuilderTest {
         observer.values().last().dataSource.invalidate()
         scheduler.triggerActions()
         observer.assertValueCount(3)
-        assertTrue { observer.values()[1].pagedSource.invalid }
+        assertTrue { observer.values()[1].pagingSource.invalid }
         assertEquals(listOf("c", "d"), observer.values().last())
     }
 
@@ -132,10 +143,14 @@ class RxPagedListBuilderTest {
         val factory = testDataSourceSequence(listOf(listOf("a", "b"), listOf("c", "d")))
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
+
+        @Suppress("DEPRECATION")
         val observable: Observable<PagedList<String>> = RxPagedListBuilder(factory, 10)
             .setFetchScheduler(fetchScheduler)
             .setNotifyScheduler(notifyScheduler)
             .buildObservable()
+
+        @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
         observable.subscribe(observer)
 
@@ -161,11 +176,14 @@ class RxPagedListBuilderTest {
         // initial load - if we used one, we wouldn't be able to see the initial Loading state
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
+
+        @Suppress("DEPRECATION")
         val observable = RxPagedListBuilder(factory::create, 2)
             .setFetchScheduler(fetchScheduler)
             .setNotifyScheduler(notifyScheduler)
             .buildObservable()
 
+        @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
         observable.subscribe(observer)
 
@@ -178,19 +196,20 @@ class RxPagedListBuilderTest {
         val initPagedList = observer.values()[0]!!
         assertTrue(initPagedList is InitialPagedList<*, *>)
 
-        val loadStates = mutableListOf<LoadState>()
+        val loadStates = mutableListOf<LoadStateEvent>()
 
         // initial load failed, check that we're in error state
-        val loadStateChangedCallback: LoadStateListener = { type, state ->
-            if (type == LoadType.REFRESH) {
-                loadStates.add(LoadState(type, state))
+        val loadStateChangedCallback = { type: LoadType, state: LoadState ->
+            if (type == REFRESH) {
+                loadStates.add(LoadStateEvent(type, state))
             }
         }
         initPagedList.addWeakLoadStateListener(loadStateChangedCallback)
         assertEquals(
             listOf(
-                LoadState(LoadType.REFRESH, Loading)
-            ), loadStates
+                LoadStateEvent(REFRESH, Loading)
+            ),
+            loadStates
         )
 
         fetchScheduler.triggerActions()
@@ -199,9 +218,10 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadState(LoadType.REFRESH, Loading),
-                LoadState(LoadType.REFRESH, Error(EXCEPTION))
-            ), loadStates
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Error(EXCEPTION))
+            ),
+            loadStates
         )
 
         initPagedList.retry()
@@ -210,10 +230,11 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadState(LoadType.REFRESH, Loading),
-                LoadState(LoadType.REFRESH, Error(EXCEPTION)),
-                LoadState(LoadType.REFRESH, Loading)
-            ), loadStates
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Error(EXCEPTION)),
+                LoadStateEvent(REFRESH, Loading)
+            ),
+            loadStates
         )
         // flush loadInitial, should succeed now
         fetchScheduler.triggerActions()
@@ -228,11 +249,15 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadState(LoadType.REFRESH, Loading),
-                LoadState(LoadType.REFRESH, Error(EXCEPTION)),
-                LoadState(LoadType.REFRESH, Loading),
-                LoadState(LoadType.REFRESH, Idle)
-            ), loadStates
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, Error(EXCEPTION)),
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(
+                    REFRESH,
+                    NotLoading(endOfPaginationReached = false)
+                )
+            ),
+            loadStates
         )
     }
 

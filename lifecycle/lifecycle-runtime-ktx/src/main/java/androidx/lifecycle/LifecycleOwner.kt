@@ -26,5 +26,5 @@ import kotlinx.coroutines.CoroutineScope
  * This scope is bound to
  * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate].
  */
-val LifecycleOwner.lifecycleScope: LifecycleCoroutineScope
+public val LifecycleOwner.lifecycleScope: LifecycleCoroutineScope
     get() = lifecycle.coroutineScope

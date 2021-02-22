@@ -144,10 +144,6 @@
             android:text="Button (colored + tinted) disabled"
             app:backgroundTint="@color/background_tint" />
 
-        <RatingBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
     </LinearLayout>
 
 </ScrollView>

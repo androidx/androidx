@@ -19,7 +19,6 @@ package androidx.fragment.app
 import androidx.fragment.app.test.HangingFragmentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.recreate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -30,8 +29,9 @@ import org.junit.runner.RunWith
 @MediumTest
 class HangingFragmentTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(HangingFragmentActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(HangingFragmentActivity::class.java)
 
     @Test
     fun testNoCrash() {

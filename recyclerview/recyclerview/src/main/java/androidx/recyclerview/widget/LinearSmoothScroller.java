@@ -130,7 +130,7 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
         }
         //noinspection PointlessBooleanExpression
         if (DEBUG && mTargetVector != null
-                && ((mTargetVector.x * dx < 0 || mTargetVector.y * dy < 0))) {
+                && (mTargetVector.x * dx < 0 || mTargetVector.y * dy < 0)) {
             throw new IllegalStateException("Scroll happened in the opposite direction"
                     + " of the target. Some calculations are wrong");
         }

@@ -18,6 +18,7 @@ package androidx.work.impl.foreground;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.work.ForegroundInfo;
 
 /**
  * An interface that provides {@link androidx.work.impl.WorkerWrapper} the hooks to move a
@@ -30,9 +31,10 @@ public interface ForegroundProcessor {
     /**
      * Makes the foreground service aware of the {@link androidx.work.impl.model.WorkSpec} id.
      *
-     * @param workSpecId The {@link androidx.work.impl.model.WorkSpec} id
+     * @param workSpecId     The {@link androidx.work.impl.model.WorkSpec} id
+     * @param foregroundInfo The {@link ForegroundInfo} associated
      */
-    void startForeground(@NonNull String workSpecId);
+    void startForeground(@NonNull String workSpecId, @NonNull ForegroundInfo foregroundInfo);
 
     /**
      * Marks the foreground work corresponding to the {{@link androidx.work.impl.model.WorkSpec} id

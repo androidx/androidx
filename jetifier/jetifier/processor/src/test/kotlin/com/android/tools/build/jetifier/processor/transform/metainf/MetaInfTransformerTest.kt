@@ -41,16 +41,23 @@ class MetaInfTransformerTest {
                     from = PomDependency(
                         groupId = "com.android.support",
                         artifactId = "preference-v7",
-                        version = "28.8.8"),
+                        version = "28.8.8"
+                    ),
                     to = PomDependency(
                         groupId = "androidx.preference",
                         artifactId = "preference",
-                        version = "1.0.0"))
+                        version = "1.0.0"
+                    )
+                )
             ),
-            filePath = Paths.get("something/META-INF",
-                "androidx.preference_preference.version"),
-            expectedFilePath = Paths.get("something/META-INF",
-                "androidx.preference_preference.version"),
+            filePath = Paths.get(
+                "something/META-INF",
+                "androidx.preference_preference.version"
+            ),
+            expectedFilePath = Paths.get(
+                "something/META-INF",
+                "androidx.preference_preference.version"
+            ),
             rewritingSupportLib = false
         )
     }
@@ -65,16 +72,23 @@ class MetaInfTransformerTest {
                     from = PomDependency(
                         groupId = "com.android.support",
                         artifactId = "preference-v7",
-                        version = "28.8.8"),
+                        version = "28.8.8"
+                    ),
                     to = PomDependency(
                         groupId = "androidx.preference",
                         artifactId = "preference",
-                        version = "1.0.0"))
+                        version = "1.0.0"
+                    )
+                )
             ),
-            filePath = Paths.get("something/META-INF",
-                "androidx.preference_preference.version"),
-            expectedFilePath = Paths.get("something/META-INF",
-                "com.android.support_preference-v7.version"),
+            filePath = Paths.get(
+                "something/META-INF",
+                "androidx.preference_preference.version"
+            ),
+            expectedFilePath = Paths.get(
+                "something/META-INF",
+                "com.android.support_preference-v7.version"
+            ),
             rewritingSupportLib = true
         )
     }
@@ -95,12 +109,17 @@ class MetaInfTransformerTest {
                         groupId = "androidx.preference",
                         artifactId = "preference",
                         version = "1.0.0"
-                    ))
+                    )
+                )
             ),
-            filePath = Paths.get("something/META-INF",
-                "androidx.preference_preference.version"),
-            expectedFilePath = Paths.get("something/META-INF",
-                "com.android.support_preference-v7.version"),
+            filePath = Paths.get(
+                "something/META-INF",
+                "androidx.preference_preference.version"
+            ),
+            expectedFilePath = Paths.get(
+                "something/META-INF",
+                "com.android.support_preference-v7.version"
+            ),
             versionsMap = mapOf("myVersion" to "29.9.9"),
             rewritingSupportLib = true
         )
@@ -122,26 +141,35 @@ class MetaInfTransformerTest {
                         groupId = "androidx.preference",
                         artifactId = "preference",
                         version = "1.0.0"
-                    ))
+                    )
+                )
             ),
-            filePath = Paths.get("something/notMeta",
-                "androidx.preference_preference.version"),
-            expectedFilePath = Paths.get("something/notMeta",
-                "androidx.preference_preference.version"),
+            filePath = Paths.get(
+                "something/notMeta",
+                "androidx.preference_preference.version"
+            ),
+            expectedFilePath = Paths.get(
+                "something/notMeta",
+                "androidx.preference_preference.version"
+            ),
             rewritingSupportLib = true
         )
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun rewriteVersion_dejetification_missingPomRule_shouldCrash() {
+    @Test
+    fun rewriteVersion_dejetification_missingPomRule_shouldSkip() {
         testRewrite(
             given = "1.0.0",
-            expected = "28.8.8",
+            expected = "1.0.0",
             pomRules = setOf(),
-            filePath = Paths.get("something/META-INF",
-                "androidx.preference_preference.version"),
-            expectedFilePath = Paths.get("something/META-INF",
-                "com.android.support_preference-v7.version"),
+            filePath = Paths.get(
+                "something/META-INF",
+                "androidx.preference_preference.version"
+            ),
+            expectedFilePath = Paths.get(
+                "something/META-INF",
+                "androidx.preference_preference.version"
+            ),
             rewritingSupportLib = true
         )
     }
@@ -158,7 +186,9 @@ class MetaInfTransformerTest {
         val config = Config.fromOptional(
             pomRewriteRules = pomRules,
             versionsMap = DependencyVersionsMap(
-                mapOf(DependencyVersions.DEFAULT_DEPENDENCY_SET to versionsMap)))
+                mapOf(DependencyVersions.DEFAULT_DEPENDENCY_SET to versionsMap)
+            )
+        )
 
         val file = ArchiveFile(filePath, given.toByteArray())
 
@@ -167,7 +197,8 @@ class MetaInfTransformerTest {
             .createProcessor(
                 config = config,
                 rewritingSupportLib = rewritingSupportLib,
-                reversedMode = rewritingSupportLib)
+                reversedMode = rewritingSupportLib
+            )
             .visit(file)
 
         val strResult = file.data.toString(Charset.defaultCharset())

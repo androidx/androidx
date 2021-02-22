@@ -17,42 +17,41 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.ext.LifecyclesTypeNames
+import androidx.room.compiler.processing.XRawType
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.solver.ObservableQueryResultBinderProvider
 import androidx.room.solver.query.result.LiveDataQueryResultBinder
 import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 class LiveDataQueryResultBinderProvider(context: Context) :
     ObservableQueryResultBinderProvider(context) {
-    private val liveDataTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.elementUtils
-                .getTypeElement(LifecyclesTypeNames.LIVE_DATA.toString())?.asType()
+    private val liveDataType: XRawType? by lazy {
+        context.processingEnv.findType(LifecyclesTypeNames.LIVE_DATA)?.rawType
     }
 
-    override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
+    override fun extractTypeArg(declared: XType): XType = declared.typeArguments.first()
 
     override fun create(
-        typeArg: TypeMirror,
+        typeArg: XType,
         resultAdapter: QueryResultAdapter?,
         tableNames: Set<String>
     ): QueryResultBinder {
         return LiveDataQueryResultBinder(
-                typeArg = typeArg,
-                tableNames = tableNames,
-                adapter = resultAdapter)
+            typeArg = typeArg,
+            tableNames = tableNames,
+            adapter = resultAdapter
+        )
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
-            declared.typeArguments.size == 1 && isLiveData(declared)
+    override fun matches(declared: XType): Boolean =
+        declared.typeArguments.size == 1 && isLiveData(declared)
 
-    private fun isLiveData(declared: DeclaredType): Boolean {
-        if (liveDataTypeMirror == null) {
+    private fun isLiveData(declared: XType): Boolean {
+        if (liveDataType == null) {
             return false
         }
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
-        return context.processingEnv.typeUtils.isAssignable(liveDataTypeMirror, erasure)
+        return declared.rawType.isAssignableFrom(liveDataType!!)
     }
 }

@@ -25,11 +25,11 @@ import androidx.annotation.RestrictTo;
 import java.io.Writer;
 
 /**
- * Helper for accessing features in {@link android.util.LogWriter}.
- *
  * @hide
+ * @deprecated Copied to use sites. Do not use.
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
+@Deprecated
 public class LogWriter extends Writer {
     private final String mTag;
     private StringBuilder mBuilder = new StringBuilder(128);

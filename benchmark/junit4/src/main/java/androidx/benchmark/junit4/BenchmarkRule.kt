@@ -20,9 +20,9 @@ import android.Manifest
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.BenchmarkState
-import androidx.benchmark.beginTraceSection
-import androidx.benchmark.endTraceSection
 import androidx.test.rule.GrantPermissionRule
+import androidx.tracing.Trace
+import androidx.tracing.trace
 import org.junit.Assert.assertTrue
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
@@ -73,23 +73,18 @@ import org.junit.runners.model.Statement
  *
  * Every test in the Class using this @Rule must contain a single benchmark.
  */
-class BenchmarkRule : TestRule {
-    constructor() {
-        this.enableReport = true
-    }
-
-    internal constructor(enableReport: Boolean) {
-        this.enableReport = enableReport
-    }
-
-    internal // synthetic access
-    val internalState = BenchmarkState()
-
+public class BenchmarkRule internal constructor(
     /**
      * Used to disable reporting, for correctness tests that shouldn't report values
      * (and would trigger warnings if they did, e.g. debuggable=true)
+     * Is always true when called non-internally.
      */
     private val enableReport: Boolean
+) : TestRule {
+    public constructor() : this(true)
+
+    internal // synthetic access
+    val internalState = BenchmarkState()
 
     /**
      * Object used for benchmarking in Java.
@@ -111,13 +106,13 @@ class BenchmarkRule : TestRule {
      *
      * @throws [IllegalStateException] if the BenchmarkRule isn't correctly applied to a test.
      */
-    fun getState(): BenchmarkState {
+    public fun getState(): BenchmarkState {
         // Note: this is an explicit method instead of an accessor to help convey it's only for Java
         // Kotlin users should call the [measureRepeated] method.
         if (!applied) {
             throw IllegalStateException(
                 "Cannot get state before BenchmarkRule is applied to a test. Check that your " +
-                        "BenchmarkRule is annotated correctly (@Rule in Java, @get:Rule in Kotlin)."
+                    "BenchmarkRule is annotated correctly (@Rule in Java, @get:Rule in Kotlin)."
             )
         }
         return internalState
@@ -126,14 +121,14 @@ class BenchmarkRule : TestRule {
     internal // synthetic access
     var applied = false
 
-    /** @hide */
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    val scope = Scope()
+    public val scope: Scope = Scope()
 
     /**
      * Handle used for controlling timing during [measureRepeated].
      */
-    inner class Scope internal constructor() {
+    public inner class Scope internal constructor() {
         /**
          * Disable timing for a block of code.
          *
@@ -150,9 +145,19 @@ class BenchmarkRule : TestRule {
          * }
          * ```
          */
-        inline fun <T> runWithTimingDisabled(block: () -> T): T {
+        public inline fun <T> runWithTimingDisabled(block: () -> T): T {
             getOuterState().pauseTiming()
-            val ret = block()
+            // Note: we only bother with tracing for the runWithTimingDisabled function for
+            // Kotlin callers, as it's more difficult to corrupt the trace with incorrectly
+            // paired BenchmarkState pause/resume calls
+            val ret: T = try {
+                // TODO: use `trace() {}` instead of this manual try/finally,
+                //  once the block parameter is marked crossinline.
+                Trace.beginSection("runWithTimingDisabled")
+                block()
+            } finally {
+                Trace.endSection()
+            }
             getOuterState().resumeTiming()
             return ret
         }
@@ -188,14 +193,13 @@ class BenchmarkRule : TestRule {
                     invokeMethodName.length > 5
                 )
                 invokeMethodName = invokeMethodName.substring(4, 5).toLowerCase() +
-                        invokeMethodName.substring(5)
+                    invokeMethodName.substring(5)
             }
+            internalState.traceUniqueName = description.testClass.simpleName + "_" +
+                invokeMethodName
 
-            try {
-                beginTraceSection(description.displayName)
+            trace(description.displayName) {
                 base.evaluate()
-            } finally {
-                endTraceSection()
             }
 
             if (enableReport) {
@@ -231,7 +235,7 @@ class BenchmarkRule : TestRule {
  *
  * @param block The block of code to benchmark.
  */
-inline fun BenchmarkRule.measureRepeated(crossinline block: BenchmarkRule.Scope.() -> Unit) {
+public inline fun BenchmarkRule.measureRepeated(crossinline block: BenchmarkRule.Scope.() -> Unit) {
     // Note: this is an extension function to discourage calling from Java.
 
     // Extract members to locals, to ensure we check #applied, and we don't hit accessors
@@ -243,6 +247,6 @@ inline fun BenchmarkRule.measureRepeated(crossinline block: BenchmarkRule.Scope.
     }
 }
 
-internal fun Statement(evaluate: () -> Unit) = object : Statement() {
+internal inline fun Statement(crossinline evaluate: () -> Unit) = object : Statement() {
     override fun evaluate() = evaluate()
 }

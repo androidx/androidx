@@ -17,12 +17,14 @@
 package androidx.lifecycle;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 
 import java.io.Closeable;
 
@@ -66,4 +68,9 @@ public class ViewModelTest {
         assertThat(vm.setTagIfAbsent("key", "second"), is("first"));
     }
 
+    @Test
+    public void testMockedGetTag() {
+        ViewModel vm = Mockito.mock(ViewModel.class);
+        assertThat(vm.getTag("Careless mocks =|"), nullValue());
+    }
 }

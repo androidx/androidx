@@ -17,10 +17,10 @@
 package androidx.room.vo
 
 import androidx.room.ext.L
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.CodeBlock
-import javax.lang.model.type.TypeMirror
 
-data class FieldSetter(val name: String, val type: TypeMirror, val callType: CallType) {
+data class FieldSetter(val name: String, val type: XType, val callType: CallType) {
     fun writeSet(ownerVar: String, inVar: String, builder: CodeBlock.Builder) {
         val stmt = when (callType) {
             CallType.FIELD -> "$L.$L = $L"

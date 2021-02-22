@@ -15,7 +15,10 @@
  */
 package androidx.remotecallback.compiler;
 
+import static androidx.remotecallback.compiler.RemoteCallbackProcessor.EXTERNAL_INPUT;
 import static androidx.remotecallback.compiler.RemoteCallbackProcessor.REMOTE_CALLABLE;
+
+import androidx.annotation.NonNull;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -34,24 +37,31 @@ import javax.lang.model.element.TypeElement;
 /**
  * Processes annotations from RemoteCallbacks.
  */
-@SupportedAnnotationTypes({REMOTE_CALLABLE})
+@SupportedAnnotationTypes({REMOTE_CALLABLE, EXTERNAL_INPUT})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class RemoteCallbackProcessor extends AbstractProcessor {
 
-    public static final String REMOTE_CALLABLE = "androidx.remotecallback.RemoteCallable";
+    @NonNull
+    static final String REMOTE_CALLABLE = "androidx.remotecallback.RemoteCallable";
+
+    @NonNull
+    static final String EXTERNAL_INPUT = "androidx.remotecallback.ExternalInput";
 
     private HashMap<Element, CallbackReceiver> mMap = new HashMap<>();
     private ProcessingEnvironment mEnv;
     private Messager mMessager;
 
     @Override
-    public synchronized void init(ProcessingEnvironment processingEnvironment) {
+    public synchronized void init(@NonNull ProcessingEnvironment processingEnvironment) {
         mEnv = processingEnvironment;
         mMessager = processingEnvironment.getMessager();
     }
 
     @Override
-    public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
+    public boolean process(
+            @NonNull Set<? extends TypeElement> set,
+            @NonNull RoundEnvironment roundEnvironment
+    ) {
         if (set.isEmpty()) return true;
         TypeElement remoteCallable = findAnnotation(set, REMOTE_CALLABLE);
 

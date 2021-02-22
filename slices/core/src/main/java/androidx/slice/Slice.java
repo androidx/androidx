@@ -45,7 +45,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.SliceConvert.unwrap;
 import static androidx.slice.core.SliceHints.HINT_ACTIVITY;
 import static androidx.slice.core.SliceHints.HINT_CACHED;
+import static androidx.slice.core.SliceHints.HINT_END_OF_SECTION;
+import static androidx.slice.core.SliceHints.HINT_OVERLAY;
+import static androidx.slice.core.SliceHints.HINT_RAW;
 import static androidx.slice.core.SliceHints.HINT_SELECTION_OPTION;
+import static androidx.slice.core.SliceHints.HINT_SHOW_LABEL;
 
 import android.app.PendingIntent;
 import android.app.RemoteInput;
@@ -95,6 +99,15 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
      */
     public static final String EXTRA_SELECTION = "android.app.slice.extra.SELECTION";
 
+    /**
+     * Subtype to tag an item as representing the progress bar mode for a
+     * {@link android.app.slice.Slice#SUBTYPE_RANGE}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final String SUBTYPE_RANGE_MODE = "range_mode";
+
     private static final String HINTS = "hints";
     private static final String ITEMS = "items";
     private static final String URI = "uri";
@@ -128,10 +141,14 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
             HINT_ERROR,
             HINT_ACTIVITY,
             HINT_CACHED,
+            HINT_END_OF_SECTION,
             HINT_SELECTION_OPTION,
+            HINT_RAW,
+            HINT_OVERLAY,
+            HINT_SHOW_LABEL
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface SliceHint{ }
+    public @interface SliceHint { }
 
     @ParcelField(value = 1, defaultValue = "null")
     SliceSpec mSpec = null;
@@ -378,8 +395,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
         /**
          * Add an action to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see SliceItem#getSubType()
          * @param action Callback to be triggered when a pending intent would normally be fired.
+         * @see SliceItem#getSubType()
          */
         public Slice.Builder addAction(@NonNull SliceItem.ActionHandler action,
                 @NonNull Slice s, @Nullable String subType) {
@@ -478,6 +495,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
 
         /**
          * Add a int to the slice being constructed
+         *
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
          */
@@ -602,10 +620,10 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     /**
      * Turns a slice Uri into slice content.
      *
-     * @hide
      * @param context Context to be used.
      * @param uri The URI to a slice provider
      * @return The Slice provided by the app or null if none is given.
+     * @hide
      * @see Slice
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)

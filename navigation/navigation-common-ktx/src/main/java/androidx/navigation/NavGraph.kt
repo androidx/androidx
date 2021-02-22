@@ -25,11 +25,11 @@ import androidx.annotation.IdRes
  *
  * @throws IllegalArgumentException if no destination is found with that id.
  */
-inline operator fun NavGraph.get(@IdRes id: Int): NavDestination =
-        findNode(id) ?: throw IllegalArgumentException("No destination for $id was found in $this")
+public inline operator fun NavGraph.get(@IdRes id: Int): NavDestination =
+    findNode(id) ?: throw IllegalArgumentException("No destination for $id was found in $this")
 
 /** Returns `true` if a destination with `id` is found in this navigation graph. */
-operator fun NavGraph.contains(@IdRes id: Int): Boolean = findNode(id) != null
+public operator fun NavGraph.contains(@IdRes id: Int): Boolean = findNode(id) != null
 
 /**
  * Adds a destination to this NavGraph. The destination must have an
@@ -41,7 +41,7 @@ operator fun NavGraph.contains(@IdRes id: Int): Boolean = findNode(id) != null
  *
  * @param node destination to add
  */
-inline operator fun NavGraph.plusAssign(node: NavDestination) {
+public inline operator fun NavGraph.plusAssign(node: NavDestination) {
     addDestination(node)
 }
 
@@ -52,11 +52,11 @@ inline operator fun NavGraph.plusAssign(node: NavDestination) {
  * @param other collection of destinations to add. All destinations will be removed from the
  * parameter graph after being added to this graph.
  */
-inline operator fun NavGraph.plusAssign(other: NavGraph) {
+public inline operator fun NavGraph.plusAssign(other: NavGraph) {
     addAll(other)
 }
 
 /** Removes `node` from this navigation graph. */
-inline operator fun NavGraph.minusAssign(node: NavDestination) {
+public inline operator fun NavGraph.minusAssign(node: NavDestination) {
     remove(node)
 }

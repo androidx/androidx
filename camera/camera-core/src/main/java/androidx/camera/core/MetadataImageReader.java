@@ -17,15 +17,16 @@
 package androidx.camera.core;
 
 import android.media.ImageReader;
-import android.os.Handler;
-import android.util.Log;
 import android.util.LongSparseArray;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ import java.util.concurrent.Executor;
  * <p>MetadataImageReader holds an ImageReaderProxy and listens to
  * {@link CameraCaptureCallback}. Then compose them into an {@link ImageProxy} with same
  * timestamp and output it to
- * {@link androidx.camera.core.ImageReaderProxy.OnImageAvailableListener}. User who acquires the
+ * {@link ImageReaderProxy.OnImageAvailableListener}. User who acquires the
  * ImageProxy is responsible for closing it after use. A limited number of ImageProxy may be
  * acquired at one time as defined by <code>maxImages</code> in the constructor. Any ImageProxy
  * produced after that will be dropped unless one of the ImageProxy currently acquired is closed.
@@ -59,12 +60,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
 
     // Callback when Image is ready from the underlying ImageReader.
     private ImageReaderProxy.OnImageAvailableListener mTransformedListener =
-            new ImageReaderProxy.OnImageAvailableListener() {
-                @Override
-                public void onImageAvailable(ImageReaderProxy reader) {
-                    imageIncoming(reader);
-                }
-            };
+            (reader) -> imageIncoming(reader);
 
     @GuardedBy("mLock")
     private boolean mClosed = false;
@@ -93,7 +89,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
 
     /** ImageProxies with matched Image and ImageInfo and are ready to be acquired. */
     @GuardedBy("mLock")
-    private List<ImageProxy> mMatchedImageProxies;
+    private final List<ImageProxy> mMatchedImageProxies;
 
     /** ImageProxies which are already acquired. */
     @GuardedBy("mLock")
@@ -106,14 +102,20 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
      * @param height    Height of the ImageReader
      * @param format    Image format
      * @param maxImages Maximum Image number the ImageReader can hold.
-     * @param handler   Handler for executing {@link ImageReaderProxy.OnImageAvailableListener}
      */
-    MetadataImageReader(int width, int height, int format, int maxImages,
-            @Nullable Handler handler) {
-        mImageReaderProxy = new AndroidImageReaderProxy(
-                ImageReader.newInstance(width, height, format, maxImages));
+    MetadataImageReader(int width, int height, int format, int maxImages) {
+        this(createImageReaderProxy(width, height, format, maxImages));
+    }
 
-        init(CameraXExecutors.newHandlerExecutor(handler));
+    /**
+     * To workaround the robolectric issue b/151870335. The line breaks is not allowed in the
+     * 'this (...)' keyword in the constructor. This workaround is extracted the operation out of
+     * 'this (...)' to avoid the issue happen.
+     */
+    private static ImageReaderProxy createImageReaderProxy(int width, int height, int format,
+            int maxImages) {
+        return new AndroidImageReaderProxy(
+                ImageReader.newInstance(width, height, format, maxImages));
     }
 
     /**
@@ -121,19 +123,9 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
      *
      * @param imageReaderProxy The existed ImageReaderProxy to be set underlying this
      *                         MetadataImageReader.
-     * @param handler          Handler for executing
-     *                         {@link ImageReaderProxy.OnImageAvailableListener}
      */
-    MetadataImageReader(ImageReaderProxy imageReaderProxy, @Nullable Handler handler) {
+    MetadataImageReader(@NonNull ImageReaderProxy imageReaderProxy) {
         mImageReaderProxy = imageReaderProxy;
-
-        init(CameraXExecutors.newHandlerExecutor(handler));
-    }
-
-    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
-    private void init(Executor executor) {
-        mExecutor = executor;
-        mImageReaderProxy.setOnImageAvailableListener(mTransformedListener, executor);
         mImageProxiesIndex = 0;
         mMatchedImageProxies = new ArrayList<>(getMaxImages());
     }
@@ -235,6 +227,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
         }
     }
 
+    @Nullable
     @Override
     public Surface getSurface() {
         synchronized (mLock) {
@@ -243,19 +236,20 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
     }
 
     @Override
-    public void setOnImageAvailableListener(
-            @NonNull final ImageReaderProxy.OnImageAvailableListener listener,
-            @Nullable Handler handler) {
-        setOnImageAvailableListener(listener, CameraXExecutors.newHandlerExecutor(handler));
-    }
-
-    @Override
     public void setOnImageAvailableListener(@NonNull OnImageAvailableListener listener,
             @NonNull Executor executor) {
         synchronized (mLock) {
-            mListener = listener;
-            mExecutor = executor;
+            mListener = Preconditions.checkNotNull(listener);
+            mExecutor = Preconditions.checkNotNull(executor);
             mImageReaderProxy.setOnImageAvailableListener(mTransformedListener, executor);
+        }
+    }
+
+    @Override
+    public void clearOnImageAvailableListener() {
+        synchronized (mLock) {
+            mListener = null;
+            mExecutor = null;
         }
     }
 
@@ -267,28 +261,26 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
     }
 
     private void enqueueImageProxy(SettableImageProxy image) {
+        ImageReaderProxy.OnImageAvailableListener listener;
+        Executor executor;
         synchronized (mLock) {
             if (mMatchedImageProxies.size() < getMaxImages()) {
                 image.addOnImageCloseListener(this);
                 mMatchedImageProxies.add(image);
-                if (mListener != null) {
-                    if (mExecutor != null) {
-                        mExecutor.execute(
-                                new Runnable() {
-                                     // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
-                                    @SuppressWarnings("GuardedBy")
-                                    @Override
-                                    public void run() {
-                                        mListener.onImageAvailable(MetadataImageReader.this);
-                                    }
-                                });
-                    } else {
-                        mListener.onImageAvailable(MetadataImageReader.this);
-                    }
-                }
+                listener = mListener;
+                executor = mExecutor;
             } else {
-                Log.d("TAG", "Maximum image number reached.");
+                Logger.d("TAG", "Maximum image number reached.");
                 image.close();
+                listener = null;
+                executor = null;
+            }
+        }
+        if (listener != null) {
+            if (executor != null) {
+                executor.execute(() -> listener.onImageAvailable(this));
+            } else {
+                listener.onImageAvailable(this);
             }
         }
     }
@@ -327,12 +319,12 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
                 try {
                     image = imageReader.acquireNextImage();
                 } catch (IllegalStateException e) {
-                    Log.d(TAG, "Failed to acquire next image.", e);
+                    Logger.d(TAG, "Failed to acquire next image.", e);
                 } finally {
                     if (image != null) {
                         numAcquired++;
                         // Add the incoming Image to pending list and do the matching logic.
-                        mPendingImages.put(image.getTimestamp(), image);
+                        mPendingImages.put(image.getImageInfo().getTimestamp(), image);
                         matchImages();
                     }
                 }

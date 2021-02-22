@@ -18,54 +18,51 @@ package androidx.room.solver.binderprovider
 
 import androidx.room.ext.PagingTypeNames
 import androidx.room.parser.ParsedQuery
+import androidx.room.compiler.processing.XRawType
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
-    private val dataSourceTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.elementUtils
-                .getTypeElement(PagingTypeNames.DATA_SOURCE.toString())?.asType()
+    private val dataSourceType: XRawType? by lazy {
+        context.processingEnv.findType(PagingTypeNames.DATA_SOURCE)?.rawType
     }
 
-    private val positionalDataSourceTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.elementUtils
-                .getTypeElement(PagingTypeNames.POSITIONAL_DATA_SOURCE.toString())?.asType()
+    private val positionalDataSourceType: XRawType? by lazy {
+        context.processingEnv.findType(PagingTypeNames.POSITIONAL_DATA_SOURCE)?.rawType
     }
 
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
         if (query.tables.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
         val typeArg = declared.typeArguments.last()
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
-            ListQueryResultAdapter(it)
+            ListQueryResultAdapter(typeArg, it)
         }
-        val tableNames = ((listAdapter?.accessedTableNames() ?: emptyList()) +
-                query.tables.map { it.name }).toSet()
+        val tableNames = (
+            (listAdapter?.accessedTableNames() ?: emptyList()) +
+                query.tables.map { it.name }
+            ).toSet()
         return PositionalDataSourceQueryResultBinder(listAdapter, tableNames)
     }
 
-    override fun matches(declared: DeclaredType): Boolean {
-        if (dataSourceTypeMirror == null || positionalDataSourceTypeMirror == null) {
+    override fun matches(declared: XType): Boolean {
+        if (dataSourceType == null || positionalDataSourceType == null) {
             return false
         }
         if (declared.typeArguments.isEmpty()) {
             return false
         }
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
-        val isDataSource = context.processingEnv.typeUtils
-                .isAssignable(erasure, dataSourceTypeMirror)
+        val isDataSource = dataSourceType!!.isAssignableFrom(declared)
         if (!isDataSource) {
             return false
         }
-        val isPositional = context.processingEnv.typeUtils
-                .isAssignable(erasure, positionalDataSourceTypeMirror)
+        val isPositional = positionalDataSourceType!!.isAssignableFrom(declared)
         if (!isPositional) {
             context.logger.e(ProcessorErrors.PAGING_SPECIFY_DATA_SOURCE_TYPE)
         }

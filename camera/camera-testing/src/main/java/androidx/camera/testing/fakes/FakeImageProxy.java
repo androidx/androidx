@@ -22,6 +22,7 @@ import android.media.Image;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -37,8 +38,10 @@ public final class FakeImageProxy implements ImageProxy {
     private int mFormat = 0;
     private int mHeight = 0;
     private int mWidth = 0;
-    private Long mTimestamp = -1L;
     private PlaneProxy[] mPlaneProxy = new PlaneProxy[0];
+    private boolean mClosed = false;
+
+    @NonNull
     private ImageInfo mImageInfo;
     private Image mImage;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -50,9 +53,14 @@ public final class FakeImageProxy implements ImageProxy {
     @GuardedBy("mReleaseLock")
     CallbackToFutureAdapter.Completer<Void> mReleaseCompleter;
 
+    public FakeImageProxy(@NonNull ImageInfo imageInfo) {
+        mImageInfo = imageInfo;
+    }
+
     @Override
     public void close() {
         synchronized (mReleaseLock) {
+            mClosed = true;
             if (mReleaseCompleter != null) {
                 mReleaseCompleter.set(null);
                 mReleaseCompleter = null;
@@ -61,52 +69,71 @@ public final class FakeImageProxy implements ImageProxy {
     }
 
     @Override
+    @NonNull
     public Rect getCropRect() {
-        return mCropRect;
+        synchronized (mReleaseLock) {
+            if (mClosed) {
+                throw new IllegalStateException("FakeImageProxy already closed");
+            }
+            return mCropRect;
+        }
     }
 
     @Override
-    public void setCropRect(Rect rect) {
-        mCropRect = rect;
+    public void setCropRect(@Nullable Rect rect) {
+        mCropRect = rect != null ? rect : new Rect();
     }
 
     @Override
     public int getFormat() {
-        return mFormat;
+        synchronized (mReleaseLock) {
+            if (mClosed) {
+                throw new IllegalStateException("FakeImageProxy already closed");
+            }
+            return mFormat;
+        }
     }
 
     @Override
     public int getHeight() {
-        return mHeight;
+        synchronized (mReleaseLock) {
+            if (mClosed) {
+                throw new IllegalStateException("FakeImageProxy already closed");
+            }
+            return mHeight;
+        }
     }
 
     @Override
     public int getWidth() {
-        return mWidth;
+        synchronized (mReleaseLock) {
+            if (mClosed) {
+                throw new IllegalStateException("FakeImageProxy already closed");
+            }
+            return mWidth;
+        }
     }
 
     @Override
-    public long getTimestamp() {
-        return mTimestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        mTimestamp = timestamp;
-    }
-
-    @Override
+    @NonNull
     public PlaneProxy[] getPlanes() {
-        return mPlaneProxy;
+        synchronized (mReleaseLock) {
+            if (mClosed) {
+                throw new IllegalStateException("FakeImageProxy already closed");
+            }
+            return mPlaneProxy;
+        }
     }
 
     @Override
+    @NonNull
     public ImageInfo getImageInfo() {
         return mImageInfo;
     }
 
     @Override
     @Nullable
+    @ExperimentalGetImage
     public Image getImage() {
         return mImage;
     }
@@ -127,7 +154,7 @@ public final class FakeImageProxy implements ImageProxy {
         mPlaneProxy = planeProxy;
     }
 
-    public void setImageInfo(ImageInfo imageInfo) {
+    public void setImageInfo(@NonNull ImageInfo imageInfo) {
         mImageInfo = imageInfo;
     }
 
@@ -139,21 +166,21 @@ public final class FakeImageProxy implements ImageProxy {
      * Returns ListenableFuture that completes when the {@link FakeImageProxy} has closed.
      */
     @NonNull
+    @SuppressWarnings("ObjectToString")
     public ListenableFuture<Void> getCloseFuture() {
         synchronized (mReleaseLock) {
             if (mReleaseFuture == null) {
                 mReleaseFuture = CallbackToFutureAdapter.getFuture(
                         new CallbackToFutureAdapter.Resolver<Void>() {
-                            // TODO(b/141957748): Suppressed during upgrade to AGP 3.6.
-                            @SuppressWarnings("GuardedBy")
                             @Override
                             public Object attachCompleter(@NonNull
                                     CallbackToFutureAdapter.Completer<Void> completer) {
-                                Preconditions.checkState(Thread.holdsLock(mReleaseLock));
-                                Preconditions.checkState(mReleaseCompleter == null,
-                                        "Release completer expected to be null");
-                                mReleaseCompleter = completer;
-                                return "Release[imageProxy=" + FakeImageProxy.this + "]";
+                                synchronized (mReleaseLock) {
+                                    Preconditions.checkState(mReleaseCompleter == null,
+                                            "Release completer expected to be null");
+                                    mReleaseCompleter = completer;
+                                    return "Release[imageProxy=" + FakeImageProxy.this + "]";
+                                }
                             }
                         });
             }

@@ -17,30 +17,28 @@
 package androidx.room.processor
 
 import androidx.room.ColumnInfo
-import androidx.room.ext.toAnnotationBox
+import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.XType
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Field
-import com.squareup.javapoet.TypeName
 import java.util.Locale
-import javax.lang.model.element.Element
-import javax.lang.model.type.DeclaredType
 
 class FieldProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val element: Element,
+    val containing: XType,
+    val element: XFieldElement,
     val bindingScope: BindingScope,
     val fieldParent: EmbeddedField?, // pass only if this is processed as a child of Embedded field
     val onBindingError: (field: Field, errorMsg: String) -> Unit
 ) {
     val context = baseContext.fork(element)
     fun process(): Field {
-        val member = context.processingEnv.typeUtils.asMemberOf(containing, element)
-        val type = TypeName.get(member)
+        val member = element.asMemberOf(containing)
+        val type = member.typeName
         val columnInfo = element.toAnnotationBox(ColumnInfo::class)?.value
-        val name = element.simpleName.toString()
+        val name = element.name
         val rawCName = if (columnInfo != null && columnInfo.name != ColumnInfo.INHERIT_FIELD_NAME) {
             columnInfo.name
         } else {
@@ -53,14 +51,22 @@ class FieldProcessor(
             null
         }
 
-        context.checker.notBlank(columnName, element,
-                ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY)
-        context.checker.notUnbound(type, element,
-                ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS)
+        context.checker.notBlank(
+            columnName, element,
+            ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY
+        )
+        context.checker.notUnbound(
+            type, element,
+            ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS
+        )
 
-        val adapter = context.typeAdapterStore.findColumnTypeAdapter(member, affinity)
+        val adapter = context.typeAdapterStore.findColumnTypeAdapter(
+            member,
+            affinity,
+            skipEnumConverter = false
+        )
         val adapterAffinity = adapter?.typeAffinity ?: affinity
-        val nonNull = Field.calcNonNull(element, fieldParent)
+        val nonNull = Field.calcNonNull(member, fieldParent)
 
         val field = Field(
             name = name,
@@ -88,14 +94,14 @@ class FieldProcessor(
             }
             BindingScope.BIND_TO_STMT -> {
                 field.statementBinder = context.typeAdapterStore
-                        .findStatementValueBinder(field.type, field.affinity)
+                    .findStatementValueBinder(field.type, field.affinity)
                 if (field.statementBinder == null) {
                     onBindingError(field, ProcessorErrors.CANNOT_FIND_STMT_BINDER)
                 }
             }
             BindingScope.READ_FROM_CURSOR -> {
                 field.cursorValueReader = context.typeAdapterStore
-                        .findCursorValueReader(field.type, field.affinity)
+                    .findCursorValueReader(field.type, field.affinity)
                 if (field.cursorValueReader == null) {
                     onBindingError(field, ProcessorErrors.CANNOT_FIND_CURSOR_READER)
                 }

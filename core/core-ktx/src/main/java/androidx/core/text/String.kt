@@ -25,4 +25,4 @@ import android.text.TextUtils
  *
  * @see TextUtils.htmlEncode
  */
-inline fun String.htmlEncode(): String = TextUtils.htmlEncode(this)
+public inline fun String.htmlEncode(): String = TextUtils.htmlEncode(this)

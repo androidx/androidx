@@ -114,18 +114,6 @@ public class LocaleListCompatTest {
     }
 
     @Test
-    public void testRepeatedArguments() {
-        final Locale[] la = {Locale.US, Locale.US};
-        try {
-            LocaleListCompat.create(la);
-            fail("Initializing a LocaleListCompat with an array containing duplicates should "
-                    + "throw.");
-        } catch (Throwable e) {
-            assertEquals(IllegalArgumentException.class, e.getClass());
-        }
-    }
-
-    @Test
     public void testIndexOf() {
         final LocaleListCompat empty = LocaleListCompat.create();
         assertEquals(-1, empty.indexOf(Locale.US));

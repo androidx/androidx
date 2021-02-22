@@ -17,7 +17,9 @@
 package androidx.fragment.app
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.util.AttributeSet
 import androidx.annotation.LayoutRes
 
 /**
@@ -50,6 +52,12 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         }
     }
 
+    fun checkActivityNotDestroyed() {
+        if (Build.VERSION.SDK_INT >= 17) {
+            check(!requireActivity().isDestroyed)
+        }
+    }
+
     fun checkState(caller: String, vararg expected: State) {
         if (expected.isEmpty()) {
             throw IllegalArgumentException("must supply at least one expected state")
@@ -65,7 +73,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         }
         throw IllegalStateException(
             "$caller called while fragment was $currentState; " +
-                    "expected $expectString"
+                "expected $expectString"
         )
     }
 
@@ -73,7 +81,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         if (currentState < minState) {
             throw IllegalStateException(
                 "$caller called while fragment was $currentState; " +
-                        "expected at least $minState"
+                    "expected at least $minState"
             )
         }
     }
@@ -82,8 +90,15 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         calledOnAttachFragment = true
     }
 
+    override fun onInflate(context: Context, attrs: AttributeSet, savedInstanceState: Bundle?) {
+        super.onInflate(context, attrs, savedInstanceState)
+        checkActivityNotDestroyed()
+        checkState("onInflate", State.DETACHED)
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        checkActivityNotDestroyed()
         calledOnAttach = true
         checkState("onAttach", State.DETACHED)
         currentState = State.ATTACHED
@@ -97,6 +112,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        checkActivityNotDestroyed()
         if (calledOnCreate && !calledOnDestroy) {
             throw IllegalStateException("onCreate called more than once with no onDestroy")
         }
@@ -109,8 +125,9 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        checkActivityNotDestroyed()
         calledOnActivityCreated = true
-        checkState("onActivityCreated", State.ATTACHED, State.CREATED)
+        checkState("onActivityCreated", State.ATTACHED, State.CREATED, State.VIEW_CREATED)
         val fromState = currentState
         currentState = State.ACTIVITY_CREATED
         onStateChanged(fromState)
@@ -118,6 +135,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
 
     override fun onStart() {
         super.onStart()
+        checkActivityNotDestroyed()
         calledOnStart = true
         checkState("onStart", State.CREATED, State.ACTIVITY_CREATED)
         currentState = State.STARTED
@@ -126,6 +144,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
 
     override fun onResume() {
         super.onResume()
+        checkActivityNotDestroyed()
         calledOnResume = true
         checkState("onResume", State.STARTED)
         currentState = State.RESUMED
@@ -179,6 +198,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         DETACHED,
         ATTACHED,
         CREATED,
+        VIEW_CREATED,
         ACTIVITY_CREATED,
         STARTED,
         RESUMED

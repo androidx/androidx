@@ -214,15 +214,21 @@ class ContainerViewActivity : FragmentActivity(R.layout.inflated_fragment_contai
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        foundFragment = (supportFragmentManager.findFragmentById(R.id
-            .fragment_container_view)) != null
+        foundFragment = (
+            supportFragmentManager.findFragmentById(
+                R.id
+                    .fragment_container_view
+            )
+            ) != null
     }
 }
 
 class InflatedParentFragment : StrictViewFragment(R.layout.inflated_fragment_container_view)
 
-class InflatedParentFragmentContainerWithClass : StrictViewFragment(R.layout
-    .inflated_fragment_container_view)
+class InflatedParentFragmentContainerWithClass : StrictViewFragment(
+    R.layout
+        .inflated_fragment_container_view
+)
 
 class InflatedFragment() : StrictViewFragment() {
     var name: String? = null
@@ -232,8 +238,10 @@ class InflatedFragment() : StrictViewFragment() {
         attrs: AttributeSet,
         savedInstanceState: Bundle?
     ) {
-        val a = context.obtainStyledAttributes(attrs,
-            androidx.fragment.R.styleable.FragmentContainerView)
+        val a = context.obtainStyledAttributes(
+            attrs,
+            androidx.fragment.R.styleable.FragmentContainerView
+        )
         name = a.getString(androidx.fragment.R.styleable.FragmentContainerView_android_name)
         a.recycle()
     }

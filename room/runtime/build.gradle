@@ -27,18 +27,23 @@ plugins {
 }
 
 android {
+    buildFeatures {
+        aidl = true
+    }
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 
 dependencies {
     api(project(":room:room-common"))
-    api(project(":sqlite:sqlite-framework"))
-    api(project(":sqlite:sqlite"))
+    api("androidx.sqlite:sqlite-framework:2.1.0")
+    api("androidx.sqlite:sqlite:2.1.0")
     implementation("androidx.arch.core:core-runtime:2.0.1")
     compileOnly("androidx.paging:paging-common:2.0.0")
     compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
+    implementation("androidx.annotation:annotation-experimental:1.1.0-beta01")
+    compileOnly KOTLIN_STDLIB // Due to :annotation-experimental
 
     testImplementation("androidx.arch.core:core-testing:2.0.1")
     testImplementation(JUNIT)
@@ -52,28 +57,30 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+
 }
 
 android.libraryVariants.all { variant ->
     def name = variant.name
     def suffix = name.capitalize()
 
-    // Create jar<variant> task for testCompile in room-compiler.
+    // Create jar<variant> task for testImplementation in room-compiler.
     project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn variant.javaCompileProvider.get()
-        from variant.javaCompileProvider.get().destinationDir
-        destinationDir new File(project.buildDir, "libJar")
+        dependsOn(variant.javaCompileProvider.get())
+        from(variant.javaCompileProvider.get().destinationDir)
+        destinationDir(new File(project.buildDir, "libJar"))
     }
 }
 
 androidx {
     name = "Android Room-Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room-Runtime"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

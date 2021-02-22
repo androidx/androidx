@@ -26,11 +26,11 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.0.0")
+    api("androidx.annotation:annotation:1.1.0")
 
-    implementation("com.google.crypto.tink:tink-android:1.2.2")
+    implementation("com.google.crypto.tink:tink-android:1.5.0")
+    implementation("androidx.collection:collection:1.1.0")
 
-    androidTestImplementation("androidx.test.ext:junit:1.1.0")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
@@ -41,7 +41,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 21
     }
 }
 

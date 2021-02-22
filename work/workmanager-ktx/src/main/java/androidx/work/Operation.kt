@@ -26,4 +26,4 @@ package androidx.work
  * This method returns the terminal state of the [Operation] which is [Operation.State.SUCCESS]
  * or throws a [Throwable] that represents why the [Operation] failed.
  */
-suspend inline fun Operation.await() = result.await()
+public suspend inline fun Operation.await(): Operation.State.SUCCESS = result.await()

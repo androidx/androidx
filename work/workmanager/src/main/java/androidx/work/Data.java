@@ -344,7 +344,7 @@ public final class Data {
      */
     @NonNull
     public byte[] toByteArray() {
-        return Data.toByteArray(this);
+        return Data.toByteArrayInternal(this);
     }
 
      /**
@@ -383,7 +383,7 @@ public final class Data {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @TypeConverter
-    public static @NonNull byte[] toByteArray(@NonNull Data data) {
+    public static @NonNull byte[] toByteArrayInternal(@NonNull Data data) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = null;
         try {
@@ -530,6 +530,7 @@ public final class Data {
         return returnValue;
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     static @NonNull Byte[] convertPrimitiveByteArray(@NonNull byte[] value) {
         Byte[] returnValue = new Byte[value.length];
         for (int i = 0; i < value.length; ++i) {
@@ -842,7 +843,7 @@ public final class Data {
             Data data = new Data(mValues);
             // Make sure we catch Data objects that are too large at build() instead of later.  This
             // method will throw an exception if data is too big.
-            Data.toByteArray(data);
+            Data.toByteArrayInternal(data);
             return data;
         }
     }

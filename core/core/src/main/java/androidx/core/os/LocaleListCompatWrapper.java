@@ -23,9 +23,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 
 final class LocaleListCompatWrapper implements LocaleListInterface {
@@ -122,7 +124,7 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
             mList = sEmptyList;
             mStringRepresentation = "";
         } else {
-            final Locale[] localeList = new Locale[list.length];
+            final List<Locale> localeList = new ArrayList<>();
             final HashSet<Locale> seenLocales = new HashSet<Locale>();
             final StringBuilder sb = new StringBuilder();
             for (int i = 0; i < list.length; i++) {
@@ -130,10 +132,10 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
                 if (l == null) {
                     throw new NullPointerException("list[" + i + "] is null");
                 } else if (seenLocales.contains(l)) {
-                    throw new IllegalArgumentException("list[" + i + "] is a repetition");
+                    // Ignore repeated locale
                 } else {
                     final Locale localeClone = (Locale) l.clone();
-                    localeList[i] = localeClone;
+                    localeList.add(localeClone);
                     toLanguageTag(sb, localeClone);
                     if (i < list.length - 1) {
                         sb.append(',');
@@ -141,7 +143,7 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
                     seenLocales.add(localeClone);
                 }
             }
-            mList = localeList;
+            mList = localeList.toArray(new Locale[localeList.size()]);
             mStringRepresentation = sb.toString();
         }
     }

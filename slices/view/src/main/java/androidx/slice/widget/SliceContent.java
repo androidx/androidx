@@ -16,8 +16,6 @@
 
 package androidx.slice.widget;
 
-import static android.app.slice.Slice.HINT_LARGE;
-import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
@@ -29,9 +27,7 @@ import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.slice.core.SliceHints.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.LARGE_IMAGE;
-import static androidx.slice.core.SliceHints.SMALL_IMAGE;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 import static androidx.slice.widget.SliceViewUtil.resolveLayoutDirection;
 
@@ -50,32 +46,50 @@ import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
+import androidx.slice.SliceUtils;
 import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 
 /**
  * Base class representing content that can be displayed.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 public class SliceContent {
 
+    /**
+     * @hide
+     */
     protected SliceItem mSliceItem;
+    /**
+     * @hide
+     */
     protected SliceItem mColorItem;
+    /**
+     * @hide
+     */
     protected SliceItem mLayoutDirItem;
+    /**
+     * @hide
+     */
     protected SliceItem mContentDescr;
+    /**
+     * @hide
+     */
     protected int mRowIndex;
 
-    public SliceContent(Slice slice) {
+    public SliceContent(@Nullable Slice slice) {
         if (slice == null) return;
         init(new SliceItem(slice, FORMAT_SLICE, null, slice.getHints()));
         // Built from a slice implies it's top level and index shouldn't matter
         mRowIndex = -1;
     }
 
-    public SliceContent(SliceItem item, int rowIndex) {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public SliceContent(@Nullable SliceItem item, int rowIndex) {
         if (item == null) return;
         init(item);
         mRowIndex = rowIndex;
@@ -94,6 +108,7 @@ public class SliceContent {
 
     /**
      * @return the slice item used to construct this content.
+     * @hide
      */
     @Nullable
     public SliceItem getSliceItem() {
@@ -102,6 +117,7 @@ public class SliceContent {
 
     /**
      * @return the accent color to use for this content or -1 if no color is set.
+     * @hide
      */
     public int getAccentColor() {
         return mColorItem != null ? mColorItem.getInt() : -1;
@@ -109,6 +125,7 @@ public class SliceContent {
 
     /**
      * @return the layout direction to use for this content or -1 if no direction set.
+     * @hide
      */
     public int getLayoutDir() {
         return mLayoutDirItem != null ? resolveLayoutDirection(mLayoutDirItem.getInt()) : -1;
@@ -116,6 +133,7 @@ public class SliceContent {
 
     /**
      * @return the content description to use for this row if set.
+     * @hide
      */
     @Nullable
     public CharSequence getContentDescription() {
@@ -124,12 +142,14 @@ public class SliceContent {
 
     /**
      * @return the row index of this content, or -1 if no row index is set.
+     * @hide
      */
     public int getRowIndex() { return mRowIndex; }
 
     /**
      * @return the desired height of this content based on the provided mode and context or the
      * default height if context is null.
+     * @hide
      */
     public int getHeight(SliceStyle style, SliceViewPolicy policy) {
         return 0;
@@ -137,6 +157,7 @@ public class SliceContent {
 
     /**
      * @return whether this content is valid to display or not.
+     * @hide
      */
     public boolean isValid() {
         return mSliceItem != null;
@@ -144,6 +165,7 @@ public class SliceContent {
 
     /**
      * @return the action that represents the shortcut.
+     * @hide
      */
     @Nullable
     public SliceAction getShortcut(@Nullable Context context) {
@@ -151,14 +173,13 @@ public class SliceContent {
             // Can't make something from nothing
             return null;
         }
-        SliceItem actionItem = null;
         SliceItem iconItem = null;
         SliceItem labelItem = null;
         int imageMode = UNKNOWN_IMAGE;
 
         // Prefer something properly hinted
         String[] hints = new String[]{HINT_TITLE, HINT_SHORTCUT};
-        actionItem =  SliceQuery.find(mSliceItem, FORMAT_ACTION, hints, null);
+        SliceItem actionItem =  SliceQuery.find(mSliceItem, FORMAT_ACTION, hints, null);
         if (actionItem != null) {
             iconItem = SliceQuery.find(actionItem, FORMAT_IMAGE, HINT_TITLE, null);
             labelItem = SliceQuery.find(actionItem, FORMAT_TEXT, (String) null, null);
@@ -186,9 +207,7 @@ public class SliceContent {
 
         // Fill in anything we don't have with app data
         if (iconItem != null) {
-            imageMode = iconItem.hasHint(HINT_NO_TINT)
-                    ? iconItem.hasHint(HINT_LARGE) ? LARGE_IMAGE : SMALL_IMAGE
-                    : ICON_IMAGE;
+            imageMode = SliceUtils.parseImageMode(iconItem);
         }
         if (context != null) {
             return fallBackToAppData(context, labelItem, iconItem, imageMode, actionItem);
@@ -227,7 +246,8 @@ public class SliceContent {
                     Intent launchIntent = pm.getLaunchIntentForPackage(appInfo.packageName);
                     if (launchIntent != null) {
                         actionItem = new SliceItem(
-                                PendingIntent.getActivity(context, 0, launchIntent, 0),
+                                PendingIntent.getActivity(context, 0, launchIntent,
+                                PendingIntent.FLAG_IMMUTABLE),
                                 new Slice.Builder(uri).build(), FORMAT_ACTION,
                                 null /* subtype */, new String[]{});
                     }
@@ -236,7 +256,8 @@ public class SliceContent {
         }
         if (actionItem == null) {
             Intent intent = new Intent();
-            PendingIntent pi = PendingIntent.getActivity(context, 0, intent, 0);
+            PendingIntent pi = PendingIntent.getActivity(context, 0, intent, 
+                PendingIntent.FLAG_IMMUTABLE);
             actionItem = new SliceItem(pi, null, FORMAT_ACTION, null, null);
         }
         if (shortcutAction != null && shortcutIcon != null && actionItem != null) {

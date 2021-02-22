@@ -39,8 +39,10 @@ import org.junit.runners.model.Statement
  * <br></br><br></br>
  */
 class RepeatRule : TestRule {
-    @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER,
-        AnnotationTarget.PROPERTY_SETTER)
+    @Target(
+        AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER,
+        AnnotationTarget.PROPERTY_SETTER
+    )
     @Retention(AnnotationRetention.RUNTIME)
     annotation class Repeat(val times: Int = 1)
 

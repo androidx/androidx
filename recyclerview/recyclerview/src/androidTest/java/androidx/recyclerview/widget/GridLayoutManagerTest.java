@@ -47,6 +47,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
+import com.google.common.truth.Truth;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -138,6 +140,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     RecyclerView mAttachedRv;
 
                     @Override
+                    @SuppressWarnings("deprecation") // used for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -148,7 +151,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation using this for kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -177,7 +179,8 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
             waitForIdleScroll(recyclerView);
             focusedView = recyclerView.getFocusedChild();
             assertEquals(Math.min(pos + 3, mAdapter.getItemCount() - 1),
-                    recyclerView.getChildViewHolder(focusedView).getAdapterPosition());
+                    recyclerView
+                            .getChildViewHolder(focusedView).getAbsoluteAdapterPosition());
             pos += 3;
         }
     }
@@ -335,6 +338,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     RecyclerView mAttachedRv;
 
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -343,7 +347,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation using this for kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -425,6 +428,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     RecyclerView mAttachedRv;
 
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -433,7 +437,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation using this for kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -520,6 +523,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                 new GridTestAdapter(itemCount, 1) {
 
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -528,7 +532,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation using this for kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -611,6 +614,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         .orientation(HORIZONTAL).reverseLayout(false),
                 new GridTestAdapter(itemCount, 1) {
                     @Override
+                    @SuppressWarnings("deprecated") // using this for kitkat tests
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
                         TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
@@ -619,7 +623,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                         stl.addState(new int[]{android.R.attr.state_focused},
                                 new ColorDrawable(Color.RED));
                         stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-                        //noinspection deprecation using this for kitkat tests
                         testViewHolder.itemView.setBackgroundDrawable(stl);
                         return testViewHolder;
                     }
@@ -750,7 +753,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         });
         waitForFirstLayout(recyclerView);
         checkForMainThreadException();
-        assertTrue("test sanity", mGlm.supportsPredictiveItemAnimations());
+        assertTrue("Assumption check", mGlm.supportsPredictiveItemAnimations());
         mGlm.expectLayout(2);
         int deleteCnt = 10 - remaining;
         int deleteStart = removeFromStart ? 0 : remaining;
@@ -1158,14 +1161,14 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         for (int i = 0; i < childCount; i++) {
             View child = mGlm.getChildAt(i);
             RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(child);
-            if (holder.getAdapterPosition() == removePos) {
+            if (holder.getAbsoluteAdapterPosition() == removePos) {
                 toBeRemoved = holder;
             } else {
                 toBeMoved.add(holder);
             }
         }
-        assertNotNull("test sanity", toBeRemoved);
-        assertEquals("test sanity", childCount - 1, toBeMoved.size());
+        assertNotNull("Assumption check", toBeRemoved);
+        assertEquals("Assumption check", childCount - 1, toBeMoved.size());
         LoggingItemAnimator loggingItemAnimator = new LoggingItemAnimator();
         mRecyclerView.setItemAnimator(loggingItemAnimator);
         loggingItemAnimator.reset();
@@ -1366,6 +1369,75 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         int maxOffset = mGlm.computeVerticalScrollOffset(rv.mState);
         assertEquals(mGlm.computeVerticalScrollRange(rv.mState), constantRange);
         assertEquals(maxOffset + mGlm.computeVerticalScrollExtent(rv.mState), constantRange);
+    }
+
+    @Test // reproduces b/179181037
+    public void spanCacheWithAnimations() throws Throwable {
+        GridTestAdapter adapter = new GridTestAdapter(8, 1);
+        adapter.setItemLayoutParams(
+                new RecyclerView.LayoutParams(250, 200)
+        );
+        final RecyclerView rv =  setupBasic(new Config(2, 8), adapter);
+        rv.setLayoutParams(new ViewGroup.LayoutParams(500, 500));
+        mAdapter.setFullSpan(0);
+        waitForFirstLayout(rv);
+        Truth.assertThat(getPositionToSpanIndexMapping()).containsExactly(
+                0, 0,
+                1, 0,
+                2, 1,
+                3, 0,
+                4, 1
+        );
+        // trigger laying out other items and scroll back to 0 to move them to the recycler cache
+        smoothScrollToPosition(7);
+        smoothScrollToPosition(0);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter.notifyItemRemoved(0);
+                mAdapter.notifyItemInserted(0);
+            }
+        });
+        waitForAnimations(10);
+        Truth.assertThat(getPositionToSpanIndexMapping()).containsExactly(
+                0, 0,
+                1, 0,
+                2, 1,
+                3, 0,
+                4, 1
+        );
+        smoothScrollToPosition(7);
+        // expected layout
+        // ---- visible below
+        // 3 4
+        // 5 6
+        // 7
+        Truth.assertThat(getPositionToSpanIndexMapping()).containsExactly(
+                3, 0,
+                4, 1,
+                5, 0,
+                6, 1,
+                7, 0
+        );
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @NonNull
+    /**
+     * Returns a map of adapter position -> span index from GLM children
+     */
+    private Map<Integer, Integer> getPositionToSpanIndexMapping() {
+        Map<Integer, Integer> result = new HashMap<>();
+        for (int i = 0; i < mGlm.getChildCount(); i++) {
+            TestViewHolder viewHolder = (TestViewHolder) mRecyclerView.getChildViewHolder(
+                    mGlm.getChildAt(i)
+            );
+            int adapterPos = viewHolder.getAbsoluteAdapterPosition();
+            GridLayoutManager.LayoutParams layoutParams =
+                    (GridLayoutManager.LayoutParams) viewHolder.itemView.getLayoutParams();
+            result.put(adapterPos, layoutParams.getSpanIndex());
+        }
+        return result;
     }
 
     @Test

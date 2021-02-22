@@ -25,7 +25,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.ForegroundInfo;
 import androidx.work.ForegroundUpdater;
+import androidx.work.WorkInfo;
+import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.foreground.ForegroundProcessor;
+import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
@@ -49,13 +52,19 @@ public class WorkForegroundUpdater implements ForegroundUpdater {
     @SuppressWarnings("WeakerAccess")
     final ForegroundProcessor mForegroundProcessor;
 
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    final WorkSpecDao mWorkSpecDao;
+
 
     public WorkForegroundUpdater(
+            @NonNull WorkDatabase workDatabase,
             @NonNull ForegroundProcessor foregroundProcessor,
             @NonNull TaskExecutor taskExecutor) {
 
         mForegroundProcessor = foregroundProcessor;
         mTaskExecutor = taskExecutor;
+        mWorkSpecDao = workDatabase.workSpecDao();
     }
 
     @NonNull
@@ -72,8 +81,18 @@ public class WorkForegroundUpdater implements ForegroundUpdater {
                 try {
                     if (!future.isCancelled()) {
                         String workSpecId = id.toString();
+                        WorkInfo.State state = mWorkSpecDao.getState(workSpecId);
+                        if (state == null || state.isFinished()) {
+                            // state == null would mean that the WorkSpec was replaced.
+                            String message =
+                                    "Calls to setForegroundAsync() must complete before a "
+                                            + "ListenableWorker signals completion of work by "
+                                            + "returning an instance of Result.";
+                            throw new IllegalStateException(message);
+                        }
+
                         // startForeground() is idempotent
-                        mForegroundProcessor.startForeground(workSpecId);
+                        mForegroundProcessor.startForeground(workSpecId, foregroundInfo);
                         Intent intent = createNotifyIntent(context, workSpecId, foregroundInfo);
                         context.startService(intent);
                     }

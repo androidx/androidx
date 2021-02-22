@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-HiddenTypeParameter: androidx.lifecycle.CoroutineLiveDataKt#addDisposableSource(androidx.lifecycle.MediatorLiveData<T>, androidx.lifecycle.LiveData<T>, kotlin.coroutines.Continuation<? super androidx.lifecycle.EmittedSource>) parameter #2:
-    Parameter p references hidden type class androidx.lifecycle.EmittedSource.
-
-
-MissingNullability: androidx.lifecycle.LiveDataScope#emit(T, kotlin.coroutines.Continuation<? super kotlin.Unit>):
-    Missing nullability on method `emit` return

@@ -16,62 +16,78 @@
 
 package androidx.build.metalava
 
+import androidx.build.checkapi.ApiBaselinesLocation
 import androidx.build.checkapi.ApiLocation
-import androidx.build.checkapi.ApiViolationBaselines
 import androidx.build.java.JavaCompileInputs
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFiles
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.workers.WorkerExecutor
 import java.io.File
+import javax.inject.Inject
 
 /** Generate an API signature text file from a set of source files. */
-abstract class GenerateApiTask : MetalavaTask() {
-    /** Text file to which API signatures will be written. */
-    @get:Input
-    abstract val apiLocation: Property<ApiLocation>
-
-    @get:Input
-    abstract val baselines: Property<ApiViolationBaselines>
-
-    @get:Input
-    var generateRestrictedAPIs = false
+@CacheableTask
+abstract class GenerateApiTask @Inject constructor(
+    workerExecutor: WorkerExecutor
+) : MetalavaTask(workerExecutor) {
+    @get:Internal // already expressed by getApiLintBaseline()
+    abstract val baselines: Property<ApiBaselinesLocation>
 
     @Optional
+    @PathSensitive(PathSensitivity.NONE)
     @InputFile
     fun getApiLintBaseline(): File? {
         val baseline = baselines.get().apiLintFile
         return if (baseline.exists()) baseline else null
     }
 
+    @get:Input
+    var targetsJavaConsumers: Boolean = true
+
+    @get:Input
+    var generateRestrictToLibraryGroupAPIs = true
+
+    /** Text file to which API signatures will be written. */
+    @get:Internal // already expressed by getTaskOutputs()
+    abstract val apiLocation: Property<ApiLocation>
+
     @OutputFiles
     fun getTaskOutputs(): List<File>? {
         val prop = apiLocation.get()
         return listOfNotNull(
             prop.publicApiFile,
+            prop.removedApiFile,
             prop.experimentalApiFile,
-            if (generateRestrictedAPIs) prop.restrictedApiFile else null
+            prop.restrictedApiFile
         )
     }
 
     @TaskAction
     fun exec() {
         check(bootClasspath.isNotEmpty()) { "Android boot classpath not set." }
-        check(sourcePaths.isNotEmpty()) { "Source paths not set." }
+        check(sourcePaths.files.isNotEmpty()) { "Source paths not set." }
 
         val inputs = JavaCompileInputs.fromSourcesAndDeps(
             sourcePaths,
             dependencyClasspath,
             project
         )
-        project.generateApi(
+        generateApi(
+            metalavaClasspath,
             inputs,
             apiLocation.get(),
-            apiLocation.get().publicApiFile.parentFile,
-            ApiLintMode.CheckBaseline(baselines.get().apiLintFile),
-            generateRestrictedAPIs
+            ApiLintMode.CheckBaseline(baselines.get().apiLintFile, targetsJavaConsumers),
+            generateRestrictToLibraryGroupAPIs,
+            workerExecutor,
+            manifestPath.orNull?.asFile?.absolutePath
         )
     }
 }

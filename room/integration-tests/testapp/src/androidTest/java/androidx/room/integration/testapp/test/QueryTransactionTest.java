@@ -25,6 +25,7 @@ import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
@@ -44,7 +45,6 @@ import androidx.room.Transaction;
 import androidx.room.paging.LimitOffsetDataSource;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -92,9 +92,6 @@ public class QueryTransactionTest {
 
     @Before
     public void initDb() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> mLifecycleOwner.handleEvent(Lifecycle.Event.ON_START));
-
         resetTransactionCount();
         mDb = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(),
                 TransactionDb.class).build();
@@ -104,8 +101,7 @@ public class QueryTransactionTest {
 
     @After
     public void closeDb() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> mLifecycleOwner.handleEvent(Lifecycle.Event.ON_DESTROY));
+        mLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         drain();
         mDb.close();
     }
@@ -225,7 +221,7 @@ public class QueryTransactionTest {
         drain();
         assertThat(pagedList.getValue().size(), is(4));
         // note: we don't use assertTransactionCount here, since last item loaded separately
-        assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 6 : 5));
+        assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 7 : 5));
     }
 
     @Test
@@ -239,6 +235,7 @@ public class QueryTransactionTest {
         assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 1 : 0));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void dataSourceInitial() {
         mDao.insert(new Entity1(2, "bar"));
@@ -250,11 +247,11 @@ public class QueryTransactionTest {
                 new PositionalDataSource.LoadInitialParams(0, 30, 10, true),
                 new PositionalDataSource.LoadInitialCallback<Entity1>() {
                     @Override
-                    public void onResult(@NonNull List<Entity1> data, int position,
+                    public void onResult(@NonNull List<? extends Entity1> data, int position,
                             int totalCount) {}
 
                     @Override
-                    public void onResult(@NonNull List<Entity1> data, int position) {}
+                    public void onResult(@NonNull List<? extends Entity1> data, int position) {}
                 });
         // always use a transaction, since we're loading count + initial data
         assertThat(sStartedTransactionCount.get(), is(1));

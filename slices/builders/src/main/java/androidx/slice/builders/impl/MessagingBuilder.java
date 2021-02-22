@@ -41,7 +41,7 @@ public interface MessagingBuilder {
 
     /**
      */
-    public interface MessageBuilder {
+    interface MessageBuilder {
 
         /**
          * Add the icon used to display contact in the messaging experience

@@ -25,6 +25,11 @@ import java.lang.annotation.Target;
  * Specifies additional type converters that Room can use. The TypeConverter is added to the scope
  * of the element so if you put it on a class / interface, all methods / fields in that class will
  * be able to use the converters.
+ *
+ * <p>
+ * TypeConverters can only be used to convert columns / fields, hence cannot be used by a method
+ * with a row return value such as DAO methods that query rows.
+ *
  * <ul>
  * <li>If you put it on a {@link Database}, all Daos and Entities in that database will be able to
  * use it.

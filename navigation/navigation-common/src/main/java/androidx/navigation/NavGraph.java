@@ -18,12 +18,12 @@ package androidx.navigation;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.net.Uri;
 import android.util.AttributeSet;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.collection.SparseArrayCompat;
 import androidx.navigation.common.R;
 
@@ -71,12 +71,12 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
 
     @Override
     @Nullable
-    DeepLinkMatch matchDeepLink(@NonNull Uri uri) {
+    DeepLinkMatch matchDeepLink(@NonNull NavDeepLinkRequest request) {
         // First search through any deep links directly added to this NavGraph
-        DeepLinkMatch bestMatch = super.matchDeepLink(uri);
+        DeepLinkMatch bestMatch = super.matchDeepLink(request);
         // Then search through all child destinations for a matching deep link
         for (NavDestination child : this) {
-            DeepLinkMatch childBestMatch = child.matchDeepLink(uri);
+            DeepLinkMatch childBestMatch = child.matchDeepLink(request);
             if (childBestMatch != null && (bestMatch == null
                     || childBestMatch.compareTo(bestMatch) > 0)) {
                 bestMatch = childBestMatch;
@@ -96,11 +96,16 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      * @param node destination to add
      */
     public final void addDestination(@NonNull NavDestination node) {
-        if (node.getId() == 0) {
+        int id = node.getId();
+        if (id == 0) {
             throw new IllegalArgumentException("Destinations must have an id."
                     + " Call setId() or include an android:id in your navigation XML.");
         }
-        NavDestination existingDestination = mNodes.get(node.getId());
+        if (id == getId()) {
+            throw new IllegalArgumentException("Destination " + node + " cannot have the same id "
+                    + "as graph " + this);
+        }
+        NavDestination existingDestination = mNodes.get(id);
         if (existingDestination == node) {
             return;
         }
@@ -251,9 +256,13 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
         }
     }
 
+    /**
+     * @hide
+     */
     @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
-    String getDisplayName() {
+    public String getDisplayName() {
         return getId() != 0 ? super.getDisplayName() : "the root navigation";
     }
 
@@ -273,6 +282,10 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      * @param startDestId The id of the destination to be shown when navigating to this NavGraph.
      */
     public final void setStartDestination(@IdRes int startDestId) {
+        if (startDestId == getId()) {
+            throw new IllegalArgumentException("Start destination " + startDestId + " cannot use "
+                    + "the same id as the graph " + this);
+        }
         mStartDestId = startDestId;
         mStartDestIdName = null;
     }

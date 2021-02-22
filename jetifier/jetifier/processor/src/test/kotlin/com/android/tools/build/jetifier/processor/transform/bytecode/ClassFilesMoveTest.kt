@@ -49,22 +49,24 @@ class ClassFilesMoveTest {
                 RewriteRule("android/support/v7/preference/R(.*)", "ignore"),
                 RewriteRule("android/support/v4/(.*)", "ignore")
             ),
-            typesMap = TypesMap(mapOf(
-                "android/support/v7/preference/Preference"
+            typesMap = TypesMap(
+                mapOf(
+                    "android/support/v7/preference/Preference"
                         to "androidx/support/preference/Preference",
-                "android/support/v7/preference/TwoStatePreference"
+                    "android/support/v7/preference/TwoStatePreference"
                         to "androidx/support/preference/TwoStatePreference",
-                "android/support/v7/preference/PreferenceGroup"
+                    "android/support/v7/preference/PreferenceGroup"
                         to "androidx/support/preference/PreferenceGroup",
-                "android/support/v7/preference/PreferenceViewHolder"
+                    "android/support/v7/preference/PreferenceViewHolder"
                         to "androidx/support/preference/PreferenceViewHolder",
-                "android/support/v7/preference/PreferenceManager"
+                    "android/support/v7/preference/PreferenceManager"
                         to "androidx/support/preference/PreferenceManager",
-                "android/support/v14/preference/SwitchPreference"
+                    "android/support/v14/preference/SwitchPreference"
                         to "androidx/support/preference/SwitchPreference",
-                "android/support/v7/preference/PreferenceDataStore"
+                    "android/support/v7/preference/PreferenceDataStore"
                         to "androidx/support/preference/PreferenceDataStore"
-            ).map { JavaType(it.key) to JavaType(it.value) }.toMap())
+                ).map { JavaType(it.key) to JavaType(it.value) }.toMap()
+            )
         )
     }
 
@@ -83,7 +85,9 @@ class ClassFilesMoveTest {
         val processor = Processor.createProcessor(TEST_CONFIG)
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
+        @Suppress("DEPRECATION")
         val tempDir = createTempDir()
+        @Suppress("DEPRECATION")
         val expectedFile = File(createTempDir(), "test.zip")
 
         @Suppress("deprecation")
@@ -106,8 +110,9 @@ class ClassFilesMoveTest {
         @Suppress("deprecation")
         val processor = Processor.createProcessor(TEST_CONFIG)
         val inputFile = File(javaClass.getResource(inputZipPath).file)
-
+        @Suppress("DEPRECATION")
         val tempDir = createTempDir()
+        @Suppress("DEPRECATION")
         val expectedFile = File(createTempDir(), "test.zip")
 
         @Suppress("deprecation")
@@ -131,7 +136,9 @@ class ClassFilesMoveTest {
         val processor = Processor.createProcessor(TEST_CONFIG)
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
+        @Suppress("DEPRECATION")
         val tempDir = createTempDir()
+        @Suppress("DEPRECATION")
         val expectedFile = File(createTempDir(), "test.zip")
 
         @Suppress("deprecation")
@@ -142,11 +149,16 @@ class ClassFilesMoveTest {
         val processor2 = Processor.createProcessor(
             TEST_CONFIG,
             rewritingSupportLib = true,
-            reversedMode = true)
+            reversedMode = true
+        )
+        @Suppress("DEPRECATION")
         val expectedFile2 = File(createTempDir(), "test2.zip")
         @Suppress("deprecation")
-        val resultFiles2 = processor2.transform(setOf(
-            FileMapping(resultFiles.first(), expectedFile2)))
+        val resultFiles2 = processor2.transform(
+            setOf(
+                FileMapping(resultFiles.first(), expectedFile2)
+            )
+        )
 
         testArchivesAreSame(resultFiles2.first(), File(javaClass.getResource(inputZipPath).file))
 

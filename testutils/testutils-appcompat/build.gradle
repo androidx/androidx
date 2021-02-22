@@ -24,7 +24,8 @@ plugins {
 
 dependencies {
     api(project(":internal-testutils-runtime"))
-    api(project(":appcompat"))
+    api(project(":appcompat:appcompat"))
+    api(project(":annotation:annotation-experimental"))
 
     implementation(ANDROIDX_TEST_EXT_JUNIT)
     implementation(ANDROIDX_TEST_CORE)
@@ -34,10 +35,6 @@ dependencies {
 
 android {
     lintOptions {
-        disable 'InvalidPackage' // Lint is unhappy about junit package
+        disable "InvalidPackage" // Lint is unhappy about junit package
     }
-}
-
-androidx {
-    toolingProject = true
 }

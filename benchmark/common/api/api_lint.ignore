@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-MissingNullability: androidx.benchmark.BenchmarkState#Companion:
-    Missing nullability on field `Companion` in class `class androidx.benchmark.BenchmarkState`

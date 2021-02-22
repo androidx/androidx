@@ -205,9 +205,6 @@ public abstract class Transition implements Cloneable {
     private static ThreadLocal<ArrayMap<Animator, Transition.AnimationInfo>> sRunningAnimators =
             new ThreadLocal<>();
 
-    // Scene Root is set at createAnimator() time in the cloned Transition
-    private ViewGroup mSceneRoot = null;
-
     // Whether removing views from their parent is possible. This is only for views
     // in the start scene, which are no longer in the view hierarchy. This property
     // is determined by whether the previous Scene was created from a layout
@@ -274,7 +271,7 @@ public abstract class Transition implements Cloneable {
      */
     @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
     // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
-    public Transition(Context context, AttributeSet attrs) {
+    public Transition(@NonNull Context context, @NonNull AttributeSet attrs) {
         TypedArray a = context.obtainStyledAttributes(attrs, Styleable.TRANSITION);
         XmlResourceParser parser = (XmlResourceParser) attrs;
         long duration = TypedArrayUtils.getNamedInt(a, parser, "duration",
@@ -697,11 +694,8 @@ public abstract class Transition implements Cloneable {
      * with each set of start/end values on this transition. The
      * TransitionSet subclass overrides this method and delegates it to
      * each of its children in succession.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
+    void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
             TransitionValuesMaps endValues, ArrayList<TransitionValues> startValuesList,
             ArrayList<TransitionValues> endValuesList) {
         if (DBG) {
@@ -2202,11 +2196,6 @@ public abstract class Transition implements Cloneable {
                 mPropagation.captureValues(transitionValues);
             }
         }
-    }
-
-    Transition setSceneRoot(ViewGroup sceneRoot) {
-        mSceneRoot = sceneRoot;
-        return this;
     }
 
     void setCanRemoveViews(boolean canRemoveViews) {

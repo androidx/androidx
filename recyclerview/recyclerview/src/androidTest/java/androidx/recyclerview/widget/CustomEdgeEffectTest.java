@@ -71,7 +71,7 @@ public class CustomEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         });
         setRecyclerView(mRecyclerView);
         getInstrumentation().waitForIdleSync();
-        assertThat("Test sanity", mRecyclerView.getChildCount() > 0, is(true));
+        assertThat("Assumption check", mRecyclerView.getChildCount() > 0, is(true));
     }
 
     @Test

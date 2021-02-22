@@ -16,16 +16,15 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.toAnnotationBox
+import androidx.room.compiler.processing.XElement
 import androidx.room.vo.Warning
-import javax.lang.model.element.Element
 
 /**
  * A visitor that reads SuppressWarnings annotations and keeps the ones we know about.
  */
 object SuppressWarningProcessor {
 
-    fun getSuppressedWarnings(element: Element): Set<Warning> {
+    fun getSuppressedWarnings(element: XElement): Set<Warning> {
         val annotation = element.toAnnotationBox(SuppressWarnings::class)?.value
         return if (annotation == null) {
             emptySet()

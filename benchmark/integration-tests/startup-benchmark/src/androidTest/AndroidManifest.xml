@@ -19,9 +19,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="androidx.benchmark.integration.startup.benchmark.test">
     <application
-        android:name="androidx.benchmark.integration.startup.benchmark.ArgumentInjectingApplication"
-        android:debuggable="false"
-        tools:ignore="HardcodedDebugMode"
-        tools:replace="android:debuggable" />
-    />
+            android:name="androidx.benchmark.integration.startup.benchmark.ArgumentInjectingApplication"
+            android:debuggable="false"
+            tools:ignore="HardcodedDebugMode"
+            tools:replace="android:debuggable">
+        <!-- enable profileableByShell for non-intrusive profiling tools -->
+        <!--suppress AndroidElementNotAllowed -->
+        <profileable shell="true"/>
+    </application>
 </manifest>

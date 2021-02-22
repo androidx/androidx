@@ -31,6 +31,7 @@ fun getAdapterName(type: TypeElement): String {
     val packageElement = type.getPackage()
     val qName = type.qualifiedName.toString()
     val partialName = if (packageElement.isUnnamed) qName else qName.substring(
-            packageElement.qualifiedName.toString().length + 1)
+        packageElement.qualifiedName.toString().length + 1
+    )
     return Lifecycling.getAdapterName(partialName)
 }

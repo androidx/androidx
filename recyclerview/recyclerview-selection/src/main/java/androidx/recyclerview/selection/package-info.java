@@ -97,7 +97,7 @@
  * </b>
  *
  * <p>
- * Example usage (with {@code Long} selection keys:
+ * Example usage (with {@code Long} selection keys):
  * <pre>SelectionTracker<Long> tracker = new SelectionTracker.Builder<>(
  *        "my-selection-id",
  *        recyclerView,

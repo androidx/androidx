@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.work {
 
   public final class ArrayCreatingInputMerger extends androidx.work.InputMerger {
@@ -12,10 +12,12 @@ package androidx.work {
   }
 
   public final class Configuration {
+    method public String? getDefaultProcessName();
     method public java.util.concurrent.Executor getExecutor();
     method public androidx.work.InputMergerFactory getInputMergerFactory();
     method public int getMaxJobSchedulerId();
     method public int getMinJobSchedulerId();
+    method public androidx.work.RunnableScheduler getRunnableScheduler();
     method public java.util.concurrent.Executor getTaskExecutor();
     method public androidx.work.WorkerFactory getWorkerFactory();
     field public static final int MIN_SCHEDULER_LIMIT = 20; // 0x14
@@ -24,11 +26,13 @@ package androidx.work {
   public static final class Configuration.Builder {
     ctor public Configuration.Builder();
     method public androidx.work.Configuration build();
+    method public androidx.work.Configuration.Builder setDefaultProcessName(String);
     method public androidx.work.Configuration.Builder setExecutor(java.util.concurrent.Executor);
     method public androidx.work.Configuration.Builder setInputMergerFactory(androidx.work.InputMergerFactory);
     method public androidx.work.Configuration.Builder setJobSchedulerJobIdRange(int, int);
     method public androidx.work.Configuration.Builder setMaxSchedulerLimit(int);
     method public androidx.work.Configuration.Builder setMinimumLoggingLevel(int);
+    method public androidx.work.Configuration.Builder setRunnableScheduler(androidx.work.RunnableScheduler);
     method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor);
     method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory);
   }
@@ -44,7 +48,7 @@ package androidx.work {
     method public boolean requiresCharging();
     method @RequiresApi(23) public boolean requiresDeviceIdle();
     method public boolean requiresStorageNotLow();
-    field public static final androidx.work.Constraints! NONE;
+    field public static final androidx.work.Constraints NONE;
   }
 
   public static final class Constraints.Builder {
@@ -64,7 +68,7 @@ package androidx.work {
 
   public final class Data {
     ctor public Data(androidx.work.Data);
-    method public static androidx.work.Data fromByteArray(byte[]);
+    method @androidx.room.TypeConverter public static androidx.work.Data fromByteArray(byte[]);
     method public boolean getBoolean(String, boolean);
     method public boolean[]? getBooleanArray(String);
     method public byte getByte(String, byte);
@@ -82,7 +86,7 @@ package androidx.work {
     method public String![]? getStringArray(String);
     method public <T> boolean hasKeyWithValueOfType(String, Class<T!>);
     method public byte[] toByteArray();
-    field public static final androidx.work.Data! EMPTY;
+    field public static final androidx.work.Data EMPTY;
     field public static final int MAX_DATA_BYTES = 10240; // 0x2800
   }
 
@@ -120,15 +124,17 @@ package androidx.work {
 
   public enum ExistingWorkPolicy {
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND;
+    enum_constant public static final androidx.work.ExistingWorkPolicy APPEND_OR_REPLACE;
     enum_constant public static final androidx.work.ExistingWorkPolicy KEEP;
     enum_constant public static final androidx.work.ExistingWorkPolicy REPLACE;
   }
 
   public final class ForegroundInfo {
-    ctor public ForegroundInfo(android.app.Notification);
-    ctor public ForegroundInfo(android.app.Notification, int);
+    ctor public ForegroundInfo(int, android.app.Notification);
+    ctor public ForegroundInfo(int, android.app.Notification, int);
     method public int getForegroundServiceType();
     method public android.app.Notification getNotification();
+    method public int getNotificationId();
   }
 
   public interface ForegroundUpdater {
@@ -228,6 +234,11 @@ package androidx.work {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> updateProgress(android.content.Context, java.util.UUID, androidx.work.Data);
   }
 
+  public interface RunnableScheduler {
+    method public void cancel(Runnable);
+    method public void scheduleWithDelay(@IntRange(from=0) long, Runnable);
+  }
+
   public abstract class WorkContinuation {
     ctor public WorkContinuation();
     method public static androidx.work.WorkContinuation combine(java.util.List<androidx.work.WorkContinuation!>);
@@ -278,12 +289,33 @@ package androidx.work {
     method public abstract androidx.lifecycle.LiveData<java.lang.Long!> getLastCancelAllTimeMillisLiveData();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkInfo!> getWorkInfoById(java.util.UUID);
     method public abstract androidx.lifecycle.LiveData<androidx.work.WorkInfo!> getWorkInfoByIdLiveData(java.util.UUID);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfos(androidx.work.WorkQuery);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTag(String);
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTagLiveData(String);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWork(String);
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWorkLiveData(String);
+    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosLiveData(androidx.work.WorkQuery);
     method public static void initialize(android.content.Context, androidx.work.Configuration);
     method public abstract androidx.work.Operation pruneWork();
+  }
+
+  public final class WorkQuery {
+    method public java.util.List<java.util.UUID!> getIds();
+    method public java.util.List<androidx.work.WorkInfo.State!> getStates();
+    method public java.util.List<java.lang.String!> getTags();
+    method public java.util.List<java.lang.String!> getUniqueWorkNames();
+  }
+
+  public static final class WorkQuery.Builder {
+    method public androidx.work.WorkQuery.Builder addIds(java.util.List<java.util.UUID!>);
+    method public androidx.work.WorkQuery.Builder addStates(java.util.List<androidx.work.WorkInfo.State!>);
+    method public androidx.work.WorkQuery.Builder addTags(java.util.List<java.lang.String!>);
+    method public androidx.work.WorkQuery.Builder addUniqueWorkNames(java.util.List<java.lang.String!>);
+    method public androidx.work.WorkQuery build();
+    method public static androidx.work.WorkQuery.Builder fromIds(java.util.List<java.util.UUID!>);
+    method public static androidx.work.WorkQuery.Builder fromStates(java.util.List<androidx.work.WorkInfo.State!>);
+    method public static androidx.work.WorkQuery.Builder fromTags(java.util.List<java.lang.String!>);
+    method public static androidx.work.WorkQuery.Builder fromUniqueWorkNames(java.util.List<java.lang.String!>);
   }
 
   public abstract class WorkRequest {
@@ -325,6 +357,35 @@ package androidx.work {
     method public java.util.Set<java.lang.String!> getTags();
     method @RequiresApi(24) public java.util.List<java.lang.String!> getTriggeredContentAuthorities();
     method @RequiresApi(24) public java.util.List<android.net.Uri!> getTriggeredContentUris();
+  }
+
+}
+
+package androidx.work.multiprocess {
+
+  public abstract class RemoteWorkContinuation {
+    method public static androidx.work.multiprocess.RemoteWorkContinuation combine(java.util.List<androidx.work.multiprocess.RemoteWorkContinuation!>);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enqueue();
+    method public final androidx.work.multiprocess.RemoteWorkContinuation then(androidx.work.OneTimeWorkRequest);
+    method public abstract androidx.work.multiprocess.RemoteWorkContinuation then(java.util.List<androidx.work.OneTimeWorkRequest!>);
+  }
+
+  public abstract class RemoteWorkManager {
+    method public final androidx.work.multiprocess.RemoteWorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
+    method public abstract androidx.work.multiprocess.RemoteWorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest!>);
+    method public final androidx.work.multiprocess.RemoteWorkContinuation beginWith(androidx.work.OneTimeWorkRequest);
+    method public abstract androidx.work.multiprocess.RemoteWorkContinuation beginWith(java.util.List<androidx.work.OneTimeWorkRequest!>);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelAllWork();
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelAllWorkByTag(String);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelUniqueWork(String);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelWorkById(java.util.UUID);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enqueue(androidx.work.WorkRequest);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enqueue(java.util.List<androidx.work.WorkRequest!>);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
+    method public final com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest!>);
+    method public static androidx.work.multiprocess.RemoteWorkManager getInstance(android.content.Context);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfos(androidx.work.WorkQuery);
   }
 
 }

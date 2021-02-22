@@ -42,59 +42,73 @@ class EntityUpdateAdapterWriter private constructor(
 ) {
     companion object {
         fun create(entity: ShortcutEntity, onConflict: String) =
-                EntityUpdateAdapterWriter(
-                    tableName = entity.tableName,
-                    pojo = entity.pojo,
-                    primaryKeyFields = entity.primaryKey.fields,
-                    onConflict = onConflict)
+            EntityUpdateAdapterWriter(
+                tableName = entity.tableName,
+                pojo = entity.pojo,
+                primaryKeyFields = entity.primaryKey.fields,
+                onConflict = onConflict
+            )
     }
 
     fun createAnonymous(classWriter: ClassWriter, dbParam: String): TypeSpec {
         @Suppress("RemoveSingleExpressionStringTemplate")
         return TypeSpec.anonymousClassBuilder("$L", dbParam).apply {
-            superclass(ParameterizedTypeName.get(RoomTypeNames.DELETE_OR_UPDATE_ADAPTER,
-                pojo.typeName)
+            superclass(
+                ParameterizedTypeName.get(
+                    RoomTypeNames.DELETE_OR_UPDATE_ADAPTER,
+                    pojo.typeName
+                )
             )
-            addMethod(MethodSpec.methodBuilder("createQuery").apply {
-                addAnnotation(Override::class.java)
-                addModifiers(PUBLIC)
-                returns(ClassName.get("java.lang", "String"))
-                val query = "UPDATE OR $onConflict `$tableName` SET " +
+            addMethod(
+                MethodSpec.methodBuilder("createQuery").apply {
+                    addAnnotation(Override::class.java)
+                    addModifiers(PUBLIC)
+                    returns(ClassName.get("java.lang", "String"))
+                    val query = "UPDATE OR $onConflict `$tableName` SET " +
                         pojo.columnNames.joinToString(",") { "`$it` = ?" } + " WHERE " +
                         primaryKeyFields.columnNames.joinToString(" AND ") { "`$it` = ?" }
-                addStatement("return $S", query)
-            }.build())
-            addMethod(MethodSpec.methodBuilder("bind").apply {
-                val bindScope = CodeGenScope(classWriter)
-                addAnnotation(Override::class.java)
-                addModifiers(PUBLIC)
-                returns(TypeName.VOID)
-                val stmtParam = "stmt"
-                addParameter(ParameterSpec.builder(SupportDbTypeNames.SQLITE_STMT,
-                        stmtParam).build())
-                val valueParam = "value"
-                addParameter(ParameterSpec.builder(pojo.typeName, valueParam).build())
-                val mappedField = FieldWithIndex.byOrder(pojo.fields)
-                FieldReadWriteWriter.bindToStatement(
+                    addStatement("return $S", query)
+                }.build()
+            )
+            addMethod(
+                MethodSpec.methodBuilder("bind").apply {
+                    val bindScope = CodeGenScope(classWriter)
+                    addAnnotation(Override::class.java)
+                    addModifiers(PUBLIC)
+                    returns(TypeName.VOID)
+                    val stmtParam = "stmt"
+                    addParameter(
+                        ParameterSpec.builder(
+                            SupportDbTypeNames.SQLITE_STMT,
+                            stmtParam
+                        ).build()
+                    )
+                    val valueParam = "value"
+                    addParameter(ParameterSpec.builder(pojo.typeName, valueParam).build())
+                    val mappedField = FieldWithIndex.byOrder(pojo.fields)
+                    FieldReadWriteWriter.bindToStatement(
                         ownerVar = valueParam,
                         stmtParamVar = stmtParam,
                         fieldsWithIndices = mappedField,
                         scope = bindScope
-                )
-                val pkeyStart = pojo.fields.size
-                val mappedPrimaryKeys = primaryKeyFields.mapIndexed { index, field ->
-                    FieldWithIndex(field = field,
+                    )
+                    val pkeyStart = pojo.fields.size
+                    val mappedPrimaryKeys = primaryKeyFields.mapIndexed { index, field ->
+                        FieldWithIndex(
+                            field = field,
                             indexVar = "${pkeyStart + index + 1}",
-                            alwaysExists = true)
-                }
-                FieldReadWriteWriter.bindToStatement(
+                            alwaysExists = true
+                        )
+                    }
+                    FieldReadWriteWriter.bindToStatement(
                         ownerVar = valueParam,
                         stmtParamVar = stmtParam,
                         fieldsWithIndices = mappedPrimaryKeys,
                         scope = bindScope
-                )
-                addCode(bindScope.builder().build())
-            }.build())
+                    )
+                    addCode(bindScope.builder().build())
+                }.build()
+            )
         }.build()
     }
 }

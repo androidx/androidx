@@ -1,0 +1,20 @@
+// Signature format: 4.0
+package androidx.wear.remote.interactions {
+
+  public final class WatchFaceConfigIntentHelper {
+    method public static String? getPeerIdExtra(android.content.Intent watchFaceIntent);
+    method public static android.content.ComponentName? getWatchFaceComponentExtra(android.content.Intent watchFaceIntent);
+    method public static android.content.Intent putPeerIdExtra(android.content.Intent watchFaceIntent, String peerId);
+    method public static android.content.Intent putWatchFaceComponentExtra(android.content.Intent watchFaceIntent, android.content.ComponentName componentName);
+    field public static final androidx.wear.remote.interactions.WatchFaceConfigIntentHelper.Companion Companion;
+  }
+
+  public static final class WatchFaceConfigIntentHelper.Companion {
+    method public String? getPeerIdExtra(android.content.Intent watchFaceIntent);
+    method public android.content.ComponentName? getWatchFaceComponentExtra(android.content.Intent watchFaceIntent);
+    method public android.content.Intent putPeerIdExtra(android.content.Intent watchFaceIntent, String peerId);
+    method public android.content.Intent putWatchFaceComponentExtra(android.content.Intent watchFaceIntent, android.content.ComponentName componentName);
+  }
+
+}
+

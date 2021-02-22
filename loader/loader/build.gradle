@@ -22,6 +22,7 @@ dependencies {
     implementation("androidx.collection:collection:1.0.0")
     implementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
@@ -34,7 +35,6 @@ dependencies {
 androidx {
     name = "Android Support Library loader"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LOADER
     mavenGroup = LibraryGroups.LOADER
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."

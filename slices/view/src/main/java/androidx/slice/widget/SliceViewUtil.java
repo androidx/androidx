@@ -45,7 +45,6 @@ import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.slice.view.R;
 
 import java.util.Calendar;
 
@@ -104,7 +103,7 @@ public class SliceViewUtil {
     @ColorInt
     public static int applyAlpha(float alpha, int inputColor) {
         alpha *= Color.alpha(inputColor);
-        return Color.argb((int) (alpha), Color.red(inputColor), Color.green(inputColor),
+        return Color.argb((int) alpha, Color.red(inputColor), Color.green(inputColor),
                 Color.blue(inputColor));
     }
 
@@ -228,7 +227,8 @@ public class SliceViewUtil {
     /**
      */
     public static void tintIndeterminateProgressBar(Context context, ProgressBar bar) {
-        int color = SliceViewUtil.getColorAttr(context, R.attr.colorControlHighlight);
+        int color = SliceViewUtil.getColorAttr(
+                context, androidx.appcompat.R.attr.colorControlHighlight);
         Drawable progressDrawable = DrawableCompat.wrap(
                 bar.getIndeterminateDrawable());
         if (progressDrawable != null && color != 0) {

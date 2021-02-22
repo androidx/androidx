@@ -115,7 +115,7 @@ public class StableIdActivity extends BaseLayoutManagerActivity<LinearLayoutMana
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final int pos = viewHolder.getAdapterPosition();
+                    final int pos = viewHolder.getBindingAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION) {
                         // swap item to top, and notify data set changed
                         Pair<Integer, String> d = mData.remove(pos);

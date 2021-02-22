@@ -39,6 +39,8 @@ dependencies {
 
     testImplementation(project(":lifecycle:lifecycle-runtime"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
+    testImplementation(KOTLIN_COROUTINES_TEST)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
 }
@@ -50,5 +52,4 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData Core"
-    url = AndroidXExtension.ARCHITECTURE_URL
     }

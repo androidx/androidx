@@ -16,15 +16,15 @@
 
 package androidx.camera.testing.fakes;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.Config;
-import androidx.camera.core.MutableConfig;
-import androidx.camera.core.MutableOptionsBundle;
-import androidx.camera.core.OptionsBundle;
-
-import java.util.Set;
+import androidx.camera.core.ExtendableBuilder;
+import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.MutableConfig;
+import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.OptionsBundle;
+import androidx.camera.core.impl.ReadableConfig;
 
 /**
  * Wrapper for an empty Config
@@ -32,7 +32,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class FakeConfig implements Config {
+public final class FakeConfig implements ReadableConfig {
 
     private final Config mConfig;
 
@@ -40,53 +40,14 @@ public final class FakeConfig implements Config {
         mConfig = config;
     }
 
-    // Start of the default implementation of Config
-    // *********************************************************************************************
-
-    // Implementations of Config default methods
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     @Override
-    public boolean containsOption(Option<?> id) {
-        return mConfig.containsOption(id);
+    public Config getConfig() {
+        return mConfig;
     }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
-        return mConfig.retrieveOption(id);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
-        return mConfig.retrieveOption(id, valueIfMissing);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public void findOptions(String idStem, OptionMatcher matcher) {
-        mConfig.findOptions(idStem, matcher);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public Set<Option<?>> listOptions() {
-        return mConfig.listOptions();
-    }
-
-    // End of the default implementation of Config
-    // *********************************************************************************************
 
     /** Builder for an empty Config */
-    public static final class Builder implements ExtendableBuilder {
+    public static final class Builder implements ExtendableBuilder<FakeConfig> {
 
         private final MutableOptionsBundle mOptionsBundle;
 
@@ -95,6 +56,7 @@ public final class FakeConfig implements Config {
         }
 
         @Override
+        @NonNull
         public MutableConfig getMutableConfig() {
             return mOptionsBundle;
         }
@@ -104,6 +66,8 @@ public final class FakeConfig implements Config {
          *
          * @return A {@link FakeConfig} populated with the current state.
          */
+        @Override
+        @NonNull
         public FakeConfig build() {
             return new FakeConfig(OptionsBundle.from(mOptionsBundle));
         }

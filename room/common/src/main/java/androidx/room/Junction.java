@@ -42,7 +42,7 @@ import java.lang.annotation.Target;
  *             associateBy = {@literal @}Junction(
  *                     value = PlaylistSongXRef.class,
  *                     parentColumn = "pId",
- *                     entityColumn = "sId)
+ *                     entityColumn = "sId")
  *     )
  *     List&lt;String&gt; songs;
  * }
