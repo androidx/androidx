@@ -763,7 +763,9 @@ public abstract class CameraController {
      * Sets the {@link CameraSelector}.
      *
      * <p> Calling this method with a {@link CameraSelector} that resolves to a different camera
-     * will change the camera being used by the controller.
+     * will change the camera being used by the controller. If camera initialization is complete,
+     * the controller will immediately rebind use cases with the new {@link CameraSelector};
+     * otherwise, the new {@link CameraSelector} will be used when the camera becomes ready.
      *
      * <p>The default value is {@link CameraSelector#DEFAULT_BACK_CAMERA}.
      *
@@ -778,13 +780,13 @@ public abstract class CameraController {
             return;
         }
 
+        CameraSelector oldCameraSelector = mCameraSelector;
+        mCameraSelector = cameraSelector;
+
         if (mCameraProvider == null) {
             return;
         }
         mCameraProvider.unbindAll();
-
-        CameraSelector oldCameraSelector = mCameraSelector;
-        mCameraSelector = cameraSelector;
         startCameraAndTrackStates(() -> mCameraSelector = oldCameraSelector);
     }
 

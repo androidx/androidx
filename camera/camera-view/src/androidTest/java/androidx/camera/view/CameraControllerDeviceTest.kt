@@ -61,6 +61,17 @@ public class CameraControllerDeviceTest {
 
     @UiThreadTest
     @Test
+    public fun setSelectorAfterBound_selectorSet() {
+        // Act
+        assertThat(controller.cameraSelector.lensFacing).isEqualTo(CameraSelector.LENS_FACING_BACK)
+        controller.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+
+        // Assert.
+        assertThat(controller.cameraSelector.lensFacing).isEqualTo(CameraSelector.LENS_FACING_FRONT)
+    }
+
+    @UiThreadTest
+    @Test
     public fun previewViewNotAttached_useCaseGroupIsNotBuilt() {
         assertThat(controller.createUseCaseGroup()).isNull()
     }
