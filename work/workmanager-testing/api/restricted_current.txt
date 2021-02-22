@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.work.testing {
 
   public class SynchronousExecutor implements java.util.concurrent.Executor {
@@ -12,35 +12,24 @@ package androidx.work.testing {
     method public void setPeriodDelayMet(java.util.UUID);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class TestForegroundUpdater implements androidx.work.ForegroundUpdater {
-    ctor public TestForegroundUpdater();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setForegroundAsync(android.content.Context, java.util.UUID, androidx.work.ForegroundInfo);
-  }
-
   public class TestListenableWorkerBuilder<W extends androidx.work.ListenableWorker> {
     method public W build();
-    method public static androidx.work.testing.TestListenableWorkerBuilder from(android.content.Context, androidx.work.WorkRequest);
+    method public static androidx.work.testing.TestListenableWorkerBuilder<? extends androidx.work.ListenableWorker> from(android.content.Context, androidx.work.WorkRequest);
     method public static <W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W!> from(android.content.Context, Class<W!>);
-    method public androidx.work.testing.TestListenableWorkerBuilder setForegroundUpdater(androidx.work.ForegroundUpdater);
-    method public androidx.work.testing.TestListenableWorkerBuilder setId(java.util.UUID);
-    method public androidx.work.testing.TestListenableWorkerBuilder setInputData(androidx.work.Data);
-    method @RequiresApi(28) public androidx.work.testing.TestListenableWorkerBuilder setNetwork(android.net.Network);
-    method public androidx.work.testing.TestListenableWorkerBuilder setProgressUpdater(androidx.work.ProgressUpdater);
-    method public androidx.work.testing.TestListenableWorkerBuilder setRunAttemptCount(int);
-    method public androidx.work.testing.TestListenableWorkerBuilder setTags(java.util.List<java.lang.String!>);
-    method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder setTriggeredContentAuthorities(java.util.List<java.lang.String!>);
-    method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder setTriggeredContentUris(java.util.List<android.net.Uri!>);
-    method public androidx.work.testing.TestListenableWorkerBuilder setWorkerFactory(androidx.work.WorkerFactory);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setForegroundUpdater(androidx.work.ForegroundUpdater);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setId(java.util.UUID);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setInputData(androidx.work.Data);
+    method @RequiresApi(28) public androidx.work.testing.TestListenableWorkerBuilder<W!> setNetwork(android.net.Network);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setProgressUpdater(androidx.work.ProgressUpdater);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setRunAttemptCount(int);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setTags(java.util.List<java.lang.String!>);
+    method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder<W!> setTriggeredContentAuthorities(java.util.List<java.lang.String!>);
+    method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder<W!> setTriggeredContentUris(java.util.List<android.net.Uri!>);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setWorkerFactory(androidx.work.WorkerFactory);
   }
 
   public final class TestListenableWorkerBuilderKt {
-    ctor public TestListenableWorkerBuilderKt();
-    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W> TestListenableWorkerBuilder(android.content.Context context, androidx.work.Data inputData = androidx.work.Data.EMPTY, java.util.List<java.lang.String> tags = emptyList(), int runAttemptCount = 1, java.util.List<? extends android.net.Uri> triggeredContentUris = emptyList(), java.util.List<java.lang.String> triggeredContentAuthorities = emptyList());
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class TestProgressUpdater implements androidx.work.ProgressUpdater {
-    ctor public TestProgressUpdater();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> updateProgress(android.content.Context, java.util.UUID, androidx.work.Data);
+    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W>! TestListenableWorkerBuilder(android.content.Context context, optional androidx.work.Data inputData, optional java.util.List<? extends java.lang.String> tags, optional int runAttemptCount, optional java.util.List<? extends android.net.Uri> triggeredContentUris, optional java.util.List<? extends java.lang.String> triggeredContentAuthorities);
   }
 
   public class TestWorkerBuilder<W extends androidx.work.Worker> extends androidx.work.testing.TestListenableWorkerBuilder<W> {
@@ -49,8 +38,7 @@ package androidx.work.testing {
   }
 
   public final class TestWorkerBuilderKt {
-    ctor public TestWorkerBuilderKt();
-    method public static inline <reified W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W> TestWorkerBuilder(android.content.Context context, java.util.concurrent.Executor executor, androidx.work.Data inputData = androidx.work.Data.EMPTY, java.util.List<java.lang.String> tags = emptyList(), int runAttemptCount = 1, java.util.List<? extends android.net.Uri> triggeredContentUris = emptyList(), java.util.List<java.lang.String> triggeredContentAuthorities = emptyList());
+    method public static inline <reified W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W>! TestWorkerBuilder(android.content.Context context, java.util.concurrent.Executor executor, optional androidx.work.Data inputData, optional java.util.List<? extends java.lang.String> tags, optional int runAttemptCount, optional java.util.List<? extends android.net.Uri> triggeredContentUris, optional java.util.List<? extends java.lang.String> triggeredContentAuthorities);
   }
 
   public final class WorkManagerTestInitHelper {

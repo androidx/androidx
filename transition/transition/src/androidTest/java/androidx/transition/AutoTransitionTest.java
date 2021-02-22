@@ -26,11 +26,17 @@ import android.widget.LinearLayout;
 
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.testutils.AnimationDurationScaleRule;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 @MediumTest
 public class AutoTransitionTest extends BaseTest {
+
+    @Rule
+    public final AnimationDurationScaleRule mAnimationDurationScaleRule =
+            AnimationDurationScaleRule.createForAllTests(1f);
 
     private LinearLayout mRoot;
     private View mView0;

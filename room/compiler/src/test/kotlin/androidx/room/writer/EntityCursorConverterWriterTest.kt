@@ -16,9 +16,9 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.processor.BaseEntityParserTest
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeSpec
 import org.junit.Test
@@ -33,18 +33,18 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
             package foo.bar;
             import android.database.Cursor;
             import java.lang.SuppressWarnings;
-            import javax.annotation.Generated;
+            import javax.annotation.processing.Generated;
             @Generated("androidx.room.RoomProcessor")
             @SuppressWarnings({"unchecked", "deprecation"})
             public class MyContainerClass {
-            """.trimIndent()
+        """.trimIndent()
         const val OUT_SUFFIX = "}"
     }
 
     @Test
     fun generateSimple() {
         generateAndMatch(
-                """
+            """
                 @PrimaryKey
                 private int id;
                 String name;
@@ -53,7 +53,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                 public int getId() { return id; }
                 public void setId(int id) { this.id = id; }
                 """,
-                """
+            """
                 private MyEntity __entityCursorConverter_fooBarMyEntity(Cursor cursor) {
                   final MyEntity _entity;
                   final int _cursorIndexOfId = cursor.getColumnIndex("id");
@@ -67,34 +67,51 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                     _entity.setId(_tmpId);
                   }
                   if (_cursorIndexOfName != -1) {
-                    _entity.name = cursor.getString(_cursorIndexOfName);
+                    if (cursor.isNull(_cursorIndexOfName)) {
+                      _entity.name = null;
+                    } else {
+                      _entity.name = cursor.getString(_cursorIndexOfName);
+                    }
                   }
                   if (_cursorIndexOfLastName != -1) {
-                    _entity.lastName = cursor.getString(_cursorIndexOfLastName);
+                    if (cursor.isNull(_cursorIndexOfLastName)) {
+                      _entity.lastName = null;
+                    } else {
+                      _entity.lastName = cursor.getString(_cursorIndexOfLastName);
+                    }
                   }
                   if (_cursorIndexOfAge != -1) {
                     _entity.age = cursor.getInt(_cursorIndexOfAge);
                   }
                   return _entity;
                 }
-                """.trimIndent())
+            """.trimIndent()
+        )
     }
 
-    fun generateAndMatch(
+    private fun generateAndMatch(
         input: String,
         output: String,
         attributes: Map<String, String> = mapOf()
     ) {
-        generate(input, attributes)
-                .compilesWithoutError()
-                .and()
-                .generatesSources(JavaFileObjects.forSourceString(
-                        "foo.bar.MyEntity_CursorConverter",
-                        listOf(OUT_PREFIX, output, OUT_SUFFIX).joinToString("\n")))
+        generate(input, attributes) {
+            it.assertCompilationResult {
+                generatedSource(
+                    Source.java(
+                        qName = "foo.bar.MyContainerClass",
+                        code = listOf(OUT_PREFIX, output, OUT_SUFFIX).joinToString("\n")
+                    )
+                )
+            }
+        }
     }
 
-    fun generate(input: String, attributes: Map<String, String> = mapOf()): CompileTester {
-        return singleEntity(input, attributes) { entity, invocation ->
+    private fun generate(
+        input: String,
+        attributes: Map<String, String> = mapOf(),
+        handler: (XTestInvocation) -> Unit
+    ) {
+        singleEntity(input, attributes) { entity, invocation ->
             val className = ClassName.get("foo.bar", "MyContainerClass")
             val writer = object : ClassWriter(className) {
                 override fun createTypeSpecBuilder(): TypeSpec.Builder {
@@ -105,6 +122,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                 }
             }
             writer.write(invocation.processingEnv)
+            handler(invocation)
         }
     }
 }

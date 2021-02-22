@@ -1,0 +1,179 @@
+// Baseline format: 1.0
+AcronymName: androidx.browser.customtabs.CustomTabsIntent#setAlwaysUseBrowserUI(android.content.Intent):
+    Acronyms should not be capitalized in method names: was `setAlwaysUseBrowserUI`, should this be `setAlwaysUseBrowserUi`?
+AcronymName: androidx.browser.customtabs.CustomTabsIntent#shouldAlwaysUseBrowserUI(android.content.Intent):
+    Acronyms should not be capitalized in method names: was `shouldAlwaysUseBrowserUI`, should this be `shouldAlwaysUseBrowserUi`?
+
+
+ActionValue: androidx.browser.browseractions.BrowserActionsIntent#ACTION_BROWSER_ACTIONS_OPEN:
+    Inconsistent action value; expected `androidx.browser.browseractions.action.BROWSER_ACTIONS_OPEN`, was `androidx.browser.browseractions.browser_action_open`
+ActionValue: androidx.browser.browseractions.BrowserActionsIntent#EXTRA_APP_ID:
+    Inconsistent extra value; expected `androidx.browser.browseractions.extra.APP_ID`, was `androidx.browser.browseractions.APP_ID`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ACTION_BUTTON_BUNDLE:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.ACTION_BUTTON_BUNDLE`, was `android.support.customtabs.extra.ACTION_BUTTON_BUNDLE`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_CLOSE_BUTTON_ICON:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.CLOSE_BUTTON_ICON`, was `android.support.customtabs.extra.CLOSE_BUTTON_ICON`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ENABLE_INSTANT_APPS:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.ENABLE_INSTANT_APPS`, was `android.support.customtabs.extra.EXTRA_ENABLE_INSTANT_APPS`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ENABLE_URLBAR_HIDING:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.ENABLE_URLBAR_HIDING`, was `android.support.customtabs.extra.ENABLE_URLBAR_HIDING`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_EXIT_ANIMATION_BUNDLE:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.EXIT_ANIMATION_BUNDLE`, was `android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_MENU_ITEMS:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.MENU_ITEMS`, was `android.support.customtabs.extra.MENU_ITEMS`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_REMOTEVIEWS:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.REMOTEVIEWS`, was `android.support.customtabs.extra.EXTRA_REMOTEVIEWS`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_REMOTEVIEWS_CLICKED_ID:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.REMOTEVIEWS_CLICKED_ID`, was `android.support.customtabs.extra.EXTRA_REMOTEVIEWS_CLICKED_ID`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_REMOTEVIEWS_PENDINGINTENT:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.REMOTEVIEWS_PENDINGINTENT`, was `android.support.customtabs.extra.EXTRA_REMOTEVIEWS_PENDINGINTENT`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_REMOTEVIEWS_VIEW_IDS:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.REMOTEVIEWS_VIEW_IDS`, was `android.support.customtabs.extra.EXTRA_REMOTEVIEWS_VIEW_IDS`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_SECONDARY_TOOLBAR_COLOR:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.SECONDARY_TOOLBAR_COLOR`, was `android.support.customtabs.extra.SECONDARY_TOOLBAR_COLOR`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_SESSION:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.SESSION`, was `android.support.customtabs.extra.SESSION`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_TINT_ACTION_BUTTON:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.TINT_ACTION_BUTTON`, was `android.support.customtabs.extra.TINT_ACTION_BUTTON`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_TITLE_VISIBILITY_STATE:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.TITLE_VISIBILITY_STATE`, was `android.support.customtabs.extra.TITLE_VISIBILITY`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_TOOLBAR_COLOR:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.TOOLBAR_COLOR`, was `android.support.customtabs.extra.TOOLBAR_COLOR`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_TOOLBAR_ITEMS:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.TOOLBAR_ITEMS`, was `android.support.customtabs.extra.TOOLBAR_ITEMS`
+ActionValue: androidx.browser.customtabs.CustomTabsService#ACTION_CUSTOM_TABS_CONNECTION:
+    Inconsistent action value; expected `androidx.browser.customtabs.action.CUSTOM_TABS_CONNECTION`, was `android.support.customtabs.action.CustomTabsService`
+ActionValue: androidx.browser.customtabs.TrustedWebUtils#EXTRA_LAUNCH_AS_TRUSTED_WEB_ACTIVITY:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.LAUNCH_AS_TRUSTED_WEB_ACTIVITY`, was `android.support.customtabs.extra.LAUNCH_AS_TRUSTED_WEB_ACTIVITY`
+
+
+AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#navigationBarColor:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#navigationBarDividerColor:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#secondaryToolbarColor:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#toolbarColor:
+    Must avoid boxed primitives (`java.lang.Integer`)
+
+
+BuilderSetStyle: androidx.browser.trusted.TrustedWebActivityIntentBuilder#buildCustomTabsIntent():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.browser.trusted.TrustedWebActivityIntentBuilder.buildCustomTabsIntent()
+
+
+CallbackMethodName: androidx.browser.customtabs.CustomTabsCallback#extraCallback(String, android.os.Bundle):
+    Callback method names must follow the on<Something> style: extraCallback
+CallbackMethodName: androidx.browser.customtabs.CustomTabsCallback#extraCallbackWithResult(String, android.os.Bundle):
+    Callback method names must follow the on<Something> style: extraCallbackWithResult
+
+
+ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent#openBrowserAction(android.content.Context, android.net.Uri, int, java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>, android.app.PendingIntent) parameter #3:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent#parseBrowserActionItems(java.util.ArrayList<android.os.Bundle>) parameter #0:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent.Builder#setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>) parameter #0:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+
+
+ExecutorRegistration: androidx.browser.customtabs.CustomTabsClient#newSession(androidx.browser.customtabs.CustomTabsCallback, int):
+    Registration methods should have overload that accepts delivery Executor: `newSession`
+ExecutorRegistration: androidx.browser.trusted.TrustedWebActivityServiceConnection#sendExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallback):
+    Registration methods should have overload that accepts delivery Executor: `sendExtraCommand`
+
+
+GetterOnBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#getDisplayMode():
+    Getter should be on the built object, not the builder: method androidx.browser.trusted.TrustedWebActivityIntentBuilder.getDisplayMode()
+GetterOnBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#getUri():
+    Getter should be on the built object, not the builder: method androidx.browser.trusted.TrustedWebActivityIntentBuilder.getUri()
+
+
+IntentName: androidx.browser.browseractions.BrowserActionsIntent#KEY_ACTION:
+    Intent action constant name must be ACTION_FOO: KEY_ACTION
+
+
+ListenerLast: androidx.browser.customtabs.CustomTabsClient#newSession(androidx.browser.customtabs.CustomTabsCallback, int) parameter #1:
+    Listeners should always be at end of argument list (method `newSession`)
+
+
+MissingGetterMatchingBuilder: androidx.browser.browseractions.BrowserActionsIntent.Builder#setCustomItems(androidx.browser.browseractions.BrowserActionItem...):
+    androidx.browser.browseractions.BrowserActionsIntent does not declare a `getCustomItems()` method matching method androidx.browser.browseractions.BrowserActionsIntent.Builder.setCustomItems(androidx.browser.browseractions.BrowserActionItem...)
+MissingGetterMatchingBuilder: androidx.browser.browseractions.BrowserActionsIntent.Builder#setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>):
+    androidx.browser.browseractions.BrowserActionsIntent does not declare a `getCustomItems()` method matching method androidx.browser.browseractions.BrowserActionsIntent.Builder.setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>)
+MissingGetterMatchingBuilder: androidx.browser.browseractions.BrowserActionsIntent.Builder#setOnItemSelectedAction(android.app.PendingIntent):
+    androidx.browser.browseractions.BrowserActionsIntent does not declare a `getOnItemSelectedAction()` method matching method androidx.browser.browseractions.BrowserActionsIntent.Builder.setOnItemSelectedAction(android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.browser.browseractions.BrowserActionsIntent.Builder#setUrlType(int):
+    androidx.browser.browseractions.BrowserActionsIntent does not declare a `getUrlType()` method matching method androidx.browser.browseractions.BrowserActionsIntent.Builder.setUrlType(int)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabColorSchemeParams.Builder#setNavigationBarColor(int):
+    androidx.browser.customtabs.CustomTabColorSchemeParams does not declare a `getNavigationBarColor()` method matching method androidx.browser.customtabs.CustomTabColorSchemeParams.Builder.setNavigationBarColor(int)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabColorSchemeParams.Builder#setNavigationBarDividerColor(int):
+    androidx.browser.customtabs.CustomTabColorSchemeParams does not declare a `getNavigationBarDividerColor()` method matching method androidx.browser.customtabs.CustomTabColorSchemeParams.Builder.setNavigationBarDividerColor(int)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabColorSchemeParams.Builder#setSecondaryToolbarColor(int):
+    androidx.browser.customtabs.CustomTabColorSchemeParams does not declare a `getSecondaryToolbarColor()` method matching method androidx.browser.customtabs.CustomTabColorSchemeParams.Builder.setSecondaryToolbarColor(int)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabColorSchemeParams.Builder#setToolbarColor(int):
+    androidx.browser.customtabs.CustomTabColorSchemeParams does not declare a `getToolbarColor()` method matching method androidx.browser.customtabs.CustomTabColorSchemeParams.Builder.setToolbarColor(int)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#addMenuItem(String, android.app.PendingIntent):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `getMenuItems()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.addMenuItem(String,android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `getActionButton()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setActionButton(android.graphics.Bitmap,String,android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent, boolean):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `getActionButton()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setActionButton(android.graphics.Bitmap,String,android.app.PendingIntent,boolean)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setCloseButtonIcon(android.graphics.Bitmap):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `getCloseButtonIcon()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setCloseButtonIcon(android.graphics.Bitmap)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setColorScheme(int):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `getColorScheme()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setColorScheme(int)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `getDefaultColorSchemeParams()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setExitAnimations(android.content.Context, int, int):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `getExitAnimations()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setExitAnimations(android.content.Context,int,int)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setInstantAppsEnabled(boolean):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `isInstantAppsEnabled()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setInstantAppsEnabled(boolean)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setSecondaryToolbarViews(android.widget.RemoteViews, int[], android.app.PendingIntent):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `getSecondaryToolbarViews()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setSecondaryToolbarViews(android.widget.RemoteViews,int[],android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setSession(androidx.browser.customtabs.CustomTabsSession):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `getSession()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setSession(androidx.browser.customtabs.CustomTabsSession)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setShareState(int):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `getShareState()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setShareState(int)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setShowTitle(boolean):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `isShowTitle()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setShowTitle(boolean)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setStartAnimations(android.content.Context, int, int):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `getStartAnimations()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setStartAnimations(android.content.Context,int,int)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setUrlBarHidingEnabled(boolean):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `isUrlBarHidingEnabled()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setUrlBarHidingEnabled(boolean)
+MissingGetterMatchingBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#setAdditionalTrustedOrigins(java.util.List<java.lang.String>):
+    androidx.browser.trusted.TrustedWebActivityIntent does not declare a `getAdditionalTrustedOrigins()` method matching method androidx.browser.trusted.TrustedWebActivityIntentBuilder.setAdditionalTrustedOrigins(java.util.List<java.lang.String>)
+MissingGetterMatchingBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#setColorScheme(int):
+    androidx.browser.trusted.TrustedWebActivityIntent does not declare a `getColorScheme()` method matching method androidx.browser.trusted.TrustedWebActivityIntentBuilder.setColorScheme(int)
+MissingGetterMatchingBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#setColorSchemeParams(int, androidx.browser.customtabs.CustomTabColorSchemeParams):
+    androidx.browser.trusted.TrustedWebActivityIntent does not declare a `getColorSchemeParams()` method matching method androidx.browser.trusted.TrustedWebActivityIntentBuilder.setColorSchemeParams(int,androidx.browser.customtabs.CustomTabColorSchemeParams)
+MissingGetterMatchingBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams):
+    androidx.browser.trusted.TrustedWebActivityIntent does not declare a `getDefaultColorSchemeParams()` method matching method androidx.browser.trusted.TrustedWebActivityIntentBuilder.setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams)
+MissingGetterMatchingBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#setDisplayMode(androidx.browser.trusted.TrustedWebActivityDisplayMode):
+    androidx.browser.trusted.TrustedWebActivityIntent does not declare a `getDisplayMode()` method matching method androidx.browser.trusted.TrustedWebActivityIntentBuilder.setDisplayMode(androidx.browser.trusted.TrustedWebActivityDisplayMode)
+MissingGetterMatchingBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#setScreenOrientation(int):
+    androidx.browser.trusted.TrustedWebActivityIntent does not declare a `getScreenOrientation()` method matching method androidx.browser.trusted.TrustedWebActivityIntentBuilder.setScreenOrientation(int)
+MissingGetterMatchingBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#setShareParams(androidx.browser.trusted.sharing.ShareTarget, androidx.browser.trusted.sharing.ShareData):
+    androidx.browser.trusted.TrustedWebActivityIntent does not declare a `getShareParams()` method matching method androidx.browser.trusted.TrustedWebActivityIntentBuilder.setShareParams(androidx.browser.trusted.sharing.ShareTarget,androidx.browser.trusted.sharing.ShareData)
+MissingGetterMatchingBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#setSplashScreenParams(android.os.Bundle):
+    androidx.browser.trusted.TrustedWebActivityIntent does not declare a `getSplashScreenParams()` method matching method androidx.browser.trusted.TrustedWebActivityIntentBuilder.setSplashScreenParams(android.os.Bundle)
+
+
+OptionalBuilderConstructorArgument: androidx.browser.customtabs.CustomTabsIntent.Builder#Builder(androidx.browser.customtabs.CustomTabsSession) parameter #0:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter session in androidx.browser.customtabs.CustomTabsIntent.Builder(androidx.browser.customtabs.CustomTabsSession session)
+
+
+PublicTypedef: androidx.browser.customtabs.CustomTabsService.Relation:
+    Don't expose @IntDef: Relation must be hidden.
+PublicTypedef: androidx.browser.customtabs.CustomTabsService.Result:
+    Don't expose @IntDef: Result must be hidden.
+
+
+StaticFinalBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder:
+    Builder must be final: androidx.browser.trusted.TrustedWebActivityIntentBuilder
+
+
+StreamFiles: androidx.browser.customtabs.TrustedWebUtils#transferSplashImage(android.content.Context, java.io.File, String, String, androidx.browser.customtabs.CustomTabsSession):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.browser.customtabs.TrustedWebUtils.transferSplashImage(android.content.Context,java.io.File,String,String,androidx.browser.customtabs.CustomTabsSession)
+
+
+TopLevelBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder:
+    Builder should be defined as inner class: androidx.browser.trusted.TrustedWebActivityIntentBuilder

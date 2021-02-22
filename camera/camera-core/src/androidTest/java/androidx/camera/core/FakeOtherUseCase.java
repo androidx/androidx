@@ -18,9 +18,13 @@ package androidx.camera.core;
 
 import android.util.Size;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeUseCase;
-
-import java.util.Map;
 
 /**
  * A second fake {@link UseCase}.
@@ -28,39 +32,58 @@ import java.util.Map;
  * <p>This is used to complement the {@link FakeUseCase} for testing instances where a use case of
  * different type is created.
  */
-class FakeOtherUseCase extends UseCase {
-    private volatile boolean mIsCleared = false;
+public class FakeOtherUseCase extends UseCase {
+    private volatile boolean mIsDetached = false;
 
     /** Creates a new instance of a {@link FakeOtherUseCase} with a given configuration. */
-    FakeOtherUseCase(FakeOtherUseCaseConfig config) {
+    public FakeOtherUseCase(FakeOtherUseCaseConfig config) {
         super(config);
     }
 
     /** Creates a new instance of a {@link FakeOtherUseCase} with a default configuration. */
     FakeOtherUseCase() {
-        this(new FakeOtherUseCaseConfig.Builder().build());
+        this(new FakeOtherUseCaseConfig.Builder().getUseCaseConfig());
     }
 
     @Override
-    public void clear() {
-        super.clear();
-        mIsCleared = true;
+    public void onDetached() {
+        super.onDetached();
+        mIsDetached = true;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
+            @NonNull UseCaseConfigFactory factory) {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(CameraX.LensFacing lensFacing) {
-        return new FakeOtherUseCaseConfig.Builder().setLensFacing(
-                lensFacing == null ? CameraX.LensFacing.BACK : lensFacing);
+    @NonNull
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+        return suggestedResolution;
     }
 
-    @Override
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-            Map<String, Size> suggestedResolutionMap) {
-        return suggestedResolutionMap;
-    }
-
-    /** Returns true if {@link #clear()} has been called previously. */
-    public boolean isCleared() {
-        return mIsCleared;
+    /** Returns true if {@link #onDetached()} has been called previously. */
+    public boolean isDetached() {
+        return mIsDetached;
     }
 }

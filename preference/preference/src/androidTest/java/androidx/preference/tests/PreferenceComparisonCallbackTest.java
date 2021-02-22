@@ -260,6 +260,7 @@ public class PreferenceComparisonCallbackTest {
                 mComparisonCallback.arePreferenceContentsTheSame(dropdown1, dropdown2));
     }
 
+    @SuppressWarnings("deprecation")
     private static class ComparisonDrawable extends Drawable {
 
         private final int mId;

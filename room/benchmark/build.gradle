@@ -26,12 +26,11 @@ plugins {
 dependencies {
     androidTestImplementation(project(":room:room-common"))
     androidTestImplementation(project(":room:room-runtime"))
-    kaptAndroidTest project(":room:room-compiler")
+    // depend on the shadowed version so that it tests with the shipped artifact
+    kaptAndroidTest project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     androidTestImplementation(project(":room:room-rxjava2"))
-    androidTestImplementation(project(":sqlite:sqlite"))
-    androidTestImplementation(project(":sqlite:sqlite-framework"))
     androidTestImplementation("androidx.arch.core:core-runtime:2.0.1")
-    androidTestImplementation(project(":benchmark:benchmark-junit4"))
+    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation(RX_JAVA)
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

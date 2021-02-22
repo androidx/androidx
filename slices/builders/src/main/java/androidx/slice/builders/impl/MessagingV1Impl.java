@@ -20,6 +20,7 @@ import static android.app.slice.Slice.SUBTYPE_MESSAGE;
 
 import android.graphics.drawable.Icon;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
@@ -49,7 +50,7 @@ public class MessagingV1Impl extends TemplateBuilderImpl implements MessagingBui
     /**
      */
     @Override
-    public void apply(Slice.Builder builder) {
+    public void apply(@NonNull Slice.Builder builder) {
 
     }
 
@@ -96,7 +97,7 @@ public class MessagingV1Impl extends TemplateBuilderImpl implements MessagingBui
         /**
          */
         @Override
-        public void apply(Slice.Builder builder) {
+        public void apply(@NonNull Slice.Builder builder) {
         }
     }
 }

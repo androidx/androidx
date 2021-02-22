@@ -1,9 +1,0 @@
-// Baseline format: 1.0
-MissingNullability: androidx.ui.tooling.InspectableKt#getTables():
-    Missing nullability on method `getTables` return
-MissingNullability: androidx.ui.tooling.preview.Preview#locale():
-    Missing nullability on method `locale` return
-MissingNullability: androidx.ui.tooling.preview.Preview#name():
-    Missing nullability on method `name` return
-MissingNullability: androidx.ui.tooling.preview.Preview#theme():
-    Missing nullability on method `theme` return

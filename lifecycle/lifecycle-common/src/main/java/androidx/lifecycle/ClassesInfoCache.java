@@ -30,7 +30,7 @@ import java.util.Map;
  * for {@link ReflectiveGenericLifecycleObserver}, so it can call them,
  * and for {@link Lifecycling} to determine which observer adapter to use.
  */
-class ClassesInfoCache {
+final class ClassesInfoCache {
 
     static ClassesInfoCache sInstance = new ClassesInfoCache();
 
@@ -198,7 +198,7 @@ class ClassesInfoCache {
     }
 
     @SuppressWarnings("WeakerAccess")
-    static class MethodReference {
+    static final class MethodReference {
         final int mCallType;
         final Method mMethod;
 
@@ -234,7 +234,7 @@ class ClassesInfoCache {
             if (this == o) {
                 return true;
             }
-            if (o == null || getClass() != o.getClass()) {
+            if (!(o instanceof MethodReference)) {
                 return false;
             }
 

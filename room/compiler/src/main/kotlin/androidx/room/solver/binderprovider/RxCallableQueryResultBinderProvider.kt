@@ -16,47 +16,43 @@
 
 package androidx.room.solver.binderprovider
 
-import androidx.room.ext.RoomRxJava2TypeNames
-import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XType
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
-import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
+import androidx.room.solver.RxType
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.query.result.RxCallableQueryResultBinder
-import javax.lang.model.type.DeclaredType
 
-sealed class RxCallableQueryResultBinderProvider(
+class RxCallableQueryResultBinderProvider private constructor(
     val context: Context,
-    val rxType: RxCallableQueryResultBinder.RxType
-) :
-    QueryResultBinderProvider {
-    private val hasRxJava2Artifact by lazy {
-        context.processingEnv.elementUtils
-                .getTypeElement(RoomRxJava2TypeNames.RX_ROOM.toString()) != null
-    }
-
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    private val rxType: RxType
+) : QueryResultBinderProvider {
+    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
         val typeArg = declared.typeArguments.first()
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
         return RxCallableQueryResultBinder(rxType, typeArg, adapter)
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
-            declared.typeArguments.size == 1 && matchesRxType(declared)
+    override fun matches(declared: XType): Boolean =
+        declared.typeArguments.size == 1 && matchesRxType(declared)
 
-    private fun matchesRxType(declared: DeclaredType): Boolean {
-        val erasure = context.processingEnv.typeUtils.erasure(declared)
-        val match = erasure.typeName() == rxType.className
-        if (match && !hasRxJava2Artifact) {
-            context.logger.e(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
+    private fun matchesRxType(declared: XType): Boolean {
+        return declared.rawType.typeName == rxType.className
+    }
+
+    companion object {
+        fun getAll(context: Context) = listOf(
+            RxType.RX2_SINGLE,
+            RxType.RX2_MAYBE,
+            RxType.RX3_SINGLE,
+            RxType.RX3_MAYBE
+        ).map {
+            RxCallableQueryResultBinderProvider(context, it).requireArtifact(
+                context = context,
+                requiredType = it.version.rxRoomClassName,
+                missingArtifactErrorMsg = it.version.missingArtifactMessage
+            )
         }
-        return match
     }
 }
-
-class RxSingleQueryResultBinderProvider(context: Context) :
-    RxCallableQueryResultBinderProvider(context, RxCallableQueryResultBinder.RxType.SINGLE)
-
-class RxMaybeQueryResultBinderProvider(context: Context) :
-    RxCallableQueryResultBinderProvider(context, RxCallableQueryResultBinder.RxType.MAYBE)

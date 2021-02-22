@@ -1,49 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
-
-    <issue
-        id="RestrictedApi"
-        message="MessagingSliceBuilder can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        MessagingSliceBuilder b = new MessagingSliceBuilder(getContext(), sliceUri);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="521"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MessagingSliceBuilder.add can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        return b.add(new MessagingSliceBuilder.MessageBuilder(b)"
-        errorLine2="                 ~~~">
-        <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="522"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MessagingSliceBuilder.add can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
-        errorLine1="                .add(new MessagingSliceBuilder.MessageBuilder(b)"
-        errorLine2="                 ~~~">
-        <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="526"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MessagingSliceBuilder.add can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
-        errorLine1="                .add(new MessagingSliceBuilder.MessageBuilder(b)"
-        errorLine2="                 ~~~">
-        <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="529"
-            column="18"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
         id="UnknownNullness"
@@ -52,7 +8,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="117"
+            line="157"
             column="19"/>
     </issue>
 
@@ -63,7 +19,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="117"
+            line="157"
             column="30"/>
     </issue>
 
@@ -74,7 +30,7 @@
         errorLine2="                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="117"
+            line="157"
             column="43"/>
     </issue>
 
@@ -85,7 +41,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="137"
+            line="177"
             column="12"/>
     </issue>
 
@@ -96,7 +52,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="558"
+            line="861"
             column="19"/>
     </issue>
 
@@ -107,7 +63,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SliceBroadcastReceiver.java"
-            line="43"
+            line="47"
             column="33"/>
     </issue>
 
@@ -118,7 +74,7 @@
         errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SliceBroadcastReceiver.java"
-            line="43"
+            line="47"
             column="50"/>
     </issue>
 

@@ -17,7 +17,9 @@
 package androidx.work.impl.foreground;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
@@ -39,13 +41,21 @@ public class SystemForegroundService extends LifecycleService implements
 
     private static final String TAG = Logger.tagWithPrefix("SystemFgService");
 
-    private SystemForegroundDispatcher mDispatcher;
+    @Nullable
+    private static SystemForegroundService sForegroundService = null;
+
     private Handler mHandler;
     private boolean mIsShutdown;
+
+    // Synthetic access
+    SystemForegroundDispatcher mDispatcher;
+    // Synthetic access
+    NotificationManager mNotificationManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        sForegroundService = this;
         initializeDispatcher();
     }
 
@@ -81,6 +91,8 @@ public class SystemForegroundService extends LifecycleService implements
     @MainThread
     private void initializeDispatcher() {
         mHandler = new Handler(Looper.getMainLooper());
+        mNotificationManager = (NotificationManager)
+                getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         mDispatcher = new SystemForegroundDispatcher(getApplicationContext());
         mDispatcher.setCallback(this);
     }
@@ -95,14 +107,14 @@ public class SystemForegroundService extends LifecycleService implements
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             stopForeground(true);
         }
+        sForegroundService = null;
         stopSelf();
     }
 
     @Override
-    public void notify(
+    public void startForeground(
             final int notificationId,
             final int notificationType,
-            @Nullable final String notificationTag,
             @NonNull final Notification notification) {
 
         mHandler.post(new Runnable() {
@@ -115,5 +127,33 @@ public class SystemForegroundService extends LifecycleService implements
                 }
             }
         });
+    }
+
+    @Override
+    public void notify(final int notificationId, @NonNull final Notification notification) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mNotificationManager.notify(notificationId, notification);
+            }
+        });
+    }
+
+    @Override
+    public void cancelNotification(final int notificationId) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mNotificationManager.cancel(notificationId);
+            }
+        });
+    }
+
+    /**
+     * @return The current instance of {@link SystemForegroundService}.
+     */
+    @Nullable
+    public static SystemForegroundService getInstance() {
+        return sForegroundService;
     }
 }

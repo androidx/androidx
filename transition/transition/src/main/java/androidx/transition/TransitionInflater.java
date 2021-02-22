@@ -54,7 +54,8 @@ public class TransitionInflater {
     /**
      * Obtains the TransitionInflater from the given context.
      */
-    public static TransitionInflater from(Context context) {
+    @NonNull
+    public static TransitionInflater from(@NonNull Context context) {
         return new TransitionInflater(context);
     }
 

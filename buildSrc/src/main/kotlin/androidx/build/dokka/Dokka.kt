@@ -18,88 +18,23 @@
 // TODO: after DiffAndDocs and Doclava are fully obsoleted and removed, rename this from Dokka to just Docs
 package androidx.build.dokka
 
-import androidx.build.AndroidXExtension
-import androidx.build.DiffAndDocs
 import androidx.build.dependencies.GUAVA_VERSION
-import androidx.build.getBuildId
-import androidx.build.getDistributionDirectory
-import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.api.tasks.bundling.Zip
-import org.gradle.kotlin.dsl.apply
 import org.jetbrains.dokka.DokkaConfiguration
-import org.jetbrains.dokka.gradle.DokkaAndroidPlugin
 import org.jetbrains.dokka.gradle.DokkaAndroidTask
 import org.jetbrains.dokka.gradle.PackageOptions
 import java.io.File
 import java.net.URL
 
 object Dokka {
-    fun generatorTaskNameForType(docsType: String, language: String = ""): String {
+    private fun generatorTaskNameForType(language: String = ""): String {
         val formattedLangauage = language.toLowerCase().capitalize()
-        return "dokka${formattedLangauage}${docsType}Docs"
+        return "dokka${formattedLangauage}Docs"
     }
 
-    fun archiveTaskNameForType(docsType: String): String {
-        return "dist${docsType}DokkaDocs"
-    }
-    fun createDocsTask(
-        docsType: String, // "public" or "tipOfTree"
+    fun createDokkaTask(
         project: Project,
-        hiddenPackages: List<String>
-    ) {
-        val archiveTaskName = archiveTaskNameForType(docsType)
-        project.apply<DokkaAndroidPlugin>()
-        // We don't use the `dokka` task, but it normally appears in `./gradlew tasks`
-        // so replace it with a new task that doesn't show up and doesn't do anything
-        project.tasks.replace("dokka")
-        if (project.name != "support" && project.name != "docs-runner") {
-            throw Exception("Illegal project passed to createDocsTask: " + project.name)
-        }
-
-        val kotlinDocsTask = createDokkaTask(project,
-            docsType,
-            hiddenPackages,
-            "Kotlin",
-            "dac",
-            "/reference/kotlin")
-        val javaDocsTask = createDokkaTask(project,
-            docsType,
-            hiddenPackages,
-            "Java",
-            "dac-as-java",
-            "/reference/")
-
-        project.tasks.register(archiveTaskName, Zip::class.java) { zipTask ->
-
-            zipTask.dependsOn(javaDocsTask)
-            zipTask.from(javaDocsTask.map { it.outputDirectory }) { copySpec ->
-                copySpec.into("reference/java")
-            }
-
-            zipTask.dependsOn(kotlinDocsTask)
-            zipTask.from(kotlinDocsTask.map { it.outputDirectory }) { copySpec ->
-                copySpec.into("reference/kotlin")
-            }
-
-            val buildId = getBuildId()
-            val archiveBaseName = generatorTaskNameForType(docsType)
-            zipTask.archiveBaseName.set(archiveBaseName)
-            zipTask.archiveVersion.set(buildId)
-            zipTask.destinationDirectory.set(project.getDistributionDirectory())
-            val filePath = "${project.getDistributionDirectory().canonicalPath}/"
-            val fileName = "$archiveBaseName-$buildId.zip"
-            zipTask.description = "Zips $docsType documentation (generated via " +
-                "Dokka in the style of d.android.com) into ${filePath + fileName}"
-            zipTask.group = JavaBasePlugin.DOCUMENTATION_GROUP
-        }
-    }
-
-    private fun createDokkaTask(
-        project: Project,
-        docsType: String,
         hiddenPackages: List<String>,
         language: String,
         outputFormat: String,
@@ -108,43 +43,34 @@ object Dokka {
         // This function creates and configures a DokkaAndroidTask.
         // The meanings of these parameters are documented at https://github.com/kotlin/dokka
 
-        val docTaskName = generatorTaskNameForType(docsType, language)
+        val docTaskName = generatorTaskNameForType(language)
 
-        val guavaDocLink = DokkaConfiguration.ExternalDocumentationLink.Builder().apply {
-            this.url = URL("https://guava.dev/releases/$GUAVA_VERSION/api/docs/")
-            // Guava documentation doesn't have the necessary package-list file to provide the packages
-            // to Dokka so we have to host a file internally as a workaround
-            this.packageListUrl = project.projectDir.toPath()
-                .resolve("package-lists/guava/package-list").toUri().toURL()
-        }.build()
-
-        val kotlinLangLink = DokkaConfiguration.ExternalDocumentationLink.Builder().apply {
-            this.url = URL("https://kotlinlang.org/api/latest/jvm/stdlib/")
-
-            this.packageListUrl = project.projectDir.toPath()
-                .resolve("package-lists/kotlin/package-list").toUri().toURL()
-        }.build()
-
-        val coroutinesCoreLink = DokkaConfiguration.ExternalDocumentationLink.Builder().apply {
-            this.url = URL("https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/")
-
-            this.packageListUrl = project.projectDir.toPath()
-                .resolve("package-lists/coroutinesCore/package-list").toUri().toURL()
-        }.build()
-
-        val androidLink = DokkaConfiguration.ExternalDocumentationLink.Builder().apply {
-            this.url = URL("https://developer.android.com/reference/")
-
-            this.packageListUrl = project.projectDir.toPath()
-                .resolve("package-lists/android/package-list").toUri().toURL()
-        }.build()
-
+        val guavaDocLink = createExternalDocumentationLinkMapping(
+            "package-lists/guava/package-list",
+            "https://guava.dev/releases/$GUAVA_VERSION/api/docs/",
+            project
+        )
+        val kotlinLangLink = createExternalDocumentationLinkMapping(
+            "package-lists/kotlin/package-list",
+            "https://kotlinlang.org/api/latest/jvm/stdlib/",
+            project
+        )
+        val coroutinesCoreLink = createExternalDocumentationLinkMapping(
+            "package-lists/coroutinesCore/package-list",
+            "https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/",
+            project
+        )
+        val androidLink = createExternalDocumentationLinkMapping(
+            "package-lists/android/package-list",
+            "https://developer.android.com/reference/",
+            project
+        )
 
         return project.tasks.register(docTaskName, DokkaAndroidTask::class.java) { task ->
             task.moduleName = project.name
             task.outputDirectory = File(project.buildDir, docTaskName).absolutePath
-            task.description = "Generates $docsType $language documentation in the style of " +
-                    "d.android.com.  Places docs in ${task.outputDirectory}"
+            task.description = "Generates $language documentation in the style of " +
+                "d.android.com.  Places docs in ${task.outputDirectory}"
             task.outputFormat = outputFormat
             task.outlineRoot = "androidx/"
             task.dacRoot = dacRoot
@@ -163,30 +89,28 @@ object Dokka {
             task.noJdkLink = true
             task.noStdlibLink = true
             task.noAndroidSdkLink = true
+            task.dokkaFatJar = "org.jetbrains.dokka:dokka-fatjar:0.9.17-g013"
         }
     }
 
-    fun Project.configureAndroidProjectForDokka(
-        library: LibraryExtension,
-        extension: AndroidXExtension
-    ) {
-        afterEvaluate {
-            if (name != "docs-runner") {
-                DiffAndDocs.get(this).registerAndroidProject(library, extension)
-            }
-
-            DokkaPublicDocs.registerProject(this, extension)
-            DokkaSourceDocs.registerAndroidProject(this, library, extension)
-        }
-    }
-
-    fun Project.configureJavaProjectForDokka(extension: AndroidXExtension) {
-        afterEvaluate {
-            if (name != "docs-runner") {
-                DiffAndDocs.get(this).registerJavaProject(this, extension)
-            }
-            DokkaPublicDocs.registerProject(this, extension)
-            DokkaSourceDocs.registerJavaProject(this, extension)
-        }
+    /**
+     * Documentation for external projects may live in other websites.
+     * If we want to link to types defined by those projects, we need to tell Dokka which types
+     * are defined in which projects, and where those projects are.
+     * We do this by providing a file named package-list for each such project.
+     * Each package-list file is called an ExternalDocumentationLink by Dokka.
+     * We don't make use of Dokka's ability to automatically download these from the internet because
+     * we want the build process to be as deterministic as possible.
+     */
+    private fun createExternalDocumentationLinkMapping(
+        localMappingFileName: String,
+        externalUrl: String,
+        project: Project
+    ): DokkaConfiguration.ExternalDocumentationLink {
+        return DokkaConfiguration.ExternalDocumentationLink.Builder().apply {
+            this.url = URL(externalUrl)
+            this.packageListUrl = File(project.rootDir, "docs-public").toPath()
+                .resolve(localMappingFileName).toUri().toURL()
+        }.build()
     }
 }

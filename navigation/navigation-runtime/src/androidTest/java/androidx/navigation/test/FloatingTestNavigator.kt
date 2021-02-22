@@ -25,7 +25,7 @@ import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.Navigator
 import androidx.navigation.get
-import androidx.navigation.testing.TestNavigator
+import androidx.testutils.TestNavigator
 
 @Navigator.Name("dialog")
 class FloatingTestNavigator : TestNavigator() {
@@ -33,7 +33,8 @@ class FloatingTestNavigator : TestNavigator() {
         return FloatingDestination(this)
     }
 
-    class FloatingDestination(navigator: TestNavigator) : Destination(navigator),
+    class FloatingDestination(navigator: TestNavigator) :
+        Destination(navigator),
         FloatingWindow
 }
 
@@ -48,10 +49,12 @@ inline fun NavGraphBuilder.dialog(@IdRes id: Int) = dialog(id) {}
 inline fun NavGraphBuilder.dialog(
     @IdRes id: Int,
     builder: FloatingTestNavigatorDestinationBuilder.() -> Unit
-) = destination(FloatingTestNavigatorDestinationBuilder(
-    provider[FloatingTestNavigator::class],
-    id
-).apply(builder))
+) = destination(
+    FloatingTestNavigatorDestinationBuilder(
+        provider[FloatingTestNavigator::class],
+        id
+    ).apply(builder)
+)
 
 /**
  * DSL for constructing a new [TestNavigator.Destination] from a [FloatingTestNavigator].

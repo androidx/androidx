@@ -25,6 +25,7 @@ import com.google.gson.annotations.SerializedName;
 /**
  * Abstract data type to represent music item.
  */
+@SuppressWarnings("unused")
 public class MusicItem {
     // Duration information of current.
     @SerializedName("duration")

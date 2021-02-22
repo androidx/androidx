@@ -16,13 +16,17 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XMethodType
+import androidx.room.compiler.processing.XSuspendMethodType
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XVariableElement
+import androidx.room.compiler.processing.isSuspendFunction
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.T
-import androidx.room.ext.getSuspendFunctionReturnType
-import androidx.room.kotlin.KotlinMetadataElement
 import androidx.room.parser.ParsedQuery
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
@@ -32,58 +36,54 @@ import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.C
 import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
-import androidx.room.solver.transaction.binder.InstantTransactionMethodBinder
 import androidx.room.solver.transaction.binder.CoroutineTransactionMethodBinder
+import androidx.room.solver.transaction.binder.InstantTransactionMethodBinder
 import androidx.room.solver.transaction.binder.TransactionMethodBinder
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import androidx.room.vo.QueryParameter
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.vo.TransactionMethod
-import com.google.auto.common.MoreTypes
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 /**
  *  Delegate class with common functionality for DAO method processors.
  */
 abstract class MethodProcessorDelegate(
     val context: Context,
-    val containing: DeclaredType,
-    val executableElement: ExecutableElement,
-    protected val classMetadata: KotlinMetadataElement?
+    val containing: XType,
+    val executableElement: XMethodElement
 ) {
 
-    abstract fun extractReturnType(): TypeMirror
+    abstract fun extractReturnType(): XType
 
-    abstract fun extractParams(): List<VariableElement>
+    abstract fun extractParams(): List<XVariableElement>
 
-    fun extractQueryParams(): List<QueryParameter> {
-        val kotlinParameterNames = classMetadata?.getParameterNames(executableElement)
-        return extractParams().mapIndexed { index, variableElement ->
+    fun extractQueryParams(query: ParsedQuery): List<QueryParameter> {
+        return extractParams().map { variableElement ->
             QueryParameterProcessor(
                 baseContext = context,
                 containing = containing,
                 element = variableElement,
-                sqlName = kotlinParameterNames?.getOrNull(index)
+                sqlName = variableElement.name,
+                bindVarSection = query.bindSections.firstOrNull {
+                    it.varName == variableElement.name
+                }
             ).process()
         }
     }
 
-    abstract fun findResultBinder(returnType: TypeMirror, query: ParsedQuery): QueryResultBinder
+    abstract fun findResultBinder(returnType: XType, query: ParsedQuery): QueryResultBinder
 
     abstract fun findPreparedResultBinder(
-        returnType: TypeMirror,
+        returnType: XType,
         query: ParsedQuery
     ): PreparedQueryResultBinder
 
     abstract fun findInsertMethodBinder(
-        returnType: TypeMirror,
+        returnType: XType,
         params: List<ShortcutQueryParameter>
     ): InsertMethodBinder
 
-    abstract fun findDeleteOrUpdateMethodBinder(returnType: TypeMirror): DeleteOrUpdateMethodBinder
+    abstract fun findDeleteOrUpdateMethodBinder(returnType: XType): DeleteOrUpdateMethodBinder
 
     abstract fun findTransactionMethodBinder(
         callType: TransactionMethod.CallType
@@ -92,14 +92,13 @@ abstract class MethodProcessorDelegate(
     companion object {
         fun createFor(
             context: Context,
-            containing: DeclaredType,
-            executableElement: ExecutableElement
+            containing: XType,
+            executableElement: XMethodElement
         ): MethodProcessorDelegate {
-            val kotlinMetadata =
-                KotlinMetadataElement.createFor(context, executableElement.enclosingElement)
-            return if (kotlinMetadata?.isSuspendFunction(executableElement) == true) {
-                val hasCoroutineArtifact = context.processingEnv.elementUtils
-                    .getTypeElement(RoomCoroutinesTypeNames.COROUTINES_ROOM.toString()) != null
+            val asMember = executableElement.asMemberOf(containing)
+            return if (asMember.isSuspendFunction()) {
+                val hasCoroutineArtifact = context.processingEnv
+                    .findTypeElement(RoomCoroutinesTypeNames.COROUTINES_ROOM.toString()) != null
                 if (!hasCoroutineArtifact) {
                     context.logger.e(ProcessorErrors.MISSING_ROOM_COROUTINE_ARTIFACT)
                 }
@@ -107,14 +106,14 @@ abstract class MethodProcessorDelegate(
                     context,
                     containing,
                     executableElement,
-                    kotlinMetadata
+                    asMember
                 )
             } else {
                 DefaultMethodProcessorDelegate(
                     context,
                     containing,
                     executableElement,
-                    kotlinMetadata
+                    asMember
                 )
             }
         }
@@ -126,37 +125,37 @@ abstract class MethodProcessorDelegate(
  */
 class DefaultMethodProcessorDelegate(
     context: Context,
-    containing: DeclaredType,
-    executableElement: ExecutableElement,
-    classMetadata: KotlinMetadataElement?
-) : MethodProcessorDelegate(context, containing, executableElement, classMetadata) {
+    containing: XType,
+    executableElement: XMethodElement,
+    val executableType: XMethodType
+) : MethodProcessorDelegate(context, containing, executableElement) {
 
-    override fun extractReturnType(): TypeMirror {
-        val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
-        return MoreTypes.asExecutable(asMember).returnType
+    override fun extractReturnType(): XType {
+        return executableType.returnType
     }
 
     override fun extractParams() = executableElement.parameters
 
-    override fun findResultBinder(returnType: TypeMirror, query: ParsedQuery) =
+    override fun findResultBinder(returnType: XType, query: ParsedQuery) =
         context.typeAdapterStore.findQueryResultBinder(returnType, query)
 
     override fun findPreparedResultBinder(
-        returnType: TypeMirror,
+        returnType: XType,
         query: ParsedQuery
     ) = context.typeAdapterStore.findPreparedQueryResultBinder(returnType, query)
 
     override fun findInsertMethodBinder(
-        returnType: TypeMirror,
+        returnType: XType,
         params: List<ShortcutQueryParameter>
     ) = context.typeAdapterStore.findInsertMethodBinder(returnType, params)
 
-    override fun findDeleteOrUpdateMethodBinder(returnType: TypeMirror) =
+    override fun findDeleteOrUpdateMethodBinder(returnType: XType) =
         context.typeAdapterStore.findDeleteOrUpdateMethodBinder(returnType)
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         InstantTransactionMethodBinder(
-            TransactionMethodAdapter(executableElement.simpleName.toString(), callType))
+            TransactionMethodAdapter(executableElement.name, callType)
+        )
 }
 
 /**
@@ -164,40 +163,37 @@ class DefaultMethodProcessorDelegate(
  */
 class SuspendMethodProcessorDelegate(
     context: Context,
-    containing: DeclaredType,
-    executableElement: ExecutableElement,
-    kotlinMetadata: KotlinMetadataElement
-) : MethodProcessorDelegate(context, containing, executableElement, kotlinMetadata) {
+    containing: XType,
+    executableElement: XMethodElement,
+    val executableType: XSuspendMethodType
+) : MethodProcessorDelegate(context, containing, executableElement) {
 
-    private val continuationParam: VariableElement by lazy {
-        val typesUtil = context.processingEnv.typeUtils
-        val continuationType = typesUtil.erasure(
-            context.processingEnv.elementUtils
-                .getTypeElement(KotlinTypeNames.CONTINUATION.toString())
-                .asType()
-        )
+    private val continuationParam: XVariableElement by lazy {
+        val continuationType = context.processingEnv
+            .requireType(KotlinTypeNames.CONTINUATION.toString()).rawType
         executableElement.parameters.last {
-            typesUtil.isSameType(typesUtil.erasure(it.asType()), continuationType)
+            it.type.rawType == continuationType
         }
     }
 
-    override fun extractReturnType(): TypeMirror {
-        val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
-        return MoreTypes.asExecutable(asMember).getSuspendFunctionReturnType()
+    override fun extractReturnType(): XType {
+        return executableType.getSuspendFunctionReturnType()
     }
 
     override fun extractParams() =
-        executableElement.parameters.filterNot { it == continuationParam }
+        executableElement.parameters.filterNot {
+            it == continuationParam
+        }
 
-    override fun findResultBinder(returnType: TypeMirror, query: ParsedQuery) =
+    override fun findResultBinder(returnType: XType, query: ParsedQuery) =
         CoroutineResultBinder(
             typeArg = returnType,
             adapter = context.typeAdapterStore.findQueryResultAdapter(returnType, query),
-            continuationParamName = continuationParam.simpleName.toString()
+            continuationParamName = continuationParam.name
         )
 
     override fun findPreparedResultBinder(
-        returnType: TypeMirror,
+        returnType: XType,
         query: ParsedQuery
     ) = createPreparedBinder(
         returnType = returnType,
@@ -209,12 +205,12 @@ class SuspendMethodProcessorDelegate(
             dbField,
             "true", // inTransaction
             callableImpl,
-            continuationParam.simpleName.toString()
+            continuationParam.name
         )
     }
 
     override fun findInsertMethodBinder(
-        returnType: TypeMirror,
+        returnType: XType,
         params: List<ShortcutQueryParameter>
     ) = createInsertBinder(
         typeArg = returnType,
@@ -226,11 +222,11 @@ class SuspendMethodProcessorDelegate(
             dbField,
             "true", // inTransaction
             callableImpl,
-            continuationParam.simpleName.toString()
+            continuationParam.name
         )
     }
 
-    override fun findDeleteOrUpdateMethodBinder(returnType: TypeMirror) =
+    override fun findDeleteOrUpdateMethodBinder(returnType: XType) =
         createDeleteOrUpdateBinder(
             typeArg = returnType,
             adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(returnType)
@@ -241,13 +237,13 @@ class SuspendMethodProcessorDelegate(
                 dbField,
                 "true", // inTransaction
                 callableImpl,
-                continuationParam.simpleName.toString()
+                continuationParam.name
             )
         }
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         CoroutineTransactionMethodBinder(
-            adapter = TransactionMethodAdapter(executableElement.simpleName.toString(), callType),
-            continuationParamName = continuationParam.simpleName.toString()
+            adapter = TransactionMethodAdapter(executableElement.name, callType),
+            continuationParamName = continuationParam.name
         )
 }

@@ -16,36 +16,87 @@
 
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ProxyOverrideActivity">
 
+    <LinearLayout
+        android:id="@+id/proxy_override_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/proxy_override_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/proxy_override_set"
+                android:enabled="true"/>
+
+            <CheckBox
+                tools:visibility="visible"
+                android:id="@+id/proxy_override_reverse_bypass_checkbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:visibility="gone"
+                android:checked="false"
+                android:text="@string/proxy_override_reverse_bypass"
+                android:textSize="18sp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/proxy_override_load_url_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/proxy_override_load_url"
+                android:enabled="false"/>
+
+            <Button
+                android:id="@+id/proxy_override_load_bypass_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/proxy_override_load_bypass_url"
+                android:enabled="false"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/proxy_override_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:textSize="22sp"
         android:layout_marginTop="12dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"/>
 
-    <EditText
-        android:id="@+id/proxy_override_edittext"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/proxy_override_textview"
-        android:layout_marginLeft="6dp"
-        android:layout_marginRight="6dp"
-        android:maxLines="1"
-        android:inputType="textUri"
-        android:hint="Type an URL here"/>
-
     <WebView
         android:id="@+id/proxy_override_webview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/proxy_override_edittext" />
+        android:layout_below="@id/proxy_override_buttons"
+        android:layout_above="@id/proxy_override_textview"/>
 
 </RelativeLayout>

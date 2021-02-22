@@ -16,16 +16,16 @@
 
 package androidx.benchmark
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import java.util.concurrent.TimeUnit
 
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class WarmupManagerTest {
 
     @Test
@@ -41,13 +41,15 @@ class WarmupManagerTest {
         // even if values are warming up slowly, we require max warmup duration
         val warmup = WarmupManager()
         warmup.warmupOnFakeData(
-                warmupNeededNs = TimeUnit.SECONDS.toNanos(20),
-                idealDurationNs = TimeUnit.MILLISECONDS.toNanos(5))
+            warmupNeededNs = TimeUnit.SECONDS.toNanos(20),
+            idealDurationNs = TimeUnit.MILLISECONDS.toNanos(5)
+        )
 
         assertApproxEquals(
-                WarmupManager.MAX_DURATION_NS,
-                warmup.totalDuration,
-                TimeUnit.MILLISECONDS.toNanos(100))
+            WarmupManager.MAX_DURATION_NS,
+            warmup.totalDurationNs,
+            TimeUnit.MILLISECONDS.toNanos(100)
+        )
     }
 
     @Test
@@ -68,14 +70,16 @@ class WarmupManagerTest {
 
         // These asserts aren't very tight - the moving average ratios
         // significantly change how fast we detect convergence
-        assertTrue(warmup.totalDuration > TimeUnit.SECONDS.toNanos(2))
-        assertTrue(warmup.totalDuration < TimeUnit.SECONDS.toNanos(6))
+        assertTrue(warmup.totalDurationNs > TimeUnit.SECONDS.toNanos(2))
+        assertTrue(warmup.totalDurationNs < TimeUnit.SECONDS.toNanos(6))
     }
 }
 
 private fun assertApproxEquals(expected: Long, observed: Long, threshold: Long) {
-    assertTrue("Expected: $expected, Observed: $observed, Thresh: $threshold",
-            Math.abs(expected - observed) < threshold)
+    assertTrue(
+        "Expected: $expected, Observed: $observed, Thresh: $threshold",
+        Math.abs(expected - observed) < threshold
+    )
 }
 
 private fun WarmupManager.warmupOnFakeData(warmupNeededNs: Long, idealDurationNs: Long) {
@@ -88,16 +92,16 @@ private fun WarmupManager.warmupOnFakeData(warmupNeededNs: Long, idealDurationNs
 private fun generateFakeResults(warmupNeededNs: Long, idealDurationNs: Long): Sequence<Long> {
     val list = ArrayList<Long>()
 
-    var totalDuration = 0L
-    var currentDuration = idealDurationNs.toFloat()
-    while (totalDuration < warmupNeededNs) {
-        val iterDuration = currentDuration.toLong()
-        list.add(0, iterDuration)
-        totalDuration += iterDuration
-        currentDuration *= 1.003f
+    var totalDurationNs = 0L
+    var currentDurationNs = idealDurationNs.toFloat()
+    while (totalDurationNs < warmupNeededNs) {
+        val iterDurationNs = currentDurationNs.toLong()
+        list.add(0, iterDurationNs)
+        totalDurationNs += iterDurationNs
+        currentDurationNs *= 1.003f
     }
 
     // warmup until warmupNeededNs, then just return idealDurationNs
     return generateSequence(1) { it + 1 }
-            .map { if (it < list.size) list[it] else idealDurationNs }
+        .map { if (it < list.size) list[it] else idealDurationNs }
 }

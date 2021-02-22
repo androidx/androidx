@@ -377,7 +377,7 @@ public class RecyclerViewNestedScrollingChildTest {
         SimpleGestureGeneratorKt
                 .dispatchTouchEvents(mRecyclerView, firstDownTime, motionEventData);
 
-        // Sanity check that onStopNestedScroll has not yet been called of type TYPE_NON_TOUCH.
+        // Assumption check that onStopNestedScroll has not yet been called of type TYPE_NON_TOUCH.
         verify(mParentSpy, never())
                 .onStopNestedScroll(mRecyclerView, ViewCompat.TYPE_NON_TOUCH);
 

@@ -14,34 +14,40 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
     }
+    defaultConfig {
+        testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
+    }
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.collection:collection:1.0.0")
     api("androidx.core:core:1.1.0")
-    api(project(":lifecycle:lifecycle-runtime"))
-    api(project(":lifecycle:lifecycle-viewmodel"))
-    api("androidx.savedstate:savedstate:1.0.0")
-    api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    api("androidx.lifecycle:lifecycle-runtime:2.3.0")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.3.0")
+    api("androidx.savedstate:savedstate:1.1.0")
+    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.0")
+    implementation("androidx.tracing:tracing:1.0.0")
 
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.0")
     androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(LEAKCANARY)
+    androidTestImplementation(LEAKCANARY_INSTRUMENTATION)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation project(':internal-testutils-runtime'), {
-        exclude group: 'androidx.activity', module: 'activity'
-    }
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.activity", module: "activity"
+    })
+
+    lintPublish(project(":activity:activity-lint"))
 }
 
 androidx {
     name = "Activity"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ACTIVITY
     mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2018"
     description = "Provides the base Activity subclass and the relevant hooks to build a composable structure on top."

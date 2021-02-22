@@ -36,6 +36,8 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 
+import java.util.Objects;
+
 /**
  * Utility functions interacting with OpenGL.
  *
@@ -46,11 +48,9 @@ public class GLUtil {
     }
 
     /** Set up a GL context so that GL calls requiring a context can be made. */
-    // TODO(b/141957748): Suppressed during upgrade to AGP 3.6.
-    @SuppressWarnings("ReferenceEquality")
     private static void setupGLContext() {
         EGLDisplay eglDisplay = EGL14.eglGetDisplay(EGL_DEFAULT_DISPLAY);
-        if (eglDisplay == EGL_NO_DISPLAY) {
+        if (Objects.equals(eglDisplay, EGL_NO_DISPLAY)) {
             throw new RuntimeException("Unable to get EGL display.");
         }
         int[] majorVer = new int[1];
@@ -96,7 +96,7 @@ public class GLUtil {
         EGLSurface eglPbuffer =
                 EGL14.eglCreatePbufferSurface(eglDisplay, eglConfig, pbufferAttribs,
                         pbufferAttribsOffset);
-        if (eglPbuffer == EGL_NO_SURFACE) {
+        if (Objects.equals(eglPbuffer, EGL_NO_SURFACE)) {
             throw new RuntimeException("Unable to create pbuffer surface.");
         }
 
@@ -106,7 +106,7 @@ public class GLUtil {
                 EGL14.eglCreateContext(
                         eglDisplay, eglConfig, EGL_NO_CONTEXT, contextAttribs,
                         contextAttribsOffset);
-        if (eglContext == EGL_NO_CONTEXT) {
+        if (Objects.equals(eglContext, EGL_NO_CONTEXT)) {
             throw new RuntimeException("Unable to create EGL context.");
         }
 

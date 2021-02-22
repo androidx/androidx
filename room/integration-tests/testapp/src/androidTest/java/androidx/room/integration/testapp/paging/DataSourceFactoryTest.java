@@ -29,11 +29,11 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 import androidx.room.integration.testapp.test.TestDatabaseTest;
-import androidx.room.integration.testapp.test.TestLifecycleOwner;
 import androidx.room.integration.testapp.test.TestUtil;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.User;
@@ -53,6 +53,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+@SuppressWarnings("deprecation")
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class DataSourceFactoryTest extends TestDatabaseTest {
@@ -109,8 +110,7 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
 
         final LiveData<PagedList<User>> livePagedUsers = factory.create();
 
-        final TestLifecycleOwner testOwner = new TestLifecycleOwner();
-        testOwner.handleEvent(Lifecycle.Event.ON_CREATE);
+        final TestLifecycleOwner testOwner = new TestLifecycleOwner(Lifecycle.State.CREATED);
         drain();
         PagedListObserver<User> observer = new PagedListObserver<>();
 
@@ -118,7 +118,7 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
         assertThat(observer.get(), nullValue());
         observer.reset();
 
-        testOwner.handleEvent(Lifecycle.Event.ON_START);
+        testOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         drain();
 
         final PagedList<User> pagedList1 = observer.get();
@@ -158,10 +158,10 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
         mExecutorRule.drainTasks(60, TimeUnit.SECONDS);
     }
 
+    @SuppressWarnings("unchecked")
     private void observe(final LiveData liveData, final LifecycleOwner provider,
             final Observer observer) throws ExecutionException, InterruptedException {
         FutureTask<Void> futureTask = new FutureTask<>(() -> {
-            //noinspection unchecked
             liveData.observe(provider, observer);
             return null;
         });
@@ -180,7 +180,6 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
 
         PagedListObserver<UserAndAllPets> observer = new PagedListObserver<>();
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
-        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
         observe(liveData, lifecycleOwner, observer);
         drain();
         assertThat(observer.get(), is(Collections.emptyList()));

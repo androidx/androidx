@@ -19,6 +19,8 @@ package androidx.work.impl.model;
 import static androidx.room.OnConflictStrategy.IGNORE;
 import static androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
@@ -34,8 +36,8 @@ import java.util.List;
  * The Data Access Object for {@link WorkSpec}s.
  */
 @Dao
+@SuppressLint("UnknownNullness")
 public interface WorkSpecDao {
-
     /**
      * Attempts to insert a {@link WorkSpec} into the database.
      *
@@ -69,7 +71,6 @@ public interface WorkSpecDao {
     WorkSpec[] getWorkSpecs(List<String> ids);
 
     /**
-     * Retrieves {@link WorkSpec}s labelled with a given name.
      *
      * @param name The work graph name
      * @return The {@link WorkSpec}s labelled with the given name
@@ -83,6 +84,13 @@ public interface WorkSpecDao {
      */
     @Query("SELECT id FROM workspec")
     List<String> getAllWorkSpecIds();
+
+    /**
+     * @return A {@link LiveData} list of all WorkSpec ids in the database.
+     */
+    @Transaction
+    @Query("SELECT id FROM workspec")
+    LiveData<List<String>> getAllWorkSpecIdsLiveData();
 
     /**
      * Updates the state of at least one {@link WorkSpec} by ID.
@@ -267,6 +275,12 @@ public interface WorkSpecDao {
     int markWorkSpecScheduled(@NonNull String id, long startTime);
 
     /**
+     * @return The time at which the {@link WorkSpec} was scheduled.
+     */
+    @Query("SELECT schedule_requested_at FROM workspec WHERE id=:id")
+    LiveData<Long> getScheduleRequestedAtLiveData(@NonNull String id);
+
+    /**
      * Resets the scheduled state on the {@link WorkSpec}s that are not in a a completed state.
      * @return The number of rows that were updated
      */
@@ -292,6 +306,18 @@ public interface WorkSpecDao {
     List<WorkSpec> getEligibleWorkForScheduling(int schedulerLimit);
 
     /**
+     * @return The List of {@link WorkSpec}s that can be scheduled irrespective of scheduling
+     * limits.
+     */
+    @Query("SELECT * FROM workspec WHERE "
+            + "state=" + WorkTypeConverters.StateIds.ENQUEUED
+            // Order by period start time so we execute scheduled WorkSpecs in FIFO order
+            + " ORDER BY period_start_time"
+            + " LIMIT :maxLimit"
+    )
+    List<WorkSpec> getAllEligibleWorkSpecsForScheduling(int maxLimit);
+
+    /**
      * @return The List of {@link WorkSpec}s that are unfinished and scheduled.
      */
     @Query("SELECT * FROM workspec WHERE "
@@ -310,6 +336,16 @@ public interface WorkSpecDao {
             + "state=" + WorkTypeConverters.StateIds.RUNNING
     )
     List<WorkSpec> getRunningWork();
+
+    /**
+     * @return The List of {@link WorkSpec} which completed recently.
+     */
+    @Query("SELECT * FROM workspec WHERE "
+            + "period_start_time >= :startingAt"
+            + " AND state IN " + COMPLETED_STATES
+            + " ORDER BY period_start_time DESC"
+    )
+    List<WorkSpec> getRecentlyCompletedWork(long startingAt);
 
     /**
      * Immediately prunes eligible work from the database meeting the following criteria:

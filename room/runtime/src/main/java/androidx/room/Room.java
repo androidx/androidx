@@ -80,14 +80,17 @@ public class Room {
         String name = klass.getCanonicalName();
         final String postPackageName = fullPackage.isEmpty()
                 ? name
-                : (name.substring(fullPackage.length() + 1));
+                : name.substring(fullPackage.length() + 1);
         final String implName = postPackageName.replace('.', '_') + suffix;
         //noinspection TryWithIdenticalCatches
         try {
 
+            final String fullClassName = fullPackage.isEmpty()
+                    ? implName
+                    : fullPackage + "." + implName;
             @SuppressWarnings("unchecked")
             final Class<T> aClass = (Class<T>) Class.forName(
-                    fullPackage.isEmpty() ? implName : fullPackage + "." + implName);
+                    fullClassName, true, klass.getClassLoader());
             return aClass.newInstance();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("cannot find implementation for "

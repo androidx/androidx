@@ -16,9 +16,11 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
+import androidx.room.ext.isNotNone
 import androidx.room.processor.EntityProcessor.Companion.createIndexName
 import androidx.room.processor.EntityProcessor.Companion.extractForeignKeys
 import androidx.room.processor.EntityProcessor.Companion.extractIndices
@@ -37,17 +39,11 @@ import androidx.room.vo.PrimaryKey
 import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
-import asTypeElement
-import com.google.auto.common.MoreTypes
-import javax.lang.model.element.Name
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeKind
-import javax.lang.model.type.TypeMirror
 
 class TableEntityProcessor internal constructor(
     baseContext: Context,
-    val element: TypeElement,
-    private val referenceStack: LinkedHashSet<Name> = LinkedHashSet()
+    val element: XTypeElement,
+    private val referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ) : EntityProcessor {
     val context = baseContext.fork(element)
 
@@ -58,8 +54,10 @@ class TableEntityProcessor internal constructor(
     }
 
     private fun doProcess(): Entity {
-        context.checker.hasAnnotation(element, androidx.room.Entity::class,
-                ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
+        context.checker.hasAnnotation(
+            element, androidx.room.Entity::class,
+            ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY
+        )
         val annotationBox = element.toAnnotationBox(androidx.room.Entity::class)
         val tableName: String
         val entityIndices: List<IndexInput>
@@ -71,15 +69,19 @@ class TableEntityProcessor internal constructor(
             inheritSuperIndices = annotationBox.value.inheritSuperIndices
             foreignKeyInputs = extractForeignKeys(annotationBox)
         } else {
-            tableName = element.simpleName.toString()
+            tableName = element.name
             foreignKeyInputs = emptyList()
             entityIndices = emptyList()
             inheritSuperIndices = false
         }
-        context.checker.notBlank(tableName, element,
-                ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
-        context.checker.check(!tableName.startsWith("sqlite_", true), element,
-                ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_START_WITH_SQLITE)
+        context.checker.notBlank(
+            tableName, element,
+            ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY
+        )
+        context.checker.check(
+            !tableName.startsWith("sqlite_", true), element,
+            ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_START_WITH_SQLITE
+        )
 
         val pojo = PojoProcessor.createFor(
             context = context,
@@ -91,61 +93,72 @@ class TableEntityProcessor internal constructor(
         context.checker.check(pojo.relations.isEmpty(), element, RELATION_IN_ENTITY)
 
         val fieldIndices = pojo.fields
-                .filter { it.indexed }.mapNotNull {
-                    if (it.parent != null) {
-                        it.indexed = false
-                        context.logger.w(Warning.INDEX_FROM_EMBEDDED_FIELD_IS_DROPPED, it.element,
-                                ProcessorErrors.droppedEmbeddedFieldIndex(
-                                        it.getPath(), element.qualifiedName.toString()))
-                        null
-                    } else if (it.element.enclosingElement != element && !inheritSuperIndices) {
-                        it.indexed = false
-                        context.logger.w(Warning.INDEX_FROM_PARENT_FIELD_IS_DROPPED,
-                                ProcessorErrors.droppedSuperClassFieldIndex(
-                                        it.columnName, element.toString(),
-                                        it.element.enclosingElement.toString()
-                                ))
-                        null
-                    } else {
-                        IndexInput(
-                                name = createIndexName(listOf(it.columnName), tableName),
-                                unique = false,
-                                columnNames = listOf(it.columnName)
+            .filter { it.indexed }.mapNotNull {
+                if (it.parent != null) {
+                    it.indexed = false
+                    context.logger.w(
+                        Warning.INDEX_FROM_EMBEDDED_FIELD_IS_DROPPED, it.element,
+                        ProcessorErrors.droppedEmbeddedFieldIndex(
+                            it.getPath(), element.qualifiedName
                         )
-                    }
+                    )
+                    null
+                } else if (it.element.enclosingTypeElement != element && !inheritSuperIndices) {
+                    it.indexed = false
+                    context.logger.w(
+                        Warning.INDEX_FROM_PARENT_FIELD_IS_DROPPED,
+                        ProcessorErrors.droppedSuperClassFieldIndex(
+                            it.columnName, element.qualifiedName,
+                            it.element.enclosingTypeElement.qualifiedName
+                        )
+                    )
+                    null
+                } else {
+                    IndexInput(
+                        name = createIndexName(listOf(it.columnName), tableName),
+                        unique = false,
+                        columnNames = listOf(it.columnName)
+                    )
                 }
-        val superIndices = loadSuperIndices(element.superclass, tableName, inheritSuperIndices)
+            }
+        val superIndices = loadSuperIndices(element.superType, tableName, inheritSuperIndices)
         val indexInputs = entityIndices + fieldIndices + superIndices
         val indices = validateAndCreateIndices(indexInputs, pojo)
 
         val primaryKey = findAndValidatePrimaryKey(pojo.fields, pojo.embeddedFields)
         val affinity = primaryKey.fields.firstOrNull()?.affinity ?: SQLTypeAffinity.TEXT
         context.checker.check(
-                !primaryKey.autoGenerateId || affinity == SQLTypeAffinity.INTEGER,
-                primaryKey.fields.firstOrNull()?.element ?: element,
-                ProcessorErrors.AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT
+            !primaryKey.autoGenerateId || affinity == SQLTypeAffinity.INTEGER,
+            primaryKey.fields.firstOrNull()?.element ?: element,
+            ProcessorErrors.AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT
         )
 
         val entityForeignKeys = validateAndCreateForeignKeyReferences(foreignKeyInputs, pojo)
         checkIndicesForForeignKeys(entityForeignKeys, primaryKey, indices)
 
-        context.checker.check(SqlParser.isValidIdentifier(tableName), element,
-                ProcessorErrors.INVALID_TABLE_NAME)
+        context.checker.check(
+            SqlParser.isValidIdentifier(tableName), element,
+            ProcessorErrors.INVALID_TABLE_NAME
+        )
         pojo.fields.forEach {
-            context.checker.check(SqlParser.isValidIdentifier(it.columnName), it.element,
-                    ProcessorErrors.INVALID_COLUMN_NAME)
+            context.checker.check(
+                SqlParser.isValidIdentifier(it.columnName), it.element,
+                ProcessorErrors.INVALID_COLUMN_NAME
+            )
         }
 
-        val entity = Entity(element = element,
-                tableName = tableName,
-                type = pojo.type,
-                fields = pojo.fields,
-                embeddedFields = pojo.embeddedFields,
-                indices = indices,
-                primaryKey = primaryKey,
-                foreignKeys = entityForeignKeys,
-                constructor = pojo.constructor,
-                shadowTableName = null)
+        val entity = Entity(
+            element = element,
+            tableName = tableName,
+            type = pojo.type,
+            fields = pojo.fields,
+            embeddedFields = pojo.embeddedFields,
+            indices = indices,
+            primaryKey = primaryKey,
+            foreignKeys = entityForeignKeys,
+            constructor = pojo.constructor,
+            shadowTableName = null
+        )
 
         return entity
     }
@@ -156,9 +169,9 @@ class TableEntityProcessor internal constructor(
         indices: List<Index>
     ) {
         fun covers(columnNames: List<String>, fields: List<Field>): Boolean =
-                fields.size >= columnNames.size && columnNames.withIndex().all {
-                    fields[it.index].columnName == it.value
-                }
+            fields.size >= columnNames.size && columnNames.withIndex().all {
+                fields[it.index].columnName == it.value
+            }
 
         entityForeignKeys.forEach { fKey ->
             val columnNames = fKey.childFields.map { it.columnName }
@@ -167,11 +180,15 @@ class TableEntityProcessor internal constructor(
             }
             if (!exists) {
                 if (columnNames.size == 1) {
-                    context.logger.w(Warning.MISSING_INDEX_ON_FOREIGN_KEY_CHILD, element,
-                            ProcessorErrors.foreignKeyMissingIndexInChildColumn(columnNames[0]))
+                    context.logger.w(
+                        Warning.MISSING_INDEX_ON_FOREIGN_KEY_CHILD, element,
+                        ProcessorErrors.foreignKeyMissingIndexInChildColumn(columnNames[0])
+                    )
                 } else {
-                    context.logger.w(Warning.MISSING_INDEX_ON_FOREIGN_KEY_CHILD, element,
-                            ProcessorErrors.foreignKeyMissingIndexInChildColumns(columnNames))
+                    context.logger.w(
+                        Warning.MISSING_INDEX_ON_FOREIGN_KEY_CHILD, element,
+                        ProcessorErrors.foreignKeyMissingIndexInChildColumns(columnNames)
+                    )
                 }
             }
         }
@@ -202,30 +219,38 @@ class TableEntityProcessor internal constructor(
                 return@map null
             }
             if (it.childColumns.size != it.parentColumns.size) {
-                context.logger.e(element, ProcessorErrors.foreignKeyColumnNumberMismatch(
+                context.logger.e(
+                    element,
+                    ProcessorErrors.foreignKeyColumnNumberMismatch(
                         it.childColumns, it.parentColumns
-                ))
+                    )
+                )
                 return@map null
             }
-            val parentElement = try {
-                MoreTypes.asElement(it.parent) as TypeElement
-            } catch (noClass: IllegalArgumentException) {
+            val parentElement = it.parent.typeElement
+            if (parentElement == null) {
                 context.logger.e(element, ProcessorErrors.FOREIGN_KEY_CANNOT_FIND_PARENT)
                 return@map null
             }
             val parentAnnotation = parentElement.toAnnotationBox(androidx.room.Entity::class)
             if (parentAnnotation == null) {
-                context.logger.e(element,
-                        ProcessorErrors.foreignKeyNotAnEntity(parentElement.toString()))
+                context.logger.e(
+                    element,
+                    ProcessorErrors.foreignKeyNotAnEntity(parentElement.qualifiedName)
+                )
                 return@map null
             }
             val tableName = extractTableName(parentElement, parentAnnotation.value)
             val fields = it.childColumns.mapNotNull { columnName ->
                 val field = pojo.findFieldByColumnName(columnName)
                 if (field == null) {
-                    context.logger.e(pojo.element,
-                            ProcessorErrors.foreignKeyChildColumnDoesNotExist(columnName,
-                                    pojo.columnNames))
+                    context.logger.e(
+                        pojo.element,
+                        ProcessorErrors.foreignKeyChildColumnDoesNotExist(
+                            columnName,
+                            pojo.columnNames
+                        )
+                    )
                 }
                 field
             }
@@ -233,12 +258,12 @@ class TableEntityProcessor internal constructor(
                 return@map null
             }
             ForeignKey(
-                    parentTable = tableName,
-                    childFields = fields,
-                    parentColumns = it.parentColumns,
-                    onDelete = it.onDelete,
-                    onUpdate = it.onUpdate,
-                    deferred = it.deferred
+                parentTable = tableName,
+                childFields = fields,
+                parentColumns = it.parentColumns,
+                onDelete = it.onDelete,
+                onUpdate = it.onUpdate,
+                deferred = it.deferred
             )
         }.filterNotNull()
     }
@@ -248,8 +273,8 @@ class TableEntityProcessor internal constructor(
         embeddedFields: List<EmbeddedField>
     ): PrimaryKey {
         val candidates = collectPrimaryKeysFromEntityAnnotations(element, fields) +
-                collectPrimaryKeysFromPrimaryKeyAnnotations(fields) +
-                collectPrimaryKeysFromEmbeddedFields(embeddedFields)
+            collectPrimaryKeysFromPrimaryKeyAnnotations(fields) +
+            collectPrimaryKeysFromEmbeddedFields(embeddedFields)
 
         context.checker.check(candidates.isNotEmpty(), element, ProcessorErrors.MISSING_PRIMARY_KEY)
 
@@ -258,26 +283,37 @@ class TableEntityProcessor internal constructor(
         // don't force the @NonNull annotation since SQLite will automatically generate IDs.
         // 2. If a key is autogenerate, we generate NOT NULL in table spec, but we don't require
         // @NonNull annotation on the field itself.
-        candidates.filter { candidate -> !candidate.autoGenerateId }
-                .map { candidate ->
-                    candidate.fields.map { field ->
-                        if (candidate.fields.size > 1 ||
-                                (candidate.fields.size == 1 &&
-                                        field.affinity != SQLTypeAffinity.INTEGER)) {
-                            context.checker.check(field.nonNull, field.element,
-                                    ProcessorErrors.primaryKeyNull(field.getPath()))
-                            // Validate parents for nullability
-                            var parent = field.parent
-                            while (parent != null) {
-                                val parentField = parent.field
-                                context.checker.check(parentField.nonNull,
-                                        parentField.element,
-                                        ProcessorErrors.primaryKeyNull(parentField.getPath()))
-                                parent = parentField.parent
-                            }
+        val verifiedFields = mutableSetOf<Field>() // track verified fields to not over report
+        candidates.filterNot { it.autoGenerateId }.forEach { candidate ->
+            candidate.fields.forEach { field ->
+                if (candidate.fields.size > 1 ||
+                    (candidate.fields.size == 1 && field.affinity != SQLTypeAffinity.INTEGER)
+                ) {
+                    if (!verifiedFields.contains(field)) {
+                        context.checker.check(
+                            field.nonNull,
+                            field.element,
+                            ProcessorErrors.primaryKeyNull(field.getPath())
+                        )
+                        verifiedFields.add(field)
+                    }
+                    // Validate parents for nullability
+                    var parent = field.parent
+                    while (parent != null) {
+                        val parentField = parent.field
+                        if (!verifiedFields.contains(parentField)) {
+                            context.checker.check(
+                                parentField.nonNull,
+                                parentField.element,
+                                ProcessorErrors.primaryKeyNull(parentField.getPath())
+                            )
+                            verifiedFields.add(parentField)
                         }
+                        parent = parentField.parent
                     }
                 }
+            }
+        }
 
         if (candidates.size == 1) {
             // easy :)
@@ -298,15 +334,19 @@ class TableEntityProcessor internal constructor(
                     val grandParentField = field.parent.mRootParent.field.element
                     // bound for entity.
                     context.fork(grandParentField).logger.w(
-                            Warning.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED,
-                            grandParentField,
-                            ProcessorErrors.embeddedPrimaryKeyIsDropped(
-                                    element.qualifiedName.toString(), field.name))
+                        Warning.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED,
+                        grandParentField,
+                        ProcessorErrors.embeddedPrimaryKeyIsDropped(
+                            element.qualifiedName, field.name
+                        )
+                    )
                     null
                 } else {
-                    PrimaryKey(declaredIn = field.element.enclosingElement,
-                            fields = Fields(field),
-                            autoGenerateId = it.value.autoGenerate)
+                    PrimaryKey(
+                        declaredIn = field.element.enclosingTypeElement,
+                        fields = Fields(field),
+                        autoGenerateId = it.value.autoGenerate
+                    )
                 }
             }
         }
@@ -316,7 +356,7 @@ class TableEntityProcessor internal constructor(
      * Check classes for @Entity(primaryKeys = ?).
      */
     private fun collectPrimaryKeysFromEntityAnnotations(
-        typeElement: TypeElement,
+        typeElement: XTypeElement,
         availableFields: List<Field>
     ): List<PrimaryKey> {
         val myPkeys = typeElement.toAnnotationBox(androidx.room.Entity::class)?.let {
@@ -326,24 +366,32 @@ class TableEntityProcessor internal constructor(
             } else {
                 val fields = primaryKeyColumns.mapNotNull { pKeyColumnName ->
                     val field = availableFields.firstOrNull { it.columnName == pKeyColumnName }
-                    context.checker.check(field != null, typeElement,
-                            ProcessorErrors.primaryKeyColumnDoesNotExist(pKeyColumnName,
-                                    availableFields.map { it.columnName }))
+                    context.checker.check(
+                        field != null, typeElement,
+                        ProcessorErrors.primaryKeyColumnDoesNotExist(
+                            pKeyColumnName,
+                            availableFields.map { it.columnName }
+                        )
+                    )
                     field
                 }
-                listOf(PrimaryKey(declaredIn = typeElement,
+                listOf(
+                    PrimaryKey(
+                        declaredIn = typeElement,
                         fields = Fields(fields),
-                        autoGenerateId = false))
+                        autoGenerateId = false
+                    )
+                )
             }
         } ?: emptyList()
         // checks supers.
-        val mySuper = typeElement.superclass
-        val superPKeys = if (mySuper != null && mySuper.kind != TypeKind.NONE) {
+        val mySuper = typeElement.superType
+        val superPKeys = if (mySuper != null && mySuper.isNotNone()) {
             // my super cannot see my fields so remove them.
             val remainingFields = availableFields.filterNot {
-                it.element.enclosingElement == typeElement
+                it.element.enclosingTypeElement == typeElement
             }
-            collectPrimaryKeysFromEntityAnnotations(mySuper.asTypeElement(), remainingFields)
+            collectPrimaryKeysFromEntityAnnotations(mySuper.typeElement!!, remainingFields)
         } else {
             emptyList()
         }
@@ -355,12 +403,16 @@ class TableEntityProcessor internal constructor(
     ): List<PrimaryKey> {
         return embeddedFields.mapNotNull { embeddedField ->
             embeddedField.field.element.toAnnotationBox(androidx.room.PrimaryKey::class)?.let {
-                context.checker.check(!it.value.autoGenerate || embeddedField.pojo.fields.size == 1,
-                        embeddedField.field.element,
-                        ProcessorErrors.AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_FIELDS)
-                PrimaryKey(declaredIn = embeddedField.field.element.enclosingElement,
-                        fields = embeddedField.pojo.fields,
-                        autoGenerateId = it.value.autoGenerate)
+                context.checker.check(
+                    !it.value.autoGenerate || embeddedField.pojo.fields.size == 1,
+                    embeddedField.field.element,
+                    ProcessorErrors.AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_FIELDS
+                )
+                PrimaryKey(
+                    declaredIn = embeddedField.field.element.enclosingTypeElement,
+                    fields = embeddedField.pojo.fields,
+                    autoGenerateId = it.value.autoGenerate
+                )
             }
         }
     }
@@ -369,7 +421,7 @@ class TableEntityProcessor internal constructor(
     // pkey, if so, use it.
     private fun choosePrimaryKey(
         candidates: List<PrimaryKey>,
-        typeElement: TypeElement
+        typeElement: XTypeElement
     ): PrimaryKey {
         // If 1 of these primary keys is declared in this class, then it is the winner. Just print
         //    a note for the others.
@@ -381,21 +433,27 @@ class TableEntityProcessor internal constructor(
         return if (myPKeys.size == 1) {
             // just note, this is not worth an error or warning
             (candidates - myPKeys).forEach {
-                context.logger.d(element,
-                        "${it.toHumanReadableString()} is" +
-                                " overridden by ${myPKeys.first().toHumanReadableString()}")
+                context.logger.d(
+                    element,
+                    "${it.toHumanReadableString()} is" +
+                        " overridden by ${myPKeys.first().toHumanReadableString()}"
+                )
             }
             myPKeys.first()
         } else if (myPKeys.isEmpty()) {
             // i have not declared anything, delegate to super
-            val mySuper = typeElement.superclass
-            if (mySuper != null && mySuper.kind != TypeKind.NONE) {
-                return choosePrimaryKey(candidates, mySuper.asTypeElement())
+            val mySuper = typeElement.superType
+            if (mySuper != null && mySuper.isNotNone()) {
+                return choosePrimaryKey(candidates, mySuper.typeElement!!)
             }
             PrimaryKey.MISSING
         } else {
-            context.logger.e(element, ProcessorErrors.multiplePrimaryKeyAnnotations(
-                    myPKeys.map(PrimaryKey::toHumanReadableString)))
+            context.logger.e(
+                element,
+                ProcessorErrors.multiplePrimaryKeyAnnotations(
+                    myPKeys.map(PrimaryKey::toHumanReadableString)
+                )
+            )
             PrimaryKey.MISSING
         }
     }
@@ -406,12 +464,16 @@ class TableEntityProcessor internal constructor(
     ): List<Index> {
         // check for columns
         val indices = inputs.mapNotNull { input ->
-            context.checker.check(input.columnNames.isNotEmpty(), element,
-                    INDEX_COLUMNS_CANNOT_BE_EMPTY)
+            context.checker.check(
+                input.columnNames.isNotEmpty(), element,
+                INDEX_COLUMNS_CANNOT_BE_EMPTY
+            )
             val fields = input.columnNames.mapNotNull { columnName ->
                 val field = pojo.findFieldByColumnName(columnName)
-                context.checker.check(field != null, element,
-                        ProcessorErrors.indexColumnDoesNotExist(columnName, pojo.columnNames))
+                context.checker.check(
+                    field != null, element,
+                    ProcessorErrors.indexColumnDoesNotExist(columnName, pojo.columnNames)
+                )
                 field
             }
             if (fields.isEmpty()) {
@@ -423,11 +485,11 @@ class TableEntityProcessor internal constructor(
 
         // check for duplicate indices
         indices
-                .groupBy { it.name }
-                .filter { it.value.size > 1 }
-                .forEach {
-                    context.logger.e(element, ProcessorErrors.duplicateIndexInEntity(it.key))
-                }
+            .groupBy { it.name }
+            .filter { it.value.size > 1 }
+            .forEach {
+                context.logger.e(element, ProcessorErrors.duplicateIndexInEntity(it.key))
+            }
 
         // see if any embedded field is an entity with indices, if so, report a warning
         pojo.embeddedFields.forEach { embedded ->
@@ -435,11 +497,15 @@ class TableEntityProcessor internal constructor(
             embeddedElement.toAnnotationBox(androidx.room.Entity::class)?.let {
                 val subIndices = extractIndices(it, "")
                 if (subIndices.isNotEmpty()) {
-                    context.logger.w(Warning.INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED,
-                            embedded.field.element, ProcessorErrors.droppedEmbeddedIndex(
+                    context.logger.w(
+                        Warning.INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED,
+                        embedded.field.element,
+                        ProcessorErrors.droppedEmbeddedIndex(
                             entityName = embedded.pojo.typeName.toString(),
                             fieldPath = embedded.field.getPath(),
-                            grandParent = element.qualifiedName.toString()))
+                            grandParent = element.qualifiedName
+                        )
+                    )
                 }
             }
         }
@@ -448,36 +514,45 @@ class TableEntityProcessor internal constructor(
 
     // check if parent is an Entity, if so, report its annotation indices
     private fun loadSuperIndices(
-        typeMirror: TypeMirror?,
+        typeMirror: XType?,
         tableName: String,
         inherit: Boolean
     ): List<IndexInput> {
-        if (typeMirror == null || typeMirror.kind == TypeKind.NONE) {
+        if (typeMirror == null || typeMirror.isNone()) {
             return emptyList()
         }
-        val parentElement = typeMirror.asTypeElement()
-        val myIndices = parentElement
-                .toAnnotationBox(androidx.room.Entity::class)?.let { annotation ->
-            val indices = extractIndices(annotation, tableName = "super")
-            if (indices.isEmpty()) {
-                emptyList()
-            } else if (inherit) {
-                // rename them
-                indices.map {
-                    IndexInput(
+        val parentTypeElement = typeMirror.typeElement
+        @Suppress("FoldInitializerAndIfToElvis")
+        if (parentTypeElement == null) {
+            // this is coming from a parent, shouldn't happen so no reason to report an error
+            return emptyList()
+        }
+        val myIndices = parentTypeElement
+            .toAnnotationBox(androidx.room.Entity::class)?.let { annotation ->
+                val indices = extractIndices(annotation, tableName = "super")
+                if (indices.isEmpty()) {
+                    emptyList()
+                } else if (inherit) {
+                    // rename them
+                    indices.map {
+                        IndexInput(
                             name = createIndexName(it.columnNames, tableName),
                             unique = it.unique,
-                            columnNames = it.columnNames)
-                }
-            } else {
-                context.logger.w(Warning.INDEX_FROM_PARENT_IS_DROPPED,
-                        parentElement,
+                            columnNames = it.columnNames
+                        )
+                    }
+                } else {
+                    context.logger.w(
+                        Warning.INDEX_FROM_PARENT_IS_DROPPED,
+                        parentTypeElement,
                         ProcessorErrors.droppedSuperClassIndex(
-                                childEntity = element.qualifiedName.toString(),
-                                superEntity = parentElement.qualifiedName.toString()))
-                emptyList()
-            }
-        } ?: emptyList()
-        return myIndices + loadSuperIndices(parentElement.superclass, tableName, inherit)
+                            childEntity = element.qualifiedName,
+                            superEntity = parentTypeElement.qualifiedName
+                        )
+                    )
+                    emptyList()
+                }
+            } ?: emptyList()
+        return myIndices + loadSuperIndices(parentTypeElement.superType, tableName, inherit)
     }
 }

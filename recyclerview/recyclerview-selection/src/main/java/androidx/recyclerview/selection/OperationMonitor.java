@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.selection;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 import static androidx.recyclerview.selection.Shared.DEBUG;
@@ -24,6 +25,7 @@ import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,17 +47,33 @@ public final class OperationMonitor {
 
     private static final String TAG = "OperationMonitor";
 
+    private final List<OnChangeListener> mListeners = new ArrayList<>();
+
+    // Ideally OperationMonitor would implement Resettable
+    // directly, but Metalava couldn't understand that
+    // `OperationMonitor` was public API while `Resettable` was
+    // not. This is our clever workaround :)
+    private final Resettable mResettable = new Resettable() {
+
+        @Override
+        public boolean isResetRequired() {
+            return OperationMonitor.this.isResetRequired();
+        }
+
+        @Override
+        public void reset() {
+            OperationMonitor.this.reset();
+        }
+    };
+
     private int mNumOps = 0;
-    private List<OnChangeListener> mListeners = new ArrayList<>();
 
     @MainThread
     synchronized void start() {
         mNumOps++;
 
         if (mNumOps == 1) {
-            for (OnChangeListener l : mListeners) {
-                l.onChanged();
-            }
+            notifyStateChanged();
         }
 
         if (DEBUG) Log.v(TAG, "Incremented content lock count to " + mNumOps + ".");
@@ -63,29 +81,46 @@ public final class OperationMonitor {
 
     @MainThread
     synchronized void stop() {
-        checkState(mNumOps > 0);
+        if (mNumOps == 0) {
+            if (DEBUG) Log.w(TAG, "Stop called whith opt count of 0.");
+            return;
+        }
 
         mNumOps--;
         if (DEBUG) Log.v(TAG, "Decremented content lock count to " + mNumOps + ".");
 
         if (mNumOps == 0) {
-            for (OnChangeListener l : mListeners) {
-                l.onChanged();
-            }
+            notifyStateChanged();
         }
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    @MainThread
+    synchronized void reset() {
+        if (DEBUG) Log.d(TAG, "Received reset request.");
+        if (mNumOps > 0) {
+            Log.w(TAG, "Resetting OperationMonitor with " + mNumOps + " active operations.");
+        }
+        mNumOps = 0;
+        notifyStateChanged();
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    synchronized boolean isResetRequired() {
+        return isStarted();
     }
 
     /**
      * @return true if there are any running operations.
      */
-    @SuppressWarnings("unused")
     public synchronized boolean isStarted() {
         return mNumOps > 0;
     }
 
     /**
      * Registers supplied listener to be notified when operation status changes.
-     * @param listener
      */
     public void addListener(@NonNull OnChangeListener listener) {
         checkArgument(listener != null);
@@ -94,7 +129,6 @@ public final class OperationMonitor {
 
     /**
      * Unregisters listener for further notifications.
-     * @param listener
      */
     public void removeListener(@NonNull OnChangeListener listener) {
         checkArgument(listener != null);
@@ -104,15 +138,27 @@ public final class OperationMonitor {
     /**
      * Allows other selection code to perform a precondition check asserting the state is locked.
      */
-    void checkStarted() {
-        checkState(mNumOps > 0);
+    void checkStarted(boolean started) {
+        if (started) {
+            checkState(mNumOps > 0);
+        } else {
+            checkState(mNumOps == 0);
+        }
+    }
+
+    private void notifyStateChanged() {
+        for (OnChangeListener l : mListeners) {
+            l.onChanged();
+        }
     }
 
     /**
-     * Allows other selection code to perform a precondition check asserting the state is unlocked.
+     * Work around b/139109223.
+     * @hide
      */
-    void checkStopped() {
-        checkState(mNumOps == 0);
+    @RestrictTo(LIBRARY)
+    @NonNull Resettable asResettable() {
+        return mResettable;
     }
 
     /**

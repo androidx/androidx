@@ -26,8 +26,8 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -140,7 +140,7 @@ public class FontsContractCompatTest {
     public void testGetFontFromProvider_resultOK() {
         FontRequest request = new FontRequest(
                 AUTHORITY, PACKAGE, MockFontProvider.SINGLE_FONT_FAMILY2_QUERY, SIGNATURE);
-        FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
+        FontInfo[] fonts = FontProvider.query(
                 mContext, request, AUTHORITY, null);
         assertNotNull(fonts);
         assertEquals(1, fonts.length);
@@ -156,7 +156,7 @@ public class FontsContractCompatTest {
     public void testGetFontFromProvider_providerDoesntReturnAllFields() {
         FontRequest request = new FontRequest(
                 AUTHORITY, PACKAGE, MockFontProvider.MANDATORY_FIELDS_ONLY_QUERY, SIGNATURE);
-        FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
+        FontInfo[] fonts = FontProvider.query(
                 mContext, request, AUTHORITY, null);
         assertNotNull(fonts);
         assertEquals(1, fonts.length);
@@ -169,7 +169,7 @@ public class FontsContractCompatTest {
     public void testGetFontFromProvider_resultFontNotFound() {
         FontRequest request = new FontRequest(
                 AUTHORITY, PACKAGE, MockFontProvider.NOT_FOUND_QUERY, SIGNATURE);
-        FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
+        FontInfo[] fonts = FontProvider.query(
                 mContext, request, AUTHORITY, null);
         assertNotNull(fonts);
         assertEquals(1, fonts.length);
@@ -181,7 +181,7 @@ public class FontsContractCompatTest {
     public void testGetFontFromProvider_resultFontUnavailable() {
         FontRequest request = new FontRequest(
                 AUTHORITY, PACKAGE, MockFontProvider.UNAVAILABLE_QUERY, SIGNATURE);
-        FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
+        FontInfo[] fonts = FontProvider.query(
                 mContext, request, AUTHORITY, null);
 
         assertNotNull(fonts);
@@ -194,7 +194,7 @@ public class FontsContractCompatTest {
     public void testGetFontFromProvider_resultMalformedQuery() {
         FontRequest request = new FontRequest(
                 AUTHORITY, PACKAGE, MockFontProvider.MALFORMED_QUERY, SIGNATURE);
-        FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
+        FontInfo[] fonts = FontProvider.query(
                 mContext, request, AUTHORITY, null);
 
         assertNotNull(fonts);
@@ -207,7 +207,7 @@ public class FontsContractCompatTest {
     public void testGetFontFromProvider_resultFontNotFoundSecondRow() {
         FontRequest request = new FontRequest(
                 AUTHORITY, PACKAGE, MockFontProvider.NOT_FOUND_SECOND_QUERY, SIGNATURE);
-        FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
+        FontInfo[] fonts = FontProvider.query(
                 mContext, request, AUTHORITY, null);
 
         assertNotNull(fonts);
@@ -224,7 +224,7 @@ public class FontsContractCompatTest {
     public void testGetFontFromProvider_resultFontNotFoundOtherRow() {
         FontRequest request = new FontRequest(
                 AUTHORITY, PACKAGE, MockFontProvider.NOT_FOUND_THIRD_QUERY, SIGNATURE);
-        FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
+        FontInfo[] fonts = FontProvider.query(
                 mContext, request, AUTHORITY, null);
 
         assertNotNull(fonts);
@@ -243,7 +243,7 @@ public class FontsContractCompatTest {
     public void testGetFontFromProvider_resultCodeIsNegativeNumber() {
         FontRequest request = new FontRequest(
                 AUTHORITY, PACKAGE, MockFontProvider.NEGATIVE_ERROR_CODE_QUERY, SIGNATURE);
-        FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
+        FontInfo[] fonts = FontProvider.query(
                 mContext, request, AUTHORITY, null);
 
 
@@ -260,7 +260,7 @@ public class FontsContractCompatTest {
 
         FontRequest request = new FontRequest(AUTHORITY, PACKAGE, "query", SIGNATURE);
         try {
-            FontsContractCompat.getProvider(packageManager, request, null);
+            FontProvider.getProvider(packageManager, request, null);
             fail();
         } catch (NameNotFoundException e) {
             // pass
@@ -275,7 +275,7 @@ public class FontsContractCompatTest {
         List<List<byte[]>> emptyList = Collections.emptyList();
 
         FontRequest request = new FontRequest(AUTHORITY, PACKAGE, "query", emptyList);
-        assertNull(FontsContractCompat.getProvider(packageManager, request, null));
+        assertNull(FontProvider.getProvider(packageManager, request, null));
     }
 
     @Test
@@ -289,7 +289,7 @@ public class FontsContractCompatTest {
         FontRequest requestWrongCerts = new FontRequest(
                 AUTHORITY, PACKAGE, "query", Arrays.asList(certList));
 
-        assertNull(FontsContractCompat.getProvider(packageManager, requestWrongCerts, null));
+        assertNull(FontProvider.getProvider(packageManager, requestWrongCerts, null));
     }
 
     @Test
@@ -302,7 +302,7 @@ public class FontsContractCompatTest {
         FontRequest requestRightCerts = new FontRequest(
                 AUTHORITY, PACKAGE, "query", Arrays.asList(certList));
         ProviderInfo result =
-                FontsContractCompat.getProvider(packageManager, requestRightCerts, null);
+                FontProvider.getProvider(packageManager, requestRightCerts, null);
 
         assertEquals(info, result);
     }
@@ -317,7 +317,7 @@ public class FontsContractCompatTest {
         List<byte[]> certList = Arrays.asList(wrongCert, BYTE_ARRAY);
         FontRequest requestRightCerts = new FontRequest(
                 AUTHORITY, PACKAGE, "query", Arrays.asList(certList));
-        assertNull(FontsContractCompat.getProvider(packageManager, requestRightCerts, null));
+        assertNull(FontProvider.getProvider(packageManager, requestRightCerts, null));
     }
 
     @Test
@@ -339,7 +339,7 @@ public class FontsContractCompatTest {
         List<byte[]> certList = Arrays.asList(BYTE_ARRAY_2, BYTE_ARRAY_COPY);
         FontRequest requestRightCerts = new FontRequest(
                 AUTHORITY, PACKAGE, "query", Arrays.asList(certList));
-        assertNull(FontsContractCompat.getProvider(packageManager, requestRightCerts, null));
+        assertNull(FontProvider.getProvider(packageManager, requestRightCerts, null));
     }
 
     @Test
@@ -354,7 +354,7 @@ public class FontsContractCompatTest {
         certList.add(Arrays.asList(BYTE_ARRAY));
         FontRequest requestRightCerts = new FontRequest(AUTHORITY, PACKAGE, "query", certList);
         ProviderInfo result =
-                FontsContractCompat.getProvider(packageManager, requestRightCerts, null);
+                FontProvider.getProvider(packageManager, requestRightCerts, null);
 
         assertEquals(info, result);
     }
@@ -369,7 +369,7 @@ public class FontsContractCompatTest {
         FontRequest requestRightCerts = new FontRequest(
                 AUTHORITY, "com.wrong.package.name", "query", certList);
         try {
-            FontsContractCompat.getProvider(packageManager, requestRightCerts, null);
+            FontProvider.getProvider(packageManager, requestRightCerts, null);
             fail();
         } catch (NameNotFoundException e) {
             // pass
@@ -402,7 +402,7 @@ public class FontsContractCompatTest {
         inst.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                FontsContractCompat.getFontSync(mContext, request, callback, null,
+                FontsContractCompat.getFont(mContext, request, callback, null,
                         false /* isBlockingFetch */, 300 /* timeout */, Typeface.NORMAL);
             }
         });

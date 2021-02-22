@@ -25,14 +25,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-android {
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
-        }
-    }
-}
-
 dependencies {
     api(project(":palette:palette"))
     api(KOTLIN_STDLIB)
@@ -45,7 +37,6 @@ dependencies {
 androidx {
     name = "Palette Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.PALETTE
     mavenGroup = LibraryGroups.PALETTE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'palette' artifact"

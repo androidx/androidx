@@ -68,6 +68,7 @@ class GhostViewPort extends ViewGroup implements GhostView {
         super(view.getContext());
         mView = view;
         setWillNotDraw(false);
+        setClipChildren(false);
         setLayerType(LAYER_TYPE_HARDWARE, null);
     }
 

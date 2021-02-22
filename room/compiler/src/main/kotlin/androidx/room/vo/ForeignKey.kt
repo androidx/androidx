@@ -31,19 +31,19 @@ data class ForeignKey(
 ) : HasSchemaIdentity {
     override fun getIdKey(): String {
         return parentTable +
-                "-${parentColumns.joinToString(",")}" +
-                "-${childFields.joinToString(",") {it.columnName}}" +
-                "-${onDelete.sqlName}" +
-                "-${onUpdate.sqlName}" +
-                "-$deferred"
+            "-${parentColumns.joinToString(",")}" +
+            "-${childFields.joinToString(",") {it.columnName}}" +
+            "-${onDelete.sqlName}" +
+            "-${onUpdate.sqlName}" +
+            "-$deferred"
     }
 
     fun databaseDefinition(): String {
         return "FOREIGN KEY(${joinEscaped(childFields.map { it.columnName })})" +
-                " REFERENCES `$parentTable`(${joinEscaped(parentColumns)})" +
-                " ON UPDATE ${onUpdate.sqlName}" +
-                " ON DELETE ${onDelete.sqlName}" +
-                " ${deferredDeclaration()}"
+            " REFERENCES `$parentTable`(${joinEscaped(parentColumns)})" +
+            " ON UPDATE ${onUpdate.sqlName}" +
+            " ON DELETE ${onDelete.sqlName}" +
+            " ${deferredDeclaration()}"
     }
 
     private fun deferredDeclaration(): String {
@@ -57,8 +57,8 @@ data class ForeignKey(
     private fun joinEscaped(values: Iterable<String>) = values.joinToString(", ") { "`$it`" }
 
     fun toBundle(): ForeignKeyBundle = ForeignKeyBundle(
-            parentTable, onDelete.sqlName, onUpdate.sqlName,
-            childFields.map { it.columnName },
-            parentColumns
+        parentTable, onDelete.sqlName, onUpdate.sqlName,
+        childFields.map { it.columnName },
+        parentColumns
     )
 }

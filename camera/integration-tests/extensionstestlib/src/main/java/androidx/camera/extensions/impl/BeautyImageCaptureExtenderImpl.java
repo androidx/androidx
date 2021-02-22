@@ -49,6 +49,8 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     private static final String TAG = "BeautyICExtender";
     private static final int DEFAULT_STAGE_ID = 0;
     private static final int SESSION_STAGE_ID = 101;
+    private static final int EFFECT = CaptureRequest.CONTROL_EFFECT_MODE_NEGATIVE;
+
     private CameraCharacteristics mCameraCharacteristics;
 
     public BeautyImageCaptureExtenderImpl() {
@@ -63,15 +65,22 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @Nullable CameraCharacteristics cameraCharacteristics) {
         // Requires API 23 for ImageWriter
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return false;
+        }
+
+        if (cameraCharacteristics == null) {
+            return false;
+        }
+
+        return CameraCharacteristicAvailability.isEffectAvailable(cameraCharacteristics, EFFECT);
     }
 
     @Override
     public List<CaptureStageImpl> getCaptureStages() {
         // Placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_NEGATIVE);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE, EFFECT);
         List<CaptureStageImpl> captureStages = new ArrayList<>();
         captureStages.add(captureStage);
         return captureStages;
@@ -150,8 +159,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_NEGATIVE);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE, EFFECT);
 
         return captureStage;
     }
@@ -161,8 +169,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_NEGATIVE);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE, EFFECT);
 
         return captureStage;
     }
@@ -172,8 +179,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_NEGATIVE);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE, EFFECT);
 
         return captureStage;
     }

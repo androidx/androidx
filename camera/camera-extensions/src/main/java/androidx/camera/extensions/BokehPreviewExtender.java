@@ -16,10 +16,10 @@
 
 package androidx.camera.extensions;
 
-import android.util.Log;
-
-import androidx.camera.core.PreviewConfig;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
+import androidx.annotation.NonNull;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.Logger;
+import androidx.camera.core.Preview;
 import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
 
 /**
@@ -32,14 +32,15 @@ public class BokehPreviewExtender extends PreviewExtender {
      * Create a new instance of the bokeh extender.
      *
      * @param builder Builder that will be used to create the configurations for the
-     * {@link androidx.camera.core.Preview}.
+     *                {@link androidx.camera.core.Preview}.
      */
-    public static BokehPreviewExtender create(PreviewConfig.Builder builder) {
+    @NonNull
+    public static BokehPreviewExtender create(@NonNull Preview.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorBokehPreviewExtender(builder);
             } catch (NoClassDefFoundError e) {
-                Log.d(TAG, "No bokeh preview extender found. Falling back to default.");
+                Logger.d(TAG, "No bokeh preview extender found. Falling back to default.");
             }
         }
 
@@ -52,12 +53,12 @@ public class BokehPreviewExtender extends PreviewExtender {
         }
 
         @Override
-        public boolean isExtensionAvailable() {
+        public boolean isExtensionAvailable(@NonNull CameraSelector selector) {
             return false;
         }
 
         @Override
-        public void enableExtension() {
+        public void enableExtension(@NonNull CameraSelector selector) {
         }
     }
 
@@ -65,11 +66,12 @@ public class BokehPreviewExtender extends PreviewExtender {
     private static class VendorBokehPreviewExtender extends BokehPreviewExtender {
         private final BokehPreviewExtenderImpl mImpl;
 
-        VendorBokehPreviewExtender(PreviewConfig.Builder builder) {
+        VendorBokehPreviewExtender(Preview.Builder builder) {
             mImpl = new BokehPreviewExtenderImpl();
-            init(builder, mImpl, EffectMode.BOKEH);
+            init(builder, mImpl, Extensions.EXTENSION_MODE_BOKEH);
         }
     }
 
-    private BokehPreviewExtender() {}
+    private BokehPreviewExtender() {
+    }
 }

@@ -34,7 +34,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":textclassifier"))
+    implementation(project(":textclassifier:textclassifier"))
+    implementation(project(":core:core"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

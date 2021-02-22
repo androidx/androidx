@@ -16,19 +16,28 @@
 
 package androidx.camera.testing.fakes;
 
+import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
+import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
+
 import android.graphics.Rect;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.camera.core.CameraCaptureCallback;
-import androidx.camera.core.CameraCaptureFailure;
-import androidx.camera.core.CameraCaptureResult;
-import androidx.camera.core.CameraControlInternal;
-import androidx.camera.core.CaptureConfig;
-import androidx.camera.core.FlashMode;
+import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
-import androidx.camera.core.SessionConfig;
+import androidx.camera.core.FocusMeteringResult;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Logger;
+import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureFailure;
+import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.CameraControlInternal;
+import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.utils.futures.Futures;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,10 +50,11 @@ public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
     private final ControlUpdateCallback mControlUpdateCallback;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
-    private boolean mIsTorchOn = false;
-    private FlashMode mFlashMode = FlashMode.OFF;
+    @ImageCapture.FlashMode
+    private int mFlashMode = FLASH_MODE_OFF;
     private ArrayList<CaptureConfig> mSubmittedCaptureRequests = new ArrayList<>();
     private OnNewCaptureRequestListener mOnNewCaptureRequestListener;
+    private MutableOptionsBundle mInteropConfig = MutableOptionsBundle.create();
 
     public FakeCameraControl(@NonNull ControlUpdateCallback controlUpdateCallback) {
         mControlUpdateCallback = controlUpdateCallback;
@@ -85,50 +95,51 @@ public final class FakeCameraControl implements CameraControlInternal {
         mSubmittedCaptureRequests.clear();
     }
 
-
+    @ImageCapture.FlashMode
     @Override
-    public void setCropRegion(@Nullable final Rect crop) {
-        Log.d(TAG, "setCropRegion(" + crop + ")");
-    }
-
-    @NonNull
-    @Override
-    public FlashMode getFlashMode() {
+    public int getFlashMode() {
         return mFlashMode;
     }
 
     @Override
-    public void setFlashMode(@NonNull FlashMode flashMode) {
+    public void setFlashMode(@ImageCapture.FlashMode int flashMode) {
         mFlashMode = flashMode;
-        Log.d(TAG, "setFlashMode(" + mFlashMode + ")");
+        Logger.d(TAG, "setFlashMode(" + mFlashMode + ")");
     }
 
     @Override
-    public void enableTorch(boolean torch) {
-        mIsTorchOn = torch;
-        Log.d(TAG, "enableTorch(" + torch + ")");
+    @NonNull
+    public ListenableFuture<Void> enableTorch(boolean torch) {
+        Logger.d(TAG, "enableTorch(" + torch + ")");
+        return Futures.immediateFuture(null);
     }
 
     @Override
-    public boolean isTorchOn() {
-        return mIsTorchOn;
+    @NonNull
+    public ListenableFuture<CameraCaptureResult> triggerAf() {
+        Logger.d(TAG, "triggerAf()");
+        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
     }
 
     @Override
-    public void triggerAf() {
-        Log.d(TAG, "triggerAf()");
-    }
-
-    @Override
-    public void triggerAePrecapture() {
-        Log.d(TAG, "triggerAePrecapture()");
+    @NonNull
+    public ListenableFuture<CameraCaptureResult> triggerAePrecapture() {
+        Logger.d(TAG, "triggerAePrecapture()");
+        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
     }
 
     @Override
     public void cancelAfAeTrigger(final boolean cancelAfTrigger,
             final boolean cancelAePrecaptureTrigger) {
-        Log.d(TAG, "cancelAfAeTrigger(" + cancelAfTrigger + ", "
+        Logger.d(TAG, "cancelAfAeTrigger(" + cancelAfTrigger + ", "
                 + cancelAePrecaptureTrigger + ")");
+    }
+
+    @NonNull
+    @Override
+    @ExperimentalExposureCompensation
+    public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
+        return Futures.immediateFuture(null);
     }
 
     @Override
@@ -140,21 +151,64 @@ public final class FakeCameraControl implements CameraControlInternal {
         }
     }
 
+    @NonNull
+    @Override
+    public Rect getSensorRect() {
+        return new Rect(0, 0, MAX_OUTPUT_SIZE.getWidth(), MAX_OUTPUT_SIZE.getHeight());
+    }
+
     private void updateSessionConfig() {
         mControlUpdateCallback.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
     }
 
+    @NonNull
     @Override
-    public void startFocusAndMetering(@NonNull FocusMeteringAction action) {
+    public ListenableFuture<FocusMeteringResult> startFocusAndMetering(
+            @NonNull FocusMeteringAction action) {
+        return Futures.immediateFuture(FocusMeteringResult.emptyInstance());
     }
 
+    @NonNull
     @Override
-    public void cancelFocusAndMetering() {
+    public ListenableFuture<Void> cancelFocusAndMetering() {
+        return Futures.immediateFuture(null);
     }
 
     /** Sets a listener to be notified when there are new capture request submitted */
     public void setOnNewCaptureRequestListener(@NonNull OnNewCaptureRequestListener listener) {
         mOnNewCaptureRequestListener = listener;
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> setZoomRatio(float ratio) {
+        return Futures.immediateFuture(null);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> setLinearZoom(float linearZoom) {
+        return Futures.immediateFuture(null);
+    }
+
+    @Override
+    public void addInteropConfig(@NonNull Config config) {
+        for (Config.Option<?> option : config.listOptions()) {
+            @SuppressWarnings("unchecked")
+            Config.Option<Object> objectOpt = (Config.Option<Object>) option;
+            mInteropConfig.insertOption(objectOpt, config.retrieveOption(objectOpt));
+        }
+    }
+
+    @Override
+    public void clearInteropConfig() {
+        mInteropConfig = MutableOptionsBundle.create();
+    }
+
+    @NonNull
+    @Override
+    public Config getInteropConfig() {
+        return mInteropConfig;
     }
 
     /** A listener which are used to notify when there are new submitted capture requests */

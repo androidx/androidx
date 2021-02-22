@@ -34,12 +34,13 @@ import androidx.slice.Slice;
 import androidx.slice.core.SliceActionImpl;
 
 /**
- * Class representing an action, supports tappable icons, custom toggle icons, and default toggles.
+ * Class representing an action, supports tappable icons, custom toggle icons, and default
+ * toggles, as well as date and time pickers.
  */
 @RequiresApi(19)
 public class SliceAction implements androidx.slice.core.SliceAction {
 
-    private SliceActionImpl mSliceAction;
+    private final SliceActionImpl mSliceAction;
 
     /**
      * @hide
@@ -143,6 +144,21 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     }
 
     /**
+     * Construct a SliceAction representing a default date or time picker.
+     *
+     * @param action         the pending intent to invoke for this date picker.
+     * @param actionTitle    the timestamp for this date or time picker.
+     * @param dateTimeMillis the default state of the date or time picker.
+     * @param isDatePicker   if it is a date picker, as opposed to a time picker.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public SliceAction(@NonNull PendingIntent action, @NonNull CharSequence actionTitle,
+            long dateTimeMillis, boolean isDatePicker) {
+        mSliceAction = new SliceActionImpl(action, actionTitle, dateTimeMillis, isDatePicker);
+    }
+
+    /**
      * Construct a SliceAction representing a tappable icon.
      *
      * @param action the pending intent to invoke for this action.
@@ -178,6 +194,36 @@ public class SliceAction implements androidx.slice.core.SliceAction {
             @NonNull IconCompat actionIcon, @ListBuilder.ImageMode int imageMode,
             @NonNull CharSequence actionTitle) {
         return new SliceAction(action.toPendingIntent(), actionIcon, imageMode, actionTitle);
+    }
+
+    /**
+     * Construct a SliceAction representing a timestamp connected to a date picker.
+     * Currently only supported in GridRow.
+     *
+     * @param action         the pending intent to invoke for this picker.
+     * @param actionTitle    the timestamp title for this picker.
+     * @param dateTimeMillis the default state of the date picker.
+     * @hide
+     */
+    @NonNull
+    public static SliceAction createDatePicker(@NonNull PendingIntent action,
+            @NonNull CharSequence actionTitle, long dateTimeMillis) {
+        return new SliceAction(action, actionTitle, dateTimeMillis, true);
+    }
+
+    /**
+     * Construct a SliceAction representing a timestamp connected to a time picker.
+     * Currently only supported in GridRow.
+     *
+     * @param action         the pending intent to invoke for this picker.
+     * @param actionTitle    the timestamp title for this picker.
+     * @param dateTimeMillis the default state of the time picker.
+     * @hide
+     */
+    @NonNull
+    public static SliceAction createTimePicker(@NonNull PendingIntent action,
+            @NonNull CharSequence actionTitle, long dateTimeMillis) {
+        return new SliceAction(action, actionTitle, dateTimeMillis, false);
     }
 
     /**
@@ -313,6 +359,16 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     }
 
     /**
+     * Sets the key of this action to provide extra information to the host renderer.
+     */
+    @NonNull
+    @Override
+    public SliceAction setKey(@NonNull String key) {
+        mSliceAction.setKey(key);
+        return this;
+    }
+
+    /**
      * @return the {@link PendingIntent} associated with this action.
      */
     @NonNull
@@ -360,6 +416,15 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     @Override
     public int getPriority() {
         return mSliceAction.getPriority();
+    }
+
+    /**
+     * @return the key associated with this action.
+     */
+    @Nullable
+    @Override
+    public String getKey() {
+        return mSliceAction.getKey();
     }
 
     /**

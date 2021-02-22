@@ -87,6 +87,7 @@ public class ImageProcessingWorker extends Worker {
         return Result.success();
     }
 
+    @SuppressWarnings("CatchAndPrintStackTrace")
     private Bitmap retrieveImage(String uriString) {
         Uri uri = Uri.parse(uriString);
         InputStream inputStream = null;
@@ -123,6 +124,7 @@ public class ImageProcessingWorker extends Worker {
         }
     }
 
+    @SuppressWarnings("CatchAndPrintStackTrace")
     private String compressImage(Bitmap bitmap) {
         FileOutputStream os = null;
         try {

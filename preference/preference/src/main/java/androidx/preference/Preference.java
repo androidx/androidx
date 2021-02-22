@@ -586,7 +586,9 @@ public class Preference implements Comparable<Preference> {
         itemView.setOnCreateContextMenuListener(copyingEnabled ? mOnCopyListener : null);
         itemView.setLongClickable(copyingEnabled);
 
-        // Remove touch ripple if the view isn't selectable
+        // Remove touch ripple if copying is enabled and the view isn't selectable. This is
+        // needed as enabling copying requires the view to be `clickable`, but we only care about
+        // long clicks, and not normal clicks.
         if (copyingEnabled && !selectable) {
             ViewCompat.setBackground(itemView, null);
         }
@@ -654,7 +656,7 @@ public class Preference implements Comparable<Preference> {
      * @param title The title for this preference
      */
     public void setTitle(CharSequence title) {
-        if ((title == null && mTitle != null) || (title != null && !title.equals(mTitle))) {
+        if (!TextUtils.equals(title, mTitle)) {
             mTitle = title;
             notifyChanged();
         }

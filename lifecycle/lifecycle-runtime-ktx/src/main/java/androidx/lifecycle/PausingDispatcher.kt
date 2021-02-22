@@ -19,7 +19,6 @@ package androidx.lifecycle
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.withContext
@@ -31,7 +30,7 @@ import kotlin.coroutines.CoroutineContext
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-suspend fun <T> LifecycleOwner.whenCreated(block: suspend CoroutineScope.() -> T): T =
+public suspend fun <T> LifecycleOwner.whenCreated(block: suspend CoroutineScope.() -> T): T =
     lifecycle.whenCreated(block)
 
 /**
@@ -39,7 +38,7 @@ suspend fun <T> LifecycleOwner.whenCreated(block: suspend CoroutineScope.() -> T
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-suspend fun <T> Lifecycle.whenCreated(block: suspend CoroutineScope.() -> T): T {
+public suspend fun <T> Lifecycle.whenCreated(block: suspend CoroutineScope.() -> T): T {
     return whenStateAtLeast(Lifecycle.State.CREATED, block)
 }
 
@@ -49,7 +48,7 @@ suspend fun <T> Lifecycle.whenCreated(block: suspend CoroutineScope.() -> T): T 
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-suspend fun <T> LifecycleOwner.whenStarted(block: suspend CoroutineScope.() -> T): T =
+public suspend fun <T> LifecycleOwner.whenStarted(block: suspend CoroutineScope.() -> T): T =
     lifecycle.whenStarted(block)
 
 /**
@@ -57,7 +56,7 @@ suspend fun <T> LifecycleOwner.whenStarted(block: suspend CoroutineScope.() -> T
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-suspend fun <T> Lifecycle.whenStarted(block: suspend CoroutineScope.() -> T): T {
+public suspend fun <T> Lifecycle.whenStarted(block: suspend CoroutineScope.() -> T): T {
     return whenStateAtLeast(Lifecycle.State.STARTED, block)
 }
 
@@ -67,7 +66,7 @@ suspend fun <T> Lifecycle.whenStarted(block: suspend CoroutineScope.() -> T): T 
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-suspend fun <T> LifecycleOwner.whenResumed(block: suspend CoroutineScope.() -> T): T =
+public suspend fun <T> LifecycleOwner.whenResumed(block: suspend CoroutineScope.() -> T): T =
     lifecycle.whenResumed(block)
 
 /**
@@ -75,7 +74,7 @@ suspend fun <T> LifecycleOwner.whenResumed(block: suspend CoroutineScope.() -> T
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() -> T): T {
+public suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() -> T): T {
     return whenStateAtLeast(Lifecycle.State.RESUMED, block)
 }
 
@@ -151,10 +150,10 @@ suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() -> T): T 
  * @param block The block to run when the lifecycle is at least in [minState].
  * @return <T> The return value of the [block]
  */
-suspend fun <T> Lifecycle.whenStateAtLeast(
+public suspend fun <T> Lifecycle.whenStateAtLeast(
     minState: Lifecycle.State,
     block: suspend CoroutineScope.() -> T
-) = withContext(Dispatchers.Main.immediate) {
+): T = withContext(Dispatchers.Main.immediate) {
     val job = coroutineContext[Job] ?: error("when[State] methods should have a parent job")
     val dispatcher = PausingDispatcher()
     val controller =
@@ -179,8 +178,18 @@ internal class PausingDispatcher : CoroutineDispatcher() {
     @JvmField
     internal val dispatchQueue = DispatchQueue()
 
-    @ExperimentalCoroutinesApi
+    override fun isDispatchNeeded(context: CoroutineContext): Boolean {
+        if (Dispatchers.Main.immediate.isDispatchNeeded(context)) {
+            return true
+        }
+        // It's safe to call dispatchQueue.canRun() here because
+        // Dispatchers.Main.immediate.isDispatchNeeded returns true if we're not on the main thread
+        // If the queue is paused right now we need to dispatch so that the block is added to the
+        // the queue
+        return !dispatchQueue.canRun()
+    }
+
     override fun dispatch(context: CoroutineContext, block: Runnable) {
-        dispatchQueue.runOrEnqueue(block)
+        dispatchQueue.dispatchAndEnqueue(context, block)
     }
 }

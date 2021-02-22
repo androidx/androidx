@@ -39,16 +39,20 @@ class DeferredBooksDaoTest : TestDatabaseTest() {
     @Test
     fun increaseBookSales() {
         booksDao.increaseBookSales(TestUtil.BOOK_1.bookId)
-        assertThat(booksDao.getBook(TestUtil.BOOK_1.bookId).salesCnt,
-            `is`(TestUtil.BOOK_1.salesCnt + 1))
+        assertThat(
+            booksDao.getBook(TestUtil.BOOK_1.bookId).salesCnt,
+            `is`(TestUtil.BOOK_1.salesCnt + 1)
+        )
     }
 
     @Test
     fun increaseBookSalesSuspend() {
         runBlocking {
             booksDao.increaseBookSalesSuspend(TestUtil.BOOK_1.bookId)
-            assertThat(booksDao.getBookSuspend(TestUtil.BOOK_1.bookId).salesCnt,
-                `is`(TestUtil.BOOK_1.salesCnt + 1))
+            assertThat(
+                booksDao.getBookSuspend(TestUtil.BOOK_1.bookId).salesCnt,
+                `is`(TestUtil.BOOK_1.salesCnt + 1)
+            )
         }
     }
 
@@ -83,8 +87,10 @@ class DeferredBooksDaoTest : TestDatabaseTest() {
     @Test
     fun increaseBookSalesVoidFuture() {
         booksDao.increaseBookSalesVoidFuture(TestUtil.BOOK_1.bookId).get()
-        assertThat(booksDao.getBook(TestUtil.BOOK_1.bookId).salesCnt,
-            `is`(TestUtil.BOOK_1.salesCnt + 1))
+        assertThat(
+            booksDao.getBook(TestUtil.BOOK_1.bookId).salesCnt,
+            `is`(TestUtil.BOOK_1.salesCnt + 1)
+        )
     }
 
     @Test

@@ -28,23 +28,29 @@ plugins {
 
 android {
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles("proguard-rules.pro")
     }
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
     api("androidx.savedstate:savedstate:1.0.0")
-    api(project(":lifecycle:lifecycle-livedata-core"))
-    api(project(":lifecycle:lifecycle-viewmodel"))
+    api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
 
-    androidTestImplementation project(":fragment:fragment"), {
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-savedstate'
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
+    androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-runtime")
+    androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-livedata-core")
+    androidTestImplementation ("androidx.fragment:fragment:1.3.0") {
+        exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
+        exclude group: "androidx.lifecycle", module: "lifecycle-livedata-core"
+        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel-savedstate"
+        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel"
     }
     androidTestImplementation project(":internal-testutils-runtime"), {
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-savedstate'
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
+        exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
+        exclude group: "androidx.lifecycle", module: "lifecycle-livedata-core"
+        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel-savedstate"
+        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel"
     }
     androidTestImplementation(TRUTH)
     androidTestImplementation(KOTLIN_STDLIB)
@@ -54,6 +60,19 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RULES)
 }
 
+//used by testImplementation safe-args-generator
+android.libraryVariants.all { variant ->
+    def name = variant.name
+    def suffix = name.capitalize()
+    project.tasks.register("jar${suffix}", Copy).configure {
+        dependsOn ("assemble$suffix")
+        from(zipTree("${project.buildDir}/outputs/aar/lifecycle-viewmodel-savedstate-${name}.aar")) {
+            include "classes.jar"
+        }
+        destinationDir new File(project.buildDir, "libJar")
+    }
+}
+
 androidx {
     name = "Android Lifecycle ViewModel with SavedState"
     publish = Publish.SNAPSHOT_AND_RELEASE
@@ -61,5 +80,4 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Android Lifecycle ViewModel"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

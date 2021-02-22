@@ -27,10 +27,7 @@ import androidx.annotation.NonNull;
  * <p>Note: The implementation of this interface must be completely thread-safe.
  */
 public interface AdvertisingIdProvider {
-    /**
-     * Retrieves the Advertising ID.
-     * <p>This ID will be normalized to UUID format by the developer library if it isn't already.
-     */
+    /** Retrieves the Advertising ID. */
     @NonNull
     String getId();
 

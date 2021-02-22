@@ -23,7 +23,6 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -50,8 +49,6 @@ import java.util.Set;
 public final class ArraySet<E> implements Collection<E>, Set<E> {
     private static final boolean DEBUG = false;
     private static final String TAG = "ArraySet";
-    private static final int[] INT = new int[0];
-    private static final Object[] OBJECT = new Object[0];
 
     /**
      * The minimum amount by which the capacity of a ArraySet will increase.
@@ -86,16 +83,14 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     Object[] mArray;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mSize;
-    private MapCollections<E, E> mCollections;
 
-    private int binarySearch(int[] hashes, int hash) {
+    private int binarySearch(int hash) {
         try {
-            return ContainerHelpers.binarySearch(hashes, mSize, hash);
+            return ContainerHelpers.binarySearch(mHashes, mSize, hash);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new ConcurrentModificationException();
         }
     }
-
 
     private int indexOf(Object key, int hash) {
         final int N = mSize;
@@ -105,7 +100,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
             return ~0;
         }
 
-        int index = binarySearch(mHashes, hash);
+        int index = binarySearch(hash);
 
         // If the hash code wasn't found, then we have no entry for this key.
         if (index < 0) {
@@ -143,7 +138,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
             return ~0;
         }
 
-        int index = binarySearch(mHashes, 0);
+        int index = binarySearch(0);
 
         // If the hash code wasn't found, then we have no entry for this key.
         if (index < 0) {
@@ -290,8 +285,8 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     @SuppressWarnings("NullAway") // allocArrays initializes mHashes and mArray.
     public ArraySet(int capacity) {
         if (capacity == 0) {
-            mHashes = INT;
-            mArray = OBJECT;
+            mHashes = ContainerHelpers.EMPTY_INTS;
+            mArray = ContainerHelpers.EMPTY_OBJECTS;
         } else {
             allocArrays(capacity);
         }
@@ -319,6 +314,18 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     }
 
     /**
+     * Create a new ArraySet with items from the given array.
+     */
+    public ArraySet(@Nullable E[] array) {
+        this();
+        if (array != null) {
+            for (E value : array) {
+                add(value);
+            }
+        }
+    }
+
+    /**
      * Make the array map empty.  All storage is released.
      */
     @Override
@@ -327,8 +334,8 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
             final int[] ohashes = mHashes;
             final Object[] oarray = mArray;
             final int osize = mSize;
-            mHashes = INT;
-            mArray = OBJECT;
+            mHashes = ContainerHelpers.EMPTY_INTS;
+            mArray = ContainerHelpers.EMPTY_OBJECTS;
             mSize = 0;
             freeArrays(ohashes, oarray, osize);
         }
@@ -384,7 +391,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the value stored at the given index.
      */
-    @Nullable
+    @SuppressWarnings("unchecked")
     public E valueAt(int index) {
         return (E) mArray[index];
     }
@@ -507,6 +514,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the value that was stored at this index.
      */
+    @SuppressWarnings("unchecked")
     public E removeAt(int index) {
         final int oSize = mSize;
         final Object old = mArray[index];
@@ -691,73 +699,32 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
         return buffer.toString();
     }
 
-    // ------------------------------------------------------------------------
-    // Interop with traditional Java containers.  Not as efficient as using
-    // specialized collection APIs.
-    // ------------------------------------------------------------------------
-
-    private MapCollections<E, E> getCollection() {
-        if (mCollections == null) {
-            mCollections = new MapCollections<E, E>() {
-                @Override
-                protected int colGetSize() {
-                    return mSize;
-                }
-
-                @Override
-                protected Object colGetEntry(int index, int offset) {
-                    return mArray[index];
-                }
-
-                @Override
-                protected int colIndexOfKey(Object key) {
-                    return indexOf(key);
-                }
-
-                @Override
-                protected int colIndexOfValue(Object value) {
-                    return indexOf(value);
-                }
-
-                @Override
-                protected Map<E, E> colGetMap() {
-                    throw new UnsupportedOperationException("not a map");
-                }
-
-                @Override
-                protected void colPut(E key, E value) {
-                    add(key);
-                }
-
-                @Override
-                protected E colSetValue(int index, E value) {
-                    throw new UnsupportedOperationException("not a map");
-                }
-
-                @Override
-                protected void colRemoveAt(int index) {
-                    removeAt(index);
-                }
-
-                @Override
-                protected void colClear() {
-                    clear();
-                }
-            };
-        }
-        return mCollections;
-    }
-
     /**
      * Return an {@link java.util.Iterator} over all values in the set.
      *
-     * <p><b>Note:</b> this is a fairly inefficient way to access the array contents, it
-     * requires generating a number of temporary objects and allocates additional state
-     * information associated with the container that will remain for the life of the container.</p>
+     * <p><b>Note:</b> this is  aless efficient way to access the array contents compared to
+     * looping from 0 until {@link #size()} and calling {@link #valueAt(int)}.
      */
+    @NonNull
     @Override
     public Iterator<E> iterator() {
-        return getCollection().getKeySet().iterator();
+        return new ElementIterator();
+    }
+
+    private class ElementIterator extends IndexBasedArrayIterator<E> {
+        ElementIterator() {
+            super(mSize);
+        }
+
+        @Override
+        protected E elementAt(int index) {
+            return valueAt(index);
+        }
+
+        @Override
+        protected void removeAt(int index) {
+            ArraySet.this.removeAt(index);
+        }
     }
 
     /**

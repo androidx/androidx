@@ -18,29 +18,23 @@ package androidx.camera.core;
 
 import android.graphics.Rect;
 import android.media.Image;
-import android.os.Build;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.camera.core.impl.TagBundle;
 
 import java.nio.ByteBuffer;
 
 /** An {@link ImageProxy} which wraps around an {@link Image}. */
 final class AndroidImageProxy implements ImageProxy {
-    /**
-     * Image.setTimestamp(long) was added in M. On lower API levels, we use our own timestamp field
-     * to provide a more consistent behavior across more devices.
-     */
-    private static final boolean SET_TIMESTAMP_AVAILABLE_IN_FRAMEWORK =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
-
     @GuardedBy("this")
     private final Image mImage;
 
     @GuardedBy("this")
     private final PlaneProxy[] mPlanes;
 
-    @GuardedBy("this")
-    private long mTimestamp;
+    private final ImageInfo mImageInfo;
 
     /**
      * Creates a new instance which wraps the given image.
@@ -61,7 +55,7 @@ final class AndroidImageProxy implements ImageProxy {
             mPlanes = new PlaneProxy[0];
         }
 
-        mTimestamp = image.getTimestamp();
+        mImageInfo = ImmutableImageInfo.create(TagBundle.emptyBundle(), image.getTimestamp(), 0);
     }
 
     @Override
@@ -70,12 +64,13 @@ final class AndroidImageProxy implements ImageProxy {
     }
 
     @Override
+    @NonNull
     public synchronized Rect getCropRect() {
         return mImage.getCropRect();
     }
 
     @Override
-    public synchronized void setCropRect(Rect rect) {
+    public synchronized void setCropRect(@Nullable Rect rect) {
         mImage.setCropRect(rect);
     }
 
@@ -95,24 +90,7 @@ final class AndroidImageProxy implements ImageProxy {
     }
 
     @Override
-    public synchronized long getTimestamp() {
-        if (SET_TIMESTAMP_AVAILABLE_IN_FRAMEWORK) {
-            return mImage.getTimestamp();
-        } else {
-            return mTimestamp;
-        }
-    }
-
-    @Override
-    public synchronized void setTimestamp(long timestamp) {
-        if (SET_TIMESTAMP_AVAILABLE_IN_FRAMEWORK) {
-            mImage.setTimestamp(timestamp);
-        } else {
-            mTimestamp = timestamp;
-        }
-    }
-
-    @Override
+    @NonNull
     public synchronized ImageProxy.PlaneProxy[] getPlanes() {
         return mPlanes;
     }
@@ -137,21 +115,20 @@ final class AndroidImageProxy implements ImageProxy {
         }
 
         @Override
+        @NonNull
         public synchronized ByteBuffer getBuffer() {
             return mPlane.getBuffer();
         }
     }
 
-    /**
-     * The {@link Image} that comes from the framework does not contain any additional metadata, so
-     * will always return null.
-     */
     @Override
+    @NonNull
     public ImageInfo getImageInfo() {
-        return null;
+        return mImageInfo;
     }
 
     @Override
+    @ExperimentalGetImage
     public synchronized Image getImage() {
         return mImage;
     }

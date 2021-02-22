@@ -16,10 +16,10 @@
 
 package androidx.camera.extensions;
 
-import android.util.Log;
-
-import androidx.camera.core.ImageCaptureConfig;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
+import androidx.annotation.NonNull;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Logger;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 
 /**
@@ -34,12 +34,13 @@ public class NightImageCaptureExtender extends ImageCaptureExtender {
      * @param builder Builder that will be used to create the configurations for the
      * {@link androidx.camera.core.ImageCapture}.
      */
-    public static NightImageCaptureExtender create(ImageCaptureConfig.Builder builder) {
+    @NonNull
+    public static NightImageCaptureExtender create(@NonNull ImageCapture.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorNightImageCaptureExtender(builder);
             } catch (NoClassDefFoundError e) {
-                Log.d(TAG, "No night image capture extender found. Falling back to default.");
+                Logger.d(TAG, "No night image capture extender found. Falling back to default.");
             }
         }
 
@@ -52,12 +53,12 @@ public class NightImageCaptureExtender extends ImageCaptureExtender {
         }
 
         @Override
-        public boolean isExtensionAvailable() {
+        public boolean isExtensionAvailable(@NonNull CameraSelector selector) {
             return false;
         }
 
         @Override
-        public void enableExtension() {
+        public void enableExtension(@NonNull CameraSelector selector) {
         }
     }
 
@@ -65,9 +66,9 @@ public class NightImageCaptureExtender extends ImageCaptureExtender {
     static class VendorNightImageCaptureExtender extends NightImageCaptureExtender {
         private final NightImageCaptureExtenderImpl mImpl;
 
-        VendorNightImageCaptureExtender(ImageCaptureConfig.Builder builder) {
+        VendorNightImageCaptureExtender(ImageCapture.Builder builder) {
             mImpl = new NightImageCaptureExtenderImpl();
-            init(builder, mImpl, EffectMode.NIGHT);
+            init(builder, mImpl, Extensions.EXTENSION_MODE_NIGHT);
         }
     }
 

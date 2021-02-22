@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker.SelectionObserver;
 
 import java.util.HashSet;
@@ -29,19 +30,9 @@ public class TestSelectionObserver<K> extends SelectionObserver<K> {
 
     private final Set<K> mSelected = new HashSet<>();
     private boolean mSelectionChanged = false;
+    private boolean mSelectionCleared = false;
     private boolean mSelectionReset = false;
     private boolean mSelectionRestored = false;
-    private boolean mStrict = true;
-
-    /**
-     * Returns a TestSelectionObserver that doesn't make asserts about
-     * item selection status in response to onItemStateChanged events.
-     */
-    public static <K> TestSelectionObserver<K> createLenientObserver() {
-        TestSelectionObserver<K> observer = new TestSelectionObserver<>();
-        observer.mStrict = false;
-        return observer;
-    }
 
     public void reset() {
         mSelected.clear();
@@ -50,18 +41,17 @@ public class TestSelectionObserver<K> extends SelectionObserver<K> {
     }
 
     @Override
-    public void onItemStateChanged(K key, boolean selected) {
+    public void onItemStateChanged(@NonNull K key, boolean selected) {
         if (selected) {
-            if (mStrict) {
-                assertNotSelected(key);
-            }
             mSelected.add(key);
         } else {
-            if (mStrict) {
-                assertSelected(key);
-            }
             mSelected.remove(key);
         }
+    }
+
+    @Override
+    protected void onSelectionCleared() {
+        mSelectionCleared = true;
     }
 
     @Override
@@ -98,6 +88,14 @@ public class TestSelectionObserver<K> extends SelectionObserver<K> {
 
     public void assertSelectionChanged() {
         assertTrue(mSelectionChanged);
+    }
+
+    public boolean wasSelectionCleared() {
+        return mSelectionCleared;
+    }
+
+    public void assertSelectionCleared() {
+        assertTrue(mSelectionCleared);
     }
 
     public void assertSelectionUnchanged() {

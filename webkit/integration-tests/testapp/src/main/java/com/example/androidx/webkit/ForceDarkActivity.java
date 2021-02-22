@@ -59,24 +59,24 @@ public class ForceDarkActivity extends AppCompatActivity {
 
     private void setupWebView(WebView webView, int forceDarkMode) {
         webView.setWebViewClient(new WebViewClient());
-        String formatedDescription;
+        String formattedDescription;
         switch (forceDarkMode) {
             case WebSettingsCompat.FORCE_DARK_ON:
-                formatedDescription = Base64.encodeToString(
+                formattedDescription = Base64.encodeToString(
                         String.format(DESCRIPTION, "ON").getBytes(UTF_8), Base64.NO_PADDING);
                 break;
             case WebSettingsCompat.FORCE_DARK_OFF:
-                formatedDescription = Base64.encodeToString(
+                formattedDescription = Base64.encodeToString(
                         String.format(DESCRIPTION, "OFF").getBytes(UTF_8), Base64.NO_PADDING);
                 break;
             case WebSettingsCompat.FORCE_DARK_AUTO:
-                formatedDescription = Base64.encodeToString(
+                formattedDescription = Base64.encodeToString(
                         String.format(DESCRIPTION, "AUTO").getBytes(UTF_8), Base64.NO_PADDING);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown force dark mode");
         }
-        webView.loadData(formatedDescription, null, "base64");
+        webView.loadData(formattedDescription, null, "base64");
         WebSettingsCompat.setForceDark(webView.getSettings(), forceDarkMode);
     }
 }

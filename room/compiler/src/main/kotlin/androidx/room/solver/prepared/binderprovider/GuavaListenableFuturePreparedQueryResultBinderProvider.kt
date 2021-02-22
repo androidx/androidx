@@ -16,33 +16,30 @@
 
 package androidx.room.solver.prepared.binderprovider
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.T
-import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
-import javax.lang.model.type.DeclaredType
 
 class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Context) :
     PreparedQueryResultBinderProvider {
 
     private val hasGuavaRoom by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(RoomGuavaTypeNames.GUAVA_ROOM.toString()) != null
+        context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM) != null
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
+    override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 &&
-                context.processingEnv.typeUtils.erasure(declared).typeName() ==
-                GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+            declared.rawType.typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 
-    override fun provide(declared: DeclaredType, query: ParsedQuery): PreparedQueryResultBinder {
+    override fun provide(declared: XType, query: ParsedQuery): PreparedQueryResultBinder {
         if (!hasGuavaRoom) {
             context.logger.e(ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT)
         }

@@ -1,5 +1,0 @@
-#!/bin/bash
-set -e
-set -m
-
-./gradlew studio

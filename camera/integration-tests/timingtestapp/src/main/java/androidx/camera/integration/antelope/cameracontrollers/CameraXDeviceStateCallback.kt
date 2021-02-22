@@ -36,8 +36,10 @@ class CameraXDeviceStateCallback(
      * Camera device has opened successfully, record timing and initiate the preview stream.
      */
     override fun onOpened(cameraDevice: CameraDevice) {
-        MainActivity.logd("In CameraXStateCallback onOpened: " + cameraDevice.id +
-            " current test: " + testConfig.currentRunningTest.toString())
+        MainActivity.logd(
+            "In CameraXStateCallback onOpened: " + cameraDevice.id +
+                " current test: " + testConfig.currentRunningTest.toString()
+        )
 
         params.timer.openEnd = System.currentTimeMillis()
         params.isOpen = true
@@ -72,7 +74,8 @@ class CameraXDeviceStateCallback(
         }
 
         if ((testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
-            (testConfig.currentRunningTest == TestType.MULTI_SWITCH)) {
+            (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
+        ) {
 
             // First camera closed, now start the second
             if (testConfig.switchTestCurrentCamera == testConfig.switchTestCameras.get(0)) {
@@ -102,8 +105,10 @@ class CameraXDeviceStateCallback(
      * Camera device has thrown an error. Try to recover or fail gracefully.
      */
     override fun onError(cameraDevice: CameraDevice, error: Int) {
-        MainActivity.logd("In CameraXStateCallback onError: " +
-            cameraDevice.id + " and error: " + error)
+        MainActivity.logd(
+            "In CameraXStateCallback onError: " +
+                cameraDevice.id + " and error: " + error
+        )
 
         when (error) {
             CameraDevice.StateCallback.ERROR_MAX_CAMERAS_IN_USE -> {

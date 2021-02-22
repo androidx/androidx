@@ -17,15 +17,15 @@
 package androidx.room.solver.types
 
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.TypeName
-import javax.lang.model.type.TypeMirror
 
 /**
  * A code generator that can read a field from Cursor and write a field to a Statement
  */
-abstract class ColumnTypeAdapter(val out: TypeMirror, val typeAffinity: SQLTypeAffinity) :
-        StatementValueBinder, CursorValueReader {
-    val outTypeName: TypeName by lazy { TypeName.get(out) }
+abstract class ColumnTypeAdapter(val out: XType, val typeAffinity: SQLTypeAffinity) :
+    StatementValueBinder, CursorValueReader {
+    val outTypeName: TypeName by lazy { out.typeName }
     override fun typeMirror() = out
     override fun affinity(): SQLTypeAffinity = typeAffinity
 }

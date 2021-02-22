@@ -18,19 +18,20 @@ import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
+    id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
 
 android {
     defaultConfig {
         testInstrumentationRunnerArgument "listener", "com.squareup.leakcanary.FailTestOnLeakRunListener"
+
+        applicationId "androidx.activity.integration.testapp"
     }
 }
 
 dependencies {
-    implementation(project(":activity:activity"))
-    androidTestImplementation(LEAKCANARY_INSTRUMENTATION)
+    implementation(project(":activity:activity-ktx"))
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -39,5 +40,4 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-
 }

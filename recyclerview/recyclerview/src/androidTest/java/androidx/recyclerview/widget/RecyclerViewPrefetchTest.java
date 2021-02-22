@@ -107,6 +107,6 @@ public class RecyclerViewPrefetchTest extends BaseRecyclerViewInstrumentationTes
 
         layout.waitForPrefetch(10);
         assertThat(cachedViews().size(), is(1));
-        assertThat(cachedViews().get(0).getAdapterPosition(), is(6));
+        assertThat(cachedViews().get(0).getAbsoluteAdapterPosition(), is(6));
     }
 }

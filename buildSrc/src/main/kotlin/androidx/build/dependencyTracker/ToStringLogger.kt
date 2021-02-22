@@ -31,20 +31,20 @@ import org.gradle.internal.time.Clock
 class ToStringLogger(
     private val stringBuilder: StringBuilder = StringBuilder()
 ) : OutputEventListenerBackedLogger(
-        "my_logger",
-        OutputEventListenerBackedLoggerContext(
-                Clock {
-                    System.currentTimeMillis()
-                }
-        ).also {
-            it.level = LogLevel.DEBUG
-            it.setOutputEventListener {
-                stringBuilder.appendln(it.toString())
-            }
-        },
+    "my_logger",
+    OutputEventListenerBackedLoggerContext(
         Clock {
             System.currentTimeMillis()
         }
+    ).also {
+        it.level = LogLevel.DEBUG
+        it.setOutputEventListener {
+            stringBuilder.append(it.toString() + "\n")
+        }
+    },
+    Clock {
+        System.currentTimeMillis()
+    }
 ) {
     /**
      * Returns the current log.

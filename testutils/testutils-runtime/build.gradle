@@ -33,10 +33,9 @@ dependencies {
 
 android {
     lintOptions {
-        disable 'InvalidPackage' // Lint is unhappy about junit package
+        disable "InvalidPackage" // Lint is unhappy about junit package
     }
-}
-
-androidx {
-    toolingProject = true
+    defaultConfig {
+        testInstrumentationRunner "androidx.testutils.ActivityRecyclingAndroidJUnitRunner"
+    }
 }

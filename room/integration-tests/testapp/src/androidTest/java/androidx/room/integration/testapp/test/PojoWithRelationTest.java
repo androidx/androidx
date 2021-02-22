@@ -28,6 +28,7 @@ import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.PetAndOwner;
 import androidx.room.integration.testapp.vo.PetWithToyIds;
 import androidx.room.integration.testapp.vo.Robot;
+import androidx.room.integration.testapp.vo.RobotAndHivemind;
 import androidx.room.integration.testapp.vo.Toy;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
@@ -298,6 +299,44 @@ public class PojoWithRelationTest extends TestDatabaseTest {
         assertThat(petAndOwners.get(0).getUser().getId(), is(1));
         assertThat(petAndOwners.get(1).getUser().getId(), is(1));
         assertThat(petAndOwners.get(2).getUser().getId(), is(2));
+    }
+
+    @Test
+    public void large_nonCollectionRelation() {
+        int count = 2000;
+        mDatabase.runInTransaction(() -> {
+            for (int i = 1; i <= count; i++) {
+                mUserDao.insert(TestUtil.createUser(i));
+                Pet pet = TestUtil.createPet(i);
+                pet.setUserId(i);
+                mPetDao.insertOrReplace(pet);
+            }
+        });
+
+        List<PetAndOwner> petAndOwners = mPetDao.allPetsWithOwners();
+        assertThat(petAndOwners.size(), is(count));
+        for (int i = 0; i < count; i++) {
+            assertThat(petAndOwners.get(i).getUser().getId(), is(i + 1));
+        }
+    }
+
+    @Test
+    public void large_nonCollectionRelation_withComplexKey() {
+        int count = 2000;
+        mDatabase.runInTransaction(() -> {
+            for (int i = 1; i <= count; i++) {
+                Hivemind hivemind = new Hivemind(UUID.randomUUID());
+                mRobotsDao.putHivemind(hivemind);
+                Robot robot = new Robot(UUID.randomUUID(), hivemind.mId);
+                mRobotsDao.putRobot(robot);
+            }
+        });
+
+        List<RobotAndHivemind> robotsWithHivemind = mRobotsDao.getRobotsWithHivemind();
+        assertThat(robotsWithHivemind.size(), is(count));
+        for (int i = 0; i < count; i++) {
+            assertThat(robotsWithHivemind.get(i).getHivemind(), is(notNullValue()));
+        }
     }
 
     @Test

@@ -21,18 +21,19 @@ import static org.junit.Assert.assertEquals;
 import android.app.Activity;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public abstract class BaseInstrumentationTestCase<A extends Activity> {
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<A> mActivityTestRule;
+    public final androidx.test.rule.ActivityTestRule<A> mActivityTestRule;
 
+    @SuppressWarnings("deprecation")
     protected BaseInstrumentationTestCase(Class<A> activityClass) {
-        mActivityTestRule = new ActivityTestRule<A>(activityClass);
+        mActivityTestRule = new androidx.test.rule.ActivityTestRule<A>(activityClass);
     }
 
     protected static void assertFuzzyEquals(String description, float expected, float actual) {

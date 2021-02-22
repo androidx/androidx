@@ -1,16 +1,21 @@
+import static androidx.build.dependencies.DependenciesKt.*
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
+    id("kotlin-android")
 }
 
 dependencies {
     implementation(project(":core:core"))
-    implementation(project(":cursoradapter"))
-    implementation(project(":localbroadcastmanager"))
-    implementation(project(":slidingpanelayout"))
-    implementation(project(":swiperefreshlayout"))
+    implementation(project(":cursoradapter:cursoradapter"))
+    implementation(project(":localbroadcastmanager:localbroadcastmanager"))
+    implementation(project(":slidingpanelayout:slidingpanelayout"))
+    implementation(project(":swiperefreshlayout:swiperefreshlayout"))
     implementation(project(":legacy-support-core-utils"))
-    implementation(project(":fragment:fragment"))
-    implementation(project(":media"))
-    implementation(project(":lifecycle:lifecycle-extensions"))
+    implementation(project(":fragment:fragment-ktx"))
+    implementation(project(":media:media"))
+    implementation(project(":viewpager:viewpager"))
+    implementation(KOTLIN_STDLIB)
+    implementation(KOTLIN_COROUTINES_ANDROID)
 }

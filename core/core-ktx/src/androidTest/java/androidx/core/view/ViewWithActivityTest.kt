@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.core.TestActivity
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -29,8 +28,9 @@ import org.junit.Test
 
 @MediumTest
 class ViewWithActivityTest {
+    @Suppress("DEPRECATION")
     @JvmField @Rule
-    val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var view: View
 
     @Before

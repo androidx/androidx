@@ -25,36 +25,35 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-android {
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
-        }
-    }
-}
-
 dependencies {
     api(project(":activity:activity"))
     api("androidx.core:core-ktx:1.1.0") {
+        because "Mirror activity dependency graph for -ktx artifacts"
+    }
+    api("androidx.lifecycle:lifecycle-runtime-ktx:2.3.0") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
-    api(project(":lifecycle:lifecycle-runtime-ktx")) {
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0")
+    api("androidx.savedstate:savedstate-ktx:1.1.0") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
-    api(project(":lifecycle:lifecycle-viewmodel-ktx"))
     api(KOTLIN_STDLIB)
+
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.0")
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.activity", module: "activity"
+    })
 }
 
 androidx {
     name = "Activity Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ACTIVITY
     mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2018"
     description = "Kotlin extensions for 'activity' artifact"

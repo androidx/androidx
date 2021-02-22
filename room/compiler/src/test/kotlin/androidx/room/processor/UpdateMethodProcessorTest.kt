@@ -17,6 +17,8 @@ package androidx.room.processor
 
 import androidx.room.OnConflictStrategy
 import androidx.room.Update
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_UPDATE_RESULT_ADAPTER
 import androidx.room.processor.ProcessorErrors.UPDATE_MISSING_PARAMS
 import androidx.room.vo.UpdateMethod
@@ -26,8 +28,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import toJFO
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.DeclaredType
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -38,8 +38,8 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
 
     override fun process(
         baseContext: Context,
-        containing: DeclaredType,
-        executableElement: ExecutableElement
+        containing: XType,
+        executableElement: XMethodElement
     ): UpdateMethod {
         return UpdateMethodProcessor(baseContext, containing, executableElement).process()
     }
@@ -47,10 +47,11 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
     @Test
     fun goodConflict() {
         singleShortcutMethod(
-                """
+            """
                 @Update(onConflict = OnConflictStrategy.REPLACE)
                 abstract public void foo(User user);
-                """) { shortcut, _ ->
+                """
+        ) { shortcut, _ ->
             assertThat(shortcut.onConflictStrategy, `is`(OnConflictStrategy.REPLACE))
         }.compilesWithoutError()
     }
@@ -58,10 +59,11 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
     @Test
     fun badConflict() {
         singleShortcutMethod(
-                """
+            """
                 @Update(onConflict = -1)
                 abstract public void foo(User user);
-                """) { _, _ ->
+                """
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
     }
 
@@ -80,10 +82,13 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
                 @Update(entity = User.class)
                 abstract public int foo(Username username);
                 """,
-            additionalJFOs = listOf(usernameJfo)) { _, _ ->
+            additionalJFOs = listOf(usernameJfo)
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(
             ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
                 partialEntityName = "foo.bar.Username",
-                primaryKeyNames = listOf("uid")))
+                primaryKeyNames = listOf("uid")
+            )
+        )
     }
 }

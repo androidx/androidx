@@ -37,9 +37,27 @@
     <public type="attr" name="titleItemEndPadding" />
     <public type="attr" name="contentStartPadding" />
     <public type="attr" name="contentEndPadding" />
+    <public type="attr" name="titleStartPadding" />
+    <public type="attr" name="titleEndPadding" />
+    <public type="attr" name="subContentStartPadding" />
+    <public type="attr" name="subContentEndPadding" />
     <public type="attr" name="endItemStartPadding" />
     <public type="attr" name="endItemEndPadding" />
     <public type="attr" name="bottomDividerStartPadding" />
     <public type="attr" name="bottomDividerEndPadding" />
     <public type="attr" name="actionDividerHeight" />
+    <public type="attr" name="rowMinHeight" />
+    <public type="attr" name="rowMaxHeight" />
+    <public type="attr" name="rowRangeHeight" />
+    <public type="attr" name="rowInlineRangeHeight" />
+    <public type="attr" name="rowRangeSingleTextHeight" />
+    <public type="attr" name="seekBarInlineWidth" />
+    <public type="attr" name="progressBarInlineWidth" />
+    <public type="attr" name="progressBarStartPadding" />
+    <public type="attr" name="progressBarEndPadding" />
+    <public type="attr" name="iconSize" />
+    <public type="attr" name="imageSize" />
+    <public type="attr" name="disableRecyclerViewItemAnimator" />
+    <public type="attr" name="expandToAvailableHeight" />
+    <public type="attr" name="hideHeaderRow" />
 </resources>

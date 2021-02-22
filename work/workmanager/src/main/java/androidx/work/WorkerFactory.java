@@ -86,8 +86,8 @@ public abstract class WorkerFactory {
             Class<? extends ListenableWorker> clazz = null;
             try {
                 clazz = Class.forName(workerClassName).asSubclass(ListenableWorker.class);
-            } catch (ClassNotFoundException e) {
-                Logger.get().error(TAG, "Class not found: " + workerClassName);
+            } catch (Throwable throwable) {
+                Logger.get().error(TAG, "Invalid class: " + workerClassName, throwable);
             }
             if (clazz != null) {
                 try {
@@ -96,7 +96,7 @@ public abstract class WorkerFactory {
                     worker = constructor.newInstance(
                             appContext,
                             workerParameters);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     Logger.get().error(TAG, "Could not instantiate " + workerClassName, e);
                 }
             }

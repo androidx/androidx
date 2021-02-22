@@ -15,11 +15,9 @@
  */
 
 import androidx.build.BuildServerConfigurationKt
-import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-import androidx.build.SupportConfig
-import androidx.build.Publish
+import androidx.build.LibraryType
+import androidx.build.SdkResourceGenerator
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -29,46 +27,22 @@ plugins {
     id("java-gradle-plugin")
 }
 
-apply from: "kotlin-dsl-dependency.gradle.kts"
-
-ext.generatedResources = "$buildDir/generated/resources"
-ext.prebuiltsRoot = "${project.projectDir.getParentFile()}/../../../prebuilts"
-
-sourceSets {
-    test.java.srcDirs += 'src/main/kotlin'
-    test.resources.srcDirs += generatedResources
-}
+apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {
-    implementation gradleApi()
-    implementation(ANDROID_GRADLE_PLUGIN)
+    implementation(findGradleKotlinDsl())
+    implementation(gradleApi())
+    implementation("com.android.tools.build:gradle:4.0.0-beta04")
     implementation(KOTLIN_STDLIB)
 
-    testImplementation gradleTestKit()
+    testImplementation(gradleTestKit())
+    testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
-    testImplementation(KOTLIN_TEST_COMMON)
+    testImplementation(KOTLIN_TEST)
 }
 
-task generateSdkResource() {
-    inputs.property("prebuiltsRoot", prebuiltsRoot)
-    inputs.property("compileSdkVersion", SupportConfig.TARGET_SDK_VERSION)
-    inputs.property("buildToolsVersion", SupportConfig.BUILD_TOOLS_VERSION)
-    inputs.property("minSdkVersion", SupportConfig.DEFAULT_MIN_SDK_VERSION)
-    outputs.dir(generatedResources)
-    doLast {
-        // Properties.write will have a timestamp, that invalidates the task,
-        // so we don't use it and write a file manually
-        new File(generatedResources, "sdk.prop").withWriter('UTF-8') { writer ->
-            writer.write("prebuiltsRepo=$prebuiltsRoot\n")
-            writer.write("compileSdkVersion=$SupportConfig.TARGET_SDK_VERSION\n")
-            writer.write("buildToolsVersion=$SupportConfig.BUILD_TOOLS_VERSION\n")
-            writer.write("minSdkVersion=$SupportConfig.DEFAULT_MIN_SDK_VERSION\n")
-        }
-    }
-}
-
-tasks["compileTestJava"].dependsOn generateSdkResource
+SdkResourceGenerator.generateForHostTest(project)
 
 task buildOnServer(type: Copy) {
   from {
@@ -92,11 +66,8 @@ gradlePlugin {
 
 androidx {
     name = "Android Benchmark Gradle Plugin"
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    toolingProject = true
-    mavenVersion = LibraryVersions.BENCHMARK
+    type = LibraryType.GRADLE_PLUGIN
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2019"
     description = "Android Benchmark Gradle Plugin"
-    compilationTarget = CompilationTarget.HOST
 }

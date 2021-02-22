@@ -4,7 +4,6 @@ import COMMON
 import androidx.room.ext.RoomTypeNames
 import androidx.room.vo.Dao
 import androidx.room.writer.DaoWriter
-import com.google.auto.common.MoreTypes
 import com.google.testing.compile.JavaFileObjects
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -22,120 +21,144 @@ class BaseDaoTest {
 
     @Test
     fun insert() {
-        baseDao("""
+        baseDao(
+            """
             @Insert
             void insertMe(T t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.insertionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun insertArray() {
-        baseDao("""
+        baseDao(
+            """
             @Insert
             void insertMe(T[] t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.insertionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun insertVarArg() {
-        baseDao("""
+        baseDao(
+            """
             @Insert
             void insertMe(T... t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.insertionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun insertList() {
-        baseDao("""
+        baseDao(
+            """
             @Insert
             void insertMe(List<T> t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.insertionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun delete() {
-        baseDao("""
+        baseDao(
+            """
             @Delete
             void deleteMe(T t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.deletionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun deleteArray() {
-        baseDao("""
+        baseDao(
+            """
             @Delete
             void deleteMe(T[] t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.deletionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun deleteVarArg() {
-        baseDao("""
+        baseDao(
+            """
             @Delete
             void deleteMe(T... t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.deletionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun deleteList() {
-        baseDao("""
+        baseDao(
+            """
             @Delete
             void deleteMe(List<T> t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.deletionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun update() {
-        baseDao("""
+        baseDao(
+            """
             @Update
             void updateMe(T t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.updateMethods.size, `is`(1))
         }
     }
 
     @Test
     fun updateArray() {
-        baseDao("""
+        baseDao(
+            """
             @Update
             void updateMe(T[] t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.updateMethods.size, `is`(1))
         }
     }
 
     @Test
     fun updateVarArg() {
-        baseDao("""
+        baseDao(
+            """
             @Update
             void updateMe(T... t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.updateMethods.size, `is`(1))
         }
     }
 
     @Test
     fun updateList() {
-        baseDao("""
+        baseDao(
+            """
             @Update
             void updateMe(List<T> t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.updateMethods.size, `is`(1))
         }
     }
@@ -158,13 +181,12 @@ class BaseDaoTest {
             }
         """.toJFO("foo.bar.MyDao")
         simpleRun(baseClass, extension, COMMON.USER) { invocation ->
-            val daoElm = invocation.processingEnv.elementUtils.getTypeElement("foo.bar.MyDao")
-            val dbElm = invocation.context.processingEnv.elementUtils
-                .getTypeElement(RoomTypeNames.ROOM_DB.toString())
-            val dbType = MoreTypes.asDeclared(dbElm.asType())
-            val queryInterpreter = QueryInterpreter(invocation.context, emptyList())
+            val daoElm = invocation.processingEnv.requireTypeElement("foo.bar.MyDao")
+            val dbElm = invocation.context.processingEnv
+                .requireTypeElement(RoomTypeNames.ROOM_DB)
+            val dbType = dbElm.type
             val processedDao = DaoProcessor(
-                invocation.context, daoElm, dbType, null, queryInterpreter
+                invocation.context, daoElm, dbType, null
             ).process()
             handler(processedDao)
             DaoWriter(processedDao, dbElm, invocation.processingEnv).write(invocation.processingEnv)

@@ -17,12 +17,12 @@
 package androidx.recyclerview.widget
 
 import android.view.ViewGroup
-import androidx.test.filters.SmallTest
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.testutils.TestExecutor
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.verify
@@ -30,8 +30,8 @@ import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.verifyZeroInteractions
 import java.util.Collections.emptyList
 
-@SmallTest
-@RunWith(JUnit4::class)
+@MediumTest
+@RunWith(AndroidJUnit4::class)
 class ListAdapterTest {
     private val mainThread = TestExecutor()
     private val diffThread = TestExecutor()
@@ -69,7 +69,7 @@ class ListAdapterTest {
     fun initialState() {
         @Suppress("UNCHECKED_CAST")
         val listener = mock(AsyncListDiffer.ListListener::class.java)
-                as AsyncListDiffer.ListListener<String>
+            as AsyncListDiffer.ListListener<String>
 
         val adapter = Adapter(listener)
         assertEquals(0, adapter.itemCount)
@@ -108,7 +108,7 @@ class ListAdapterTest {
         val callback = mock(Runnable::class.java)
         @Suppress("UNCHECKED_CAST")
         val listener = mock(AsyncListDiffer.ListListener::class.java)
-                as AsyncListDiffer.ListListener<String>
+            as AsyncListDiffer.ListListener<String>
 
         val adapter = Adapter(listener)
 

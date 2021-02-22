@@ -16,6 +16,11 @@
 
 import androidx.room.DatabaseView
 import androidx.room.Entity
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -23,16 +28,17 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
+import androidx.room.ext.RoomRxJava3TypeNames
 import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
 import androidx.room.processor.DatabaseViewProcessor
-import androidx.room.processor.QueryInterpreter
 import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
+import androidx.room.testing.context
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.writer.ClassWriter
-import com.google.auto.common.MoreElements
 import com.google.common.io.Files
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
@@ -40,15 +46,11 @@ import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ClassName
-import org.mockito.Mockito
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import java.io.File
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Locale
-import javax.lang.model.element.Element
-import javax.lang.model.type.TypeKind
-import javax.lang.model.type.TypeMirror
 import javax.tools.JavaFileObject
 import javax.tools.StandardLocation
 import javax.tools.ToolProvider.getSystemJavaCompiler
@@ -94,36 +96,85 @@ object COMMON {
         loadJavaCode("common/input/LiveData.java", LifecyclesTypeNames.LIVE_DATA.toString())
     }
     val COMPUTABLE_LIVE_DATA by lazy {
-        loadJavaCode("common/input/ComputableLiveData.java",
-                LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.toString())
+        loadJavaCode(
+            "common/input/ComputableLiveData.java",
+            LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.toString()
+        )
     }
     val PUBLISHER by lazy {
-        loadJavaCode("common/input/reactivestreams/Publisher.java",
-                ReactiveStreamsTypeNames.PUBLISHER.toString())
+        loadJavaCode(
+            "common/input/reactivestreams/Publisher.java",
+            ReactiveStreamsTypeNames.PUBLISHER.toString()
+        )
     }
-    val FLOWABLE by lazy {
-        loadJavaCode("common/input/rxjava2/Flowable.java",
-                RxJava2TypeNames.FLOWABLE.toString())
+    val RX2_FLOWABLE by lazy {
+        loadJavaCode(
+            "common/input/rxjava2/Flowable.java",
+            RxJava2TypeNames.FLOWABLE.toString()
+        )
     }
-    val OBSERVABLE by lazy {
-        loadJavaCode("common/input/rxjava2/Observable.java",
-                RxJava2TypeNames.OBSERVABLE.toString())
+    val RX2_OBSERVABLE by lazy {
+        loadJavaCode(
+            "common/input/rxjava2/Observable.java",
+            RxJava2TypeNames.OBSERVABLE.toString()
+        )
     }
-    val SINGLE by lazy {
-        loadJavaCode("common/input/rxjava2/Single.java",
-                RxJava2TypeNames.SINGLE.toString())
+    val RX2_SINGLE by lazy {
+        loadJavaCode(
+            "common/input/rxjava2/Single.java",
+            RxJava2TypeNames.SINGLE.toString()
+        )
     }
-    val MAYBE by lazy {
-        loadJavaCode("common/input/rxjava2/Maybe.java",
-                RxJava2TypeNames.MAYBE.toString())
+    val RX2_MAYBE by lazy {
+        loadJavaCode(
+            "common/input/rxjava2/Maybe.java",
+            RxJava2TypeNames.MAYBE.toString()
+        )
     }
-    val COMPLETABLE by lazy {
-        loadJavaCode("common/input/rxjava2/Completable.java",
-                RxJava2TypeNames.COMPLETABLE.toString())
+    val RX2_COMPLETABLE by lazy {
+        loadJavaCode(
+            "common/input/rxjava2/Completable.java",
+            RxJava2TypeNames.COMPLETABLE.toString()
+        )
     }
 
     val RX2_ROOM by lazy {
         loadJavaCode("common/input/Rx2Room.java", RoomRxJava2TypeNames.RX_ROOM.toString())
+    }
+
+    val RX3_FLOWABLE by lazy {
+        loadJavaCode(
+            "common/input/rxjava3/Flowable.java",
+            RxJava3TypeNames.FLOWABLE.toString()
+        )
+    }
+    val RX3_OBSERVABLE by lazy {
+        loadJavaCode(
+            "common/input/rxjava3/Observable.java",
+            RxJava3TypeNames.OBSERVABLE.toString()
+        )
+    }
+    val RX3_SINGLE by lazy {
+        loadJavaCode(
+            "common/input/rxjava3/Single.java",
+            RxJava3TypeNames.SINGLE.toString()
+        )
+    }
+    val RX3_MAYBE by lazy {
+        loadJavaCode(
+            "common/input/rxjava3/Maybe.java",
+            RxJava3TypeNames.MAYBE.toString()
+        )
+    }
+    val RX3_COMPLETABLE by lazy {
+        loadJavaCode(
+            "common/input/rxjava3/Completable.java",
+            RxJava3TypeNames.COMPLETABLE.toString()
+        )
+    }
+
+    val RX3_ROOM by lazy {
+        loadJavaCode("common/input/Rx3Room.java", RoomRxJava3TypeNames.RX_ROOM.toString())
     }
 
     val DATA_SOURCE_FACTORY by lazy {
@@ -131,37 +182,49 @@ object COMMON {
     }
 
     val POSITIONAL_DATA_SOURCE by lazy {
-        loadJavaCode("common/input/PositionalDataSource.java",
-                PagingTypeNames.POSITIONAL_DATA_SOURCE.toString())
+        loadJavaCode(
+            "common/input/PositionalDataSource.java",
+            PagingTypeNames.POSITIONAL_DATA_SOURCE.toString()
+        )
     }
 
     val LISTENABLE_FUTURE by lazy {
-        loadJavaCode("common/input/guava/ListenableFuture.java",
-            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.toString())
+        loadJavaCode(
+            "common/input/guava/ListenableFuture.java",
+            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.toString()
+        )
     }
 
     val GUAVA_ROOM by lazy {
-        loadJavaCode("common/input/GuavaRoom.java",
-            RoomGuavaTypeNames.GUAVA_ROOM.toString())
+        loadJavaCode(
+            "common/input/GuavaRoom.java",
+            RoomGuavaTypeNames.GUAVA_ROOM.toString()
+        )
     }
 
     val CHANNEL by lazy {
-        loadJavaCode("common/input/coroutines/Channel.java",
-            KotlinTypeNames.CHANNEL.toString())
+        loadJavaCode(
+            "common/input/coroutines/Channel.java",
+            KotlinTypeNames.CHANNEL.toString()
+        )
     }
 
     val SEND_CHANNEL by lazy {
-        loadJavaCode("common/input/coroutines/SendChannel.java",
-            KotlinTypeNames.SEND_CHANNEL.toString())
+        loadJavaCode(
+            "common/input/coroutines/SendChannel.java",
+            KotlinTypeNames.SEND_CHANNEL.toString()
+        )
     }
 
     val RECEIVE_CHANNEL by lazy {
-        loadJavaCode("common/input/coroutines/ReceiveChannel.java",
-            KotlinTypeNames.RECEIVE_CHANNEL.toString())
+        loadJavaCode(
+            "common/input/coroutines/ReceiveChannel.java",
+            KotlinTypeNames.RECEIVE_CHANNEL.toString()
+        )
     }
 }
 fun testCodeGenScope(): CodeGenScope {
-    return CodeGenScope(Mockito.mock(ClassWriter::class.java))
+    return CodeGenScope(mock(ClassWriter::class.java))
 }
 
 fun simpleRun(
@@ -171,20 +234,22 @@ fun simpleRun(
     f: (TestInvocation) -> Unit
 ): CompileTester {
     return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(jfos.toList() + JavaFileObjects.forSourceLines("Dummy", "final class Dummy {}"))
-            .apply {
-                if (classpathFiles.isNotEmpty()) {
-                    withClasspath(classpathFiles)
-                }
+        .that(jfos.toList() + JavaFileObjects.forSourceLines("NoOp", "final class NoOp {}"))
+        .apply {
+            if (classpathFiles.isNotEmpty()) {
+                withClasspath(classpathFiles)
             }
-            .withCompilerOptions(options)
-            .processedWith(TestProcessor.builder()
-                    .nextRunHandler {
-                        f(it)
-                        true
-                    }
-                    .forAnnotations("*")
-                    .build())
+        }
+        .withCompilerOptions(options)
+        .processedWith(
+            TestProcessor.builder()
+                .nextRunHandler {
+                    f(it)
+                    true
+                }
+                .forAnnotations("*")
+                .build()
+        )
 }
 
 fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
@@ -192,36 +257,59 @@ fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
     return JavaFileObjects.forSourceString(qName, contents)
 }
 
-fun createInterpreterFromEntitiesAndViews(invocation: TestInvocation): QueryInterpreter {
-    val entities = invocation.roundEnv.getElementsAnnotatedWith(Entity::class.java).map {
-        TableEntityProcessor(invocation.context, MoreElements.asType(it)).process()
-    }
-    val views = invocation.roundEnv.getElementsAnnotatedWith(DatabaseView::class.java).map {
-        DatabaseViewProcessor(invocation.context, MoreElements.asType(it)).process()
-    }
-    return QueryInterpreter(invocation.context, entities + views)
+fun loadTestSource(fileName: String, qName: String): Source {
+    val contents = File("src/test/data/$fileName")
+    return Source.load(contents, qName)
 }
 
 fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVerifier {
-    val entities = invocation.roundEnv.getElementsAnnotatedWith(Entity::class.java).map {
-        TableEntityProcessor(invocation.context, MoreElements.asType(it)).process()
+    return DatabaseVerifier.create(
+        invocation.context, mock(XElement::class.java),
+        invocation.getEntities(), invocation.getViews()
+    )!!
+}
+
+fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVerifier {
+    return DatabaseVerifier.create(
+        invocation.context, mock(XElement::class.java),
+        invocation.getEntities(), invocation.getViews()
+    )!!
+}
+
+fun XTestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
+    return roundEnv.getTypeElementsAnnotatedWith(DatabaseView::class.java).map {
+        DatabaseViewProcessor(context, it).process()
     }
-    val views = invocation.roundEnv.getElementsAnnotatedWith(DatabaseView::class.java).map {
-        DatabaseViewProcessor(invocation.context, MoreElements.asType(it)).process()
+}
+
+fun XTestInvocation.getEntities(): List<androidx.room.vo.Entity> {
+    val entities = roundEnv.getTypeElementsAnnotatedWith(Entity::class.java).map {
+        TableEntityProcessor(context, it).process()
     }
-    return DatabaseVerifier.create(invocation.context, Mockito.mock(Element::class.java),
-            entities, views)!!
+    return entities
+}
+
+fun TestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
+    return roundEnv.getTypeElementsAnnotatedWith(DatabaseView::class.java).map {
+        DatabaseViewProcessor(context, it).process()
+    }
+}
+
+fun TestInvocation.getEntities(): List<androidx.room.vo.Entity> {
+    val entities = roundEnv.getTypeElementsAnnotatedWith(Entity::class.java).map {
+        TableEntityProcessor(context, it).process()
+    }
+    return entities
 }
 
 /**
- * Create mocks of [Element] and [TypeMirror] so that they can be used for instantiating a fake
+ * Create mocks of [XElement] and [XType] so that they can be used for instantiating a fake
  * [androidx.room.vo.Field].
  */
-fun mockElementAndType(): Pair<Element, TypeMirror> {
-    val element = mock(Element::class.java)
-    val type = mock(TypeMirror::class.java)
-    doReturn(TypeKind.DECLARED).`when`(type).kind
-    doReturn(type).`when`(element).asType()
+fun mockElementAndType(): Pair<XFieldElement, XType> {
+    val element = mock(XFieldElement::class.java)
+    val type = mock(XType::class.java)
+    doReturn(type).`when`(element).type
     return element to type
 }
 
@@ -249,9 +337,11 @@ fun compileLibrarySources(vararg sources: JavaFileObject): Set<File> {
     return getSystemClasspathFiles() + lib
 }
 
-private fun getSystemClasspathFiles(): Set<File> {
-    val pathSeparator = System.getProperty("path.separator")
-    return System.getProperty("java.class.path").split(pathSeparator).map { File(it) }.toSet()
+fun getSystemClasspathFiles(): Set<File> {
+    val pathSeparator = System.getProperty("path.separator")!!
+    return System.getProperty("java.class.path")!!.split(pathSeparator).map { File(it) }.toSet()
 }
 
 fun String.toJFO(qName: String): JavaFileObject = JavaFileObjects.forSourceLines(qName, this)
+
+fun Collection<JavaFileObject>.toSources() = map(Source::fromJavaFileObject)

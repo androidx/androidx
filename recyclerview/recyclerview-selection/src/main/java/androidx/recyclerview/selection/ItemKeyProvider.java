@@ -79,7 +79,8 @@ public abstract class ItemKeyProvider<K> {
     public abstract @Nullable K getKey(int position);
 
     /**
-     * @return the position corresponding to the selection key, or RecyclerView.NO_POSITION.
+     * @return the position corresponding to the selection key, or RecyclerView.NO_POSITION
+     * if the key is unrecognized.
      */
     public abstract int getPosition(@NonNull K key);
 }

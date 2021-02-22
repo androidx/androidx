@@ -56,7 +56,14 @@ class TileList<T> {
         mTiles.clear();
     }
 
+    /**
+     * Returns the {@link Tile} at the provided {@param index}, or {@code null} if the index
+     * provided is out of bounds.
+     */
     public Tile<T> getAtIndex(int index) {
+        if (index < 0 || index >= mTiles.size()) {
+            return null;
+        }
         return mTiles.valueAt(index);
     }
 

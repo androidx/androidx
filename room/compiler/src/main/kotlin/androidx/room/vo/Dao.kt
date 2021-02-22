@@ -16,20 +16,23 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.isTypeElement
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
 
 data class Dao(
-    val element: TypeElement,
-    val type: DeclaredType,
+    val element: XTypeElement,
+    val type: XType,
     val queryMethods: List<QueryMethod>,
     val rawQueryMethods: List<RawQueryMethod>,
     val insertionMethods: List<InsertionMethod>,
     val deletionMethods: List<DeletionMethod>,
     val updateMethods: List<UpdateMethod>,
     val transactionMethods: List<TransactionMethod>,
+    val delegatingMethods: List<KotlinBoxedPrimitiveMethodDelegate>,
+    val kotlinDefaultMethodDelegates: List<KotlinDefaultMethodDelegate>,
     val constructorParamType: TypeName?
 ) {
     // parsed dao might have a suffix if it is used in multiple databases.
@@ -42,7 +45,7 @@ data class Dao(
         this.suffix = if (newSuffix == "") "" else "_$newSuffix"
     }
 
-    val typeName: ClassName by lazy { ClassName.get(element) }
+    val typeName: ClassName by lazy { element.className }
 
     val shortcutMethods: List<ShortcutMethod> by lazy {
         deletionMethods + updateMethods
@@ -53,10 +56,10 @@ data class Dao(
             suffix = ""
         }
         val path = arrayListOf<String>()
-        var enclosing = element.enclosingElement
-        while (enclosing is TypeElement) {
-            path.add(ClassName.get(enclosing as TypeElement).simpleName())
-            enclosing = enclosing.enclosingElement
+        var enclosing = element.enclosingTypeElement
+        while (enclosing?.isTypeElement() == true) {
+            path.add(enclosing!!.name)
+            enclosing = enclosing!!.enclosingTypeElement
         }
         path.reversed().joinToString("_") + "${typeName.simpleName()}${suffix}_Impl"
     }

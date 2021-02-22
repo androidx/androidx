@@ -17,7 +17,6 @@
 package androidx.room.integration.kotlintestapp
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Runnable
 import java.util.concurrent.atomic.AtomicInteger
@@ -34,7 +33,6 @@ class NewThreadDispatcher : CoroutineDispatcher() {
         super.dispatchYield(context, block)
     }
 
-    @ExperimentalCoroutinesApi
     override fun isDispatchNeeded(context: CoroutineContext) = true
 
     override fun dispatch(context: CoroutineContext, block: Runnable) {

@@ -37,6 +37,7 @@ import java.util.List;
 public final class NightPreviewExtenderImpl implements PreviewExtenderImpl {
     private static final int DEFAULT_STAGE_ID = 0;
     private static final int SESSION_STAGE_ID = 101;
+    private static final int EFFECT = CaptureRequest.CONTROL_EFFECT_MODE_MONO;
 
     public NightPreviewExtenderImpl() {
     }
@@ -49,7 +50,12 @@ public final class NightPreviewExtenderImpl implements PreviewExtenderImpl {
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @Nullable CameraCharacteristics cameraCharacteristics) {
         // Implement the logic to check whether the extension function is supported or not.
-        return true;
+
+        if (cameraCharacteristics == null) {
+            return false;
+        }
+
+        return CameraCharacteristicAvailability.isEffectAvailable(cameraCharacteristics, EFFECT);
     }
 
     @Override
@@ -57,8 +63,7 @@ public final class NightPreviewExtenderImpl implements PreviewExtenderImpl {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_MONO);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE, EFFECT);
 
         return captureStage;
     }
@@ -94,8 +99,7 @@ public final class NightPreviewExtenderImpl implements PreviewExtenderImpl {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_MONO);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE, EFFECT);
 
         return captureStage;
     }
@@ -105,8 +109,7 @@ public final class NightPreviewExtenderImpl implements PreviewExtenderImpl {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_MONO);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE, EFFECT);
 
         return captureStage;
     }
@@ -116,8 +119,7 @@ public final class NightPreviewExtenderImpl implements PreviewExtenderImpl {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_MONO);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE, EFFECT);
 
         return captureStage;
     }

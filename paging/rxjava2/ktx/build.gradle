@@ -26,14 +26,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-android {
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
-        }
-    }
-}
-
 dependencies {
     api(project(":paging:paging-rxjava2"))
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
@@ -48,9 +40,8 @@ dependencies {
 }
 
 androidx {
-    name = "Android Paging-RxJava2 Kotlin Extensions"
+    name = "Android Paging RxJava2 Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.PAGING
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2018"
     description = "Kotlin extensions for 'paging-rxjava2' artifact"

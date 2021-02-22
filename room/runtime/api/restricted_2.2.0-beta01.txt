@@ -51,8 +51,8 @@ package androidx.room {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase!, java.util.Map<java.lang.String!,java.lang.String!>!, java.util.Map<java.lang.String!,java.util.Set<java.lang.String!>!>!, java.lang.String!...);
     method @WorkerThread public void addObserver(androidx.room.InvalidationTracker.Observer);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addWeakObserver(androidx.room.InvalidationTracker.Observer!);
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T!>! createLiveData(String![]!, java.util.concurrent.Callable<T!>!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T!>! createLiveData(String![]!, boolean, java.util.concurrent.Callable<T!>!);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> LiveData<T> createLiveData(String![]!, java.util.concurrent.Callable<T!>!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> LiveData<T> createLiveData(String![]!, boolean, java.util.concurrent.Callable<T!>!);
     method public void refreshVersionsAsync();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @WorkerThread public void refreshVersionsSync();
     method @WorkerThread public void removeObserver(androidx.room.InvalidationTracker.Observer);
@@ -79,7 +79,6 @@ package androidx.room {
   public abstract class RoomDatabase {
     ctor public RoomDatabase();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void assertNotMainThread();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void assertNotSuspendingTransaction();
     method @Deprecated public void beginTransaction();
     method @WorkerThread public abstract void clearAllTables();
     method public void close();
@@ -208,12 +207,13 @@ package androidx.room.migration {
 
 package androidx.room.paging {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class LimitOffsetDataSource<T> extends androidx.paging.PositionalDataSource<T> {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class LimitOffsetDataSource<T> {
     ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean, java.lang.String!...);
     ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase!, androidx.room.RoomSQLiteQuery!, boolean, java.lang.String!...);
     method protected abstract java.util.List<T!>! convertRows(android.database.Cursor!);
-    method public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T!>);
-    method public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams, androidx.paging.PositionalDataSource.LoadRangeCallback<T!>);
+    method public boolean isInvalid();
+    method public void loadInitial(LoadInitialParams, LoadInitialCallback<T>);
+    method public void loadRange(LoadRangeParams, LoadRangeCallback<T>);
   }
 
 }
@@ -253,10 +253,6 @@ package androidx.room.util {
     field public final java.util.Set<java.lang.String!>! options;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class SneakyThrow {
-    method public static void reThrow(Exception);
-  }
-
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class StringUtil {
     method public static void appendPlaceholders(StringBuilder!, int);
     method public static String? joinIntoString(java.util.List<java.lang.Integer!>?);
@@ -282,7 +278,7 @@ package androidx.room.util {
     ctor @Deprecated public TableInfo.Column(String!, String!, boolean, int);
     ctor public TableInfo.Column(String!, String!, boolean, int, String!, int);
     method public boolean isPrimaryKey();
-    field public final int affinity;
+    field @androidx.room.ColumnInfo.SQLiteTypeAffinity public final int affinity;
     field public final String! defaultValue;
     field public final String! name;
     field public final boolean notNull;

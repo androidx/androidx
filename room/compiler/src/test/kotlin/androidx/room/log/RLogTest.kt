@@ -16,19 +16,22 @@
 
 package androidx.room.log
 
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XMessager
 import androidx.room.vo.Warning
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.mock
+import javax.tools.Diagnostic
 
 @RunWith(JUnit4::class)
 class RLogTest {
-
-    val messager = mock(RLog.Messager::class.java)
-
     @Test
     fun testSafeFormat() {
+        val messager = object : XMessager() {
+            override fun onPrintMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
+            }
+        }
         val logger = RLog(messager, emptySet(), null)
 
         // UnknownFormatConversionException

@@ -21,6 +21,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
@@ -39,7 +40,7 @@ import java.util.Map;
 @RunWith(Parameterized.class)
 @LargeTest
 public class FeatureNotAvailableTestAppTest {
-    private static Map<String, Integer> sFeatureActivities = new HashMap<>();
+    private static final Map<String, Integer> sFeatureActivities = new HashMap<>();
 
     static {
         //  Add features that displays the webkit_api_not_available error in the test app when
@@ -58,21 +59,20 @@ public class FeatureNotAvailableTestAppTest {
 
     public FeatureNotAvailableTestAppTest(Map.Entry<String, Integer> featureActivity) {
         mFeature = featureActivity.getKey();
-        mTitleResId = featureActivity.getValue();
+        mTitleResourceId = featureActivity.getValue();
     }
 
     public String mFeature;
-
-    public Integer mTitleResId;
+    public Integer mTitleResourceId;
 
     @Rule
-    public IntegrationAppTestRule mRule = new IntegrationAppTestRule();
+    public ActivityScenarioRule<MainActivity> mRule =
+            new ActivityScenarioRule<>(MainActivity.class);
 
     @Before
     public void setUp() {
-        mRule.getActivity();
-        mRule.assumeFeatureNotAvailable(mFeature);
-        mRule.clickMenuListItem(mTitleResId);
+        WebkitTestHelpers.assumeFeatureNotAvailable(mFeature);
+        WebkitTestHelpers.clickMenuListItemWithString(mTitleResourceId);
     }
 
     @Test

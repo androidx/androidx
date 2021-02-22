@@ -21,10 +21,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.same;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -151,6 +151,7 @@ public class SpannableBuilderTest {
         verify(mWatcher, times(1)).afterTextChanged(any(Editable.class));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testDoesNotBlockSpanCallbacks_forNonEmojiSpans() {
         final QuoteSpan span = mock(QuoteSpan.class);

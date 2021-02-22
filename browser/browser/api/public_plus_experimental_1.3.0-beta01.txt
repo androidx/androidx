@@ -1,0 +1,450 @@
+// Signature format: 4.0
+package androidx.browser.browseractions {
+
+  @Deprecated public class BrowserActionItem {
+    ctor @Deprecated public BrowserActionItem(String, android.app.PendingIntent, @DrawableRes int);
+    ctor @Deprecated public BrowserActionItem(String, android.app.PendingIntent);
+    method @Deprecated public android.app.PendingIntent getAction();
+    method @Deprecated public int getIconId();
+    method @Deprecated public String getTitle();
+  }
+
+  @Deprecated public class BrowserActionsIntent {
+    method @Deprecated public static String? getCreatorPackageName(android.content.Intent);
+    method @Deprecated public android.content.Intent getIntent();
+    method @Deprecated public static String? getUntrustedCreatorPackageName(android.content.Intent);
+    method @Deprecated public static void launchIntent(android.content.Context, android.content.Intent);
+    method @Deprecated public static void openBrowserAction(android.content.Context, android.net.Uri);
+    method @Deprecated public static void openBrowserAction(android.content.Context, android.net.Uri, int, java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem!>, android.app.PendingIntent);
+    method @Deprecated public static java.util.List<androidx.browser.browseractions.BrowserActionItem!> parseBrowserActionItems(java.util.ArrayList<android.os.Bundle!>);
+    field @Deprecated public static final String ACTION_BROWSER_ACTIONS_OPEN = "androidx.browser.browseractions.browser_action_open";
+    field @Deprecated public static final String EXTRA_APP_ID = "androidx.browser.browseractions.APP_ID";
+    field @Deprecated public static final String EXTRA_MENU_ITEMS = "androidx.browser.browseractions.extra.MENU_ITEMS";
+    field @Deprecated public static final String EXTRA_SELECTED_ACTION_PENDING_INTENT = "androidx.browser.browseractions.extra.SELECTED_ACTION_PENDING_INTENT";
+    field @Deprecated public static final String EXTRA_TYPE = "androidx.browser.browseractions.extra.TYPE";
+    field @Deprecated public static final int ITEM_COPY = 3; // 0x3
+    field @Deprecated public static final int ITEM_DOWNLOAD = 2; // 0x2
+    field @Deprecated public static final int ITEM_INVALID_ITEM = -1; // 0xffffffff
+    field @Deprecated public static final int ITEM_OPEN_IN_INCOGNITO = 1; // 0x1
+    field @Deprecated public static final int ITEM_OPEN_IN_NEW_TAB = 0; // 0x0
+    field @Deprecated public static final int ITEM_SHARE = 4; // 0x4
+    field @Deprecated public static final String KEY_ACTION = "androidx.browser.browseractions.ACTION";
+    field @Deprecated public static final String KEY_ICON_ID = "androidx.browser.browseractions.ICON_ID";
+    field @Deprecated public static final String KEY_TITLE = "androidx.browser.browseractions.TITLE";
+    field @Deprecated public static final int MAX_CUSTOM_ITEMS = 5; // 0x5
+    field @Deprecated public static final int URL_TYPE_AUDIO = 3; // 0x3
+    field @Deprecated public static final int URL_TYPE_FILE = 4; // 0x4
+    field @Deprecated public static final int URL_TYPE_IMAGE = 1; // 0x1
+    field @Deprecated public static final int URL_TYPE_NONE = 0; // 0x0
+    field @Deprecated public static final int URL_TYPE_PLUGIN = 5; // 0x5
+    field @Deprecated public static final int URL_TYPE_VIDEO = 2; // 0x2
+  }
+
+  @Deprecated public static final class BrowserActionsIntent.Builder {
+    ctor @Deprecated public BrowserActionsIntent.Builder(android.content.Context, android.net.Uri);
+    method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent build();
+    method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem!>);
+    method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder setCustomItems(androidx.browser.browseractions.BrowserActionItem!...);
+    method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder setOnItemSelectedAction(android.app.PendingIntent);
+    method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder setUrlType(int);
+  }
+
+}
+
+package androidx.browser.customtabs {
+
+  public final class CustomTabColorSchemeParams {
+    field @ColorInt public final Integer? navigationBarColor;
+    field @ColorInt public final Integer? navigationBarDividerColor;
+    field @ColorInt public final Integer? secondaryToolbarColor;
+    field @ColorInt public final Integer? toolbarColor;
+  }
+
+  public static final class CustomTabColorSchemeParams.Builder {
+    ctor public CustomTabColorSchemeParams.Builder();
+    method public androidx.browser.customtabs.CustomTabColorSchemeParams build();
+    method public androidx.browser.customtabs.CustomTabColorSchemeParams.Builder setNavigationBarColor(@ColorInt int);
+    method public androidx.browser.customtabs.CustomTabColorSchemeParams.Builder setNavigationBarDividerColor(@ColorInt int);
+    method public androidx.browser.customtabs.CustomTabColorSchemeParams.Builder setSecondaryToolbarColor(@ColorInt int);
+    method public androidx.browser.customtabs.CustomTabColorSchemeParams.Builder setToolbarColor(@ColorInt int);
+  }
+
+  public class CustomTabsCallback {
+    ctor public CustomTabsCallback();
+    method public void extraCallback(String, android.os.Bundle?);
+    method public android.os.Bundle? extraCallbackWithResult(String, android.os.Bundle?);
+    method public void onMessageChannelReady(android.os.Bundle?);
+    method public void onNavigationEvent(int, android.os.Bundle?);
+    method public void onPostMessage(String, android.os.Bundle?);
+    method public void onRelationshipValidationResult(@androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri, boolean, android.os.Bundle?);
+    field public static final int NAVIGATION_ABORTED = 4; // 0x4
+    field public static final int NAVIGATION_FAILED = 3; // 0x3
+    field public static final int NAVIGATION_FINISHED = 2; // 0x2
+    field public static final int NAVIGATION_STARTED = 1; // 0x1
+    field public static final int TAB_HIDDEN = 6; // 0x6
+    field public static final int TAB_SHOWN = 5; // 0x5
+  }
+
+  public class CustomTabsClient {
+    method public static boolean bindCustomTabsService(android.content.Context, String?, androidx.browser.customtabs.CustomTabsServiceConnection);
+    method public static boolean bindCustomTabsServicePreservePriority(android.content.Context, String?, androidx.browser.customtabs.CustomTabsServiceConnection);
+    method public static boolean connectAndInitialize(android.content.Context, String);
+    method public android.os.Bundle? extraCommand(String, android.os.Bundle?);
+    method public static String? getPackageName(android.content.Context, java.util.List<java.lang.String!>?);
+    method public static String? getPackageName(android.content.Context, java.util.List<java.lang.String!>?, boolean);
+    method public androidx.browser.customtabs.CustomTabsSession? newSession(androidx.browser.customtabs.CustomTabsCallback?);
+    method public androidx.browser.customtabs.CustomTabsSession? newSession(androidx.browser.customtabs.CustomTabsCallback?, int);
+    method public boolean warmup(long);
+  }
+
+  public final class CustomTabsIntent {
+    method public static androidx.browser.customtabs.CustomTabColorSchemeParams getColorSchemeParams(android.content.Intent, int);
+    method public static int getMaxToolbarItems();
+    method public void launchUrl(android.content.Context, android.net.Uri);
+    method public static android.content.Intent setAlwaysUseBrowserUI(android.content.Intent?);
+    method public static boolean shouldAlwaysUseBrowserUI(android.content.Intent);
+    field public static final int COLOR_SCHEME_DARK = 2; // 0x2
+    field public static final int COLOR_SCHEME_LIGHT = 1; // 0x1
+    field public static final int COLOR_SCHEME_SYSTEM = 0; // 0x0
+    field public static final String EXTRA_ACTION_BUTTON_BUNDLE = "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
+    field public static final String EXTRA_CLOSE_BUTTON_ICON = "android.support.customtabs.extra.CLOSE_BUTTON_ICON";
+    field public static final String EXTRA_COLOR_SCHEME = "androidx.browser.customtabs.extra.COLOR_SCHEME";
+    field public static final String EXTRA_COLOR_SCHEME_PARAMS = "androidx.browser.customtabs.extra.COLOR_SCHEME_PARAMS";
+    field @Deprecated public static final String EXTRA_DEFAULT_SHARE_MENU_ITEM = "android.support.customtabs.extra.SHARE_MENU_ITEM";
+    field public static final String EXTRA_ENABLE_INSTANT_APPS = "android.support.customtabs.extra.EXTRA_ENABLE_INSTANT_APPS";
+    field public static final String EXTRA_ENABLE_URLBAR_HIDING = "android.support.customtabs.extra.ENABLE_URLBAR_HIDING";
+    field public static final String EXTRA_EXIT_ANIMATION_BUNDLE = "android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE";
+    field public static final String EXTRA_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
+    field public static final String EXTRA_NAVIGATION_BAR_COLOR = "androidx.browser.customtabs.extra.NAVIGATION_BAR_COLOR";
+    field public static final String EXTRA_NAVIGATION_BAR_DIVIDER_COLOR = "androidx.browser.customtabs.extra.NAVIGATION_BAR_DIVIDER_COLOR";
+    field public static final String EXTRA_REMOTEVIEWS = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS";
+    field public static final String EXTRA_REMOTEVIEWS_CLICKED_ID = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_CLICKED_ID";
+    field public static final String EXTRA_REMOTEVIEWS_PENDINGINTENT = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_PENDINGINTENT";
+    field public static final String EXTRA_REMOTEVIEWS_VIEW_IDS = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_VIEW_IDS";
+    field public static final String EXTRA_SECONDARY_TOOLBAR_COLOR = "android.support.customtabs.extra.SECONDARY_TOOLBAR_COLOR";
+    field public static final String EXTRA_SESSION = "android.support.customtabs.extra.SESSION";
+    field public static final String EXTRA_SHARE_STATE = "androidx.browser.customtabs.extra.SHARE_STATE";
+    field public static final String EXTRA_TINT_ACTION_BUTTON = "android.support.customtabs.extra.TINT_ACTION_BUTTON";
+    field public static final String EXTRA_TITLE_VISIBILITY_STATE = "android.support.customtabs.extra.TITLE_VISIBILITY";
+    field public static final String EXTRA_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+    field public static final String EXTRA_TOOLBAR_ITEMS = "android.support.customtabs.extra.TOOLBAR_ITEMS";
+    field public static final String KEY_DESCRIPTION = "android.support.customtabs.customaction.DESCRIPTION";
+    field public static final String KEY_ICON = "android.support.customtabs.customaction.ICON";
+    field public static final String KEY_ID = "android.support.customtabs.customaction.ID";
+    field public static final String KEY_MENU_ITEM_TITLE = "android.support.customtabs.customaction.MENU_ITEM_TITLE";
+    field public static final String KEY_PENDING_INTENT = "android.support.customtabs.customaction.PENDING_INTENT";
+    field public static final int NO_TITLE = 0; // 0x0
+    field public static final int SHARE_STATE_DEFAULT = 0; // 0x0
+    field public static final int SHARE_STATE_OFF = 2; // 0x2
+    field public static final int SHARE_STATE_ON = 1; // 0x1
+    field public static final int SHOW_PAGE_TITLE = 1; // 0x1
+    field public static final int TOOLBAR_ACTION_BUTTON_ID = 0; // 0x0
+    field public final android.content.Intent intent;
+    field public final android.os.Bundle? startAnimationBundle;
+  }
+
+  public static final class CustomTabsIntent.Builder {
+    ctor public CustomTabsIntent.Builder();
+    ctor public CustomTabsIntent.Builder(androidx.browser.customtabs.CustomTabsSession?);
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder addDefaultShareMenuItem();
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder addMenuItem(String, android.app.PendingIntent);
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder addToolbarItem(int, android.graphics.Bitmap, String, android.app.PendingIntent) throws java.lang.IllegalStateException;
+    method public androidx.browser.customtabs.CustomTabsIntent build();
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder enableUrlBarHiding();
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent, boolean);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorScheme(int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorSchemeParams(int, androidx.browser.customtabs.CustomTabColorSchemeParams);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams);
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setDefaultShareMenuItemEnabled(boolean);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, @AnimRes int, @AnimRes int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setInstantAppsEnabled(boolean);
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarColor(@ColorInt int);
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarDividerColor(@ColorInt int);
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(@ColorInt int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarViews(android.widget.RemoteViews, int[]?, android.app.PendingIntent?);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setSession(androidx.browser.customtabs.CustomTabsSession);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setShareState(int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setShowTitle(boolean);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setStartAnimations(android.content.Context, @AnimRes int, @AnimRes int);
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setToolbarColor(@ColorInt int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setUrlBarHidingEnabled(boolean);
+  }
+
+  public abstract class CustomTabsService extends android.app.Service {
+    ctor public CustomTabsService();
+    method protected boolean cleanUpSession(androidx.browser.customtabs.CustomTabsSessionToken);
+    method protected abstract android.os.Bundle? extraCommand(String, android.os.Bundle?);
+    method protected abstract boolean mayLaunchUrl(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri?, android.os.Bundle?, java.util.List<android.os.Bundle!>?);
+    method protected abstract boolean newSession(androidx.browser.customtabs.CustomTabsSessionToken);
+    method public android.os.IBinder onBind(android.content.Intent?);
+    method @androidx.browser.customtabs.CustomTabsService.Result protected abstract int postMessage(androidx.browser.customtabs.CustomTabsSessionToken, String, android.os.Bundle?);
+    method protected abstract boolean receiveFile(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri, int, android.os.Bundle?);
+    method protected abstract boolean requestPostMessageChannel(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri);
+    method protected abstract boolean updateVisuals(androidx.browser.customtabs.CustomTabsSessionToken, android.os.Bundle?);
+    method protected abstract boolean validateRelationship(androidx.browser.customtabs.CustomTabsSessionToken, @androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri, android.os.Bundle?);
+    method protected abstract boolean warmup(long);
+    field public static final String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
+    field public static final String CATEGORY_COLOR_SCHEME_CUSTOMIZATION = "androidx.browser.customtabs.category.ColorSchemeCustomization";
+    field public static final String CATEGORY_NAVBAR_COLOR_CUSTOMIZATION = "androidx.browser.customtabs.category.NavBarColorCustomization";
+    field public static final String CATEGORY_TRUSTED_WEB_ACTIVITY_IMMERSIVE_MODE = "androidx.browser.trusted.category.ImmersiveMode";
+    field public static final String CATEGORY_WEB_SHARE_TARGET_V2 = "androidx.browser.trusted.category.WebShareTargetV2";
+    field public static final int FILE_PURPOSE_TRUSTED_WEB_ACTIVITY_SPLASH_IMAGE = 1; // 0x1
+    field public static final String KEY_SUCCESS = "androidx.browser.customtabs.SUCCESS";
+    field public static final String KEY_URL = "android.support.customtabs.otherurls.URL";
+    field public static final int RELATION_HANDLE_ALL_URLS = 2; // 0x2
+    field public static final int RELATION_USE_AS_ORIGIN = 1; // 0x1
+    field public static final int RESULT_FAILURE_DISALLOWED = -1; // 0xffffffff
+    field public static final int RESULT_FAILURE_MESSAGING_ERROR = -3; // 0xfffffffd
+    field public static final int RESULT_FAILURE_REMOTE_ERROR = -2; // 0xfffffffe
+    field public static final int RESULT_SUCCESS = 0; // 0x0
+    field public static final String TRUSTED_WEB_ACTIVITY_CATEGORY = "androidx.browser.trusted.category.TrustedWebActivities";
+  }
+
+  @IntDef({androidx.browser.customtabs.CustomTabsService.RELATION_USE_AS_ORIGIN, androidx.browser.customtabs.CustomTabsService.RELATION_HANDLE_ALL_URLS}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CustomTabsService.Relation {
+  }
+
+  @IntDef({androidx.browser.customtabs.CustomTabsService.RESULT_SUCCESS, androidx.browser.customtabs.CustomTabsService.RESULT_FAILURE_DISALLOWED, androidx.browser.customtabs.CustomTabsService.RESULT_FAILURE_REMOTE_ERROR, androidx.browser.customtabs.CustomTabsService.RESULT_FAILURE_MESSAGING_ERROR}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CustomTabsService.Result {
+  }
+
+  public abstract class CustomTabsServiceConnection implements android.content.ServiceConnection {
+    ctor public CustomTabsServiceConnection();
+    method public abstract void onCustomTabsServiceConnected(android.content.ComponentName, androidx.browser.customtabs.CustomTabsClient);
+    method public final void onServiceConnected(android.content.ComponentName, android.os.IBinder);
+  }
+
+  public final class CustomTabsSession {
+    method @VisibleForTesting public static androidx.browser.customtabs.CustomTabsSession createMockSessionForTesting(android.content.ComponentName);
+    method public boolean mayLaunchUrl(android.net.Uri?, android.os.Bundle?, java.util.List<android.os.Bundle!>?);
+    method @androidx.browser.customtabs.CustomTabsService.Result public int postMessage(String, android.os.Bundle?);
+    method public boolean receiveFile(android.net.Uri, int, android.os.Bundle?);
+    method public boolean requestPostMessageChannel(android.net.Uri);
+    method public boolean setActionButton(android.graphics.Bitmap, String);
+    method public boolean setSecondaryToolbarViews(android.widget.RemoteViews?, int[]?, android.app.PendingIntent?);
+    method @Deprecated public boolean setToolbarItem(int, android.graphics.Bitmap, String);
+    method public boolean validateRelationship(@androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri, android.os.Bundle?);
+  }
+
+  public class CustomTabsSessionToken {
+    method public static androidx.browser.customtabs.CustomTabsSessionToken createMockSessionTokenForTesting();
+    method public androidx.browser.customtabs.CustomTabsCallback? getCallback();
+    method public static androidx.browser.customtabs.CustomTabsSessionToken? getSessionTokenFromIntent(android.content.Intent);
+    method public boolean isAssociatedWith(androidx.browser.customtabs.CustomTabsSession);
+  }
+
+  public class PostMessageService extends android.app.Service {
+    ctor public PostMessageService();
+    method public android.os.IBinder onBind(android.content.Intent?);
+  }
+
+  public abstract class PostMessageServiceConnection implements android.content.ServiceConnection {
+    ctor public PostMessageServiceConnection(androidx.browser.customtabs.CustomTabsSessionToken);
+    method public boolean bindSessionToPostMessageService(android.content.Context, String);
+    method public final boolean notifyMessageChannelReady(android.os.Bundle?);
+    method public void onPostMessageServiceConnected();
+    method public void onPostMessageServiceDisconnected();
+    method public final void onServiceConnected(android.content.ComponentName, android.os.IBinder);
+    method public final void onServiceDisconnected(android.content.ComponentName);
+    method public final boolean postMessage(String, android.os.Bundle?);
+    method public void unbindFromContext(android.content.Context);
+  }
+
+  public class TrustedWebUtils {
+    method public static boolean areSplashScreensSupported(android.content.Context, String, String);
+    method @Deprecated public static void launchAsTrustedWebActivity(android.content.Context, androidx.browser.customtabs.CustomTabsIntent, android.net.Uri);
+    method @WorkerThread public static boolean transferSplashImage(android.content.Context, java.io.File, String, String, androidx.browser.customtabs.CustomTabsSession);
+    field public static final String EXTRA_LAUNCH_AS_TRUSTED_WEB_ACTIVITY = "android.support.customtabs.extra.LAUNCH_AS_TRUSTED_WEB_ACTIVITY";
+  }
+
+}
+
+package androidx.browser.trusted {
+
+  public final class ScreenOrientation {
+    field public static final int ANY = 5; // 0x5
+    field public static final int DEFAULT = 0; // 0x0
+    field public static final int LANDSCAPE = 6; // 0x6
+    field public static final int LANDSCAPE_PRIMARY = 3; // 0x3
+    field public static final int LANDSCAPE_SECONDARY = 4; // 0x4
+    field public static final int NATURAL = 8; // 0x8
+    field public static final int PORTRAIT = 7; // 0x7
+    field public static final int PORTRAIT_PRIMARY = 1; // 0x1
+    field public static final int PORTRAIT_SECONDARY = 2; // 0x2
+  }
+
+  public final class Token {
+    method public static androidx.browser.trusted.Token? create(String, android.content.pm.PackageManager);
+    method public static androidx.browser.trusted.Token deserialize(byte[]);
+    method public boolean matches(String, android.content.pm.PackageManager);
+    method public byte[] serialize();
+  }
+
+  public interface TokenStore {
+    method @BinderThread public androidx.browser.trusted.Token? load();
+    method @WorkerThread public void store(androidx.browser.trusted.Token?);
+  }
+
+  public abstract class TrustedWebActivityCallback {
+    ctor public TrustedWebActivityCallback();
+    method public abstract void onExtraCallback(String, android.os.Bundle?);
+  }
+
+  public class TrustedWebActivityCallbackRemote {
+    method public void runExtraCallback(String, android.os.Bundle) throws android.os.RemoteException;
+  }
+
+  public interface TrustedWebActivityDisplayMode {
+    method public static androidx.browser.trusted.TrustedWebActivityDisplayMode fromBundle(android.os.Bundle);
+    method public android.os.Bundle toBundle();
+    field public static final String KEY_ID = "androidx.browser.trusted.displaymode.KEY_ID";
+  }
+
+  public static class TrustedWebActivityDisplayMode.DefaultMode implements androidx.browser.trusted.TrustedWebActivityDisplayMode {
+    ctor public TrustedWebActivityDisplayMode.DefaultMode();
+    method public android.os.Bundle toBundle();
+  }
+
+  public static class TrustedWebActivityDisplayMode.ImmersiveMode implements androidx.browser.trusted.TrustedWebActivityDisplayMode {
+    ctor public TrustedWebActivityDisplayMode.ImmersiveMode(boolean, int);
+    method public boolean isSticky();
+    method public int layoutInDisplayCutoutMode();
+    method public android.os.Bundle toBundle();
+    field public static final String KEY_CUTOUT_MODE = "androidx.browser.trusted.displaymode.KEY_CUTOUT_MODE";
+    field public static final String KEY_STICKY = "androidx.browser.trusted.displaymode.KEY_STICKY";
+  }
+
+  public final class TrustedWebActivityIntent {
+    method public android.content.Intent getIntent();
+    method public void launchTrustedWebActivity(android.content.Context);
+  }
+
+  public class TrustedWebActivityIntentBuilder {
+    ctor public TrustedWebActivityIntentBuilder(android.net.Uri);
+    method public androidx.browser.trusted.TrustedWebActivityIntent build(androidx.browser.customtabs.CustomTabsSession);
+    method public androidx.browser.customtabs.CustomTabsIntent buildCustomTabsIntent();
+    method public androidx.browser.trusted.TrustedWebActivityDisplayMode getDisplayMode();
+    method public android.net.Uri getUri();
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setAdditionalTrustedOrigins(java.util.List<java.lang.String!>);
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setColorScheme(int);
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setColorSchemeParams(int, androidx.browser.customtabs.CustomTabColorSchemeParams);
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams);
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setDisplayMode(androidx.browser.trusted.TrustedWebActivityDisplayMode);
+    method @Deprecated public androidx.browser.trusted.TrustedWebActivityIntentBuilder setNavigationBarColor(@ColorInt int);
+    method @Deprecated public androidx.browser.trusted.TrustedWebActivityIntentBuilder setNavigationBarDividerColor(@ColorInt int);
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setScreenOrientation(int);
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setShareParams(androidx.browser.trusted.sharing.ShareTarget, androidx.browser.trusted.sharing.ShareData);
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setSplashScreenParams(android.os.Bundle);
+    method @Deprecated public androidx.browser.trusted.TrustedWebActivityIntentBuilder setToolbarColor(@ColorInt int);
+    field public static final String EXTRA_ADDITIONAL_TRUSTED_ORIGINS = "android.support.customtabs.extra.ADDITIONAL_TRUSTED_ORIGINS";
+    field public static final String EXTRA_DISPLAY_MODE = "androidx.browser.trusted.extra.DISPLAY_MODE";
+    field public static final String EXTRA_SCREEN_ORIENTATION = "androidx.browser.trusted.extra.SCREEN_ORIENTATION";
+    field public static final String EXTRA_SHARE_DATA = "androidx.browser.trusted.extra.SHARE_DATA";
+    field public static final String EXTRA_SHARE_TARGET = "androidx.browser.trusted.extra.SHARE_TARGET";
+    field public static final String EXTRA_SPLASH_SCREEN_PARAMS = "androidx.browser.trusted.EXTRA_SPLASH_SCREEN_PARAMS";
+  }
+
+  public abstract class TrustedWebActivityService extends android.app.Service {
+    ctor public TrustedWebActivityService();
+    method @BinderThread public abstract androidx.browser.trusted.TokenStore getTokenStore();
+    method @BinderThread public boolean onAreNotificationsEnabled(String);
+    method @MainThread public final android.os.IBinder? onBind(android.content.Intent?);
+    method @BinderThread public void onCancelNotification(String, int);
+    method @BinderThread public android.os.Bundle? onExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallbackRemote?);
+    method @BinderThread public android.os.Bundle onGetSmallIconBitmap();
+    method @BinderThread public int onGetSmallIconId();
+    method @BinderThread public boolean onNotifyNotificationWithChannel(String, int, android.app.Notification, String);
+    method @MainThread public final boolean onUnbind(android.content.Intent?);
+    field public static final String ACTION_TRUSTED_WEB_ACTIVITY_SERVICE = "android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE";
+    field public static final String KEY_SMALL_ICON_BITMAP = "android.support.customtabs.trusted.SMALL_ICON_BITMAP";
+    field public static final String KEY_SUCCESS = "androidx.browser.trusted.SUCCESS";
+    field public static final String META_DATA_NAME_SMALL_ICON = "android.support.customtabs.trusted.SMALL_ICON";
+    field public static final int SMALL_ICON_NOT_SET = -1; // 0xffffffff
+  }
+
+  public final class TrustedWebActivityServiceConnection {
+    method public boolean areNotificationsEnabled(String) throws android.os.RemoteException;
+    method public void cancel(String, int) throws android.os.RemoteException;
+    method public android.content.ComponentName getComponentName();
+    method public android.graphics.Bitmap? getSmallIconBitmap() throws android.os.RemoteException;
+    method public int getSmallIconId() throws android.os.RemoteException;
+    method public boolean notify(String, int, android.app.Notification, String) throws android.os.RemoteException;
+    method public android.os.Bundle? sendExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallback?) throws android.os.RemoteException;
+  }
+
+  public final class TrustedWebActivityServiceConnectionPool {
+    method @MainThread public com.google.common.util.concurrent.ListenableFuture<androidx.browser.trusted.TrustedWebActivityServiceConnection!> connect(android.net.Uri, java.util.Set<androidx.browser.trusted.Token!>, java.util.concurrent.Executor);
+    method public static androidx.browser.trusted.TrustedWebActivityServiceConnectionPool create(android.content.Context);
+    method @MainThread public boolean serviceExistsForScope(android.net.Uri, java.util.Set<androidx.browser.trusted.Token!>);
+  }
+
+}
+
+package androidx.browser.trusted.sharing {
+
+  public final class ShareData {
+    ctor public ShareData(String?, String?, java.util.List<android.net.Uri!>?);
+    method public static androidx.browser.trusted.sharing.ShareData fromBundle(android.os.Bundle);
+    method public android.os.Bundle toBundle();
+    field public static final String KEY_TEXT = "androidx.browser.trusted.sharing.KEY_TEXT";
+    field public static final String KEY_TITLE = "androidx.browser.trusted.sharing.KEY_TITLE";
+    field public static final String KEY_URIS = "androidx.browser.trusted.sharing.KEY_URIS";
+    field public final String? text;
+    field public final String? title;
+    field public final java.util.List<android.net.Uri!>? uris;
+  }
+
+  public final class ShareTarget {
+    ctor public ShareTarget(String, String?, String?, androidx.browser.trusted.sharing.ShareTarget.Params);
+    method public static androidx.browser.trusted.sharing.ShareTarget? fromBundle(android.os.Bundle);
+    method public android.os.Bundle toBundle();
+    field public static final String ENCODING_TYPE_MULTIPART = "multipart/form-data";
+    field public static final String ENCODING_TYPE_URL_ENCODED = "application/x-www-form-urlencoded";
+    field public static final String KEY_ACTION = "androidx.browser.trusted.sharing.KEY_ACTION";
+    field public static final String KEY_ENCTYPE = "androidx.browser.trusted.sharing.KEY_ENCTYPE";
+    field public static final String KEY_METHOD = "androidx.browser.trusted.sharing.KEY_METHOD";
+    field public static final String KEY_PARAMS = "androidx.browser.trusted.sharing.KEY_PARAMS";
+    field public static final String METHOD_GET = "GET";
+    field public static final String METHOD_POST = "POST";
+    field public final String action;
+    field public final String? encodingType;
+    field public final String? method;
+    field public final androidx.browser.trusted.sharing.ShareTarget.Params params;
+  }
+
+  public static final class ShareTarget.FileFormField {
+    ctor public ShareTarget.FileFormField(String, java.util.List<java.lang.String!>);
+    field public static final String KEY_ACCEPTED_TYPES = "androidx.browser.trusted.sharing.KEY_ACCEPTED_TYPES";
+    field public static final String KEY_NAME = "androidx.browser.trusted.sharing.KEY_FILE_NAME";
+    field public final java.util.List<java.lang.String!> acceptedTypes;
+    field public final String name;
+  }
+
+  public static class ShareTarget.Params {
+    ctor public ShareTarget.Params(String?, String?, java.util.List<androidx.browser.trusted.sharing.ShareTarget.FileFormField!>?);
+    field public static final String KEY_FILES = "androidx.browser.trusted.sharing.KEY_FILES";
+    field public static final String KEY_TEXT = "androidx.browser.trusted.sharing.KEY_TEXT";
+    field public static final String KEY_TITLE = "androidx.browser.trusted.sharing.KEY_TITLE";
+    field public final java.util.List<androidx.browser.trusted.sharing.ShareTarget.FileFormField!>? files;
+    field public final String? text;
+    field public final String? title;
+  }
+
+}
+
+package androidx.browser.trusted.splashscreens {
+
+  public final class SplashScreenParamKey {
+    field public static final String KEY_BACKGROUND_COLOR = "androidx.browser.trusted.trusted.KEY_SPLASH_SCREEN_BACKGROUND_COLOR";
+    field public static final String KEY_FADE_OUT_DURATION_MS = "androidx.browser.trusted.KEY_SPLASH_SCREEN_FADE_OUT_DURATION";
+    field public static final String KEY_IMAGE_TRANSFORMATION_MATRIX = "androidx.browser.trusted.KEY_SPLASH_SCREEN_TRANSFORMATION_MATRIX";
+    field public static final String KEY_SCALE_TYPE = "androidx.browser.trusted.KEY_SPLASH_SCREEN_SCALE_TYPE";
+    field public static final String KEY_VERSION = "androidx.browser.trusted.KEY_SPLASH_SCREEN_VERSION";
+  }
+
+  public final class SplashScreenVersion {
+    field public static final String V1 = "androidx.browser.trusted.category.TrustedWebActivitySplashScreensV1";
+  }
+
+}
+

@@ -16,31 +16,40 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XVariableElement
+import androidx.room.parser.Section
 import androidx.room.vo.QueryParameter
-import com.google.auto.common.MoreTypes
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.DeclaredType
 
 class QueryParameterProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val element: VariableElement,
-    private val sqlName: String? = null
+    val containing: XType,
+    val element: XVariableElement,
+    private val sqlName: String,
+    private val bindVarSection: Section.BindVar?
 ) {
     val context = baseContext.fork(element)
     fun process(): QueryParameter {
-        val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)
-        val parameterAdapter = context.typeAdapterStore.findQueryParameterAdapter(asMember)
-        context.checker.check(parameterAdapter != null, element,
-                ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
+        val asMember = element.asMemberOf(containing)
+        val parameterAdapter = context.typeAdapterStore.findQueryParameterAdapter(
+            typeMirror = asMember,
+            isMultipleParameter = bindVarSection?.isMultiple ?: false
+        )
+        context.checker.check(
+            parameterAdapter != null, element,
+            ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT
+        )
 
-        val name = element.simpleName.toString()
-        context.checker.check(!name.startsWith("_"), element,
-                ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
+        val name = element.name
+        context.checker.check(
+            !name.startsWith("_"), element,
+            ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE
+        )
         return QueryParameter(
-                name = name,
-                sqlName = sqlName ?: name,
-                type = asMember,
-                queryParamAdapter = parameterAdapter)
+            name = name,
+            sqlName = sqlName,
+            type = asMember,
+            queryParamAdapter = parameterAdapter
+        )
     }
 }

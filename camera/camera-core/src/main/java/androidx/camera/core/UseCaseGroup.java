@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,168 +16,92 @@
 
 package androidx.camera.core;
 
-import android.util.Log;
-
-import androidx.annotation.GuardedBy;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.util.Preconditions;
+import androidx.lifecycle.Lifecycle;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
- * A collection of {@link UseCase}.
+ * Represents a collection of {@link UseCase}.
  *
- * <p>The group of {@link UseCase} instances have synchronized interactions with the {@link
- * BaseCamera}.
- *
- * @hide
+ * When the {@link UseCaseGroup} is bound to {@link Lifecycle}, it binds all the
+ * {@link UseCase}s to the same {@link Lifecycle}. {@link UseCase}s inside of a
+ * {@link UseCaseGroup} usually share some common properties like the FOV defined by
+ * {@link ViewPort}.
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
+@ExperimentalUseCaseGroup
 public final class UseCaseGroup {
-    private static final String TAG = "UseCaseGroup";
 
-    /**
-     * The lock for the single {@link StateChangeCallback} held by the group.
-     *
-     * <p>This lock is always acquired prior to acquiring the mUseCasesLock so that there is no
-     * lock-ordering deadlock.
-     */
-    private final Object mListenerLock = new Object();
-    /**
-     * The lock for accessing the map of use case types to use case instances.
-     *
-     * <p>This lock is always acquired after acquiring the mListenerLock so that there is no
-     * lock-ordering deadlock.
-     */
-    private final Object mUseCasesLock = new Object();
-    @GuardedBy("mUseCasesLock")
-    private final Set<UseCase> mUseCases = new HashSet<>();
-    @GuardedBy("mListenerLock")
-    private StateChangeCallback mStateChangeCallback;
-    private volatile boolean mIsActive = false;
+    @Nullable
+    private final ViewPort mViewPort;
 
-    /** Starts all the use cases so that they are brought into an online state. */
-    void start() {
-        synchronized (mListenerLock) {
-            if (mStateChangeCallback != null) {
-                mStateChangeCallback.onGroupActive(this);
-            }
-            mIsActive = true;
-        }
-    }
+    @NonNull
+    private final List<UseCase> mUseCases;
 
-    /** Stops all the use cases so that they are brought into an offline state. */
-    void stop() {
-        synchronized (mListenerLock) {
-            if (mStateChangeCallback != null) {
-                mStateChangeCallback.onGroupInactive(this);
-            }
-            mIsActive = false;
-        }
-    }
-
-    void setListener(StateChangeCallback stateChangeCallback) {
-        synchronized (mListenerLock) {
-            this.mStateChangeCallback = stateChangeCallback;
-        }
+    UseCaseGroup(@Nullable ViewPort viewPort, @NonNull List<UseCase> useCases) {
+        mViewPort = viewPort;
+        mUseCases = useCases;
     }
 
     /**
-     * Adds the {@link UseCase} to the group.
-     *
-     * @return true if the use case is added, or false if the use case already exists in the group.
+     * Gets the {@link ViewPort} shared by the {@link UseCase} collection.
      */
-    public boolean addUseCase(UseCase useCase) {
-        synchronized (mUseCasesLock) {
-            return mUseCases.add(useCase);
-        }
-    }
-
-    /** Returns true if the {@link UseCase} is contained in the group. */
-    boolean contains(UseCase useCase) {
-        synchronized (mUseCasesLock) {
-            return mUseCases.contains(useCase);
-        }
+    @Nullable
+    public ViewPort getViewPort() {
+        return mViewPort;
     }
 
     /**
-     * Removes the {@link UseCase} from the group.
-     *
-     * @return Returns true if the use case is removed. Otherwise returns false (if the use case did
-     * not exist in the group).
+     * Gets the {@link UseCase}s.
      */
-    boolean removeUseCase(UseCase useCase) {
-        synchronized (mUseCasesLock) {
-            return mUseCases.remove(useCase);
-        }
+    @NonNull
+    public List<UseCase> getUseCases() {
+        return mUseCases;
     }
 
-    /** Clears all use cases from this group. */
-    public void clear() {
-        List<UseCase> useCasesToClear = new ArrayList<>();
-        synchronized (mUseCasesLock) {
-            useCasesToClear.addAll(mUseCases);
-            mUseCases.clear();
+    /**
+     * A builder for generating {@link UseCaseGroup}.
+     */
+    @ExperimentalUseCaseGroup
+    public static final class Builder {
+
+        private ViewPort mViewPort;
+
+        private final List<UseCase> mUseCases;
+
+        public Builder() {
+            mUseCases = new ArrayList<>();
         }
-
-        for (UseCase useCase : useCasesToClear) {
-            Log.d(TAG, "Clearing use case: " + useCase.getName());
-            useCase.clear();
-        }
-    }
-
-    /** Returns the collection of all the use cases currently contained by the UseCaseGroup. */
-    Collection<UseCase> getUseCases() {
-        synchronized (mUseCasesLock) {
-            return Collections.unmodifiableCollection(mUseCases);
-        }
-    }
-
-    Map<String, Set<UseCase>> getCameraIdToUseCaseMap() {
-        Map<String, Set<UseCase>> cameraIdToUseCases = new HashMap<>();
-        synchronized (mUseCasesLock) {
-            for (UseCase useCase : mUseCases) {
-                for (String cameraId : useCase.getAttachedCameraIds()) {
-                    Set<UseCase> useCaseSet = cameraIdToUseCases.get(cameraId);
-                    if (useCaseSet == null) {
-                        useCaseSet = new HashSet<>();
-                    }
-                    useCaseSet.add(useCase);
-                    cameraIdToUseCases.put(cameraId, useCaseSet);
-                }
-            }
-        }
-        return Collections.unmodifiableMap(cameraIdToUseCases);
-    }
-
-    boolean isActive() {
-        return mIsActive;
-    }
-
-    /** Listener called when a {@link UseCaseGroup} transitions between active/inactive states. */
-    interface StateChangeCallback {
-        /**
-         * Called when a {@link UseCaseGroup} becomes active.
-         *
-         * <p>When a UseCaseGroup is active then all the contained {@link UseCase} become
-         * online. This means that the {@link BaseCamera} should transition to a state as close as
-         * possible to producing, but prior to actually producing data for the use case.
-         */
-        void onGroupActive(UseCaseGroup useCaseGroup);
 
         /**
-         * Called when a {@link UseCaseGroup} becomes inactive.
-         *
-         * <p>When a UseCaseGroup is active then all the contained {@link UseCase} become
-         * offline.
+         * Sets {@link ViewPort} shared by the {@link UseCase}s.
          */
-        void onGroupInactive(UseCaseGroup useCaseGroup);
+        @NonNull
+        public Builder setViewPort(@NonNull ViewPort viewPort) {
+            mViewPort = viewPort;
+            return this;
+        }
+
+        /**
+         * Adds {@link UseCase} to the collection.
+         */
+        @NonNull
+        public Builder addUseCase(@NonNull UseCase useCase) {
+            mUseCases.add(useCase);
+            return this;
+        }
+
+        /**
+         * Builds a {@link UseCaseGroup} from the current state.
+         */
+        @NonNull
+        public UseCaseGroup build() {
+            Preconditions.checkArgument(!mUseCases.isEmpty(), "UseCase must not be empty.");
+            return new UseCaseGroup(mViewPort, mUseCases);
+        }
     }
+
 }

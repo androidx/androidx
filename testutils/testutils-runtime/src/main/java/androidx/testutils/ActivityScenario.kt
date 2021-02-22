@@ -26,8 +26,14 @@ inline fun <reified A : Activity, T : Any> ActivityScenario<A>.withActivity(
     crossinline block: A.() -> T
 ): T {
     lateinit var value: T
+    var err: Throwable? = null
     onActivity { activity ->
-        value = block(activity)
+        try {
+            value = block(activity)
+        } catch (t: Throwable) {
+            err = t
+        }
     }
+    err?.let { throw it }
     return value
 }

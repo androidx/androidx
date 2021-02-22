@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.runOnUiThreadRethrow
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
@@ -35,8 +34,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class PrimaryNavFragmentTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
 
     @Test
     fun delegateBackToPrimaryNav() {
@@ -119,7 +119,8 @@ class PrimaryNavFragmentTest {
         executePendingTransactions(fm)
 
         assertThat(navigations.drain()).isEqualTo(
-            listOf(trackingFragment1 to false, trackingFragment2 to true))
+            listOf(trackingFragment1 to false, trackingFragment2 to true)
+        )
 
         assertWithMessage("primary nav fragment not updated to new fragment")
             .that(fm.primaryNavigationFragment)
@@ -128,7 +129,8 @@ class PrimaryNavFragmentTest {
         activityRule.onBackPressed()
 
         assertThat(navigations.drain()).isEqualTo(
-            listOf(trackingFragment2 to false, trackingFragment1 to true))
+            listOf(trackingFragment2 to false, trackingFragment1 to true)
+        )
         assertWithMessage("primary nav fragment not restored on pop")
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(trackingFragment1)
@@ -145,7 +147,8 @@ class PrimaryNavFragmentTest {
         activityRule.onBackPressed()
 
         assertWithMessage(
-            "same primary nav fragment not retained when set primary nav transaction popped")
+            "same primary nav fragment not retained when set primary nav transaction popped"
+        )
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(trackingFragment1)
     }
@@ -233,7 +236,7 @@ class PrimaryNavFragmentTest {
             .commit()
         executePendingTransactions(fm)
 
-        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to true))
+        assertThat(navigations.drain()).containsExactly(trackingFragment1 to true).inOrder()
         assertWithMessage("new fragment is not primary nav fragment")
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(trackingFragment1)
@@ -246,8 +249,9 @@ class PrimaryNavFragmentTest {
             .commit()
         executePendingTransactions(fm)
 
-        assertThat(navigations.drain()).isEqualTo(
-            listOf(trackingFragment1 to false, trackingFragment2 to true))
+        assertThat(navigations.drain()).containsExactly(
+            trackingFragment1 to false, trackingFragment2 to true
+        ).inOrder()
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(trackingFragment2)
@@ -256,12 +260,17 @@ class PrimaryNavFragmentTest {
 
         // Note that strictFragment2 does not get a callback since the
         // pop of the replace happens before the pop of the setPrimaryFragment
-        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to true))
+        assertThat(navigations.drain()).containsExactly(
+            trackingFragment2 to false, trackingFragment1 to true
+        ).inOrder()
         assertWithMessage("primary nav fragment is restored after popping replace")
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(trackingFragment1)
     }
 
+    // When USE_STATE_MANAGER is false, postponed transactions are temporarily popped.
+    // This test verifies that the dispatched primary navigation fragment
+    // matches the current state of the FragmentManager itself.
     @Test
     fun replacePostponedFragment() {
         val fm = activityRule.activity.supportFragmentManager
@@ -291,16 +300,29 @@ class PrimaryNavFragmentTest {
         activityRule.waitForExecution()
 
         assertThat(navigations.drain()).isEqualTo(
-            listOf(
-                trackingFragment to false,
-                postponedFragment to true,
-                postponedFragment to false,
-                trackingFragment to true
-            )
+            if (FragmentManager.USE_STATE_MANAGER) {
+                listOf(
+                    trackingFragment to false,
+                    postponedFragment to true
+                )
+            } else {
+                listOf(
+                    trackingFragment to false,
+                    postponedFragment to true,
+                    postponedFragment to false,
+                    trackingFragment to true
+                )
+            }
         )
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(trackingFragment)
+            .isSameInstanceAs(
+                if (FragmentManager.USE_STATE_MANAGER) {
+                    postponedFragment
+                } else {
+                    trackingFragment
+                }
+            )
 
         // Now pop the back stack and also add a replacement Fragment
         fm.popBackStack()
@@ -313,14 +335,23 @@ class PrimaryNavFragmentTest {
         activityRule.waitForExecution()
 
         assertThat(navigations.drain()).isEqualTo(
-            listOf(
-                trackingFragment to false,
-                postponedFragment to true,
-                postponedFragment to false,
-                trackingFragment to true,
-                trackingFragment to false,
-                replacementFragment to true
+            if (FragmentManager.USE_STATE_MANAGER) {
+                listOf(
+                    postponedFragment to false,
+                    trackingFragment to true,
+                    trackingFragment to false,
+                    replacementFragment to true
                 )
+            } else {
+                listOf(
+                    trackingFragment to false,
+                    postponedFragment to true,
+                    postponedFragment to false,
+                    trackingFragment to true,
+                    trackingFragment to false,
+                    replacementFragment to true
+                )
+            }
         )
 
         assertWithMessage("primary nav fragment not set correctly after replace")
@@ -346,9 +377,11 @@ class PrimaryNavFragmentTest {
         activityRule.runOnUiThread { fm.executePendingTransactions() }
     }
 
-    private fun ActivityTestRule<out Activity>.onBackPressed() = runOnUiThreadRethrow {
-        activity.onBackPressed()
-    }
+    @Suppress("DEPRECATION")
+    private fun androidx.test.rule.ActivityTestRule<out Activity>.onBackPressed() =
+        runOnUiThreadRethrow {
+            activity.onBackPressed()
+        }
 
     private fun <T> MutableList<T>.drain(): List<T> {
         val result = ArrayList<T>(this)

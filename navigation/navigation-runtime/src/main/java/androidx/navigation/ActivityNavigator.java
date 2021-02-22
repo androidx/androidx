@@ -21,11 +21,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -49,6 +51,8 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
             "android-support-navigation:ActivityNavigator:popEnterAnim";
     private static final String EXTRA_POP_EXIT_ANIM =
             "android-support-navigation:ActivityNavigator:popExitAnim";
+
+    private static final String LOG_TAG = "ActivityNavigator";
 
     private Context mContext;
     private Activity mHostActivity;
@@ -160,10 +164,23 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         }
         final int destId = destination.getId();
         intent.putExtra(EXTRA_NAV_CURRENT, destId);
+        Resources resources = getContext().getResources();
         if (navOptions != null) {
-            // For use in applyPopAnimationsToPendingTransition()
-            intent.putExtra(EXTRA_POP_ENTER_ANIM, navOptions.getPopEnterAnim());
-            intent.putExtra(EXTRA_POP_EXIT_ANIM, navOptions.getPopExitAnim());
+            int popEnterAnim = navOptions.getPopEnterAnim();
+            int popExitAnim = navOptions.getPopExitAnim();
+            if ((popEnterAnim > 0
+                    && resources.getResourceTypeName(popEnterAnim).equals("animator"))
+                    || (popExitAnim > 0
+                    && resources.getResourceTypeName(popExitAnim).equals("animator"))) {
+                Log.w(LOG_TAG, "Activity destinations do not support Animator resource. Ignoring "
+                        + "popEnter resource " + resources.getResourceName(popEnterAnim) + " and "
+                        + "popExit resource " + resources.getResourceName(popExitAnim) + "when "
+                        + "launching " + destination);
+            } else {
+                // For use in applyPopAnimationsToPendingTransition()
+                intent.putExtra(EXTRA_POP_ENTER_ANIM, popEnterAnim);
+                intent.putExtra(EXTRA_POP_EXIT_ANIM, popExitAnim);
+            }
         }
         if (navigatorExtras instanceof Extras) {
             Extras extras = (Extras) navigatorExtras;
@@ -179,9 +196,16 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         if (navOptions != null && mHostActivity != null) {
             int enterAnim = navOptions.getEnterAnim();
             int exitAnim = navOptions.getExitAnim();
-            if (enterAnim != -1 || exitAnim != -1) {
-                enterAnim = enterAnim != -1 ? enterAnim : 0;
-                exitAnim = exitAnim != -1 ? exitAnim : 0;
+            if ((enterAnim > 0 && resources.getResourceTypeName(enterAnim).equals("animator"))
+                    || (exitAnim > 0
+                    && resources.getResourceTypeName(exitAnim).equals("animator"))) {
+                    Log.w(LOG_TAG, "Activity destinations do not support Animator resource. "
+                            + "Ignoring " + "enter resource " + resources.getResourceName(enterAnim)
+                            + " and exit resource " + resources.getResourceName(exitAnim) + "when "
+                            + "launching " + destination);
+            } else if (enterAnim >= 0 || exitAnim >= 0) {
+                enterAnim = Math.max(enterAnim, 0);
+                exitAnim = Math.max(exitAnim, 0);
                 mHostActivity.overridePendingTransition(enterAnim, exitAnim);
             }
         }

@@ -16,10 +16,10 @@
 
 package androidx.camera.extensions;
 
-import android.util.Log;
-
-import androidx.camera.core.PreviewConfig;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
+import androidx.annotation.NonNull;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.Logger;
+import androidx.camera.core.Preview;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 
 /**
@@ -32,14 +32,15 @@ public class NightPreviewExtender extends PreviewExtender {
      * Create a new instance of the night extender.
      *
      * @param builder Builder that will be used to create the configurations for the
-     * {@link androidx.camera.core.Preview}.
+     *                {@link androidx.camera.core.Preview}.
      */
-    public static NightPreviewExtender create(PreviewConfig.Builder builder) {
+    @NonNull
+    public static NightPreviewExtender create(@NonNull Preview.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorNightPreviewExtender(builder);
             } catch (NoClassDefFoundError e) {
-                Log.d(TAG, "No night preview extender found. Falling back to default.");
+                Logger.d(TAG, "No night preview extender found. Falling back to default.");
             }
         }
 
@@ -52,12 +53,12 @@ public class NightPreviewExtender extends PreviewExtender {
         }
 
         @Override
-        public boolean isExtensionAvailable() {
+        public boolean isExtensionAvailable(@NonNull CameraSelector selector) {
             return false;
         }
 
         @Override
-        public void enableExtension() {
+        public void enableExtension(@NonNull CameraSelector selector) {
         }
     }
 
@@ -65,11 +66,12 @@ public class NightPreviewExtender extends PreviewExtender {
     static class VendorNightPreviewExtender extends NightPreviewExtender {
         private final NightPreviewExtenderImpl mImpl;
 
-        VendorNightPreviewExtender(PreviewConfig.Builder builder) {
+        VendorNightPreviewExtender(Preview.Builder builder) {
             mImpl = new NightPreviewExtenderImpl();
-            init(builder, mImpl, EffectMode.NIGHT);
+            init(builder, mImpl, Extensions.EXTENSION_MODE_NIGHT);
         }
     }
 
-    private NightPreviewExtender() {}
+    private NightPreviewExtender() {
+    }
 }

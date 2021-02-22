@@ -20,10 +20,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -43,6 +43,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.SupportSQLiteStatement;
 
+import com.google.common.truth.Truth;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -58,6 +60,8 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,6 +72,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -148,12 +153,14 @@ public class InvalidationTrackerTest {
                 data.incrementAndGet();
             }
         };
+        ReferenceQueue<Object> queue = new ReferenceQueue<>();
+        WeakReference<InvalidationTracker.Observer> weakRef = new WeakReference<>(observer, queue);
         mTracker.addWeakObserver(observer);
         setInvalidatedTables(0);
         refreshSync();
         assertThat(data.get(), is(1));
         observer = null;
-        forceGc();
+        forceGc(queue);
         setInvalidatedTables(0);
         refreshSync();
         assertThat(data.get(), is(1));
@@ -420,6 +427,7 @@ public class InvalidationTrackerTest {
         assertThat(observer.getInvalidatedTables(), hasItem("a"));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void failFastCreateLiveData() {
         // assert that sending a bad createLiveData table name fails instantly
@@ -518,13 +526,24 @@ public class InvalidationTrackerTest {
         }
     }
 
-    private static void forceGc() {
-        // Use a random index in the list to detect the garbage collection each time because
-        // .get() may accidentally trigger a strong reference during collection.
-        ArrayList<WeakReference<byte[]>> leak = new ArrayList<>();
-        do {
-            WeakReference<byte[]> arr = new WeakReference<>(new byte[100]);
-            leak.add(arr);
-        } while (leak.get((int) (Math.random() * leak.size())).get() != null);
+    /**
+     * Tries to trigger garbage collection until an element is available in the given queue.
+     */
+    private static void forceGc(ReferenceQueue<Object> queue) throws InterruptedException {
+        AtomicBoolean continueTriggeringGc = new AtomicBoolean(true);
+        new Thread(() -> {
+            @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+            ArrayList<byte[]> leak = new ArrayList<>();
+            do {
+                int arraySize = (int) (Math.random() * 1000);
+                leak.add(new byte[arraySize]);
+            } while (continueTriggeringGc.get());
+        }).start();
+        Reference<?> result = queue.remove(TimeUnit.SECONDS.toMillis(10));
+        continueTriggeringGc.set(false);
+        Truth.assertWithMessage("Couldn't trigger garbage collection, test flake")
+                .that(result)
+                .isNotNull();
+        result.clear();
     }
 }

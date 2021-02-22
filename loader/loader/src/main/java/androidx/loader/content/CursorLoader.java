@@ -52,6 +52,7 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
     private CancellationSignal mCancellationSignal;
 
     /* Runs on a worker thread */
+    @Nullable
     @Override
     public Cursor loadInBackground() {
         synchronized (this) {
@@ -95,7 +96,7 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
 
     /* Runs on the UI thread */
     @Override
-    public void deliverResult(Cursor cursor) {
+    public void deliverResult(@Nullable Cursor cursor) {
         if (isReset()) {
             // An async query came in while the loader is stopped
             if (cursor != null) {
@@ -170,7 +171,7 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
     }
 
     @Override
-    public void onCanceled(Cursor cursor) {
+    public void onCanceled(@Nullable Cursor cursor) {
         if (cursor != null && !cursor.isClosed()) {
             cursor.close();
         }
@@ -241,7 +242,8 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
     @SuppressWarnings("deprecation")
     @Override
     @Deprecated
-    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+    public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
+            @NonNull PrintWriter writer, @Nullable String[] args) {
         super.dump(prefix, fd, writer, args);
         writer.print(prefix); writer.print("mUri="); writer.println(mUri);
         writer.print(prefix); writer.print("mProjection=");

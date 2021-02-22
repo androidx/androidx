@@ -18,16 +18,16 @@ package androidx.lifecycle;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.lifecycle.util.InstantTaskExecutor;
 
 import org.junit.Before;
@@ -36,6 +36,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import kotlinx.coroutines.test.TestCoroutineDispatcher;
+
 @SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
 public class MediatorLiveDataTest {
@@ -43,17 +45,15 @@ public class MediatorLiveDataTest {
     @Rule
     public InstantTaskExecutorRule mInstantTaskExecutorRule = new InstantTaskExecutorRule();
 
-    private LifecycleOwner mOwner;
-    private LifecycleRegistry mRegistry;
+    private TestLifecycleOwner mOwner;
     private MediatorLiveData<String> mMediator;
     private LiveData<String> mSource;
     private boolean mSourceActive;
 
     @Before
     public void setup() {
-        mOwner = mock(LifecycleOwner.class);
-        mRegistry = new LifecycleRegistry(mOwner);
-        when(mOwner.getLifecycle()).thenReturn(mRegistry);
+        mOwner = new TestLifecycleOwner(Lifecycle.State.STARTED,
+                new TestCoroutineDispatcher());
         mMediator = new MediatorLiveData<>();
         mSource = new LiveData<String>() {
             @Override
@@ -68,8 +68,6 @@ public class MediatorLiveDataTest {
         };
         mSourceActive = false;
         mMediator.observe(mOwner, mock(Observer.class));
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
     }
 
     @Before
@@ -83,7 +81,7 @@ public class MediatorLiveDataTest {
         mMediator.addSource(mSource, observer);
         mSource.setValue("flatfoot");
         verify(observer).onChanged("flatfoot");
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         reset(observer);
         verify(observer, never()).onChanged(any());
     }
@@ -95,10 +93,10 @@ public class MediatorLiveDataTest {
         mMediator.observe(mOwner, mock(Observer.class));
         mSource.setValue("one");
         verify(observer).onChanged("one");
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         reset(observer);
         mSource.setValue("flatfoot");
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         verify(observer).onChanged("flatfoot");
     }
 
@@ -114,11 +112,11 @@ public class MediatorLiveDataTest {
     @Test
     public void testAddSourceToInActive() {
         mSource.setValue("flatfoot");
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         Observer observer = mock(Observer.class);
         mMediator.addSource(mSource, observer);
         verify(observer, never()).onChanged(any());
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         verify(observer).onChanged("flatfoot");
     }
 
@@ -139,9 +137,9 @@ public class MediatorLiveDataTest {
         Observer observer = mock(Observer.class);
         mMediator.addSource(mSource, observer);
         assertThat(mSourceActive, is(true));
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         assertThat(mSourceActive, is(false));
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         assertThat(mSourceActive, is(true));
     }
 
@@ -154,8 +152,8 @@ public class MediatorLiveDataTest {
         Observer observer = mock(Observer.class);
         mMediator.addSource(mSource, observer);
         assertThat(mSource.hasObservers(), is(true));
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         mMediator = null;
         assertThat(mSource.hasObservers(), is(false));
     }
@@ -175,7 +173,7 @@ public class MediatorLiveDataTest {
         verify(observer1, never()).onChanged(any());
         verify(observer2).onChanged(1703);
         reset(observer1, observer2);
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         mSource.setValue("failure");
         source2.setValue(0);
         verify(observer1, never()).onChanged(any());
@@ -191,7 +189,7 @@ public class MediatorLiveDataTest {
         // because if it is a last iteration, then next() wouldn't be called.
         // And the last: an order of an iteration over sources is not defined,
         // so I have to call it remove operation  from all observers.
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         Observer<String> removingObserver = new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
@@ -203,7 +201,7 @@ public class MediatorLiveDataTest {
         source2.setValue("nana");
         mMediator.addSource(source2, removingObserver);
         mSource.setValue("petjack");
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -222,7 +220,7 @@ public class MediatorLiveDataTest {
 
     @Test
     public void addSourceDuringOnActive() {
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         mSource.setValue("a");
         mMediator.addSource(mSource, new Observer<String>() {
             @Override
@@ -237,7 +235,7 @@ public class MediatorLiveDataTest {
                 });
             }
         });
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         assertThat(mMediator.getValue(), is("c"));
     }
 

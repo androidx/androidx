@@ -27,11 +27,11 @@ import android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE
  * Returns a new [Spannable] from [CharSequence],
  * or the source itself if it is already an instance of [SpannableString].
  */
-inline fun CharSequence.toSpannable(): Spannable = SpannableString.valueOf(this)
+public inline fun CharSequence.toSpannable(): Spannable = SpannableString.valueOf(this)
 
 /** Clear all spans from this text. */
 @SuppressLint("SyntheticAccessor") // TODO remove https://issuetracker.google.com/issues/110243369
-inline fun Spannable.clearSpans() = getSpans<Any>().forEach { removeSpan(it) }
+public inline fun Spannable.clearSpans(): Unit = getSpans<Any>().forEach { removeSpan(it) }
 
 /**
  * Add [span] to the range [start]&hellip;[end] of the text.
@@ -45,7 +45,7 @@ inline fun Spannable.clearSpans() = getSpans<Any>().forEach { removeSpan(it) }
  *
  * @see Spannable.setSpan
  */
-inline operator fun Spannable.set(start: Int, end: Int, span: Any) {
+public inline operator fun Spannable.set(start: Int, end: Int, span: Any) {
     setSpan(span, start, end, SPAN_INCLUSIVE_EXCLUSIVE)
 }
 
@@ -61,7 +61,7 @@ inline operator fun Spannable.set(start: Int, end: Int, span: Any) {
  *
  * @see Spannable.setSpan
  */
-inline operator fun Spannable.set(range: IntRange, span: Any) {
+public inline operator fun Spannable.set(range: IntRange, span: Any) {
     // This looks weird, but endInclusive is just the exact upper value.
     setSpan(span, range.start, range.endInclusive, SPAN_INCLUSIVE_EXCLUSIVE)
 }

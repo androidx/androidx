@@ -22,24 +22,26 @@ plugins {
 
 dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation(project(":webkit"))
+    implementation("androidx.core:core:1.1.0")
+    implementation(project(":webkit:webkit"))
+    implementation(GUAVA_ANDROID)
+    implementation(ESPRESSO_IDLING_NET)
+    implementation(ESPRESSO_IDLING_RESOURCE)
+
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_IDLING_RESOURCE)
     androidTestImplementation(ESPRESSO_WEB, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
 }
 
-tasks.all { task ->
-    if ("assembleRelease" == task.name) {
-        rootProject.tasks.getByName("buildOnServer").dependsOn(task)
-    }
-}
+rootProject.tasks.getByName("buildOnServer").dependsOn(project.path + ":assembleRelease")
 
 android {
     defaultConfig {
@@ -47,7 +49,7 @@ android {
         targetSdkVersion 29
     }
     lintOptions {
-        disable 'UnusedResources'
+        disable "UnusedResources"
     }
     buildTypes {
         release {

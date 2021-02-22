@@ -16,9 +16,9 @@
 
 package androidx.room.vo
 
-import javax.lang.model.element.Element
+import androidx.room.compiler.processing.XMethodElement
 
 /**
  * References a method that returns a dao in a Database
  */
-data class DaoMethod(val element: Element, val name: String, val dao: Dao)
+data class DaoMethod(val element: XMethodElement, val name: String, val dao: Dao)

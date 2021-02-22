@@ -16,40 +16,151 @@
 
 package androidx.build
 
+import androidx.build.checkapi.shouldConfigureApiTasks
 import groovy.lang.Closure
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import java.util.ArrayList
 
 /**
- * Extension for [AndroidXPlugin].
+ * Extension for [AndroidXPlugin] that's responsible for holding configuration options.
  */
 open class AndroidXExtension(val project: Project) {
+
     var name: String? = null
     var mavenVersion: Version? = null
         set(value) {
-            field = if (isSnapshotBuild()) value?.copy(extra = "-SNAPSHOT") else value
-            project.version = field as Any
+            field = value
+            chooseProjectVersion()
         }
     var mavenGroup: LibraryGroup? = null
+        set(value) {
+            field = value
+            chooseProjectVersion()
+        }
+    private val ALLOWED_EXTRA_PREFIXES = listOf("-alpha", "-beta", "-rc", "-dev", "-SNAPSHOT")
+
+    private fun chooseProjectVersion() {
+        val version: Version
+        val group: String? = mavenGroup?.group
+        val groupVersion: Version? = mavenGroup?.forcedVersion
+        val mavenVersion: Version? = mavenVersion
+        if (mavenVersion != null) {
+            if (groupVersion != null && !isGroupVersionOverrideAllowed()) {
+                throw GradleException(
+                    "Cannot set mavenVersion (" + mavenVersion +
+                        ") for a project (" + project +
+                        ") whose mavenGroup already specifies forcedVersion (" + groupVersion +
+                        ")"
+                )
+            } else {
+                verifyVersionExtraFormat(mavenVersion)
+                version = mavenVersion
+            }
+        } else {
+            if (groupVersion != null) {
+                verifyVersionExtraFormat(groupVersion)
+                version = groupVersion
+            } else {
+                return
+            }
+        }
+        if (group != null) {
+            project.group = group
+        }
+        project.version = if (isSnapshotBuild()) version.copy(extra = "-SNAPSHOT") else version
+        versionIsSet = true
+    }
+
+    private fun verifyVersionExtraFormat(version: Version) {
+        val extra = version.extra
+        if (extra != null) {
+            if (!version.isSnapshot() && project.isVersionExtraCheckEnabled()) {
+                if (ALLOWED_EXTRA_PREFIXES.any { extra.startsWith(it) }) {
+                    for (potentialPrefix in ALLOWED_EXTRA_PREFIXES) {
+                        if (extra.startsWith(potentialPrefix)) {
+                            val secondExtraPart = extra.removePrefix(
+                                potentialPrefix
+                            )
+                            if (secondExtraPart.toIntOrNull() == null) {
+                                throw IllegalArgumentException(
+                                    "Version $version is not" +
+                                        " a properly formatted version, please ensure that " +
+                                        "$potentialPrefix is followed by a number only"
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    throw IllegalArgumentException(
+                        "Version $version is not a proper " +
+                            "version, version suffixes following major.minor.patch should " +
+                            "be one of ${ALLOWED_EXTRA_PREFIXES.joinToString(", ")}"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun isGroupVersionOverrideAllowed(): Boolean {
+        // Grant an exception to the same-version-group policy for artifacts that haven't shipped a
+        // stable API surface, e.g. 1.0.0-alphaXX, to allow for rapid early-stage development.
+        val version = mavenVersion
+        return version != null && version.major == 1 && version.minor == 0 && version.patch == 0 &&
+            version.isAlpha()
+    }
+
+    private var versionIsSet = false
+    fun isVersionSet(): Boolean {
+        return versionIsSet
+    }
     var description: String? = null
     var inceptionYear: String? = null
-    var url = SUPPORT_URL
+    /**
+     * targetsJavaConsumers = true, if project is intended to be accessed from Java-language
+     * source code.
+     */
+    var targetsJavaConsumers = true
+        get() {
+            when (project.path) {
+                // add per-project overrides here
+                // for example
+                // the following project is intended to be accessed from Java
+                // ":compose:internal-lint-checks" -> return true
+                // the following project is not intended to be accessed from Java
+                // ":annotation:annotation" -> return false
+            }
+            // TODO: rework this to use LibraryType. Fork Library and KolinOnlyLibrary?
+            if (project.path.contains("-ktx")) return false
+            if (project.path.startsWith(":compose")) return false
+            if (project.path.startsWith(":ui")) return false
+            return field
+        }
     private var licenses: MutableCollection<License> = ArrayList()
-    var publish: Publish = Publish.NONE
+
+    // Should only be used to override LibraryType.publish, if a library isn't ready to publish yet
+    var publish: Publish = Publish.UNSET
+        // Allow gradual transition from publish to library type
+        get() = if (field == Publish.UNSET && type != LibraryType.UNSET) type.publish else field
+    /**
+     * Whether to run API tasks such as tracking and linting. The default value is
+     * [RunApiTasks.Auto], which automatically picks based on the project's properties.
+     */
+    // TODO: decide whether we want to support overriding runApiTasks
+    // @Deprecated("Replaced with AndroidXExtension.type: LibraryType.runApiTasks")
+    var runApiTasks: RunApiTasks = RunApiTasks.Auto
+        get() = if (field == RunApiTasks.Auto && type != LibraryType.UNSET) type.checkApi else field
+    var type: LibraryType = LibraryType.UNSET
     var failOnDeprecationWarnings = true
 
-    var compilationTarget: CompilationTarget = CompilationTarget.DEVICE
+    var legacyDisableKotlinStrictApiMode = false
 
-    var trackRestrictedAPIs = true
+    fun shouldEnforceKotlinStrictApiMode(): Boolean {
+        return !legacyDisableKotlinStrictApiMode &&
+            shouldConfigureApiTasks()
+    }
 
-    /**
-     * It disables docs generation and api tracking for tooling modules like annotation processors.
-     * We don't expect such modules to be used by developers as libraries, so we don't guarantee
-     * any api stability and don't expose any docs about them.
-     */
-    var toolingProject = false
-
-    fun license(closure: Closure<*>): License {
+    fun license(closure: Closure<Any>): License {
         val license = project.configure(License(), closure) as License
         licenses.add(license)
         return license
@@ -60,27 +171,8 @@ open class AndroidXExtension(val project: Project) {
     }
 
     companion object {
-        @JvmField
-        val ARCHITECTURE_URL =
-                "https://developer.android.com/topic/libraries/architecture/index.html"
-        @JvmField
-        val SUPPORT_URL = "https://developer.android.com/jetpack/androidx"
-        val DEFAULT_UNSPECIFIED_VERSION = "unspecified"
+        const val DEFAULT_UNSPECIFIED_VERSION = "unspecified"
     }
-}
-
-enum class CompilationTarget {
-    /** This library is meant to run on the host machine (like an annotation processor). */
-    HOST,
-    /** This library is meant to run on an Android device. */
-    DEVICE
-}
-
-enum class Publish {
-    NONE, SNAPSHOT_ONLY, SNAPSHOT_AND_RELEASE;
-
-    fun shouldRelease() = this == SNAPSHOT_AND_RELEASE
-    fun shouldPublish() = this == SNAPSHOT_ONLY || this == SNAPSHOT_AND_RELEASE
 }
 
 class License {

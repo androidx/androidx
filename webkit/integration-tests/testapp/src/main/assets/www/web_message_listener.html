@@ -1,0 +1,83 @@
+<html>
+<!-- Copyright 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<head>
+  <script type="text/javascript">
+    let timestamp = 0;
+    replyObject.onmessage = function(event) {
+        document.getElementById("result").innerHTML = event.data;
+    };
+    // Send a message to app, so app could get a JsReplyProxy to reply back to JavaScript.
+    replyObject.postMessage("initialization");
+
+    const channel = new MessageChannel();
+    channel.port2.onmessage = function(event) {
+        document.getElementById("port_result").innerHTML = event.data;
+    };
+    replyWithMessagePortObject.postMessage("send port", [channel.port1]);
+
+    let messageCounter = 0;
+    multipleMessagesObject.addEventListener("message", function(event) {
+        const i = parseInt(event.data);
+        if (i < 4999) {
+            multipleMessagesObject.postMessage((i + 1).toString());
+            if (i % 100 === 0) {
+                const counterInfo = (messageCounter + i)+ " messages sent.";
+                document.getElementById("multiple_messages").innerHTML = counterInfo;
+            }
+        } else {
+            let average = (performance.now() - timestamp) / 5000;
+            let result = "Average time over 5000 messages: " + average.toFixed(2) + "ms.";
+            document.getElementById("multiple_messages").innerHTML = result;
+            messageCounter += i + 1;
+            document.getElementById("multiple_button").disabled = false;
+        }
+    });
+    function startPostMessage(e) {
+        e.preventDefault();
+        document.getElementById("multiple_button").disabled = true;
+        timestamp = performance.now();
+        multipleMessagesObject.postMessage("0");
+    }
+
+    function showToast(e) {
+        e.preventDefault();
+        const message = document.getElementById("toast_message").value;
+        toastObject.postMessage(message);
+    }
+  </script>
+</head>
+<body>
+  <h1>Web content (within WebView)</h1>
+  <div>
+    <span>Message from app: </span>
+    <span id="result" style="color:red">Not received.</span>
+  </div>
+  <div>
+    <span>Message from app (via MessagePort): </span>
+    <span id="port_result" style="color:red">Not received.</span>
+  </div>
+  <div>
+    <input value="toast!" id="toast_message">
+    <button type="button" onclick="showToast(event)">Show Toast</button>
+  </div>
+  <div>
+    <button id="multiple_button" type="button" onclick="startPostMessage(event)">
+      Send 5000 messages
+    </button>
+    <div id="multiple_messages"></div>
+  </div>
+</body>
+</html>

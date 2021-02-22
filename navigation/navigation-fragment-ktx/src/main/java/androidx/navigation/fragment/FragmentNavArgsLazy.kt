@@ -38,6 +38,7 @@ import androidx.navigation.NavArgsLazy
  * This property can be accessed only after the Fragment's constructor.
  */
 @MainThread
-inline fun <reified Args : NavArgs> Fragment.navArgs() = NavArgsLazy(Args::class) {
-    arguments ?: throw IllegalStateException("Fragment $this has null arguments")
-}
+public inline fun <reified Args : NavArgs> Fragment.navArgs(): NavArgsLazy<Args> =
+    NavArgsLazy(Args::class) {
+        arguments ?: throw IllegalStateException("Fragment $this has null arguments")
+    }

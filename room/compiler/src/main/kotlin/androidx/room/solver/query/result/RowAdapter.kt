@@ -16,15 +16,15 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
-import javax.lang.model.type.TypeMirror
 
 /**
  * Converts a row of a cursor result into an Entity or a primitive.
  * <p>
  * An instance of this is created for each usage so that it can keep local variables.
  */
-abstract class RowAdapter(val out: TypeMirror) {
+abstract class RowAdapter(val out: XType) {
     /**
      * Called when cursor variable is ready, good place to put initialization code.
      */

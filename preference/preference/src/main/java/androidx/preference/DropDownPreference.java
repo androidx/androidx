@@ -17,6 +17,7 @@
 package androidx.preference;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AdapterView;
@@ -136,7 +137,7 @@ public class DropDownPreference extends ListPreference {
         CharSequence[] entryValues = getEntryValues();
         if (value != null && entryValues != null) {
             for (int i = entryValues.length - 1; i >= 0; i--) {
-                if (entryValues[i].equals(value)) {
+                if (TextUtils.equals(entryValues[i].toString(), value)) {
                     return i;
                 }
             }

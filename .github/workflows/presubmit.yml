@@ -1,0 +1,626 @@
+name: AndroidX Presubmits
+on:
+  push:
+  pull_request_target:
+    types: [opened, synchronize, reopened, 'labeled']
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Start webhook"
+        uses: androidx/github-workflow-webhook-action@main
+        with:
+          url: 'https://androidx.dev/github/androidX/presubmit/hook'
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
+          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started"}'
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    steps:
+      - name: Pull request format
+        uses: 'androidx/check-pr-format-action@main'
+        with:
+          # Enforces a `Test: <stanza>` in the pull request
+          checks: '["(.*)?Test:(.*)?"]'
+
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Get changed files in push or pull_request"
+        id: changed-files
+        # Temporary workaround for failing on force-push
+        continue-on-error: true
+        uses: jitterbit/get-changed-files@v1
+
+      - name: Check invalid suppressions
+        run: |
+          set -x
+          ./development/checkInvalidSuppress.py -f ${{ steps.changed-files.outputs.added_modified }}
+
+      - name: "Warn on missing updateApi"
+        run: |
+          set -x
+          ./development/apilint.py -f ${{ steps.changed-files.outputs.added_modified }}
+
+      - name: "Parse changed-files as ktlint args"
+        id: ktlint-file-args
+        run: |
+          set -x
+          KTLINT_FILES=`echo "${{ steps.changed-files.outputs.added_modified }}" | sed 's|[^ ]* *|--file=${{ github.workspace }}/&|g'`
+          echo "::set-output name=ktlint-file-args::$KTLINT_FILES"
+
+      - name: "ktlint"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }}
+          build-root-directory: activity
+          gradle-executable: activity/gradlew
+          wrapper-directory: activity/gradle/wrapper
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-activity:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      artifact-id: "activity"
+      project-root: "activity"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: buildOnServer
+          build-root-directory: ${{ env.project-root }}
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.artifact-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-biometric:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      artifact-id: "biometric"
+      project-root: "biometric"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: buildOnServer
+          build-root-directory: ${{ env.project-root }}
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.artifact-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-compose-compiler:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      artifact-id: "compose_compiler"
+      project-root: "compose/compiler"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: buildOnServer
+          build-root-directory: ${{ env.project-root }}
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.artifact-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-fragment:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      artifact-id: "fragment"
+      project-root: "fragment"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: buildOnServer
+          build-root-directory: ${{ env.project-root }}
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.artifact-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-lifecycle:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      artifact-id: "lifecycle"
+      project-root: "lifecycle"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: buildOnServer
+          build-root-directory: ${{ env.project-root }}
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.artifact-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-navigation:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      artifact-id: "navigation"
+      project-root: "navigation"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: buildOnServer
+          build-root-directory: ${{ env.project-root }}
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.artifact-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-paging:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      artifact-id: "paging"
+      project-root: "paging"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: buildOnServer
+          build-root-directory: ${{ env.project-root }}
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.artifact-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-room:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      artifact-id: "room"
+      project-root: "room"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: buildOnServer
+          build-root-directory: ${{ env.project-root }}
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+
+
+      - name: "upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.artifact-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-work:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      artifact-id: "work"
+      project-root: "work"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11"
+
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        with:
+          arguments: buildOnServer
+          build-root-directory: ${{ env.project-root }}
+          gradle-executable: ${{ env.project-root }}/gradlew
+          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.artifact-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  teardown:
+    runs-on: ubuntu-latest
+    needs: [
+      setup,
+      lint,
+      build-activity,
+      build-biometric,
+      build-compose-compiler,
+      build-fragment,
+      build-lifecycle,
+      build-navigation,
+      build-paging,
+      build-room,
+      build-work
+    ]
+    if: always()
+    steps:
+      - name: Parse workflow status
+        id: workflow-status
+        run: |
+          set -x
+          if [ "${{ needs.lint.outputs.status }}" == "success" ]                  && \
+            [ "${{ needs.build-activity.outputs.status }}" == "success" ]         && \
+            [ "${{ needs.build-biometric.outputs.status }}" == "success" ]        && \
+            [ "${{ needs.build-compose-compiler.outputs.status }}" == "success" ] && \
+            [ "${{ needs.build-fragment.outputs.status }}" == "success" ]         && \
+            [ "${{ needs.build-lifecycle.outputs.status }}" == "success" ]        && \
+            [ "${{ needs.build-navigation.outputs.status }}" == "success" ]       && \
+            [ "${{ needs.build-paging.outputs.status }}" == "success" ]           && \
+            [ "${{ needs.build-room.outputs.status }}" == "success" ]             && \
+            [ "${{ needs.build-work.outputs.status }}" == "success" ]
+          then
+            echo "::set-output name=result::success"
+          else
+            echo "::set-output name=result::failure"
+          fi
+
+      - name: Successful WebHook
+        if: steps.workflow-status.outputs.result == 'success'
+        uses: androidx/github-workflow-webhook-action@main
+        with:
+          url: 'https://androidx.dev/github/androidX/presubmit/hook'
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
+          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": true }'
+
+      - name: Failure WebHook
+        if: steps.workflow-status.outputs.result == 'failure'
+        uses: androidx/github-workflow-webhook-action@main
+        with:
+          url: 'https://androidx.dev/github/androidX/presubmit/hook'
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
+          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": false }'
+

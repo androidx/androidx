@@ -22,8 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A {@link WorkerFactory} which delegates to other factories. Factories can register themselves
@@ -41,7 +41,9 @@ public class DelegatingWorkerFactory extends WorkerFactory {
      */
     @SuppressWarnings("JdkObsolete") // TODO(b/141962522): Suppressed during upgrade to AGP 3.6.
     public DelegatingWorkerFactory() {
-        mFactories = new LinkedList<>();
+        // Use a CopyOnWriteArrayList here to allow modifying a list of factories during
+        // iteration. This allows createWorker() to call addFactory().
+        mFactories = new CopyOnWriteArrayList<>();
     }
 
     @VisibleForTesting

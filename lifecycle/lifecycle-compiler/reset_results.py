@@ -26,12 +26,12 @@ if len(sys.argv) != 2:
 with open(sys.argv[1]) as f:
     content = f.readlines()
 
-with open("src/tests/test-data/expected/license.txt") as license:
+with open("src/test/test-data/expected/license.txt") as license:
     licenseLines = license.readlines()
 
 
 def writeToFile(fileName, lines):
-    file = open("src/tests/test-data/expected/" + fileName, "w")
+    file = open("src/test/test-data/expected/" + fileName, "w")
     for line in lines:
         file.write(line)
 

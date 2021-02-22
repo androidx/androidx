@@ -20,10 +20,9 @@ import android.annotation.SuppressLint
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.ArrayDeque
 import java.util.Queue
-import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Helper class for [PausingDispatcher] that tracks runnables which are enqueued to the dispatcher
@@ -34,24 +33,9 @@ internal class DispatchQueue {
     private var paused: Boolean = true
     // handler thread
     private var finished: Boolean = false
+    private var isDraining: Boolean = false
 
     private val queue: Queue<Runnable> = ArrayDeque<Runnable>()
-
-    private val consumer = Runnable {
-        // this one runs inside Dispatchers.Main
-        // if it should run, grabs an item, runs it
-        // if it has more, will re-enqueue
-        // To avoid starving Dispatchers.Main, we don't consume more than 1
-        if (!canRun()) {
-            return@Runnable
-        }
-        val next = queue.poll() ?: return@Runnable
-        try {
-            next.run()
-        } finally {
-            maybeEnqueueConsumer()
-        }
-    }
 
     @MainThread
     fun pause() {
@@ -67,32 +51,57 @@ internal class DispatchQueue {
             "Cannot resume a finished dispatcher"
         }
         paused = false
-        maybeEnqueueConsumer()
+        drainQueue()
     }
 
     @MainThread
     fun finish() {
         finished = true
-        maybeEnqueueConsumer()
+        drainQueue()
     }
 
     @MainThread
-    fun maybeEnqueueConsumer() {
-        if (queue.isNotEmpty()) {
-            Dispatchers.Main.dispatch(EmptyCoroutineContext, consumer)
+    fun drainQueue() {
+        if (isDraining) {
+            // Block re-entrant calls to avoid deep stacks
+            return
+        }
+        try {
+            isDraining = true
+            while (queue.isNotEmpty()) {
+                if (!canRun()) {
+                    break
+                }
+                queue.poll()?.run()
+            }
+        } finally {
+            isDraining = false
         }
     }
 
     @MainThread
-    private fun canRun() = finished || !paused
+    fun canRun() = finished || !paused
 
     @AnyThread
-    @ExperimentalCoroutinesApi
     @SuppressLint("WrongThread") // false negative, we are checking the thread
-    fun runOrEnqueue(runnable: Runnable) {
-        Dispatchers.Main.immediate.dispatch(EmptyCoroutineContext, Runnable {
-            enqueue(runnable)
-        })
+    fun dispatchAndEnqueue(context: CoroutineContext, runnable: Runnable) {
+        with(Dispatchers.Main.immediate) {
+            // This check is here to handle a special but important case. If for example
+            // launchWhenCreated is used while not created it's expected that it will run
+            // synchronously when the lifecycle is created. If we called `dispatch` here
+            // it launches made before the required state is reached would always be deferred
+            // which is not the intended behavior.
+            //
+            // This means that calling `yield()` while paused and then receiving `resume` right
+            // after leads to the runnable being run immediately but that is indeed intended.
+            // This could be solved by implementing `dispatchYield` in the dispatcher but it's
+            // marked as internal API.
+            if (isDispatchNeeded(context) || canRun()) {
+                dispatch(context, Runnable { enqueue(runnable) })
+            } else {
+                enqueue(runnable)
+            }
+        }
     }
 
     @MainThread
@@ -100,6 +109,6 @@ internal class DispatchQueue {
         check(queue.offer(runnable)) {
             "cannot enqueue any more runnables"
         }
-        maybeEnqueueConsumer()
+        drainQueue()
     }
 }

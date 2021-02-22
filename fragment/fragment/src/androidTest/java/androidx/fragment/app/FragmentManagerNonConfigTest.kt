@@ -21,7 +21,6 @@ import androidx.fragment.app.test.NonConfigOnStopActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.recreate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -32,8 +31,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FragmentManagerNonConfigTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(NonConfigOnStopActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(NonConfigOnStopActivity::class.java)
 
     /**
      * When a fragment is added during onStop(), it shouldn't show up in non-config

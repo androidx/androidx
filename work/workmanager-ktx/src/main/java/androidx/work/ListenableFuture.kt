@@ -34,7 +34,7 @@ import kotlin.coroutines.resumeWithException
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-suspend inline fun <R> ListenableFuture<R>.await(): R {
+public suspend inline fun <R> ListenableFuture<R>.await(): R {
     // Fast path
     if (isDone) {
         try {
@@ -44,16 +44,19 @@ suspend inline fun <R> ListenableFuture<R>.await(): R {
         }
     }
     return suspendCancellableCoroutine { cancellableContinuation ->
-        addListener(Runnable {
-            try {
-                cancellableContinuation.resume(get())
-            } catch (throwable: Throwable) {
-                val cause = throwable.cause ?: throwable
-                when (throwable) {
-                    is CancellationException -> cancellableContinuation.cancel(cause)
-                    else -> cancellableContinuation.resumeWithException(cause)
+        addListener(
+            Runnable {
+                try {
+                    cancellableContinuation.resume(get())
+                } catch (throwable: Throwable) {
+                    val cause = throwable.cause ?: throwable
+                    when (throwable) {
+                        is CancellationException -> cancellableContinuation.cancel(cause)
+                        else -> cancellableContinuation.resumeWithException(cause)
+                    }
                 }
-            }
-        }, DirectExecutor.INSTANCE)
+            },
+            DirectExecutor.INSTANCE
+        )
     }
 }

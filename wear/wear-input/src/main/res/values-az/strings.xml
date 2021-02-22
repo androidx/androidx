@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="buttons_round_top_center" msgid="5559087816427379703">"Üst"</string>
+    <string name="buttons_round_top_right" msgid="4871780374047139328">"Üst sağ"</string>
+    <string name="buttons_round_center_right" msgid="1509579668330531551">"Mərkəzi sağ"</string>
+    <string name="buttons_round_bottom_right" msgid="2377403938095293895">"Alt sağ"</string>
+    <string name="buttons_round_bottom_center" msgid="7330585893633364324">"Alt"</string>
+    <string name="buttons_round_bottom_left" msgid="2128239325315047486">"Alt sol"</string>
+    <string name="buttons_round_center_left" msgid="4851687456301428363">"Mərkəzi sol"</string>
+    <string name="buttons_round_top_left" msgid="6011962751086201079">"Üst sol"</string>
+    <string name="buttons_round_top_right_upper" msgid="5489914740902966147">"Üst sağ, yuxarı"</string>
+    <string name="buttons_round_top_right_lower" msgid="49744844591556337">"Üst sağ, aşağı"</string>
+    <string name="buttons_round_bottom_right_upper" msgid="3762205785832512542">"Alt sağ, yuxarı"</string>
+    <string name="buttons_round_bottom_right_lower" msgid="6450671993962362349">"Alt sağ, aşağı"</string>
+    <string name="buttons_round_bottom_left_lower" msgid="8840562761052904241">"Alt sol, aşağı"</string>
+    <string name="buttons_round_bottom_left_upper" msgid="5824161271890322696">"Alt sol, yuxarı"</string>
+    <string name="buttons_round_top_left_lower" msgid="4749025344320804614">"Üst sol, aşağı"</string>
+    <string name="buttons_round_top_left_upper" msgid="2546930425604677415">"Üst sol, yuxarı"</string>
+    <string name="buttons_rect_left_top" msgid="5658240954637179416">"Üst, sol tərəf"</string>
+    <string name="buttons_rect_left_center" msgid="2090348335774325845">"Mərkəzi sol"</string>
+    <string name="buttons_rect_left_bottom" msgid="2890382227404669440">"Alt, sol tərəf"</string>
+    <string name="buttons_rect_right_top" msgid="8781047384037217975">"Üst, sağ tərəf"</string>
+    <string name="buttons_rect_right_center" msgid="9046922334870476704">"Mərkəzi sağ"</string>
+    <string name="buttons_rect_right_bottom" msgid="231110280868923853">"Alt, sağ tərəf"</string>
+    <string name="buttons_rect_top_left" msgid="7572206729575579647">"Üst sol"</string>
+    <string name="buttons_rect_top_center" msgid="79705740801041383">"Üst"</string>
+    <string name="buttons_rect_top_right" msgid="942888900599091776">"Üst sağ"</string>
+    <string name="buttons_rect_bottom_left" msgid="1900303277997254019">"Alt sol"</string>
+    <string name="buttons_rect_bottom_center" msgid="7032918537319714491">"Alt"</string>
+    <string name="buttons_rect_bottom_right" msgid="5128261908141175352">"Alt sağ"</string>
+</resources>

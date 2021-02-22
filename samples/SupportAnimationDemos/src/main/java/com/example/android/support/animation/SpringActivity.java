@@ -41,7 +41,6 @@ public class SpringActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final View v = findViewById(R.id.container);
         mSpringView = findViewById(R.id.actual_spring);
 
         final View img = findViewById(R.id.imageView);

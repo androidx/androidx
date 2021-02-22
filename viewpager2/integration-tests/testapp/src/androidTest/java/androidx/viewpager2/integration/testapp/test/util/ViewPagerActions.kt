@@ -31,11 +31,13 @@ import androidx.test.espresso.action.ViewActions.swipeRight
 import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
+import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast
 import androidx.viewpager2.integration.testapp.test.util.SwipeAction.Direction.BACKWARD
 import androidx.viewpager2.integration.testapp.test.util.SwipeAction.Direction.FORWARD
 import androidx.viewpager2.widget.ViewPager2
 import org.hamcrest.CoreMatchers.allOf
+import org.hamcrest.CoreMatchers.anyOf
 import org.hamcrest.Matcher
 
 /**
@@ -72,10 +74,24 @@ private class SwipeAction(val direction: Direction) : ViewAction {
     override fun getDescription(): String = "Swiping $direction"
 
     override fun getConstraints(): Matcher<View> =
-        allOf(isAssignableFrom(ViewPager2::class.java), isDisplayingAtLeast(90))
+        allOf(
+            anyOf(
+                isAssignableFrom(ViewPager2::class.java),
+                isDescendantOfA(isAssignableFrom(ViewPager2::class.java))
+            ),
+            isDisplayingAtLeast(90)
+        )
 
     override fun perform(uiController: UiController, view: View) {
-        val vp = view as ViewPager2
+        val vp = if (view is ViewPager2) {
+            view
+        } else {
+            var parent = view.parent
+            while (parent !is ViewPager2 && parent != null) {
+                parent = parent.parent
+            }
+            parent as ViewPager2
+        }
         val isForward = direction == FORWARD
         val swipeAction: ViewAction
         if (vp.orientation == ViewPager2.ORIENTATION_HORIZONTAL) {

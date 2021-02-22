@@ -17,16 +17,17 @@
 package androidx.room.processor
 
 import androidx.room.TypeConverter
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.typeName
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
-import androidx.room.processor.ProcessorErrors
-        .TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
+import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
-import androidx.room.testing.TestInvocation
+import androidx.room.testing.context
 import androidx.room.vo.CustomTypeConverter
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
+import com.google.common.truth.Truth
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -39,23 +40,23 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import simpleRun
 import java.util.Date
 import javax.lang.model.element.Modifier
-import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class CustomConverterProcessorTest {
     companion object {
         val CONVERTER = ClassName.get("foo.bar", "MyConverter")!!
         val CONVERTER_QNAME = CONVERTER.packageName() + "." + CONVERTER.simpleName()
-        val CONTAINER = JavaFileObjects.forSourceString("foo.bar.Container",
-                """
+        val CONTAINER = Source.java(
+            "foo.bar.Container",
+            """
                 package foo.bar;
                 import androidx.room.*;
                 @TypeConverters(foo.bar.MyConverter.class)
                 public class Container {}
-                """)
+                """
+        )
     }
 
     @Test
@@ -63,7 +64,7 @@ class CustomConverterProcessorTest {
         singleClass(createConverter(TypeName.SHORT.box(), TypeName.CHAR.box())) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT.box()))
             assertThat(converter?.toTypeName, `is`(TypeName.CHAR.box()))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -71,7 +72,7 @@ class CustomConverterProcessorTest {
         singleClass(createConverter(TypeName.SHORT, TypeName.CHAR.box())) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT))
             assertThat(converter?.toTypeName, `is`(TypeName.CHAR.box()))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -79,7 +80,7 @@ class CustomConverterProcessorTest {
         singleClass(createConverter(TypeName.INT.box(), TypeName.DOUBLE)) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.INT.box()))
             assertThat(converter?.toTypeName, `is`(TypeName.DOUBLE))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -87,13 +88,13 @@ class CustomConverterProcessorTest {
         singleClass(createConverter(TypeName.INT, TypeName.DOUBLE)) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.INT))
             assertThat(converter?.toTypeName, `is`(TypeName.DOUBLE))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun nonNullButNotBoxed() {
-        val string = String::class.typeName()
-        val date = Date::class.typeName()
+        val string = String::class.typeName
+        val date = Date::class.typeName
         singleClass(createConverter(string, date)) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(string as TypeName))
             assertThat(converter?.toTypeName, `is`(date as TypeName))
@@ -103,40 +104,51 @@ class CustomConverterProcessorTest {
     @Test
     fun parametrizedTypeUnbound() {
         val typeVarT = TypeVariableName.get("T")
-        val list = ParameterizedTypeName.get(List::class.typeName(), typeVarT)
+        val list = ParameterizedTypeName.get(List::class.typeName, typeVarT)
         val typeVarK = TypeVariableName.get("K")
-        val map = ParameterizedTypeName.get(Map::class.typeName(), typeVarK, typeVarT)
-        singleClass(createConverter(list, map, listOf(typeVarK, typeVarT))) {
-            _, _ ->
-        }.failsToCompile().withErrorContaining(TYPE_CONVERTER_UNBOUND_GENERIC)
+        val map = ParameterizedTypeName.get(Map::class.typeName, typeVarK, typeVarT)
+        singleClass(createConverter(list, map, listOf(typeVarK, typeVarT))) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(TYPE_CONVERTER_UNBOUND_GENERIC)
+            }
+        }
     }
 
     @Test
     fun parametrizedTypeSpecific() {
-        val string = String::class.typeName()
-        val date = Date::class.typeName()
-        val list = ParameterizedTypeName.get(List::class.typeName(), string)
-        val map = ParameterizedTypeName.get(Map::class.typeName(), string, date)
+        val string = String::class.typeName
+        val date = Date::class.typeName
+        val list = ParameterizedTypeName.get(List::class.typeName, string)
+        val map = ParameterizedTypeName.get(Map::class.typeName, string, date)
         singleClass(createConverter(list, map)) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(list as TypeName))
             assertThat(converter?.toTypeName, `is`(map as TypeName))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun testNoConverters() {
-        singleClass(JavaFileObjects.forSourceString(CONVERTER_QNAME,
+        singleClass(
+            Source.java(
+                CONVERTER_QNAME,
                 """
                 package ${CONVERTER.packageName()};
                 public class ${CONVERTER.simpleName()} {
                 }
-                """)) { _, _ ->
-        }.failsToCompile().withErrorContaining(TYPE_CONVERTER_EMPTY_CLASS)
+                """
+            )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(TYPE_CONVERTER_EMPTY_CLASS)
+            }
+        }
     }
 
     @Test
     fun checkNoArgConstructor() {
-        singleClass(JavaFileObjects.forSourceString(CONVERTER_QNAME,
+        singleClass(
+            Source.java(
+                CONVERTER_QNAME,
                 """
                 package ${CONVERTER.packageName()};
                 import androidx.room.TypeConverter;
@@ -146,13 +158,20 @@ class CustomConverterProcessorTest {
                     @TypeConverter
                     public int x(short y) {return 0;}
                 }
-                """)) { _, _ ->
-        }.failsToCompile().withErrorContaining(TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR)
+                """
+            )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR)
+            }
+        }
     }
 
     @Test
     fun checkNoArgConstructor_withStatic() {
-        singleClass(JavaFileObjects.forSourceString(CONVERTER_QNAME,
+        singleClass(
+            Source.java(
+                CONVERTER_QNAME,
                 """
                 package ${CONVERTER.packageName()};
                 import androidx.room.TypeConverter;
@@ -162,16 +181,20 @@ class CustomConverterProcessorTest {
                     @TypeConverter
                     public static int x(short y) {return 0;}
                 }
-                """)) { converter, _ ->
+                """
+            )
+        ) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT))
             assertThat(converter?.toTypeName, `is`(TypeName.INT))
             assertThat(converter?.isStatic, `is`(true))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun checkPublic() {
-        singleClass(JavaFileObjects.forSourceString(CONVERTER_QNAME,
+        singleClass(
+            Source.java(
+                CONVERTER_QNAME,
                 """
                 package ${CONVERTER.packageName()};
                 import androidx.room.TypeConverter;
@@ -180,53 +203,108 @@ class CustomConverterProcessorTest {
                     @TypeConverter static int x(short y) {return 0;}
                     @TypeConverter private static int y(boolean y) {return 0;}
                 }
-                """)) { converter, _ ->
+                """
+            )
+        ) { converter, invocation ->
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT))
             assertThat(converter?.toTypeName, `is`(TypeName.INT))
             assertThat(converter?.isStatic, `is`(true))
-        }.failsToCompile().withErrorContaining(TYPE_CONVERTER_MUST_BE_PUBLIC).and()
-                .withErrorCount(2)
+            invocation.assertCompilationResult {
+                hasErrorContaining(TYPE_CONVERTER_MUST_BE_PUBLIC)
+                hasErrorCount(2)
+            }
+        }
     }
 
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     @Test
     fun parametrizedTypeBoundViaParent() {
         val typeVarT = TypeVariableName.get("T")
-        val list = ParameterizedTypeName.get(List::class.typeName(), typeVarT)
+        val list = ParameterizedTypeName.get(List::class.typeName, typeVarT)
         val typeVarK = TypeVariableName.get("K")
-        val map = ParameterizedTypeName.get(Map::class.typeName(), typeVarK, typeVarT)
+        val map = ParameterizedTypeName.get(Map::class.typeName, typeVarK, typeVarT)
 
         val baseConverter = createConverter(list, map, listOf(typeVarT, typeVarK))
         val extendingQName = "foo.bar.Extending"
-        val extendingClass = JavaFileObjects.forSourceString(extendingQName,
-                "package foo.bar;\n" +
-                        TypeSpec.classBuilder(ClassName.bestGuess(extendingQName)).apply {
-                            superclass(
-                                    ParameterizedTypeName.get(CONVERTER, String::class.typeName(),
-                                    Integer::class.typeName()))
-                        }.build().toString())
+        val extendingClass = Source.java(
+            extendingQName,
+            "package foo.bar;\n" +
+                TypeSpec.classBuilder(ClassName.bestGuess(extendingQName)).apply {
+                    superclass(
+                        ParameterizedTypeName.get(
+                            CONVERTER, String::class.typeName,
+                            Integer::class.typeName
+                        )
+                    )
+                }.build().toString()
+        )
 
-        simpleRun(baseConverter, extendingClass) { invocation ->
-            val element = invocation.processingEnv.elementUtils.getTypeElement(extendingQName)
+        runProcessorTest(
+            sources = listOf(baseConverter, extendingClass)
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement(extendingQName)
             val converter = CustomConverterProcessor(invocation.context, element)
-                    .process().firstOrNull()
-            assertThat(converter?.fromTypeName, `is`(ParameterizedTypeName.get(
-                    List::class.typeName(), String::class.typeName()) as TypeName
-            ))
-            assertThat(converter?.toTypeName, `is`(ParameterizedTypeName.get(Map::class.typeName(),
-                    Integer::class.typeName(), String::class.typeName()) as TypeName
-            ))
-        }.compilesWithoutError()
+                .process().firstOrNull()
+            assertThat(
+                converter?.fromTypeName,
+                `is`(
+                    ParameterizedTypeName.get(
+                        List::class.typeName, String::class.typeName
+                    ) as TypeName
+                )
+            )
+            assertThat(
+                converter?.toTypeName,
+                `is`(
+                    ParameterizedTypeName.get(
+                        Map::class.typeName,
+                        Integer::class.typeName, String::class.typeName
+                    ) as TypeName
+                )
+            )
+        }
     }
 
     @Test
     fun checkDuplicates() {
         singleClass(
-                createConverter(TypeName.SHORT.box(), TypeName.CHAR.box(), duplicate = true)
-        ) { converter, _ ->
+            createConverter(TypeName.SHORT.box(), TypeName.CHAR.box(), duplicate = true)
+        ) { converter, invocation ->
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT.box()))
             assertThat(converter?.toTypeName, `is`(TypeName.CHAR.box()))
-        }.failsToCompile().withErrorContaining("Multiple methods define the same conversion")
+            invocation.assertCompilationResult {
+                hasErrorContaining("Multiple methods define the same conversion")
+            }
+        }
+    }
+
+    @Test
+    fun invalidConverterType() {
+        val source = Source.java(
+            "foo.bar.Container",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @TypeConverters(int.class)
+                public class Container {}
+                """
+        )
+        runProcessorTest(listOf(source)) { invocation ->
+            val result = CustomConverterProcessor.findConverters(
+                invocation.context,
+                invocation.processingEnv.requireTypeElement("foo.bar.Container")
+            )
+            Truth.assertThat(result.converters).isEmpty()
+            invocation.assertCompilationResult {
+                if (invocation.isKsp) {
+                    // for KSP it always has a type element but we rather assert the other error
+                    // instead of not running the code path in ksp tests
+                    hasErrorContaining(TYPE_CONVERTER_EMPTY_CLASS)
+                } else {
+                    hasErrorContaining(ProcessorErrors.typeConverterMustBeDeclared(TypeName.INT))
+                }
+            }
+        }
     }
 
     private fun createConverter(
@@ -234,7 +312,7 @@ class CustomConverterProcessorTest {
         to: TypeName,
         typeVariables: List<TypeVariableName> = emptyList(),
         duplicate: Boolean = false
-    ): JavaFileObject {
+    ): Source {
         val code = TypeSpec.classBuilder(CONVERTER).apply {
             addTypeVariables(typeVariables)
             addModifiers(Modifier.PUBLIC)
@@ -254,17 +332,23 @@ class CustomConverterProcessorTest {
                 addMethod(buildMethod("convertF2"))
             }
         }.build().toString()
-        return JavaFileObjects.forSourceString(CONVERTER.toString(),
-                "package ${CONVERTER.packageName()};\n$code")
+        return Source.java(
+            CONVERTER.toString(),
+            "package ${CONVERTER.packageName()};\n$code"
+        )
     }
 
     private fun singleClass(
-        vararg jfo: JavaFileObject,
-        handler: (CustomTypeConverter?, TestInvocation) -> Unit
-    ): CompileTester {
-        return simpleRun(*((jfo.toList() + CONTAINER).toTypedArray())) { invocation ->
-            val processed = CustomConverterProcessor.findConverters(invocation.context,
-                    invocation.processingEnv.elementUtils.getTypeElement("foo.bar.Container"))
+        vararg sources: Source,
+        handler: (CustomTypeConverter?, XTestInvocation) -> Unit
+    ) {
+        runProcessorTest(
+            sources = sources.toList() + CONTAINER
+        ) { invocation ->
+            val processed = CustomConverterProcessor.findConverters(
+                invocation.context,
+                invocation.processingEnv.requireTypeElement("foo.bar.Container")
+            )
             handler(processed.converters.firstOrNull()?.custom, invocation)
         }
     }

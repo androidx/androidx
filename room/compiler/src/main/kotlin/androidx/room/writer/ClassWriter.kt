@@ -19,6 +19,8 @@ package androidx.room.writer
 import androidx.room.RoomProcessor
 import androidx.room.ext.S
 import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.writeTo
 import androidx.room.solver.CodeGenScope.Companion.CLASS_PROPERTY_PREFIX
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
@@ -27,7 +29,7 @@ import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import javax.annotation.processing.ProcessingEnvironment
+import kotlin.reflect.KClass
 
 /**
  * Base class for all writers that can produce a class.
@@ -37,10 +39,32 @@ abstract class ClassWriter(private val className: ClassName) {
     private val sharedMethodSpecs = mutableMapOf<String, MethodSpec>()
     private val sharedFieldNames = mutableSetOf<String>()
     private val sharedMethodNames = mutableSetOf<String>()
+    private val metadata = mutableMapOf<KClass<*>, Any>()
 
     abstract fun createTypeSpecBuilder(): TypeSpec.Builder
 
-    fun write(processingEnv: ProcessingEnvironment) {
+    /**
+     * Read additional metadata that can be put by sub code generators.
+     *
+     * @see set for more details.
+     */
+    operator fun <T> get(key: KClass<*>): T? {
+        @Suppress("UNCHECKED_CAST")
+        return metadata[key] as? T
+    }
+
+    /**
+     * Add additional metadata to the ClassWriter that can be read back later.
+     * This is useful for additional functionality where a sub code generator needs to bubble up
+     * information to the main ClassWriter without copying it in every intermediate step.
+     *
+     * @see get
+     */
+    operator fun set(key: KClass<*>, value: Any) {
+        metadata[key] = value
+    }
+
+    fun write(processingEnv: XProcessingEnv) {
         val builder = createTypeSpecBuilder()
         sharedFieldSpecs.values.forEach { builder.addField(it) }
         sharedMethodSpecs.values.forEach { builder.addMethod(it) }
@@ -52,7 +76,7 @@ abstract class ClassWriter(private val className: ClassName) {
     }
 
     private fun addSuppressWarnings(builder: TypeSpec.Builder) {
-        val suppressSpec = AnnotationSpec.builder(SuppressWarnings::class.typeName())
+        val suppressSpec = AnnotationSpec.builder(SuppressWarnings::class.typeName)
             .addMember(
                 "value",
                 "{$S, $S}",
@@ -63,18 +87,13 @@ abstract class ClassWriter(private val className: ClassName) {
 
     private fun addGeneratedAnnotationIfAvailable(
         adapterTypeSpecBuilder: TypeSpec.Builder,
-        processingEnv: ProcessingEnvironment
+        processingEnv: XProcessingEnv
     ) {
-        val generatedAnnotationAvailable = processingEnv
-                .elementUtils
-                .getTypeElement("$GENERATED_PACKAGE.$GENERATED_NAME") != null
-        if (generatedAnnotationAvailable) {
-            val className = ClassName.get(GENERATED_PACKAGE, GENERATED_NAME)
+        processingEnv.findGeneratedAnnotation()?.let {
             val generatedAnnotationSpec =
-                    AnnotationSpec.builder(className).addMember(
-                            "value",
-                            S,
-                            RoomProcessor::class.java.canonicalName).build()
+                AnnotationSpec.builder(it.className)
+                    .addMember("value", S, RoomProcessor::class.java.canonicalName)
+                    .build()
             adapterTypeSpecBuilder.addAnnotation(generatedAnnotationSpec)
         }
     }
@@ -96,15 +115,21 @@ abstract class ClassWriter(private val className: ClassName) {
     }
 
     fun getOrCreateField(sharedField: SharedFieldSpec): FieldSpec {
-        return sharedFieldSpecs.getOrPut(sharedField.getUniqueKey(), {
-            sharedField.build(this, makeUnique(sharedFieldNames, sharedField.baseName))
-        })
+        return sharedFieldSpecs.getOrPut(
+            sharedField.getUniqueKey(),
+            {
+                sharedField.build(this, makeUnique(sharedFieldNames, sharedField.baseName))
+            }
+        )
     }
 
     fun getOrCreateMethod(sharedMethod: SharedMethodSpec): MethodSpec {
-        return sharedMethodSpecs.getOrPut(sharedMethod.getUniqueKey(), {
-            sharedMethod.build(this, makeUnique(sharedMethodNames, sharedMethod.baseName))
-        })
+        return sharedMethodSpecs.getOrPut(
+            sharedMethod.getUniqueKey(),
+            {
+                sharedMethod.build(this, makeUnique(sharedMethodNames, sharedMethod.baseName))
+            }
+        )
     }
 
     abstract class SharedFieldSpec(val baseName: String, val type: TypeName) {
@@ -130,10 +155,5 @@ abstract class ClassWriter(private val className: ClassName) {
             prepare(name, writer, builder)
             return builder.build()
         }
-    }
-
-    companion object {
-        private const val GENERATED_PACKAGE = "javax.annotation"
-        private const val GENERATED_NAME = "Generated"
     }
 }

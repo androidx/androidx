@@ -21,6 +21,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Insets
 import android.os.Bundle
+import android.view.InflateException
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,7 +32,6 @@ import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -41,18 +41,38 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FragmentContainerViewTest {
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(FragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
     lateinit var context: Context
 
     @Before
     fun setupContainer() {
         activityRule.setContentView(R.layout.fragment_container_view)
         context = activityRule.activity.applicationContext
+    }
+
+    @Test
+    fun inflateFragmentContainerNoActivity() {
+        val layoutInflater = LayoutInflater.from(context)
+        layoutInflater.inflate(R.layout.fragment_container_view, null)
+    }
+
+    @Test(expected = InflateException::class)
+    fun inflatedFragmentContainerNoActivityWithName() {
+        val layoutInflater = LayoutInflater.from(context)
+        layoutInflater.inflate(R.layout.inflated_fragment_container_view, null)
+    }
+
+    @Test(expected = InflateException::class)
+    fun inflatedFragmentContainerNoActivityWithClass() {
+        val layoutInflater = LayoutInflater.from(context)
+        layoutInflater.inflate(R.layout.inflated_fragment_container_view_with_class, null)
     }
 
     @SdkSuppress(minSdkVersion = 18) // androidx.transition needs setLayoutTransition for API < 18
@@ -67,8 +87,10 @@ class FragmentContainerViewTest {
         } catch (e: UnsupportedOperationException) {
             assertThat(e)
                 .hasMessageThat()
-                .contains("FragmentContainerView does not support Layout Transitions or " +
-                        "animateLayoutChanges=\"true\".")
+                .contains(
+                    "FragmentContainerView does not support Layout Transitions or " +
+                        "animateLayoutChanges=\"true\"."
+                )
         }
     }
 
@@ -94,8 +116,10 @@ class FragmentContainerViewTest {
         } catch (e: UnsupportedOperationException) {
             assertThat(e)
                 .hasMessageThat()
-                .contains("FragmentContainerView does not support Layout Transitions or " +
-                        "animateLayoutChanges=\"true\".")
+                .contains(
+                    "FragmentContainerView does not support Layout Transitions or " +
+                        "animateLayoutChanges=\"true\"."
+                )
         }
     }
 
@@ -115,6 +139,7 @@ class FragmentContainerViewTest {
             .isInstanceOf(FragmentContainerView::class.java)
     }
 
+    @Suppress("DEPRECATION") /* systemWindowInsets */
     @SdkSuppress(minSdkVersion = 29) // WindowInsets.Builder requires API 29
     @Test
     fun windowInsetsDispatchToChildren() {
@@ -174,7 +199,7 @@ class FragmentContainerViewTest {
             assertThat(e)
                 .hasMessageThat().contains(
                     "Views added to a FragmentContainerView must be associated with a Fragment. " +
-                            "View " + view + " is not associated with a Fragment."
+                        "View " + view + " is not associated with a Fragment."
                 )
         }
     }
@@ -190,7 +215,7 @@ class FragmentContainerViewTest {
             assertThat(e)
                 .hasMessageThat().contains(
                     "Views added to a FragmentContainerView must be associated with a Fragment. " +
-                            "View " + view + " is not associated with a Fragment."
+                        "View " + view + " is not associated with a Fragment."
                 )
         }
     }
@@ -268,8 +293,8 @@ class FragmentContainerViewTest {
 
         view.removeAllViewsInLayout()
 
-        assertThat(removingView1.getAnimationCount).isEqualTo(2)
-        assertThat(removingView2.getAnimationCount).isEqualTo(2)
+        assertThat(removingView1.getAnimationCount).isEqualTo(1)
+        assertThat(removingView2.getAnimationCount).isEqualTo(1)
         assertThat(view.childCount).isEqualTo(0)
     }
 
@@ -325,8 +350,12 @@ class FragmentContainerViewTest {
 
         val frag1View = fragment1.mView as ChildView
         // wait for the first draw to finish
-        drawnFirstCountDownLatch.await()
-        frag1View.onAnimationEndLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
+        assertWithMessage("Timed out waiting for onAnimationEnd on Fragment 1")
+            .that(frag1View.onAnimationEndLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
 
         // reset the first drawn view for the transaction we care about.
         drawnFirst = null
@@ -338,7 +367,9 @@ class FragmentContainerViewTest {
             .commit()
         activityRule.waitForExecution()
 
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         assertThat(drawnFirst!!).isEqualTo(frag1View)
     }
 
@@ -351,8 +382,10 @@ class FragmentContainerViewTest {
         val fragment2 = ChildViewFragment()
 
         fm.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
@@ -360,17 +393,23 @@ class FragmentContainerViewTest {
         val frag1View = fragment1.mView as ChildView
 
         fm.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment2, "2")
             .addToBackStack(null)
             .commit()
         activityRule.waitForExecution()
 
         val frag2View = fragment2.mView as ChildView
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
 
-        frag1View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 1")
+            .that(frag1View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag1View.onDetachFromWindowLatch = CountDownLatch(1)
 
         // reset the first drawn view for the transaction we care about.
@@ -380,10 +419,14 @@ class FragmentContainerViewTest {
         fm.popBackStack()
         activityRule.waitForExecution()
 
-        frag2View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 2")
+            .that(frag2View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag2View.onDetachFromWindowLatch = CountDownLatch(1)
 
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         // The popped Fragment will be drawn last and therefore will be on top
         assertThat(drawnFirst!!).isNotEqualTo(frag2View)
     }
@@ -392,12 +435,14 @@ class FragmentContainerViewTest {
     fun drawDisappearingChildViewsLastAfterPopNoReordering() {
         val fm = activityRule.activity.supportFragmentManager
 
-        val fragment1 = ChildViewFragment()
-        val fragment2 = ChildViewFragment()
+        val fragment1 = ChildViewFragment("child1")
+        val fragment2 = ChildViewFragment("child2")
 
         fm.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
@@ -405,8 +450,10 @@ class FragmentContainerViewTest {
         val frag1View = fragment1.mView as ChildView
 
         fm.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment2, "2")
             .setPrimaryNavigationFragment(fragment2)
             .addToBackStack(null)
@@ -414,9 +461,13 @@ class FragmentContainerViewTest {
         activityRule.waitForExecution()
 
         val frag2View = fragment2.mView as ChildView
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
 
-        frag1View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 1")
+            .that(frag1View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag1View.onDetachFromWindowLatch = CountDownLatch(1)
 
         // reset the first drawn view for the transaction we care about.
@@ -425,16 +476,22 @@ class FragmentContainerViewTest {
 
         fm.popBackStack()
         fm.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
 
-        frag2View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 2")
+            .that(frag2View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag2View.onDetachFromWindowLatch = CountDownLatch(1)
 
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         assertThat(drawnFirst!!).isNotEqualTo(frag2View)
     }
 
@@ -442,13 +499,15 @@ class FragmentContainerViewTest {
     fun drawDisappearingChildViewsLastAfterPopReorderingAllowed() {
         val fm = activityRule.activity.supportFragmentManager
 
-        val fragment1 = ChildViewFragment()
-        val fragment2 = ChildViewFragment()
+        val fragment1 = ChildViewFragment("child1")
+        val fragment2 = ChildViewFragment("child2")
 
         fm.beginTransaction()
             .setReorderingAllowed(true)
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
@@ -457,8 +516,10 @@ class FragmentContainerViewTest {
 
         fm.beginTransaction()
             .setReorderingAllowed(true)
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment2, "2")
             .setPrimaryNavigationFragment(fragment2)
             .addToBackStack(null)
@@ -466,9 +527,13 @@ class FragmentContainerViewTest {
         activityRule.waitForExecution()
 
         val frag2View = fragment2.mView as ChildView
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
 
-        frag1View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 1")
+            .that(frag1View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag1View.onDetachFromWindowLatch = CountDownLatch(1)
 
         // reset the first drawn view for the transaction we care about.
@@ -478,16 +543,22 @@ class FragmentContainerViewTest {
         fm.popBackStack()
         fm.beginTransaction()
             .setReorderingAllowed(true)
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
 
-        frag2View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 2")
+            .that(frag2View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag2View.onDetachFromWindowLatch = CountDownLatch(1)
 
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         assertThat(drawnFirst!!).isNotEqualTo(frag2View)
     }
 
@@ -495,13 +566,15 @@ class FragmentContainerViewTest {
     fun drawDisappearingChildViewsLastAfterPopReorderingAllowedAddNewFragment() {
         val fm = activityRule.activity.supportFragmentManager
 
-        val fragment1 = ChildViewFragment()
-        val fragment2 = ChildViewFragment()
+        val fragment1 = ChildViewFragment("child1")
+        val fragment2 = ChildViewFragment("child2")
 
         fm.beginTransaction()
             .setReorderingAllowed(true)
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
@@ -510,8 +583,10 @@ class FragmentContainerViewTest {
 
         fm.beginTransaction()
             .setReorderingAllowed(true)
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment2, "2")
             .setPrimaryNavigationFragment(fragment2)
             .addToBackStack(null)
@@ -519,9 +594,13 @@ class FragmentContainerViewTest {
         activityRule.waitForExecution()
 
         val frag2View = fragment2.mView as ChildView
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
 
-        frag1View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 1")
+            .that(frag1View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag1View.onDetachFromWindowLatch = CountDownLatch(1)
 
         // reset the first drawn view for the transaction we care about.
@@ -531,26 +610,32 @@ class FragmentContainerViewTest {
         fm.popBackStack()
         fm.beginTransaction()
             .setReorderingAllowed(true)
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .add(R.id.fragment_container_view, ChildViewFragment(), "1")
             .commit()
         activityRule.waitForExecution()
 
-        frag2View.onDetachFromWindowLatch.await()
+        assertWithMessage("Timed out waiting for onDetachFromWindow on Fragment 2")
+            .that(frag2View.onDetachFromWindowLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         frag2View.onDetachFromWindowLatch = CountDownLatch(1)
 
-        drawnFirstCountDownLatch.await()
+        assertWithMessage("Timed out waiting for setDrawnFirstView")
+            .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
         // The view that was popped is drawn first which means it is on the bottom.
         assertThat(drawnFirst!!).isEqualTo(frag2View)
     }
 
-    class ChildViewFragment : StrictViewFragment() {
+    class ChildViewFragment(val viewTag: String? = null) : StrictViewFragment() {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-        ) = ChildView(context)
+        ) = ChildView(context).apply { this.tag = viewTag }
     }
 
     class ChildView(context: Context?) : View(context) {

@@ -31,13 +31,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.TestLifecycleOwner;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.impl.background.greedy.GreedyScheduler;
@@ -114,7 +114,7 @@ public class WorkManagerImplLargeExecutorTest {
                 new WorkManagerImpl(context, configuration, taskExecutor, true));
 
         TrackingScheduler trackingScheduler =
-                new TrackingScheduler(context, taskExecutor, mWorkManagerImplSpy);
+                new TrackingScheduler(context, configuration, taskExecutor, mWorkManagerImplSpy);
 
         Processor processor = new Processor(context,
                 configuration,
@@ -186,10 +186,12 @@ public class WorkManagerImplLargeExecutorTest {
 
         private Set<String> mScheduledWorkSpecIds;
 
-        TrackingScheduler(Context context,
+        TrackingScheduler(
+                Context context,
+                Configuration configuration,
                 TaskExecutor taskExecutor,
                 WorkManagerImpl workManagerImpl) {
-            super(context, taskExecutor, workManagerImpl);
+            super(context, configuration, taskExecutor, workManagerImpl);
             mScheduledWorkSpecIds = new HashSet<>();
         }
 

@@ -16,6 +16,7 @@
 
 package androidx.viewpager2.integration.testapp
 
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -60,6 +61,9 @@ abstract class MutableCollectionBaseActivity : FragmentActivity() {
         itemSpinner.adapter = object : BaseAdapter() {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
                 ((convertView as TextView?) ?: TextView(parent.context)).apply {
+                    if (Build.VERSION.SDK_INT >= 17) {
+                        textDirection = View.TEXT_DIRECTION_LOCALE
+                    }
                     text = getItem(position)
                 }
 
@@ -78,16 +82,22 @@ abstract class MutableCollectionBaseActivity : FragmentActivity() {
                 val idsOld = items.createIdSnapshot()
                 performChanges()
                 val idsNew = items.createIdSnapshot()
-                DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                    override fun getOldListSize(): Int = idsOld.size
-                    override fun getNewListSize(): Int = idsNew.size
+                DiffUtil.calculateDiff(
+                    object : DiffUtil.Callback() {
+                        override fun getOldListSize(): Int = idsOld.size
+                        override fun getNewListSize(): Int = idsNew.size
 
-                    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                        idsOld[oldItemPosition] == idsNew[newItemPosition]
+                        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                            idsOld[oldItemPosition] == idsNew[newItemPosition]
 
-                    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                        areItemsTheSame(oldItemPosition, newItemPosition)
-                }, true).dispatchUpdatesTo(viewPager.adapter!!)
+                        override fun areContentsTheSame(
+                            oldItemPosition: Int,
+                            newItemPosition: Int
+                        ) =
+                            areItemsTheSame(oldItemPosition, newItemPosition)
+                    },
+                    true
+                ).dispatchUpdatesTo(viewPager.adapter!!)
             } else {
                 /** without [DiffUtil] */
                 val oldPosition = viewPager.currentItem

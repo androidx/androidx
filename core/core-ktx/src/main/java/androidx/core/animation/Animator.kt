@@ -25,7 +25,9 @@ import androidx.annotation.RequiresApi
  * @return the [Animator.AnimatorListener] added to the Animator
  * @see Animator.end
  */
-inline fun Animator.doOnEnd(crossinline action: (animator: Animator) -> Unit) =
+public inline fun Animator.doOnEnd(
+    crossinline action: (animator: Animator) -> Unit
+): Animator.AnimatorListener =
     addListener(onEnd = action)
 
 /**
@@ -34,7 +36,9 @@ inline fun Animator.doOnEnd(crossinline action: (animator: Animator) -> Unit) =
  * @return the [Animator.AnimatorListener] added to the Animator
  * @see Animator.start
  */
-inline fun Animator.doOnStart(crossinline action: (animator: Animator) -> Unit) =
+public inline fun Animator.doOnStart(
+    crossinline action: (animator: Animator) -> Unit
+): Animator.AnimatorListener =
     addListener(onStart = action)
 
 /**
@@ -43,7 +47,9 @@ inline fun Animator.doOnStart(crossinline action: (animator: Animator) -> Unit) 
  * @return the [Animator.AnimatorListener] added to the Animator
  * @see Animator.cancel
  */
-inline fun Animator.doOnCancel(crossinline action: (animator: Animator) -> Unit) =
+public inline fun Animator.doOnCancel(
+    crossinline action: (animator: Animator) -> Unit
+): Animator.AnimatorListener =
     addListener(onCancel = action)
 
 /**
@@ -51,7 +57,9 @@ inline fun Animator.doOnCancel(crossinline action: (animator: Animator) -> Unit)
  *
  * @return the [Animator.AnimatorListener] added to the Animator
  */
-inline fun Animator.doOnRepeat(crossinline action: (animator: Animator) -> Unit) =
+public inline fun Animator.doOnRepeat(
+    crossinline action: (animator: Animator) -> Unit
+): Animator.AnimatorListener =
     addListener(onRepeat = action)
 
 /**
@@ -61,7 +69,9 @@ inline fun Animator.doOnRepeat(crossinline action: (animator: Animator) -> Unit)
  * @see Animator.resume
  */
 @RequiresApi(19)
-inline fun Animator.doOnResume(crossinline action: (animator: Animator) -> Unit) =
+public inline fun Animator.doOnResume(
+    crossinline action: (animator: Animator) -> Unit
+): Animator.AnimatorPauseListener =
     addPauseListener(onResume = action)
 
 /**
@@ -71,7 +81,9 @@ inline fun Animator.doOnResume(crossinline action: (animator: Animator) -> Unit)
  * @see Animator.pause
  */
 @RequiresApi(19)
-inline fun Animator.doOnPause(crossinline action: (animator: Animator) -> Unit) =
+public inline fun Animator.doOnPause(
+    crossinline action: (animator: Animator) -> Unit
+): Animator.AnimatorPauseListener =
     addPauseListener(onPause = action)
 
 /**
@@ -79,7 +91,7 @@ inline fun Animator.doOnPause(crossinline action: (animator: Animator) -> Unit) 
  *
  * @return the [Animator.AnimatorListener] added to the Animator
  */
-inline fun Animator.addListener(
+public inline fun Animator.addListener(
     crossinline onEnd: (animator: Animator) -> Unit = {},
     crossinline onStart: (animator: Animator) -> Unit = {},
     crossinline onCancel: (animator: Animator) -> Unit = {},
@@ -101,7 +113,7 @@ inline fun Animator.addListener(
  * @return the [Animator.AnimatorPauseListener] added to the Animator
  */
 @RequiresApi(19)
-inline fun Animator.addPauseListener(
+public inline fun Animator.addPauseListener(
     crossinline onResume: (animator: Animator) -> Unit = {},
     crossinline onPause: (animator: Animator) -> Unit = {}
 ): Animator.AnimatorPauseListener {

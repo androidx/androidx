@@ -1,7 +1,7 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.slice {
 
-  @RequiresApi(19) public final class Slice extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
+  @RequiresApi(19) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, isCustom=true) public final class Slice extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
     method public java.util.List<java.lang.String!>! getHints();
     method public java.util.List<androidx.slice.SliceItem!>! getItems();
     method public android.net.Uri! getUri();
@@ -13,7 +13,7 @@ package androidx.slice {
     method public static androidx.slice.Slice! wrap(android.app.slice.Slice!, android.content.Context!);
   }
 
-  @RequiresApi(19) public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
+  @RequiresApi(19) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, ignoreParcelables=true, isCustom=true) public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
     method public static android.text.ParcelableSpan createSensitiveSpan();
     method public void fireAction(android.content.Context?, android.content.Intent?) throws android.app.PendingIntent.CanceledException;
     method public android.app.PendingIntent! getAction();
@@ -30,7 +30,7 @@ package androidx.slice {
   }
 
   @RequiresApi(19) public abstract class SliceManager {
-    method public abstract int checkSlicePermission(android.net.Uri, int, int);
+    method @androidx.core.content.PermissionChecker.PermissionResult public abstract int checkSlicePermission(android.net.Uri, int, int);
     method public static androidx.slice.SliceManager getInstance(android.content.Context);
     method public abstract java.util.List<android.net.Uri!> getPinnedSlices();
     method public abstract void grantSlicePermission(String, android.net.Uri);
@@ -61,12 +61,6 @@ package androidx.slice {
     method public final int update(android.net.Uri, android.content.ContentValues?, String?, String![]?);
   }
 
-  public abstract class SliceProviderWithCallbacks<T extends androidx.slice.SliceProviderWithCallbacks> extends androidx.slice.SliceProvider implements androidx.remotecallback.CallbackBase<T> androidx.remotecallback.CallbackReceiver<T> {
-    ctor public SliceProviderWithCallbacks();
-    method public T createRemoteCallback(android.content.Context);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String, android.os.Bundle, String?);
-  }
-
 }
 
 package androidx.slice.core {
@@ -76,6 +70,7 @@ package androidx.slice.core {
     method public CharSequence? getContentDescription();
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method public int getImageMode();
+    method public String? getKey();
     method public int getPriority();
     method public CharSequence getTitle();
     method public boolean isActivity();
@@ -84,6 +79,7 @@ package androidx.slice.core {
     method public boolean isToggle();
     method public androidx.slice.core.SliceAction! setChecked(boolean);
     method public androidx.slice.core.SliceAction? setContentDescription(CharSequence);
+    method public androidx.slice.core.SliceAction setKey(String);
     method public androidx.slice.core.SliceAction! setPriority(@IntRange(from=0) int);
   }
 

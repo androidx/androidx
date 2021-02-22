@@ -99,6 +99,7 @@ public class QueryExecutorTest {
 
     @After
     public void tearDown() {
+        ArchTaskExecutor.getInstance().setDelegate(null);
         mTestDatabase.close();
     }
 

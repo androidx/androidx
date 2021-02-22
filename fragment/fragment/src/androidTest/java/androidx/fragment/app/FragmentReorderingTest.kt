@@ -21,22 +21,32 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
-import androidx.test.annotation.UiThreadTest
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @SmallTest
-@RunWith(AndroidJUnit4::class)
-class FragmentReorderingTest {
+@RunWith(Parameterized::class)
+class FragmentReorderingTest(private val stateManager: StateManager) {
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "stateManager={0}")
+        fun data() = arrayOf(NewStateManager, OldStateManager)
+    }
+
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(FragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
     private lateinit var container: ViewGroup
     private lateinit var fm: FragmentManager
@@ -44,10 +54,66 @@ class FragmentReorderingTest {
 
     @Before
     fun setup() {
+        stateManager.setup()
         activityRule.setContentView(R.layout.simple_container)
         container = activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
         fm = activityRule.activity.supportFragmentManager
         instrumentation = InstrumentationRegistry.getInstrumentation()
+    }
+
+    @After
+    fun teardown() {
+        stateManager.teardown()
+    }
+
+    // Ensure that a replaced fragment is stopped before its replacement is started
+    // and vice versa when popped
+    @Test
+    fun stopBeforeStart() {
+        if (stateManager is OldStateManager) {
+            return
+        }
+        val fragment1 = StrictViewFragment()
+        fm.beginTransaction()
+            .add(R.id.fragmentContainer, fragment1)
+            .setReorderingAllowed(true)
+            .commit()
+        activityRule.executePendingTransactions()
+
+        val fragment2 = StrictViewFragment()
+        lateinit var replaceStateWhenStopped: Lifecycle.State
+        lateinit var replaceStateWhenPopStarted: Lifecycle.State
+        instrumentation.runOnMainSync {
+            fragment1.lifecycle.addObserver(
+                LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_STOP) {
+                        replaceStateWhenStopped = fragment2.lifecycle.currentState
+                    } else if (event == Lifecycle.Event.ON_START) {
+                        replaceStateWhenPopStarted = fragment2.lifecycle.currentState
+                    }
+                }
+            )
+        }
+        fm.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment2)
+            .addToBackStack(null)
+            .setReorderingAllowed(true)
+            .commit()
+        activityRule.executePendingTransactions()
+
+        assertWithMessage(
+            "Fragment1 should be stopped before Fragment2 moves to " +
+                replaceStateWhenStopped
+        )
+            .that(replaceStateWhenStopped).isLessThan(Lifecycle.State.STARTED)
+
+        activityRule.popBackStackImmediate()
+
+        assertWithMessage(
+            "Fragment1 should be started only after Fragment2 moves from " +
+                replaceStateWhenPopStarted
+        )
+            .that(replaceStateWhenPopStarted).isLessThan(Lifecycle.State.STARTED)
     }
 
     // Test that when you add and replace a fragment that only the replace's add
@@ -596,14 +662,16 @@ class FragmentReorderingTest {
 
     // Test that a fragment view that is created with focus has focus after the transaction
     // completes.
-    @UiThreadTest
     @Test
     fun focusedView() {
-        activityRule.activity.setContentView(R.layout.double_container)
+        activityRule.setContentView(R.layout.double_container)
         container = activityRule.activity.findViewById<View>(R.id.fragmentContainer1) as ViewGroup
-        val firstEditText = EditText(container.context)
-        container.addView(firstEditText)
-        firstEditText.requestFocus()
+        lateinit var firstEditText: EditText
+        activityRule.runOnUiThread {
+            firstEditText = EditText(container.context)
+            container.addView(firstEditText)
+            firstEditText.requestFocus()
+        }
 
         assertThat(firstEditText.isFocused).isTrue()
         val fragment1 = CountCallsFragment()
@@ -618,7 +686,7 @@ class FragmentReorderingTest {
             .addToBackStack(null)
             .setReorderingAllowed(true)
             .commit()
-        fm.executePendingTransactions()
+        activityRule.executePendingTransactions()
         val editText = fragment2.requireView().findViewById<View>(R.id.editText)
         assertThat(editText.isFocused).isTrue()
         assertThat(firstEditText.isFocused).isFalse()

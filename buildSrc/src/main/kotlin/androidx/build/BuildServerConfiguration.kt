@@ -20,8 +20,6 @@ import androidx.build.gradle.isRoot
 import org.gradle.api.Project
 import java.io.File
 
-fun isRunningOnBuildServer() = System.getenv("DIST_DIR") != null
-
 /**
  * @return build id string for current build
  *
@@ -29,7 +27,11 @@ fun isRunningOnBuildServer() = System.getenv("DIST_DIR") != null
  * distribution directory name.
  */
 fun getBuildId(): String {
-    return if (System.getenv("DIST_DIR") != null) File(System.getenv("DIST_DIR").removeSuffix("/ui")).name else "0"
+    return if (System.getenv("BUILD_NUMBER") != null) {
+        System.getenv("BUILD_NUMBER")
+    } else {
+        "0"
+    }
 }
 
 /**
@@ -40,8 +42,8 @@ fun Project.getDistributionDirectory(): File {
     return if (System.getenv("DIST_DIR") != null) {
         File(System.getenv("DIST_DIR"))
     } else {
-        val subdir = System.getProperty("DIST_SUBDIR") ?: ""
-        File(getRootDirectory(this), "../../out/dist$subdir")
+        val subdir = System.getenv("DIST_SUBDIR") ?: ""
+        File(getRootOutDirectory(), "dist$subdir")
     }
 }
 
@@ -56,7 +58,21 @@ fun Project.getRootOutDirectory(): File {
  * Directory to put build info files for release service dependency files.
  */
 fun Project.getBuildInfoDirectory(): File =
-        File(getDistributionDirectory(), "build-info")
+    File(getDistributionDirectory(), "build-info")
+
+/**
+ * Directory for android test configuration files that get consumed by Tradefed in CI. These
+ * configs cause all the tests to be run, except in cases where buildSrc changes.
+ */
+fun Project.getTestConfigDirectory(): File =
+    File(getDistributionDirectory(), "test-xml-configs")
+
+/**
+ * Directory for android test configuration files that get consumed by Tradefed in CI. These
+ * "constrained" configs cause only small and medium tests to be run for dependent projects.
+ */
+fun Project.getConstrainedTestConfigDirectory(): File =
+    File(getDistributionDirectory(), "constrained-test-xml-configs")
 
 /**
  * Directory to put release note files for generate release note tasks.
@@ -68,18 +84,13 @@ fun Project.getReleaseNotesDirectory(): File =
  * Directory to put host test results so they can be consumed by the testing dashboard.
  */
 fun Project.getHostTestResultDirectory(): File =
-        File(getDistributionDirectory(), "host-test-reports")
+    File(getDistributionDirectory(), "host-test-reports")
 
 /**
  * Directory to put host test coverage results so they can be consumed by the testing dashboard.
  */
 fun Project.getHostTestCoverageDirectory(): File =
     File(getDistributionDirectory(), "host-test-coverage")
-
-private fun getRootDirectory(project: Project): File {
-    val actualRootProject = if (project.isRoot) project else project.rootProject
-    return actualRootProject.extensions.extraProperties.get("supportRootFolder") as File
-}
 
 /**
  * Whether the build should force all versions to be snapshots.

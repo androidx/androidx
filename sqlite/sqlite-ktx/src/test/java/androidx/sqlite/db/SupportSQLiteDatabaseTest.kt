@@ -61,4 +61,30 @@ class SupportSQLiteDatabaseTest {
         verify(db, times(0)).setTransactionSuccessful()
         verify(db).endTransaction()
     }
+
+    @Test fun bodyNonLocalReturnCallsSuccessAndEnd() {
+        val db = mock(SupportSQLiteDatabase::class.java)
+        callTransactionWithNonLocalReturnBody(db)
+        verify(db).setTransactionSuccessful()
+        verify(db).endTransaction()
+    }
+
+    @Test fun bodyLocalReturnCallsSuccessAndEnd() {
+        val db = mock(SupportSQLiteDatabase::class.java)
+        callTransactionWithLocalReturnBody(db)
+        verify(db).setTransactionSuccessful()
+        verify(db).endTransaction()
+    }
+
+    private fun callTransactionWithNonLocalReturnBody(db: SupportSQLiteDatabase) {
+        db.transaction {
+            return
+        }
+    }
+
+    private fun callTransactionWithLocalReturnBody(db: SupportSQLiteDatabase) {
+        db.transaction {
+            return@transaction
+        }
+    }
 }

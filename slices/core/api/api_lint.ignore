@@ -3,12 +3,12 @@ ActionValue: androidx.slice.Slice#EXTRA_SELECTION:
     Inconsistent extra value; expected `androidx.slice.extra.SELECTION`, was `android.app.slice.extra.SELECTION`
 
 
+ArrayReturn: androidx.slice.SliceProvider#bulkInsert(android.net.Uri, android.content.ContentValues[]) parameter #1:
+    Method parameter should be Collection<ContentValues> (or subclass) instead of raw array; was `android.content.ContentValues[]`
+
+
 ContextFirst: androidx.slice.SliceConvert#wrap(android.app.slice.Slice, android.content.Context) parameter #1:
     Context is distinct, so it must be the first argument (method `wrap`)
-
-
-ContextNameSuffix: androidx.slice.SliceProviderWithCallbacks:
-    Inconsistent class name; should be `<Foo>Provider`, was `SliceProviderWithCallbacks`
 
 
 MissingNullability: androidx.slice.Slice#getHints():
@@ -17,8 +17,6 @@ MissingNullability: androidx.slice.Slice#getItems():
     Missing nullability on method `getItems` return
 MissingNullability: androidx.slice.Slice#getUri():
     Missing nullability on method `getUri` return
-MissingNullability: androidx.slice.Slice#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.slice.SliceConvert#unwrap(androidx.slice.Slice):
     Missing nullability on method `unwrap` return
 MissingNullability: androidx.slice.SliceConvert#unwrap(androidx.slice.Slice) parameter #0:
@@ -43,13 +41,7 @@ MissingNullability: androidx.slice.SliceItem#getText():
     Missing nullability on method `getText` return
 MissingNullability: androidx.slice.SliceItem#hasHint(String) parameter #0:
     Missing nullability on parameter `hint` in method `hasHint`
-MissingNullability: androidx.slice.SliceItem#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.slice.core.SliceAction#setChecked(boolean):
     Missing nullability on method `setChecked` return
 MissingNullability: androidx.slice.core.SliceAction#setPriority(int):
     Missing nullability on method `setPriority` return
-
-
-SingularCallback: androidx.slice.SliceProviderWithCallbacks:
-    Callback class names should be singular: SliceProviderWithCallbacks

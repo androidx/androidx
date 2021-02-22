@@ -16,9 +16,14 @@
 
 package androidx.camera.core;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * OnImageAvailableListener with blocking behavior. It never drops image without analyzing it.
@@ -27,36 +32,33 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 final class ImageAnalysisBlockingAnalyzer extends ImageAnalysisAbstractAnalyzer {
 
-    ImageAnalysisBlockingAnalyzer(
-            AtomicReference<ImageAnalysis.Analyzer> subscribedAnalyzer,
-            AtomicInteger relativeRotation, AtomicReference<Executor> userExecutor) {
-        super(subscribedAnalyzer, relativeRotation, userExecutor);
+    @Nullable
+    @Override
+    ImageProxy acquireImage(@NonNull ImageReaderProxy imageReaderProxy) {
+        // Use acquireNextImage() so it never drops older images.
+        return imageReaderProxy.acquireNextImage();
     }
 
     @Override
-    public void onImageAvailable(ImageReaderProxy imageReaderProxy) {
-        ImageProxy image = imageReaderProxy.acquireNextImage();
-        if (image == null) {
-            return;
-        }
-        Executor executor = mUserExecutor.get();
-        if (executor != null) {
-            try {
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            analyzeImage(image);
-                        } finally {
-                            image.close();
-                        }
-                    }
-                });
-            } catch (RuntimeException e) {
-                image.close();
+    void onValidImageAvailable(@NonNull ImageProxy imageProxy) {
+        ListenableFuture<Void> analyzeFuture = analyzeImage(imageProxy);
+
+        // Callback to close the image only after analysis complete regardless of success
+        Futures.addCallback(analyzeFuture, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                // No-op. Keep blocking the image reader until user closes the current one.
             }
-        } else {
-            image.close();
-        }
+
+            @Override
+            public void onFailure(Throwable t) {
+                imageProxy.close();
+            }
+        }, CameraXExecutors.directExecutor());
+    }
+
+    @Override
+    void clearCache() {
+        // no-op. The blocking analyzer does not cache images.
     }
 }

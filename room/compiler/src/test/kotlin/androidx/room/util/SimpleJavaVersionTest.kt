@@ -16,6 +16,7 @@
 
 package androidx.room.util
 
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
 
@@ -23,29 +24,39 @@ class SimpleJavaVersionTest {
 
     @Test
     fun testTryParse() {
-        assert(SimpleJavaVersion.tryParse("11.0.1+13-LTS") == SimpleJavaVersion(11, 0, null))
-        assert(
-            SimpleJavaVersion.tryParse("1.8.0_202-release-1483-b39-5396753")
-                    == SimpleJavaVersion(8, 0, 202)
-        )
-        assert(
-            SimpleJavaVersion.tryParse("1.8.0_181-google-v7-238857965-238857965")
-                    == SimpleJavaVersion(8, 0, 181)
-        )
-        assert(SimpleJavaVersion.tryParse("a.b.c") == null)
+        assertThat(SimpleJavaVersion.tryParse("1.8.0_181-google-v7-238857965-238857965"))
+            .isEqualTo(SimpleJavaVersion(8, 0, 181))
+        assertThat(SimpleJavaVersion.tryParse("1.8.0_202-release-1483-b39-5396753"))
+            .isEqualTo(SimpleJavaVersion(8, 0, 202))
+        assertThat(SimpleJavaVersion.tryParse("11.0.1+13-LTS"))
+            .isEqualTo(SimpleJavaVersion(11, 0, null))
+        assertThat(SimpleJavaVersion.tryParse("11.0.6+10-post-Ubuntu-1ubuntu118.04.1"))
+            .isEqualTo(SimpleJavaVersion(11, 0, null))
+        assertThat(SimpleJavaVersion.tryParse("11.0.8+10-b944.6842174"))
+            .isEqualTo(SimpleJavaVersion(11, 0, null))
+        assertThat(SimpleJavaVersion.tryParse("14.1-ea"))
+            .isEqualTo(SimpleJavaVersion(14, 1, null))
+        assertThat(SimpleJavaVersion.tryParse("15+13"))
+            .isEqualTo(SimpleJavaVersion(15, 0, null))
+        assertThat(SimpleJavaVersion.tryParse("a.b.c")).isNull()
     }
 
     @Test
     fun testParse() {
-        assert(SimpleJavaVersion.parse("11.0.1+13-LTS") == SimpleJavaVersion(11, 0, null))
-        assert(
-            SimpleJavaVersion.parse("1.8.0_202-release-1483-b39-5396753")
-                    == SimpleJavaVersion(8, 0, 202)
-        )
-        assert(
-            SimpleJavaVersion.parse("1.8.0_181-google-v7-238857965-238857965")
-                    == SimpleJavaVersion(8, 0, 181)
-        )
+        assertThat(SimpleJavaVersion.parse("1.8.0_181-google-v7-238857965-238857965"))
+            .isEqualTo(SimpleJavaVersion(8, 0, 181))
+        assertThat(SimpleJavaVersion.parse("1.8.0_202-release-1483-b39-5396753"))
+            .isEqualTo(SimpleJavaVersion(8, 0, 202))
+        assertThat(SimpleJavaVersion.parse("11.0.1+13-LTS"))
+            .isEqualTo(SimpleJavaVersion(11, 0, null))
+        assertThat(SimpleJavaVersion.parse("11.0.6+10-post-Ubuntu-1ubuntu118.04.1"))
+            .isEqualTo(SimpleJavaVersion(11, 0, null))
+        assertThat(SimpleJavaVersion.parse("11.0.8+10-b944.6842174"))
+            .isEqualTo(SimpleJavaVersion(11, 0, null))
+        assertThat(SimpleJavaVersion.parse("14.1-ea"))
+            .isEqualTo(SimpleJavaVersion(14, 1, null))
+        assertThat(SimpleJavaVersion.parse("15+13"))
+            .isEqualTo(SimpleJavaVersion(15, 0, null))
         try {
             SimpleJavaVersion.parse("a.b.c")
             fail("Expected IllegalArgumentException")
@@ -56,19 +67,19 @@ class SimpleJavaVersionTest {
 
     @Test
     fun testComparison() {
-        assert(SimpleJavaVersion(11, 1) > SimpleJavaVersion(8, 2))
-        assert(SimpleJavaVersion(8, 2) < SimpleJavaVersion(11, 1))
-        assert(SimpleJavaVersion(8, 1) == SimpleJavaVersion(8, 1))
+        assertThat(SimpleJavaVersion(11, 1)).isGreaterThan(SimpleJavaVersion(8, 2))
+        assertThat(SimpleJavaVersion(8, 2)).isLessThan(SimpleJavaVersion(11, 1))
+        assertThat(SimpleJavaVersion(8, 1)).isEqualTo(SimpleJavaVersion(8, 1))
 
-        assert(SimpleJavaVersion(8, 2, 1) > SimpleJavaVersion(8, 1, 2))
-        assert(SimpleJavaVersion(8, 1, 2) < SimpleJavaVersion(8, 2, 1))
-        assert(SimpleJavaVersion(8, 1, null) == SimpleJavaVersion(8, 1, null))
+        assertThat(SimpleJavaVersion(8, 2, 1)).isGreaterThan(SimpleJavaVersion(8, 1, 2))
+        assertThat(SimpleJavaVersion(8, 1, 2)).isLessThan(SimpleJavaVersion(8, 2, 1))
+        assertThat(SimpleJavaVersion(8, 1, null)).isEqualTo(SimpleJavaVersion(8, 1, null))
 
-        assert(SimpleJavaVersion(8, 1, 2) > SimpleJavaVersion(8, 1, 1))
-        assert(SimpleJavaVersion(8, 1, 1) < SimpleJavaVersion(8, 1, 2))
-        assert(SimpleJavaVersion(8, 1, 1) == SimpleJavaVersion(8, 1, 1))
+        assertThat(SimpleJavaVersion(8, 1, 2)).isGreaterThan(SimpleJavaVersion(8, 1, 1))
+        assertThat(SimpleJavaVersion(8, 1, 1)).isLessThan(SimpleJavaVersion(8, 1, 2))
+        assertThat(SimpleJavaVersion(8, 1, 1)).isEqualTo(SimpleJavaVersion(8, 1, 1))
 
-        assert(SimpleJavaVersion(8, 1, 0) > SimpleJavaVersion(8, 1, null))
-        assert(SimpleJavaVersion(8, 1, null) < SimpleJavaVersion(8, 1, 0))
+        assertThat(SimpleJavaVersion(8, 1, 0)).isGreaterThan(SimpleJavaVersion(8, 1, null))
+        assertThat(SimpleJavaVersion(8, 1, null)).isLessThan(SimpleJavaVersion(8, 1, 0))
     }
 }

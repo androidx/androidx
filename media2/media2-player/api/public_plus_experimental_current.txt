@@ -1,0 +1,123 @@
+// Signature format: 4.0
+package androidx.media2.player {
+
+  public final class MediaPlayer extends androidx.media2.common.SessionPlayer {
+    ctor public MediaPlayer(android.content.Context);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> addPlaylistItem(int, androidx.media2.common.MediaItem);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> attachAuxEffect(int);
+    method public androidx.media.AudioAttributesCompat? getAudioAttributes();
+    method public int getAudioSessionId();
+    method public long getBufferedPosition();
+    method @androidx.media2.common.SessionPlayer.BuffState public int getBufferingState();
+    method public androidx.media2.common.MediaItem? getCurrentMediaItem();
+    method public int getCurrentMediaItemIndex();
+    method public long getCurrentPosition();
+    method public long getDuration();
+    method public float getMaxPlayerVolume();
+    method public int getNextMediaItemIndex();
+    method public androidx.media2.player.PlaybackParams getPlaybackParams();
+    method @FloatRange(from=0.0f, to=java.lang.Float.MAX_VALUE, fromInclusive=false) public float getPlaybackSpeed();
+    method @androidx.media2.common.SessionPlayer.PlayerState public int getPlayerState();
+    method public float getPlayerVolume();
+    method public java.util.List<androidx.media2.common.MediaItem!>? getPlaylist();
+    method public androidx.media2.common.MediaMetadata? getPlaylistMetadata();
+    method public int getPreviousMediaItemIndex();
+    method public int getRepeatMode();
+    method public androidx.media2.player.MediaPlayer.TrackInfo? getSelectedTrack(int);
+    method public int getShuffleMode();
+    method public androidx.media2.player.MediaTimestamp? getTimestamp();
+    method @Deprecated public java.util.List<androidx.media2.player.MediaPlayer.TrackInfo!> getTrackInfo();
+    method public androidx.media2.player.VideoSize getVideoSize();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> pause();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> play();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> prepare();
+    method public void registerPlayerCallback(java.util.concurrent.Executor, androidx.media2.player.MediaPlayer.PlayerCallback);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> removePlaylistItem(@IntRange(from=0) int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> replacePlaylistItem(int, androidx.media2.common.MediaItem);
+    method public void reset();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> seekTo(long);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> seekTo(long, int);
+    method @Deprecated public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> selectTrack(androidx.media2.player.MediaPlayer.TrackInfo);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setAudioAttributes(androidx.media.AudioAttributesCompat);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setAudioSessionId(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setAuxEffectSendLevel(@FloatRange(from=0, to=1) float);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setMediaItem(androidx.media2.common.MediaItem);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaybackParams(androidx.media2.player.PlaybackParams);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaybackSpeed(@FloatRange(from=0.0f, to=java.lang.Float.MAX_VALUE, fromInclusive=false) float);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlayerVolume(@FloatRange(from=0, to=1) float);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaylist(java.util.List<androidx.media2.common.MediaItem!>, androidx.media2.common.MediaMetadata?);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setRepeatMode(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setShuffleMode(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToNextPlaylistItem();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToPlaylistItem(@IntRange(from=0) int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToPreviousPlaylistItem();
+    method public void unregisterPlayerCallback(androidx.media2.player.MediaPlayer.PlayerCallback);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> updatePlaylistMetadata(androidx.media2.common.MediaMetadata?);
+    field public static final int MEDIA_INFO_AUDIO_NOT_PLAYING = 804; // 0x324
+    field public static final int MEDIA_INFO_BAD_INTERLEAVING = 800; // 0x320
+    field public static final int MEDIA_INFO_BUFFERING_UPDATE = 704; // 0x2c0
+    field public static final int MEDIA_INFO_METADATA_UPDATE = 802; // 0x322
+    field public static final int MEDIA_INFO_NOT_SEEKABLE = 801; // 0x321
+    field public static final int MEDIA_INFO_VIDEO_NOT_PLAYING = 805; // 0x325
+    field public static final int MEDIA_INFO_VIDEO_RENDERING_START = 3; // 0x3
+    field public static final int MEDIA_INFO_VIDEO_TRACK_LAGGING = 700; // 0x2bc
+    field @Deprecated public static final int NO_TRACK_SELECTED = -2147483648; // 0x80000000
+    field public static final int PLAYER_ERROR_IO = -1004; // 0xfffffc14
+    field public static final int PLAYER_ERROR_MALFORMED = -1007; // 0xfffffc11
+    field public static final int PLAYER_ERROR_TIMED_OUT = -110; // 0xffffff92
+    field public static final int PLAYER_ERROR_UNKNOWN = 1; // 0x1
+    field public static final int PLAYER_ERROR_UNSUPPORTED = -1010; // 0xfffffc0e
+    field public static final int SEEK_CLOSEST = 3; // 0x3
+    field public static final int SEEK_CLOSEST_SYNC = 2; // 0x2
+    field public static final int SEEK_NEXT_SYNC = 1; // 0x1
+    field public static final int SEEK_PREVIOUS_SYNC = 0; // 0x0
+  }
+
+  public abstract static class MediaPlayer.PlayerCallback extends androidx.media2.common.SessionPlayer.PlayerCallback {
+    ctor public MediaPlayer.PlayerCallback();
+    method public void onError(androidx.media2.player.MediaPlayer, androidx.media2.common.MediaItem, int, int);
+    method public void onInfo(androidx.media2.player.MediaPlayer, androidx.media2.common.MediaItem, int, int);
+    method public void onMediaTimeDiscontinuity(androidx.media2.player.MediaPlayer, androidx.media2.common.MediaItem, androidx.media2.player.MediaTimestamp);
+    method public void onTimedMetaDataAvailable(androidx.media2.player.MediaPlayer, androidx.media2.common.MediaItem, androidx.media2.player.TimedMetaData);
+    method @Deprecated public void onVideoSizeChanged(androidx.media2.player.MediaPlayer, androidx.media2.common.MediaItem, androidx.media2.player.VideoSize);
+  }
+
+  public static final class MediaPlayer.TrackInfo extends androidx.media2.common.SessionPlayer.TrackInfo {
+  }
+
+  public final class MediaTimestamp {
+    method public long getAnchorMediaTimeUs();
+    method public long getAnchorSystemNanoTime();
+    method public float getMediaClockRate();
+    field public static final androidx.media2.player.MediaTimestamp TIMESTAMP_UNKNOWN;
+  }
+
+  public final class PlaybackParams {
+    method public Integer? getAudioFallbackMode();
+    method public Float? getPitch();
+    method public Float? getSpeed();
+    field public static final int AUDIO_FALLBACK_MODE_DEFAULT = 0; // 0x0
+    field public static final int AUDIO_FALLBACK_MODE_FAIL = 2; // 0x2
+    field public static final int AUDIO_FALLBACK_MODE_MUTE = 1; // 0x1
+  }
+
+  public static final class PlaybackParams.Builder {
+    ctor public PlaybackParams.Builder();
+    ctor public PlaybackParams.Builder(androidx.media2.player.PlaybackParams);
+    method public androidx.media2.player.PlaybackParams build();
+    method public androidx.media2.player.PlaybackParams.Builder setAudioFallbackMode(int);
+    method public androidx.media2.player.PlaybackParams.Builder setPitch(@FloatRange(from=0.0f, to=java.lang.Float.MAX_VALUE, fromInclusive=false) float);
+    method public androidx.media2.player.PlaybackParams.Builder setSpeed(@FloatRange(from=0.0f, to=java.lang.Float.MAX_VALUE, fromInclusive=false) float);
+  }
+
+  public class TimedMetaData {
+    method public byte[]! getMetaData();
+    method public long getTimestamp();
+  }
+
+  public final class VideoSize extends androidx.media2.common.VideoSize {
+    ctor public VideoSize(int, int);
+  }
+
+}
+

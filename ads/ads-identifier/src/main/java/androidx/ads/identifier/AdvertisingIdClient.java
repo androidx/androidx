@@ -16,34 +16,28 @@
 
 package androidx.ads.identifier;
 
-import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ServiceInfo;
 import android.os.RemoteException;
 
-import androidx.ads.identifier.internal.BlockingServiceConnection;
+import androidx.ads.identifier.internal.HoldingConnectionClient;
 import androidx.ads.identifier.provider.IAdvertisingIdService;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
-import androidx.core.util.Preconditions;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Client for retrieving Advertising ID related info from an AndroidX ID Provider installed on
@@ -59,56 +53,109 @@ import java.util.concurrent.TimeoutException;
  */
 public class AdvertisingIdClient {
 
-    private static final long SERVICE_CONNECTION_TIMEOUT_SECONDS = 10;
+    /**
+     * Amount of time to wait before timing out when trying to get the ID info from the
+     * Provider. Including the binding service time and the remote calling time.
+     */
+    private static final long TIMEOUT_SECONDS = 20;
 
-    @VisibleForTesting
-    static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+    private static final long AUTO_DISCONNECT_SECONDS = 30;
 
-    @Nullable
-    private BlockingServiceConnection mConnection;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    static final ExecutorService QUERY_EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 
-    @Nullable
-    private IAdvertisingIdService mService;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE =
+            Executors.newSingleThreadScheduledExecutor();
 
-    private final Context mContext;
+    private static final Object sLock = new Object();
 
-    private ComponentName mComponentName;
+    /**
+     * The client holding connection which can be reused if connected.
+     *
+     * <p>This value will only be set at 2 places at production when setup new connection or auto
+     * disconnect timeout happen, and 1 place at testing when clear connection.
+     * <p>There could be multiple connection clients in corner cases, but each of them will be
+     * auto disconnect eventually.
+     * <p>Each connection client has a last connection ID field, which ties to the connection
+     * client and also indicates the status of connection. See {@link HoldingConnectionClient}'s
+     * mLastConnectionId filed for details.
+     * <p>Each get ID instance will get a pair of connection client and connection ID (which ties
+     * to the connection client) first, then use this pair to schedule an auto disconnection at
+     * {@link #AUTO_DISCONNECT_SECONDS} later.
+     */
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @NonNull
+    static final AtomicReference<HoldingConnectionClient> sConnectionClient =
+            new AtomicReference<>(null);
 
-    /** Constructs a new {@link AdvertisingIdClient} object. */
-    @VisibleForTesting
-    AdvertisingIdClient(Context context) {
-        Preconditions.checkNotNull(context);
-        mContext = context.getApplicationContext();
+    @AutoValue
+    abstract static class ConnectionPair {
+        @NonNull
+        abstract HoldingConnectionClient getConnectionClient();
+
+        abstract long getConnectionId();
+
+        @NonNull
+        static ConnectionPair of(HoldingConnectionClient connectionClient, long connectionId) {
+            return new AutoValue_AdvertisingIdClient_ConnectionPair(connectionClient, connectionId);
+        }
     }
 
+    private AdvertisingIdClient() {
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
-    private void start() throws IOException, AdvertisingIdNotAvailableException, TimeoutException,
+    @NonNull
+    static ConnectionPair getConnection(Context context)
+            throws IOException, AdvertisingIdNotAvailableException, TimeoutException,
             InterruptedException {
-        if (mConnection == null) {
-            mComponentName = getProviderComponentName(mContext);
-            mConnection = getServiceConnection();
-            mService = getAdvertisingIdService(mConnection);
+        ConnectionPair connectionPair = tryConnect();
+        if (connectionPair == null) {
+            synchronized (sLock) {
+                connectionPair = tryConnect();
+                if (connectionPair == null) {
+                    HoldingConnectionClient connectionClient = new HoldingConnectionClient(context);
+                    sConnectionClient.set(connectionClient);
+                    connectionPair = ConnectionPair.of(connectionClient, 0);
+                }
+            }
         }
+        return connectionPair;
+    }
+
+    @Nullable
+    private static ConnectionPair tryConnect() {
+        HoldingConnectionClient connectionClient = sConnectionClient.get();
+        if (connectionClient != null) {
+            long connectionId = connectionClient.askConnectionId();
+            if (connectionId >= 0) {
+                return ConnectionPair.of(connectionClient, connectionId);
+            }
+        }
+        return null;
     }
 
     /** Returns the Advertising ID info as {@link AdvertisingIdInfo}. */
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @VisibleForTesting
     @WorkerThread
-    AdvertisingIdInfo getInfoInternal() throws IOException, AdvertisingIdNotAvailableException,
-            TimeoutException, InterruptedException {
-        if (mConnection == null) {
-            start();
-        }
+    @NonNull
+    static AdvertisingIdInfo getIdInfo(HoldingConnectionClient connectionClient)
+            throws IOException, AdvertisingIdNotAvailableException {
+        IAdvertisingIdService service = connectionClient.getIdService();
+
         try {
-            String id = mService.getId();
+            String id = service.getId();
             if (id == null || id.trim().isEmpty()) {
                 throw new AdvertisingIdNotAvailableException(
                         "Advertising ID Provider does not returns an Advertising ID.");
             }
             return AdvertisingIdInfo.builder()
-                    .setId(normalizeId(id))
-                    .setProviderPackageName(mComponentName.getPackageName())
-                    .setLimitAdTrackingEnabled(mService.isLimitAdTrackingEnabled())
+                    .setId(id)
+                    .setProviderPackageName(connectionClient.getPackageName())
+                    .setLimitAdTrackingEnabled(service.isLimitAdTrackingEnabled())
                     .build();
         } catch (RemoteException e) {
             throw new IOException("Remote exception", e);
@@ -118,90 +165,15 @@ public class AdvertisingIdClient {
         }
     }
 
-    /**
-     * Checks the Advertising ID format, if it's not in UUID format, normalizes the Advertising
-     * ID to UUID format.
-     *
-     * @return Advertising ID, in lower case format using locale {@code Locale.US};
-     */
     @VisibleForTesting
-    static String normalizeId(String id) {
-        String lowerCaseId = id.toLowerCase(Locale.US);
-        if (isUuidFormat(lowerCaseId)) {
-            return lowerCaseId;
-        }
-        return UUID.nameUUIDFromBytes(id.getBytes(Charset.forName("UTF-8"))).toString();
+    static void clearConnectionClient() {
+        sConnectionClient.set(null);
     }
 
-    /* Validate the input is lowercase and is a valid UUID. */
-    private static boolean isUuidFormat(String id) {
-        try {
-            return id.equals(UUID.fromString(id).toString());
-        } catch (IllegalArgumentException iae) {
-            return false;
-        }
-    }
-
-    /** Closes the connection to the Advertising ID Provider Service. */
     @VisibleForTesting
-    void finish() {
-        if (mConnection == null) {
-            return;
-        }
-        mContext.unbindService(mConnection);
-        mComponentName = null;
-        mConnection = null;
-        mService = null;
-    }
-
-    private static ComponentName getProviderComponentName(Context context)
-            throws AdvertisingIdNotAvailableException {
-        PackageManager packageManager = context.getPackageManager();
-        List<ServiceInfo> serviceInfos =
-                AdvertisingIdUtils.getAdvertisingIdProviderServices(packageManager);
-        ServiceInfo serviceInfo =
-                AdvertisingIdUtils.selectServiceByPriority(serviceInfos, packageManager);
-        if (serviceInfo == null) {
-            throw new AdvertisingIdNotAvailableException(
-                    "No compatible AndroidX Advertising ID Provider available.");
-        }
-        return new ComponentName(serviceInfo.packageName, serviceInfo.name);
-    }
-
-    /**
-     * Retrieves BlockingServiceConnection which must be unbound after use.
-     *
-     * @throws IOException when unable to bind service successfully.
-     */
-    @VisibleForTesting
-    BlockingServiceConnection getServiceConnection() throws IOException {
-        Intent intent = new Intent(AdvertisingIdUtils.GET_AD_ID_ACTION);
-        intent.setComponent(mComponentName);
-
-        BlockingServiceConnection bsc = new BlockingServiceConnection();
-        if (mContext.bindService(intent, bsc, Service.BIND_AUTO_CREATE)) {
-            return bsc;
-        } else {
-            throw new IOException("Connection failure");
-        }
-    }
-
-    /**
-     * Get the {@link IAdvertisingIdService} from the blocking queue. This should wait until
-     * {@link android.content.ServiceConnection#onServiceConnected} event with a
-     * {@link #SERVICE_CONNECTION_TIMEOUT_SECONDS} second timeout.
-     *
-     * @throws TimeoutException     if connection timeout period has expired.
-     * @throws InterruptedException if connection has been interrupted before connected.
-     */
-    @VisibleForTesting
-    @WorkerThread
-    IAdvertisingIdService getAdvertisingIdService(BlockingServiceConnection bsc)
-            throws TimeoutException, InterruptedException {
-        // Block until the bind is complete, or timeout period is over.
-        return IAdvertisingIdService.Stub.asInterface(
-                bsc.getServiceWithTimeout(
-                        SERVICE_CONNECTION_TIMEOUT_SECONDS, TimeUnit.SECONDS));
+    static boolean isConnected() {
+        HoldingConnectionClient connectionClient = sConnectionClient.get();
+        return connectionClient != null && connectionClient.isConnected();
     }
 
     /**
@@ -243,26 +215,72 @@ public class AdvertisingIdClient {
      * <li><b>IOException</b> signaling connection to Advertising ID Providers failed.
      * <li><b>AdvertisingIdNotAvailableException</b> indicating Advertising ID is not available,
      * like no Advertising ID Provider found or provider does not return an Advertising ID.
-     * <li><b>TimeoutException</b> indicating connection timeout period has expired.
+     * <li><b>TimeoutException</b> indicating timeout period (20s) has expired.
      * <li><b>InterruptedException</b> indicating the current thread has been interrupted.
      * </ul>
      */
     @NonNull
     public static ListenableFuture<AdvertisingIdInfo> getAdvertisingIdInfo(
             @NonNull Context context) {
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            EXECUTOR_SERVICE.execute(() -> {
-                AdvertisingIdClient client = new AdvertisingIdClient(context);
+        final Context applicationContext = context.getApplicationContext();
+
+        return CallbackToFutureAdapter.getFuture(
+                new CallbackToFutureAdapter.Resolver<AdvertisingIdInfo>() {
+                    @Override
+                    public Object attachCompleter(
+                            @NonNull CallbackToFutureAdapter.Completer<AdvertisingIdInfo>
+                                    completer) {
+                        submitAdvertisingIdInfoTask(applicationContext, completer);
+                        return "getAdvertisingIdInfo";
+                    }
+                });
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    static void submitAdvertisingIdInfoTask(
+            final Context applicationContext,
+            @NonNull final CallbackToFutureAdapter.Completer<AdvertisingIdInfo> completer) {
+        final Future<?> getIdInfoFuture = QUERY_EXECUTOR_SERVICE.submit(new Runnable() {
+            @Override
+            public void run() {
                 try {
-                    completer.set(client.getInfoInternal());
+                    ConnectionPair connectionPair = getConnection(applicationContext);
+                    scheduleAutoDisconnect(connectionPair);
+                    completer.set(getIdInfo(connectionPair.getConnectionClient()));
                 } catch (IOException | AdvertisingIdNotAvailableException | TimeoutException
                         | InterruptedException e) {
                     completer.setException(e);
-                } finally {
-                    client.finish();
                 }
-            });
-            return "getAdvertisingIdInfo";
+            }
         });
+        scheduleTimeoutCheck(getIdInfoFuture, completer);
+    }
+
+    @SuppressWarnings("FutureReturnValueIgnored")
+    private static void scheduleTimeoutCheck(
+            final Future<?> getIdInfoFuture,
+            @NonNull final CallbackToFutureAdapter.Completer<AdvertisingIdInfo> completer) {
+        SCHEDULED_EXECUTOR_SERVICE.schedule(new Runnable() {
+            @Override
+            public void run() {
+                if (!getIdInfoFuture.isDone()) {
+                    completer.setException(new TimeoutException());
+                    getIdInfoFuture.cancel(true);
+                }
+            }
+        }, TIMEOUT_SECONDS, TimeUnit.SECONDS);
+    }
+
+    @SuppressWarnings({"WeakerAccess", "FutureReturnValueIgnored"}) /* synthetic accessor */
+    static void scheduleAutoDisconnect(final ConnectionPair connectionPair) {
+        SCHEDULED_EXECUTOR_SERVICE.schedule(new Runnable() {
+            @Override
+            public void run() {
+                HoldingConnectionClient connectionClient = connectionPair.getConnectionClient();
+                if (connectionClient.tryFinish(connectionPair.getConnectionId())) {
+                    sConnectionClient.compareAndSet(connectionClient, null);
+                }
+            }
+        }, AUTO_DISCONNECT_SECONDS, TimeUnit.SECONDS);
     }
 }

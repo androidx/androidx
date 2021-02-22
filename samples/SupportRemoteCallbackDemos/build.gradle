@@ -22,10 +22,10 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":remotecallback"))
+    implementation(project(":remotecallback:remotecallback"))
     implementation(project(":recyclerview:recyclerview"))
-    implementation(project(":appcompat"))
-    annotationProcessor project(":remotecallback-processor")
+    implementation(project(":appcompat:appcompat"))
+    annotationProcessor project(":remotecallback:remotecallback-processor")
 }
 
 android {

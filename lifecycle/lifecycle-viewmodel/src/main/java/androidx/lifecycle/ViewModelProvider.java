@@ -182,9 +182,9 @@ public class ViewModelProvider {
             }
         }
         if (mFactory instanceof KeyedFactory) {
-            viewModel = ((KeyedFactory) (mFactory)).create(key, modelClass);
+            viewModel = ((KeyedFactory) mFactory).create(key, modelClass);
         } else {
-            viewModel = (mFactory).create(modelClass);
+            viewModel = mFactory.create(modelClass);
         }
         mViewModelStore.put(key, viewModel);
         return (T) viewModel;

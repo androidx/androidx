@@ -44,7 +44,7 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-@SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
+@SuppressWarnings({"ArraysAsListWithZeroOrOneArgument", "deprecation"})
 @RunWith(JUnit4.class)
 public class BuilderTest {
     @Test(expected = IllegalArgumentException.class)
@@ -442,8 +442,9 @@ public class BuilderTest {
         }
         assertThat(exception, instanceOf(IllegalArgumentException.class));
         assertThat(exception.getMessage(),
-                containsString("Both createFromAsset() and createFromFile() was called on "
-                        + "this Builder"));
+                containsString(
+                        "More than one of createFromAsset(), createFromInputStream(), and "
+                                + "createFromFile() were called on this Builder"));
     }
 
     @Test

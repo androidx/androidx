@@ -128,7 +128,7 @@ class FakeDragTest(private val config: TestConfig) :
     private fun swipeNext(): ViewAction {
         return when (phoneOrientation) {
             ORIENTATION_LANDSCAPE -> swipeUp()
-            ORIENTATION_PORTRAIT -> swipeLeft()
+            ORIENTATION_PORTRAIT -> if (isRtl) swipeRight() else swipeLeft()
             else -> throw RuntimeException("Orientation should be landscape or portrait")
         }
     }
@@ -136,7 +136,7 @@ class FakeDragTest(private val config: TestConfig) :
     private fun swipePrevious(): ViewAction {
         return when (phoneOrientation) {
             ORIENTATION_LANDSCAPE -> swipeDown()
-            ORIENTATION_PORTRAIT -> swipeRight()
+            ORIENTATION_PORTRAIT -> if (isRtl) swipeLeft() else swipeRight()
             else -> throw RuntimeException("Orientation should be landscape or portrait")
         }
     }

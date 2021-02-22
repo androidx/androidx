@@ -46,10 +46,10 @@ import kotlin.concurrent.thread
  * - status bar repaints
  * - running in background (some cores may be foreground-app only)
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class IsolationActivity : android.app.Activity() {
+public class IsolationActivity : android.app.Activity() {
     private var destroyed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +61,7 @@ class IsolationActivity : android.app.Activity() {
 
         if (firstInit) {
             if (!CpuInfo.locked && isSustainedPerformanceModeSupported()) {
+                @Suppress("SyntheticAccessor")
                 sustainedPerformanceModeInUse = true
             }
             application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
@@ -99,11 +100,13 @@ class IsolationActivity : android.app.Activity() {
 
     override fun onResume() {
         super.onResume()
+        @Suppress("SyntheticAccessor")
         resumed = true
     }
 
     override fun onPause() {
         super.onPause()
+        @Suppress("SyntheticAccessor")
         resumed = false
     }
 
@@ -116,23 +119,23 @@ class IsolationActivity : android.app.Activity() {
     override fun finish() {
     }
 
-    fun actuallyFinish() {
+    public fun actuallyFinish() {
         // disable close animation
         overridePendingTransition(0, 0)
         super.finish()
     }
 
-    companion object {
+    public companion object {
         private const val TAG = "Benchmark"
         internal val singleton = AtomicReference<IsolationActivity>()
         private var firstInit = true
         internal var sustainedPerformanceModeInUse = false
             private set
-        var resumed = false
+        public var resumed: Boolean = false
             private set
 
         @WorkerThread
-        fun launchSingleton() {
+        public fun launchSingleton() {
             val intent = Intent(Intent.ACTION_MAIN).apply {
                 Log.d(TAG, "launching Benchmark IsolationActivity")
                 setClassName(
@@ -146,7 +149,7 @@ class IsolationActivity : android.app.Activity() {
         }
 
         @AnyThread
-        fun finishSingleton() {
+        public fun finishSingleton() {
             Log.d(TAG, "Benchmark runner being destroyed, tearing down activities")
             singleton.getAndSet(null)?.apply {
                 runOnUiThread {
@@ -183,9 +186,9 @@ class IsolationActivity : android.app.Activity() {
                     @Suppress("DEPRECATION")
                     activity.window.addFlags(
                         WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                                or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                                or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                                or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                            or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                            or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                            or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                     )
                 }
             }

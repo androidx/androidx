@@ -21,6 +21,7 @@ import android.content.Context;
 import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.dao.FunnyNamedDao;
+import androidx.room.integration.testapp.dao.PagingSourceOnlyUserDao;
 import androidx.room.integration.testapp.dao.PetCoupleDao;
 import androidx.room.integration.testapp.dao.PetDao;
 import androidx.room.integration.testapp.dao.RawDao;
@@ -40,6 +41,7 @@ import org.junit.Before;
 public abstract class TestDatabaseTest {
     protected TestDatabase mDatabase;
     protected UserDao mUserDao;
+    protected PagingSourceOnlyUserDao mPagingSourceOnlyUserDao;
     protected PetDao mPetDao;
     protected UserPetDao mUserPetDao;
     protected SchoolDao mSchoolDao;
@@ -57,6 +59,7 @@ public abstract class TestDatabaseTest {
         Context context = ApplicationProvider.getApplicationContext();
         mDatabase = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
         mUserDao = mDatabase.getUserDao();
+        mPagingSourceOnlyUserDao = mDatabase.getPagingSourceOnlyUserDao();
         mPetDao = mDatabase.getPetDao();
         mUserPetDao = mDatabase.getUserPetDao();
         mSchoolDao = mDatabase.getSchoolDao();

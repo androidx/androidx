@@ -35,6 +35,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -141,10 +142,15 @@ public abstract class SliceProvider extends ContentProvider implements
     private static final boolean DEBUG = false;
     private final String[] mAutoGrantPermissions;
 
+    private Context mContext = null;
+    private final Object mCompatLock = new Object();
     private SliceProviderCompat mCompat;
 
     private final Object mPinnedSliceUrisLock = new Object();
     private List<Uri> mPinnedSliceUris;
+
+    private String mAuthority;
+    private String[] mAuthorities;
 
     /**
      * A version of constructing a SliceProvider that allows autogranting slice permissions
@@ -202,11 +208,19 @@ public abstract class SliceProvider extends ContentProvider implements
     @Override
     public final boolean onCreate() {
         if (Build.VERSION.SDK_INT < 19) return false;
-        if (Build.VERSION.SDK_INT < 28) {
-            mCompat = new SliceProviderCompat(this,
-                    onCreatePermissionManager(mAutoGrantPermissions), getContext());
-        }
         return onCreateSliceProvider();
+    }
+
+    @NonNull
+    @RequiresApi(19)
+    private SliceProviderCompat getSliceProviderCompat() {
+        synchronized (mCompatLock) {
+            if (mCompat == null) {
+                mCompat = new SliceProviderCompat(this,
+                        onCreatePermissionManager(mAutoGrantPermissions), getContext());
+            }
+        }
+        return mCompat;
     }
 
     /**
@@ -231,12 +245,64 @@ public abstract class SliceProvider extends ContentProvider implements
         return SLICE_TYPE;
     }
 
+    @Override
+    public void attachInfo(@Nullable Context context, @Nullable ProviderInfo info) {
+        super.attachInfo(context, info);
+        /*
+         * Only allow it to be set once, so after the content service gives
+         * this to us clients can't change it.
+         */
+        if (mContext == null) {
+            mContext = context;
+            if (info != null) {
+                setAuthorities(info.authority);
+            }
+        }
+    }
+
+    /**
+     * Handles the call to SliceProvider.
+     *
+     * <p>This function is unsupported for sdk < 19. For sdk 28 and above the call is handled by
+     * {@link android.app.slice.SliceProvider}
+     */
     @Nullable
     @Override
     public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
-        if (Build.VERSION.SDK_INT < 19) return null;
+        if (Build.VERSION.SDK_INT < 19 || Build.VERSION.SDK_INT >= 28) return null;
         if (extras == null) return null;
-        return mCompat != null ? mCompat.call(method, arg, extras) : null;
+        return getSliceProviderCompat().call(method, arg, extras);
+    }
+
+    /**
+     * Change the authorities of the ContentProvider.
+     * This is normally set for you from its manifest information when the provider is first
+     * created.
+     * @param authorities the semi-colon separated authorities of the ContentProvider.
+     */
+    private void setAuthorities(String authorities) {
+        if (authorities != null) {
+            if (authorities.indexOf(';') == -1) {
+                mAuthority = authorities;
+                mAuthorities = null;
+            } else {
+                mAuthority = null;
+                mAuthorities = authorities.split(";");
+            }
+        }
+    }
+
+    private boolean matchesOurAuthorities(String authority) {
+        if (mAuthority != null) {
+            return mAuthority.equals(authority);
+        }
+        if (mAuthorities != null) {
+            int length = mAuthorities.length;
+            for (int i = 0; i < length; i++) {
+                if (mAuthorities[i].equals(authority)) return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -450,6 +516,34 @@ public abstract class SliceProvider extends ContentProvider implements
             }
         }
         return mPinnedSliceUris;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void validateIncomingAuthority(@Nullable String authority) throws SecurityException {
+        if (!matchesOurAuthorities(getAuthorityWithoutUserId(authority))) {
+            String message = "The authority " + authority + " does not match the one of the "
+                    + "contentProvider: ";
+            if (mAuthority != null) {
+                message += mAuthority;
+            } else {
+                message += Arrays.toString(mAuthorities);
+            }
+            throw new SecurityException(message);
+        }
+    }
+
+    /**
+     * Removes userId part from authority string. Expects format:
+     * userId@some.authority
+     * If there is no userId in the authority, it symply returns the argument
+     */
+    private static String getAuthorityWithoutUserId(String auth) {
+        if (auth == null) return null;
+        int end = auth.lastIndexOf('@');
+        return auth.substring(end + 1);
     }
 
     @Nullable

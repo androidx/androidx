@@ -38,6 +38,7 @@ open class StrictViewFragment(
         savedInstanceState: Bundle?
     ): View? {
         checkGetActivity()
+        checkActivityNotDestroyed()
         checkState("onCreateView", State.CREATED)
         assertWithMessage("Fragment should not have a view when calling onCreateView")
             .that(mView).isNull()
@@ -48,8 +49,23 @@ open class StrictViewFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         checkGetActivity()
+        checkActivityNotDestroyed()
         checkState("onViewCreated", State.CREATED)
+        currentState = State.VIEW_CREATED
         onViewCreatedCalled = true
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        checkGetActivity()
+        checkActivityNotDestroyed()
+        checkState("onViewStateRestored", State.ACTIVITY_CREATED)
+        // Restored fragments can get to this point without being attached b/149024125
+        if (!mRestored) {
+            assertWithMessage("Fragment should have a view parent")
+                .that(requireView().parent)
+                .isNotNull()
+        }
     }
 
     override fun onDestroyView() {
@@ -57,8 +73,17 @@ open class StrictViewFragment(
         assertWithMessage("getView returned null in onDestroyView")
             .that(view)
             .isNotNull()
+        if (requireView().parent != null &&
+            requireView().animation != null &&
+            FragmentManager.USE_STATE_MANAGER
+        ) {
+            assertWithMessage("View should be removed from parent if there is no animation")
+                .that((requireView().parent as ViewGroup).layoutTransition)
+                .isNotNull()
+        }
         checkGetActivity()
-        checkState("onDestroyView", State.CREATED)
+        checkState("onDestroyView", State.CREATED, State.VIEW_CREATED, State.ACTIVITY_CREATED)
+        currentState = State.CREATED
         onDestroyViewCalled = true
     }
 

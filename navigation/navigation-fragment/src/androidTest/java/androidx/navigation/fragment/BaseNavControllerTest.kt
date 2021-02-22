@@ -30,10 +30,9 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.test.R
 import androidx.navigation.get
 import androidx.navigation.plusAssign
-import androidx.navigation.testing.TestNavigator
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
+import androidx.testutils.TestNavigator
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -51,8 +50,13 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         private const val TEST_DEEP_LINK_ACTION = "deep_link"
     }
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = ActivityTestRule(activityClass, false, false)
+    var activityRule = androidx.test.rule.ActivityTestRule(
+        activityClass,
+        false,
+        false
+    )
 
     private lateinit var instrumentation: Instrumentation
 
@@ -92,8 +96,10 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
     }
 
     private fun assertDeeplink(@IdRes destId: Int, expectedStackSize: Int) {
-        val activity = launchDeepLink(R.navigation.nav_deep_link,
-                destId, null)
+        val activity = launchDeepLink(
+            R.navigation.nav_deep_link,
+            destId, null
+        )
         val navController = activity.navController
 
         assertEquals(destId, navController.currentDestination?.id ?: 0)
@@ -103,7 +109,8 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         // Test that the deep link Intent was passed through even though we don't pass in any args
 
         val deepLinkIntent = navigator.current.second?.getParcelable<Intent>(
-                NavController.KEY_DEEP_LINK_INTENT)
+            NavController.KEY_DEEP_LINK_INTENT
+        )
         assertNotNull(deepLinkIntent)
         assertEquals(TEST_DEEP_LINK_ACTION, deepLinkIntent?.action)
     }
@@ -142,8 +149,10 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         val args = Bundle().apply {
             putString(TEST_ARG, TEST_ARG_VALUE)
         }
-        val activity = launchDeepLink(R.navigation.nav_deep_link,
-                destId, args)
+        val activity = launchDeepLink(
+            R.navigation.nav_deep_link,
+            destId, args
+        )
         val navController = activity.navController
 
         assertEquals(destId, navController.currentDestination?.id ?: 0)
@@ -154,7 +163,8 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
 
         // Test that the deep link Intent was passed in alongside our args
         val deepLinkIntent = navigator.current.second?.getParcelable<Intent>(
-                NavController.KEY_DEEP_LINK_INTENT)
+            NavController.KEY_DEEP_LINK_INTENT
+        )
         assertNotNull(deepLinkIntent)
         assertEquals(TEST_DEEP_LINK_ACTION, deepLinkIntent?.action)
     }
@@ -181,8 +191,10 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
 
     @Test
     fun testNestedUriDeepLinkWithSlash() {
-        assertUriDeepLink("nested_deep_link/$TEST_ARG_VALUE/", TEST_ARG_VALUE,
-            R.id.nested_deep_link_test, 3)
+        assertUriDeepLink(
+            "nested_deep_link/$TEST_ARG_VALUE/", TEST_ARG_VALUE,
+            R.id.nested_deep_link_test, 3
+        )
     }
 
     @Test
@@ -210,9 +222,13 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
     ) {
         val deepLinkUri = Uri.parse("http://www.example.com/$fullPath")
         val intent = Intent(Intent.ACTION_VIEW, deepLinkUri)
-                .setComponent(ComponentName(instrumentation.context,
-                        activityClass))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            .setComponent(
+                ComponentName(
+                    instrumentation.context,
+                    activityClass
+                )
+            )
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         val activity = launchActivity(intent)
         val navController = activity.navController
         navController.setGraph(R.navigation.nav_deep_link)
@@ -224,7 +240,8 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
 
         // Test that the deep link Intent was passed in alongside our args
         val deepLinkIntent = navigator.current.second?.getParcelable<Intent>(
-                NavController.KEY_DEEP_LINK_INTENT)
+            NavController.KEY_DEEP_LINK_INTENT
+        )
         assertNotNull(deepLinkIntent)
         assertEquals(deepLinkUri, deepLinkIntent?.data)
     }
@@ -244,10 +261,10 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         args: Bundle?
     ): BaseNavigationActivity {
         val intents = NavDeepLinkBuilder(instrumentation.targetContext)
-                .setGraph(graphId)
-                .setDestination(destId)
-                .setArguments(args)
-                .createTaskStackBuilder()
+            .setGraph(graphId)
+            .setDestination(destId)
+            .setArguments(args)
+            .createTaskStackBuilder()
         val intent = intents.editIntentAt(0)!!
         intent.action = TEST_DEEP_LINK_ACTION
 

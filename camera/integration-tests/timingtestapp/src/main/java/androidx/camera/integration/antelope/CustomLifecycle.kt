@@ -47,8 +47,10 @@ class CustomLifecycle : LifecycleOwner {
         }
 
         if (lifecycleRegistry.currentState != Lifecycle.State.CREATED) {
-            logd("CustomLifecycle start error: Prior state should be CREATED. Instead it is: " +
-                lifecycleRegistry.currentState)
+            logd(
+                "CustomLifecycle start error: Prior state should be CREATED. Instead it is: " +
+                    lifecycleRegistry.currentState
+            )
         } else {
             try {
                 lifecycleRegistry.currentState = Lifecycle.State.STARTED
@@ -66,8 +68,10 @@ class CustomLifecycle : LifecycleOwner {
         }
 
         if (lifecycleRegistry.currentState != Lifecycle.State.RESUMED) {
-            logd("CustomLifecycle pause error: Prior state should be RESUMED. Instead it is: " +
-                lifecycleRegistry.currentState)
+            logd(
+                "CustomLifecycle pause error: Prior state should be RESUMED. Instead it is: " +
+                    lifecycleRegistry.currentState
+            )
         } else {
             try {
                 lifecycleRegistry.currentState = Lifecycle.State.STARTED
@@ -85,8 +89,10 @@ class CustomLifecycle : LifecycleOwner {
         }
 
         if (lifecycleRegistry.currentState != Lifecycle.State.CREATED) {
-            logd("CustomLifecycle finish error: Prior state should be CREATED. Instead it is: " +
-                lifecycleRegistry.currentState)
+            logd(
+                "CustomLifecycle finish error: Prior state should be CREATED. Instead it is: " +
+                    lifecycleRegistry.currentState
+            )
         } else {
             try {
                 lifecycleRegistry.currentState = Lifecycle.State.DESTROYED

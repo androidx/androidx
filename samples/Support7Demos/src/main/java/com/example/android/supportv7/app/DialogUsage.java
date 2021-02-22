@@ -16,13 +16,8 @@
 package com.example.android.supportv7.app;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDialog;
@@ -44,12 +39,7 @@ public class DialogUsage extends AppCompatActivity {
         mSpinner = findViewById(R.id.spinner_dialogs);
 
         // Add an OnClickListener to show our selected dialog
-        findViewById(R.id.btn_show_dialog).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showSelectedDialog();
-            }
-        });
+        findViewById(R.id.btn_show_dialog).setOnClickListener(view -> showSelectedDialog());
     }
 
     private void showSelectedDialog() {
@@ -75,30 +65,6 @@ public class DialogUsage extends AppCompatActivity {
         dialog.setTitle(R.string.dialog_title);
         dialog.setContentView(R.layout.dialog_content_buttons);
         dialog.show();
-    }
-
-    /**
-     * A simple {@link androidx.appcompat.app.AppCompatDialog} implementation which
-     * inflates some items into it's options menu, and shows a toast when one is selected.
-     */
-    private class MenuDialog extends AppCompatDialog {
-
-        public MenuDialog(Context context) {
-            super(context);
-        }
-
-        @Override
-        public boolean onCreateOptionsMenu(Menu menu) {
-            getMenuInflater().inflate(R.menu.actions, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            Toast.makeText(getOwnerActivity(), "Dialog action selected: " + item.getTitle(),
-                    Toast.LENGTH_SHORT).show();
-            return true;
-        }
     }
 
 }

@@ -22,14 +22,13 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames.ROOM_DB_KT
 import androidx.room.ext.T
-import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.WildcardTypeName
-import javax.lang.model.type.TypeMirror
 
 /**
  * Binder that knows how to write suspending transaction wrapper methods.
@@ -39,7 +38,7 @@ class CoroutineTransactionMethodBinder(
     private val continuationParamName: String
 ) : TransactionMethodBinder(adapter) {
     override fun executeAndReturn(
-        returnType: TypeMirror,
+        returnType: XType,
         parameterNames: List<String>,
         daoName: ClassName,
         daoImplName: ClassName,
@@ -49,7 +48,8 @@ class CoroutineTransactionMethodBinder(
         val innerContinuationParamName = "__cont"
         val functionImpl = Function1TypeSpecBuilder(
             parameterTypeName = ParameterizedTypeName.get(
-                CONTINUATION, WildcardTypeName.supertypeOf(returnType.typeName())),
+                CONTINUATION, WildcardTypeName.supertypeOf(returnType.typeName)
+            ),
             parameterName = innerContinuationParamName,
             returnTypeName = ClassName.OBJECT
         ) {

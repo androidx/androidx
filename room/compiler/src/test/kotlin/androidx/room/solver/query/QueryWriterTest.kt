@@ -23,13 +23,10 @@ import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.processor.QueryMethodProcessor
 import androidx.room.testing.TestProcessor
 import androidx.room.writer.QueryWriter
-import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourceSubjectFactory
-import createInterpreterFromEntitiesAndViews
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -44,6 +41,7 @@ class QueryWriterTest {
                 package foo.bar;
                 import androidx.room.*;
                 import java.util.*;
+                import com.google.common.collect.ImmutableList;
                 @Dao
                 abstract class MyClass {
                 """
@@ -53,28 +51,39 @@ class QueryWriterTest {
 
     @Test
     fun simpleNoArgQuery() {
-        singleQueryMethod("""
+        singleQueryMethod(
+            """
                 @Query("SELECT id FROM users")
                 abstract java.util.List<Integer> selectAllIds();
-                """) { writer ->
+                """
+        ) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim(), `is`("""
+            assertThat(
+                scope.generate().toString().trim(),
+                `is`(
+                    """
                     final java.lang.String _sql = "SELECT id FROM users";
                     final $QUERY _stmt = $QUERY.acquire(_sql, 0);
-                    """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
         }.compilesWithoutError()
     }
 
     @Test
     fun simpleStringArgs() {
-        singleQueryMethod("""
+        singleQueryMethod(
+            """
                 @Query("SELECT id FROM users WHERE name LIKE :name")
                 abstract java.util.List<Integer> selectAllIds(String name);
-                """) { writer ->
+                """
+        ) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim(), `is`(
+            assertThat(
+                scope.generate().toString().trim(),
+                `is`(
                     """
                     final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
                     final $QUERY _stmt = $QUERY.acquire(_sql, 1);
@@ -84,19 +93,25 @@ class QueryWriterTest {
                     } else {
                       _stmt.bindString(_argIndex, name);
                     }
-                    """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
         }.compilesWithoutError()
     }
 
     @Test
     fun twoIntArgs() {
-        singleQueryMethod("""
+        singleQueryMethod(
+            """
                 @Query("SELECT id FROM users WHERE id IN(:id1,:id2)")
                 abstract java.util.List<Integer> selectAllIds(int id1, int id2);
-                """) { writer ->
+                """
+        ) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim(), `is`(
+            assertThat(
+                scope.generate().toString().trim(),
+                `is`(
                     """
                     final java.lang.String _sql = "SELECT id FROM users WHERE id IN(?,?)";
                     final $QUERY _stmt = $QUERY.acquire(_sql, 2);
@@ -104,19 +119,25 @@ class QueryWriterTest {
                     _stmt.bindLong(_argIndex, id1);
                     _argIndex = 2;
                     _stmt.bindLong(_argIndex, id2);
-                    """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
         }.compilesWithoutError()
     }
 
     @Test
     fun aLongAndIntVarArg() {
-        singleQueryMethod("""
+        singleQueryMethod(
+            """
                 @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
                 abstract java.util.List<Integer> selectAllIds(long time, int... ids);
-                """) { writer ->
+                """
+        ) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim(), `is`(
+            assertThat(
+                scope.generate().toString().trim(),
+                `is`(
                     """
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
                     _stringBuilder.append("SELECT id FROM users WHERE id IN(");
@@ -134,7 +155,9 @@ class QueryWriterTest {
                     }
                     _argIndex = 1 + _inputSize;
                     _stmt.bindLong(_argIndex, time);
-                    """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
         }.compilesWithoutError()
     }
 
@@ -159,14 +182,30 @@ class QueryWriterTest {
                     }
                     _argIndex = 1 + _inputSize;
                     _stmt.bindLong(_argIndex, time);
-                    """.trimIndent()
+    """.trimIndent()
 
     @Test
     fun aLongAndIntegerList() {
-        singleQueryMethod("""
+        singleQueryMethod(
+            """
                 @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
                 abstract List<Integer> selectAllIds(long time, List<Integer> ids);
-                """) { writer ->
+                """
+        ) { writer ->
+            val scope = testCodeGenScope()
+            writer.prepareReadAndBind("_sql", "_stmt", scope)
+            assertThat(scope.generate().toString().trim(), `is`(collectionOut))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun aLongAndIntegerImmutableList() {
+        singleQueryMethod(
+            """
+                @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
+                abstract ImmutableList<Integer> selectAllIds(long time, List<Integer> ids);
+                """
+        ) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().toString().trim(), `is`(collectionOut))
@@ -175,10 +214,12 @@ class QueryWriterTest {
 
     @Test
     fun aLongAndIntegerSet() {
-        singleQueryMethod("""
+        singleQueryMethod(
+            """
                 @Query("SELECT id FROM users WHERE id IN(:ids) AND age > :time")
                 abstract List<Integer> selectAllIds(long time, Set<Integer> ids);
-                """) { writer ->
+                """
+        ) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().toString().trim(), `is`(collectionOut))
@@ -187,32 +228,44 @@ class QueryWriterTest {
 
     @Test
     fun testMultipleBindParamsWithSameName() {
-        singleQueryMethod("""
+        singleQueryMethod(
+            """
                 @Query("SELECT id FROM users WHERE age > :age OR bage > :age")
                 abstract List<Integer> selectAllIds(int age);
-                """) { writer ->
+                """
+        ) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim(), `is`("""
+            assertThat(
+                scope.generate().toString().trim(),
+                `is`(
+                    """
                     final java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
                     final $QUERY _stmt = $QUERY.acquire(_sql, 2);
                     int _argIndex = 1;
                     _stmt.bindLong(_argIndex, age);
                     _argIndex = 2;
                     _stmt.bindLong(_argIndex, age);
-                    """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
         }.compilesWithoutError()
     }
 
     @Test
     fun testMultipleBindParamsWithSameNameWithVarArg() {
-        singleQueryMethod("""
+        singleQueryMethod(
+            """
                 @Query("SELECT id FROM users WHERE age > :age OR bage > :age OR fage IN(:ages)")
                 abstract List<Integer> selectAllIds(int age, int... ages);
-                """) { writer ->
+                """
+        ) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim(), `is`("""
+            assertThat(
+                scope.generate().toString().trim(),
+                `is`(
+                    """
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
                     _stringBuilder.append("SELECT id FROM users WHERE age > ");
                     _stringBuilder.append("?");
@@ -234,19 +287,26 @@ class QueryWriterTest {
                       _stmt.bindLong(_argIndex, _item);
                       _argIndex ++;
                     }
-                    """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
         }.compilesWithoutError()
     }
 
     @Test
     fun testMultipleBindParamsWithSameNameWithVarArgInTwoBindings() {
-        singleQueryMethod("""
+        singleQueryMethod(
+            """
                 @Query("SELECT id FROM users WHERE age IN (:ages) OR bage > :age OR fage IN(:ages)")
                 abstract List<Integer> selectAllIds(int age, int... ages);
-                """) { writer ->
+                """
+        ) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().toString().trim(), `is`("""
+            assertThat(
+                scope.generate().toString().trim(),
+                `is`(
+                    """
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
                     _stringBuilder.append("SELECT id FROM users WHERE age IN (");
                     final int _inputSize = ages.length;
@@ -272,7 +332,9 @@ class QueryWriterTest {
                       _stmt.bindLong(_argIndex, _item_1);
                       _argIndex ++;
                     }
-                    """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
         }.compilesWithoutError()
     }
 
@@ -281,34 +343,36 @@ class QueryWriterTest {
         handler: (QueryWriter) -> Unit
     ): CompileTester {
         return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
-                .that(JavaFileObjects.forSourceString("foo.bar.MyClass",
-                        DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-                ))
-                .processedWith(TestProcessor.builder()
-                        .forAnnotations(Query::class, Dao::class)
-                        .nextRunHandler { invocation ->
-                            val (owner, methods) = invocation.roundEnv
-                                    .getElementsAnnotatedWith(Dao::class.java)
-                                    .map {
-                                        Pair(it,
-                                                invocation.processingEnv.elementUtils
-                                                        .getAllMembers(MoreElements.asType(it))
-                                                        .filter {
-                                                            MoreElements.isAnnotationPresent(it,
-                                                                    Query::class.java)
-                                                        }
-                                        )
-                                    }.first { it.second.isNotEmpty() }
-                            val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
-                            val parser = QueryMethodProcessor(
-                                    baseContext = invocation.context,
-                                    containing = MoreTypes.asDeclared(owner.asType()),
-                                    executableElement = MoreElements.asExecutable(methods.first()),
-                                    queryInterpreter = queryInterpreter)
-                            val method = parser.process()
-                            handler(QueryWriter(method))
-                            true
-                        }
-                        .build())
+            .that(
+                JavaFileObjects.forSourceString(
+                    "foo.bar.MyClass",
+                    DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
+                )
+            )
+            .processedWith(
+                TestProcessor.builder()
+                    .forAnnotations(Query::class, Dao::class)
+                    .nextRunHandler { invocation ->
+                        val (owner, methods) = invocation.roundEnv
+                            .getTypeElementsAnnotatedWith(Dao::class.java)
+                            .map {
+                                Pair(
+                                    it,
+                                    it.getAllMethods().filter {
+                                        it.hasAnnotation(Query::class)
+                                    }
+                                )
+                            }.first { it.second.isNotEmpty() }
+                        val parser = QueryMethodProcessor(
+                            baseContext = invocation.context,
+                            containing = owner.type,
+                            executableElement = methods.first()
+                        )
+                        val method = parser.process()
+                        handler(QueryWriter(method))
+                        true
+                    }
+                    .build()
+            )
     }
 }

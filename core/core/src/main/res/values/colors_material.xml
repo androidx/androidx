@@ -18,7 +18,7 @@
 <!-- Colors specific to Material themes. -->
 <resources>
     <!-- 12% black (foreground) -->
-    <color name="ripple_material_light">#1f000000</color>
+    <color name="androidx_core_ripple_material_light">#1f000000</color>
     <!-- 54% black -->
-    <color name="secondary_text_default_material_light">#8a000000</color>
+    <color name="androidx_core_secondary_text_default_material_light">#8a000000</color>
 </resources>

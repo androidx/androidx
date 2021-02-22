@@ -209,6 +209,9 @@ public abstract class ListenableWorker {
      * this case, WorkManager provides a signal to the OS that the process should be kept alive
      * if possible while this work is executing.
      * <p>
+     * Calls to {@code setForegroundAsync} *must* complete before a {@link ListenableWorker}
+     * signals completion by returning a {@link Result}.
+     * <p>
      * Under the hood, WorkManager manages and runs a foreground service on your behalf to
      * execute this WorkRequest, showing the notification provided in
      * {@link ForegroundInfo}.
@@ -285,7 +288,7 @@ public abstract class ListenableWorker {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public final boolean isRunInForeground() {
+    public boolean isRunInForeground() {
         return mRunInForeground;
     }
 

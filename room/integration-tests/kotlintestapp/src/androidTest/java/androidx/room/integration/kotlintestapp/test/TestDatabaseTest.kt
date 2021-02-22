@@ -38,8 +38,9 @@ abstract class TestDatabaseTest {
     fun setUp() {
         database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
-                TestDatabase::class.java)
-                .build()
+            TestDatabase::class.java
+        )
+            .build()
 
         booksDao = database.booksDao()
     }

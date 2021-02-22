@@ -229,6 +229,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
         }
 
         @Override
+        @SuppressWarnings("ObjectToString")
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             mMetadata = metadata;
             Log.d(TAG, "Received new metadata " + metadata);
@@ -246,6 +247,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
         }
     };
 
+    @SuppressWarnings("ObjectToString")
     private Notification createNotification() {
         Log.d(TAG, "updateNotificationMetadata. mMetadata=" + mMetadata);
         if (mMetadata == null || mPlaybackState == null) {

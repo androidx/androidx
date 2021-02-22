@@ -36,31 +36,15 @@ open class TransitionFragment(
 ) : StrictViewFragment(contentLayoutId) {
     val enterTransition = TrackingVisibility()
     val reenterTransition = TrackingVisibility()
-    val exitTransition = TrackingVisibility()
+    var exitTransition = TrackingVisibility()
     val returnTransition = TrackingVisibility()
     val sharedElementEnter = TrackingTransition()
     val sharedElementReturn = TrackingTransition()
     var startTransitionCountDownLatch = CountDownLatch(1)
     var endTransitionCountDownLatch = CountDownLatch(1)
 
-    val listener = object : Transition.TransitionListener {
-        override fun onTransitionEnd(transition: Transition) {
-            assertThat(viewLifecycleOwner.lifecycle.currentState)
-                .isNotEqualTo(Lifecycle.State.DESTROYED)
-            endTransitionCountDownLatch.countDown()
-            startTransitionCountDownLatch = CountDownLatch(1)
-        }
-
-        override fun onTransitionResume(transition: Transition) {}
-
-        override fun onTransitionPause(transition: Transition) {}
-
-        override fun onTransitionCancel(transition: Transition) {}
-
-        override fun onTransitionStart(transition: Transition) {
-            startTransitionCountDownLatch.countDown()
-        }
-    }
+    @Suppress("LeakingThis")
+    val listener = TestTransitionFragmentListener(this)
 
     init {
         @Suppress("LeakingThis")
@@ -82,7 +66,11 @@ open class TransitionFragment(
     }
 
     internal fun waitForTransition() {
-        endTransitionCountDownLatch.await()
+        assertWithMessage("Timed out waiting for onTransitionEnd")
+            .that(endTransitionCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
+        assertThat(listener.lifecycleInTransitionEnd)
+            .isNotEqualTo(Lifecycle.State.DESTROYED)
         endTransitionCountDownLatch = CountDownLatch(1)
     }
 
@@ -136,5 +124,32 @@ open class StrictViewFragment(
                 .isTrue()
         }
         super.onDestroy()
+    }
+}
+
+open class TestTransitionFragmentListener(
+    val fragment: TransitionFragment
+) : Transition.TransitionListener {
+
+    lateinit var lifecycleInTransitionEnd: Lifecycle.State
+
+    override fun onTransitionEnd(transition: Transition) {
+        lifecycleInTransitionEnd = if (fragment.view == null) {
+            Lifecycle.State.DESTROYED
+        } else {
+            fragment.viewLifecycleOwner.lifecycle.currentState
+        }
+        fragment.endTransitionCountDownLatch.countDown()
+        fragment.startTransitionCountDownLatch = CountDownLatch(1)
+    }
+
+    override fun onTransitionResume(transition: Transition) {}
+
+    override fun onTransitionPause(transition: Transition) {}
+
+    override fun onTransitionCancel(transition: Transition) {}
+
+    override fun onTransitionStart(transition: Transition) {
+        fragment.startTransitionCountDownLatch.countDown()
     }
 }

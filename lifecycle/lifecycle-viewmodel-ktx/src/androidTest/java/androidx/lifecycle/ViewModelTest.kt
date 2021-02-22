@@ -16,6 +16,7 @@
 
 package androidx.lifecycle
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import kotlinx.coroutines.async
@@ -25,9 +26,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 @SmallTest
 class ViewModelTest {
 
@@ -65,7 +65,10 @@ class ViewModelTest {
 
         runBlocking {
             try {
-                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
+                @Suppress(
+                    "IMPLICIT_NOTHING_AS_TYPE_PARAMETER",
+                    "IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION"
+                )
                 failingDeferred.await()
             } catch (e: Error) {
             }

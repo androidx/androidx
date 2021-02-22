@@ -23,14 +23,14 @@ import androidx.room.migration.bundle.IndexBundle
  * Represents a processed index.
  */
 data class Index(val name: String, val unique: Boolean, override val fields: Fields) :
-        HasSchemaIdentity, HasFields {
+    HasSchemaIdentity, HasFields {
     companion object {
         // should match the value in TableInfo.Index.DEFAULT_PREFIX
         const val DEFAULT_PREFIX = "index_"
     }
 
     constructor(name: String, unique: Boolean, fields: List<Field>) :
-            this(name, unique, Fields(fields))
+        this(name, unique, Fields(fields))
 
     override fun getIdKey() = "$unique-$name-${columnNames.joinToString(",")}"
 
@@ -43,9 +43,11 @@ data class Index(val name: String, val unique: Boolean, override val fields: Fie
         return """
             CREATE $indexSQL IF NOT EXISTS `$name`
             ON `$tableName` (${columnNames.joinToString(", ") { "`$it`" }})
-            """.trimIndent().replace("\n", " ")
+        """.trimIndent().replace("\n", " ")
     }
 
-    fun toBundle(): IndexBundle = IndexBundle(name, unique, columnNames,
-        createQuery(BundleUtil.TABLE_NAME_PLACEHOLDER))
+    fun toBundle(): IndexBundle = IndexBundle(
+        name, unique, columnNames,
+        createQuery(BundleUtil.TABLE_NAME_PLACEHOLDER)
+    )
 }

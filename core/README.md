@@ -4,7 +4,7 @@
 
 [Release notes](https://developer.android.com/jetpack/androidx/releases/core)
 
-[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/core/)
+[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/core/)
 
 [Reference documentation](https://developer.android.com/reference/androidx/classes.html)
 

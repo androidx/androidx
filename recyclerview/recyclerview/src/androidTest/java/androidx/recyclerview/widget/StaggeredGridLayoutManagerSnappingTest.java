@@ -245,7 +245,8 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
 
         mLayoutManager.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mLayoutManager.waitForSnap(25);
+        // Very high number to try to reduce flakiness.
+        mLayoutManager.waitForSnap(50);
     }
 
     private int getViewDimension(View view) {

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Copyright (C) 2014 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="lb_navigation_menu_contentDescription" msgid="8084428500709675515">"வழிசெலுத்தல் மெனு"</string>
+    <string name="orb_search_action" msgid="1301877238242752863">"தேடல் செயல்"</string>
+    <string name="lb_search_bar_hint" msgid="5700349211583074131">"தேடுக"</string>
+    <string name="lb_search_bar_hint_speech" msgid="5926531297066387462">"தேட, பேசவும்"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="4826526877249029043">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>ஐத் தேடுக"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="6032250334706920550">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>ஐத் தேட, பேசவும்"</string>
+    <string name="lb_control_display_fast_forward_multiplier" msgid="4657191930956702614">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="4597148235912710942">"%1$dX"</string>
+    <string name="lb_playback_controls_play" msgid="7088090604803481121">"இயக்கு"</string>
+    <string name="lb_playback_controls_pause" msgid="917331776961802657">"இடைநிறுத்து"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="740570111678243493">"வேகமாக முன்செல்"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="5734614175721471329">"%1$dX வேகத்தில் முன்செல்"</string>
+    <string name="lb_playback_controls_rewind" msgid="2866333981131020771">"பின்செல்"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="6038956370475252734">"%1$dX வேகத்தில் பின்செல்"</string>
+    <string name="lb_playback_controls_skip_next" msgid="8117512422682146745">"அடுத்ததைத் தவிர்"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="3481218248309447059">"முந்தையதைத் தவிர்"</string>
+    <string name="lb_playback_controls_more_actions" msgid="8730341244454469032">"மேலும் செயல்கள்"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="3458671378107738666">"பிடித்திருக்கிறது என்பதைத் தேர்வுநீக்கு"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1385865732502550659">"பிடித்திருக்கிறது என்பதைத் தேர்ந்தெடு"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"பிடிக்கவில்லை என்பதைத் தேர்வுநீக்கு"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="8475278766138652105">"பிடிக்கவில்லை என்பதைத் தேர்ந்தெடு"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="1614290959784265209">"எதையும் மீண்டும் இயக்காதே"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"அனைத்தையும் மீண்டும் இயக்கு"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="676658705837320560">"ஒன்றை மட்டும் மீண்டும் இயக்கு"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="5151681938752704485">"வரிசை மாற்றி இயக்கு"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="6793109999253893369">"வரிசை மாற்றி இயக்குவதை நிறுத்து"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="3057698527166674705">"உயர்தரத்தை இயக்கு"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="1209119371486219736">"உயர்தரத்தை முடக்கு"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2346334170216706076">"விரிவான வசனங்களை இயக்கு"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="8691966842977635128">"விரிவான வசனங்களை முடக்கு"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"பிக்ச்சர்-இன்-பிக்ச்சர் பயன்முறைக்குச் செல்"</string>
+    <string name="lb_playback_time_separator" msgid="1471121602610716654">"/"</string>
+    <string name="lb_playback_controls_shown" msgid="8690223891515602822">"மீடியா கட்டுப்பாடுகள் காட்டப்படுகின்றன"</string>
+    <string name="lb_playback_controls_hidden" msgid="5859666950961624736">"மீடியா கட்டுப்பாடுகள் மறைக்கப்பட்டுள்ளன. கட்டுப்பாடுகளைக் காட்ட, டி பேடை அழுத்தவும்"</string>
+    <string name="lb_guidedaction_finish_title" msgid="3330958750346333890">"முடி"</string>
+    <string name="lb_guidedaction_continue_title" msgid="893619591225519922">"தொடர்க"</string>
+    <string name="lb_media_player_error" msgid="3228326776757666747">"MediaPlayer பிழைக் குறியீடு: %1$d கூடுதல் குறியீடு %2$d"</string>
+    <string name="lb_onboarding_get_started" msgid="5549711907371161292">"தொடங்குக"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="2394451791544864917">"அடுத்த பக்கத்திற்குச் செல்லும்"</string>
+</resources>

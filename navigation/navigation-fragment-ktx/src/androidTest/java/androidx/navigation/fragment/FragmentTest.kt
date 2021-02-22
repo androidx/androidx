@@ -23,7 +23,6 @@ import androidx.navigation.NavArgs
 import androidx.navigation.fragment.ktx.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -32,7 +31,9 @@ import org.junit.Test
 
 @LargeTest
 class ActivityTest {
-    @get:Rule val activityRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private val fragmentManager get() = activityRule.activity.supportFragmentManager
     private val contentFragment get() = fragmentManager.findFragmentById(android.R.id.content)!!
 
@@ -40,23 +41,27 @@ class ActivityTest {
     @Test fun findNavController() {
         val navHostFragment = NavHostFragment.create(R.navigation.test_graph)
         fragmentManager.beginTransaction()
-                .add(android.R.id.content, navHostFragment)
-                .commitNow()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
 
         val foundNavController = contentFragment.findNavController()
-        assertTrue("Fragment should have NavController set",
-                foundNavController == navHostFragment.navController)
+        assertTrue(
+            "Fragment should have NavController set",
+            foundNavController == navHostFragment.navController
+        )
     }
 
     @UiThreadTest
     @Test fun findNavControllerNull() {
         fragmentManager.beginTransaction()
-                .add(android.R.id.content, TestFragment())
-                .commitNow()
+            .add(android.R.id.content, TestFragment())
+            .commitNow()
         try {
             contentFragment.findNavController()
-            fail("findNavController should throw IllegalStateException if a NavController " +
-                    "was not set")
+            fail(
+                "findNavController should throw IllegalStateException if a NavController " +
+                    "was not set"
+            )
         } catch (e: IllegalStateException) {
             // Expected
         }
@@ -71,7 +76,7 @@ class ActivityTest {
 
         // TODO Create a real API to get the current Fragment b/119800853
         val testFragment = navHostFragment.childFragmentManager.primaryNavigationFragment
-                as TestFragment
+            as TestFragment
         assertThat(testFragment.args)
             .isNotNull()
         assertThat(testFragment.args.bundle["test"])

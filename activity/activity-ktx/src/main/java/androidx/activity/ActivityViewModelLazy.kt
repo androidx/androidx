@@ -37,7 +37,7 @@ import androidx.lifecycle.ViewModelProvider.Factory
  * and access prior to that will result in IllegalArgumentException.
  */
 @MainThread
-inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
+public inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
     noinline factoryProducer: (() -> Factory)? = null
 ): Lazy<VM> {
     val factoryPromise = factoryProducer ?: {

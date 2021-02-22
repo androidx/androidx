@@ -23,68 +23,6 @@ ActionValue: androidx.core.app.ActivityOptionsCompat#EXTRA_USAGE_TIME_REPORT:
     Inconsistent extra value; expected `androidx.core.app.extra.USAGE_TIME_REPORT`, was `android.activity.usage_time`
 ActionValue: androidx.core.app.ActivityOptionsCompat#EXTRA_USAGE_TIME_REPORT_PACKAGES:
     Inconsistent extra value; expected `androidx.core.app.extra.USAGE_TIME_REPORT_PACKAGES`, was `android.usage_time_packages`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_AUDIO_CONTENTS_URI:
-    Inconsistent extra value; expected `androidx.core.app.extra.AUDIO_CONTENTS_URI`, was `android.audioContents`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_BACKGROUND_IMAGE_URI:
-    Inconsistent extra value; expected `androidx.core.app.extra.BACKGROUND_IMAGE_URI`, was `android.backgroundImageUri`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_BIG_TEXT:
-    Inconsistent extra value; expected `androidx.core.app.extra.BIG_TEXT`, was `android.bigText`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_CHRONOMETER_COUNT_DOWN:
-    Inconsistent extra value; expected `androidx.core.app.extra.CHRONOMETER_COUNT_DOWN`, was `android.chronometerCountDown`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_COMPACT_ACTIONS:
-    Inconsistent extra value; expected `androidx.core.app.extra.COMPACT_ACTIONS`, was `android.compactActions`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_CONVERSATION_TITLE:
-    Inconsistent extra value; expected `androidx.core.app.extra.CONVERSATION_TITLE`, was `android.conversationTitle`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_HIDDEN_CONVERSATION_TITLE:
-    Inconsistent extra value; expected `androidx.core.app.extra.HIDDEN_CONVERSATION_TITLE`, was `android.hiddenConversationTitle`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_INFO_TEXT:
-    Inconsistent extra value; expected `androidx.core.app.extra.INFO_TEXT`, was `android.infoText`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_IS_GROUP_CONVERSATION:
-    Inconsistent extra value; expected `androidx.core.app.extra.IS_GROUP_CONVERSATION`, was `android.isGroupConversation`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_LARGE_ICON:
-    Inconsistent extra value; expected `androidx.core.app.extra.LARGE_ICON`, was `android.largeIcon`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_LARGE_ICON_BIG:
-    Inconsistent extra value; expected `androidx.core.app.extra.LARGE_ICON_BIG`, was `android.largeIcon.big`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_MEDIA_SESSION:
-    Inconsistent extra value; expected `androidx.core.app.extra.MEDIA_SESSION`, was `android.mediaSession`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_MESSAGES:
-    Inconsistent extra value; expected `androidx.core.app.extra.MESSAGES`, was `android.messages`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_MESSAGING_STYLE_USER:
-    Inconsistent extra value; expected `androidx.core.app.extra.MESSAGING_STYLE_USER`, was `android.messagingStyleUser`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_PEOPLE:
-    Inconsistent extra value; expected `androidx.core.app.extra.PEOPLE`, was `android.people`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_PICTURE:
-    Inconsistent extra value; expected `androidx.core.app.extra.PICTURE`, was `android.picture`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_PROGRESS:
-    Inconsistent extra value; expected `androidx.core.app.extra.PROGRESS`, was `android.progress`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_PROGRESS_INDETERMINATE:
-    Inconsistent extra value; expected `androidx.core.app.extra.PROGRESS_INDETERMINATE`, was `android.progressIndeterminate`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_PROGRESS_MAX:
-    Inconsistent extra value; expected `androidx.core.app.extra.PROGRESS_MAX`, was `android.progressMax`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_REMOTE_INPUT_HISTORY:
-    Inconsistent extra value; expected `androidx.core.app.extra.REMOTE_INPUT_HISTORY`, was `android.remoteInputHistory`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_SELF_DISPLAY_NAME:
-    Inconsistent extra value; expected `androidx.core.app.extra.SELF_DISPLAY_NAME`, was `android.selfDisplayName`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_SHOW_CHRONOMETER:
-    Inconsistent extra value; expected `androidx.core.app.extra.SHOW_CHRONOMETER`, was `android.showChronometer`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_SHOW_WHEN:
-    Inconsistent extra value; expected `androidx.core.app.extra.SHOW_WHEN`, was `android.showWhen`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_SMALL_ICON:
-    Inconsistent extra value; expected `androidx.core.app.extra.SMALL_ICON`, was `android.icon`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_SUB_TEXT:
-    Inconsistent extra value; expected `androidx.core.app.extra.SUB_TEXT`, was `android.subText`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_SUMMARY_TEXT:
-    Inconsistent extra value; expected `androidx.core.app.extra.SUMMARY_TEXT`, was `android.summaryText`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_TEMPLATE:
-    Inconsistent extra value; expected `androidx.core.app.extra.TEMPLATE`, was `android.template`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_TEXT:
-    Inconsistent extra value; expected `androidx.core.app.extra.TEXT`, was `android.text`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_TEXT_LINES:
-    Inconsistent extra value; expected `androidx.core.app.extra.TEXT_LINES`, was `android.textLines`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_TITLE:
-    Inconsistent extra value; expected `androidx.core.app.extra.TITLE`, was `android.title`
-ActionValue: androidx.core.app.NotificationCompat#EXTRA_TITLE_BIG:
-    Inconsistent extra value; expected `androidx.core.app.extra.TITLE_BIG`, was `android.title.big`
 ActionValue: androidx.core.app.NotificationCompatExtras#EXTRA_ACTION_EXTRAS:
     Inconsistent extra value; expected `androidx.core.app.extra.ACTION_EXTRAS`, was `android.support.actionExtras`
 ActionValue: androidx.core.app.NotificationCompatExtras#EXTRA_GROUP_KEY:
@@ -141,10 +79,90 @@ ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION
     Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_SET_TEXT_CHARSEQUENCE`, was `ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE`
 
 
+ArrayReturn: androidx.core.app.FrameMetricsAggregator#getMetrics():
+    Method should return Collection<SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
+ArrayReturn: androidx.core.app.FrameMetricsAggregator#remove(android.app.Activity):
+    Method should return Collection<SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
+ArrayReturn: androidx.core.app.FrameMetricsAggregator#reset():
+    Method should return Collection<SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
+ArrayReturn: androidx.core.app.FrameMetricsAggregator#stop():
+    Method should return Collection<SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
+ArrayReturn: androidx.core.app.NotificationCompat.Action#getDataOnlyRemoteInputs():
+    Method should return Collection<RemoteInput> (or subclass) instead of raw array; was `androidx.core.app.RemoteInput[]`
+ArrayReturn: androidx.core.app.NotificationCompat.Action#getRemoteInputs():
+    Method should return Collection<RemoteInput> (or subclass) instead of raw array; was `androidx.core.app.RemoteInput[]`
+ArrayReturn: androidx.core.app.NotificationCompat.Builder#setRemoteInputHistory(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.core.app.RemoteInput#addResultsToIntent(androidx.core.app.RemoteInput[], android.content.Intent, android.os.Bundle) parameter #0:
+    Method parameter should be Collection<RemoteInput> (or subclass) instead of raw array; was `androidx.core.app.RemoteInput[]`
+ArrayReturn: androidx.core.app.RemoteInput#getChoices():
+    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.core.app.RemoteInput.Builder#setChoices(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.core.app.TaskStackBuilder#getIntents():
+    Method should return Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+ArrayReturn: androidx.core.content.ContextCompat#getExternalCacheDirs(android.content.Context):
+    Method should return Collection<File> (or subclass) instead of raw array; was `java.io.File[]`
+ArrayReturn: androidx.core.content.ContextCompat#getExternalFilesDirs(android.content.Context, String):
+    Method should return Collection<File> (or subclass) instead of raw array; was `java.io.File[]`
+ArrayReturn: androidx.core.content.ContextCompat#getObbDirs(android.content.Context):
+    Method should return Collection<File> (or subclass) instead of raw array; was `java.io.File[]`
+ArrayReturn: androidx.core.content.ContextCompat#startActivities(android.content.Context, android.content.Intent[]) parameter #1:
+    Method parameter should be Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+ArrayReturn: androidx.core.content.ContextCompat#startActivities(android.content.Context, android.content.Intent[], android.os.Bundle) parameter #1:
+    Method parameter should be Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat#getIntents():
+    Method should return Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIntents(android.content.Intent[]) parameter #0:
+    Method parameter should be Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat.Builder#setPersons(androidx.core.app.Person[]) parameter #0:
+    Method parameter should be Collection<Person> (or subclass) instead of raw array; was `androidx.core.app.Person[]`
+ArrayReturn: androidx.core.hardware.display.DisplayManagerCompat#getDisplays():
+    Method should return Collection<Display> (or subclass) instead of raw array; was `android.view.Display[]`
+ArrayReturn: androidx.core.hardware.display.DisplayManagerCompat#getDisplays(String):
+    Method should return Collection<Display> (or subclass) instead of raw array; was `android.view.Display[]`
+ArrayReturn: androidx.core.os.ParcelableCompatCreatorCallbacks#newArray(int):
+    Method should return Collection<T> (or subclass) instead of raw array; was `T[]`
+ArrayReturn: androidx.core.provider.FontsContractCompat#buildTypeface(android.content.Context, android.os.CancellationSignal, androidx.core.provider.FontsContractCompat.FontInfo[]) parameter #2:
+    Method parameter should be Collection<FontInfo> (or subclass) instead of raw array; was `androidx.core.provider.FontsContractCompat.FontInfo[]`
+ArrayReturn: androidx.core.provider.FontsContractCompat.FontFamilyResult#getFonts():
+    Method should return Collection<FontInfo> (or subclass) instead of raw array; was `androidx.core.provider.FontsContractCompat.FontInfo[]`
+ArrayReturn: androidx.core.text.PrecomputedTextCompat#getSpans(int, int, Class<T>):
+    Method should return Collection<T> (or subclass) instead of raw array; was `T[]`
+ArrayReturn: androidx.core.widget.TextViewCompat#getCompoundDrawablesRelative(android.widget.TextView):
+    Method should return Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
+
+
+BadFuture: androidx.core.text.PrecomputedTextCompat#getTextFuture(CharSequence, androidx.core.text.PrecomputedTextCompat.Params, java.util.concurrent.Executor):
+    Use ListenableFuture (library), or a combination of Consumer<T>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (method androidx.core.text.PrecomputedTextCompat.getTextFuture(CharSequence,androidx.core.text.PrecomputedTextCompat.Params,java.util.concurrent.Executor))
+
+
 BannedThrow: androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithConfiguration(android.widget.TextView, int, int, int, int):
     Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalArgumentException`)
 BannedThrow: androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithPresetSizes(android.widget.TextView, int[], int):
     Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalArgumentException`)
+
+
+BuilderSetStyle: androidx.core.app.NotificationCompat.Action.Builder#extend(androidx.core.app.NotificationCompat.Action.Extender):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.NotificationCompat.Action.Builder.extend(androidx.core.app.NotificationCompat.Action.Extender)
+BuilderSetStyle: androidx.core.app.NotificationCompat.Builder#extend(androidx.core.app.NotificationCompat.Extender):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.NotificationCompat.Builder.extend(androidx.core.app.NotificationCompat.Extender)
+BuilderSetStyle: androidx.core.app.NotificationCompat.Builder#limitCharSequenceLength(CharSequence):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.NotificationCompat.Builder.limitCharSequenceLength(CharSequence)
+BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#createChooserIntent():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.createChooserIntent()
+BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#startChooser():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.startChooser()
+BuilderSetStyle: androidx.core.app.TaskStackBuilder#create(android.content.Context):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.TaskStackBuilder.create(android.content.Context)
+BuilderSetStyle: androidx.core.app.TaskStackBuilder#editIntentAt(int):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.TaskStackBuilder.editIntentAt(int)
+BuilderSetStyle: androidx.core.app.TaskStackBuilder#startActivities():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.TaskStackBuilder.startActivities()
+BuilderSetStyle: androidx.core.app.TaskStackBuilder#startActivities(android.os.Bundle):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.TaskStackBuilder.startActivities(android.os.Bundle)
+BuilderSetStyle: androidx.core.text.BidiFormatter.Builder#stereoReset(boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.text.BidiFormatter.Builder.stereoReset(boolean)
 
 
 ContextFirst: androidx.core.view.LayoutInflaterFactory#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #2:
@@ -155,6 +173,54 @@ ContextFirst: androidx.core.view.ViewConfigurationCompat#getScaledVerticalScroll
     Context is distinct, so it must be the first argument (method `getScaledVerticalScrollFactor`)
 ContextFirst: androidx.core.view.ViewConfigurationCompat#shouldShowMenuShortcutsWhenKeyboardPresent(android.view.ViewConfiguration, android.content.Context) parameter #1:
     Context is distinct, so it must be the first argument (method `shouldShowMenuShortcutsWhenKeyboardPresent`)
+
+
+ExecutorRegistration: androidx.core.content.res.ResourcesCompat#getFont(android.content.Context, int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler):
+    Registration methods should have overload that accepts delivery Executor: `getFont`
+ExecutorRegistration: androidx.core.hardware.fingerprint.FingerprintManagerCompat#authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, androidx.core.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler):
+    Registration methods should have overload that accepts delivery Executor: `authenticate`
+ExecutorRegistration: androidx.core.os.CancellationSignal#setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnCancelListener`
+ExecutorRegistration: androidx.core.os.HandlerCompat#createAsync(android.os.Looper, android.os.Handler.Callback):
+    Registration methods should have overload that accepts delivery Executor: `createAsync`
+ExecutorRegistration: androidx.core.provider.FontsContractCompat#requestFont(android.content.Context, androidx.core.provider.FontRequest, androidx.core.provider.FontsContractCompat.FontRequestCallback, android.os.Handler):
+    Registration methods should have overload that accepts delivery Executor: `requestFont`
+
+
+GetterOnBuilder: androidx.core.app.NotificationCompat.Action.Builder#getExtras():
+    Getter should be on the built object, not the builder: method androidx.core.app.NotificationCompat.Action.Builder.getExtras()
+GetterOnBuilder: androidx.core.app.NotificationCompat.Builder#getExtras():
+    Getter should be on the built object, not the builder: method androidx.core.app.NotificationCompat.Builder.getExtras()
+GetterOnBuilder: androidx.core.app.RemoteInput.Builder#getExtras():
+    Getter should be on the built object, not the builder: method androidx.core.app.RemoteInput.Builder.getExtras()
+GetterOnBuilder: androidx.core.app.ShareCompat.IntentBuilder#getIntent():
+    Getter should be on the built object, not the builder: method androidx.core.app.ShareCompat.IntentBuilder.getIntent()
+GetterOnBuilder: androidx.core.app.TaskStackBuilder#getIntentCount():
+    Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getIntentCount()
+GetterOnBuilder: androidx.core.app.TaskStackBuilder#getIntents():
+    Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getIntents()
+GetterOnBuilder: androidx.core.app.TaskStackBuilder#getPendingIntent(int, int):
+    Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getPendingIntent(int,int)
+GetterOnBuilder: androidx.core.app.TaskStackBuilder#getPendingIntent(int, int, android.os.Bundle):
+    Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getPendingIntent(int,int,android.os.Bundle)
+
+
+GetterSetterNames: androidx.core.app.NotificationCompat.Action.WearableExtender#getHintDisplayActionInline():
+    Symmetric method for `setHintDisplayActionInline` must be named `isHintDisplayActionInline`; was `getHintDisplayActionInline`
+GetterSetterNames: androidx.core.app.NotificationCompat.Action.WearableExtender#getHintLaunchesActivity():
+    Symmetric method for `setHintLaunchesActivity` must be named `isHintLaunchesActivity`; was `getHintLaunchesActivity`
+GetterSetterNames: androidx.core.app.NotificationCompat.WearableExtender#getContentIntentAvailableOffline():
+    Symmetric method for `setContentIntentAvailableOffline` must be named `isContentIntentAvailableOffline`; was `getContentIntentAvailableOffline`
+GetterSetterNames: androidx.core.app.NotificationCompat.WearableExtender#getHintContentIntentLaunchesActivity():
+    Symmetric method for `setHintContentIntentLaunchesActivity` must be named `isHintContentIntentLaunchesActivity`; was `getHintContentIntentLaunchesActivity`
+GetterSetterNames: androidx.core.app.NotificationCompat.WearableExtender#getStartScrollBottom():
+    Symmetric method for `setStartScrollBottom` must be named `isStartScrollBottom`; was `getStartScrollBottom`
+GetterSetterNames: androidx.core.graphics.drawable.RoundedBitmapDrawable#setAntiAlias(boolean):
+    Symmetric method for `hasAntiAlias` must be named `setHasAntiAlias`; was `setAntiAlias`
+GetterSetterNames: androidx.core.graphics.drawable.RoundedBitmapDrawable#setMipMap(boolean):
+    Symmetric method for `hasMipMap` must be named `setHasMipMap`; was `setMipMap`
+GetterSetterNames: androidx.core.view.GestureDetectorCompat#setIsLongpressEnabled(boolean):
+    Symmetric method for `isLongpressEnabled` must be named `setLongpressEnabled`; was `setIsLongpressEnabled`
 
 
 KotlinOperator: androidx.core.os.LocaleListCompat#get(int):
@@ -175,10 +241,140 @@ ListenerLast: androidx.core.view.GestureDetectorCompat#GestureDetectorCompat(and
     Listeners should always be at end of argument list (method `GestureDetectorCompat`)
 
 
-MissingBuild: androidx.core.app.ShareCompat.IntentBuilder:
-    Missing `build()` method in androidx.core.app.ShareCompat.IntentBuilder
-MissingBuild: androidx.core.app.TaskStackBuilder:
-    Missing `build()` method in androidx.core.app.TaskStackBuilder
+MissingBuildMethod: androidx.core.app.ShareCompat.IntentBuilder:
+    androidx.core.app.ShareCompat.IntentBuilder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.core.app.TaskStackBuilder:
+    androidx.core.app.TaskStackBuilder does not declare a `build()` method, but builder classes are expected to
+
+
+MissingGetterMatchingBuilder: androidx.core.app.NotificationChannelCompat.Builder#setLightsEnabled(boolean):
+    androidx.core.app.NotificationChannelCompat does not declare a `isLightsEnabled()` method matching method androidx.core.app.NotificationChannelCompat.Builder.setLightsEnabled(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationChannelCompat.Builder#setShowBadge(boolean):
+    androidx.core.app.NotificationChannelCompat does not declare a `isShowBadge()` method matching method androidx.core.app.NotificationChannelCompat.Builder.setShowBadge(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationChannelCompat.Builder#setVibrationEnabled(boolean):
+    androidx.core.app.NotificationChannelCompat does not declare a `isVibrationEnabled()` method matching method androidx.core.app.NotificationChannelCompat.Builder.setVibrationEnabled(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Action.Builder#setAllowGeneratedReplies(boolean):
+    androidx.core.app.NotificationCompat.Action does not declare a `isAllowGeneratedReplies()` method matching method androidx.core.app.NotificationCompat.Action.Builder.setAllowGeneratedReplies(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Action.Builder#setShowsUserInterface(boolean):
+    androidx.core.app.NotificationCompat.Action does not declare a `isShowsUserInterface()` method matching method androidx.core.app.NotificationCompat.Action.Builder.setShowsUserInterface(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.BubbleMetadata.Builder#setAutoExpandBubble(boolean):
+    androidx.core.app.NotificationCompat.BubbleMetadata does not declare a `isAutoExpandBubble()` method matching method androidx.core.app.NotificationCompat.BubbleMetadata.Builder.setAutoExpandBubble(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.BubbleMetadata.Builder#setSuppressNotification(boolean):
+    androidx.core.app.NotificationCompat.BubbleMetadata does not declare a `isSuppressNotification()` method matching method androidx.core.app.NotificationCompat.BubbleMetadata.Builder.setSuppressNotification(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addAction(androidx.core.app.NotificationCompat.Action):
+    android.app.Notification does not declare a `getActions()` method matching method androidx.core.app.NotificationCompat.Builder.addAction(androidx.core.app.NotificationCompat.Action)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addAction(int, CharSequence, android.app.PendingIntent):
+    android.app.Notification does not declare a `getActions()` method matching method androidx.core.app.NotificationCompat.Builder.addAction(int,CharSequence,android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addExtras(android.os.Bundle):
+    android.app.Notification does not declare a getter method matching method androidx.core.app.NotificationCompat.Builder.addExtras(android.os.Bundle) (expected one of: [getExtras(), getExtrases()])
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(androidx.core.app.NotificationCompat.Action):
+    android.app.Notification does not declare a `getInvisibleActions()` method matching method androidx.core.app.NotificationCompat.Builder.addInvisibleAction(androidx.core.app.NotificationCompat.Action)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(int, CharSequence, android.app.PendingIntent):
+    android.app.Notification does not declare a `getInvisibleActions()` method matching method androidx.core.app.NotificationCompat.Builder.addInvisibleAction(int,CharSequence,android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addPerson(androidx.core.app.Person):
+    android.app.Notification does not declare a `getPersons()` method matching method androidx.core.app.NotificationCompat.Builder.addPerson(androidx.core.app.Person)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setAllowSystemGeneratedContextualActions(boolean):
+    android.app.Notification does not declare a `isAllowSystemGeneratedContextualActions()` method matching method androidx.core.app.NotificationCompat.Builder.setAllowSystemGeneratedContextualActions(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setAutoCancel(boolean):
+    android.app.Notification does not declare a `isAutoCancel()` method matching method androidx.core.app.NotificationCompat.Builder.setAutoCancel(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setCategory(String):
+    android.app.Notification does not declare a `getCategory()` method matching method androidx.core.app.NotificationCompat.Builder.setCategory(String)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setChronometerCountDown(boolean):
+    android.app.Notification does not declare a `isChronometerCountDown()` method matching method androidx.core.app.NotificationCompat.Builder.setChronometerCountDown(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setColor(int):
+    android.app.Notification does not declare a `getColor()` method matching method androidx.core.app.NotificationCompat.Builder.setColor(int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setColorized(boolean):
+    android.app.Notification does not declare a `isColorized()` method matching method androidx.core.app.NotificationCompat.Builder.setColorized(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setContent(android.widget.RemoteViews):
+    android.app.Notification does not declare a `getContent()` method matching method androidx.core.app.NotificationCompat.Builder.setContent(android.widget.RemoteViews)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setContentInfo(CharSequence):
+    android.app.Notification does not declare a `getContentInfo()` method matching method androidx.core.app.NotificationCompat.Builder.setContentInfo(CharSequence)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setContentIntent(android.app.PendingIntent):
+    android.app.Notification does not declare a `getContentIntent()` method matching method androidx.core.app.NotificationCompat.Builder.setContentIntent(android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setContentText(CharSequence):
+    android.app.Notification does not declare a `getContentText()` method matching method androidx.core.app.NotificationCompat.Builder.setContentText(CharSequence)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setContentTitle(CharSequence):
+    android.app.Notification does not declare a `getContentTitle()` method matching method androidx.core.app.NotificationCompat.Builder.setContentTitle(CharSequence)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setCustomBigContentView(android.widget.RemoteViews):
+    android.app.Notification does not declare a `getCustomBigContentView()` method matching method androidx.core.app.NotificationCompat.Builder.setCustomBigContentView(android.widget.RemoteViews)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setCustomContentView(android.widget.RemoteViews):
+    android.app.Notification does not declare a `getCustomContentView()` method matching method androidx.core.app.NotificationCompat.Builder.setCustomContentView(android.widget.RemoteViews)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setCustomHeadsUpContentView(android.widget.RemoteViews):
+    android.app.Notification does not declare a `getCustomHeadsUpContentView()` method matching method androidx.core.app.NotificationCompat.Builder.setCustomHeadsUpContentView(android.widget.RemoteViews)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setDefaults(int):
+    android.app.Notification does not declare a `getDefaults()` method matching method androidx.core.app.NotificationCompat.Builder.setDefaults(int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setDeleteIntent(android.app.PendingIntent):
+    android.app.Notification does not declare a `getDeleteIntent()` method matching method androidx.core.app.NotificationCompat.Builder.setDeleteIntent(android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setExtras(android.os.Bundle):
+    android.app.Notification does not declare a `getExtras()` method matching method androidx.core.app.NotificationCompat.Builder.setExtras(android.os.Bundle)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setFullScreenIntent(android.app.PendingIntent, boolean):
+    android.app.Notification does not declare a `getFullScreenIntent()` method matching method androidx.core.app.NotificationCompat.Builder.setFullScreenIntent(android.app.PendingIntent,boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setGroupSummary(boolean):
+    android.app.Notification does not declare a `isGroupSummary()` method matching method androidx.core.app.NotificationCompat.Builder.setGroupSummary(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setLights(int, int, int):
+    android.app.Notification does not declare a `getLights()` method matching method androidx.core.app.NotificationCompat.Builder.setLights(int,int,int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setLocalOnly(boolean):
+    android.app.Notification does not declare a `isLocalOnly()` method matching method androidx.core.app.NotificationCompat.Builder.setLocalOnly(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setNumber(int):
+    android.app.Notification does not declare a `getNumber()` method matching method androidx.core.app.NotificationCompat.Builder.setNumber(int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setOngoing(boolean):
+    android.app.Notification does not declare a `isOngoing()` method matching method androidx.core.app.NotificationCompat.Builder.setOngoing(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setOnlyAlertOnce(boolean):
+    android.app.Notification does not declare a `isOnlyAlertOnce()` method matching method androidx.core.app.NotificationCompat.Builder.setOnlyAlertOnce(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setPriority(int):
+    android.app.Notification does not declare a `getPriority()` method matching method androidx.core.app.NotificationCompat.Builder.setPriority(int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setProgress(int, int, boolean):
+    android.app.Notification does not declare a `getProgress()` method matching method androidx.core.app.NotificationCompat.Builder.setProgress(int,int,boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setPublicVersion(android.app.Notification):
+    android.app.Notification does not declare a `getPublicVersion()` method matching method androidx.core.app.NotificationCompat.Builder.setPublicVersion(android.app.Notification)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setRemoteInputHistory(CharSequence[]):
+    android.app.Notification does not declare a `getRemoteInputHistory()` method matching method androidx.core.app.NotificationCompat.Builder.setRemoteInputHistory(CharSequence[])
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setShortcutInfo(androidx.core.content.pm.ShortcutInfoCompat):
+    android.app.Notification does not declare a `getShortcutInfo()` method matching method androidx.core.app.NotificationCompat.Builder.setShortcutInfo(androidx.core.content.pm.ShortcutInfoCompat)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setShowWhen(boolean):
+    android.app.Notification does not declare a `isShowWhen()` method matching method androidx.core.app.NotificationCompat.Builder.setShowWhen(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setSilent(boolean):
+    android.app.Notification does not declare a `isSilent()` method matching method androidx.core.app.NotificationCompat.Builder.setSilent(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setSound(android.net.Uri):
+    android.app.Notification does not declare a `getSound()` method matching method androidx.core.app.NotificationCompat.Builder.setSound(android.net.Uri)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setSound(android.net.Uri, int):
+    android.app.Notification does not declare a `getSound()` method matching method androidx.core.app.NotificationCompat.Builder.setSound(android.net.Uri,int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setStyle(androidx.core.app.NotificationCompat.Style):
+    android.app.Notification does not declare a `getStyle()` method matching method androidx.core.app.NotificationCompat.Builder.setStyle(androidx.core.app.NotificationCompat.Style)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setSubText(CharSequence):
+    android.app.Notification does not declare a `getSubText()` method matching method androidx.core.app.NotificationCompat.Builder.setSubText(CharSequence)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setTicker(CharSequence):
+    android.app.Notification does not declare a `getTicker()` method matching method androidx.core.app.NotificationCompat.Builder.setTicker(CharSequence)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setUsesChronometer(boolean):
+    android.app.Notification does not declare a `isUsesChronometer()` method matching method androidx.core.app.NotificationCompat.Builder.setUsesChronometer(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setVibrate(long[]):
+    android.app.Notification does not declare a `getVibrate()` method matching method androidx.core.app.NotificationCompat.Builder.setVibrate(long[])
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setVisibility(int):
+    android.app.Notification does not declare a `getVisibility()` method matching method androidx.core.app.NotificationCompat.Builder.setVisibility(int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setWhen(long):
+    android.app.Notification does not declare a `getWhen()` method matching method androidx.core.app.NotificationCompat.Builder.setWhen(long)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#setReplyAction(android.app.PendingIntent, androidx.core.app.RemoteInput):
+    androidx.core.app.NotificationCompat.CarExtender.UnreadConversation does not declare a `getReplyAction()` method matching method androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder.setReplyAction(android.app.PendingIntent,androidx.core.app.RemoteInput)
+MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#setAllowDataType(String, boolean):
+    androidx.core.app.RemoteInput does not declare a `getAllowDataType()` method matching method androidx.core.app.RemoteInput.Builder.setAllowDataType(String,boolean)
+MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#setAllowFreeFormInput(boolean):
+    androidx.core.app.RemoteInput does not declare a `isAllowFreeFormInput()` method matching method androidx.core.app.RemoteInput.Builder.setAllowFreeFormInput(boolean)
+MissingGetterMatchingBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder#setAlwaysBadged():
+    androidx.core.content.pm.ShortcutInfoCompat does not declare a `getAlwaysBadged()` method matching method androidx.core.content.pm.ShortcutInfoCompat.Builder.setAlwaysBadged()
+MissingGetterMatchingBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIcon(androidx.core.graphics.drawable.IconCompat):
+    androidx.core.content.pm.ShortcutInfoCompat does not declare a `getIcon()` method matching method androidx.core.content.pm.ShortcutInfoCompat.Builder.setIcon(androidx.core.graphics.drawable.IconCompat)
+MissingGetterMatchingBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIsConversation():
+    androidx.core.content.pm.ShortcutInfoCompat does not declare a `getIsConversation()` method matching method androidx.core.content.pm.ShortcutInfoCompat.Builder.setIsConversation()
+MissingGetterMatchingBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder#setLongLived(boolean):
+    androidx.core.content.pm.ShortcutInfoCompat does not declare a `isLongLived()` method matching method androidx.core.content.pm.ShortcutInfoCompat.Builder.setLongLived(boolean)
+MissingGetterMatchingBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder#setPerson(androidx.core.app.Person):
+    androidx.core.content.pm.ShortcutInfoCompat does not declare a `getPerson()` method matching method androidx.core.content.pm.ShortcutInfoCompat.Builder.setPerson(androidx.core.app.Person)
+MissingGetterMatchingBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder#setPersons(androidx.core.app.Person[]):
+    androidx.core.content.pm.ShortcutInfoCompat does not declare a `getPersons()` method matching method androidx.core.content.pm.ShortcutInfoCompat.Builder.setPersons(androidx.core.app.Person[])
+MissingGetterMatchingBuilder: androidx.core.text.BidiFormatter.Builder#setTextDirectionHeuristic(androidx.core.text.TextDirectionHeuristicCompat):
+    androidx.core.text.BidiFormatter does not declare a `getTextDirectionHeuristic()` method matching method androidx.core.text.BidiFormatter.Builder.setTextDirectionHeuristic(androidx.core.text.TextDirectionHeuristicCompat)
+MissingGetterMatchingBuilder: androidx.core.view.WindowInsetsCompat.Builder#setVisible(int, boolean):
+    androidx.core.view.WindowInsetsCompat does not declare a `getVisible()` method matching method androidx.core.view.WindowInsetsCompat.Builder.setVisible(int,boolean)
 
 
 MissingNullability: androidx.core.app.ActivityCompat#invalidateOptionsMenu(android.app.Activity) parameter #0:
@@ -191,504 +387,10 @@ MissingNullability: androidx.core.app.ActivityOptionsCompat#makeSceneTransitionA
     Missing nullability on parameter `sharedElements` in method `makeSceneTransitionAnimation`
 MissingNullability: androidx.core.app.JobIntentService#onBind(android.content.Intent):
     Missing nullability on method `onBind` return
-MissingNullability: androidx.core.app.NotificationCompat#getAction(android.app.Notification, int):
-    Missing nullability on method `getAction` return
-MissingNullability: androidx.core.app.NotificationCompat#getAction(android.app.Notification, int) parameter #0:
-    Missing nullability on parameter `notification` in method `getAction`
-MissingNullability: androidx.core.app.NotificationCompat#getActionCount(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getActionCount`
-MissingNullability: androidx.core.app.NotificationCompat#getAllowSystemGeneratedContextualActions(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getAllowSystemGeneratedContextualActions`
-MissingNullability: androidx.core.app.NotificationCompat#getBadgeIconType(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getBadgeIconType`
-MissingNullability: androidx.core.app.NotificationCompat#getCategory(android.app.Notification):
-    Missing nullability on method `getCategory` return
-MissingNullability: androidx.core.app.NotificationCompat#getCategory(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getCategory`
-MissingNullability: androidx.core.app.NotificationCompat#getChannelId(android.app.Notification):
-    Missing nullability on method `getChannelId` return
-MissingNullability: androidx.core.app.NotificationCompat#getChannelId(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getChannelId`
-MissingNullability: androidx.core.app.NotificationCompat#getContentTitle(android.app.Notification):
-    Missing nullability on method `getContentTitle` return
-MissingNullability: androidx.core.app.NotificationCompat#getContentTitle(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getContentTitle`
-MissingNullability: androidx.core.app.NotificationCompat#getExtras(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getExtras`
-MissingNullability: androidx.core.app.NotificationCompat#getGroup(android.app.Notification):
-    Missing nullability on method `getGroup` return
-MissingNullability: androidx.core.app.NotificationCompat#getGroup(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getGroup`
-MissingNullability: androidx.core.app.NotificationCompat#getGroupAlertBehavior(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getGroupAlertBehavior`
-MissingNullability: androidx.core.app.NotificationCompat#getInvisibleActions(android.app.Notification):
-    Missing nullability on method `getInvisibleActions` return
-MissingNullability: androidx.core.app.NotificationCompat#getInvisibleActions(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getInvisibleActions`
-MissingNullability: androidx.core.app.NotificationCompat#getLocalOnly(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getLocalOnly`
-MissingNullability: androidx.core.app.NotificationCompat#getShortcutId(android.app.Notification):
-    Missing nullability on method `getShortcutId` return
-MissingNullability: androidx.core.app.NotificationCompat#getShortcutId(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getShortcutId`
-MissingNullability: androidx.core.app.NotificationCompat#getSortKey(android.app.Notification):
-    Missing nullability on method `getSortKey` return
-MissingNullability: androidx.core.app.NotificationCompat#getSortKey(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getSortKey`
-MissingNullability: androidx.core.app.NotificationCompat#getTimeoutAfter(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `getTimeoutAfter`
-MissingNullability: androidx.core.app.NotificationCompat#isGroupSummary(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `isGroupSummary`
-MissingNullability: androidx.core.app.NotificationCompat.Action#Action(int, CharSequence, android.app.PendingIntent) parameter #1:
-    Missing nullability on parameter `title` in method `Action`
-MissingNullability: androidx.core.app.NotificationCompat.Action#Action(int, CharSequence, android.app.PendingIntent) parameter #2:
-    Missing nullability on parameter `intent` in method `Action`
 MissingNullability: androidx.core.app.NotificationCompat.Action#actionIntent:
     Missing nullability on field `actionIntent` in class `class androidx.core.app.NotificationCompat.Action`
-MissingNullability: androidx.core.app.NotificationCompat.Action#getActionIntent():
-    Missing nullability on method `getActionIntent` return
-MissingNullability: androidx.core.app.NotificationCompat.Action#getDataOnlyRemoteInputs():
-    Missing nullability on method `getDataOnlyRemoteInputs` return
-MissingNullability: androidx.core.app.NotificationCompat.Action#getExtras():
-    Missing nullability on method `getExtras` return
-MissingNullability: androidx.core.app.NotificationCompat.Action#getRemoteInputs():
-    Missing nullability on method `getRemoteInputs` return
-MissingNullability: androidx.core.app.NotificationCompat.Action#getTitle():
-    Missing nullability on method `getTitle` return
 MissingNullability: androidx.core.app.NotificationCompat.Action#title:
     Missing nullability on field `title` in class `class androidx.core.app.NotificationCompat.Action`
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.app.NotificationCompat.Action) parameter #0:
-    Missing nullability on parameter `action` in method `Builder`
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#Builder(int, CharSequence, android.app.PendingIntent) parameter #1:
-    Missing nullability on parameter `title` in method `Builder`
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#Builder(int, CharSequence, android.app.PendingIntent) parameter #2:
-    Missing nullability on parameter `intent` in method `Builder`
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#addExtras(android.os.Bundle):
-    Missing nullability on method `addExtras` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#addExtras(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `extras` in method `addExtras`
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#addRemoteInput(androidx.core.app.RemoteInput):
-    Missing nullability on method `addRemoteInput` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#addRemoteInput(androidx.core.app.RemoteInput) parameter #0:
-    Missing nullability on parameter `remoteInput` in method `addRemoteInput`
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#build():
-    Missing nullability on method `build` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#extend(androidx.core.app.NotificationCompat.Action.Extender):
-    Missing nullability on method `extend` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#extend(androidx.core.app.NotificationCompat.Action.Extender) parameter #0:
-    Missing nullability on parameter `extender` in method `extend`
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#getExtras():
-    Missing nullability on method `getExtras` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#setAllowGeneratedReplies(boolean):
-    Missing nullability on method `setAllowGeneratedReplies` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#setSemanticAction(int):
-    Missing nullability on method `setSemanticAction` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.Builder#setShowsUserInterface(boolean):
-    Missing nullability on method `setShowsUserInterface` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.Extender#extend(androidx.core.app.NotificationCompat.Action.Builder):
-    Missing nullability on method `extend` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.Extender#extend(androidx.core.app.NotificationCompat.Action.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `extend`
-MissingNullability: androidx.core.app.NotificationCompat.Action.WearableExtender#WearableExtender(androidx.core.app.NotificationCompat.Action) parameter #0:
-    Missing nullability on parameter `action` in method `WearableExtender`
-MissingNullability: androidx.core.app.NotificationCompat.Action.WearableExtender#clone():
-    Missing nullability on method `clone` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.WearableExtender#extend(androidx.core.app.NotificationCompat.Action.Builder):
-    Missing nullability on method `extend` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.WearableExtender#extend(androidx.core.app.NotificationCompat.Action.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `extend`
-MissingNullability: androidx.core.app.NotificationCompat.Action.WearableExtender#setAvailableOffline(boolean):
-    Missing nullability on method `setAvailableOffline` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.WearableExtender#setCancelLabel(CharSequence) parameter #0:
-    Missing nullability on parameter `label` in method `setCancelLabel`
-MissingNullability: androidx.core.app.NotificationCompat.Action.WearableExtender#setConfirmLabel(CharSequence) parameter #0:
-    Missing nullability on parameter `label` in method `setConfirmLabel`
-MissingNullability: androidx.core.app.NotificationCompat.Action.WearableExtender#setHintDisplayActionInline(boolean):
-    Missing nullability on method `setHintDisplayActionInline` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.WearableExtender#setHintLaunchesActivity(boolean):
-    Missing nullability on method `setHintLaunchesActivity` return
-MissingNullability: androidx.core.app.NotificationCompat.Action.WearableExtender#setInProgressLabel(CharSequence) parameter #0:
-    Missing nullability on parameter `label` in method `setInProgressLabel`
-MissingNullability: androidx.core.app.NotificationCompat.BigPictureStyle#BigPictureStyle(androidx.core.app.NotificationCompat.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `BigPictureStyle`
-MissingNullability: androidx.core.app.NotificationCompat.BigPictureStyle#bigLargeIcon(android.graphics.Bitmap):
-    Missing nullability on method `bigLargeIcon` return
-MissingNullability: androidx.core.app.NotificationCompat.BigPictureStyle#bigLargeIcon(android.graphics.Bitmap) parameter #0:
-    Missing nullability on parameter `b` in method `bigLargeIcon`
-MissingNullability: androidx.core.app.NotificationCompat.BigPictureStyle#bigPicture(android.graphics.Bitmap):
-    Missing nullability on method `bigPicture` return
-MissingNullability: androidx.core.app.NotificationCompat.BigPictureStyle#bigPicture(android.graphics.Bitmap) parameter #0:
-    Missing nullability on parameter `b` in method `bigPicture`
-MissingNullability: androidx.core.app.NotificationCompat.BigPictureStyle#setBigContentTitle(CharSequence):
-    Missing nullability on method `setBigContentTitle` return
-MissingNullability: androidx.core.app.NotificationCompat.BigPictureStyle#setBigContentTitle(CharSequence) parameter #0:
-    Missing nullability on parameter `title` in method `setBigContentTitle`
-MissingNullability: androidx.core.app.NotificationCompat.BigPictureStyle#setSummaryText(CharSequence):
-    Missing nullability on method `setSummaryText` return
-MissingNullability: androidx.core.app.NotificationCompat.BigPictureStyle#setSummaryText(CharSequence) parameter #0:
-    Missing nullability on parameter `cs` in method `setSummaryText`
-MissingNullability: androidx.core.app.NotificationCompat.BigTextStyle#BigTextStyle(androidx.core.app.NotificationCompat.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `BigTextStyle`
-MissingNullability: androidx.core.app.NotificationCompat.BigTextStyle#bigText(CharSequence):
-    Missing nullability on method `bigText` return
-MissingNullability: androidx.core.app.NotificationCompat.BigTextStyle#bigText(CharSequence) parameter #0:
-    Missing nullability on parameter `cs` in method `bigText`
-MissingNullability: androidx.core.app.NotificationCompat.BigTextStyle#setBigContentTitle(CharSequence):
-    Missing nullability on method `setBigContentTitle` return
-MissingNullability: androidx.core.app.NotificationCompat.BigTextStyle#setBigContentTitle(CharSequence) parameter #0:
-    Missing nullability on parameter `title` in method `setBigContentTitle`
-MissingNullability: androidx.core.app.NotificationCompat.BigTextStyle#setSummaryText(CharSequence):
-    Missing nullability on method `setSummaryText` return
-MissingNullability: androidx.core.app.NotificationCompat.BigTextStyle#setSummaryText(CharSequence) parameter #0:
-    Missing nullability on parameter `cs` in method `setSummaryText`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#Builder(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `Builder`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addAction(androidx.core.app.NotificationCompat.Action):
-    Missing nullability on method `addAction` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addAction(androidx.core.app.NotificationCompat.Action) parameter #0:
-    Missing nullability on parameter `action` in method `addAction`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addAction(int, CharSequence, android.app.PendingIntent):
-    Missing nullability on method `addAction` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addAction(int, CharSequence, android.app.PendingIntent) parameter #1:
-    Missing nullability on parameter `title` in method `addAction`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addAction(int, CharSequence, android.app.PendingIntent) parameter #2:
-    Missing nullability on parameter `intent` in method `addAction`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addExtras(android.os.Bundle):
-    Missing nullability on method `addExtras` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addExtras(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `extras` in method `addExtras`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(androidx.core.app.NotificationCompat.Action):
-    Missing nullability on method `addInvisibleAction` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(androidx.core.app.NotificationCompat.Action) parameter #0:
-    Missing nullability on parameter `action` in method `addInvisibleAction`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(int, CharSequence, android.app.PendingIntent):
-    Missing nullability on method `addInvisibleAction` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(int, CharSequence, android.app.PendingIntent) parameter #1:
-    Missing nullability on parameter `title` in method `addInvisibleAction`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(int, CharSequence, android.app.PendingIntent) parameter #2:
-    Missing nullability on parameter `intent` in method `addInvisibleAction`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addPerson(String):
-    Missing nullability on method `addPerson` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addPerson(String) parameter #0:
-    Missing nullability on parameter `uri` in method `addPerson`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#build():
-    Missing nullability on method `build` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#extend(androidx.core.app.NotificationCompat.Extender):
-    Missing nullability on method `extend` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#extend(androidx.core.app.NotificationCompat.Extender) parameter #0:
-    Missing nullability on parameter `extender` in method `extend`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#getExtras():
-    Missing nullability on method `getExtras` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#limitCharSequenceLength(CharSequence):
-    Missing nullability on method `limitCharSequenceLength` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#limitCharSequenceLength(CharSequence) parameter #0:
-    Missing nullability on parameter `cs` in method `limitCharSequenceLength`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setAutoCancel(boolean):
-    Missing nullability on method `setAutoCancel` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setBadgeIconType(int):
-    Missing nullability on method `setBadgeIconType` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setCategory(String):
-    Missing nullability on method `setCategory` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setCategory(String) parameter #0:
-    Missing nullability on parameter `category` in method `setCategory`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setChannelId(String):
-    Missing nullability on method `setChannelId` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setColor(int):
-    Missing nullability on method `setColor` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setColorized(boolean):
-    Missing nullability on method `setColorized` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setContent(android.widget.RemoteViews):
-    Missing nullability on method `setContent` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setContent(android.widget.RemoteViews) parameter #0:
-    Missing nullability on parameter `views` in method `setContent`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setContentInfo(CharSequence):
-    Missing nullability on method `setContentInfo` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setContentInfo(CharSequence) parameter #0:
-    Missing nullability on parameter `info` in method `setContentInfo`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setContentIntent(android.app.PendingIntent):
-    Missing nullability on method `setContentIntent` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setContentIntent(android.app.PendingIntent) parameter #0:
-    Missing nullability on parameter `intent` in method `setContentIntent`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setContentText(CharSequence):
-    Missing nullability on method `setContentText` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setContentText(CharSequence) parameter #0:
-    Missing nullability on parameter `text` in method `setContentText`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setContentTitle(CharSequence):
-    Missing nullability on method `setContentTitle` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setContentTitle(CharSequence) parameter #0:
-    Missing nullability on parameter `title` in method `setContentTitle`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setCustomBigContentView(android.widget.RemoteViews):
-    Missing nullability on method `setCustomBigContentView` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setCustomBigContentView(android.widget.RemoteViews) parameter #0:
-    Missing nullability on parameter `contentView` in method `setCustomBigContentView`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setCustomContentView(android.widget.RemoteViews):
-    Missing nullability on method `setCustomContentView` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setCustomContentView(android.widget.RemoteViews) parameter #0:
-    Missing nullability on parameter `contentView` in method `setCustomContentView`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setCustomHeadsUpContentView(android.widget.RemoteViews):
-    Missing nullability on method `setCustomHeadsUpContentView` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setCustomHeadsUpContentView(android.widget.RemoteViews) parameter #0:
-    Missing nullability on parameter `contentView` in method `setCustomHeadsUpContentView`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setDefaults(int):
-    Missing nullability on method `setDefaults` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setDeleteIntent(android.app.PendingIntent):
-    Missing nullability on method `setDeleteIntent` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setDeleteIntent(android.app.PendingIntent) parameter #0:
-    Missing nullability on parameter `intent` in method `setDeleteIntent`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setExtras(android.os.Bundle):
-    Missing nullability on method `setExtras` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setExtras(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `extras` in method `setExtras`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setFullScreenIntent(android.app.PendingIntent, boolean):
-    Missing nullability on method `setFullScreenIntent` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setFullScreenIntent(android.app.PendingIntent, boolean) parameter #0:
-    Missing nullability on parameter `intent` in method `setFullScreenIntent`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setGroup(String):
-    Missing nullability on method `setGroup` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setGroup(String) parameter #0:
-    Missing nullability on parameter `groupKey` in method `setGroup`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setGroupAlertBehavior(int):
-    Missing nullability on method `setGroupAlertBehavior` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setGroupSummary(boolean):
-    Missing nullability on method `setGroupSummary` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setLargeIcon(android.graphics.Bitmap):
-    Missing nullability on method `setLargeIcon` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setLargeIcon(android.graphics.Bitmap) parameter #0:
-    Missing nullability on parameter `icon` in method `setLargeIcon`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setLights(int, int, int):
-    Missing nullability on method `setLights` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setLocalOnly(boolean):
-    Missing nullability on method `setLocalOnly` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setNumber(int):
-    Missing nullability on method `setNumber` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setOngoing(boolean):
-    Missing nullability on method `setOngoing` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setOnlyAlertOnce(boolean):
-    Missing nullability on method `setOnlyAlertOnce` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setPriority(int):
-    Missing nullability on method `setPriority` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setProgress(int, int, boolean):
-    Missing nullability on method `setProgress` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setPublicVersion(android.app.Notification):
-    Missing nullability on method `setPublicVersion` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setPublicVersion(android.app.Notification) parameter #0:
-    Missing nullability on parameter `n` in method `setPublicVersion`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setRemoteInputHistory(CharSequence[]):
-    Missing nullability on method `setRemoteInputHistory` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setRemoteInputHistory(CharSequence[]) parameter #0:
-    Missing nullability on parameter `text` in method `setRemoteInputHistory`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setShortcutId(String):
-    Missing nullability on method `setShortcutId` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setShortcutId(String) parameter #0:
-    Missing nullability on parameter `shortcutId` in method `setShortcutId`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setShowWhen(boolean):
-    Missing nullability on method `setShowWhen` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setSmallIcon(int):
-    Missing nullability on method `setSmallIcon` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setSmallIcon(int, int):
-    Missing nullability on method `setSmallIcon` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setSortKey(String):
-    Missing nullability on method `setSortKey` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setSortKey(String) parameter #0:
-    Missing nullability on parameter `sortKey` in method `setSortKey`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setSound(android.net.Uri):
-    Missing nullability on method `setSound` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setSound(android.net.Uri) parameter #0:
-    Missing nullability on parameter `sound` in method `setSound`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setSound(android.net.Uri, int):
-    Missing nullability on method `setSound` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setSound(android.net.Uri, int) parameter #0:
-    Missing nullability on parameter `sound` in method `setSound`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setStyle(androidx.core.app.NotificationCompat.Style):
-    Missing nullability on method `setStyle` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setStyle(androidx.core.app.NotificationCompat.Style) parameter #0:
-    Missing nullability on parameter `style` in method `setStyle`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setSubText(CharSequence):
-    Missing nullability on method `setSubText` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setSubText(CharSequence) parameter #0:
-    Missing nullability on parameter `text` in method `setSubText`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setTicker(CharSequence):
-    Missing nullability on method `setTicker` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setTicker(CharSequence) parameter #0:
-    Missing nullability on parameter `tickerText` in method `setTicker`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setTicker(CharSequence, android.widget.RemoteViews):
-    Missing nullability on method `setTicker` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setTicker(CharSequence, android.widget.RemoteViews) parameter #0:
-    Missing nullability on parameter `tickerText` in method `setTicker`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setTicker(CharSequence, android.widget.RemoteViews) parameter #1:
-    Missing nullability on parameter `views` in method `setTicker`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setTimeoutAfter(long):
-    Missing nullability on method `setTimeoutAfter` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setUsesChronometer(boolean):
-    Missing nullability on method `setUsesChronometer` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setVibrate(long[]):
-    Missing nullability on method `setVibrate` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setVibrate(long[]) parameter #0:
-    Missing nullability on parameter `pattern` in method `setVibrate`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setVisibility(int):
-    Missing nullability on method `setVisibility` return
-MissingNullability: androidx.core.app.NotificationCompat.Builder#setWhen(long):
-    Missing nullability on method `setWhen` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender#CarExtender(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `CarExtender`
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender#extend(androidx.core.app.NotificationCompat.Builder):
-    Missing nullability on method `extend` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender#extend(androidx.core.app.NotificationCompat.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `extend`
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender#getLargeIcon():
-    Missing nullability on method `getLargeIcon` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender#getUnreadConversation():
-    Missing nullability on method `getUnreadConversation` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender#setColor(int):
-    Missing nullability on method `setColor` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender#setLargeIcon(android.graphics.Bitmap):
-    Missing nullability on method `setLargeIcon` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender#setLargeIcon(android.graphics.Bitmap) parameter #0:
-    Missing nullability on parameter `largeIcon` in method `setLargeIcon`
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender#setUnreadConversation(androidx.core.app.NotificationCompat.CarExtender.UnreadConversation):
-    Missing nullability on method `setUnreadConversation` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender#setUnreadConversation(androidx.core.app.NotificationCompat.CarExtender.UnreadConversation) parameter #0:
-    Missing nullability on parameter `unreadConversation` in method `setUnreadConversation`
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation#getMessages():
-    Missing nullability on method `getMessages` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation#getParticipant():
-    Missing nullability on method `getParticipant` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation#getParticipants():
-    Missing nullability on method `getParticipants` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation#getReadPendingIntent():
-    Missing nullability on method `getReadPendingIntent` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation#getRemoteInput():
-    Missing nullability on method `getRemoteInput` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation#getReplyPendingIntent():
-    Missing nullability on method `getReplyPendingIntent` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#Builder(String) parameter #0:
-    Missing nullability on parameter `name` in method `Builder`
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#addMessage(String):
-    Missing nullability on method `addMessage` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#addMessage(String) parameter #0:
-    Missing nullability on parameter `message` in method `addMessage`
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#build():
-    Missing nullability on method `build` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#setLatestTimestamp(long):
-    Missing nullability on method `setLatestTimestamp` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#setReadPendingIntent(android.app.PendingIntent):
-    Missing nullability on method `setReadPendingIntent` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#setReadPendingIntent(android.app.PendingIntent) parameter #0:
-    Missing nullability on parameter `pendingIntent` in method `setReadPendingIntent`
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#setReplyAction(android.app.PendingIntent, androidx.core.app.RemoteInput):
-    Missing nullability on method `setReplyAction` return
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#setReplyAction(android.app.PendingIntent, androidx.core.app.RemoteInput) parameter #0:
-    Missing nullability on parameter `pendingIntent` in method `setReplyAction`
-MissingNullability: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#setReplyAction(android.app.PendingIntent, androidx.core.app.RemoteInput) parameter #1:
-    Missing nullability on parameter `remoteInput` in method `setReplyAction`
-MissingNullability: androidx.core.app.NotificationCompat.Extender#extend(androidx.core.app.NotificationCompat.Builder):
-    Missing nullability on method `extend` return
-MissingNullability: androidx.core.app.NotificationCompat.Extender#extend(androidx.core.app.NotificationCompat.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `extend`
-MissingNullability: androidx.core.app.NotificationCompat.InboxStyle#InboxStyle(androidx.core.app.NotificationCompat.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `InboxStyle`
-MissingNullability: androidx.core.app.NotificationCompat.InboxStyle#addLine(CharSequence):
-    Missing nullability on method `addLine` return
-MissingNullability: androidx.core.app.NotificationCompat.InboxStyle#addLine(CharSequence) parameter #0:
-    Missing nullability on parameter `cs` in method `addLine`
-MissingNullability: androidx.core.app.NotificationCompat.InboxStyle#setBigContentTitle(CharSequence):
-    Missing nullability on method `setBigContentTitle` return
-MissingNullability: androidx.core.app.NotificationCompat.InboxStyle#setBigContentTitle(CharSequence) parameter #0:
-    Missing nullability on parameter `title` in method `setBigContentTitle`
-MissingNullability: androidx.core.app.NotificationCompat.InboxStyle#setSummaryText(CharSequence):
-    Missing nullability on method `setSummaryText` return
-MissingNullability: androidx.core.app.NotificationCompat.InboxStyle#setSummaryText(CharSequence) parameter #0:
-    Missing nullability on parameter `cs` in method `setSummaryText`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#addCompatExtras(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `extras` in method `addCompatExtras`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#addMessage(CharSequence, long, CharSequence) parameter #0:
-    Missing nullability on parameter `text` in method `addMessage`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#addMessage(CharSequence, long, CharSequence) parameter #2:
-    Missing nullability on parameter `sender` in method `addMessage`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#addMessage(CharSequence, long, androidx.core.app.Person):
-    Missing nullability on method `addMessage` return
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#addMessage(CharSequence, long, androidx.core.app.Person) parameter #0:
-    Missing nullability on parameter `text` in method `addMessage`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#addMessage(CharSequence, long, androidx.core.app.Person) parameter #2:
-    Missing nullability on parameter `person` in method `addMessage`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#addMessage(androidx.core.app.NotificationCompat.MessagingStyle.Message):
-    Missing nullability on method `addMessage` return
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#addMessage(androidx.core.app.NotificationCompat.MessagingStyle.Message) parameter #0:
-    Missing nullability on parameter `message` in method `addMessage`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#extractMessagingStyleFromNotification(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `extractMessagingStyleFromNotification`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#getMessages():
-    Missing nullability on method `getMessages` return
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#getUser():
-    Missing nullability on method `getUser` return
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#setConversationTitle(CharSequence):
-    Missing nullability on method `setConversationTitle` return
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#setGroupConversation(boolean):
-    Missing nullability on method `setGroupConversation` return
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle.Message#Message(CharSequence, long, CharSequence) parameter #0:
-    Missing nullability on parameter `text` in method `Message`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle.Message#Message(CharSequence, long, CharSequence) parameter #2:
-    Missing nullability on parameter `sender` in method `Message`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle.Message#Message(CharSequence, long, androidx.core.app.Person) parameter #0:
-    Missing nullability on parameter `text` in method `Message`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle.Message#setData(String, android.net.Uri):
-    Missing nullability on method `setData` return
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle.Message#setData(String, android.net.Uri) parameter #0:
-    Missing nullability on parameter `dataMimeType` in method `setData`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle.Message#setData(String, android.net.Uri) parameter #1:
-    Missing nullability on parameter `dataUri` in method `setData`
-MissingNullability: androidx.core.app.NotificationCompat.Style#build():
-    Missing nullability on method `build` return
-MissingNullability: androidx.core.app.NotificationCompat.Style#setBuilder(androidx.core.app.NotificationCompat.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `setBuilder`
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#WearableExtender(android.app.Notification) parameter #0:
-    Missing nullability on parameter `notification` in method `WearableExtender`
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#addAction(androidx.core.app.NotificationCompat.Action):
-    Missing nullability on method `addAction` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#addAction(androidx.core.app.NotificationCompat.Action) parameter #0:
-    Missing nullability on parameter `action` in method `addAction`
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#addActions(java.util.List<androidx.core.app.NotificationCompat.Action>):
-    Missing nullability on method `addActions` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#addActions(java.util.List<androidx.core.app.NotificationCompat.Action>) parameter #0:
-    Missing nullability on parameter `actions` in method `addActions`
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#addPage(android.app.Notification) parameter #0:
-    Missing nullability on parameter `page` in method `addPage`
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#addPages(java.util.List<android.app.Notification>) parameter #0:
-    Missing nullability on parameter `pages` in method `addPages`
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#clearActions():
-    Missing nullability on method `clearActions` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#clone():
-    Missing nullability on method `clone` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#extend(androidx.core.app.NotificationCompat.Builder):
-    Missing nullability on method `extend` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#extend(androidx.core.app.NotificationCompat.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `extend`
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#getActions():
-    Missing nullability on method `getActions` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#getBridgeTag():
-    Missing nullability on method `getBridgeTag` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#getDismissalId():
-    Missing nullability on method `getDismissalId` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#setBackground(android.graphics.Bitmap) parameter #0:
-    Missing nullability on parameter `background` in method `setBackground`
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#setBridgeTag(String):
-    Missing nullability on method `setBridgeTag` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#setBridgeTag(String) parameter #0:
-    Missing nullability on parameter `bridgeTag` in method `setBridgeTag`
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#setContentAction(int):
-    Missing nullability on method `setContentAction` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#setContentIntentAvailableOffline(boolean):
-    Missing nullability on method `setContentIntentAvailableOffline` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#setDismissalId(String):
-    Missing nullability on method `setDismissalId` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#setDismissalId(String) parameter #0:
-    Missing nullability on parameter `dismissalId` in method `setDismissalId`
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#setDisplayIntent(android.app.PendingIntent) parameter #0:
-    Missing nullability on parameter `intent` in method `setDisplayIntent`
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#setHintContentIntentLaunchesActivity(boolean):
-    Missing nullability on method `setHintContentIntentLaunchesActivity` return
-MissingNullability: androidx.core.app.NotificationCompat.WearableExtender#setStartScrollBottom(boolean):
-    Missing nullability on method `setStartScrollBottom` return
 MissingNullability: androidx.core.app.NotificationCompatSideChannelService#cancel(String, int, String) parameter #0:
     Missing nullability on parameter `packageName` in method `cancel`
 MissingNullability: androidx.core.app.NotificationCompatSideChannelService#cancel(String, int, String) parameter #2:
@@ -829,14 +531,6 @@ MissingNullability: androidx.core.database.DatabaseUtilsCompat#concatenateWhere(
     Missing nullability on parameter `a` in method `concatenateWhere`
 MissingNullability: androidx.core.database.DatabaseUtilsCompat#concatenateWhere(String, String) parameter #1:
     Missing nullability on parameter `b` in method `concatenateWhere`
-MissingNullability: androidx.core.graphics.Insets#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
-MissingNullability: androidx.core.graphics.Insets#toString():
-    Missing nullability on method `toString` return
-MissingNullability: androidx.core.graphics.PathSegment#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
-MissingNullability: androidx.core.graphics.PathSegment#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.core.graphics.drawable.DrawableCompat#getColorFilter(android.graphics.drawable.Drawable):
     Missing nullability on method `getColorFilter` return
 MissingNullability: androidx.core.graphics.drawable.DrawableCompat#wrap(android.graphics.drawable.Drawable):
@@ -865,10 +559,6 @@ MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithResourc
     Missing nullability on method `createWithResource` return
 MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithResource(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `createWithResource`
-MissingNullability: androidx.core.graphics.drawable.IconCompat#loadDrawable(android.content.Context):
-    Missing nullability on method `loadDrawable` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#loadDrawable(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `loadDrawable`
 MissingNullability: androidx.core.graphics.drawable.IconCompat#setTint(int):
     Missing nullability on method `setTint` return
 MissingNullability: androidx.core.graphics.drawable.IconCompat#setTintList(android.content.res.ColorStateList):
@@ -879,10 +569,6 @@ MissingNullability: androidx.core.graphics.drawable.IconCompat#setTintMode(andro
     Missing nullability on method `setTintMode` return
 MissingNullability: androidx.core.graphics.drawable.IconCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
     Missing nullability on parameter `mode` in method `setTintMode`
-MissingNullability: androidx.core.graphics.drawable.IconCompat#toBundle():
-    Missing nullability on method `toBundle` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#toIcon():
-    Missing nullability on method `toIcon` return
 MissingNullability: androidx.core.graphics.drawable.RoundedBitmapDrawable#getColorFilter():
     Missing nullability on method `getColorFilter` return
 MissingNullability: androidx.core.graphics.drawable.RoundedBitmapDrawable#onBoundsChange(android.graphics.Rect) parameter #0:
@@ -903,16 +589,10 @@ MissingNullability: androidx.core.net.TrafficStatsCompat#tagSocket(java.net.Sock
     Missing nullability on parameter `socket` in method `tagSocket`
 MissingNullability: androidx.core.net.TrafficStatsCompat#untagSocket(java.net.Socket) parameter #0:
     Missing nullability on parameter `socket` in method `untagSocket`
-MissingNullability: androidx.core.os.EnvironmentCompat#getStorageState(java.io.File):
-    Missing nullability on method `getStorageState` return
-MissingNullability: androidx.core.os.LocaleListCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `other` in method `equals`
 MissingNullability: androidx.core.os.LocaleListCompat#get(int):
     Missing nullability on method `get` return
 MissingNullability: androidx.core.os.LocaleListCompat#indexOf(java.util.Locale) parameter #0:
     Missing nullability on parameter `locale` in method `indexOf`
-MissingNullability: androidx.core.os.LocaleListCompat#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.core.os.LocaleListCompat#wrap(Object) parameter #0:
     Missing nullability on parameter `localeList` in method `wrap`
 MissingNullability: androidx.core.os.ParcelableCompat#newCreator(androidx.core.os.ParcelableCompatCreatorCallbacks<T>) parameter #0:
@@ -921,8 +601,6 @@ MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFrom
     Missing nullability on parameter `in` in method `createFromParcel`
 MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFromParcel(android.os.Parcel, ClassLoader) parameter #1:
     Missing nullability on parameter `loader` in method `createFromParcel`
-MissingNullability: androidx.core.provider.FontRequest#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.core.provider.FontsContractCompat.FontFamilyResult#getFonts():
     Missing nullability on method `getFonts` return
 MissingNullability: androidx.core.provider.FontsContractCompat.FontRequestCallback#onTypefaceRetrieved(android.graphics.Typeface) parameter #0:
@@ -1011,8 +689,6 @@ MissingNullability: androidx.core.text.PrecomputedTextCompat#setSpan(Object, int
     Missing nullability on parameter `what` in method `setSpan`
 MissingNullability: androidx.core.text.PrecomputedTextCompat#subSequence(int, int):
     Missing nullability on method `subSequence` return
-MissingNullability: androidx.core.text.PrecomputedTextCompat.Params#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.core.text.PrecomputedTextCompat.Params.Builder#setBreakStrategy(int):
     Missing nullability on method `setBreakStrategy` return
 MissingNullability: androidx.core.text.PrecomputedTextCompat.Params.Builder#setHyphenationFrequency(int):
@@ -1035,16 +711,6 @@ MissingNullability: androidx.core.text.TextDirectionHeuristicsCompat#LTR:
     Missing nullability on field `LTR` in class `class androidx.core.text.TextDirectionHeuristicsCompat`
 MissingNullability: androidx.core.text.TextDirectionHeuristicsCompat#RTL:
     Missing nullability on field `RTL` in class `class androidx.core.text.TextDirectionHeuristicsCompat`
-MissingNullability: androidx.core.util.Pair#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
-MissingNullability: androidx.core.util.PatternsCompat#DOMAIN_NAME:
-    Missing nullability on field `DOMAIN_NAME` in class `class androidx.core.util.PatternsCompat`
-MissingNullability: androidx.core.util.PatternsCompat#EMAIL_ADDRESS:
-    Missing nullability on field `EMAIL_ADDRESS` in class `class androidx.core.util.PatternsCompat`
-MissingNullability: androidx.core.util.PatternsCompat#IP_ADDRESS:
-    Missing nullability on field `IP_ADDRESS` in class `class androidx.core.util.PatternsCompat`
-MissingNullability: androidx.core.util.PatternsCompat#WEB_URL:
-    Missing nullability on field `WEB_URL` in class `class androidx.core.util.PatternsCompat`
 MissingNullability: androidx.core.view.AccessibilityDelegateCompat#dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `host` in method `dispatchPopulateAccessibilityEvent`
 MissingNullability: androidx.core.view.AccessibilityDelegateCompat#dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
@@ -1099,12 +765,6 @@ MissingNullability: androidx.core.view.DisplayCutoutCompat#DisplayCutoutCompat(a
     Missing nullability on parameter `safeInsets` in method `DisplayCutoutCompat`
 MissingNullability: androidx.core.view.DisplayCutoutCompat#DisplayCutoutCompat(android.graphics.Rect, java.util.List<android.graphics.Rect>) parameter #1:
     Missing nullability on parameter `boundingRects` in method `DisplayCutoutCompat`
-MissingNullability: androidx.core.view.DisplayCutoutCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
-MissingNullability: androidx.core.view.DisplayCutoutCompat#getBoundingRects():
-    Missing nullability on method `getBoundingRects` return
-MissingNullability: androidx.core.view.DisplayCutoutCompat#toString():
-    Missing nullability on method `toString` return
 MissingNullability: androidx.core.view.DragStartHelper#DragStartHelper(android.view.View, androidx.core.view.DragStartHelper.OnDragStartListener) parameter #0:
     Missing nullability on parameter `view` in method `DragStartHelper`
 MissingNullability: androidx.core.view.DragStartHelper#DragStartHelper(android.view.View, androidx.core.view.DragStartHelper.OnDragStartListener) parameter #1:
@@ -1317,10 +977,6 @@ MissingNullability: androidx.core.view.ViewCompat#canScrollHorizontally(android.
     Missing nullability on parameter `view` in method `canScrollHorizontally`
 MissingNullability: androidx.core.view.ViewCompat#canScrollVertically(android.view.View, int) parameter #0:
     Missing nullability on parameter `view` in method `canScrollVertically`
-MissingNullability: androidx.core.view.ViewCompat#dispatchApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat):
-    Missing nullability on method `dispatchApplyWindowInsets` return
-MissingNullability: androidx.core.view.ViewCompat#dispatchApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat) parameter #1:
-    Missing nullability on parameter `insets` in method `dispatchApplyWindowInsets`
 MissingNullability: androidx.core.view.ViewCompat#enableAccessibleClickableSpanSupport(android.view.View) parameter #0:
     Missing nullability on parameter `view` in method `enableAccessibleClickableSpanSupport`
 MissingNullability: androidx.core.view.ViewCompat#getAccessibilityNodeProvider(android.view.View):
@@ -1383,10 +1039,6 @@ MissingNullability: androidx.core.view.ViewCompat#keyboardNavigationClusterSearc
     Missing nullability on method `keyboardNavigationClusterSearch` return
 MissingNullability: androidx.core.view.ViewCompat#keyboardNavigationClusterSearch(android.view.View, android.view.View, int) parameter #1:
     Missing nullability on parameter `currentCluster` in method `keyboardNavigationClusterSearch`
-MissingNullability: androidx.core.view.ViewCompat#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat):
-    Missing nullability on method `onApplyWindowInsets` return
-MissingNullability: androidx.core.view.ViewCompat#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat) parameter #1:
-    Missing nullability on parameter `insets` in method `onApplyWindowInsets`
 MissingNullability: androidx.core.view.ViewCompat#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `v` in method `onInitializeAccessibilityEvent`
 MissingNullability: androidx.core.view.ViewCompat#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
@@ -1431,8 +1083,6 @@ MissingNullability: androidx.core.view.ViewCompat#setLayerType(android.view.View
     Missing nullability on parameter `view` in method `setLayerType`
 MissingNullability: androidx.core.view.ViewCompat#setLayerType(android.view.View, int, android.graphics.Paint) parameter #2:
     Missing nullability on parameter `paint` in method `setLayerType`
-MissingNullability: androidx.core.view.ViewCompat#setOnApplyWindowInsetsListener(android.view.View, androidx.core.view.OnApplyWindowInsetsListener) parameter #1:
-    Missing nullability on parameter `listener` in method `setOnApplyWindowInsetsListener`
 MissingNullability: androidx.core.view.ViewCompat#setOverScrollMode(android.view.View, int) parameter #0:
     Missing nullability on parameter `v` in method `setOverScrollMode`
 MissingNullability: androidx.core.view.ViewCompat#setPivotX(android.view.View, float) parameter #0:
@@ -1659,22 +1309,6 @@ MissingNullability: androidx.core.view.ViewPropertyAnimatorListenerAdapter#onAni
     Missing nullability on parameter `view` in method `onAnimationStart`
 MissingNullability: androidx.core.view.ViewPropertyAnimatorUpdateListener#onAnimationUpdate(android.view.View) parameter #0:
     Missing nullability on parameter `view` in method `onAnimationUpdate`
-MissingNullability: androidx.core.view.WindowInsetsCompat#WindowInsetsCompat(androidx.core.view.WindowInsetsCompat) parameter #0:
-    Missing nullability on parameter `src` in method `WindowInsetsCompat`
-MissingNullability: androidx.core.view.WindowInsetsCompat#consumeDisplayCutout():
-    Missing nullability on method `consumeDisplayCutout` return
-MissingNullability: androidx.core.view.WindowInsetsCompat#consumeStableInsets():
-    Missing nullability on method `consumeStableInsets` return
-MissingNullability: androidx.core.view.WindowInsetsCompat#consumeSystemWindowInsets():
-    Missing nullability on method `consumeSystemWindowInsets` return
-MissingNullability: androidx.core.view.WindowInsetsCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `o` in method `equals`
-MissingNullability: androidx.core.view.WindowInsetsCompat#replaceSystemWindowInsets(android.graphics.Rect):
-    Missing nullability on method `replaceSystemWindowInsets` return
-MissingNullability: androidx.core.view.WindowInsetsCompat#replaceSystemWindowInsets(android.graphics.Rect) parameter #0:
-    Missing nullability on parameter `systemWindowInsets` in method `replaceSystemWindowInsets`
-MissingNullability: androidx.core.view.WindowInsetsCompat#replaceSystemWindowInsets(int, int, int, int):
-    Missing nullability on method `replaceSystemWindowInsets` return
 MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#appendRecord(android.view.accessibility.AccessibilityEvent, androidx.core.view.accessibility.AccessibilityRecordCompat) parameter #0:
     Missing nullability on parameter `event` in method `appendRecord`
 MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#appendRecord(android.view.accessibility.AccessibilityEvent, androidx.core.view.accessibility.AccessibilityRecordCompat) parameter #1:
@@ -1727,8 +1361,6 @@ MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat
     Missing nullability on parameter `child` in method `addChild`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#addChild(android.view.View, int) parameter #0:
     Missing nullability on parameter `root` in method `addChild`
-MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `obj` in method `equals`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#findAccessibilityNodeInfosByText(String):
     Missing nullability on method `findAccessibilityNodeInfosByText` return
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#findAccessibilityNodeInfosByText(String) parameter #0:
@@ -1943,8 +1575,6 @@ MissingNullability: androidx.core.view.accessibility.AccessibilityNodeProviderCo
     Missing nullability on parameter `arguments` in method `performAction`
 MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#AccessibilityRecordCompat(Object) parameter #0:
     Missing nullability on parameter `record` in method `AccessibilityRecordCompat`
-MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `obj` in method `equals`
 MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#getMaxScrollX(android.view.accessibility.AccessibilityRecord) parameter #0:
     Missing nullability on parameter `record` in method `getMaxScrollX`
 MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#getMaxScrollY(android.view.accessibility.AccessibilityRecord) parameter #0:
@@ -1973,8 +1603,6 @@ MissingNullability: androidx.core.view.accessibility.AccessibilityViewCommand.Mo
     Missing nullability on method `getHTMLElement` return
 MissingNullability: androidx.core.view.accessibility.AccessibilityViewCommand.SetTextArguments#getText():
     Missing nullability on method `getText` return
-MissingNullability: androidx.core.view.accessibility.AccessibilityWindowInfoCompat#equals(Object) parameter #0:
-    Missing nullability on parameter `obj` in method `equals`
 MissingNullability: androidx.core.view.accessibility.AccessibilityWindowInfoCompat#getAnchor():
     Missing nullability on method `getAnchor` return
 MissingNullability: androidx.core.view.accessibility.AccessibilityWindowInfoCompat#getBoundsInScreen(android.graphics.Rect) parameter #0:
@@ -2087,18 +1715,66 @@ MissingNullability: androidx.core.widget.ScrollerCompat#create(android.content.C
     Missing nullability on parameter `interpolator` in method `create`
 
 
+MutableBareField: androidx.core.app.NotificationCompat.Action#actionIntent:
+    Bare field actionIntent must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.core.app.NotificationCompat.Action#title:
+    Bare field title must be marked final, or moved behind accessors if mutable
+
+
 NoClone: androidx.core.app.NotificationCompat.Action.WearableExtender#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
 NoClone: androidx.core.app.NotificationCompat.WearableExtender#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
 
 
+OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #0:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter icon in androidx.core.app.NotificationCompat.Action.Builder(androidx.core.graphics.drawable.IconCompat icon, CharSequence title, android.app.PendingIntent intent)
+OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #1:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter title in androidx.core.app.NotificationCompat.Action.Builder(androidx.core.graphics.drawable.IconCompat icon, CharSequence title, android.app.PendingIntent intent)
+OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #2:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter intent in androidx.core.app.NotificationCompat.Action.Builder(androidx.core.graphics.drawable.IconCompat icon, CharSequence title, android.app.PendingIntent intent)
+OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(int, CharSequence, android.app.PendingIntent) parameter #1:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter title in androidx.core.app.NotificationCompat.Action.Builder(int icon, CharSequence title, android.app.PendingIntent intent)
+OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(int, CharSequence, android.app.PendingIntent) parameter #2:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter intent in androidx.core.app.NotificationCompat.Action.Builder(int icon, CharSequence title, android.app.PendingIntent intent)
+
+
 PairedRegistration: androidx.core.view.OneShotPreDrawListener#removeListener():
     Found removeListener but not addListener in androidx.core.view.OneShotPreDrawListener
 
 
-ServiceName: androidx.core.app.NotificationCompat#CATEGORY_SERVICE:
-    Inconsistent service value; expected `CATEGORY`, was `service`
+PublicTypedef: androidx.core.app.NotificationCompat.Action.SemanticAction:
+    Don't expose @IntDef: SemanticAction must be hidden.
+
+
+StaticFinalBuilder: androidx.core.app.NotificationChannelCompat.Builder:
+    Builder must be final: androidx.core.app.NotificationChannelCompat.Builder
+StaticFinalBuilder: androidx.core.app.NotificationChannelGroupCompat.Builder:
+    Builder must be final: androidx.core.app.NotificationChannelGroupCompat.Builder
+StaticFinalBuilder: androidx.core.app.NotificationCompat.Builder:
+    Builder must be final: androidx.core.app.NotificationCompat.Builder
+StaticFinalBuilder: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder:
+    Builder must be final: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder
+StaticFinalBuilder: androidx.core.app.Person.Builder:
+    Builder must be final: androidx.core.app.Person.Builder
+StaticFinalBuilder: androidx.core.app.ShareCompat.IntentBuilder:
+    Builder must be final: androidx.core.app.ShareCompat.IntentBuilder
+StaticFinalBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder:
+    Builder must be final: androidx.core.content.pm.ShortcutInfoCompat.Builder
+StaticFinalBuilder: androidx.core.text.PrecomputedTextCompat.Params.Builder:
+    Builder must be final: androidx.core.text.PrecomputedTextCompat.Params.Builder
+
+
+StreamFiles: androidx.core.content.FileProvider#getUriForFile(android.content.Context, String, java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.core.content.FileProvider.getUriForFile(android.content.Context,String,java.io.File)
+StreamFiles: androidx.core.os.EnvironmentCompat#getStorageState(java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.core.os.EnvironmentCompat.getStorageState(java.io.File)
+StreamFiles: androidx.core.util.AtomicFile#AtomicFile(java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: constructor androidx.core.util.AtomicFile(java.io.File)
+
+
+TopLevelBuilder: androidx.core.app.TaskStackBuilder:
+    Builder should be defined as inner class: androidx.core.app.TaskStackBuilder
 
 
 VisiblySynchronized: androidx.core.os.CancellationSignal#cancel():

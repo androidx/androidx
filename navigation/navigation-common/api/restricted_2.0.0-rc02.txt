@@ -166,16 +166,11 @@ package androidx.navigation {
 
   public abstract class Navigator<D extends androidx.navigation.NavDestination> {
     ctor public Navigator();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void addOnNavigatorBackPressListener(androidx.navigation.Navigator.OnNavigatorBackPressListener);
     method public abstract D createDestination();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void dispatchOnNavigatorBackPress();
     method public abstract androidx.navigation.NavDestination? navigate(D, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void onBackPressAdded();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected void onBackPressRemoved();
     method public void onRestoreState(android.os.Bundle);
     method public android.os.Bundle? onSaveState();
     method public abstract boolean popBackStack();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void removeOnNavigatorBackPressListener(androidx.navigation.Navigator.OnNavigatorBackPressListener);
   }
 
   public static interface Navigator.Extras {
@@ -183,10 +178,6 @@ package androidx.navigation {
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public static @interface Navigator.Name {
     method public abstract String value();
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface Navigator.OnNavigatorBackPressListener {
-    method public void onPopBackStack(androidx.navigation.Navigator);
   }
 
   public class NavigatorProvider {

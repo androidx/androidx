@@ -260,6 +260,55 @@ public class GhostViewTest extends BaseTest {
         assertNotEquals(Color.WHITE, color); // we have a shadow if the pixel is not white
     }
 
+    @Test
+    public void testGhostViewIsNotClippingChildren() throws Throwable {
+        // Sometimes we apply an animation matrix for a view added into GhostView.
+        // This means the view will not be drawn inside their nominal bounds -
+        // [mLeft, mTop, mRight, mBottom]. If GhostViewPort has clipChildren() == true
+        // then because of Canvas.quickReject(mLeft, mTop, mRight, mBottom) returning true
+        // the drawing of such child would be skipped, even if in fact this child is
+        // visible due to the animation matrix transformation.
+        final FrameLayout parent1 = new FrameLayout(mContext);
+        final View view = makeColorView(Color.RED);
+        final FrameLayout parent2 = createParent2();
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                parent1.addView(view);
+                mRoot.addView(parent1);
+                mRoot.addView(parent2);
+            }
+        });
+
+        waitForDraw(view);
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                float offsetLargerThanSize = SIZE * 2;
+                Matrix matrix = new Matrix();
+                matrix.postTranslate(0f, offsetLargerThanSize);
+                GhostViewUtils.addGhost(view, parent2, matrix);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                        && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    // this test uses setAnimationMatrix which applies the matrix for the
+                    // RenderNode starting from 21 and RenderNode is only used with the
+                    // hardware acceleration. and the logic we use in drawBitmap() is drawing
+                    // without the hardware acceleration for the API before 26. so instead of
+                    // setAnimationMatrix we will just use TranslationY for this API versions
+                    view.setTranslationY(-offsetLargerThanSize);
+                } else {
+                    Matrix invertedMatrix = new Matrix();
+                    invertedMatrix.postTranslate(0f, -offsetLargerThanSize);
+                    ViewUtils.setAnimationMatrix(view, invertedMatrix);
+                }
+            }
+        });
+
+        waitForDraw(parent2);
+        assertColor(Color.RED, drawBitmap(parent2));
+    }
+
+
     private View makeColorView(int color) {
         View view = new View(mContext);
         ViewCompat.setBackground(view, new ColorDrawable(color));

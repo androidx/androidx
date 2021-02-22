@@ -33,7 +33,7 @@ import androidx.lifecycle.ViewModelStore;
  * directly from a navigation host via {@link NavHost#getNavController()} or by using one of
  * the utility methods on the {@link Navigation} class.</p>
  */
-public final class NavHostController extends NavController {
+public class NavHostController extends NavController {
 
     /**
      * Construct a new controller for a given {@link Context} suitable for use in a
@@ -60,7 +60,7 @@ public final class NavHostController extends NavController {
      * @see NavHostController#setOnBackPressedDispatcher(OnBackPressedDispatcher)
      */
     @Override
-    public void setLifecycleOwner(@NonNull LifecycleOwner owner) {
+    public final void setLifecycleOwner(@NonNull LifecycleOwner owner) {
         super.setLifecycleOwner(owner);
     }
 
@@ -82,7 +82,7 @@ public final class NavHostController extends NavController {
      * @see #setLifecycleOwner(LifecycleOwner)
      */
     @Override
-    public void setOnBackPressedDispatcher(@NonNull OnBackPressedDispatcher dispatcher) {
+    public final void setOnBackPressedDispatcher(@NonNull OnBackPressedDispatcher dispatcher) {
         super.setOnBackPressedDispatcher(dispatcher);
     }
 
@@ -93,7 +93,7 @@ public final class NavHostController extends NavController {
      * @param enabled True if the NavController should handle system Back button events.
      */
     @Override
-    public void enableOnBackPressed(boolean enabled) {
+    public final void enableOnBackPressed(boolean enabled) {
         super.enableOnBackPressed(enabled);
     }
 
@@ -110,7 +110,7 @@ public final class NavHostController extends NavController {
      * {@link #setGraph(int)} or similar methods.
      */
     @Override
-    public void setViewModelStore(@NonNull ViewModelStore viewModelStore) {
+    public final void setViewModelStore(@NonNull ViewModelStore viewModelStore) {
         super.setViewModelStore(viewModelStore);
     }
 }

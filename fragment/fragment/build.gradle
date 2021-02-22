@@ -14,6 +14,21 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+    buildTypes {
+        debug {
+            testCoverageEnabled = false // disable code coverage for robolectric test
+        }
+    }
+
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
 }
 
 dependencies {
@@ -22,11 +37,17 @@ dependencies {
     api("androidx.collection:collection:1.1.0")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
-    api(project(":activity:activity"))
-    api(project(":lifecycle:lifecycle-livedata-core"))
-    api(project(":lifecycle:lifecycle-viewmodel"))
-    api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    api("androidx.activity:activity:1.2.0")
+    api("androidx.lifecycle:lifecycle-livedata-core:2.3.0")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.3.0")
+    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.0")
+    api("androidx.savedstate:savedstate:1.1.0")
+    api("androidx.annotation:annotation-experimental:1.0.0")
 
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0", {
+        exclude group: "androidx.fragment", module: "fragment"
+        exclude group: "androidx.activity", module: "activity"
+    })
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -36,19 +57,25 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation project(':internal-testutils-runtime'), {
-        exclude group: 'androidx.fragment', module: 'fragment'
-    }
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.fragment", module: "fragment"
+    })
 
-    lintPublish(project(':fragment:fragment-lint'))
+    testImplementation(project(":fragment:fragment"))
+    testImplementation(KOTLIN_STDLIB)
+    testImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RULES)
+    testImplementation(TRUTH)
+    testImplementation(ROBOLECTRIC)
+
+    lintPublish(project(":fragment:fragment-lint"))
 }
 
 androidx {
     name = "Android Support Library fragment"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.FRAGMENT
     mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
-    failOnDeprecationWarnings = false
 }

@@ -17,30 +17,32 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
-import androidx.paging.futures.DirectDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 
 /**
- * InitialPagedList is an empty placeholder that's sent at the front of a stream of PagedLists.
+ * InitialPagedList is an empty placeholder that's sent at the front of a stream of [PagedList].
  *
  * It's used solely for listening to [LoadType.REFRESH] loading events, and retrying
  * any errors that occur during initial load.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class InitialPagedList<K : Any, V : Any>(
-    pagedSource: PagedSource<K, V>,
+    pagingSource: PagingSource<K, V>,
     coroutineScope: CoroutineScope,
+    notifyDispatcher: CoroutineDispatcher,
+    backgroundDispatcher: CoroutineDispatcher,
     config: Config,
     initialLastKey: K?
 ) : ContiguousPagedList<K, V>(
-    pagedSource,
-    coroutineScope,
-    DirectDispatcher,
-    DirectDispatcher,
-    null,
-    config,
-    PagedSource.LoadResult.Page.empty(),
-    initialLastKey
+    pagingSource = pagingSource,
+    coroutineScope = coroutineScope,
+    notifyDispatcher = notifyDispatcher,
+    backgroundDispatcher = backgroundDispatcher,
+    boundaryCallback = null,
+    config = config,
+    initialPage = PagingSource.LoadResult.Page.empty(),
+    initialLastKey = initialLastKey
 )

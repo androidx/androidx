@@ -41,7 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 
 @RunWith(JUnit4.class)
 public class ReflectiveGenericLifecycleObserverTest {
@@ -284,12 +284,12 @@ public class ReflectiveGenericLifecycleObserverTest {
         DerivedClass2 obj = mock(DerivedClass2.class);
         ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
         observer.onStateChanged(mock(LifecycleOwner.class), ON_START);
-        verify(obj).foo(Matchers.<LifecycleOwner>any());
+        verify(obj).foo(ArgumentMatchers.<LifecycleOwner>any());
         verify(obj, never()).foo();
         reset(obj);
         observer.onStateChanged(mock(LifecycleOwner.class), ON_STOP);
         verify(obj).foo();
-        verify(obj, never()).foo(Matchers.<LifecycleOwner>any());
+        verify(obj, never()).foo(ArgumentMatchers.<LifecycleOwner>any());
     }
 
     static class BaseClass3 implements LifecycleObserver {
@@ -341,7 +341,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         DerivedClass4 obj = mock(DerivedClass4.class);
         ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
         observer.onStateChanged(mock(LifecycleOwner.class), ON_START);
-        verify(obj).foo(Matchers.<LifecycleOwner>any());
+        verify(obj).foo(ArgumentMatchers.<LifecycleOwner>any());
         verify(obj).foo();
     }
 

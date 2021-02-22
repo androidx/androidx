@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.processing.XNullability
 import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
@@ -46,7 +47,7 @@ class EntityInsertionAdapterWriter private constructor(
             val primitiveAutoGenerateField = if (entity.primaryKey.autoGenerateId) {
                 entity.primaryKey.fields.firstOrNull()?.let { field ->
                     field.statementBinder?.typeMirror()?.let { binderType ->
-                        if (binderType.kind.isPrimitive) {
+                        if (binderType.nullability == XNullability.NONNULL) {
                             field
                         } else {
                             null
@@ -60,7 +61,8 @@ class EntityInsertionAdapterWriter private constructor(
                 tableName = entity.tableName,
                 pojo = entity.pojo,
                 primitiveAutoGenerateColumn = primitiveAutoGenerateField?.columnName,
-                onConflict = onConflict)
+                onConflict = onConflict
+            )
         }
     }
 
@@ -68,44 +70,54 @@ class EntityInsertionAdapterWriter private constructor(
         @Suppress("RemoveSingleExpressionStringTemplate")
         return TypeSpec.anonymousClassBuilder("$L", dbParam).apply {
             superclass(ParameterizedTypeName.get(RoomTypeNames.INSERTION_ADAPTER, pojo.typeName))
-            addMethod(MethodSpec.methodBuilder("createQuery").apply {
-                addAnnotation(Override::class.java)
-                addModifiers(PUBLIC)
-                returns(ClassName.get("java.lang", "String"))
-                val query = buildString {
-                    append("INSERT OR $onConflict INTO `$tableName`")
-                    append(" (${pojo.columnNames.joinToString(",") { "`$it`" }})")
-                    append(" VALUES (")
-                    append(pojo.fields.joinToString(",") {
-                            if (it.columnName == primitiveAutoGenerateColumn) {
-                                "nullif(?, 0)"
-                            } else {
-                                "?"
+            addMethod(
+                MethodSpec.methodBuilder("createQuery").apply {
+                    addAnnotation(Override::class.java)
+                    addModifiers(PUBLIC)
+                    returns(ClassName.get("java.lang", "String"))
+                    val query = buildString {
+                        append("INSERT OR $onConflict INTO `$tableName`")
+                        append(" (${pojo.columnNames.joinToString(",") { "`$it`" }})")
+                        append(" VALUES (")
+                        append(
+                            pojo.fields.joinToString(",") {
+                                if (it.columnName == primitiveAutoGenerateColumn) {
+                                    "nullif(?, 0)"
+                                } else {
+                                    "?"
+                                }
                             }
-                        })
-                    append(")")
-                }
-                addStatement("return $S", query)
-            }.build())
-            addMethod(MethodSpec.methodBuilder("bind").apply {
-                val bindScope = CodeGenScope(classWriter)
-                addAnnotation(Override::class.java)
-                addModifiers(PUBLIC)
-                returns(TypeName.VOID)
-                val stmtParam = "stmt"
-                addParameter(ParameterSpec.builder(SupportDbTypeNames.SQLITE_STMT,
-                        stmtParam).build())
-                val valueParam = "value"
-                addParameter(ParameterSpec.builder(pojo.typeName, valueParam).build())
-                val mapped = FieldWithIndex.byOrder(pojo.fields)
-                FieldReadWriteWriter.bindToStatement(
+                        )
+                        append(")")
+                    }
+                    addStatement("return $S", query)
+                }.build()
+            )
+            addMethod(
+                MethodSpec.methodBuilder("bind").apply {
+                    val bindScope = CodeGenScope(classWriter)
+                    addAnnotation(Override::class.java)
+                    addModifiers(PUBLIC)
+                    returns(TypeName.VOID)
+                    val stmtParam = "stmt"
+                    addParameter(
+                        ParameterSpec.builder(
+                            SupportDbTypeNames.SQLITE_STMT,
+                            stmtParam
+                        ).build()
+                    )
+                    val valueParam = "value"
+                    addParameter(ParameterSpec.builder(pojo.typeName, valueParam).build())
+                    val mapped = FieldWithIndex.byOrder(pojo.fields)
+                    FieldReadWriteWriter.bindToStatement(
                         ownerVar = valueParam,
                         stmtParamVar = stmtParam,
                         fieldsWithIndices = mapped,
                         scope = bindScope
-                )
-                addCode(bindScope.builder().build())
-            }.build())
+                    )
+                    addCode(bindScope.builder().build())
+                }.build()
+            )
         }.build()
     }
 }

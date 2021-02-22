@@ -30,4 +30,18 @@
         <item name="gridTitleSize">12sp</item>
         <item name="gridSubtitleSize">12sp</item>
     </style>
+
+    <style name="Widget.AppCompat.SeekBar.Inline" parent="Widget.AppCompat.SeekBar">
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingLeft">12dp</item>
+    </style>
+
+    <style name="Widget.AppCompat.ProgressBar.Inline" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:layout_marginTop">5dp</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">#1E88E5</item>
+    </style>
 </resources>

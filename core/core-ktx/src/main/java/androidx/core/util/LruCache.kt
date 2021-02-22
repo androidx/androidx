@@ -35,7 +35,7 @@ import android.util.LruCache
  * @see LruCache.create
  * @see LruCache.entryRemoved
  */
-inline fun <K : Any, V : Any> lruCache(
+public inline fun <K : Any, V : Any> lruCache(
     maxSize: Int,
     crossinline sizeOf: (key: K, value: V) -> Int = { _, _ -> 1 },
     @Suppress("USELESS_CAST") // https://youtrack.jetbrains.com/issue/KT-21946

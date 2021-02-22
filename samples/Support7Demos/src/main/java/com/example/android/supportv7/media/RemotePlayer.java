@@ -44,7 +44,6 @@ import java.util.List;
 public class RemotePlayer extends Player {
     private static final String TAG = "RemotePlayer";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-    private Context mContext;
     private RouteInfo mRoute;
     private boolean mEnqueuePending;
     private Bitmap mSnapshot;
@@ -127,15 +126,13 @@ public class RemotePlayer extends Player {
         if (DEBUG) {
             Log.d(TAG, "play: item=" + item);
         }
-        mClient.play(item.getUri(), "video/mp4", null, 0, null, new ItemActionCallback() {
+        mClient.play(item.getUri(), item.getMime(), null, item.getPosition(), null,
+                new ItemActionCallback() {
             @Override
             public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus,
                     String itemId, MediaItemStatus itemStatus) {
                 logStatus("play: succeeded", sessionId, sessionStatus, itemId, itemStatus);
                 item.setRemoteItemId(itemId);
-                if (item.getPosition() > 0) {
-                    seekInternal(item);
-                }
                 if (item.getState() == MediaItemStatus.PLAYBACK_STATE_PAUSED) {
                     pause();
                 } else {
@@ -362,7 +359,7 @@ public class RemotePlayer extends Player {
         if (DEBUG) {
             Log.d(TAG, "enqueue: item=" + item);
         }
-        mClient.enqueue(item.getUri(), "video/mp4", null, 0, null, new ItemActionCallback() {
+        mClient.enqueue(item.getUri(), item.getMime(), null, 0, null, new ItemActionCallback() {
             @Override
             public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus,
                     String itemId, MediaItemStatus itemStatus) {

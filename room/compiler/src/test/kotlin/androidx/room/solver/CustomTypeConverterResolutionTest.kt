@@ -51,8 +51,10 @@ import javax.tools.JavaFileObject
 @RunWith(JUnit4::class)
 class CustomTypeConverterResolutionTest {
     fun TypeSpec.toJFO(): JavaFileObject {
-        return JavaFileObjects.forSourceString("foo.bar.${this.name}",
-                "package foo.bar;\n" + toString())
+        return JavaFileObjects.forSourceString(
+            "foo.bar.${this.name}",
+            "package foo.bar;\n" + toString()
+        )
     }
 
     companion object {
@@ -61,17 +63,19 @@ class CustomTypeConverterResolutionTest {
         val DAO = ClassName.get("foo.bar", "MyDao")
 
         val CUSTOM_TYPE = ClassName.get("foo.bar", "CustomType")
-        val CUSTOM_TYPE_JFO = JavaFileObjects.forSourceLines(CUSTOM_TYPE.toString(),
-                """
+        val CUSTOM_TYPE_JFO = JavaFileObjects.forSourceLines(
+            CUSTOM_TYPE.toString(),
+            """
                 package ${CUSTOM_TYPE.packageName()};
                 public class ${CUSTOM_TYPE.simpleName()} {
                     public int value;
                 }
-                """)
+                """
+        )
         val CUSTOM_TYPE_CONVERTER = ClassName.get("foo.bar", "MyConverter")
         val CUSTOM_TYPE_CONVERTER_JFO = JavaFileObjects.forSourceLines(
-                CUSTOM_TYPE_CONVERTER.toString(),
-                """
+            CUSTOM_TYPE_CONVERTER.toString(),
+            """
                 package ${CUSTOM_TYPE_CONVERTER.packageName()};
                 public class ${CUSTOM_TYPE_CONVERTER.simpleName()} {
                     @${TypeConverter::class.java.canonicalName}
@@ -83,13 +87,15 @@ class CustomTypeConverterResolutionTest {
                         return 0;
                     }
                 }
-                """)
+                """
+        )
         val CUSTOM_TYPE_SET = ParameterizedTypeName.get(
-                ClassName.get(Set::class.java), CUSTOM_TYPE)
+            ClassName.get(Set::class.java), CUSTOM_TYPE
+        )
         val CUSTOM_TYPE_SET_CONVERTER = ClassName.get("foo.bar", "MySetConverter")
         val CUSTOM_TYPE_SET_CONVERTER_JFO = JavaFileObjects.forSourceLines(
-                CUSTOM_TYPE_SET_CONVERTER.toString(),
-                """
+            CUSTOM_TYPE_SET_CONVERTER.toString(),
+            """
                 package ${CUSTOM_TYPE_SET_CONVERTER.packageName()};
                 import java.util.HashSet;
                 import java.util.Set;
@@ -103,7 +109,8 @@ class CustomTypeConverterResolutionTest {
                         return 0;
                     }
                 }
-                """)
+                """
+        )
     }
 
     @Test
@@ -117,30 +124,36 @@ class CustomTypeConverterResolutionTest {
     @Test
     fun collection_forEntity() {
         val entity = createEntity(
-                hasCustomField = true,
-                useCollection = true)
+            hasCustomField = true,
+            useCollection = true
+        )
         val database = createDatabase(
-                hasConverters = true,
-                hasDao = true,
-                useCollection = true)
+            hasConverters = true,
+            hasDao = true,
+            useCollection = true
+        )
         val dao = createDao(
-                hasQueryWithCustomParam = false,
-                useCollection = true)
+            hasQueryWithCustomParam = false,
+            useCollection = true
+        )
         run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
     @Test
     fun collection_forDao() {
         val entity = createEntity(
-                hasCustomField = true,
-                useCollection = true)
+            hasCustomField = true,
+            useCollection = true
+        )
         val database = createDatabase(
-                hasConverters = true,
-                hasDao = true,
-                useCollection = true)
+            hasConverters = true,
+            hasDao = true,
+            useCollection = true
+        )
         val dao = createDao(
-                hasQueryWithCustomParam = true,
-                useCollection = true)
+            hasQueryWithCustomParam = true,
+            useCollection = true
+        )
         run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
@@ -164,8 +177,10 @@ class CustomTypeConverterResolutionTest {
     fun useFromDao_forQueryParameter() {
         val entity = createEntity()
         val database = createDatabase(hasDao = true)
-        val dao = createDao(hasConverters = true, hasQueryReturningEntity = true,
-                hasQueryWithCustomParam = true)
+        val dao = createDao(
+            hasConverters = true, hasQueryReturningEntity = true,
+            hasQueryWithCustomParam = true
+        )
         run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
@@ -191,7 +206,7 @@ class CustomTypeConverterResolutionTest {
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryWithCustomParam = true)
         run(entity.toJFO(), dao.toJFO(), database.toJFO())
-                .failsToCompile().withErrorContaining(CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
+            .failsToCompile().withErrorContaining(CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
     }
 
     @Test
@@ -200,7 +215,7 @@ class CustomTypeConverterResolutionTest {
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryWithCustomParam = true)
         run(entity.toJFO(), dao.toJFO(), database.toJFO())
-                .failsToCompile().withErrorContaining(CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
+            .failsToCompile().withErrorContaining(CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
     }
 
     @Test
@@ -221,9 +236,11 @@ class CustomTypeConverterResolutionTest {
 
     fun run(vararg jfos: JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(jfos.toList() + CUSTOM_TYPE_JFO + CUSTOM_TYPE_CONVERTER_JFO +
-                        CUSTOM_TYPE_SET_CONVERTER_JFO)
-                .processedWith(RoomProcessor())
+            .that(
+                jfos.toList() + CUSTOM_TYPE_JFO + CUSTOM_TYPE_CONVERTER_JFO +
+                    CUSTOM_TYPE_SET_CONVERTER_JFO
+            )
+            .processedWith(RoomProcessor())
     }
 
     private fun createEntity(
@@ -244,18 +261,22 @@ class CustomTypeConverterResolutionTest {
             addAnnotation(Entity::class.java)
             addModifiers(Modifier.PUBLIC)
             if (hasCustomField) {
-                addField(FieldSpec.builder(type, "myCustomField", Modifier.PUBLIC).apply {
-                    if (hasConverterOnField) {
-                        addAnnotation(createConvertersAnnotation())
-                    }
-                }.build())
+                addField(
+                    FieldSpec.builder(type, "myCustomField", Modifier.PUBLIC).apply {
+                        if (hasConverterOnField) {
+                            addAnnotation(createConvertersAnnotation())
+                        }
+                    }.build()
+                )
             }
             if (hasConverters) {
                 addAnnotation(createConvertersAnnotation())
             }
-            addField(FieldSpec.builder(TypeName.INT, "id", Modifier.PUBLIC).apply {
-                addAnnotation(PrimaryKey::class.java)
-            }.build())
+            addField(
+                FieldSpec.builder(TypeName.INT, "id", Modifier.PUBLIC).apply {
+                    addAnnotation(PrimaryKey::class.java)
+                }.build()
+            )
         }.build()
     }
 
@@ -270,20 +291,24 @@ class CustomTypeConverterResolutionTest {
             if (hasConverters) {
                 addAnnotation(createConvertersAnnotation(useCollection = useCollection))
             }
-            addField(FieldSpec.builder(TypeName.INT, "id", Modifier.PUBLIC).apply {
-                addAnnotation(PrimaryKey::class.java)
-            }.build())
+            addField(
+                FieldSpec.builder(TypeName.INT, "id", Modifier.PUBLIC).apply {
+                    addAnnotation(PrimaryKey::class.java)
+                }.build()
+            )
             if (hasDao) {
-                addMethod(MethodSpec.methodBuilder("getDao").apply {
-                    addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-                    returns(DAO)
-                }.build())
+                addMethod(
+                    MethodSpec.methodBuilder("getDao").apply {
+                        addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                        returns(DAO)
+                    }.build()
+                )
             }
             addAnnotation(
-                    AnnotationSpec.builder(Database::class.java).apply {
-                        addMember("entities", "{$T.class}", ENTITY)
-                        addMember("version", "42")
-                    }.build()
+                AnnotationSpec.builder(Database::class.java).apply {
+                    addMember("entities", "{$T.class}", ENTITY)
+                    addMember("version", "42")
+                }.build()
             )
         }.build()
     }
@@ -297,7 +322,7 @@ class CustomTypeConverterResolutionTest {
         useCollection: Boolean = false
     ): TypeSpec {
         val annotationCount = listOf(hasMethodConverters, hasConverters, hasParameterConverters)
-                .map { if (it) 1 else 0 }.sum()
+            .map { if (it) 1 else 0 }.sum()
         if (annotationCount > 1) {
             throw IllegalArgumentException("cannot set both of these")
         }
@@ -311,13 +336,21 @@ class CustomTypeConverterResolutionTest {
                 addAnnotation(createConvertersAnnotation(useCollection = useCollection))
             }
             if (hasQueryReturningEntity) {
-                addMethod(MethodSpec.methodBuilder("loadAll").apply {
-                    addAnnotation(AnnotationSpec.builder(Query::class.java).apply {
-                        addMember("value", S, "SELECT * FROM ${ENTITY.simpleName()} LIMIT 1")
-                    }.build())
-                    addModifiers(Modifier.ABSTRACT)
-                    returns(ENTITY)
-                }.build())
+                addMethod(
+                    MethodSpec.methodBuilder("loadAll").apply {
+                        addAnnotation(
+                            AnnotationSpec.builder(Query::class.java).apply {
+                                addMember(
+                                    "value",
+                                    S,
+                                    "SELECT * FROM ${ENTITY.simpleName()} LIMIT 1"
+                                )
+                            }.build()
+                        )
+                        addModifiers(Modifier.ABSTRACT)
+                        returns(ENTITY)
+                    }.build()
+                )
             }
             val customType = if (useCollection) {
                 CUSTOM_TYPE_SET
@@ -325,22 +358,33 @@ class CustomTypeConverterResolutionTest {
                 CUSTOM_TYPE
             }
             if (hasQueryWithCustomParam) {
-                addMethod(MethodSpec.methodBuilder("queryWithCustom").apply {
-                    addAnnotation(AnnotationSpec.builder(Query::class.java).apply {
-                        addMember("value", S, "SELECT COUNT(*) FROM ${ENTITY.simpleName()} where" +
-                                " id = :custom")
-                    }.build())
-                    if (hasMethodConverters) {
-                        addAnnotation(createConvertersAnnotation(useCollection = useCollection))
-                    }
-                    addParameter(ParameterSpec.builder(customType, "custom").apply {
-                        if (hasParameterConverters) {
+                addMethod(
+                    MethodSpec.methodBuilder("queryWithCustom").apply {
+                        addAnnotation(
+                            AnnotationSpec.builder(Query::class.java).apply {
+                                addMember(
+                                    "value", S,
+                                    "SELECT COUNT(*) FROM ${ENTITY.simpleName()} where" +
+                                        " id = :custom"
+                                )
+                            }.build()
+                        )
+                        if (hasMethodConverters) {
                             addAnnotation(createConvertersAnnotation(useCollection = useCollection))
                         }
-                    }.build())
-                    addModifiers(Modifier.ABSTRACT)
-                    returns(TypeName.INT)
-                }.build())
+                        addParameter(
+                            ParameterSpec.builder(customType, "custom").apply {
+                                if (hasParameterConverters) {
+                                    addAnnotation(
+                                        createConvertersAnnotation(useCollection = useCollection)
+                                    )
+                                }
+                            }.build()
+                        )
+                        addModifiers(Modifier.ABSTRACT)
+                        returns(TypeName.INT)
+                    }.build()
+                )
             }
         }.build()
     }
@@ -352,6 +396,6 @@ class CustomTypeConverterResolutionTest {
             CUSTOM_TYPE_CONVERTER
         }
         return AnnotationSpec.builder(TypeConverters::class.java)
-                .addMember("value", "$T.class", converter).build()
+            .addMember("value", "$T.class", converter).build()
     }
 }

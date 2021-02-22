@@ -24,5 +24,5 @@ import android.view.View
  * Calling this on a View not within a [NavHost] will result in an
  * [IllegalStateException]
  */
-fun View.findNavController(): NavController =
-        Navigation.findNavController(this)
+public fun View.findNavController(): NavController =
+    Navigation.findNavController(this)

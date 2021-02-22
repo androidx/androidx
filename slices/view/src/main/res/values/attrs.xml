@@ -16,15 +16,27 @@
   -->
 
 <resources>
+    <!-- Color to use for any title text within the slice. -->
+    <attr name="titleColor" format="color" />
+    <!-- Color to use for any other text within the slice. -->
+    <attr name="subtitleColor" format="color" />
+    <!-- Color to use for tinting elements within the slice. Normally an app
+     providing a slice is able to specify a color to use for tinting, specifying
+     a tint color here will override the app supplied color. -->
+    <attr name="tintColor" format="color" />
+
     <declare-styleable name="SliceView">
         <!-- Color to use for any title text within the slice. -->
-        <attr name="titleColor" format="color" />
+        <attr name="titleColor" />
         <!-- Color to use for any other text within the slice. -->
-        <attr name="subtitleColor" format="color" />
+        <attr name="subtitleColor" />
         <!-- Color to use for tinting elements within the slice. Normally an app
          providing a slice is able to specify a color to use for tinting, specifying
          a tint color here will override the app supplied color. -->
-        <attr name="tintColor" format="color" />
+        <attr name="tintColor" />
+
+        <!-- The corner radius to be applied to each corner of large images. -->
+        <attr name="imageCornerRadius" format="dimension" />
 
         <!-- Text size to use for title text in the header of the slice. -->
         <attr name="headerTitleSize" format="dimension" />
@@ -58,6 +70,30 @@
         <!-- To apply a style for all slice rows shown within an activity or app you
              may set this in your app theme pointing to your custom RowView style.-->
         <attr name="rowStyle" format="reference" />
+
+        <!-- Min height of row view; default size if one line of text -->
+        <attr name="rowMinHeight" format="dimension" />
+        <!-- Size of row view with two lines of text -->
+        <attr name="rowMaxHeight" format="dimension" />
+        <!-- Size of range area in a row to fit a slider or progress bar -->
+        <attr name="rowRangeHeight" format="dimension" />
+        <!-- Size of text area row with one line of text and then a range element-->
+        <attr name="rowRangeSingleTextHeight" format="dimension" />
+        <!-- Size of row view when range is inline -->
+        <attr name="rowInlineRangeHeight" format="dimension" />
+
+        <!-- Removes the height restriction of slices in MODE_LARGE. If the slice
+         is smaller than the available height, wrap_content decides whether the slice takes
+         up the entire height or only the required height. If the slice is bigger than
+         the available height, the height mode decides whether the slice fills the height
+         (height mode AT_MOST/EXACTLY), or expands to fit all items (height mode UNSPECIFIED).
+         -->
+        <attr name="expandToAvailableHeight" format="boolean" />
+
+        <!-- Hide the slice's header row unless the slice only has a single row. Note that if
+         the slice doesn't have an explicit header row, the first row is considered the header row.
+         -->
+        <attr name="hideHeaderRow" format="boolean" />
     </declare-styleable>
 
     <!-- To apply a style for all slices shown within an activity or app you
@@ -75,6 +111,16 @@
         <!-- Padding to the end edge of the content in the row. -->
         <attr name="contentEndPadding" format="dimension" />
 
+        <!-- Padding to the start edge of the title in the row. -->
+        <attr name="titleStartPadding" format="dimension" />
+        <!-- Padding to the end edge of the title in the row. -->
+        <attr name="titleEndPadding" format="dimension" />
+
+        <!-- Padding to the start edge of the sub content in the row. -->
+        <attr name="subContentStartPadding" format="dimension" />
+        <!-- Padding to the end edge of the sub content in the row. -->
+        <attr name="subContentEndPadding" format="dimension" />
+
         <!-- Padding to the start edge of the collection of items shown at the end of the row. -->
         <attr name="endItemStartPadding" format="dimension" />
         <!-- Padding to the end edge of the collection of items shown at the end of the row. -->
@@ -87,5 +133,31 @@
 
         <!-- Height to use for action divider in the row. -->
         <attr name="actionDividerHeight" format="dimension"/>
+
+        <!-- Width to use for inline SeekBar in the row. -->
+        <attr name="seekBarInlineWidth" format="dimension"/>
+
+        <!-- Width to use for inline progress bar in the row. -->
+        <attr name="progressBarInlineWidth" format="dimension"/>
+        <!-- Padding to the start edge of the progress bar in the row. -->
+        <attr name="progressBarStartPadding" format="dimension" />
+        <!-- Padding to the end edge of the progress bar in the row. -->
+        <attr name="progressBarEndPadding" format="dimension" />
+        <!-- Padding to the edge of the button in the row. -->
+        <attr name="textActionPadding" format="dimension" />
+
+        <!-- Size of icon. -->
+        <attr name="iconSize" format="dimension" />
+        <!-- Size of small images in a slice. -->
+        <attr name="imageSize" format="dimension" />
+        <!-- Control whether RecyclerView item animator is disable or not, true for disable
+        otherwise enable. -->
+        <attr name="disableRecyclerViewItemAnimator" format="boolean" />
+
+        <!-- These override the corresponding styles from SliceView. -->
+        <attr name="titleColor" />
+        <attr name="subtitleColor" />
+        <attr name="tintColor" />
+
     </declare-styleable>
 </resources>

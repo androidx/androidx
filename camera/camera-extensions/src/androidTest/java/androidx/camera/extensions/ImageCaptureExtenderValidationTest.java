@@ -18,52 +18,53 @@ package androidx.camera.extensions;
 
 import static org.junit.Assume.assumeTrue;
 
-import android.Manifest;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 
-import androidx.camera.camera2.Camera2AppConfig;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
-import androidx.test.rule.GrantPermissionRule;
+import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
 public class ImageCaptureExtenderValidationTest {
     @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2AppConfig.create(context));
+        CameraX.initialize(mContext, Camera2Config.defaultConfig());
 
-        assumeTrue(ExtensionsTestUtil.initExtensions());
+        assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.shutdown().get();
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        ExtensionsManager.deinit().get();
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void getSupportedResolutionsImplementationTest()
             throws CameraInfoUnavailableException, CameraAccessException {
         // getSupportedResolutions supported since version 1.1
@@ -74,7 +75,7 @@ public class ImageCaptureExtenderValidationTest {
                 ExtensionsTestUtil.getAllEffectLensFacingCombinations()) {
             ExtensionsManager.EffectMode effectMode =
                     (ExtensionsManager.EffectMode) EffectLensFacingPair[0];
-            CameraX.LensFacing lensFacing = (CameraX.LensFacing) EffectLensFacingPair[1];
+            @CameraSelector.LensFacing int lensFacing = (int) EffectLensFacingPair[1];
 
             assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing));
             assumeTrue(ExtensionsManager.isExtensionAvailable(effectMode, lensFacing));

@@ -201,13 +201,111 @@ class ViewGroupTest {
         }
     }
 
+    @Test fun childrenEmpty() {
+        viewGroup.children.forEach {
+            fail()
+        }
+    }
+
     @Test fun children() {
         val views = listOf(View(context), View(context), View(context))
         views.forEach { viewGroup.addView(it) }
 
-        viewGroup.children.forEachIndexed { index, child ->
+        val children = viewGroup.children
+
+        var count = 0
+        children.forEachIndexed { index, child ->
+            count++
             assertSame(views[index], child)
         }
+        assertEquals(3, count)
+
+        // Ensure the Sequence can be consumed twice.
+        assertEquals(3, children.count())
+    }
+
+    @Test fun descendantsEmpty() {
+        viewGroup.descendants.forEach {
+            fail()
+        }
+    }
+
+    @Test fun descendants() {
+        val view1 = LinearLayout(context)
+        val view2 = View(context)
+        val view3 = LinearLayout(context)
+        val view4 = View(context)
+        val view5 = View(context)
+
+        //   viewGroup
+        //    /     \
+        // view1    view3
+        //   |      /   \
+        // view2 view4 view5
+        viewGroup.addView(view1)
+        viewGroup.addView(view3)
+        view1.addView(view2)
+        view3.addView(view4)
+        view3.addView(view5)
+
+        val views = listOf(view1, view2, view3, view4, view5)
+        val descendants = viewGroup.descendants
+
+        var count = 0
+        descendants.forEachIndexed { index, descendant ->
+            count++
+            assertSame(views[index], descendant)
+        }
+        assertEquals(5, count)
+
+        // Ensure the Sequence can be consumed twice.
+        assertEquals(5, descendants.count())
+    }
+
+    @Test fun allViewsEmpty() {
+        val allViews = viewGroup.allViews
+
+        var count = 0
+        allViews.forEach { childView ->
+            count++
+            assertSame(viewGroup, childView)
+        }
+        assertEquals(1, count)
+
+        // Ensure the Sequence can be consumed twice.
+        assertEquals(1, allViews.count())
+    }
+
+    @Test fun allViews() {
+        val view1 = LinearLayout(context)
+        val view2 = View(context)
+        val view3 = LinearLayout(context)
+        val view4 = View(context)
+        val view5 = View(context)
+
+        //   viewGroup
+        //    /     \
+        // view1    view3
+        //   |      /   \
+        // view2 view4 view5
+        viewGroup.addView(view1)
+        viewGroup.addView(view3)
+        view1.addView(view2)
+        view3.addView(view4)
+        view3.addView(view5)
+
+        val views = listOf(viewGroup, view1, view2, view3, view4, view5)
+        val allViews = viewGroup.allViews
+
+        var count = 0
+        allViews.forEachIndexed { index, descendant ->
+            count++
+            assertSame(views[index], descendant)
+        }
+        assertEquals(6, count)
+
+        // Ensure the Sequence can be consumed twice.
+        assertEquals(6, allViews.count())
     }
 
     @Test fun setMargins() {

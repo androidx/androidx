@@ -16,17 +16,24 @@
 
 package androidx.paging
 
+import android.view.View
+import android.view.ViewGroup
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 @SmallTest
+@Suppress("DEPRECATION")
 class LivePagedListTest {
     @JvmField
     @Rule
@@ -34,7 +41,6 @@ class LivePagedListTest {
 
     @Test
     fun toLiveData_dataSourceConfig() {
-        @Suppress("DEPRECATION")
         val livePagedList = dataSourceFactory.toLiveData(config)
         livePagedList.observeForever {}
         assertNotNull(livePagedList.value)
@@ -43,7 +49,6 @@ class LivePagedListTest {
 
     @Test
     fun toLiveData_dataSourcePageSize() {
-        @Suppress("DEPRECATION")
         val livePagedList = dataSourceFactory.toLiveData(24)
         livePagedList.observeForever {}
         assertNotNull(livePagedList.value)
@@ -51,23 +56,82 @@ class LivePagedListTest {
     }
 
     @Test
-    fun toLiveData_pagedSourceConfig() {
-        @Suppress("DEPRECATION")
-        val livePagedList = pagedSourceFactory.toLiveData(config)
+    fun toLiveData_pagingSourceConfig() {
+        val livePagedList = pagingSourceFactory.toLiveData(config)
         livePagedList.observeForever {}
         assertNotNull(livePagedList.value)
         assertEquals(config, livePagedList.value!!.config)
     }
 
     @Test
-    fun toLiveData_pagedSourcePageSize() {
-        val livePagedList = pagedSourceFactory.toLiveData(24)
+    fun toLiveData_pagingSourcePageSize() {
+        val livePagedList = pagingSourceFactory.toLiveData(24)
         livePagedList.observeForever {}
         assertNotNull(livePagedList.value)
         assertEquals(24, livePagedList.value!!.config.pageSize)
     }
 
+    /**
+     * Some paging2 tests might be using InstantTaskExecutor and expect first page to be loaded
+     * immediately. This test replicates that by checking observe forever receives the value in
+     * its own call stack.
+     */
+    @Test
+    fun instantExecutionWorksWithLegacy() {
+        val totalSize = 300
+        val data = (0 until totalSize).map { "$it/$it" }
+        val factory = object : DataSource.Factory<Int, String>() {
+            override fun create(): DataSource<Int, String> {
+                return TestPositionalDataSource(data)
+            }
+        }
+
+        class TestAdapter : PagedListAdapter<String, RecyclerView.ViewHolder>(
+            DIFF_STRING
+        ) {
+            // open it up by overriding
+            public override fun getItem(position: Int): String? {
+                return super.getItem(position)
+            }
+
+            override fun onCreateViewHolder(
+                parent: ViewGroup,
+                viewType: Int
+            ): RecyclerView.ViewHolder {
+                return object : RecyclerView.ViewHolder(View(parent.context)) {}
+            }
+
+            override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            }
+        }
+
+        val livePagedList = LivePagedListBuilder(
+            factory,
+            PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPageSize(30)
+                .build()
+        ).build()
+
+        val adapter = TestAdapter()
+        livePagedList.observeForever { pagedList ->
+            // make sure observeForever worked sync where it did load the data immediately
+            assertThat(
+                Throwable().stackTraceToString()
+            ).contains("observeForever")
+            assertThat(pagedList.loadedCount).isEqualTo(90)
+        }
+        adapter.submitList(checkNotNull(livePagedList.value))
+        assertThat(adapter.itemCount).isEqualTo(90)
+
+        (0 until totalSize).forEach {
+            // getting that item will trigger load around which should load the item immediately
+            assertThat(adapter.getItem(it)).isEqualTo("$it/$it")
+        }
+    }
+
     companion object {
+        @Suppress("DEPRECATION")
         private val dataSource = object : PositionalDataSource<String>() {
             override fun loadInitial(
                 params: LoadInitialParams,
@@ -75,20 +139,26 @@ class LivePagedListTest {
             ) {
             }
 
-            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
-            }
+            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {}
         }
 
         private val dataSourceFactory = object : DataSource.Factory<Int, String>() {
-            override fun create(): DataSource<Int, String> {
-                return dataSource
-            }
+            override fun create(): DataSource<Int, String> = dataSource
         }
 
-        private val pagedSource = LegacyPagedSource(dataSource)
-
-        private val pagedSourceFactory = { pagedSource }
+        private val pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(
+            fetchDispatcher = Dispatchers.Main
+        )
 
         private val config = Config(10)
+        private val DIFF_STRING = object : DiffUtil.ItemCallback<String>() {
+            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+                return oldItem == newItem
+            }
+
+            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
 }

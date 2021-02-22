@@ -17,17 +17,17 @@
 package androidx.room.writer
 
 import COMMON
-import androidx.room.RoomProcessor
-import com.google.common.truth.Truth
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
-import loadJavaCode
+import androidx.room.DatabaseProcessingStep
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.testing.asTestInvocationHandler
+import loadTestSource
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import javax.tools.JavaFileObject
+import toSources
 
 @RunWith(Enclosed::class)
 class DatabaseWriterTest {
@@ -37,14 +37,24 @@ class DatabaseWriterTest {
         @Test
         fun testCompileAndVerifySources() {
             singleDb(
-                    loadJavaCode("databasewriter/input/ComplexDatabase.java",
-                            "foo.bar.ComplexDatabase"),
-                    loadJavaCode("daoWriter/input/ComplexDao.java",
-                            "foo.bar.ComplexDao")
-            ).compilesWithoutError().and().generatesSources(
-                    loadJavaCode("databasewriter/output/ComplexDatabase.java",
-                            "foo.bar.ComplexDatabase_Impl")
-            )
+                loadTestSource(
+                    fileName = "databasewriter/input/ComplexDatabase.java",
+                    qName = "foo.bar.ComplexDatabase"
+                ),
+                loadTestSource(
+                    fileName = "daoWriter/input/ComplexDao.java",
+                    qName = "foo.bar.ComplexDao"
+                )
+            ) {
+                it.assertCompilationResult {
+                    generatedSource(
+                        loadTestSource(
+                            fileName = "databasewriter/output/ComplexDatabase.java",
+                            qName = "foo.bar.ComplexDatabase_Impl"
+                        )
+                    )
+                }
+            }
         }
     }
 
@@ -54,22 +64,25 @@ class DatabaseWriterTest {
         @Test
         fun testCompile() {
             val (maxStatementCount, valuesPerEntity) = config
-            val entitySources = mutableListOf<Pair<String, JavaFileObject>>()
+            val entitySources = mutableListOf<Pair<String, Source>>()
             var entityCount = 1
             var statementCount = 0
             while (statementCount < maxStatementCount) {
                 val entityValues = StringBuilder().apply {
                     for (i in 1..valuesPerEntity) {
-                        append("""
+                        append(
+                            """
                     private String value$i;
                     public String getValue$i() { return this.value$i; }
                     public void setValue$i(String value) { this.value$i = value; }
 
-                    """)
+                    """
+                        )
                     }
                 }
-                val entitySource = JavaFileObjects.forSourceLines("foo.bar.Entity$entityCount",
-                        """
+                val entitySource = Source.java(
+                    qName = "foo.bar.Entity$entityCount",
+                    code = """
                     package foo.bar;
 
                     import androidx.room.*;
@@ -85,23 +98,27 @@ class DatabaseWriterTest {
 
                         $entityValues
                     }
-                    """)
+                    """
+                )
                 entitySources.add("Entity$entityCount" to entitySource)
                 statementCount += valuesPerEntity
                 entityCount++
             }
             val entityClasses = entitySources.joinToString { "${it.first}.class" }
-            val dbSource = JavaFileObjects.forSourceLines("foo.bar.TestDatabase",
-                    """
+            val dbSource = Source.java(
+                qName = "foo.bar.TestDatabase",
+                code = """
                     package foo.bar;
 
                     import androidx.room.*;
 
                     @Database(entities = {$entityClasses}, version = 1)
                     public abstract class TestDatabase extends RoomDatabase {}
-                    """)
-            singleDb(*(listOf(dbSource) + entitySources.map { it.second }).toTypedArray())
-                    .compilesWithoutError()
+                    """
+            )
+            singleDb(*(listOf(dbSource) + entitySources.map { it.second }).toTypedArray()) {
+                // no assertion, if compilation succeeded, it is good
+            }
         }
 
         companion object {
@@ -120,10 +137,17 @@ class DatabaseWriterTest {
     }
 }
 
-private fun singleDb(vararg jfo: JavaFileObject): CompileTester {
-    return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(jfo.toList() + COMMON.USER + COMMON.USER_SUMMARY + COMMON.LIVE_DATA +
-                    COMMON.COMPUTABLE_LIVE_DATA + COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 +
-                    COMMON.INFO + COMMON.GUAVA_ROOM + COMMON.LISTENABLE_FUTURE)
-            .processedWith(RoomProcessor())
+private fun singleDb(
+    vararg inputs: Source,
+    handler: (XTestInvocation) -> Unit
+) {
+    val sources = listOf(
+        COMMON.USER, COMMON.USER_SUMMARY, COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA,
+        COMMON.PARENT, COMMON.CHILD1, COMMON.CHILD2, COMMON.INFO, COMMON.GUAVA_ROOM,
+        COMMON.LISTENABLE_FUTURE
+    ).toSources() + inputs
+    runProcessorTest(
+        sources = sources,
+        handler = DatabaseProcessingStep().asTestInvocationHandler(handler)
+    )
 }

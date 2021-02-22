@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.app.test.TestViewModel
 import androidx.fragment.app.test.ViewModelActivity
 import androidx.fragment.app.test.ViewModelActivity.ViewModelFragment
@@ -39,6 +40,60 @@ class ViewModelTest {
     fun testNotAttachedFragment() {
         // This is similar to calling getViewModelStore in Fragment's constructor
         Fragment().viewModelStore
+    }
+
+    @Test
+    fun testMaxLifecycleInitializedFragment() {
+        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            withActivity {
+                val fragment = StrictFragment()
+                supportFragmentManager.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(android.R.id.content, fragment)
+                    .setMaxLifecycle(fragment, Lifecycle.State.INITIALIZED)
+                    .commitNow()
+
+                try {
+                    fragment.viewModelStore
+                } catch (e: IllegalStateException) {
+                    assertThat(e).hasMessageThat().contains(
+                        "Calling getViewModelStore() before a Fragment " +
+                            "reaches onCreate() when using setMaxLifecycle(INITIALIZED) is " +
+                            "not supported"
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testMaxLifecycleInitializedNestedFragment() {
+        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            withActivity {
+                val fragment = StrictFragment()
+                val childFragment = StrictFragment()
+
+                supportFragmentManager.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(android.R.id.content, fragment)
+                    .setMaxLifecycle(fragment, Lifecycle.State.INITIALIZED)
+                    .commitNow()
+
+                fragment.childFragmentManager.beginTransaction()
+                    .add(android.R.id.content, childFragment)
+                    .commitNow()
+
+                try {
+                    childFragment.viewModelStore
+                } catch (e: IllegalStateException) {
+                    assertThat(e).hasMessageThat().contains(
+                        "Calling getViewModelStore() before a Fragment " +
+                            "reaches onCreate() when using setMaxLifecycle(INITIALIZED) is " +
+                            "not supported"
+                    )
+                }
+            }
+        }
     }
 
     @Test
@@ -153,6 +208,35 @@ class ViewModelTest {
                 activity.supportFragmentManager.beginTransaction().remove(fragment).commitNow()
             }
             assertThat(vm.cleared).isTrue()
+        }
+    }
+
+    @Test
+    fun testDefaultFactoryAfterReuse() {
+        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+            val fragment = withActivity {
+                Fragment().also {
+                    supportFragmentManager.beginTransaction().add(it, "temp").commitNow()
+                }
+            }
+
+            val defaultFactory = fragment.defaultViewModelProviderFactory
+
+            onActivity { activity ->
+                activity.supportFragmentManager.beginTransaction().remove(fragment).commitNow()
+            }
+
+            // Now re-add the removed fragment
+            onActivity { activity ->
+                activity.supportFragmentManager.beginTransaction()
+                    .add(fragment, "temp")
+                    .commitNow()
+            }
+
+            val newDefaultFactory = fragment.defaultViewModelProviderFactory
+
+            // New Fragment should have a new default factory
+            assertThat(newDefaultFactory).isNotSameInstanceAs(defaultFactory)
         }
     }
 }

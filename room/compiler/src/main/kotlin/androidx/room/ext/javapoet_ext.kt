@@ -24,30 +24,31 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import java.util.concurrent.Callable
 import javax.lang.model.element.Modifier
-import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
 
 val L = "\$L"
 val T = "\$T"
 val N = "\$N"
 val S = "\$S"
+val W = "\$W"
 
-fun KClass<*>.typeName() = ClassName.get(this.java)
-fun KClass<*>.arrayTypeName() = ArrayTypeName.of(typeName())
-fun TypeMirror.typeName() = TypeName.get(this)
+val KClass<*>.typeName: ClassName
+    get() = ClassName.get(this.java)
+val KClass<*>.arrayTypeName: ArrayTypeName
+    get() = ArrayTypeName.of(typeName)
 
 object SupportDbTypeNames {
     val DB: ClassName = ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteDatabase")
     val SQLITE_STMT: ClassName =
-            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteStatement")
+        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteStatement")
     val SQLITE_OPEN_HELPER: ClassName =
-            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper")
+        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper")
     val SQLITE_OPEN_HELPER_CALLBACK: ClassName =
-            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Callback")
+        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Callback")
     val SQLITE_OPEN_HELPER_CONFIG: ClassName =
-            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Configuration")
+        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Configuration")
     val QUERY: ClassName =
-            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteQuery")
+        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteQuery")
 }
 
 object RoomTypeNames {
@@ -56,56 +57,61 @@ object RoomTypeNames {
     val ROOM_DB_KT: ClassName = ClassName.get(ROOM_PACKAGE, "RoomDatabaseKt")
     val ROOM_DB_CONFIG: ClassName = ClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
     val INSERTION_ADAPTER: ClassName =
-            ClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
+        ClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
     val DELETE_OR_UPDATE_ADAPTER: ClassName =
-            ClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
+        ClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
     val SHARED_SQLITE_STMT: ClassName =
-            ClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
+        ClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
     val INVALIDATION_TRACKER: ClassName =
-            ClassName.get(ROOM_PACKAGE, "InvalidationTracker")
+        ClassName.get(ROOM_PACKAGE, "InvalidationTracker")
     val INVALIDATION_OBSERVER: ClassName =
-            ClassName.get("$ROOM_PACKAGE.InvalidationTracker", "Observer")
+        ClassName.get("$ROOM_PACKAGE.InvalidationTracker", "Observer")
     val ROOM_SQL_QUERY: ClassName =
-            ClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
+        ClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
     val OPEN_HELPER: ClassName =
-            ClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
+        ClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
     val OPEN_HELPER_DELEGATE: ClassName =
-            ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.Delegate")
+        ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.Delegate")
     val OPEN_HELPER_VALIDATION_RESULT: ClassName =
-            ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.ValidationResult")
+        ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.ValidationResult")
     val TABLE_INFO: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "TableInfo")
+        ClassName.get("$ROOM_PACKAGE.util", "TableInfo")
     val TABLE_INFO_COLUMN: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "TableInfo.Column")
+        ClassName.get("$ROOM_PACKAGE.util", "TableInfo.Column")
     val TABLE_INFO_FOREIGN_KEY: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "TableInfo.ForeignKey")
+        ClassName.get("$ROOM_PACKAGE.util", "TableInfo.ForeignKey")
     val TABLE_INFO_INDEX: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "TableInfo.Index")
+        ClassName.get("$ROOM_PACKAGE.util", "TableInfo.Index")
     val FTS_TABLE_INFO: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "FtsTableInfo")
+        ClassName.get("$ROOM_PACKAGE.util", "FtsTableInfo")
     val VIEW_INFO: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "ViewInfo")
+        ClassName.get("$ROOM_PACKAGE.util", "ViewInfo")
     val LIMIT_OFFSET_DATA_SOURCE: ClassName =
-            ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetDataSource")
+        ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetDataSource")
     val DB_UTIL: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "DBUtil")
+        ClassName.get("$ROOM_PACKAGE.util", "DBUtil")
     val CURSOR_UTIL: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
+        ClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
+    val MIGRATION: ClassName = ClassName.get("$ROOM_PACKAGE.migration", "Migration")
 }
 
 object PagingTypeNames {
     val DATA_SOURCE: ClassName =
-            ClassName.get(PAGING_PACKAGE, "DataSource")
+        ClassName.get(PAGING_PACKAGE, "DataSource")
     val POSITIONAL_DATA_SOURCE: ClassName =
-            ClassName.get(PAGING_PACKAGE, "PositionalDataSource")
+        ClassName.get(PAGING_PACKAGE, "PositionalDataSource")
     val DATA_SOURCE_FACTORY: ClassName =
-            ClassName.get(PAGING_PACKAGE, "DataSource.Factory")
+        ClassName.get(PAGING_PACKAGE, "DataSource", "Factory")
+    val PAGING_SOURCE: ClassName =
+        ClassName.get(PAGING_PACKAGE, "PagingSource")
 }
 
 object LifecyclesTypeNames {
     val LIVE_DATA: ClassName = ClassName.get(LIFECYCLE_PACKAGE, "LiveData")
-    val COMPUTABLE_LIVE_DATA: ClassName = ClassName.get(LIFECYCLE_PACKAGE,
-            "ComputableLiveData")
+    val COMPUTABLE_LIVE_DATA: ClassName = ClassName.get(
+        LIFECYCLE_PACKAGE,
+        "ComputableLiveData"
+    )
 }
 
 object AndroidTypeNames {
@@ -121,10 +127,14 @@ object CollectionTypeNames {
 
 object CommonTypeNames {
     val LIST = ClassName.get("java.util", "List")
+    val MAP = ClassName.get("java.util", "Map")
     val SET = ClassName.get("java.util", "Set")
     val STRING = ClassName.get("java.lang", "String")
     val INTEGER = ClassName.get("java.lang", "Integer")
     val OPTIONAL = ClassName.get("java.util", "Optional")
+    val ILLEGAL_ARG_EXCEPTION = ClassName.get(
+        "java.lang", "IllegalArgumentException"
+    )
 }
 
 object GuavaBaseTypeNames {
@@ -143,6 +153,14 @@ object RxJava2TypeNames {
     val COMPLETABLE = ClassName.get("io.reactivex", "Completable")
 }
 
+object RxJava3TypeNames {
+    val FLOWABLE = ClassName.get("io.reactivex.rxjava3.core", "Flowable")
+    val OBSERVABLE = ClassName.get("io.reactivex.rxjava3.core", "Observable")
+    val MAYBE = ClassName.get("io.reactivex.rxjava3.core", "Maybe")
+    val SINGLE = ClassName.get("io.reactivex.rxjava3.core", "Single")
+    val COMPLETABLE = ClassName.get("io.reactivex.rxjava3.core", "Completable")
+}
+
 object ReactiveStreamsTypeNames {
     val PUBLISHER = ClassName.get("org.reactivestreams", "Publisher")
 }
@@ -156,6 +174,14 @@ object RoomRxJava2TypeNames {
     val RX_ROOM_CREATE_FLOWABLE = "createFlowable"
     val RX_ROOM_CREATE_OBSERVABLE = "createObservable"
     val RX_EMPTY_RESULT_SET_EXCEPTION = ClassName.get(ROOM_PACKAGE, "EmptyResultSetException")
+}
+
+object RoomRxJava3TypeNames {
+    val RX_ROOM = ClassName.get("$ROOM_PACKAGE.rxjava3", "RxRoom")
+    val RX_ROOM_CREATE_FLOWABLE = "createFlowable"
+    val RX_ROOM_CREATE_OBSERVABLE = "createObservable"
+    val RX_EMPTY_RESULT_SET_EXCEPTION =
+        ClassName.get("$ROOM_PACKAGE.rxjava3", "EmptyResultSetException")
 }
 
 object RoomCoroutinesTypeNames {
@@ -186,14 +212,16 @@ fun CallableTypeSpecBuilder(
     parameterTypeName: TypeName,
     callBody: MethodSpec.Builder.() -> Unit
 ) = TypeSpec.anonymousClassBuilder("").apply {
-    superclass(ParameterizedTypeName.get(Callable::class.typeName(), parameterTypeName))
-    addMethod(MethodSpec.methodBuilder("call").apply {
-        returns(parameterTypeName)
-        addException(Exception::class.typeName())
-        addModifiers(Modifier.PUBLIC)
-        addAnnotation(Override::class.java)
-        callBody()
-    }.build())
+    superclass(ParameterizedTypeName.get(Callable::class.typeName, parameterTypeName))
+    addMethod(
+        MethodSpec.methodBuilder("call").apply {
+            returns(parameterTypeName)
+            addException(Exception::class.typeName)
+            addModifiers(Modifier.PUBLIC)
+            addAnnotation(Override::class.java)
+            callBody()
+        }.build()
+    )
 }
 
 fun Function1TypeSpecBuilder(
@@ -204,16 +232,18 @@ fun Function1TypeSpecBuilder(
 ) = TypeSpec.anonymousClassBuilder("").apply {
     superclass(
         ParameterizedTypeName.get(
-            Function1::class.typeName(),
+            Function1::class.typeName,
             parameterTypeName,
             returnTypeName
         )
     )
-    addMethod(MethodSpec.methodBuilder("invoke").apply {
-        addParameter(parameterTypeName, parameterName)
-        returns(returnTypeName)
-        addModifiers(Modifier.PUBLIC)
-        addAnnotation(Override::class.java)
-        callBody()
-    }.build())
+    addMethod(
+        MethodSpec.methodBuilder("invoke").apply {
+            addParameter(parameterTypeName, parameterName)
+            returns(returnTypeName)
+            addModifiers(Modifier.PUBLIC)
+            addAnnotation(Override::class.java)
+            callBody()
+        }.build()
+    )
 }

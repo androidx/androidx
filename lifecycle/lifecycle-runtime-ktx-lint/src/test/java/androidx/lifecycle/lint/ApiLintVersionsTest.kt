@@ -16,6 +16,7 @@
 
 package androidx.lifecycle.lint
 
+import com.android.tools.lint.client.api.LintClient
 import com.android.tools.lint.detector.api.CURRENT_API
 import org.junit.Assert
 import org.junit.Test
@@ -27,6 +28,8 @@ class ApiLintVersionsTest {
 
     @Test
     fun versionsCheck() {
+        LintClient.clientName = LintClient.CLIENT_UNIT_TESTS
+
         val registry = LifecycleRuntimeIssueRegistry()
         // we hardcode version registry.api to the version that is used to run tests
         Assert.assertEquals(CURRENT_API, registry.api)

@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
@@ -43,9 +43,11 @@ import androidx.annotation.Nullable;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.testutils.AnimationDurationScaleRule;
 import androidx.transition.test.R;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 
@@ -54,6 +56,10 @@ public class FadeTest extends BaseTest {
 
     private View mView;
     private ViewGroup mRoot;
+
+    @Rule
+    public final AnimationDurationScaleRule mAnimationDurationScaleRule =
+            AnimationDurationScaleRule.createForAllTests(1f);
 
     @UiThreadTest
     @Before

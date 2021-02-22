@@ -19,7 +19,7 @@ package androidx.room.integration.kotlintestapp.vo
 import androidx.room.TypeConverter
 import java.util.Date
 
-class DateConverter {
+object DateConverter {
     @TypeConverter
     fun toDate(timestamp: Long?): Date? {
         return if (timestamp == null) null else Date(timestamp)

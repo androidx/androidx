@@ -1,4 +1,22 @@
 // Baseline format: 1.0
+ArrayReturn: androidx.emoji.widget.EmojiButton#setFilters(android.text.InputFilter[]) parameter #0:
+    Method parameter should be Collection<InputFilter> (or subclass) instead of raw array; was `android.text.InputFilter[]`
+ArrayReturn: androidx.emoji.widget.EmojiTextView#setFilters(android.text.InputFilter[]) parameter #0:
+    Method parameter should be Collection<InputFilter> (or subclass) instead of raw array; was `android.text.InputFilter[]`
+ArrayReturn: androidx.emoji.widget.EmojiTextViewHelper#getFilters(android.text.InputFilter[]):
+    Method should return Collection<InputFilter> (or subclass) instead of raw array; was `android.text.InputFilter[]`
+ArrayReturn: androidx.emoji.widget.EmojiTextViewHelper#getFilters(android.text.InputFilter[]) parameter #0:
+    Method parameter should be Collection<InputFilter> (or subclass) instead of raw array; was `android.text.InputFilter[]`
+
+
+ExecutorRegistration: androidx.emoji.text.EmojiCompat#registerInitCallback(androidx.emoji.text.EmojiCompat.InitCallback):
+    Registration methods should have overload that accepts delivery Executor: `registerInitCallback`
+ExecutorRegistration: androidx.emoji.text.EmojiCompat.Config#registerInitCallback(androidx.emoji.text.EmojiCompat.InitCallback):
+    Registration methods should have overload that accepts delivery Executor: `registerInitCallback`
+ExecutorRegistration: androidx.emoji.text.EmojiCompat.MetadataRepoLoader#load(androidx.emoji.text.EmojiCompat.MetadataRepoLoaderCallback):
+    Registration methods should have overload that accepts delivery Executor: `load`
+
+
 MissingNullability: androidx.emoji.text.EmojiCompat#get():
     Missing nullability on method `get` return
 MissingNullability: androidx.emoji.text.EmojiCompat#handleOnKeyDown(android.text.Editable, int, android.view.KeyEvent) parameter #2:

@@ -24,6 +24,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="sliceViewStyle">@style/CustomSliceView</item>
+        <item name="rowStyle">@style/CustomRowStyle</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -38,5 +39,11 @@
         <item name="gridBottomPadding">4dp</item>
         <item name="android:paddingEnd">16dp</item>
         <item name="android:paddingStart">16dp</item>
+    </style>
+
+    <style name="CustomRowStyle">
+        <item name="progressBarInlineWidth">229dp</item>
+        <item name="progressBarStartPadding">12dp</item>
+        <item name="progressBarEndPadding">16dp</item>
     </style>
 </resources>

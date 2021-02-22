@@ -34,6 +34,7 @@ import android.view.animation.Interpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.R;
@@ -243,6 +244,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      * Using framework animators has the side effect of clashing with ItemAnimator, creating
      * jumpy UIs.
      */
+    @VisibleForTesting
     List<RecoverAnimation> mRecoverAnimations = new ArrayList<>();
 
     private int mSlop;
@@ -498,6 +500,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         final int recoverAnimSize = mRecoverAnimations.size();
         for (int i = recoverAnimSize - 1; i >= 0; i--) {
             final RecoverAnimation recoverAnimation = mRecoverAnimations.get(0);
+            recoverAnimation.cancel();
             mCallback.clearView(mRecyclerView, recoverAnimation.mViewHolder);
         }
         mRecoverAnimations.clear();
@@ -702,7 +705,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             public void run() {
                 if (mRecyclerView != null && mRecyclerView.isAttachedToWindow()
                         && !anim.mOverridden
-                        && anim.mViewHolder.getAdapterPosition() != RecyclerView.NO_POSITION) {
+                        && anim.mViewHolder.getAbsoluteAdapterPosition()
+                        != RecyclerView.NO_POSITION) {
                     final RecyclerView.ItemAnimator animator = mRecyclerView.getItemAnimator();
                     // if animator is running or we have other active recover animations, we try
                     // not to call onSwiped because DefaultItemAnimator is not good at merging
@@ -876,8 +880,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             mDistances.clear();
             return;
         }
-        final int toPosition = target.getAdapterPosition();
-        final int fromPosition = viewHolder.getAdapterPosition();
+        final int toPosition = target.getAbsoluteAdapterPosition();
+        final int fromPosition = viewHolder.getAbsoluteAdapterPosition();
         if (mCallback.onMove(mRecyclerView, viewHolder, target)) {
             // keep target visible
             mCallback.onMoved(mRecyclerView, viewHolder, fromPosition,
@@ -1632,8 +1636,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * <p>
          * If this method returns true, ItemTouchHelper assumes {@code viewHolder} has been moved
          * to the adapter position of {@code target} ViewHolder
-         * ({@link ViewHolder#getAdapterPosition()
-         * ViewHolder#getAdapterPosition()}).
+         * ({@link ViewHolder#getAbsoluteAdapterPosition()
+         * ViewHolder#getAdapterPositionInRecyclerView()}).
          * <p>
          * If you don't support drag & drop, this method will never be called.
          *
@@ -2365,7 +2369,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         }
     }
 
-    private static class RecoverAnimation implements Animator.AnimatorListener {
+    @VisibleForTesting
+    static class RecoverAnimation implements Animator.AnimatorListener {
 
         final float mStartDx;
 
@@ -2379,7 +2384,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
         final int mActionState;
 
-        private final ValueAnimator mValueAnimator;
+        @VisibleForTesting
+        final ValueAnimator mValueAnimator;
 
         final int mAnimationType;
 

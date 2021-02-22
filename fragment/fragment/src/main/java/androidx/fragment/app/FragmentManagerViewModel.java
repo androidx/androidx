@@ -64,6 +64,10 @@ final class FragmentManagerViewModel extends ViewModel {
     // Only used when mStateAutomaticallySaved is false
     private boolean mHasSavedSnapshot = false;
 
+    // Flag set by the FragmentManager to indicate when we should allow
+    // changes to the set of retained fragments
+    private boolean mIsStateSaved = false;
+
     /**
      * FragmentManagerViewModel simultaneously supports two modes:
      * <ol>
@@ -73,7 +77,7 @@ final class FragmentManagerViewModel extends ViewModel {
      *     is being permanently destroyed.</li>
      *     <li>Not automatically saved: in this model, the FragmentManager is responsible for
      *     calling {@link #getSnapshot()} and later restoring the ViewModel with
-     *     {@link #restoreFromSnapshot(FragmentManagerNonConfig)}.</li>
+     *     <code>restoreFromSnapshot</code>.</li>
      * </ol>
      * These states are mutually exclusive.
      *
@@ -81,6 +85,15 @@ final class FragmentManagerViewModel extends ViewModel {
      */
     FragmentManagerViewModel(boolean stateAutomaticallySaved) {
         mStateAutomaticallySaved = stateAutomaticallySaved;
+    }
+
+    /**
+     * Set whether the FragmentManager has saved its state
+     *
+     * @param isStateSaved Whether the FragmentManager has saved its state
+     */
+    void setIsStateSaved(boolean isStateSaved) {
+        mIsStateSaved = isStateSaved;
     }
 
     @Override
@@ -95,12 +108,20 @@ final class FragmentManagerViewModel extends ViewModel {
         return mHasBeenCleared;
     }
 
-    boolean addRetainedFragment(@NonNull Fragment fragment) {
+    void addRetainedFragment(@NonNull Fragment fragment) {
+        if (mIsStateSaved) {
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(TAG, "Ignoring addRetainedFragment as the state is already saved");
+            }
+            return;
+        }
         if (mRetainedFragments.containsKey(fragment.mWho)) {
-            return false;
+            return;
         }
         mRetainedFragments.put(fragment.mWho, fragment);
-        return true;
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(TAG, "Updating retained Fragments: Added " + fragment);
+        }
     }
 
     @Nullable
@@ -110,7 +131,7 @@ final class FragmentManagerViewModel extends ViewModel {
 
     @NonNull
     Collection<Fragment> getRetainedFragments() {
-        return mRetainedFragments.values();
+        return new ArrayList<>(mRetainedFragments.values());
     }
 
     boolean shouldDestroy(@NonNull Fragment fragment) {
@@ -129,8 +150,17 @@ final class FragmentManagerViewModel extends ViewModel {
         }
     }
 
-    boolean removeRetainedFragment(@NonNull Fragment fragment) {
-        return mRetainedFragments.remove(fragment.mWho) != null;
+    void removeRetainedFragment(@NonNull Fragment fragment) {
+        if (mIsStateSaved) {
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(TAG, "Ignoring removeRetainedFragment as the state is already saved");
+            }
+            return;
+        }
+        boolean removed = mRetainedFragments.remove(fragment.mWho) != null;
+        if (removed && FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(TAG, "Updating retained Fragments: Removed " + fragment);
+        }
     }
 
     @NonNull
@@ -176,6 +206,7 @@ final class FragmentManagerViewModel extends ViewModel {
      * code, alongside
      * {@link FragmentController#restoreAllState(android.os.Parcelable, FragmentManagerNonConfig)}.
      */
+    @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
     @Deprecated
     void restoreFromSnapshot(@Nullable FragmentManagerNonConfig nonConfig) {
         mRetainedFragments.clear();

@@ -112,6 +112,7 @@ public class Lifecycling {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Nullable
     private static Constructor<? extends GeneratedAdapter> generatedConstructor(Class<?> klass) {
         try {

@@ -17,10 +17,16 @@
 package androidx.navigation
 
 import android.content.Context
-import androidx.navigation.testing.TestNavigator
-import androidx.navigation.testing.test
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
+import androidx.testutils.TestNavigator
+import androidx.testutils.test
+import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.withIndex
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -36,8 +42,35 @@ class NavControllerTest {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
             test(DESTINATION_ID)
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ID in graph
+        )
+    }
+
+    @Test
+    @Suppress("EXPERIMENTAL_API_USAGE")
+    fun currentBackStackEntryFlow() = runBlocking {
+        navController.graph = navController.createGraph(startDestination = 1) {
+            test(1)
+            test(2)
+            test(3)
+        }
+
+        navController.currentBackStackEntryFlow
+            .take(navController.graph.count())
+            .withIndex()
+            .onEach { (index, backStackEntry) ->
+                val expectedDestination = index + 1
+                assertWithMessage("Flow emitted unexpected back stack entry (wrong destination)")
+                    .that(backStackEntry.destination.id)
+                    .isEqualTo(expectedDestination)
+
+                if (expectedDestination < navController.graph.count()) {
+                    navController.navigate(expectedDestination + 1)
+                }
+            }
+            .collect()
     }
 }
 

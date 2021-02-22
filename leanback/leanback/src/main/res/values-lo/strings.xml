@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Copyright (C) 2014 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="lb_navigation_menu_contentDescription" msgid="8084428500709675515">"ເມນູນຳທາງ"</string>
+    <string name="orb_search_action" msgid="1301877238242752863">"ຊອກຫາຄຳສັ່ງ"</string>
+    <string name="lb_search_bar_hint" msgid="5700349211583074131">"ຊອກຫາ"</string>
+    <string name="lb_search_bar_hint_speech" msgid="5926531297066387462">"ເວົ້າເພື່ອຊອກຫາ"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="4826526877249029043">"ຊອກຫາ <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="6032250334706920550">"ເວົ້າເພື່ອຊອກຫາ <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_control_display_fast_forward_multiplier" msgid="4657191930956702614">"%1$dX"</string>
+    <string name="lb_control_display_rewind_multiplier" msgid="4597148235912710942">"%1$dX"</string>
+    <string name="lb_playback_controls_play" msgid="7088090604803481121">"ຫຼິ້ນ"</string>
+    <string name="lb_playback_controls_pause" msgid="917331776961802657">"ຢຸດຊົ່ວຄາວ"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="740570111678243493">"ເລື່ອນໄປໜ້າ"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="5734614175721471329">"ເລື່ອນໄປໜ້າ %1$dX"</string>
+    <string name="lb_playback_controls_rewind" msgid="2866333981131020771">"ເລື່ອນກັບຫຼັງ"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="6038956370475252734">"ເລື່ອນກັບຫຼັງ %1$dX"</string>
+    <string name="lb_playback_controls_skip_next" msgid="8117512422682146745">"ຂ້າມໄປອັນໜ້າ"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="3481218248309447059">"ຂ້າມໄປອັນກ່ອນ"</string>
+    <string name="lb_playback_controls_more_actions" msgid="8730341244454469032">"ຄຳສັ່ງເພີ່ມເຕີມ"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="3458671378107738666">"ຢຸດເລືອກຍົກໂປ້ແລ້ວ"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1385865732502550659">"ເລືອກຍົກໂປ້ແລ້ວ"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"ຢຸດຊີ້ໂປ້ລົງແລ້ວ"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="8475278766138652105">"ເລືອກຊີ້ໂປ້ລົງແລ້ວ"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="1614290959784265209">"ບໍ່ຫຼິ້ນຊ້ຳ"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"ຫຼິ້ນຊ້ຳທັງໝົດ"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="676658705837320560">"ຫຼິ້ນຊ້ຳເທື່ອດຽວ"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="5151681938752704485">"ເປີດນຳໃຊ້ການສະຫຼັບ"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="6793109999253893369">"ປິດນຳໃຊ້ການສະຫຼັບ"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="3057698527166674705">"ເປີດຄຸນນະພາບສູງ"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="1209119371486219736">"ປິດຄຸນນະພາບສູງ"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2346334170216706076">"ເປີດນຳໃຊ້ຄຳບັນຍາຍແບບປິດ"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="8691966842977635128">"ປິດນຳໃຊ້ຄຳບັນຍາຍແບບປິດ"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"ປ້ອນຮູບພາບໃນໂໝດຮູບພາບ"</string>
+    <string name="lb_playback_time_separator" msgid="1471121602610716654">"/"</string>
+    <string name="lb_playback_controls_shown" msgid="8690223891515602822">"ສະແດງຕົວຄວບຄຸມມີເດຍແລ້ວ"</string>
+    <string name="lb_playback_controls_hidden" msgid="5859666950961624736">"ເຊື່ອງຕົວຄວບຄຸມມີເດຍແລ້ວ, ກົດປຸ່ມທິດທາງເພື່ອສະແດງ"</string>
+    <string name="lb_guidedaction_finish_title" msgid="3330958750346333890">"ແລ້ວໆ"</string>
+    <string name="lb_guidedaction_continue_title" msgid="893619591225519922">"ສືບຕໍ່"</string>
+    <string name="lb_media_player_error" msgid="3228326776757666747">"ລະຫັດ MediaPlayer ຜິດພາດ %1$d ເພີ່ມເຕີມ %2$d"</string>
+    <string name="lb_onboarding_get_started" msgid="5549711907371161292">"ເລີ່ມເລີຍ"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="2394451791544864917">"ຕໍ່ໄປ"</string>
+</resources>

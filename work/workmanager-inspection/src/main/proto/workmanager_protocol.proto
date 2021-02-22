@@ -1,0 +1,166 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package androidx.work.inspection;
+
+option java_package = "androidx.work.inspection";
+option java_outer_classname = "WorkManagerInspectorProtocol";
+
+// --- Commands ---
+
+// Generic Command object grouping all Inspector Command types. Expected in
+// Inspector's onReceiveCommand.
+message Command {
+  // Wrapped specialised Command.
+  oneof OneOf {
+    TrackWorkManagerCommand track_work_manager = 1;
+    CancelWorkCommand cancel_work = 2;
+  }
+}
+
+// Request for the Inspector to listen to the WorkManager
+// for work related updates.
+message TrackWorkManagerCommand {}
+
+// Request for the Inspector to cancel a work request.
+message CancelWorkCommand {
+    string id = 1;
+}
+
+// --- Responses ---
+
+// Generic Response object grouping all Inspector Response types to Command
+// objects.
+message Response {
+    oneof OneOf {
+        TrackWorkManagerResponse track_work_manager = 1;
+        CancelWorkResponse cancel_response = 2;
+        ErrorResponse error = 400;
+    }
+}
+
+// Object expected as a response to TrackWorkManagerCommand.
+message TrackWorkManagerResponse {}
+
+// Object expected as a response to CancelWorkCommand.
+message CancelWorkResponse{}
+
+// General Error message.
+message ErrorResponse {
+  string content = 1;
+}
+
+// --- Events ---
+
+// Generic Event object grouping all Inspector Event types. Expected in
+// Connection's sendEvent method.
+message Event {
+  // Wrapped specialised Event.
+  oneof OneOf {
+    WorkAddedEvent work_added = 1;
+    WorkRemovedEvent work_removed = 2;
+    WorkUpdatedEvent work_updated = 3;
+  }
+}
+
+// Notification of a work established (new) / discovered
+// (existing).
+message WorkAddedEvent {
+    WorkInfo work = 1;
+}
+
+// Notification of a work removed
+message WorkRemovedEvent {
+    string id = 1;
+}
+
+// Notification of a work updated
+message WorkUpdatedEvent {
+    string id = 1;
+    oneof OneOf {
+        WorkInfo.State state = 2;
+        int32 run_attempt_count = 3;
+        Data data = 4;
+        int64 schedule_requested_at = 5;
+    }
+}
+
+// Information about a particular Work
+message WorkInfo {
+    enum State {
+        UNSPECIFIED = 0;
+        ENQUEUED = 1;
+        RUNNING = 2;
+        SUCCEEDED = 3;
+        FAILED = 4;
+        BLOCKED = 5;
+        CANCELLED = 6;
+    }
+    string id = 1;
+    State state = 2;
+    string worker_class_name = 3;
+    Data data = 4;
+    repeated string tags = 5;
+    int32 run_attempt_count = 6;
+    bool is_periodic = 7;
+    Constraints constraints = 8;
+    CallStack call_stack = 9;
+    int64 schedule_requested_at = 10;
+    repeated string prerequisites = 11;
+    repeated string dependents = 12;
+    repeated string names = 13;
+}
+
+// A list of key/value pairs which are used as inputs and outputs for Workers
+message Data {
+    repeated DataEntry entries = 1;
+}
+
+// Key/value pairs for Data
+message DataEntry {
+    string key = 1;
+    string value = 2;
+}
+
+// A specification of the requirements that need to be met before a WorkRequest can run.
+message Constraints {
+    enum NetworkType {
+        UNSPECIFIED = 0;
+        NOT_REQUIRED = 1;
+        CONNECTED = 2;
+        UNMETERED = 3;
+        NOT_ROAMING = 4;
+        METERED = 5;
+    }
+    NetworkType required_network_type = 1;
+    bool requires_charging = 2;
+    bool requires_device_idle = 3;
+    bool requires_battery_not_low = 4;
+    bool requires_storage_not_low = 5;
+}
+
+// Stack trace information.
+message CallStack {
+  message Frame {
+    string class_name = 1;
+    string method_name = 2;
+    string file_name = 3;
+    int32 line_number = 4;
+  }
+  repeated Frame frames = 1;
+}

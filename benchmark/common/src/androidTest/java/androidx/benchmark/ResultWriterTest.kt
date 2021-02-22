@@ -17,36 +17,42 @@
 package androidx.benchmark
 
 import android.os.Build
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import kotlin.test.assertTrue
 
 @SmallTest
-@RunWith(JUnit4::class)
-class ResultWriterTest {
-
+@RunWith(AndroidJUnit4::class)
+public class ResultWriterTest {
     @get:Rule
     val tempFolder = TemporaryFolder()
 
-    private val reportA = BenchmarkState.Report(
+    private val metricResults = listOf(
+        MetricResult(
+            name = "timeNs",
+            data = longArrayOf(100L, 101L, 102L)
+        )
+    )
+
+    private val reportA = BenchmarkResult(
         testName = "MethodA",
         className = "package.Class1",
         totalRunTimeNs = 900000000,
-        data = listOf(100, 101, 102),
+        metrics = metricResults,
         repeatIterations = 100000,
         thermalThrottleSleepSeconds = 90000000,
         warmupIterations = 8000
     )
-    private val reportB = BenchmarkState.Report(
+    private val reportB = BenchmarkResult(
         testName = "MethodB",
         className = "package.Class2",
         totalRunTimeNs = 900000000,
-        data = listOf(100, 101, 102),
+        metrics = metricResults,
         repeatIterations = 100000,
         thermalThrottleSleepSeconds = 90000000,
         warmupIterations = 8000
@@ -140,11 +146,11 @@ class ResultWriterTest {
 
     @Test
     fun validateJsonWithParams() {
-        val reportWithParams = BenchmarkState.Report(
+        val reportWithParams = BenchmarkResult(
             testName = "MethodWithParams[number=2,primeNumber=true]",
             className = "package.Class",
             totalRunTimeNs = 900000000,
-            data = listOf(100, 101, 102),
+            metrics = metricResults,
             repeatIterations = 100000,
             thermalThrottleSleepSeconds = 90000000,
             warmupIterations = 8000
@@ -169,11 +175,11 @@ class ResultWriterTest {
 
     @Test
     fun validateJsonWithInvalidParams() {
-        val reportWithInvalidParams = BenchmarkState.Report(
+        val reportWithInvalidParams = BenchmarkResult(
             testName = "MethodWithParams[number=2,=true,]",
             className = "package.Class",
             totalRunTimeNs = 900000000,
-            data = listOf(100, 101, 102),
+            metrics = metricResults,
             repeatIterations = 100000,
             thermalThrottleSleepSeconds = 90000000,
             warmupIterations = 8000

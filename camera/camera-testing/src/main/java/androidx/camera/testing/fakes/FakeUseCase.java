@@ -19,23 +19,23 @@ package androidx.camera.testing.fakes;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.SessionConfig;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.UseCaseConfig;
-
-import java.util.Map;
+import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 
 /**
  * A fake {@link UseCase}.
  */
 public class FakeUseCase extends UseCase {
-    private volatile boolean mIsCleared = false;
+    private volatile boolean mIsDetached = false;
 
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration.
      */
-    public FakeUseCase(FakeUseCaseConfig config) {
+    public FakeUseCase(@NonNull FakeUseCaseConfig config) {
         super(config);
     }
 
@@ -43,37 +43,52 @@ public class FakeUseCase extends UseCase {
      * Creates a new instance of a {@link FakeUseCase} with a default configuration.
      */
     public FakeUseCase() {
-        this(new FakeUseCaseConfig.Builder().build());
-    }
-
-    @Override
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        return new FakeUseCaseConfig.Builder()
-                .setLensFacing(lensFacing)
-                .setSessionOptionUnpacker(new SessionConfig.OptionUnpacker() {
-                    @Override
-                    public void unpack(@NonNull UseCaseConfig<?> useCaseConfig,
-                            @NonNull SessionConfig.Builder sessionConfigBuilder) {
-                    }
-                });
-    }
-
-    @Override
-    public void clear() {
-        super.clear();
-        mIsCleared = true;
-    }
-
-    @Override
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-            Map<String, Size> suggestedResolutionMap) {
-        return suggestedResolutionMap;
+        this(new FakeUseCaseConfig.Builder().getUseCaseConfig());
     }
 
     /**
-     * Returns true if {@link #clear()} has been called previously.
+     * {@inheritDoc}
+     *
+     * @hide
      */
-    public boolean isCleared() {
-        return mIsCleared;
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
+        return new FakeUseCaseConfig.Builder(config)
+                .setSessionOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> { });
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
+            @NonNull UseCaseConfigFactory factory) {
+        Config config = factory.getConfig(UseCaseConfigFactory.CaptureType.PREVIEW);
+        return config == null ? null : getUseCaseConfigBuilder(config).getUseCaseConfig();
+    }
+
+    @Override
+    public void onDetached() {
+        super.onDetached();
+        mIsDetached = true;
+    }
+
+    @Override
+    @NonNull
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+        return suggestedResolution;
+    }
+
+    /**
+     * Returns true if {@link #onDetached()} has been called previously.
+     */
+    public boolean isDetached() {
+        return mIsDetached;
     }
 }

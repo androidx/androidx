@@ -16,9 +16,15 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
    <item
-       android:id="@+id/option_menu_add_column"
-       android:title="Add column" />
+       android:id="@+id/option_menu_more_cheese"
+       android:title="Show all the cheeses!"
+       android:checkable="true"/>
    <item
-       android:id="@+id/option_menu_remove_column"
-       android:title="Remove column" />
+       android:id="@+id/option_menu_grid_layout"
+       android:title="Grid layout please!"
+       android:checkable="true"/>
+   <item
+       android:id="@+id/option_menu_swipe_during_select"
+       android:title="Swipe when stuff is selected!"
+       android:checkable="true"/>
 </menu>

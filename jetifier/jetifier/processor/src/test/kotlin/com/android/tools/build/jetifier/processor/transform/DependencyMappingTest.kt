@@ -33,7 +33,8 @@ class DependencyMappingTest {
                 PomRewriteRule(
                     from = PomDependency(groupId = "hello", artifactId = "world"),
                     to = PomDependency(groupId = "hi", artifactId = "all", version = "2.0.0")
-                ))
+                )
+            )
         )
     }
 

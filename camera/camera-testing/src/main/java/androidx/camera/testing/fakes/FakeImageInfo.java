@@ -16,30 +16,56 @@
 
 package androidx.camera.testing.fakes;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.camera.core.ImageInfo;
+import androidx.camera.core.impl.MutableTagBundle;
+import androidx.camera.core.impl.TagBundle;
+import androidx.camera.core.impl.utils.ExifData;
 
 /**
  * A fake implementation of {@link ImageInfo} where the values are settable.
  */
 public final class FakeImageInfo implements ImageInfo {
-    private Object mTag;
+    private MutableTagBundle mTagBundle = MutableTagBundle.create();
     private long mTimestamp;
+    private int mRotationDegrees;
 
-    public void setTag(Object tag) {
-        mTag = tag;
+    /** set tag to a TagBundle */
+    public void setTag(@NonNull String key, @NonNull Integer tag) {
+        mTagBundle.putTag(key, tag);
     }
+
+    /** set tag to a TagBundle */
+    public void setTag(@NonNull TagBundle tagBundle) {
+        mTagBundle.addTagBundle(tagBundle);
+    }
+
+
     public void setTimestamp(long timestamp) {
         mTimestamp = timestamp;
     }
-
-    @Override
-    @Nullable
-    public Object getTag() {
-        return mTag;
+    public void setRotationDegrees(int rotationDegrees) {
+        mRotationDegrees = rotationDegrees;
     }
+
+    @NonNull
+    @Override
+    public TagBundle getTagBundle() {
+        return mTagBundle;
+    }
+
     @Override
     public long getTimestamp() {
         return mTimestamp;
+    }
+
+    @Override
+    public int getRotationDegrees() {
+        return mRotationDegrees;
+    }
+
+    @Override
+    public void populateExifData(@NonNull ExifData.Builder exifBuilder) {
+        exifBuilder.setOrientationDegrees(mRotationDegrees);
     }
 }

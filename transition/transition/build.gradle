@@ -14,10 +14,8 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0")
     implementation("androidx.collection:collection:1.1.0")
-    compileOnly(project(":fragment:fragment"))
+    compileOnly("androidx.fragment:fragment:1.2.5")
     compileOnly("androidx.appcompat:appcompat:1.0.1")
-    // necessary for IJ to resolve dependencies.
-    implementation(project(":lifecycle:lifecycle-runtime"))
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -28,11 +26,11 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation project(":fragment:fragment")
+    androidTestImplementation(project(":fragment:fragment"))
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
-    androidTestImplementation project(':internal-testutils-runtime'), {
-        exclude group: 'androidx.fragment', module: 'fragment'
-    }
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.fragment", module: "fragment"
+    })
 }
 
 android {
@@ -41,7 +39,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_7
     }
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 
     aaptOptions {
@@ -52,10 +50,7 @@ android {
 androidx {
     name = "Android Transition Support Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.TRANSITION
     mavenGroup = LibraryGroups.TRANSITION
     inceptionYear = "2016"
     description = "Android Transition Support Library"
-    failOnDeprecationWarnings = false
-    trackRestrictedAPIs = false
 }

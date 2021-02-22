@@ -26,10 +26,12 @@ import androidx.core.view.NestedScrollingChild3
 import androidx.core.view.NestedScrollingParent3
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
+import androidx.testutils.ActivityScenarioResetRule
+import androidx.testutils.ResettableActivityScenarioRule
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.closeTo
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,7 +58,9 @@ class RecyclerViewNestedScrollingFlingTest(
 
     @Rule
     @JvmField
-    var mActivityRule = ActivityTestRule(TestActivity::class.java)
+    val mActivityResetRule: ActivityScenarioResetRule<TestActivity> = TestActivity.ResetRule(
+        mActivityRule.scenario
+    )
 
     @Before
     @Throws(Throwable::class)
@@ -77,9 +81,11 @@ class RecyclerViewNestedScrollingFlingTest(
             addView(mRecyclerView)
         }
 
-        val testedFrameLayout = mActivityRule.activity.container
+        val testedFrameLayout = mActivityRule.getActivity().container
         testedFrameLayout.expectLayouts(1)
-        mActivityRule.runOnUiThread { testedFrameLayout.addView(mNestedScrollingParent) }
+        mActivityRule.runOnUiThread {
+            testedFrameLayout.addView(mNestedScrollingParent)
+        }
         testedFrameLayout.waitForLayout(2)
     }
 
@@ -168,8 +174,10 @@ class RecyclerViewNestedScrollingFlingTest(
         )
     }
 
-    inner class NestedScrollingParent(context: Context) : FrameLayout(context),
-        NestedScrollingChild3, NestedScrollingParent3 {
+    inner class NestedScrollingParent(context: Context) :
+        FrameLayout(context),
+        NestedScrollingChild3,
+        NestedScrollingParent3 {
 
         var preScrollX: Int = 0
         var postScrollX: Int = 0
@@ -412,13 +420,17 @@ class RecyclerViewNestedScrollingFlingTest(
 
     companion object {
 
+        @ClassRule
+        @JvmField
+        val mActivityRule = ResettableActivityScenarioRule<TestActivity>()
+
         @JvmStatic
         @Parameterized.Parameters(
             name = "orientationVertical:{0}, " +
-                    "scrollDirectionForward:{1}, " +
-                    "rvIntercepts:{2}, " +
-                    "preScrollConsumption:{3}, " +
-                    "postScrollConsumption:{4}"
+                "scrollDirectionForward:{1}, " +
+                "rvIntercepts:{2}, " +
+                "preScrollConsumption:{3}, " +
+                "postScrollConsumption:{4}"
         )
         fun data(): Collection<Array<Any>> {
             val configurations = ArrayList<Array<Any>>()
@@ -434,55 +446,64 @@ class RecyclerViewNestedScrollingFlingTest(
                                     rvIntercepts,
                                     0,
                                     0
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     25,
                                     0
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     50,
                                     0
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     100,
                                     0
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     0,
                                     25
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     0,
                                     50
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     0,
                                     100
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     12,
                                     13
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     25,
                                     25
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,

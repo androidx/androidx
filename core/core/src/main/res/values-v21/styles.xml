@@ -31,7 +31,7 @@
 
     <style name="Widget.Compat.NotificationActionText" parent="">
         <item name="android:textAppearance">?android:attr/textAppearanceButton</item>
-        <item name="android:textColor">@color/secondary_text_default_material_light</item>
+        <item name="android:textColor">@color/androidx_core_secondary_text_default_material_light</item>
         <item name="android:textSize">@dimen/notification_action_text_size</item>
     </style>
 

@@ -1,3 +1,5 @@
+import java.util.Locale
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -17,7 +19,7 @@
 private fun String.toCamelCase(): String {
     val split = this.split("_")
     if (split.isEmpty()) return ""
-    if (split.size == 1) return split[0].capitalize()
+    if (split.size == 1) return split[0].capitalize(Locale.US)
     return split.joinToCamelCase()
 }
 
@@ -43,6 +45,20 @@ private fun List<String>.joinToCamelCaseAsVar(): String = when (size) {
 private val javaCharRegex = "[^a-zA-Z0-9]".toRegex()
 fun String.stripNonJava(): String {
     return this.split(javaCharRegex)
-            .map(String::trim)
-            .joinToCamelCaseAsVar()
+        .map(String::trim)
+        .joinToCamelCaseAsVar()
+}
+
+// TODO: Replace this with the function from the Kotlin stdlib once the API becomes stable
+fun String.capitalize(locale: Locale): String = if (isNotEmpty() && this[0].isLowerCase()) {
+    substring(0, 1).toUpperCase(locale) + substring(1)
+} else {
+    this
+}
+
+// TODO: Replace this with the function from the Kotlin stdlib once the API becomes stable
+fun String.decapitalize(locale: Locale): String = if (isNotEmpty() && this[0].isUpperCase()) {
+    substring(0, 1).toLowerCase(locale) + substring(1)
+} else {
+    this
 }

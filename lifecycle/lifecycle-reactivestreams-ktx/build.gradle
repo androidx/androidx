@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
@@ -33,6 +36,8 @@ dependencies {
   testImplementation(JUNIT)
   testImplementation(RX_JAVA)
   testImplementation(TRUTH)
+  testImplementation(KOTLIN_COROUTINES_TEST)
+  testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
   testImplementation("androidx.arch.core:core-testing:2.1.0")
 }
 
@@ -43,5 +48,11 @@ androidx {
   mavenGroup = LibraryGroups.LIFECYCLE
   inceptionYear = "2018"
   description = "Kotlin extensions for Lifecycle ReactiveStreams"
-  url = AndroidXExtension.ARCHITECTURE_URL
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+  kotlinOptions {
+    freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+  }
 }

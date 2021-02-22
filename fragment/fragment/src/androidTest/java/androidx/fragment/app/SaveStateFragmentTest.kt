@@ -17,6 +17,7 @@
 package androidx.fragment.app
 
 import android.os.Bundle
+import android.widget.EditText
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
@@ -24,7 +25,6 @@ import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
@@ -35,8 +35,9 @@ import org.junit.runner.RunWith
 @MediumTest
 class SaveStateFragmentTest {
 
+    @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
+    var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
 
     @Test
     @UiThreadTest
@@ -102,6 +103,45 @@ class SaveStateFragmentTest {
             .that(fragment.savedState).isEqualTo("Saved")
         assertWithMessage("setUserVisibleHint should override setInitialSavedState")
             .that(fragment.userVisibleHint).isEqualTo(false)
+    }
+
+    @Test
+    @UiThreadTest
+    fun testFragmentViewStateSaved() {
+        val viewModelStore = ViewModelStore()
+        val fc1 = activityRule.startupFragmentController(viewModelStore)
+        val fm1 = fc1.supportFragmentManager
+
+        val fragment = SaveViewStateFragment()
+
+        fm1.beginTransaction()
+            .add(android.R.id.content, fragment)
+            .commitNow()
+
+        val editText = fragment.requireView().findViewById<EditText>(R.id.editText)
+
+        editText.setText("saved")
+
+        fc1.dispatchPause()
+        val savedState = fc1.saveAllState()
+        fc1.dispatchStop()
+        fc1.dispatchDestroy()
+
+        val fc2 = activityRule.startupFragmentController(viewModelStore, savedState)
+        val fm2 = fc2.supportFragmentManager
+
+        val restoredFragment = fm2.findFragmentById(android.R.id.content) as SaveViewStateFragment
+        assertWithMessage("Fragment was not restored")
+            .that(restoredFragment).isNotNull()
+
+        val restoredEditText = restoredFragment.requireView().findViewById<EditText>(R.id.editText)
+
+        assertWithMessage("Fragment view was not properly restored")
+            .that(restoredEditText.text.toString())
+            .isEqualTo("saved")
+
+        // Bring the state back down to destroyed before we finish the test
+        fc2.shutdown(viewModelStore)
     }
 
     @Test
@@ -328,6 +368,9 @@ class SaveStateFragmentTest {
         assertWithMessage("Retained Fragment added after saved state should be destroyed")
             .that(retainedOnStartFragment.calledOnDestroy)
             .isTrue()
+        assertWithMessage("Retained Fragment should be removed from non config")
+            .that(fm2.fragmentStore.nonConfig.retainedFragments)
+            .containsExactly(retainedFragment)
 
         fc2.dispatchActivityCreated()
         fc2.noteStateNotSaved()
@@ -340,6 +383,7 @@ class SaveStateFragmentTest {
         fc2.shutdown(viewModelStore)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun testSavedInstanceStateAfterRestore() {
@@ -379,8 +423,10 @@ class SaveStateFragmentTest {
             .childFragmentManager.findFragmentByTag("child") as StrictFragment
         assertWithMessage("Child fragment was not restored").that(restoredChildFragment).isNotNull()
 
-        assertWithMessage("Parent fragment saved instance state should still be null since it is " +
-                "a retained Fragment").that(restoredParentFragment.lastSavedInstanceState).isNull()
+        assertWithMessage(
+            "Parent fragment saved instance state should still be null since it is " +
+                "a retained Fragment"
+        ).that(restoredParentFragment.lastSavedInstanceState).isNull()
         assertWithMessage("Child fragment saved instance state should be non-null")
             .that(restoredChildFragment.lastSavedInstanceState).isNotNull()
 
@@ -685,6 +731,7 @@ class SaveStateFragmentTest {
         val retain: Boolean = false
     ) : StrictFragment() {
 
+        @Suppress("DEPRECATION")
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             if (savedInstanceState != null) {
@@ -704,4 +751,6 @@ class SaveStateFragmentTest {
             private const val STATE_KEY = "state"
         }
     }
+
+    class SaveViewStateFragment : StrictViewFragment(R.layout.with_edit_text)
 }

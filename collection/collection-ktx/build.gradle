@@ -25,17 +25,16 @@ plugins {
 }
 
 dependencies {
-    compile(project(":collection:collection"))
-    compile(KOTLIN_STDLIB)
-    testCompile(JUNIT)
-    testCompile(TRUTH)
-    testCompile(project(":internal-testutils-truth"))
+    api(project(":collection:collection"))
+    api(KOTLIN_STDLIB)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
+    testImplementation(project(":internal-testutils-truth"))
 }
 
 androidx {
     name = "Collections Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.COLLECTION
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Kotlin extensions for 'collection' artifact"

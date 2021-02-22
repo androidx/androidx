@@ -16,29 +16,28 @@
 
 package androidx.paging
 
-import androidx.test.filters.SmallTest
+import androidx.paging.ListUpdateCallbackFake.OnChangedEvent
+import androidx.paging.ListUpdateCallbackFake.OnInsertedEvent
+import androidx.paging.ListUpdateCallbackFake.OnMovedEvent
+import androidx.paging.ListUpdateCallbackFake.OnRemovedEvent
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListUpdateCallback
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.verifyZeroInteractions
 
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class NullPaddedListDiffHelperTest {
     class Storage(
-        override val leadingNullCount: Int,
+        override val placeholdersBefore: Int,
         private val data: List<String>,
-        override val trailingNullCount: Int
+        override val placeholdersAfter: Int
     ) : NullPaddedList<String> {
         override fun getFromStorage(localIndex: Int): String = data[localIndex]
         override val size: Int
-            get() = leadingNullCount + data.size + trailingNullCount
+            get() = placeholdersBefore + data.size + placeholdersAfter
         override val storageCount: Int
             get() = data.size
     }
@@ -46,63 +45,69 @@ class NullPaddedListDiffHelperTest {
     @Test
     fun sameListNoUpdates() {
         validateTwoListDiff(
-                Storage(5, listOf("a", "b", "c"), 5),
-                Storage(5, listOf("a", "b", "c"), 5)) {
-            verifyZeroInteractions(it)
+            Storage(5, listOf("a", "b", "c"), 5),
+            Storage(5, listOf("a", "b", "c"), 5)
+        ) {
+            assertEquals(0, it.interactions)
         }
     }
 
     @Test
     fun appendFill() {
         validateTwoListDiff(
-                Storage(5, listOf("a", "b"), 5),
-                Storage(5, listOf("a", "b", "c"), 4)) {
-            verify(it).onRemoved(11, 1)
-            verify(it).onInserted(7, 1)
+            Storage(5, listOf("a", "b"), 5),
+            Storage(5, listOf("a", "b", "c"), 4)
+        ) {
+            assertEquals(OnRemovedEvent(11, 1), it.onRemovedEvents[0])
+            assertEquals(OnInsertedEvent(7, 1), it.onInsertedEvents[0])
             // NOTE: ideally would be onChanged(7, 1, null)
-            verifyNoMoreInteractions(it)
+            assertEquals(2, it.interactions)
         }
     }
 
     @Test
     fun prependFill() {
         validateTwoListDiff(
-                Storage(5, listOf("b", "c"), 5),
-                Storage(4, listOf("a", "b", "c"), 5)) {
-            verify(it).onRemoved(0, 1)
-            verify(it).onInserted(4, 1)
+            Storage(5, listOf("b", "c"), 5),
+            Storage(4, listOf("a", "b", "c"), 5)
+        ) {
+            assertEquals(OnRemovedEvent(0, 1), it.onRemovedEvents[0])
+            assertEquals(OnInsertedEvent(4, 1), it.onInsertedEvents[0])
             // NOTE: ideally would be onChanged(4, 1, null);
-            verifyNoMoreInteractions(it)
+            assertEquals(2, it.interactions)
         }
     }
 
     @Test
     fun change() {
         validateTwoListDiff(
-                Storage(5, listOf("a1", "b1", "c1"), 5),
-                Storage(5, listOf("a2", "b1", "c2"), 5)) {
-            verify(it).onChanged(5, 1, null)
-            verify(it).onChanged(7, 1, null)
-            verifyNoMoreInteractions(it)
+            Storage(5, listOf("a1", "b1", "c1"), 5),
+            Storage(5, listOf("a2", "b1", "c2"), 5)
+        ) {
+            assertEquals(OnChangedEvent(5, 1, null), it.onChangedEvents[0])
+            assertEquals(OnChangedEvent(7, 1, null), it.onChangedEvents[1])
+            assertEquals(2, it.interactions)
         }
     }
 
     @Test
     fun move() {
         validateTwoListDiff(
-                Storage(5, listOf("a", "b", "c", "d"), 5),
-                Storage(5, listOf("a", "b", "d", "c"), 5)) {
-            // 7, 8 would also be valid, but below is what DiffUtil outputs
-            verify(it).onMoved(8, 7)
-            verifyNoMoreInteractions(it)
+            Storage(5, listOf("a", "b", "c", "d"), 5),
+            Storage(5, listOf("a", "b", "d", "c"), 5)
+        ) {
+            // 8, 7 would also be valid, but below is what DiffUtil outputs
+            assertEquals(OnMovedEvent(7, 8), it.onMovedEvents[0])
+            assertEquals(1, it.interactions)
         }
     }
 
     @Test
     fun transformAnchorIndex_removal() {
         validateTwoListDiffTransform(
-                Storage(5, listOf("a", "b", "c", "d", "e"), 5),
-                Storage(5, listOf("a", "d", "e"), 5)) { transformAnchorIndex ->
+            Storage(5, listOf("a", "b", "c", "d", "e"), 5),
+            Storage(5, listOf("a", "d", "e"), 5)
+        ) { transformAnchorIndex ->
             // a doesn't move
             assertEquals(5, transformAnchorIndex(5))
 
@@ -119,8 +124,9 @@ class NullPaddedListDiffHelperTest {
     @Test
     fun transformAnchorIndex_insert() {
         validateTwoListDiffTransform(
-                Storage(5, listOf("a", "d", "e"), 5),
-                Storage(5, listOf("a", "b", "c", "d", "e"), 5)) { transformAnchorIndex ->
+            Storage(5, listOf("a", "d", "e"), 5),
+            Storage(5, listOf("a", "b", "c", "d", "e"), 5)
+        ) { transformAnchorIndex ->
             // a doesn't move
             assertEquals(5, transformAnchorIndex(5))
 
@@ -133,8 +139,9 @@ class NullPaddedListDiffHelperTest {
     @Test
     fun transformAnchorIndex_move() {
         validateTwoListDiffTransform(
-                Storage(5, listOf("a", "d", "e", "b", "c"), 5),
-                Storage(5, listOf("a", "b", "c", "d", "e"), 5)) { transformAnchorIndex ->
+            Storage(5, listOf("a", "d", "e", "b", "c"), 5),
+            Storage(5, listOf("a", "b", "c", "d", "e"), 5)
+        ) { transformAnchorIndex ->
             assertEquals(5, transformAnchorIndex(5))
             assertEquals(8, transformAnchorIndex(6))
             assertEquals(9, transformAnchorIndex(7))
@@ -146,8 +153,9 @@ class NullPaddedListDiffHelperTest {
     @Test
     fun transformAnchorIndex_allMissing() {
         validateTwoListDiffTransform(
-                Storage(5, listOf("a", "d", "e", "b", "c"), 5),
-                Storage(5, listOf("f", "g", "h", "i", "j"), 5)) { transformAnchorIndex ->
+            Storage(5, listOf("a", "d", "e", "b", "c"), 5),
+            Storage(5, listOf("f", "g", "h", "i", "j"), 5)
+        ) { transformAnchorIndex ->
             assertEquals(5, transformAnchorIndex(5))
             assertEquals(6, transformAnchorIndex(6))
             assertEquals(7, transformAnchorIndex(7))
@@ -159,8 +167,9 @@ class NullPaddedListDiffHelperTest {
     @Test
     fun transformAnchorIndex_offset() {
         validateTwoListDiffTransform(
-                Storage(5, listOf("a"), 6),
-                Storage(7, listOf("a"), 8)) { transformAnchorIndex ->
+            Storage(5, listOf("a"), 6),
+            Storage(7, listOf("a"), 8)
+        ) { transformAnchorIndex ->
             assertEquals(7, transformAnchorIndex(5))
         }
     }
@@ -168,8 +177,9 @@ class NullPaddedListDiffHelperTest {
     @Test
     fun transformAnchorIndex_nullBehavior() {
         validateTwoListDiffTransform(
-                Storage(3, listOf("a"), 4),
-                Storage(1, listOf("a"), 2)) { transformAnchorIndex ->
+            Storage(3, listOf("a"), 4),
+            Storage(1, listOf("a"), 2)
+        ) { transformAnchorIndex ->
             // null, so map to same position in new list
             assertEquals(0, transformAnchorIndex(0))
             assertEquals(1, transformAnchorIndex(1))
@@ -188,8 +198,9 @@ class NullPaddedListDiffHelperTest {
     @Test
     fun transformAnchorIndex_boundaryBehavior() {
         validateTwoListDiffTransform(
-                Storage(3, listOf("a"), 4),
-                Storage(1, listOf("a"), 2)) { transformAnchorIndex ->
+            Storage(3, listOf("a"), 4),
+            Storage(1, listOf("a"), 2)
+        ) { transformAnchorIndex ->
             // shouldn't happen, but to be safe, indices are clamped
             assertEquals(0, transformAnchorIndex(-1))
             assertEquals(3, transformAnchorIndex(100))
@@ -211,14 +222,15 @@ class NullPaddedListDiffHelperTest {
         private fun validateTwoListDiff(
             oldList: Storage,
             newList: Storage,
-            validator: (callback: ListUpdateCallback) -> Unit
+            validator: (callback: ListUpdateCallbackFake) -> Unit
         ) {
             val diffResult = oldList.computeDiff(newList, DIFF_CALLBACK)
-            val listUpdateCallback = mock(ListUpdateCallback::class.java)
+            val listUpdateCallback = ListUpdateCallbackFake()
             oldList.dispatchDiff(listUpdateCallback, newList, diffResult)
 
             validator(listUpdateCallback)
         }
+
         private fun validateTwoListDiffTransform(
             oldList: Storage,
             newList: Storage,
@@ -226,9 +238,10 @@ class NullPaddedListDiffHelperTest {
         ) {
             validator {
                 oldList.transformAnchorIndex(
-                        oldList.computeDiff(newList, DIFF_CALLBACK),
-                        newList,
-                        it)
+                    oldList.computeDiff(newList, DIFF_CALLBACK),
+                    newList,
+                    it
+                )
             }
         }
     }

@@ -20,10 +20,18 @@ import java.util.LinkedList
 import java.util.concurrent.Executor
 
 class TestExecutor : Executor {
+    /**
+     * If true, adding a new task will drain all existing tasks.
+     */
+    var autoRun: Boolean = false
+
     private val mTasks = LinkedList<Runnable>()
 
     override fun execute(command: Runnable) {
         mTasks.add(command)
+        if (autoRun) {
+            executeAll()
+        }
     }
 
     fun executeAll(): Boolean {

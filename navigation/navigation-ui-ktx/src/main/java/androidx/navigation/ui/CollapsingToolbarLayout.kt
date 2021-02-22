@@ -40,13 +40,15 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
  *                      in the title of the Toolbar.
  * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button
  */
-fun CollapsingToolbarLayout.setupWithNavController(
+public fun CollapsingToolbarLayout.setupWithNavController(
     toolbar: Toolbar,
     navController: NavController,
     drawerLayout: DrawerLayout?
 ) {
-    NavigationUI.setupWithNavController(this, toolbar, navController,
-        AppBarConfiguration(navController.graph, drawerLayout))
+    NavigationUI.setupWithNavController(
+        this, toolbar, navController,
+        AppBarConfiguration(navController.graph, drawerLayout)
+    )
 }
 
 /**
@@ -67,7 +69,7 @@ fun CollapsingToolbarLayout.setupWithNavController(
  * @param configuration Additional configuration options for customizing the behavior of the
  *                      Toolbar
  */
-fun CollapsingToolbarLayout.setupWithNavController(
+public fun CollapsingToolbarLayout.setupWithNavController(
     toolbar: Toolbar,
     navController: NavController,
     configuration: AppBarConfiguration = AppBarConfiguration(navController.graph)

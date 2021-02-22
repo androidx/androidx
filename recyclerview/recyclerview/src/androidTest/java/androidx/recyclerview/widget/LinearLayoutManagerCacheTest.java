@@ -109,12 +109,14 @@ public class LinearLayoutManagerCacheTest extends BaseLinearLayoutManagerTest {
                     int lastVisibleItemPosition = mLayoutManager.findLastVisibleItemPosition();
                     int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
                     assertEquals(1, cachedViews().size());
-                    int prefetchedPosition = cachedViews().get(0).getAdapterPosition();
+                    int prefetchedPosition = cachedViews().get(0).getAbsoluteAdapterPosition();
                     if (mConfig.mReverseLayout == reverseScroll) {
-                        // Pos scroll on pos layout, or reverse scroll on reverse layout = toward last
+                        // Pos scroll on pos layout, or reverse scroll on reverse layout = toward
+                        // last
                         assertEquals(lastVisibleItemPosition + 1, prefetchedPosition);
                     } else {
-                        // Pos scroll on reverse layout, or reverse scroll on pos layout = toward first
+                        // Pos scroll on reverse layout, or reverse scroll on pos layout = toward
+                        // first
                         assertEquals(firstVisibleItemPosition - 1, prefetchedPosition);
                     }
                 }

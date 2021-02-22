@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 
-buildscript {
-    // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
-    // vectordrawable and vectordrawable-animated were accidentally using the same package name
-    // which is no longer valid in namespaced resource world.
-    project.ext['android.uniquePackageNames'] = false
-}
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+import static androidx.build.dependencies.DependenciesKt.MULTIDEX
+import static androidx.build.dependencies.DependenciesKt.getKOTLIN_STDLIB
 
 plugins {
     id("AndroidXPlugin")
@@ -31,19 +28,33 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.arch.core:core-runtime:2.0.1")
-    implementation("androidx.room:room-runtime:2.0.0")
-    implementation("androidx.room:room-rxjava2:2.0.0")
+    implementation("androidx.arch.core:core-runtime:2.1.0")
+    implementation(projectOrArtifact(":room:room-ktx"))
+    implementation(projectOrArtifact(":room:room-rxjava2"))
 
     implementation(project(":paging:paging-common-ktx"))
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
-    kapt("androidx.room:room-compiler:2.0.0")
+    kapt(projectOrArtifact(":room:room-compiler"))
 
     implementation(MULTIDEX)
-    implementation("androidx.recyclerview:recyclerview:1.0.0")
-    implementation(project(":fragment:fragment-ktx"))
+    implementation(projectOrArtifact(":recyclerview:recyclerview"))
+    implementation("androidx.fragment:fragment-ktx:1.3.0")
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(KOTLIN_STDLIB)
+}
+
+kapt {
+    javacOptions {
+        option("-source", "8")
+        option("-target", "8")
+    }
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
 }

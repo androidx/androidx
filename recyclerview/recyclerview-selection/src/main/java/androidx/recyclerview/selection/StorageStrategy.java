@@ -39,11 +39,11 @@ import java.util.ArrayList;
  * for more detailed advice on which key type to use for your selection keys.
  *
  * @param <K> Selection key type. Built in support is provided for String, Long, and Parcelable
- *           types. Use the respective factory method to create a StorageStrategy instance
- *           appropriate to the desired type.
- *           {@link #createStringStorage()},
- *           {@link #createParcelableStorage(Class)},
- *           {@link #createLongStorage()}
+ *            types. Use the respective factory method to create a StorageStrategy instance
+ *            appropriate to the desired type.
+ *            {@link #createStringStorage()},
+ *            {@link #createParcelableStorage(Class)},
+ *            {@link #createLongStorage()}
  */
 public abstract class StorageStrategy<K> {
 
@@ -69,7 +69,6 @@ public abstract class StorageStrategy<K> {
      * Create a {@link Selection} from supplied {@link Bundle}.
      *
      * @param state Bundle instance that may contain parceled Selection instance.
-     * @return
      */
     public abstract @Nullable Selection<K> asSelection(@NonNull Bundle state);
 
@@ -77,7 +76,6 @@ public abstract class StorageStrategy<K> {
      * Creates a {@link Bundle} from supplied {@link Selection}.
      *
      * @param selection The selection to asBundle.
-     * @return
      */
     public abstract @NonNull Bundle asBundle(@NonNull Selection<K> selection);
 
@@ -89,21 +87,22 @@ public abstract class StorageStrategy<K> {
      * @return StorageStrategy suitable for use with {@link Parcelable} keys
      * (like {@link android.net.Uri}).
      */
-    public static <K extends Parcelable> StorageStrategy<K> createParcelableStorage(Class<K> type) {
+    public static @NonNull <K extends Parcelable> StorageStrategy<K> createParcelableStorage(
+            @NonNull Class<K> type) {
         return new ParcelableStorageStrategy<>(type);
     }
 
     /**
      * @return StorageStrategy suitable for use with {@link String} keys.
      */
-    public static StorageStrategy<String> createStringStorage() {
+    public static @NonNull StorageStrategy<String> createStringStorage() {
         return new StringStorageStrategy();
     }
 
     /**
      * @return StorageStrategy suitable for use with {@link Long} keys.
      */
-    public static StorageStrategy<Long> createLongStorage() {
+    public static @NonNull StorageStrategy<Long> createLongStorage() {
         return new LongStorageStrategy();
     }
 
@@ -191,7 +190,7 @@ public abstract class StorageStrategy<K> {
     private static class ParcelableStorageStrategy<K extends Parcelable>
             extends StorageStrategy<K> {
 
-        ParcelableStorageStrategy(Class<K> type) {
+        ParcelableStorageStrategy(@NonNull Class<K> type) {
             super(type);
             checkArgument(Parcelable.class.isAssignableFrom(type));
         }

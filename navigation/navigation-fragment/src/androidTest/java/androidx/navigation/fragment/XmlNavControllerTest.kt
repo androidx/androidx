@@ -26,7 +26,8 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class XmlNavControllerTest : BaseNavControllerTest<XmlNavigationActivity>(
-        XmlNavigationActivity::class.java)
+    XmlNavigationActivity::class.java
+)
 
 /**
  * Test Navigation Activity that adds the [NavHostFragment] in XML.
@@ -39,6 +40,6 @@ class XmlNavigationActivity : BaseNavigationActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.navigation_activity)
+        setContentView(R.layout.navigation_activity_no_graph)
     }
 }

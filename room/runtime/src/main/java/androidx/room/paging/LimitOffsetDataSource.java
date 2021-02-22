@@ -20,7 +20,6 @@ import android.database.Cursor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.paging.PositionalDataSource;
 import androidx.room.InvalidationTracker;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
@@ -43,8 +42,9 @@ import java.util.Set;
  *
  * @hide
  */
+@SuppressWarnings("deprecation")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public abstract class LimitOffsetDataSource<T> extends PositionalDataSource<T> {
+public abstract class LimitOffsetDataSource<T> extends androidx.paging.PositionalDataSource<T> {
     private final RoomSQLiteQuery mSourceQuery;
     private final String mCountQuery;
     private final String mLimitOffsetQuery;

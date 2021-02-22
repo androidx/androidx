@@ -27,9 +27,11 @@ data class FieldWithIndex(val field: Field, val indexVar: String, val alwaysExis
     companion object {
         fun byOrder(fields: List<Field>): List<FieldWithIndex> {
             return fields.mapIndexed { index, field ->
-                FieldWithIndex(field = field,
-                        indexVar = "${index + 1}",
-                        alwaysExists = true)
+                FieldWithIndex(
+                    field = field,
+                    indexVar = "${index + 1}",
+                    alwaysExists = true
+                )
             }
         }
     }

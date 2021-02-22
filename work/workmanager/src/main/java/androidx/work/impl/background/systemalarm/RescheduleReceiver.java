@@ -43,7 +43,7 @@ public class RescheduleReceiver extends BroadcastReceiver {
                 // WorkManager has not already been initialized.
                 Logger.get().error(TAG,
                         "Cannot reschedule jobs. WorkManager needs to be initialized via a "
-                                + "ContentProvider#onCreate() or an Application#onCreate().");
+                                + "ContentProvider#onCreate() or an Application#onCreate().", e);
             }
         } else {
             Intent reschedule = CommandHandler.createRescheduleIntent(context);

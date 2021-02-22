@@ -193,32 +193,46 @@ class TestResults {
 
         when (focusMode) {
             FocusMode.CONTINUOUS -> {
-                output += outputResultLine("Capture (continuous focus)", capture,
-                    numCommas, true)
+                output += outputResultLine(
+                    "Capture (continuous focus)", capture,
+                    numCommas, true
+                )
             }
             FocusMode.FIXED -> {
-                output += outputResultLine("Capture (fixed-focus)", capture,
-                    numCommas, true)
+                output += outputResultLine(
+                    "Capture (fixed-focus)", capture,
+                    numCommas, true
+                )
             }
             else -> {
                 // CameraX doesn't allow us insight into autofocus
                 if (CameraAPI.CAMERAX == cameraAPI) {
-                    output += outputResultLine("Capture incl. autofocus", capture,
-                        numCommas, true)
+                    output += outputResultLine(
+                        "Capture incl. autofocus", capture,
+                        numCommas, true
+                    )
                 } else {
-                    output += outputResultLine("Autofocus", autofocus,
-                        numCommas, true)
-                    output += outputResultLine("Capture", captureNoAF,
-                        numCommas, true)
-                    output += outputResultLine("Capture incl. autofocus", capture,
-                        numCommas, true)
+                    output += outputResultLine(
+                        "Autofocus", autofocus,
+                        numCommas, true
+                    )
+                    output += outputResultLine(
+                        "Capture", captureNoAF,
+                        numCommas, true
+                    )
+                    output += outputResultLine(
+                        "Capture incl. autofocus", capture,
+                        numCommas, true
+                    )
                 }
             }
         }
 
         output += outputResultLine("Image ready", imageready, numCommas, true)
-        output += outputResultLine("Cap + img ready", capturePlusImageReady,
-            numCommas, true)
+        output += outputResultLine(
+            "Cap + img ready", capturePlusImageReady,
+            numCommas, true
+        )
         output += outputResultLine("Image save", imagesave, numCommas, true)
         output += outputResultLine("Switch to 2nd", switchToSecond, numCommas, true)
         output += outputResultLine("Switch to 1st", switchToFirst, numCommas, true)
@@ -226,8 +240,10 @@ class TestResults {
         output += outputResultLine("Camera close", cameraClose, numCommas, true)
         output += outputBooleanResultLine("HDR+", isHDRPlus, numCommas, true)
         output += outputResultLine("Total", total, numCommas, true)
-        output += outputResultLine("Total w/o preview buffer", totalNoPreview,
-            numCommas, true)
+        output += outputResultLine(
+            "Total w/o preview buffer", totalNoPreview,
+            numCommas, true
+        )
 
         if (1 < capturePlusImageReady.size) {
             val captureStats = Stats.of(capturePlusImageReady)
@@ -260,22 +276,35 @@ class TestResults {
  */
 fun writeCSV(activity: MainActivity, filePrefix: String, csv: String) {
 
-    val csvFile = File(Environment.getExternalStoragePublicDirectory(
-        Environment.DIRECTORY_DOCUMENTS),
+    val csvFile = File(
+        Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_DOCUMENTS
+        ),
         File.separatorChar + MainActivity.LOG_DIR + File.separatorChar +
-            filePrefix + "_" + generateCSVTimestamp() + ".csv")
+            filePrefix + "_" + generateCSVTimestamp() + ".csv"
+    )
 
-    val csvDir = File(Environment.getExternalStoragePublicDirectory(
-        Environment.DIRECTORY_DOCUMENTS), MainActivity.LOG_DIR)
-    val docsDir = File(Environment.getExternalStoragePublicDirectory(
-        Environment.DIRECTORY_DOCUMENTS), "")
+    val csvDir = File(
+        Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_DOCUMENTS
+        ),
+        MainActivity.LOG_DIR
+    )
+    val docsDir = File(
+        Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_DOCUMENTS
+        ),
+        ""
+    )
 
     if (!docsDir.exists()) {
         val createSuccess = docsDir.mkdir()
         if (!createSuccess) {
             activity.runOnUiThread {
-                Toast.makeText(activity, "Documents" + " creation failed.",
-                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    activity, "Documents" + " creation failed.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             MainActivity.logd("Log storage directory Documents" + " creation failed!!")
         } else {
@@ -287,14 +316,22 @@ fun writeCSV(activity: MainActivity, filePrefix: String, csv: String) {
         val createSuccess = csvDir.mkdir()
         if (!createSuccess) {
             activity.runOnUiThread {
-                Toast.makeText(activity, "Documents/" + MainActivity.LOG_DIR +
-                    " creation failed.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    activity,
+                    "Documents/" + MainActivity.LOG_DIR +
+                        " creation failed.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-            MainActivity.logd("Log storage directory Documents/" +
-                MainActivity.LOG_DIR + " creation failed!!")
+            MainActivity.logd(
+                "Log storage directory Documents/" +
+                    MainActivity.LOG_DIR + " creation failed!!"
+            )
         } else {
-            MainActivity.logd("Log storage directory Documents/" +
-                MainActivity.LOG_DIR + " did not exist. Created.")
+            MainActivity.logd(
+                "Log storage directory Documents/" +
+                    MainActivity.LOG_DIR + " did not exist. Created."
+            )
         }
     }
 
@@ -323,8 +360,12 @@ fun writeCSV(activity: MainActivity, filePrefix: String, csv: String) {
  * Delete all Antelope .csv files in the documents directory
  */
 fun deleteCSVFiles(activity: MainActivity) {
-    val csvDir = File(Environment.getExternalStoragePublicDirectory(
-        Environment.DIRECTORY_DOCUMENTS), MainActivity.LOG_DIR)
+    val csvDir = File(
+        Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_DOCUMENTS
+        ),
+        MainActivity.LOG_DIR
+    )
 
     if (csvDir.exists()) {
 
@@ -339,7 +380,7 @@ fun deleteCSVFiles(activity: MainActivity) {
         activity.runOnUiThread {
             Toast.makeText(activity, "CSV logs deleted", Toast.LENGTH_SHORT).show()
         }
-            logd("All csv logs in directory DOCUMENTS/" + MainActivity.LOG_DIR + " deleted.")
+        logd("All csv logs in directory DOCUMENTS/" + MainActivity.LOG_DIR + " deleted.")
     }
 }
 

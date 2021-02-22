@@ -21,7 +21,7 @@ package androidx.sqlite.db
  *
  * @param exclusive Run in `EXCLUSIVE` mode when true, `IMMEDIATE` mode otherwise.
  */
-inline fun <T> SupportSQLiteDatabase.transaction(
+public inline fun <T> SupportSQLiteDatabase.transaction(
     exclusive: Boolean = true,
     body: SupportSQLiteDatabase.() -> T
 ): T {
@@ -30,11 +30,16 @@ inline fun <T> SupportSQLiteDatabase.transaction(
     } else {
         beginTransactionNonExclusive()
     }
+    var cause: Throwable? = null
     try {
-        val result = body()
-        setTransactionSuccessful()
-        return result
+        return body()
+    } catch (t: Throwable) {
+        cause = t
+        throw t
     } finally {
+        if (cause == null) {
+            setTransactionSuccessful()
+        }
         endTransaction()
     }
 }

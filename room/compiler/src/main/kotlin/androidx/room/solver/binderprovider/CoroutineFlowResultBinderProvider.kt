@@ -16,19 +16,29 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.RoomCoroutinesTypeNames
-import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.CoroutineFlowResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import javax.lang.model.type.DeclaredType
 
-class CoroutineFlowResultBinderProvider(val context: Context) : QueryResultBinderProvider {
+@Suppress("FunctionName")
+fun CoroutineFlowResultBinderProvider(context: Context): QueryResultBinderProvider =
+    CoroutineFlowResultBinderProviderImpl(
+        context
+    ).requireArtifact(
+        context = context,
+        requiredType = RoomCoroutinesTypeNames.COROUTINES_ROOM,
+        missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_COROUTINE_ARTIFACT
+    )
 
+private class CoroutineFlowResultBinderProviderImpl(
+    val context: Context
+) : QueryResultBinderProvider {
     companion object {
         val CHANNEL_TYPE_NAMES = listOf(
             KotlinTypeNames.CHANNEL,
@@ -37,35 +47,28 @@ class CoroutineFlowResultBinderProvider(val context: Context) : QueryResultBinde
         )
     }
 
-    private val hasCoroutinesArtifact by lazy {
-        context.processingEnv.elementUtils
-            .getTypeElement(RoomCoroutinesTypeNames.COROUTINES_ROOM.toString()) != null
-    }
-
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
         val typeArg = declared.typeArguments.first()
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
-        val tableNames = ((adapter?.accessedTableNames() ?: emptyList()) +
-                query.tables.map { it.name }).toSet()
+        val tableNames = (
+            (adapter?.accessedTableNames() ?: emptyList()) +
+                query.tables.map { it.name }
+            ).toSet()
         if (tableNames.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
         return CoroutineFlowResultBinder(typeArg, tableNames, adapter)
     }
 
-    override fun matches(declared: DeclaredType): Boolean {
+    override fun matches(declared: XType): Boolean {
         if (declared.typeArguments.size != 1) {
             return false
         }
-        val typeName = context.processingEnv.typeUtils.erasure(declared).typeName()
+        val typeName = declared.rawType.typeName
         if (typeName in CHANNEL_TYPE_NAMES) {
             context.logger.e(ProcessorErrors.invalidChannelType(typeName.toString()))
             return false
         }
-        val match = typeName == KotlinTypeNames.FLOW
-        if (match && !hasCoroutinesArtifact) {
-            context.logger.e(ProcessorErrors.MISSING_ROOM_COROUTINE_ARTIFACT)
-        }
-        return match
+        return typeName == KotlinTypeNames.FLOW
     }
 }

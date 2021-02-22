@@ -16,10 +16,10 @@
 
 package androidx.camera.extensions;
 
-import android.util.Log;
-
-import androidx.camera.core.PreviewConfig;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
+import androidx.annotation.NonNull;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.Logger;
+import androidx.camera.core.Preview;
 import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
 
 /**
@@ -32,14 +32,15 @@ public class BeautyPreviewExtender extends PreviewExtender {
      * Create a new instance of the beauty extender.
      *
      * @param builder Builder that will be used to create the configurations for the
-     * {@link androidx.camera.core.Preview}.
+     *                {@link androidx.camera.core.Preview}.
      */
-    public static BeautyPreviewExtender create(PreviewConfig.Builder builder) {
+    @NonNull
+    public static BeautyPreviewExtender create(@NonNull Preview.Builder builder) {
         if (ExtensionVersion.isExtensionVersionSupported()) {
             try {
                 return new VendorBeautyPreviewExtender(builder);
             } catch (NoClassDefFoundError e) {
-                Log.d(TAG, "No beauty preview extender found. Falling back to default.");
+                Logger.d(TAG, "No beauty preview extender found. Falling back to default.");
             }
         }
 
@@ -52,12 +53,12 @@ public class BeautyPreviewExtender extends PreviewExtender {
         }
 
         @Override
-        public boolean isExtensionAvailable() {
+        public boolean isExtensionAvailable(@NonNull CameraSelector selector) {
             return false;
         }
 
         @Override
-        public void enableExtension() {
+        public void enableExtension(@NonNull CameraSelector selector) {
         }
     }
 
@@ -65,11 +66,12 @@ public class BeautyPreviewExtender extends PreviewExtender {
     static class VendorBeautyPreviewExtender extends BeautyPreviewExtender {
         private final BeautyPreviewExtenderImpl mImpl;
 
-        VendorBeautyPreviewExtender(PreviewConfig.Builder builder) {
+        VendorBeautyPreviewExtender(Preview.Builder builder) {
             mImpl = new BeautyPreviewExtenderImpl();
-            init(builder, mImpl, EffectMode.BEAUTY);
+            init(builder, mImpl, Extensions.EXTENSION_MODE_BEAUTY);
         }
     }
 
-    private BeautyPreviewExtender() {}
+    private BeautyPreviewExtender() {
+    }
 }

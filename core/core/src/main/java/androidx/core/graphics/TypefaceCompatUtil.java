@@ -16,6 +16,7 @@
 
 package androidx.core.graphics;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ContentResolver;
@@ -28,9 +29,11 @@ import android.os.Process;
 import android.os.StrictMode;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.core.provider.FontsContractCompat;
 
 import java.io.Closeable;
 import java.io.File;
@@ -40,6 +43,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Utility methods for TypefaceCompat.
@@ -178,5 +184,42 @@ public class TypefaceCompatUtil {
             } catch (IOException e) {
             }
         }
+    }
+
+    /**
+     * A helper function to create a mapping from {@link Uri} to {@link ByteBuffer}.
+     *
+     * Skip if the file contents is not ready to be read.
+     *
+     * @param context A {@link Context} to be used for resolving content URI in
+     *                {@link FontsContractCompat.FontInfo}.
+     * @param fonts An array of {@link FontsContractCompat.FontInfo}.
+     * @return A map from {@link Uri} to {@link ByteBuffer}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @NonNull
+    @RequiresApi(19)
+    public static Map<Uri, ByteBuffer> readFontInfoIntoByteBuffer(
+            @NonNull Context context,
+            @NonNull FontsContractCompat.FontInfo[] fonts,
+            @Nullable CancellationSignal cancellationSignal
+    ) {
+        final HashMap<Uri, ByteBuffer> out = new HashMap<>();
+
+        for (FontsContractCompat.FontInfo font : fonts) {
+            if (font.getResultCode() != FontsContractCompat.Columns.RESULT_CODE_OK) {
+                continue;
+            }
+
+            final Uri uri = font.getUri();
+            if (out.containsKey(uri)) {
+                continue;
+            }
+
+            ByteBuffer buffer = TypefaceCompatUtil.mmap(context, cancellationSignal, uri);
+            out.put(uri, buffer);
+        }
+        return Collections.unmodifiableMap(out);
     }
 }

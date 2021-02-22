@@ -58,6 +58,10 @@ public class RenderTest {
 
     @Test
     public void testRender() throws Exception {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O && Build.MODEL.contains("Nexus 6P")) {
+            // Known issue b/157980437, disabling the test on this specific combination
+            return;
+        }
         final SliceRenderActivity activity = mActivityRule.getActivity();
         final SliceRenderer[] renderer = new SliceRenderer[1];
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {

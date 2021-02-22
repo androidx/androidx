@@ -19,80 +19,80 @@
 package androidx.navigation.ui
 
 import android.view.Menu
-import androidx.drawerlayout.widget.DrawerLayout
+import androidx.customview.widget.Openable
 import androidx.navigation.NavGraph
 
 /**
  * Configuration options for [NavigationUI] methods that interact with implementations of the
- * app bar pattern such as [android.support.v7.widget.Toolbar],
- * [android.support.design.widget.CollapsingToolbarLayout], and
- * [android.support.v7.app.ActionBar].
+ * app bar pattern such as [androidx.appcompat.widget.Toolbar],
+ * [com.google.android.material.appbar.CollapsingToolbarLayout], and
+ * [androidx.appcompat.app.ActionBar].
  *
  * @param navGraph The [NavGraph] whose start destination should be considered the only
  *                 top level destination. The Up button will not be displayed when on the
  *                 start destination of the graph.
- * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button. The
+ * @param drawerLayout The Openable layout that should be toggled from the Navigation button. The
  *                     the Navigation button will show a drawer symbol when it is not being shown
  *                     as an Up button.
  * @param fallbackOnNavigateUpListener Lambda that will be invoked if
  * [androidx.navigation.NavController.navigateUp] returns `false`
  */
 @Suppress("FunctionName") /* Acts like a constructor */
-inline fun AppBarConfiguration(
+public inline fun AppBarConfiguration(
     navGraph: NavGraph,
-    drawerLayout: DrawerLayout? = null,
+    drawerLayout: Openable? = null,
     noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
-) = AppBarConfiguration.Builder(navGraph)
-    .setDrawerLayout(drawerLayout)
+): AppBarConfiguration = AppBarConfiguration.Builder(navGraph)
+    .setOpenableLayout(drawerLayout)
     .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
     .build()
 
 /**
  * Configuration options for [NavigationUI] methods that interact with implementations of the
- * app bar pattern such as [android.support.v7.widget.Toolbar],
- * [android.support.design.widget.CollapsingToolbarLayout], and
- * [android.support.v7.app.ActionBar].
+ * app bar pattern such as [androidx.appcompat.widget.Toolbar],
+ * [com.google.android.material.appbar.CollapsingToolbarLayout], and
+ * [androidx.appcompat.app.ActionBar].
  *
  * @param topLevelMenu A Menu containing MenuItems corresponding with the destinations
  *                     considered at the top level of your information hierarchy.
  *                     The Up button will not be displayed when on these destinations.
- * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button. The
+ * @param drawerLayout The Openable layout that should be toggled from the Navigation button. The
  *                     the Navigation button will show a drawer symbol when it is not being shown
  *                     as an Up button.
  * @param fallbackOnNavigateUpListener Lambda that will be invoked if
  * [androidx.navigation.NavController.navigateUp] returns `false`
  */
 @Suppress("FunctionName") /* Acts like a constructor */
-inline fun AppBarConfiguration(
+public inline fun AppBarConfiguration(
     topLevelMenu: Menu,
-    drawerLayout: DrawerLayout? = null,
+    drawerLayout: Openable? = null,
     noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
-) = AppBarConfiguration.Builder(topLevelMenu)
-    .setDrawerLayout(drawerLayout)
+): AppBarConfiguration = AppBarConfiguration.Builder(topLevelMenu)
+    .setOpenableLayout(drawerLayout)
     .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
     .build()
 
 /**
  * Configuration options for [NavigationUI] methods that interact with implementations of the
- * app bar pattern such as [android.support.v7.widget.Toolbar],
- * [android.support.design.widget.CollapsingToolbarLayout], and
- * [android.support.v7.app.ActionBar].
+ * app bar pattern such as [androidx.appcompat.widget.Toolbar],
+ * [com.google.android.material.appbar.CollapsingToolbarLayout], and
+ * [androidx.appcompat.app.ActionBar].
  *
  * @param topLevelDestinationIds The set of destinations by id considered at the top level
  *                               of your information hierarchy. The Up button will not be
  *                               displayed when on these destinations.
- * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button. The
+ * @param drawerLayout The Openable layout that should be toggled from the Navigation button. The
  *                     the Navigation button will show a drawer symbol when it is not being shown
  *                     as an Up button.
  * @param fallbackOnNavigateUpListener Lambda that will be invoked if
  * [androidx.navigation.NavController.navigateUp] returns `false`
  */
 @Suppress("FunctionName") /* Acts like a constructor */
-inline fun AppBarConfiguration(
+public inline fun AppBarConfiguration(
     topLevelDestinationIds: Set<Int>,
-    drawerLayout: DrawerLayout? = null,
+    drawerLayout: Openable? = null,
     noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
-) = AppBarConfiguration.Builder(topLevelDestinationIds)
-    .setDrawerLayout(drawerLayout)
+): AppBarConfiguration = AppBarConfiguration.Builder(topLevelDestinationIds)
+    .setOpenableLayout(drawerLayout)
     .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
     .build()

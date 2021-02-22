@@ -16,276 +16,247 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.core.util.Preconditions;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A configuration used to trigger a focus and/or metering action.
  *
- * <p>To construct a {@link FocusMeteringAction}, apps have to create a {@link Builder} by
- * {@link Builder#from(MeteringPoint)} or {@link Builder#from(MeteringPoint, MeteringMode)}.
- * {@link MeteringPoint} is a point used to specify the focus/metering areas. Apps can use various
- * {@link MeteringPointFactory} to create the points. When the {@link FocusMeteringAction} is built,
- * pass it to {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} to initiate the focus
+ * <p>A {@link FocusMeteringAction} must be created by the {@link Builder}. To construct a
+ * {@link Builder}, a {@link MeteringPoint} is required to specify the focus/metering area. Apps
+ * can use various {@link MeteringPointFactory} to create the points. After the
+ * {@link FocusMeteringAction} is built, apps can pass it to
+ * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} to initiate the focus
  * and metering action.
  *
- * <p>The default {@link MeteringMode} is {@link MeteringMode#AF_AE_AWB} which means the point is
- * used for all AF/AE/AWB regions. Apps can set the proper {@link MeteringMode} to optionally
- * exclude some 3A regions. Multiple regions for specific 3A type are also supported via
- * {@link Builder#addPoint(MeteringPoint)} or
- * {@link Builder#addPoint(MeteringPoint, MeteringMode)}. App can also this API to enable
- * different region for AF and AE respectively.
+ * <p>When specifying a {@link MeteringPoint}, a metering mode can also be specified. Metering
+ * mode is a combination of flags consisting of {@link #FLAG_AF}, {@link #FLAG_AE}, and
+ * {@link #FLAG_AWB}. This combination indicates whether the {@link MeteringPoint} is
+ * used to set an AF(Auto Focus) region, AE(Auto Exposure) region or AWB(Auto White Balance) region.
+ * The default meteringMode is {@link #FLAG_AF} | {@link #FLAG_AE} | {@link #FLAG_AWB} which
+ * means the point is used for all AF/AE/AWB regions. Apps can set the proper metering mode to
+ * optionally exclude some 3A regions. Multiple regions for specific 3A types are also supported
+ * via {@link Builder#addPoint(MeteringPoint)} or {@link Builder#addPoint(MeteringPoint, int)}.
+ * An app can also use this API to enable different regions for AF and AE respectively.
  *
- * <p>If any AF points are specified, it will trigger AF to start a manual AF scan and cancel AF
- * trigger when {@link CameraControl#cancelFocusAndMetering()} is called. When triggering AF is
- * done, it will call the {@link OnAutoFocusListener#onFocusCompleted(boolean)} which is set via
- * {@link Builder#setAutoFocusCallback(OnAutoFocusListener)}.  If AF point is not specified or
- * the action is cancelled before AF is locked, CameraX will call the
- * {@link OnAutoFocusListener#onFocusCompleted(boolean)} with isFocusLocked set to false.
+ * <p>If any AF points are specified, it will trigger autofocus to start a manual scan. When
+ * focus is locked and the specified AF/AE/AWB regions are updated in capture result, the returned
+ * {@link ListenableFuture} in {@link CameraControl#startFocusAndMetering(FocusMeteringAction)}
+ * will complete with {@link FocusMeteringResult#isFocusSuccessful()} set to indicate if focus is
+ * done successfully or not. If an AF point is not specified, it will not trigger autofocus and
+ * simply wait for specified AE/AWB regions being updated to complete the returned
+ * {@link ListenableFuture}. In the case of AF points not specified,
+ * {@link FocusMeteringResult#isFocusSuccessful()} will be set to false. If Af points are
+ * specified but current camera does not support auto focus,
+ * {@link FocusMeteringResult#isFocusSuccessful()} will be set to true .
  *
  * <p>App can set a auto-cancel duration to let CameraX call
  * {@link CameraControl#cancelFocusAndMetering()} automatically in the specified duration. By
  * default the auto-cancel duration is 5 seconds. Apps can call {@link Builder#disableAutoCancel()}
  * to disable auto-cancel.
  */
-public class FocusMeteringAction {
-    static final MeteringMode DEFAULT_METERINGMODE = MeteringMode.AF_AE_AWB;
+public final class FocusMeteringAction {
+
+    /**
+     * A flag used in metering mode indicating the AF (Auto Focus) region is enabled. An autofocus
+     * scan is also triggered when FLAG_AF is assigned.
+     */
+    public static final int FLAG_AF = 1;
+
+    /**
+     * A flag used in metering mode indicating the AE (Auto Exposure) region is enabled.
+     */
+    public static final int FLAG_AE = 1 << 1;
+
+    /**
+     * A flag used in metering mode indicating the AWB (Auto White Balance) region is enabled.
+     */
+    public static final int FLAG_AWB = 1 << 2;
+
+    @MeteringMode
+    static final int DEFAULT_METERING_MODE = FLAG_AF | FLAG_AE | FLAG_AWB;
     static final long DEFAULT_AUTOCANCEL_DURATION = 5000;
-    private final List<MeteringPoint> mMeteringPointsAF;
-    private final List<MeteringPoint> mMeteringPointsAE;
-    private final List<MeteringPoint> mMeteringPointsAWB;
-    private final Executor mListenerExecutor;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final OnAutoFocusListener mOnAutoFocusListener;
-    private final long mAutoCancelDurationInMs;
-    private AtomicBoolean mHasNotifiedListener = new AtomicBoolean(false);
+    private final List<MeteringPoint> mMeteringPointsAf;
+    private final List<MeteringPoint> mMeteringPointsAe;
+    private final List<MeteringPoint> mMeteringPointsAwb;
+    private final long mAutoCancelDurationInMillis;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     FocusMeteringAction(Builder builder) {
-        mMeteringPointsAF = builder.mMeteringPointsAF;
-        mMeteringPointsAE = builder.mMeteringPointsAE;
-        mMeteringPointsAWB = builder.mMeteringPointsAWB;
-        mListenerExecutor = builder.mListenerExecutor;
-        mOnAutoFocusListener = builder.mOnAutoFocusListener;
-        mAutoCancelDurationInMs = builder.mAutoCancelDurationInMs;
-    }
-
-    /**
-     * Returns current {@link OnAutoFocusListener}.
-     */
-    @Nullable
-    public OnAutoFocusListener getOnAutoFocusListener() {
-        return mOnAutoFocusListener;
+        mMeteringPointsAf = Collections.unmodifiableList(builder.mMeteringPointsAf);
+        mMeteringPointsAe = Collections.unmodifiableList(builder.mMeteringPointsAe);
+        mMeteringPointsAwb = Collections.unmodifiableList(builder.mMeteringPointsAwb);
+        mAutoCancelDurationInMillis = builder.mAutoCancelDurationInMillis;
     }
 
     /**
      * Returns auto-cancel duration.  Returns 0 if auto-cancel is disabled.
      */
-    public long getAutoCancelDurationInMs() {
-        return mAutoCancelDurationInMs;
+    public long getAutoCancelDurationInMillis() {
+        return mAutoCancelDurationInMillis;
     }
 
     /**
      * Returns all {@link MeteringPoint}s used for AF regions.
      */
     @NonNull
-    public List<MeteringPoint> getMeteringPointsAF() {
-        return mMeteringPointsAF;
+    public List<MeteringPoint> getMeteringPointsAf() {
+        return mMeteringPointsAf;
     }
 
     /**
      * Returns all {@link MeteringPoint}s used for AE regions.
      */
     @NonNull
-    public List<MeteringPoint> getMeteringPointsAE() {
-        return mMeteringPointsAE;
+    public List<MeteringPoint> getMeteringPointsAe() {
+        return mMeteringPointsAe;
     }
 
     /**
      * Returns all {@link MeteringPoint}s used for AWB regions.
      */
     @NonNull
-    public List<MeteringPoint> getMeteringPointsAWB() {
-        return mMeteringPointsAWB;
+    public List<MeteringPoint> getMeteringPointsAwb() {
+        return mMeteringPointsAwb;
     }
 
     /**
      * Returns if auto-cancel is enabled or not.
      */
     public boolean isAutoCancelEnabled() {
-        return mAutoCancelDurationInMs != 0;
-    }
-
-    @VisibleForTesting
-    Executor getListenerExecutor() {
-        return mListenerExecutor;
-    }
-
-    /**
-     * Notifies current {@link OnAutoFocusListener} and ensures it is called once.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void notifyAutoFocusCompleted(boolean isFocused) {
-        if (!mHasNotifiedListener.getAndSet(true)) {
-            if (mOnAutoFocusListener != null) {
-                mListenerExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        mOnAutoFocusListener.onFocusCompleted(isFocused);
-                    }
-                });
-            }
-        }
-    }
-
-    /**
-     * Listener for receiving auto-focus completion event.
-     */
-    public interface OnAutoFocusListener {
-        /**
-         * Called when camera auto focus completes or when the action is cancelled before
-         * auto-focus completes.
-         *
-         * @param isFocusLocked true if focus is locked successfully, false otherwise.
-         */
-        void onFocusCompleted(boolean isFocusLocked);
+        return mAutoCancelDurationInMillis > 0;
     }
 
     /**
      * Focus/Metering mode used to specify which 3A regions is activated for corresponding
      * {@link MeteringPoint}.
+     *
+     * @hide
      */
-    public enum MeteringMode {
-        AF_AE_AWB,
-        AF_AE,
-        AE_AWB,
-        AF_AWB,
-        AF_ONLY,
-        AE_ONLY,
-        AWB_ONLY
+    @IntDef(flag = true, value = {FLAG_AF, FLAG_AE, FLAG_AWB})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @interface MeteringMode {
     }
 
     /**
-     * The builder used to create the {@link FocusMeteringAction}. App must use
-     * {@link Builder#from(MeteringPoint)}
-     * or {@link Builder#from(MeteringPoint, MeteringMode)} to create the {@link Builder}.
+     * The builder used to create the {@link FocusMeteringAction}.
      */
     public static class Builder {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        final List<MeteringPoint> mMeteringPointsAF = new ArrayList<>();
+        final List<MeteringPoint> mMeteringPointsAf = new ArrayList<>();
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        final List<MeteringPoint> mMeteringPointsAE = new ArrayList<>();
+        final List<MeteringPoint> mMeteringPointsAe = new ArrayList<>();
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        final List<MeteringPoint> mMeteringPointsAWB = new ArrayList<>();
+        final List<MeteringPoint> mMeteringPointsAwb = new ArrayList<>();
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        OnAutoFocusListener mOnAutoFocusListener = null;
-        @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        Executor mListenerExecutor = CameraXExecutors.mainThreadExecutor();
-        @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        long mAutoCancelDurationInMs = DEFAULT_AUTOCANCEL_DURATION;
-
-        private Builder(@NonNull MeteringPoint point) {
-            this(point, DEFAULT_METERINGMODE);
-        }
-
-        private Builder(@NonNull MeteringPoint point, @NonNull MeteringMode mode) {
-            addPoint(point, mode);
-        }
+                long mAutoCancelDurationInMillis = DEFAULT_AUTOCANCEL_DURATION;
 
         /**
-         * Creates the Builder from a {@link MeteringPoint} with default {@link MeteringMode}.
+         * Creates a Builder from a {@link MeteringPoint} with default mode {@link #FLAG_AF} |
+         * {@link #FLAG_AE} | {@link #FLAG_AWB}.
          */
-        @NonNull
-        public static Builder from(@NonNull MeteringPoint meteringPoint) {
-            return new Builder(meteringPoint);
+        public Builder(@NonNull MeteringPoint point) {
+            this(point, DEFAULT_METERING_MODE);
         }
 
         /**
-         * Creates the Builder from a {@link MeteringPoint} and {@link MeteringMode}
+         * Creates a Builder from a {@link MeteringPoint} and MeteringMode.
+         *
+         * <p>Metering mode is a combination of flags consisting of {@link #FLAG_AF},
+         * {@link #FLAG_AE}, and {@link #FLAG_AWB}. This combination indicates whether the
+         * {@link MeteringPoint} is used to set AF(Auto Focus) region, AE(Auto
+         * Exposure) region or AWB(Auto White Balance) region.
          */
-        @NonNull
-        public static Builder from(@NonNull MeteringPoint meteringPoint,
-                @NonNull MeteringMode mode) {
-            return new Builder(meteringPoint, mode);
+        public Builder(@NonNull MeteringPoint point, @MeteringMode int meteringMode) {
+            addPoint(point, meteringMode);
         }
 
         /**
-         * Adds another {@link MeteringPoint} with default {@link MeteringMode}.
+         * Adds another {@link MeteringPoint} with default metering mode {@link #FLAG_AF} |
+         * {@link #FLAG_AE} | {@link #FLAG_AWB}.
+         *
+         * <p>The points added here will be appended in order after the point set in builder
+         * constructor.
+         *
+         * <p>If more points are added than what current device supports for AF/AE/AWB, only the
+         * first point and then in order up to the number of points supported on the device
+         * will be enabled.
+         *
+         * <p>If none of the points is supported on the device, this
+         * {@link FocusMeteringAction} will cause
+         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} to fail.
+         *
+         * @see CameraControl#startFocusAndMetering(FocusMeteringAction)
          */
         @NonNull
         public Builder addPoint(@NonNull MeteringPoint point) {
-            return addPoint(point, DEFAULT_METERINGMODE);
+            return addPoint(point, DEFAULT_METERING_MODE);
         }
 
         /**
-         * Adds another {@link MeteringPoint} with specified {@link MeteringMode}.
+         * Adds another {@link MeteringPoint} with specified meteringMode.
+         *
+         * <p>Metering mode is a combination of flags consisting of {@link #FLAG_AF},
+         * {@link #FLAG_AE}, and {@link #FLAG_AWB}. This combination indicates whether the
+         * {@link MeteringPoint} is used to set AF(Auto Focus) region, AE(Auto Exposure) region
+         * or AWB(Auto White Balance) region.
+         *
+         * <p>The points added here will be appended in order after the point set in builder
+         * constructor.
+         *
+         * <p>If more points are added than what current device supports for AF/AE/AWB, only the
+         * first point and then in order up to the number of points supported on the device
+         * will be enabled.
+         *
+         * <p>If none of the points is supported on the device, this
+         * {@link FocusMeteringAction} will cause
+         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} to fail.
+         *
+         * @see CameraControl#startFocusAndMetering(FocusMeteringAction)
          */
         @NonNull
-        public Builder addPoint(@NonNull MeteringPoint point, @NonNull MeteringMode mode) {
-            if (mode == MeteringMode.AF_AE_AWB
-                    || mode == MeteringMode.AF_AE
-                    || mode == MeteringMode.AF_AWB
-                    || mode == MeteringMode.AF_ONLY) {
-                mMeteringPointsAF.add(point);
+        public Builder addPoint(@NonNull MeteringPoint point, @MeteringMode int meteringMode) {
+            Preconditions.checkArgument(point != null, "Point cannot be null.");
+            Preconditions.checkArgument(
+                    (meteringMode >= FLAG_AF) && (meteringMode <= (FLAG_AF | FLAG_AE | FLAG_AWB)),
+                    "Invalid metering mode " + meteringMode);
+
+            if ((meteringMode & FLAG_AF) != 0) {
+                mMeteringPointsAf.add(point);
             }
-
-            if (mode == MeteringMode.AF_AE_AWB
-                    || mode == MeteringMode.AF_AE
-                    || mode == MeteringMode.AE_AWB
-                    || mode == MeteringMode.AE_ONLY) {
-                mMeteringPointsAE.add(point);
+            if ((meteringMode & FLAG_AE) != 0) {
+                mMeteringPointsAe.add(point);
             }
-
-            if (mode == MeteringMode.AF_AE_AWB
-                    || mode == MeteringMode.AE_AWB
-                    || mode == MeteringMode.AF_AWB
-                    || mode == MeteringMode.AWB_ONLY) {
-                mMeteringPointsAWB.add(point);
+            if ((meteringMode & FLAG_AWB) != 0) {
+                mMeteringPointsAwb.add(point);
             }
-            return this;
-        }
-
-        /**
-         * Sets the {@link OnAutoFocusListener} to be notified when auto-focus completes. The
-         * listener is called on main thread.
-         */
-        @NonNull
-        public Builder setAutoFocusCallback(@NonNull OnAutoFocusListener listener) {
-            mOnAutoFocusListener = listener;
-            return this;
-        }
-
-        /**
-         * Sets the {@link OnAutoFocusListener} to be notified when auto-focus completes. The
-         * listener is called on specified {@link Executor}.
-         */
-        @NonNull
-        public Builder setAutoFocusCallback(@NonNull Executor executor,
-                @NonNull OnAutoFocusListener listener) {
-            mListenerExecutor = executor;
-            mOnAutoFocusListener = listener;
             return this;
         }
 
         /**
          * Sets the auto-cancel duration. After set, {@link CameraControl#cancelFocusAndMetering()}
          * will be called in specified duration. By default, auto-cancel is enabled with 5
-         * seconds duration.
+         * seconds duration. The duration must be greater than or equal to 1 otherwise it
+         * will throw a {@link IllegalArgumentException}.
          */
         @NonNull
-        public Builder setAutoCancelDuration(long duration, @NonNull TimeUnit timeUnit) {
-            mAutoCancelDurationInMs = timeUnit.toMillis(duration);
+        public Builder setAutoCancelDuration(@IntRange(from = 1) long duration,
+                @NonNull TimeUnit timeUnit) {
+            Preconditions.checkArgument(duration >= 1, "autoCancelDuration must be at least 1");
+            mAutoCancelDurationInMillis = timeUnit.toMillis(duration);
             return this;
         }
 
@@ -294,7 +265,7 @@ public class FocusMeteringAction {
          */
         @NonNull
         public Builder disableAutoCancel() {
-            mAutoCancelDurationInMs = 0;
+            mAutoCancelDurationInMillis = 0;
             return this;
         }
 

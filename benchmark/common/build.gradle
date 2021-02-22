@@ -29,22 +29,22 @@ plugins {
 
 dependencies {
     implementation(KOTLIN_STDLIB)
-    implementation("androidx.annotation:annotation:1.0.0")
-    implementation(project(":annotation:annotation-experimental"))
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation-experimental:1.0.0")
+    implementation("androidx.tracing:tracing-ktx:1.0.0")
     implementation(ANDROIDX_TEST_MONITOR)
 
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(KOTLIN_TEST_COMMON)
+    androidTestImplementation(KOTLIN_TEST)
 }
 
 androidx {
-    name = "Android Benchmark Common"
+    name = "Android Benchmark - Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.BENCHMARK
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2018"
-    description = "Android Benchmark Common"
+    description = "Android Benchmark - Common"
 }
 
 // Allow usage of Kotlin's @Experimental annotation, which is itself experimental.

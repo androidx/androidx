@@ -18,12 +18,14 @@ package androidx.inspection.testing.echo
 
 import androidx.inspection.Connection
 import androidx.inspection.Inspector
+import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.util.concurrent.Executor
 
 /**
  * An inspector for test purposes, it echoes on commands and sends events once
@@ -36,13 +38,24 @@ class EchoInspector(connection: Connection) : Inspector(connection) {
     init {
         scope.launch {
             TickleManager.tickles.collect {
-                connection.sendEvent(byteArrayOf(tickleCounter++))
+                connection.sendEvent("counter: ${tickleCounter++}".toByteArray())
             }
         }
     }
 
     override fun onReceiveCommand(data: ByteArray, callback: CommandCallback) {
-        callback.reply(data)
+        val command = String(data)
+        if (command == "<cancellation-test>") {
+            callback.addCancellationListener(
+                DirectExecutor,
+                Runnable {
+                    connection.sendEvent("cancellation: successfully cancelled".toByteArray())
+                }
+            )
+            connection.sendEvent("cancellation: listener added".toByteArray())
+        } else {
+            callback.reply("echoed: $command".toByteArray())
+        }
     }
 
     override fun onDispose() {
@@ -52,6 +65,13 @@ class EchoInspector(connection: Connection) : Inspector(connection) {
 
 const val ECHO_INSPECTION_ID = "androidx.inspection.testing.echo"
 
+object DirectExecutor : Executor {
+    override fun execute(command: Runnable) {
+        command.run()
+    }
+}
+
 class EchoInspectorFactory : InspectorFactory<EchoInspector>(ECHO_INSPECTION_ID) {
-    override fun createInspector(connection: Connection) = EchoInspector(connection)
+    override fun createInspector(connection: Connection, unusedEnvironment: InspectorEnvironment) =
+        EchoInspector(connection)
 }

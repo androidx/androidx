@@ -28,32 +28,19 @@ plugins {
     id("kotlin-android")
 }
 
-android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
-    buildTypes {
-        debug {
-            // Breaks Kotlin compiler
-            testCoverageEnabled = false
-        }
-    }
-}
-
 dependencies {
-    api project(':work:work-runtime')
+    api project(":work:work-runtime")
     implementation(GCM_NETWORK_MANAGER)
-    // Using -PuseMaxDepVersions does not use the right version of the annotation processor
+    // Using -Pandroidx.useMaxDepVersions does not use the right version of the annotation processor
     // Remove this workaround after b/127495641 is fixed
-    if (project.hasProperty('useMaxDepVersions')) {
-        annotationProcessor(project(":room:room-compiler"))
-        implementation(project(":room:room-runtime"))
-        androidTestImplementation(project(":room:room-testing"))
+    if (project.hasProperty("androidx.useMaxDepVersions")) {
+        annotationProcessor(projectOrArtifact(":room:room-compiler"))
+        implementation(projectOrArtifact(":room:room-runtime"))
+        androidTestImplementation(projectOrArtifact(":room:room-testing"))
     } else {
-        annotationProcessor("androidx.room:room-compiler:2.2.0")
-        implementation("androidx.room:room-runtime:2.2.0")
-        androidTestImplementation("androidx.room:room-testing:2.2.0")
+        annotationProcessor("androidx.room:room-compiler:2.2.5")
+        implementation("androidx.room:room-runtime:2.2.5")
+        androidTestImplementation("androidx.room:room-testing:2.2.5")
     }
 
     androidTestImplementation(project(":work:work-runtime-ktx"))
@@ -69,10 +56,7 @@ dependencies {
 androidx {
     name = "Android WorkManager GCMNetworkManager Support"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.WORK
     mavenGroup = LibraryGroups.WORK
     inceptionYear = "2019"
     description = "Android WorkManager GCMNetworkManager Support"
-    url = AndroidXExtension.ARCHITECTURE_URL
-    failOnDeprecationWarnings = false
 }

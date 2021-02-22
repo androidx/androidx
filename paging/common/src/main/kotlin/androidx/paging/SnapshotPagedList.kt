@@ -16,8 +16,11 @@
 
 package androidx.paging
 
+@Suppress("DEPRECATION")
 internal class SnapshotPagedList<T : Any>(private val pagedList: PagedList<T>) : PagedList<T>(
-    pagedList.pagedSource,
+    pagedList.pagingSource,
+    pagedList.coroutineScope,
+    pagedList.notifyDispatcher,
     pagedList.storage.snapshot(),
     pagedList.config
 ) {
@@ -29,6 +32,6 @@ internal class SnapshotPagedList<T : Any>(private val pagedList: PagedList<T>) :
     override val isDetached = true
 
     override fun detach() {}
-    override fun dispatchCurrentLoadState(callback: LoadStateListener) {}
+    override fun dispatchCurrentLoadState(callback: (LoadType, LoadState) -> Unit) {}
     override fun loadAroundInternal(index: Int) {}
 }

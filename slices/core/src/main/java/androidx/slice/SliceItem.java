@@ -17,6 +17,7 @@
 package androidx.slice;
 
 import static android.app.slice.SliceItem.FORMAT_ACTION;
+import static android.app.slice.SliceItem.FORMAT_BUNDLE;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_LONG;
@@ -99,7 +100,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      */
     @RestrictTo(Scope.LIBRARY)
     @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_INT,
-            FORMAT_LONG, FORMAT_REMOTE_INPUT, FORMAT_LONG})
+            FORMAT_LONG, FORMAT_REMOTE_INPUT, FORMAT_LONG, FORMAT_BUNDLE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface SliceType {
     }
@@ -424,6 +425,8 @@ public final class SliceItem extends CustomVersionedParcelable {
             case FORMAT_LONG:
                 dest.putLong(OBJ, (Long) mObj);
                 break;
+            case FORMAT_BUNDLE:
+                dest.putBundle(OBJ, (Bundle) mObj);
         }
     }
 
@@ -445,6 +448,8 @@ public final class SliceItem extends CustomVersionedParcelable {
                 return in.getInt(OBJ);
             case FORMAT_LONG:
                 return in.getLong(OBJ);
+            case FORMAT_BUNDLE:
+                return in.getBundle(OBJ);
         }
         throw new RuntimeException("Unsupported type " + type);
     }

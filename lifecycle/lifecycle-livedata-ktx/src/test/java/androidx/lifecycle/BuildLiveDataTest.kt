@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+
 package androidx.lifecycle
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -34,7 +35,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.coroutineContext
 
-@ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
 class BuildLiveDataTest {
     @get:Rule

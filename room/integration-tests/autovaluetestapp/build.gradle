@@ -20,7 +20,7 @@ buildscript {
     // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
     // vectordrawable and vectordrawable-animated were accidentally using the same package name
     // which is no longer valid in namespaced resource world.
-    project.ext['android.uniquePackageNames'] = false
+    project.ext["android.uniquePackageNames"] = false
 }
 
 plugins {
@@ -30,15 +30,16 @@ plugins {
 
 dependencies {
     implementation(project(":room:room-common"))
-    implementation(project(":sqlite:sqlite"))
-    implementation(project(":sqlite:sqlite-framework"))
     implementation(project(":room:room-runtime"))
-    implementation(project(":arch:core-runtime"))
+    implementation(projectOrArtifact(":arch:core:core-runtime"))
 
-    androidTestAnnotationProcessor project(":room:room-compiler")
+    // depend on the shadowed version so that it tests with the shipped artifact
+    androidTestAnnotationProcessor project(path: ":room:room-compiler",
+            configuration: "shadowAndImplementation")
     androidTestAnnotationProcessor(AUTO_VALUE)
     androidTestAnnotationProcessor(AUTO_VALUE_PARCEL)
 
+    androidTestImplementation(projectOrArtifact(":arch:core:core-runtime")) // Added for b/155802460
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(AUTO_VALUE_ANNOTATIONS)

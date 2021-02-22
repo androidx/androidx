@@ -28,11 +28,20 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteAccessPermException;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
+import android.database.sqlite.SQLiteConstraintException;
+import android.database.sqlite.SQLiteDatabaseCorruptException;
+import android.database.sqlite.SQLiteDatabaseLockedException;
+import android.database.sqlite.SQLiteTableLockedException;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.work.Configuration;
+import androidx.work.InitializationExceptionHandler;
 import androidx.work.Logger;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkDatabase;
@@ -60,28 +69,109 @@ public class ForceStopRunnable implements Runnable {
 
     @VisibleForTesting
     static final String ACTION_FORCE_STOP_RESCHEDULE = "ACTION_FORCE_STOP_RESCHEDULE";
+    @VisibleForTesting
+    static final int MAX_ATTEMPTS = 3;
 
     // All our alarms are use request codes which are > 0.
     private static final int ALARM_ID = -1;
+    private static final long BACKOFF_DURATION_MS = 300L;
     private static final long TEN_YEARS = TimeUnit.DAYS.toMillis(10 * 365);
 
     private final Context mContext;
     private final WorkManagerImpl mWorkManager;
+    private int mRetryCount;
 
     public ForceStopRunnable(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
         mContext = context.getApplicationContext();
         mWorkManager = workManager;
+        mRetryCount = 0;
     }
 
     @Override
     public void run() {
-        // Migrate the database to the no-backup directory if necessary.
-        WorkDatabasePathHelper.migrateDatabase(mContext);
-        // Clean invalid jobs attributed to WorkManager, and Workers that might have been
-        // interrupted because the application crashed (RUNNING state).
-        Logger.get().debug(TAG, "Performing cleanup operations.");
-        boolean needsScheduling = cleanUp();
+        if (!multiProcessChecks()) {
+            return;
+        }
 
+        while (true) {
+            // Migrate the database to the no-backup directory if necessary.
+            WorkDatabasePathHelper.migrateDatabase(mContext);
+            // Clean invalid jobs attributed to WorkManager, and Workers that might have been
+            // interrupted because the application crashed (RUNNING state).
+            Logger.get().debug(TAG, "Performing cleanup operations.");
+            try {
+                forceStopRunnable();
+                break;
+            } catch (SQLiteCantOpenDatabaseException
+                    | SQLiteDatabaseCorruptException
+                    | SQLiteDatabaseLockedException
+                    | SQLiteTableLockedException
+                    | SQLiteConstraintException
+                    | SQLiteAccessPermException exception) {
+                mRetryCount++;
+                if (mRetryCount >= MAX_ATTEMPTS) {
+                    // ForceStopRunnable is usually the first thing that accesses a database
+                    // (or an app's internal data directory). This means that weird
+                    // PackageManager bugs are attributed to ForceStopRunnable, which is
+                    // unfortunate. This gives the developer a better error
+                    // message.
+                    String message = "The file system on the device is in a bad state. "
+                            + "WorkManager cannot access the app's internal data store.";
+                    Logger.get().error(TAG, message, exception);
+                    IllegalStateException throwable = new IllegalStateException(message, exception);
+                    InitializationExceptionHandler exceptionHandler =
+                            mWorkManager.getConfiguration().getExceptionHandler();
+                    if (exceptionHandler != null) {
+                        Logger.get().debug(TAG,
+                                "Routing exception to the specified exception handler",
+                                throwable);
+                        exceptionHandler.handleException(throwable);
+                        break;
+                    } else {
+                        throw throwable;
+                    }
+                } else {
+                    long duration = mRetryCount * BACKOFF_DURATION_MS;
+                    Logger.get()
+                            .debug(TAG, String.format("Retrying after %s", duration), exception);
+                    sleep(mRetryCount * BACKOFF_DURATION_MS);
+                }
+            }
+        }
+    }
+
+    /**
+     * @return {@code true} If the application was force stopped.
+     */
+    @VisibleForTesting
+    public boolean isForceStopped() {
+        // Alarms get cancelled when an app is force-stopped starting at Eclair MR1.
+        // Cancelling of Jobs on force-stop was introduced in N-MR1 (SDK 25).
+        // Even though API 23, 24 are probably safe, OEMs may choose to do
+        // something different.
+        try {
+            PendingIntent pendingIntent = getPendingIntent(mContext, FLAG_NO_CREATE);
+            if (pendingIntent == null) {
+                setAlarm(mContext);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (SecurityException exception) {
+            // Setting Alarms on some devices fails due to OEM introduced bugs in AlarmManager.
+            // When this happens, there is not much WorkManager can do, other can reschedule
+            // everything.
+            Logger.get().warning(TAG, "Ignoring security exception", exception);
+            return true;
+        }
+    }
+
+    /**
+     * Performs all the necessary steps to initialize {@link androidx.work.WorkManager}/
+     */
+    @VisibleForTesting
+    public void forceStopRunnable() {
+        boolean needsScheduling = cleanUp();
         if (shouldRescheduleWorkers()) {
             Logger.get().debug(TAG, "Rescheduling Workers.");
             mWorkManager.rescheduleEligibleWork();
@@ -101,24 +191,6 @@ public class ForceStopRunnable implements Runnable {
     }
 
     /**
-     * @return {@code true} If the application was force stopped.
-     */
-    @VisibleForTesting
-    public boolean isForceStopped() {
-        // Alarms get cancelled when an app is force-stopped starting at Eclair MR1.
-        // Cancelling of Jobs on force-stop was introduced in N-MR1 (SDK 25).
-        // Even though API 23, 24 are probably safe, OEMs may choose to do
-        // something different.
-        PendingIntent pendingIntent = getPendingIntent(mContext, FLAG_NO_CREATE);
-        if (pendingIntent == null) {
-            setAlarm(mContext);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Performs cleanup operations like
      *
      * * Cancel invalid JobScheduler jobs.
@@ -128,11 +200,13 @@ public class ForceStopRunnable implements Runnable {
      */
     @VisibleForTesting
     public boolean cleanUp() {
-        // Mitigation for faulty implementations of JobScheduler (b/134058261
+        boolean needsReconciling = false;
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
-            SystemJobScheduler.cancelInvalidJobs(mContext);
+            // Mitigation for faulty implementations of JobScheduler (b/134058261) and
+            // Mitigation for a platform bug, which causes jobs to get dropped when binding to
+            // SystemJobService fails.
+            needsReconciling = SystemJobScheduler.reconcileJobs(mContext, mWorkManager);
         }
-
         // Reset previously unfinished work.
         WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
@@ -160,7 +234,7 @@ public class ForceStopRunnable implements Runnable {
         } finally {
             workDatabase.endTransaction();
         }
-        return needsScheduling;
+        return needsScheduling || needsReconciling;
     }
 
     /**
@@ -169,6 +243,34 @@ public class ForceStopRunnable implements Runnable {
     @VisibleForTesting
     boolean shouldRescheduleWorkers() {
         return mWorkManager.getPreferenceUtils().getNeedsReschedule();
+    }
+
+    /**
+     * @return {@code true} if we are allowed to run in the current app process.
+     */
+    @VisibleForTesting
+    public boolean multiProcessChecks() {
+        if (mWorkManager.getRemoteWorkManager() == null) {
+            return true;
+        }
+        Logger.get().debug(TAG, "Found a remote implementation for WorkManager");
+        Configuration configuration = mWorkManager.getConfiguration();
+        boolean isDefaultProcess = ProcessUtils.isDefaultProcess(mContext, configuration);
+        Logger.get().debug(TAG, String.format("Is default app process = %s", isDefaultProcess));
+        return isDefaultProcess;
+    }
+
+    /**
+     * Helps with backoff when exceptions occur during {@link androidx.work.WorkManager}
+     * initialization.
+     */
+    @VisibleForTesting
+    public void sleep(long duration) {
+        try {
+            Thread.sleep(duration);
+        } catch (InterruptedException ignore) {
+            // Nothing to do really.
+        }
     }
 
     /**
@@ -217,7 +319,7 @@ public class ForceStopRunnable implements Runnable {
         private static final String TAG = Logger.tagWithPrefix("ForceStopRunnable$Rcvr");
 
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(@NonNull Context context, @Nullable Intent intent) {
             // Our alarm somehow got triggered, so make sure we reschedule it.  This should really
             // never happen because we set it so far in the future.
             if (intent != null) {

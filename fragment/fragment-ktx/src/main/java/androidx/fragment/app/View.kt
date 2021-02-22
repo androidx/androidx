@@ -27,4 +27,4 @@ import android.view.View
  * Calling this on a View that does not have a Fragment set will result in an
  * [IllegalStateException]
  */
-fun <F : Fragment> View.findFragment(): F = FragmentManager.findFragment(this)
+public fun <F : Fragment> View.findFragment(): F = FragmentManager.findFragment(this)

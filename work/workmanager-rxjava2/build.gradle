@@ -26,13 +26,6 @@ plugins {
     id("kotlin-android")
 }
 
-android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
-}
-
 dependencies {
     api(project(":work:work-runtime"))
     api(RX_JAVA)
@@ -44,10 +37,8 @@ dependencies {
 androidx {
     name = "Android WorkManager RxJava2 Support"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.WORK
     mavenGroup = LibraryGroups.WORK
     inceptionYear = "2018"
     description = "Android WorkManager RxJava2 interoperatibility library"
-    url = AndroidXExtension.ARCHITECTURE_URL
     failOnDeprecationWarnings = false
 }

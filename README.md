@@ -4,11 +4,28 @@ Jetpack is a suite of libraries, tools, and guidance to help developers write hi
 
 Jetpack comprises the `androidx.*` package libraries, unbundled from the platform APIs. This means that it offers backward compatibility and is updated more frequently than the Android platform, making sure you always have access to the latest and greatest versions of the Jetpack components.
 
-Our official AARs and JARs binaries are distributed through [Google Maven](https://dl.google.com/dl/android/maven2/index.html).
+Our official AARs and JARs binaries are distributed through [Google Maven](https://maven.google.com).
 
 You can learn more about using it from [Android Jetpack landing page](https://developer.android.com/jetpack).
 
 # Contribution Guide
+
+For contributions via GitHub, see the [GitHub Contribution Guide](CONTRIBUTING.md).
+
+Note: The contributions workflow via GitHub is currently experimental - only contributions to the following projects are being accepted at this time:
+* [Activity](activity)
+* [Biometric](biometric)
+* [Compose Compiler](compose/compiler)
+* [Fragment](fragment)
+* [Lifecycle](lifecycle)
+* [Navigation](navigation)
+* [Paging](paging)
+* [Room](room)
+* [WorkManager](work)
+
+## Code Review Etiquette
+When contributing to Jetpack, follow the [code review etiquette](code-review.md).
+
 ## Accepted Types of Contributions
 * Bug fixes - needs a corresponding bug report in the [Android Issue Tracker](https://issuetracker.google.com/issues/new?component=192731&template=842428)
 * Each bug fix is expected to come with tests
@@ -41,17 +58,17 @@ git config --global user.email "you@example.com"
 3. Create a directory for your checkout (it can be any name)
 
 ```bash
-mkdir androidx-master-dev
-cd androidx-master-dev
+mkdir androidx-main
+cd androidx-main
 ```
 
 4. Use `repo` command to initialize the repository.
 
 ```bash
-repo init -u https://android.googlesource.com/platform/manifest -b androidx-master-dev
+repo init -u https://android.googlesource.com/platform/manifest -b androidx-main --partial-clone --clone-filter=blob:limit=10M
 ```
 
-5. Now your repository is set to pull only what you need for building and running AndroidX libraries. Download the code (and grab a coffee while we pull down 6GB):
+5. Now your repository is set to pull only what you need for building and running AndroidX libraries. Download the code (and grab a coffee while we pull down the files):
 
 ```bash
 repo sync -j8 -c
@@ -65,10 +82,12 @@ To open the project with the specific version of Android Studio recommended for 
 
 ```bash
 cd path/to/checkout/frameworks/support/
-./studiow
+ANDROIDX_PROJECTS=MAIN ./gradlew studio
 ```
 
-and accept the license agreement when prompted. Now you're ready edit, run, and test!
+and accept the license agreement when prompted. Now you're ready to edit, run, and test!
+
+You can also the following sets of projects: `ALL`, `MAIN`, `COMPOSE`, or `FLAN`
 
 If you get “Unregistered VCS root detected” click “Add root” to enable git integration for Android Studio.
 
@@ -97,7 +116,7 @@ maven { url '/path/to/checkout/out/androidx/build/support_repo/' }
 ```
 
 ### Continuous integration
-[Our continuous integration system](https://ci.android.com/builds/branches/aosp-androidx-master-dev/grid?) builds all in progress (and potentially unstable) libraries as new changes are merged. You can manually download these AARs and JARs for your experimentation.
+[Our continuous integration system](https://ci.android.com/builds/branches/aosp-androidx-main/grid?) builds all in progress (and potentially unstable) libraries as new changes are merged. You can manually download these AARs and JARs for your experimentation.
 
 ## Running Tests
 
@@ -113,7 +132,7 @@ maven { url '/path/to/checkout/out/androidx/build/support_repo/' }
 ## Running Sample Apps
 The AndroidX repository has a set of Android applications that exercise AndroidX code. These applications can be useful when you want to debug a real running application, or reproduce a problem interactively, before writing test code.
 
-These applications are named either `<libraryname>-integration-tests-testapp`, or `support-\*-demos` (e.g. `support-4v-demos` or `support-leanback-demos`). You can run them by clicking `Run > Run ...` and choosing the desired application.
+These applications are named either `<libraryname>-integration-tests-testapp`, or `support-\*-demos` (e.g. `support-v4-demos` or `support-leanback-demos`). You can run them by clicking `Run > Run ...` and choosing the desired application.
 
 ## Password and Contributor Agreement before making a change
 Before uploading your first contribution, you will need setup a password and agree to the contribution agreement:

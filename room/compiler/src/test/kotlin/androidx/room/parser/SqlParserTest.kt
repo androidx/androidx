@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.room.parser
 
 import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -27,11 +24,12 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SqlParserTest {
-
     @Test
     fun multipleQueries() {
-        assertErrors("SELECT * FROM users; SELECT * FROM books;",
-                ParserErrors.NOT_ONE_QUERY)
+        assertErrors(
+            "SELECT * FROM users; SELECT * FROM books;",
+            ParserErrors.NOT_ONE_QUERY
+        )
     }
 
     @Test
@@ -48,8 +46,10 @@ class SqlParserTest {
 
     @Test
     fun badDeleteQuery() {
-        assertErrors("delete from user where mAge >= :min && mAge <= :max",
-                "no viable alternative at input 'delete from user where mAge >= :min &&'")
+        assertErrors(
+            "delete from user where mAge >= :min && mAge <= :max",
+            "no viable alternative at input 'delete from user where mAge >= :min &&'"
+        )
     }
 
     @Test
@@ -62,7 +62,8 @@ class SqlParserTest {
     @Test
     fun insertQuery() {
         val parsed = SqlParser.parse(
-            "INSERT OR REPLACE INTO notes (id, content) VALUES (:id, :content)")
+            "INSERT OR REPLACE INTO notes (id, content) VALUES (:id, :content)"
+        )
         assertThat(parsed.errors, `is`(emptyList()))
         assertThat(parsed.type, `is`(QueryType.INSERT))
     }
@@ -80,15 +81,19 @@ class SqlParserTest {
 
     @Test
     fun explain() {
-        assertErrors("EXPLAIN QUERY PLAN SELECT * FROM users",
-                ParserErrors.invalidQueryType(QueryType.EXPLAIN))
+        assertErrors(
+            "EXPLAIN QUERY PLAN SELECT * FROM users",
+            ParserErrors.invalidQueryType(QueryType.EXPLAIN)
+        )
     }
 
     @Test
     fun validColumnNames() {
-        listOf("f", "fo", "f2", "f 2", "foo_2", "foo-2", "_", "foo bar baz",
-                "foo 2 baz", "_baz", "fooBar", "2", "*", "foo*2", "dsa$", "\$fsa",
-                "-bar", "şoöğüı").forEach {
+        listOf(
+            "f", "fo", "f2", "f 2", "foo_2", "foo-2", "_", "foo bar baz",
+            "foo 2 baz", "_baz", "fooBar", "2", "*", "foo*2", "dsa$", "\$fsa",
+            "-bar", "şoöğüı"
+        ).forEach {
             assertThat("name: $it", SqlParser.isValidIdentifier(it), `is`(true))
         }
     }
@@ -101,91 +106,39 @@ class SqlParserTest {
     }
 
     @Test
-    fun projection() {
-        val query = SqlParser.parse("SELECT * FROM User WHERE teamId IN " +
-                "(SELECT * FROM Team WHERE active != 0)")
-        assertThat(query.errors, `is`(emptyList()))
-        assertThat(query.projections.size, `is`(1))
-        assertThat(query.projections.first().section.text, `is`(equalTo("*")))
-    }
-
-    @Test
-    fun projection_tableName() {
-        val query = SqlParser.parse("SELECT User.* FROM User")
-        assertThat(query.errors, `is`(emptyList()))
-        assertThat(query.projections.size, `is`(1))
-        assertThat(query.projections.first().section.text, `is`(equalTo("User.*")))
-    }
-
-    @Test
-    fun projection_columnNames() {
-        val query = SqlParser.parse("SELECT `id` AS `a_id`, name FROM User")
-        assertThat(query.errors, `is`(emptyList()))
-        assertThat(query.projections.size, `is`(0))
-        assertThat(query.sections.size, `is`(1))
-        assertThat(query.sections[0], `is`(instanceOf(Section.Text::class.java)))
-        assertThat(query.explicitColumns.size, `is`(2))
-        assertThat(query.explicitColumns[0], `is`(equalTo("a_id")))
-        assertThat(query.explicitColumns[1], `is`(equalTo("name")))
-    }
-
-    @Test
-    fun projection_containsNewline() {
-        val query = SqlParser.parse("SELECT User   \n.   \n* FROM User")
-        assertThat(query.errors, `is`(emptyList()))
-        assertThat(query.projections.size, `is`(1))
-        assertThat(query.projections.first().section.text, `is`(equalTo("User   \n.   \n*")))
-        assertThat(query.sections.size, `is`(3))
-        assertThat(query.sections[0], `is`(instanceOf(Section.Text::class.java)))
-        assertThat(query.sections[1], `is`(instanceOf(Section.Projection.Table::class.java)))
-        assertThat(query.sections[2], `is`(instanceOf(Section.Text::class.java)))
-    }
-
-    @Test
-    fun projection_containsExpression() {
-        val query = SqlParser.parse("SELECT firstName || lastName AS fullName FROM User")
-        assertThat(query.errors, `is`(emptyList()))
-        assertThat(query.projections.size, `is`(0))
-        assertThat(query.sections.size, `is`(1))
-        assertThat(query.sections[0], `is`(instanceOf(Section.Text::class.java)))
-        assertThat(query.explicitColumns.size, `is`(1))
-        assertThat(query.explicitColumns[0], `is`(equalTo("fullName")))
-    }
-
-    @Test
-    fun projection_containsParameter() {
-        val query = SqlParser.parse("SELECT firstName || :suffix AS nickname FROM User")
-        assertThat(query.errors, `is`(emptyList()))
-        assertThat(query.projections.size, `is`(0))
-        assertThat(query.sections.size, `is`(3))
-        assertThat(query.sections[0], `is`(instanceOf(Section.Text::class.java)))
-        assertThat(query.sections[1], `is`(instanceOf(Section.BindVar::class.java)))
-        assertThat((query.sections[1] as Section.BindVar).symbol, `is`(equalTo(":suffix")))
-        assertThat(query.sections[2], `is`(instanceOf(Section.Text::class.java)))
-        assertThat(query.explicitColumns.size, `is`(1))
-        assertThat(query.explicitColumns[0], `is`(equalTo("nickname")))
-    }
-
-    @Test
     fun extractTableNames() {
-        assertThat(SqlParser.parse("select * from users").tables,
-                `is`(setOf(Table("users", "users"))))
-        assertThat(SqlParser.parse("select * from users as ux").tables,
-                `is`(setOf(Table("users", "ux"))))
-        assertThat(SqlParser.parse("select * from (select * from books)").tables,
-                `is`(setOf(Table("books", "books"))))
-        assertThat(SqlParser.parse("select x.id from (select * from books) as x").tables,
-                `is`(setOf(Table("books", "books"))))
+        assertThat(
+            SqlParser.parse("select * from users").tables,
+            `is`(setOf(Table("users", "users")))
+        )
+        assertThat(
+            SqlParser.parse("select * from users as ux").tables,
+            `is`(setOf(Table("users", "ux")))
+        )
+        assertThat(
+            SqlParser.parse("select * from (select * from books)").tables,
+            `is`(setOf(Table("books", "books")))
+        )
+        assertThat(
+            SqlParser.parse("select x.id from (select * from books) as x").tables,
+            `is`(setOf(Table("books", "books")))
+        )
     }
 
     @Test
     fun unescapeTableNames() {
-        assertThat(SqlParser.parse("select * from `users`").tables,
-                `is`(setOf(Table("users", "users"))))
-        assertThat(SqlParser.parse("select * from \"users\"").tables,
-                `is`(setOf(Table("users", "users"))))
-        assertThat(SqlParser.parse("select * from 'users'").tables,
-                `is`(setOf(Table("users", "users"))))
+        assertThat(
+            SqlParser.parse("select * from `users`").tables,
+            `is`(setOf(Table("users", "users")))
+        )
+        assertThat(
+            SqlParser.parse("select * from \"users\"").tables,
+            `is`(setOf(Table("users", "users")))
+        )
+        assertThat(
+            SqlParser.parse("select * from 'users'").tables,
+            `is`(setOf(Table("users", "users")))
+        )
     }
 
     @Test
@@ -205,17 +158,33 @@ class SqlParserTest {
     fun tablePrefixInSelect_projection() {
         val query = SqlParser.parse("SELECT a.name, b.last_name from user a, book b")
         assertThat(query.errors, `is`(emptyList()))
-        assertThat(query.tables, `is`(setOf(Table("user", "a"),
-                Table("book", "b"))))
+        assertThat(
+            query.tables,
+            `is`(
+                setOf(
+                    Table("user", "a"),
+                    Table("book", "b")
+                )
+            )
+        )
     }
 
     @Test
     fun tablePrefixInSelect_where() {
-        val query = SqlParser.parse("SELECT a.name, b.last_name from user a, book b" +
-                " WHERE a.name = b.name")
+        val query = SqlParser.parse(
+            "SELECT a.name, b.last_name from user a, book b" +
+                " WHERE a.name = b.name"
+        )
         assertThat(query.errors, `is`(emptyList()))
-        assertThat(query.tables, `is`(setOf(Table("user", "a"),
-                Table("book", "b"))))
+        assertThat(
+            query.tables,
+            `is`(
+                setOf(
+                    Table("user", "a"),
+                    Table("book", "b")
+                )
+            )
+        )
     }
 
     @Test
@@ -244,64 +213,124 @@ class SqlParserTest {
 
     @Test
     fun indexedVariablesError() {
-        assertErrors("select * from users where name like ?",
-                ParserErrors.ANONYMOUS_BIND_ARGUMENT)
-        assertErrors("select * from users where name like ? or last_name like ?",
-                ParserErrors.ANONYMOUS_BIND_ARGUMENT)
-        assertErrors("select * from users where name like ?1",
-                ParserErrors.cannotUseVariableIndices("?1", 36))
+        assertErrors(
+            "select * from users where name like ?",
+            ParserErrors.ANONYMOUS_BIND_ARGUMENT
+        )
+        assertErrors(
+            "select * from users where name like ? or last_name like ?",
+            ParserErrors.ANONYMOUS_BIND_ARGUMENT
+        )
+        assertErrors(
+            "select * from users where name like ?1",
+            ParserErrors.cannotUseVariableIndices("?1", 36)
+        )
     }
 
     @Test
-    fun splitSections() {
-        assertSections("select * from users where name like ?",
-                Section.Text("select "),
-                Section.Projection.All,
-                Section.Text(" from users where name like "),
-                Section.BindVar("?"))
+    fun selectMultipleBindingParameter() {
+        SqlParser.parse("SELECT * FROM Foo WHERE id IN (:param1) AND bar = :param2").let {
+            assertThat(it.inputs.size, `is`(2))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+            assertThat(it.inputs[1].isMultiple, `is`(false))
+        }
+        SqlParser.parse("SELECT * FROM Foo WHERE id NOT IN (:param1)").let {
+            assertThat(it.inputs.size, `is`(1))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+        }
+        SqlParser.parse("SELECT * FROM Foo WHERE id IN ('a', :param1, 'c')").let {
+            assertThat(it.inputs.size, `is`(1))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+        }
+        SqlParser.parse("SELECT (:param1), ifnull(:param2, data) FROM Foo").let {
+            assertThat(it.inputs.size, `is`(2))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+            assertThat(it.inputs[1].isMultiple, `is`(false))
+        }
+        SqlParser.parse("SELECT max(:param1) FROM Foo").let {
+            assertThat(it.inputs.size, `is`(1))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+        }
+        SqlParser.parse("SELECT * FROM Foo JOIN Bar ON (Foo.id = Bar.id) GROUP BY (:param1)").let {
+            assertThat(it.inputs.size, `is`(1))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+        }
+        SqlParser.parse("SELECT MAX(:param1) AS num FROM Foo WHERE num > ABS(:param2)").let {
+            assertThat(it.inputs.size, `is`(2))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+            assertThat(it.inputs[1].isMultiple, `is`(false))
+        }
+        SqlParser.parse("SELECT * FROM Foo WHERE num > customFun(:param)").let {
+            assertThat(it.inputs.size, `is`(1))
+            assertThat(it.inputs[0].isMultiple, `is`(true))
+        }
+    }
 
-        assertSections("select * from users where name like :name AND last_name like :lastName",
-                Section.Text("select "),
-                Section.Projection.All,
-                Section.Text(" from users where name like "),
-                Section.BindVar(":name"),
-                Section.Text(" AND last_name like "),
-                Section.BindVar(":lastName"))
+    @Test
+    fun insertMultipleBindingParameter() {
+        val query = SqlParser.parse("INSERT INTO Foo VALUES (:param)")
+        assertThat(query.inputs.size, `is`(1))
+        assertThat(query.inputs.first().isMultiple, `is`(true))
+    }
 
-        assertSections("select * from users where name \nlike :name AND last_name like :lastName",
-                Section.Text("select "),
-                Section.Projection.All,
-                Section.Text(" from users where name "),
-                Section.Newline,
-                Section.Text("like "),
-                Section.BindVar(":name"),
-                Section.Text(" AND last_name like "),
-                Section.BindVar(":lastName"))
-
-        assertSections("select * from users where name like :name \nAND last_name like :lastName",
-                Section.Text("select "),
-                Section.Projection.All,
-                Section.Text(" from users where name like "),
-                Section.BindVar(":name"),
-                Section.Text(" "),
-                Section.Newline,
-                Section.Text("AND last_name like "),
-                Section.BindVar(":lastName"))
-
-        assertSections("select * from users where name like :name \nAND last_name like \n:lastName",
-                Section.Text("select "),
-                Section.Projection.All,
-                Section.Text(" from users where name like "),
-                Section.BindVar(":name"),
-                Section.Text(" "),
-                Section.Newline,
-                Section.Text("AND last_name like "),
-                Section.Newline,
-                Section.BindVar(":lastName"))
+    @Test
+    fun foo() {
+        assertSections(
+            "select * from users where name like ?",
+            Section.text("select * from users where name like "),
+            Section.bindVar("?", false)
+        )
+        assertSections(
+            "select * from users where name like :name AND last_name like :lastName",
+            Section.text("select * from users where name like "),
+            Section.bindVar(":name", false),
+            Section.text(" AND last_name like "),
+            Section.bindVar(":lastName", false)
+        )
+        assertSections(
+            "select * from users where name \nlike :name AND last_name like :lastName",
+            Section.text("select * from users where name "),
+            Section.newline(),
+            Section.text("like "),
+            Section.bindVar(":name", false),
+            Section.text(" AND last_name like "),
+            Section.bindVar(":lastName", false)
+        )
+        assertSections(
+            "select * from users where name like :name \nAND last_name like :lastName",
+            Section.text("select * from users where name like "),
+            Section.bindVar(":name", false),
+            Section.text(" "),
+            Section.newline(),
+            Section.text("AND last_name like "),
+            Section.bindVar(":lastName", false)
+        )
+        assertSections(
+            "select * from users where name like :name \nAND last_name like \n:lastName",
+            Section.text("select * from users where name like "),
+            Section.bindVar(":name", false),
+            Section.text(" "),
+            Section.newline(),
+            Section.text("AND last_name like "),
+            Section.newline(),
+            Section.bindVar(":lastName", false)
+        )
+        assertSections(
+            "select * from users where name in (?)",
+            Section.text("select * from users where name in ("),
+            Section.bindVar("?", true),
+            Section.text(")")
+        )
+        assertSections(
+            "select * from users where name in (:names)",
+            Section.text("select * from users where name in ("),
+            Section.bindVar(":names", true),
+            Section.text(")")
+        )
     }
 
     fun assertVariables(query: String, vararg expected: String) {
-        assertThat((SqlParser.parse(query)).inputs.map { it.section.text }, `is`(expected.toList()))
+        assertThat((SqlParser.parse(query)).inputs.map { it.text }, `is`(expected.toList()))
     }
 
     fun assertErrors(query: String, vararg errors: String) {

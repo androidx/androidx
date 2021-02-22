@@ -16,16 +16,18 @@
 
 package androidx.recyclerview.selection;
 
+import static androidx.recyclerview.selection.testing.TestEvents.Touch.DOWN;
+import static androidx.recyclerview.selection.testing.TestEvents.Touch.MOVE;
+import static androidx.recyclerview.selection.testing.TestEvents.Touch.UP;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import android.view.MotionEvent;
 
 import androidx.recyclerview.selection.testing.SelectionProbe;
 import androidx.recyclerview.selection.testing.SelectionTrackers;
 import androidx.recyclerview.selection.testing.TestAutoScroller;
-import androidx.recyclerview.selection.testing.TestEvents;
 import androidx.recyclerview.selection.testing.TestSelectionPredicate;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -38,21 +40,6 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class GestureSelectionHelperTest {
-
-    private static final MotionEvent DOWN = TestEvents.builder()
-            .action(MotionEvent.ACTION_DOWN)
-            .location(1, 1)
-            .build();
-
-    private static final MotionEvent MOVE = TestEvents.builder()
-            .action(MotionEvent.ACTION_MOVE)
-            .location(1, 1)
-            .build();
-
-    private static final MotionEvent UP = TestEvents.builder()
-            .action(MotionEvent.ACTION_UP)
-            .location(1, 1)
-            .build();
 
     private GestureSelectionHelper mHelper;
     private SelectionTracker<String> mSelectionTracker;
@@ -86,21 +73,25 @@ public class GestureSelectionHelperTest {
     }
 
     @Test
-    public void testThrowsWhenStartingWithoutRange() {
-        mView.mNextPosition = 0;
-
-        // Normally, this is controller by the TouchSelectionHelper via a a long press gesture.
-        mSelectionTracker.select("1");
-        // If mSelectionTracker.anchorRange(1) didn't initialize the range, then start
-        // should throw an exception.
-        try {
-            mHelper.start();
-            fail("Should have thrown IllegalStateException.");
-        } catch (IllegalStateException expected) { }
+    public void testIgnoresEventsWhenNotStarted() {
+        assertFalse(mHelper.onInterceptTouchEvent(null, MOVE));
     }
 
     @Test
-    public void testIgnoresEventsWhenNotStarted() {
+    public void testRequiresReset() {
+        mHelper.start();
+        assertTrue(mHelper.isResetRequired());
+    }
+
+    @Test
+    public void testReset() {
+        mHelper.start();
+        mHelper.reset();
+        assertFalse(mHelper.isResetRequired());
+    }
+
+    @Test
+    public void testResetsOnCancel() {
         assertFalse(mHelper.onInterceptTouchEvent(null, MOVE));
     }
 

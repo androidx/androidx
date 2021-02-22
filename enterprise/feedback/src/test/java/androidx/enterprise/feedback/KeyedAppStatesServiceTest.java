@@ -16,6 +16,8 @@
 
 package androidx.enterprise.feedback;
 
+import static android.os.Looper.getMainLooper;
+
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATES;
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATE_KEY;
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATE_SEVERITY;
@@ -41,22 +43,26 @@ import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.android.util.concurrent.PausedExecutorService;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowBinder;
+import org.robolectric.shadows.ShadowPausedAsyncTask;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 /** Tests {@link KeyedAppStatesService}. */
+@SuppressWarnings("UnstableApiUsage") // PausedExecutorService and ShadowPausedAsyncTask are @Beta
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = 21)
@@ -99,24 +105,37 @@ public class KeyedAppStatesServiceTest {
     private final ContextWrapper mContext = ApplicationProvider.getApplicationContext();
     private final PackageManager mPackageManager = mContext.getPackageManager();
 
+    private static PausedExecutorService sAsyncTaskExecutor;
+
     private static final int DEFAULT_SENDING_UID = -1;
 
     private static final long CURRENT_TIME_MILLIS = 1234567;
+
+    @BeforeClass
+    public static void setUpClass() {
+        sAsyncTaskExecutor = new PausedExecutorService();
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+        sAsyncTaskExecutor.shutdown();
+    }
 
     @Before
     public void setUp() {
         shadowOf(mPackageManager).setNameForUid(DEFAULT_SENDING_UID, "test_package");
         ShadowBinder.setCallingUid(DEFAULT_SENDING_UID);
+        ShadowPausedAsyncTask.overrideExecutor(sAsyncTaskExecutor);
     }
 
     @Test
-    @SmallTest
     public void receivesStates() throws RemoteException {
         Collection<KeyedAppState> keyedAppStates = asList(STATE, STATE2);
         Bundle appStatesBundle = buildStatesBundle(keyedAppStates);
         Message message = createStateMessage(appStatesBundle);
 
         mMessenger.send(message);
+        idleKeyedAppStatesService();
 
         assertReceivedStatesMatch(mKeyedAppStatesService.mStates, asList(STATE, STATE2));
     }
@@ -144,11 +163,11 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void receivesTimestamp() throws RemoteException {
         SystemClock.setCurrentTimeMillis(CURRENT_TIME_MILLIS);
 
         mMessenger.send(createTestStateMessage());
+        idleKeyedAppStatesService();
 
         ReceivedKeyedAppState receivedState = mKeyedAppStatesService.mStates.iterator().next();
         long timestamp = receivedState.getTimestamp();
@@ -156,37 +175,36 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void receivesPackageName() throws RemoteException {
         final String packageName = "test.package.name";
         shadowOf(mPackageManager).setNameForUid(DEFAULT_SENDING_UID, packageName);
 
         mMessenger.send(createTestStateMessage());
+        idleKeyedAppStatesService();
 
         ReceivedKeyedAppState receivedState = mKeyedAppStatesService.mStates.iterator().next();
         assertThat(receivedState.getPackageName()).isEqualTo(packageName);
     }
 
     @Test
-    @SmallTest
     public void receivesDoesNotRequestSync() throws RemoteException {
         mMessenger.send(createTestStateMessage());
+        idleKeyedAppStatesService();
 
         assertThat(mKeyedAppStatesService.mRequestSync).isFalse();
     }
 
     @Test
-    @SmallTest
     public void receivesRequestSync() throws RemoteException {
         Message message = createStateMessageImmediate(buildStatesBundle(singleton(STATE)));
 
         mMessenger.send(message);
+        idleKeyedAppStatesService();
 
         assertThat(mKeyedAppStatesService.mRequestSync).isTrue();
     }
 
     @Test
-    @SmallTest
     public void deduplicatesStates() throws RemoteException {
         // Arrange
         Collection<KeyedAppState> keyedAppStates =
@@ -206,61 +224,61 @@ public class KeyedAppStatesServiceTest {
 
         // Act
         mMessenger.send(message);
+        idleKeyedAppStatesService();
 
         // Assert
         assertThat(mKeyedAppStatesService.mStates).hasSize(1);
     }
 
     @Test
-    @SmallTest
     public void send_emptyStates_doesNotCallback() throws RemoteException {
-        Bundle appStatesBundle = buildStatesBundle(Collections.<KeyedAppState>emptyList());
+        Bundle appStatesBundle = buildStatesBundle(Collections.emptyList());
         Message message = createStateMessage(appStatesBundle);
 
         mMessenger.send(message);
+        idleKeyedAppStatesService();
 
         assertThat(mKeyedAppStatesService.mStates).isNull();
     }
 
     @Test
-    @SmallTest
     public void send_messageWithoutWhat_doesNotCallback() throws RemoteException {
         Message message = Message.obtain();
 
         mMessenger.send(message);
+        idleKeyedAppStatesService();
 
         assertThat(mKeyedAppStatesService.mStates).isNull();
     }
 
     @Test
-    @SmallTest
     public void send_messageWithoutBundle_doesNotCallback() throws RemoteException {
         mMessenger.send(createStateMessage(null));
+        idleKeyedAppStatesService();
 
         assertThat(mKeyedAppStatesService.mStates).isNull();
     }
 
     @Test
-    @SmallTest
     public void send_messageWithIncorrectObj_doesNotCallback() throws RemoteException {
         Message message = createStateMessage(null);
         message.obj = "";
 
         mMessenger.send(message);
+        idleKeyedAppStatesService();
 
         assertThat(mKeyedAppStatesService.mStates).isNull();
     }
 
     @Test
-    @SmallTest
     public void send_messageWithEmptyBundle_doesNotCallback() throws RemoteException {
         mMessenger.send(createStateMessage(new Bundle()));
+        idleKeyedAppStatesService();
 
         assertThat(mKeyedAppStatesService.mStates).isNull();
     }
 
     @Test
-    @SmallTest
     public void send_messsageWithInvalidState_doesNotCallback() throws RemoteException {
         Bundle invalidStateBundle = createDefaultStateBundle();
         invalidStateBundle.remove(APP_STATE_KEY);
@@ -268,12 +286,12 @@ public class KeyedAppStatesServiceTest {
         Message message = createStateMessage(bundle);
 
         mMessenger.send(message);
+        idleKeyedAppStatesService();
 
         assertThat(mKeyedAppStatesService.mStates).isNull();
     }
 
     @Test
-    @SmallTest
     public void send_messageWithBothInvalidAndValidStates_callsBackWithOnlyValidStates()
             throws RemoteException {
         Bundle invalidStateBundle = createDefaultStateBundle();
@@ -284,6 +302,7 @@ public class KeyedAppStatesServiceTest {
         Message message = createStateMessage(bundle);
 
         mMessenger.send(message);
+        idleKeyedAppStatesService();
 
         assertThat(mKeyedAppStatesService.mStates).hasSize(1);
     }
@@ -333,5 +352,18 @@ public class KeyedAppStatesServiceTest {
 
     private static Message createStateMessageImmediate(Bundle appStatesBundle) {
         return createStateMessage(appStatesBundle, true);
+    }
+
+    private static void idleKeyedAppStatesService() {
+        // Ensure messages are sent and handled by service
+        shadowOf(getMainLooper()).idle();
+
+        // Run any AsyncTasks executed by service
+        int numRun = sAsyncTaskExecutor.runAll();
+
+        if (numRun > 0) {
+            // Receive results of AsyncTasks
+            shadowOf(getMainLooper()).idle();
+        }
     }
 }

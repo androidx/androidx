@@ -19,6 +19,8 @@ package androidx.transition;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import androidx.annotation.NonNull;
+
 /**
  * Utility class for creating a default transition that automatically fades,
  * moves, and resizes views during a scene change.
@@ -38,7 +40,7 @@ public class AutoTransition extends TransitionSet {
         init();
     }
 
-    public AutoTransition(Context context, AttributeSet attrs) {
+    public AutoTransition(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
         init();
     }

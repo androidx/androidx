@@ -19,14 +19,16 @@ package androidx.fragment.app
 import android.os.Bundle
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 
 @SmallTest
 class FragmentTransactionTest {
-    @get:Rule val activityRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @Suppress("DEPRECATION")
+    @get:Rule val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(
+        TestActivity::class.java
+    )
     private val fragmentManager get() = activityRule.activity.supportFragmentManager
 
     @UiThreadTest

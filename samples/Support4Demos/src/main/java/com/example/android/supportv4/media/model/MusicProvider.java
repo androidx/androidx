@@ -16,7 +16,6 @@
 
 package com.example.android.supportv4.media.model;
 
-import android.os.AsyncTask;
 import android.support.v4.media.MediaMetadataCompat;
 import android.util.Log;
 
@@ -174,6 +173,7 @@ public class MusicProvider {
      * Get the list of music tracks from a server and caches the track information
      * for future reference, keying tracks by musicId and grouping by genre.
      */
+    @SuppressWarnings("deprecation") /* AsyncTask */
     public void retrieveMediaAsync(final Callback callback) {
         Log.d(TAG, "retrieveMediaAsync called");
         if (mCurrentState == State.INITIALIZED) {
@@ -183,7 +183,7 @@ public class MusicProvider {
         }
 
         // Asynchronously load the music catalog in a separate thread
-        new AsyncTask<Void, Void, State>() {
+        new android.os.AsyncTask<Void, Void, State>() {
             @Override
             protected State doInBackground(Void... params) {
                 retrieveMedia();

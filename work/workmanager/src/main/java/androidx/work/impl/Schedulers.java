@@ -16,6 +16,7 @@
 
 package androidx.work.impl;
 
+import static androidx.work.impl.Scheduler.MAX_GREEDY_SCHEDULER_LIMIT;
 import static androidx.work.impl.utils.PackageManagerHelper.setComponentEnabled;
 
 import android.content.Context;
@@ -64,19 +65,27 @@ public class Schedulers {
         }
 
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-        List<WorkSpec> eligibleWorkSpecs;
+        List<WorkSpec> eligibleWorkSpecsForLimitedSlots;
+        List<WorkSpec> allEligibleWorkSpecs;
 
         workDatabase.beginTransaction();
         try {
-            eligibleWorkSpecs = workSpecDao.getEligibleWorkForScheduling(
+            // Enqueued workSpecs when scheduling limits are applicable.
+            eligibleWorkSpecsForLimitedSlots = workSpecDao.getEligibleWorkForScheduling(
                     configuration.getMaxSchedulerLimit());
-            if (eligibleWorkSpecs != null && eligibleWorkSpecs.size() > 0) {
+
+            // Enqueued workSpecs when scheduling limits are NOT applicable.
+            allEligibleWorkSpecs = workSpecDao.getAllEligibleWorkSpecsForScheduling(
+                    MAX_GREEDY_SCHEDULER_LIMIT);
+
+            if (eligibleWorkSpecsForLimitedSlots != null
+                    && eligibleWorkSpecsForLimitedSlots.size() > 0) {
                 long now = System.currentTimeMillis();
 
                 // Mark all the WorkSpecs as scheduled.
                 // Calls to Scheduler#schedule() could potentially result in more schedules
                 // on a separate thread. Therefore, this needs to be done first.
-                for (WorkSpec workSpec : eligibleWorkSpecs) {
+                for (WorkSpec workSpec : eligibleWorkSpecsForLimitedSlots) {
                     workSpecDao.markWorkSpecScheduled(workSpec.id, now);
                 }
             }
@@ -85,11 +94,30 @@ public class Schedulers {
             workDatabase.endTransaction();
         }
 
-        if (eligibleWorkSpecs != null && eligibleWorkSpecs.size() > 0) {
-            WorkSpec[] eligibleWorkSpecsArray = eligibleWorkSpecs.toArray(new WorkSpec[0]);
-            // Delegate to the underlying scheduler.
+        if (eligibleWorkSpecsForLimitedSlots != null
+                && eligibleWorkSpecsForLimitedSlots.size() > 0) {
+
+            WorkSpec[] eligibleWorkSpecsArray =
+                    new WorkSpec[eligibleWorkSpecsForLimitedSlots.size()];
+            eligibleWorkSpecsArray =
+                    eligibleWorkSpecsForLimitedSlots.toArray(eligibleWorkSpecsArray);
+
+            // Delegate to the underlying schedulers.
             for (Scheduler scheduler : schedulers) {
-                scheduler.schedule(eligibleWorkSpecsArray);
+                if (scheduler.hasLimitedSchedulingSlots()) {
+                    scheduler.schedule(eligibleWorkSpecsArray);
+                }
+            }
+        }
+
+        if (allEligibleWorkSpecs != null && allEligibleWorkSpecs.size() > 0) {
+            WorkSpec[] enqueuedWorkSpecsArray = new WorkSpec[allEligibleWorkSpecs.size()];
+            enqueuedWorkSpecsArray = allEligibleWorkSpecs.toArray(enqueuedWorkSpecsArray);
+            // Delegate to the underlying schedulers.
+            for (Scheduler scheduler : schedulers) {
+                if (!scheduler.hasLimitedSchedulingSlots()) {
+                    scheduler.schedule(enqueuedWorkSpecsArray);
+                }
             }
         }
     }

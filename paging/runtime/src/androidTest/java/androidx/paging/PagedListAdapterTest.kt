@@ -20,21 +20,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.TestExecutor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.reset
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.verifyZeroInteractions
 
 @MediumTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class PagedListAdapterTest {
     private val mainThread = TestExecutor()
     private val diffThread = TestExecutor()
@@ -43,6 +38,7 @@ class PagedListAdapterTest {
         .setBackgroundThreadExecutor(diffThread)
         .build()
 
+    @Suppress("DEPRECATION")
     inner class Adapter(
         private val onChangedLegacy: AsyncPagedListDiffer.PagedListListener<String>? = null,
         private val onChanged: AsyncPagedListDiffer.PagedListListener<String>? = null
@@ -57,6 +53,7 @@ class PagedListAdapterTest {
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) =
             throw IllegalStateException("not supported")
 
+        @Suppress("OverridingDeprecatedMember")
         override fun onCurrentListChanged(currentList: PagedList<String>?) {
             onChangedLegacy?.onCurrentListChanged(null, currentList)
         }
@@ -75,18 +72,15 @@ class PagedListAdapterTest {
 
     @Test
     fun initialState() {
-        @Suppress("UNCHECKED_CAST")
-        val listenerLegacy = mock(AsyncPagedListDiffer.PagedListListener::class.java)
-                as AsyncPagedListDiffer.PagedListListener<String>
-        @Suppress("UNCHECKED_CAST")
-        val listener = mock(AsyncPagedListDiffer.PagedListListener::class.java)
-                as AsyncPagedListDiffer.PagedListListener<String>
+        val listenerLegacy = PagedListListenerFake<String>()
+        val listener = PagedListListenerFake<String>()
 
         val adapter = Adapter(listenerLegacy, listener)
         assertEquals(0, adapter.itemCount)
         assertEquals(null, adapter.currentList)
-        verifyZeroInteractions(listenerLegacy)
-        verifyZeroInteractions(listener)
+
+        assertEquals(0, listenerLegacy.onCurrentListChangedEvents.size)
+        assertEquals(0, listener.onCurrentListChangedEvents.size)
     }
 
     @Test
@@ -115,84 +109,99 @@ class PagedListAdapterTest {
         assertSame(list, adapter.currentList)
     }
 
-    private fun verifyZeroInteractions(
-        legacyListener: AsyncPagedListDiffer.PagedListListener<String>,
-        listener: AsyncPagedListDiffer.PagedListListener<String>
-    ) {
-        verifyZeroInteractions(legacyListener)
-        verifyZeroInteractions(listener)
-    }
-
-    private fun verifyNoMoreInteractions(
-        legacyListener: AsyncPagedListDiffer.PagedListListener<String>,
-        listener: AsyncPagedListDiffer.PagedListListener<String>
-    ) {
-        verifyNoMoreInteractions(legacyListener)
-        verifyNoMoreInteractions(listener)
-    }
-
-    private fun verifyOnCurrentListChanged(
-        legacyListener: AsyncPagedListDiffer.PagedListListener<String>,
-        listener: AsyncPagedListDiffer.PagedListListener<String>,
-        previousList: PagedList<String>?,
-        currentList: PagedList<String>?
-    ) {
-        verify(legacyListener).onCurrentListChanged(null, currentList)
-        verify(listener).onCurrentListChanged(previousList, currentList)
-    }
-
     @Test
     fun callbacks() {
-        val callback = mock(Runnable::class.java)
-
-        @Suppress("UNCHECKED_CAST")
-        val legacyListener = mock(AsyncPagedListDiffer.PagedListListener::class.java)
-                as AsyncPagedListDiffer.PagedListListener<String>
-        @Suppress("UNCHECKED_CAST")
-        val listener = mock(AsyncPagedListDiffer.PagedListListener::class.java)
-                as AsyncPagedListDiffer.PagedListListener<String>
+        val callback = RunnableFake()
+        val legacyListener = PagedListListenerFake<String>()
+        val listener = PagedListListenerFake<String>()
 
         val adapter = Adapter(legacyListener, listener)
 
         // first - simple insert
         val first = StringPagedList(2, 2, "a", "b")
-        verifyZeroInteractions(legacyListener, listener)
+
+        // Assert no interactions with listeners
+        assertEquals(0, legacyListener.onCurrentListChangedEvents.size)
+        assertEquals(0, listener.onCurrentListChangedEvents.size)
+
         adapter.submitList(first, callback)
-        verifyOnCurrentListChanged(legacyListener, listener, null, first)
-        verifyNoMoreInteractions(legacyListener, listener)
-        verify(callback).run()
-        verifyNoMoreInteractions(callback)
-        reset(callback)
+
+        // Assert exactly 1 call to onCurrentListChanged with previousList = null,
+        // currentList = first.
+        assertEquals(1, legacyListener.onCurrentListChangedEvents.size)
+        assertEquals(
+            PagedListListenerFake.OnCurrentListChangedEvent(null, first),
+            legacyListener.onCurrentListChangedEvents[0]
+        )
+        assertEquals(1, listener.onCurrentListChangedEvents.size)
+        assertEquals(
+            PagedListListenerFake.OnCurrentListChangedEvent(null, first),
+            listener.onCurrentListChangedEvents[0]
+        )
+        // Assert exactly 1 call to callback.run().
+        assertEquals(1, callback.runEvents.size)
 
         // second - async update
         val second = StringPagedList(2, 2, "c", "d")
         adapter.submitList(second, callback)
-        verifyNoMoreInteractions(legacyListener, listener)
-        verifyNoMoreInteractions(callback)
-        drain()
-        verifyOnCurrentListChanged(legacyListener, listener, first, second)
 
-        verifyNoMoreInteractions(legacyListener, listener)
-        verify(callback).run()
-        verifyNoMoreInteractions(callback)
-        reset(callback)
+        // Assert no calls to onCurrentListChanged until async work is triggered by drain().
+        assertEquals(1, legacyListener.onCurrentListChangedEvents.size)
+        assertEquals(1, listener.onCurrentListChangedEvents.size)
+        // Assert no calls to callback.run() until async work is triggered by drain().
+        assertEquals(1, callback.runEvents.size)
+
+        drain()
+
+        // Assert exactly 1 call to onCurrentListChanged with previousList = first,
+        // currentList = second.
+        assertEquals(2, legacyListener.onCurrentListChangedEvents.size)
+        assertEquals(
+            PagedListListenerFake.OnCurrentListChangedEvent(null, second),
+            legacyListener.onCurrentListChangedEvents[1]
+        )
+        assertEquals(2, listener.onCurrentListChangedEvents.size)
+        assertEquals(
+            PagedListListenerFake.OnCurrentListChangedEvent(first, second),
+            listener.onCurrentListChangedEvents[1]
+        )
+        // Assert exactly 1 call to callback.run().
+        assertEquals(2, callback.runEvents.size)
 
         // third - same list - only triggers callback
         adapter.submitList(second, callback)
-        verifyNoMoreInteractions(legacyListener, listener)
-        verify(callback).run()
-        verifyNoMoreInteractions(callback)
+
+        // Assert no calls to onCurrentListChanged.
+        assertEquals(2, legacyListener.onCurrentListChangedEvents.size)
+        assertEquals(2, listener.onCurrentListChangedEvents.size)
+        // Assert exactly 1 call to callback.run().
+        assertEquals(3, callback.runEvents.size)
+
         drain()
-        verifyNoMoreInteractions(legacyListener, listener)
-        verifyNoMoreInteractions(callback)
-        reset(callback)
+
+        // Assert no calls to onCurrentListChanged.
+        assertEquals(2, legacyListener.onCurrentListChangedEvents.size)
+        assertEquals(2, listener.onCurrentListChangedEvents.size)
+        // Assert no calls to callback.run().
+        assertEquals(3, callback.runEvents.size)
 
         // fourth - null
         adapter.submitList(null, callback)
-        verifyOnCurrentListChanged(legacyListener, listener, second, null)
-        verifyNoMoreInteractions(legacyListener, listener)
-        verify(callback).run()
-        verifyNoMoreInteractions(callback)
+
+        // Assert exactly 1 call to onCurrentListChanged with previousList = second,
+        // currentList = null.
+        assertEquals(3, legacyListener.onCurrentListChangedEvents.size)
+        assertEquals(
+            PagedListListenerFake.OnCurrentListChangedEvent<String>(null, null),
+            legacyListener.onCurrentListChangedEvents[2]
+        )
+        assertEquals(3, listener.onCurrentListChangedEvents.size)
+        assertEquals(
+            PagedListListenerFake.OnCurrentListChangedEvent(second, null),
+            listener.onCurrentListChangedEvents[2]
+        )
+        // Assert exactly 1 call to callback.run().
+        assertEquals(4, callback.runEvents.size)
     }
 
     private fun drain() {

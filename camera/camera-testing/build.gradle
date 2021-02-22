@@ -14,26 +14,34 @@
  * limitations under the License.
  */
 
+
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.LibraryVersions
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
     implementation(ANDROIDX_TEST_CORE)
-    implementation("androidx.annotation:annotation:1.0.0")
+    implementation(ANDROIDX_TEST_RULES)
+    implementation(ANDROIDX_TEST_UIAUTOMATOR)
+    api("androidx.annotation:annotation:1.0.0")
+    implementation(ESPRESSO_CORE)
     implementation(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation(project(":camera:camera-core"))
+    api(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(JUNIT)
+    implementation(KOTLIN_STDLIB)
+    implementation(KOTLIN_COROUTINES_ANDROID)
 
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
@@ -46,16 +54,39 @@ dependencies {
 android {
     defaultConfig {
         minSdkVersion 21
+
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
+            }
+        }
+    }
+
+    // Use Robolectric 4.+
+    testOptions.unitTests.includeAndroidResources = true
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
+        }
     }
 }
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
+}
+
 androidx {
     name = "Jetpack Camera Testing Library"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.CAMERA
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"
     description = "Testing components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +"" +
             "experiences across all of Android."
-    failOnDeprecationWarnings = false
 }

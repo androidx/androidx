@@ -25,16 +25,22 @@ plugins {
 }
 
 dependencies {
+    implementation("androidx.annotation:annotation:1.0.0")
+    implementation("androidx.core:core:1.5.0-alpha01")
+    implementation("androidx.test.screenshot:screenshot-proto:1.0.0-alpha01")
+
+    implementation(KOTLIN_STDLIB)
+    implementation(JUNIT)
+    implementation(ANDROIDX_TEST_RULES)
     implementation(ANDROIDX_TEST_RUNNER)
 
+    androidTestImplementation(TRUTH)
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(KOTLIN_STDLIB)
 }
 
 androidx {
     name = "AndroidX Library Screenshot Test"
-    mavenVersion = LibraryVersions.TEST_SCREENSHOT
     mavenGroup = LibraryGroups.TESTSCREENSHOT
 }

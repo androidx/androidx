@@ -33,7 +33,7 @@ import androidx.work.ListenableWorker
  * @param triggeredContentAuthorities The list of triggered content authorities
  * @return The instance of [TestListenableWorkerBuilder]
  */
-inline fun <reified W : ListenableWorker> TestListenableWorkerBuilder(
+public inline fun <reified W : ListenableWorker> TestListenableWorkerBuilder(
     context: Context,
     inputData: Data = Data.EMPTY,
     tags: List<String> = emptyList(),

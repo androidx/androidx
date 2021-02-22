@@ -20,6 +20,7 @@ import static android.view.View.NO_ID;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.Build;
@@ -42,6 +43,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments;
 import androidx.core.view.accessibility.AccessibilityViewCommand.MoveAtGranularityArguments;
@@ -544,6 +546,49 @@ public class AccessibilityNodeInfoCompat {
                         ? AccessibilityNodeInfo.AccessibilityAction.ACTION_HIDE_TOOLTIP : null,
                         android.R.id.accessibilityActionHideTooltip, null, null, null);
 
+        /**
+         * Action that presses and holds a node.
+         * <p>
+         * This action is for nodes that have distinct behavior that depends on how long a press is
+         * held. Nodes having a single action for long press should use {@link #ACTION_LONG_CLICK}
+         *  instead of this action, and nodes should not expose both actions.
+         * <p>
+         * When calling {@code performAction(ACTION_PRESS_AND_HOLD, bundle}, use
+         * {@link #ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT} to specify how long the
+         * node is pressed. The first time an accessibility service performs ACTION_PRES_AND_HOLD
+         * on a node, it must specify 0 as ACTION_ARGUMENT_PRESS_AND_HOLD, so the application is
+         * notified that the held state has started. To ensure reasonable behavior, the values
+         * must be increased incrementally and may not exceed 10,000. UIs requested
+         * to hold for times outside of this range should ignore the action.
+         * <p>
+         * The total time the element is held could be specified by an accessibility user up-front,
+         * or may depend on what happens on the UI as the user continues to request the hold.
+         * <p>
+         *   <strong>Note:</strong> The time between dispatching the action and it arriving in the
+         *     UI process is not guaranteed. It is possible on a busy system for the time to expire
+         *     unexpectedly. For the case of holding down a key for a repeating action, a delayed
+         *     arrival should be benign. Please do not use this sort of action in cases where such
+         *     delays will lead to unexpected UI behavior.
+         * <p>
+         */
+        @NonNull public static final AccessibilityActionCompat ACTION_PRESS_AND_HOLD =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 30
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_PRESS_AND_HOLD : null,
+                        android.R.id.accessibilityActionPressAndHold, null, null, null);
+
+        /**
+         * Action to send an ime actionId which is from
+         * {@link android.view.inputmethod.EditorInfo#actionId}. This ime actionId sets by
+         * {@link android.widget.TextView#setImeActionLabel(CharSequence, int)}, or it would be
+         * {@link android.view.inputmethod.EditorInfo#IME_ACTION_UNSPECIFIED} if no specific
+         * actionId has set. A node should expose this action only for views that are currently
+         * with input focus and editable.
+         */
+        @NonNull public static final AccessibilityActionCompat ACTION_IME_ENTER =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 30
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER : null,
+                        android.R.id.accessibilityActionImeEnter, null, null, null);
+
         final Object mAction;
         private final int mId;
         private final Class<? extends CommandArguments> mViewCommandArgumentClass;
@@ -675,7 +720,7 @@ public class AccessibilityNodeInfoCompat {
             if (obj == null) {
                 return false;
             }
-            if (getClass() != obj.getClass()) {
+            if (!(obj instanceof AccessibilityNodeInfoCompat.AccessibilityActionCompat)) {
                 return false;
             }
             AccessibilityNodeInfoCompat.AccessibilityActionCompat other =
@@ -745,8 +790,8 @@ public class AccessibilityNodeInfoCompat {
         /**
          * Returns a cached instance if such is available otherwise a new one.
          *
-         * @param rowCount The number of rows.
-         * @param columnCount The number of columns.
+         * @param rowCount The number of rows, or -1 if count is unknown.
+         * @param columnCount The number of columns , or -1 if count is unknown.
          * @param hierarchical Whether the collection is hierarchical.
          *
          * @return An instance.
@@ -768,26 +813,26 @@ public class AccessibilityNodeInfoCompat {
         /**
          * Gets the number of columns.
          *
-         * @return The column count.
+         * @return The column count, or -1 if count is unknown.
          */
         public int getColumnCount() {
             if (Build.VERSION.SDK_INT >= 19) {
                 return ((AccessibilityNodeInfo.CollectionInfo) mInfo).getColumnCount();
             } else {
-                return 0;
+                return -1;
             }
         }
 
         /**
          * Gets the number of rows.
          *
-         * @return The row count.
+         * @return The row count, or -1 if count is unknown.
          */
         public int getRowCount() {
             if (Build.VERSION.SDK_INT >= 19) {
                 return ((AccessibilityNodeInfo.CollectionInfo) mInfo).getRowCount();
             } else {
-                return 0;
+                return -1;
             }
         }
 
@@ -948,6 +993,7 @@ public class AccessibilityNodeInfoCompat {
          * @return If the item is a heading.
          * @deprecated Use {@link AccessibilityNodeInfoCompat#isHeading()}
          */
+        @SuppressWarnings("deprecation")
         @Deprecated
         public boolean isHeading() {
             if (Build.VERSION.SDK_INT >= 19) {
@@ -1183,6 +1229,9 @@ public class AccessibilityNodeInfoCompat {
 
     private static final String SPANS_ACTION_ID_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.SPANS_ACTION_ID_KEY";
+
+    private static final String STATE_DESCRIPTION_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.STATE_DESCRIPTION_KEY";
 
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
@@ -1565,6 +1614,21 @@ public class AccessibilityNodeInfoCompat {
     public static final String ACTION_ARGUMENT_MOVE_WINDOW_Y =
             "ACTION_ARGUMENT_MOVE_WINDOW_Y";
 
+    /**
+     * Argument to represent the duration in milliseconds to press and hold a node.
+     * <p>
+     * <strong>Type:</strong> int<br>
+     * <strong>Actions:</strong>
+     * <ul>
+     *     <li>{@link AccessibilityActionCompat#ACTION_PRESS_AND_HOLD}</li>
+     * </ul>
+     *
+     * @see AccessibilityActionCompat#ACTION_PRESS_AND_HOLD
+     */
+    @SuppressLint("ActionValue")
+    public static final String ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT =
+            "android.view.accessibility.action.ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT";
+
     // Focus types
 
     /**
@@ -1612,6 +1676,7 @@ public class AccessibilityNodeInfoCompat {
      * @param object The info to wrap.
      * @return A wrapper for if the object is not null, null otherwise.
      */
+    @SuppressWarnings("deprecation")
     static AccessibilityNodeInfoCompat wrapNonNullInstance(Object object) {
         if (object != null) {
             return new AccessibilityNodeInfoCompat(object);
@@ -1930,19 +1995,6 @@ public class AccessibilityNodeInfoCompat {
      */
     public void addAction(int action) {
         mInfo.addAction(action);
-    }
-
-    private List<CharSequence> extrasCharSequenceList(String key) {
-        if (Build.VERSION.SDK_INT < 19) {
-            return new ArrayList<CharSequence>();
-        }
-        ArrayList<CharSequence> list = mInfo.getExtras()
-                .getCharSequenceArrayList(key);
-        if (list == null) {
-            list = new ArrayList<CharSequence>();
-            mInfo.getExtras().putCharSequenceArrayList(key, list);
-        }
-        return list;
     }
 
     private List<Integer> extrasIntList(String key) {
@@ -2751,6 +2803,21 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the state description of this node.
+     *
+     * @return the state description or null if android version smaller
+     * than 19.
+     */
+    public @Nullable CharSequence getStateDescription() {
+        if (BuildCompat.isAtLeastR()) {
+            return mInfo.getStateDescription();
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getExtras().getCharSequence(STATE_DESCRIPTION_KEY);
+        }
+        return null;
+    }
+
+    /**
      * Sets the content description of this node.
      * <p>
      * <strong>Note:</strong> Cannot be called from an
@@ -2763,6 +2830,25 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setContentDescription(CharSequence contentDescription) {
         mInfo.setContentDescription(contentDescription);
+    }
+
+    /**
+     * Sets the state description of this node.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param stateDescription the state description of this node.
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setStateDescription(@Nullable CharSequence stateDescription) {
+        if (BuildCompat.isAtLeastR()) {
+            mInfo.setStateDescription(stateDescription);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.getExtras().putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);
+        }
     }
 
     /**
@@ -2800,7 +2886,7 @@ public class AccessibilityNodeInfoCompat {
      *   <strong>Note:</strong> The primary usage of this API is for UI test automation
      *   and in order to report the source view id of an {@link AccessibilityNodeInfoCompat}
      *   the client has to set the {@link AccessibilityServiceInfoCompat#FLAG_REPORT_VIEW_IDS}
-     *   flag when configuring his {@link android.accessibilityservice.AccessibilityService}.
+     *   flag when configuring their {@link android.accessibilityservice.AccessibilityService}.
      * </p>
      *
      * @return The id resource name.
@@ -2983,7 +3069,7 @@ public class AccessibilityNodeInfoCompat {
      *     <li>API &lt; 21: Always returns {@code null}</li>
      * </ul>
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "MixedMutabilityReturnType"})
     public List<AccessibilityActionCompat> getActionList() {
         List<Object> actions = null;
         if (Build.VERSION.SDK_INT >= 21) {
@@ -3282,12 +3368,13 @@ public class AccessibilityNodeInfoCompat {
      *   and in order to report the fully qualified view id if an
      *   {@link AccessibilityNodeInfoCompat} the client has to set the
      *   {@link android.accessibilityservice.AccessibilityServiceInfo#FLAG_REPORT_VIEW_IDS}
-     *   flag when configuring his {@link android.accessibilityservice.AccessibilityService}.
+     *   flag when configuring their {@link android.accessibilityservice.AccessibilityService}.
      * </p>
      *
      * @param viewId The fully qualified resource name of the view id to find.
      * @return A list of node info.
      */
+    @SuppressWarnings("MixedMutabilityReturnType")
     public List<AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByViewId(String viewId) {
         if (Build.VERSION.SDK_INT >= 18) {
             List<AccessibilityNodeInfo> nodes = mInfo.findAccessibilityNodeInfosByViewId(viewId);
@@ -3817,13 +3904,14 @@ public class AccessibilityNodeInfoCompat {
      *
      * @return {@code true} if the node is a heading, {@code false} otherwise.
      */
+    @SuppressWarnings("deprecation")
     public boolean isHeading() {
         if (Build.VERSION.SDK_INT >= 28) {
             return mInfo.isHeading();
         }
         if (getBooleanProperty(BOOLEAN_PROPERTY_IS_HEADING)) return true;
         CollectionItemInfoCompat collectionItemInfo = getCollectionItemInfo();
-        return (collectionItemInfo != null) && (collectionItemInfo.isHeading());
+        return (collectionItemInfo != null) && collectionItemInfo.isHeading();
     }
 
     /**
@@ -3997,7 +4085,7 @@ public class AccessibilityNodeInfoCompat {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof AccessibilityNodeInfoCompat)) {
             return false;
         }
         AccessibilityNodeInfoCompat other = (AccessibilityNodeInfoCompat) obj;
@@ -4017,6 +4105,7 @@ public class AccessibilityNodeInfoCompat {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     @NonNull
     @Override
     public String toString() {
@@ -4082,7 +4171,7 @@ public class AccessibilityNodeInfoCompat {
         if (extras != null) {
             int booleanProperties = extras.getInt(BOOLEAN_PROPERTY_KEY, 0);
             booleanProperties &= ~property;
-            booleanProperties |= (value) ? property : 0;
+            booleanProperties |= value ? property : 0;
             extras.putInt(BOOLEAN_PROPERTY_KEY, booleanProperties);
         }
     }
@@ -4167,6 +4256,10 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_SHOW_TOOLTIP";
             case android.R.id.accessibilityActionHideTooltip:
                 return "ACTION_HIDE_TOOLTIP";
+            case android.R.id.accessibilityActionPressAndHold:
+                return "ACTION_PRESS_AND_HOLD";
+            case android.R.id.accessibilityActionImeEnter:
+                return "ACTION_IME_ENTER";
             default:
                 return"ACTION_UNKNOWN";
         }

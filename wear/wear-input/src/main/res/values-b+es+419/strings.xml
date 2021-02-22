@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Parte superior</string>
+  <string name="buttons_round_top_right">Parte superior derecha</string>
+  <string name="buttons_round_center_right">Parte central derecha</string>
+  <string name="buttons_round_bottom_right">Parte inferior derecha</string>
+  <string name="buttons_round_bottom_center">Parte inferior</string>
+  <string name="buttons_round_bottom_left">Parte inferior izquierda</string>
+  <string name="buttons_round_center_left">Parte central izquierda</string>
+  <string name="buttons_round_top_left">Parte superior izquierda</string>
+  <string name="buttons_round_top_right_upper">Parte superior derecha, más arriba</string>
+  <string name="buttons_round_top_right_lower">Parte superior derecha, más abajo</string>
+  <string name="buttons_round_bottom_right_upper">Parte inferior derecha, más arriba</string>
+  <string name="buttons_round_bottom_right_lower">Parte inferior derecha, más abajo</string>
+  <string name="buttons_round_bottom_left_lower">Parte inferior izquierda, más abajo</string>
+  <string name="buttons_round_bottom_left_upper">Parte inferior izquierda, arriba</string>
+  <string name="buttons_round_top_left_lower">Parte superior izquierda, más abajo</string>
+  <string name="buttons_round_top_left_upper">Parte superior izquierda, arriba</string>
+  <string name="buttons_rect_left_top">Parte superior, a la izquierda</string>
+  <string name="buttons_rect_left_center">Parte central izquierda</string>
+  <string name="buttons_rect_left_bottom">Parte inferior, a la izquierda</string>
+  <string name="buttons_rect_right_top">Parte superior, a la derecha</string>
+  <string name="buttons_rect_right_center">Parte central derecha</string>
+  <string name="buttons_rect_right_bottom">Parte inferior, a la derecha</string>
+  <string name="buttons_rect_top_left">Parte superior izquierda</string>
+  <string name="buttons_rect_top_center">Parte superior</string>
+  <string name="buttons_rect_top_right">Parte superior derecha</string>
+  <string name="buttons_rect_bottom_left">Parte inferior izquierda</string>
+  <string name="buttons_rect_bottom_center">Parte inferior</string>
+  <string name="buttons_rect_bottom_right">Parte inferior derecha</string>
+</resources>

@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-MissingNullability: androidx.room.RoomDatabaseKt#withTransaction(androidx.room.RoomDatabase, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,?>, kotlin.coroutines.Continuation<? super R>):
-    Missing nullability on method `withTransaction` return

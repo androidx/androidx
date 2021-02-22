@@ -17,6 +17,9 @@
 package androidx.benchmark
 
 import android.Manifest
+import android.util.Log
+import androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
@@ -28,36 +31,81 @@ import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertFailsWith
 
 @LargeTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class BenchmarkStateTest {
-    private fun ms2ns(ms: Long): Long = TimeUnit.MILLISECONDS.toNanos(ms)
+    private fun us2ns(ms: Long): Long = TimeUnit.MICROSECONDS.toNanos(ms)
 
     @get:Rule
     val writePermissionRule =
         GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
 
+    /**
+     * Run the block, and then spin-loop until durationUs has elapsed.
+     *
+     * Note: block must take less time than durationUs
+     */
+    private inline fun runAndSpin(durationUs: Long, crossinline block: () -> Unit = {}) {
+        val start = System.nanoTime()
+        block()
+        val end = start + us2ns(durationUs)
+
+        @Suppress("ControlFlowWithEmptyBody") // intentionally spinning
+        while (System.nanoTime() < end) {}
+    }
+
     @Test
-    fun simple() {
-        // would be better to mock the clock, but going with minimal changes for now
+    fun validateMetrics() {
         val state = BenchmarkState()
         while (state.keepRunning()) {
-            Thread.sleep(3)
+            runAndSpin(durationUs = 300) {
+                // note, important here to not do too much work - this test may run on an
+                // extremely slow device, or wacky emulator.
+                allocate(40)
+            }
+
             state.pauseTiming()
-            Thread.sleep(5)
+            runAndSpin(durationUs = 700) {
+                allocate(80)
+            }
             state.resumeTiming()
         }
-        val median = state.stats.median
+        // The point of these asserts are to verify that pause/resume work, and that metrics that
+        // come out are reasonable, not perfect - this isn't always run in stable perf environments
+        val medianTime = state.getReport().getStats("timeNs").median
         assertTrue(
-            "median $median should be between 2ms and 4ms",
-            ms2ns(2) < median && median < ms2ns(4)
+            "median time (ns) $medianTime should be roughly 300us",
+            medianTime in us2ns(280)..us2ns(900)
+        )
+        val medianAlloc = state.getReport().getStats("allocationCount").median
+        assertTrue(
+            "median allocs $medianAlloc should be approximately 40",
+            medianAlloc in 40..50
         )
     }
 
-    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun keepRunningMissingResume() {
+        val state = BenchmarkState()
+
+        assertEquals(true, state.keepRunning())
+        state.pauseTiming()
+        assertFailsWith<IllegalStateException> { state.keepRunning() }
+    }
+
+    @Test
+    fun pauseCalledTwice() {
+        val state = BenchmarkState()
+
+        assertEquals(true, state.keepRunning())
+        state.pauseTiming()
+        assertFailsWith<IllegalStateException> { state.pauseTiming() }
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
     @Test
     fun priorityJitThread() {
         assertEquals(
@@ -72,7 +120,7 @@ class BenchmarkStateTest {
             val currentJitPriority = ThreadPriority.getJit()
             assertTrue(
                 "JIT priority should be bumped," +
-                        " is $currentJitPriority vs ${ThreadPriority.JIT_INITIAL_PRIORITY}",
+                    " is $currentJitPriority vs ${ThreadPriority.JIT_INITIAL_PRIORITY}",
                 currentJitPriority < ThreadPriority.JIT_INITIAL_PRIORITY
             )
         }
@@ -100,36 +148,46 @@ class BenchmarkStateTest {
         assertEquals(initialPriority, ThreadPriority.get())
     }
 
-    @Test
-    fun iterationCheck() {
+    private fun iterationCheck(checkingForThermalThrottling: Boolean) {
         val state = BenchmarkState()
         // disable thermal throttle checks, since it can cause loops to be thrown out
-        state.performThrottleChecks = false
+        // note that this bypasses allocation count
+        state.simplifiedTimingOnlyMode = checkingForThermalThrottling
         var total = 0
         while (state.keepRunning()) {
             total++
         }
 
-        val report = state.getReport("test", "class")
-        val expectedCount =
-            report.warmupIterations + report.repeatIterations * BenchmarkState.REPEAT_COUNT
+        val report = state.getReport()
+        val expectedRepeatCount = BenchmarkState.REPEAT_COUNT_TIME +
+            if (!checkingForThermalThrottling) BenchmarkState.REPEAT_COUNT_ALLOCATION else 0
+        val expectedCount = report.warmupIterations + report.repeatIterations * expectedRepeatCount
         assertEquals(expectedCount, total)
 
         // verify we're not in warmup mode
         assertTrue(report.warmupIterations > 0)
         assertTrue(report.repeatIterations > 1)
-        assertEquals(50, BenchmarkState.REPEAT_COUNT)
+        // verify we're not running in a special mode that affects repeat count (dry run, profiling)
+        assertEquals(50, BenchmarkState.REPEAT_COUNT_TIME)
     }
 
     @Test
-    fun ideSummary() {
-        val summary1 = BenchmarkState.ideSummaryLine("foo", 1000)
-        val summary2 = BenchmarkState.ideSummaryLine("fooBarLongerKey", 10000)
+    fun iterationCheck_simple() {
+        iterationCheck(checkingForThermalThrottling = true)
+    }
 
-        assertEquals(
-            summary1.indexOf("foo"),
-            summary2.indexOf("foo")
-        )
+    @Test
+    fun iterationCheck_withAllocations() {
+        if (CpuInfo.locked ||
+            IsolationActivity.sustainedPerformanceModeInUse ||
+            Errors.isEmulator
+        ) {
+            // In any of these conditions, it's known that throttling won't happen, so it's safe
+            // to check for allocation count, by setting checkingForThermalThrottling = false
+            iterationCheck(checkingForThermalThrottling = false)
+        } else {
+            Log.d(BenchmarkState.TAG, "Warning - bypassing iterationCheck_withAllocations")
+        }
     }
 
     @Test
@@ -138,7 +196,7 @@ class BenchmarkStateTest {
             while (keepRunning()) {
                 // nothing, we're ignoring numbers
             }
-        }.getFullStatusReport("foo")
+        }.getFullStatusReport(key = "foo", includeStats = true)
 
         assertTrue(
             (bundle.get("android.studio.display.benchmark") as String).contains("foo")
@@ -146,16 +204,27 @@ class BenchmarkStateTest {
 
         // check attribute presence and naming
         val prefix = Errors.PREFIX
+
+        // legacy - before metric name was included
         assertNotNull(bundle.get("${prefix}min"))
-        assertNotNull(bundle.get("${prefix}mean"))
-        assertNotNull(bundle.get("${prefix}count"))
+        assertNotNull(bundle.get("${prefix}median"))
+        assertNotNull(bundle.get("${prefix}standardDeviation"))
+
+        // including metric name
+        assertNotNull(bundle.get("${prefix}time_nanos_min"))
+        assertNotNull(bundle.get("${prefix}time_nanos_median"))
+        assertNotNull(bundle.get("${prefix}time_nanos_stddev"))
+
+        assertNotNull(bundle.get("${prefix}allocation_count_min"))
+        assertNotNull(bundle.get("${prefix}allocation_count_median"))
+        assertNotNull(bundle.get("${prefix}allocation_count_stddev"))
     }
 
     @Test
     fun notStarted() {
         val initialPriority = ThreadPriority.get()
         try {
-            BenchmarkState().stats
+            BenchmarkState().getReport().getStats("timeNs").median
             fail("expected exception")
         } catch (e: IllegalStateException) {
             assertEquals(initialPriority, ThreadPriority.get())
@@ -170,7 +239,7 @@ class BenchmarkStateTest {
         try {
             BenchmarkState().run {
                 keepRunning()
-                stats
+                getReport().getStats("timeNs").median
             }
             fail("expected exception")
         } catch (e: IllegalStateException) {
@@ -180,15 +249,29 @@ class BenchmarkStateTest {
         }
     }
 
-    @UseExperimental(BenchmarkState.Companion.ExperimentalExternalReport::class)
+    @Suppress("DEPRECATION")
+    @UseExperimental(ExperimentalExternalReport::class)
     @Test
     fun reportResult() {
-        BenchmarkState.reportData("className", "testName", 900000000, listOf(100), 1, 0, 1)
-        val expectedReport = BenchmarkState.Report(
+        BenchmarkState.reportData(
             className = "className",
             testName = "testName",
             totalRunTimeNs = 900000000,
-            data = listOf(100),
+            dataNs = listOf(100L, 200L, 300L),
+            warmupIterations = 1,
+            thermalThrottleSleepSeconds = 0,
+            repeatIterations = 1
+        )
+        val expectedReport = BenchmarkResult(
+            className = "className",
+            testName = "testName",
+            totalRunTimeNs = 900000000,
+            metrics = listOf(
+                MetricResult(
+                    name = "timeNs",
+                    data = longArrayOf(100, 200, 300)
+                )
+            ),
             repeatIterations = 1,
             thermalThrottleSleepSeconds = 0,
             warmupIterations = 1

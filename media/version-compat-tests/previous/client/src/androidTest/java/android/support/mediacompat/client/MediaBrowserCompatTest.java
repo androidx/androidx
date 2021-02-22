@@ -229,7 +229,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testConnectTwice() throws Exception {
         connectMediaBrowserService();
         try {
@@ -464,7 +464,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSubscribeInvalidItem() throws Exception {
         connectMediaBrowserService();
 
@@ -703,7 +703,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSendCustomAction() throws Exception {
         connectMediaBrowserService();
 

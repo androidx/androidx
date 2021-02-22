@@ -50,8 +50,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -502,12 +502,14 @@ public class EmojiCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testProcess_withReplaceNonExistent_callsGlyphChecker() {
-        final EmojiCompat.Config config = TestConfigBuilder.config().setReplaceAll(true);
+        final EmojiCompat.GlyphChecker glyphChecker = mock(EmojiCompat.GlyphChecker.class);
+        final EmojiCompat.Config config = TestConfigBuilder.freshConfig()
+                .setReplaceAll(true)
+                .setGlyphChecker(glyphChecker);
         EmojiCompat.reset(config);
 
-        final EmojiProcessor.GlyphChecker glyphChecker = mock(EmojiProcessor.GlyphChecker.class);
-        when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt())).thenReturn(true);
-        EmojiCompat.get().setGlyphChecker(glyphChecker);
+        when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt(), anyInt()))
+                .thenReturn(true);
 
         final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
 
@@ -515,7 +517,8 @@ public class EmojiCompatTest {
                 Integer.MAX_VALUE /*maxEmojiCount*/, EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT);
 
         // when function overrides config level replaceAll, a call to GlyphChecker is expected.
-        verify(glyphChecker, times(1)).hasGlyph(any(CharSequence.class), anyInt(), anyInt());
+        verify(glyphChecker, times(1))
+                .hasGlyph(any(CharSequence.class), anyInt(), anyInt(), anyInt());
 
         // since replaceAll is false, there should be no EmojiSpans
         assertThat(processed, not(hasEmoji()));
@@ -524,12 +527,14 @@ public class EmojiCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testProcess_withReplaceDefault_doesNotCallGlyphChecker() {
-        final EmojiCompat.Config config = TestConfigBuilder.config().setReplaceAll(true);
+        final EmojiCompat.GlyphChecker glyphChecker = mock(EmojiCompat.GlyphChecker.class);
+        final EmojiCompat.Config config = TestConfigBuilder.freshConfig()
+                .setReplaceAll(true)
+                .setGlyphChecker(glyphChecker);
         EmojiCompat.reset(config);
 
-        final EmojiProcessor.GlyphChecker glyphChecker = mock(EmojiProcessor.GlyphChecker.class);
-        when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt())).thenReturn(true);
-        EmojiCompat.get().setGlyphChecker(glyphChecker);
+        when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt(), anyInt()))
+                .thenReturn(true);
 
         final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
         // call without replaceAll, config value (true) should be used
@@ -537,7 +542,8 @@ public class EmojiCompatTest {
                 Integer.MAX_VALUE /*maxEmojiCount*/, EmojiCompat.REPLACE_STRATEGY_DEFAULT);
 
         // replaceAll=true should not call hasGlyph
-        verify(glyphChecker, times(0)).hasGlyph(any(CharSequence.class), anyInt(), anyInt());
+        verify(glyphChecker, times(0))
+                .hasGlyph(any(CharSequence.class), anyInt(), anyInt(), anyInt());
 
         assertThat(processed, hasEmojiCount(1));
         assertThat(processed, hasEmoji(EMOJI_SINGLE_CODEPOINT));
@@ -546,8 +552,14 @@ public class EmojiCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testProcess_withSpanned_replaceNonExistent() {
-        final EmojiCompat.Config config = TestConfigBuilder.config().setReplaceAll(false);
+        final EmojiCompat.GlyphChecker glyphChecker = mock(EmojiCompat.GlyphChecker.class);
+        final EmojiCompat.Config config = TestConfigBuilder.freshConfig()
+                .setReplaceAll(false)
+                .setGlyphChecker(glyphChecker);
         EmojiCompat.reset(config);
+
+        when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt(), anyInt()))
+                .thenReturn(false);
 
         final String string = new TestString(EMOJI_SINGLE_CODEPOINT).append(
                 EMOJI_SINGLE_CODEPOINT).toString();
@@ -557,10 +569,9 @@ public class EmojiCompatTest {
         final SpannedString spanned = new SpannedString(processed);
         assertThat(spanned, hasEmojiCount(2));
 
-        // mock GlyphChecker so that we can return true for hasGlyph
-        final EmojiProcessor.GlyphChecker glyphChecker = mock(EmojiProcessor.GlyphChecker.class);
-        when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt())).thenReturn(true);
-        EmojiCompat.get().setGlyphChecker(glyphChecker);
+        // change glyphChecker to return true so that no emoji will be added
+        when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt(), anyInt()))
+                .thenReturn(true);
 
         processed = EmojiCompat.get().process(spanned, 0, spanned.length(),
                 Integer.MAX_VALUE, EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT);
@@ -803,7 +814,7 @@ public class EmojiCompatTest {
     public void testUpdateEditorInfoAttrs_setsKeysIfInitialized() {
         final EditorInfo editorInfo = new EditorInfo();
         editorInfo.extras = new Bundle();
-        EmojiCompat.Config config = new TestConfigBuilder.TestConfig().setReplaceAll(false);
+        EmojiCompat.Config config = TestConfigBuilder.config().setReplaceAll(false);
         EmojiCompat.reset(config);
         EmojiCompat.get().updateEditorInfoAttrs(editorInfo);
 
@@ -857,7 +868,7 @@ public class EmojiCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testUseEmojiAsDefaultStyle_whenEmojiInTheMiddle() {
-        final EmojiCompat.Config config = new TestConfigBuilder.TestConfig().setReplaceAll(true);
+        final EmojiCompat.Config config = TestConfigBuilder.config().setReplaceAll(true);
         EmojiCompat.reset(config);
         String s = new TestString(0x0061, CHAR_DEFAULT_TEXT_STYLE, 0x0062).toString();
         // no span should be added as the emoji is text style presented by default
@@ -870,7 +881,7 @@ public class EmojiCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testUseEmojiAsDefaultStyle_whenEmojiAtTheEnd() {
-        final EmojiCompat.Config config = new TestConfigBuilder.TestConfig().setReplaceAll(true);
+        final EmojiCompat.Config config = TestConfigBuilder.config().setReplaceAll(true);
         EmojiCompat.reset(config);
         String s = new TestString(0x0061, CHAR_DEFAULT_TEXT_STYLE).toString();
         // no span should be added as the emoji is text style presented by default
@@ -886,7 +897,7 @@ public class EmojiCompatTest {
         final String s = new TestString(CHAR_DEFAULT_TEXT_STYLE).toString();
         final List<Integer> exceptions =
                 Arrays.asList(CHAR_DEFAULT_TEXT_STYLE + 1, CHAR_DEFAULT_TEXT_STYLE);
-        final EmojiCompat.Config config = new TestConfigBuilder.TestConfig().setReplaceAll(true)
+        final EmojiCompat.Config config = TestConfigBuilder.config().setReplaceAll(true)
                 .setUseEmojiAsDefaultStyle(true, exceptions);
         EmojiCompat.reset(config);
         // no span should be added as the text style codepoint is marked as exception
@@ -899,7 +910,7 @@ public class EmojiCompatTest {
         final String s = new TestString(CHAR_DEFAULT_TEXT_STYLE).toString();
         final List<Integer> exceptions =
                 Arrays.asList(CHAR_DEFAULT_TEXT_STYLE - 1, CHAR_DEFAULT_TEXT_STYLE + 1);
-        final EmojiCompat.Config config = new TestConfigBuilder.TestConfig().setReplaceAll(true)
+        final EmojiCompat.Config config = TestConfigBuilder.config().setReplaceAll(true)
                 .setUseEmojiAsDefaultStyle(true, exceptions);
         EmojiCompat.reset(config);
         // a span should be added as the codepoint is not included in the set of exceptions

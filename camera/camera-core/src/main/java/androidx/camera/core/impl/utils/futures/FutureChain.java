@@ -20,7 +20,6 @@ import static androidx.core.util.Preconditions.checkNotNull;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.arch.core.util.Function;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -41,10 +40,8 @@ import java.util.concurrent.TimeoutException;
  *          .transform(User::getId, directExecutor())
  *          .transform(ActivityService::isLoggedIn, threadPool);
  *  }</pre>
- *  @hide
  *  @param <V>
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FutureChain<V> implements ListenableFuture<V> {
     @NonNull
     private final ListenableFuture<V> mDelegate;

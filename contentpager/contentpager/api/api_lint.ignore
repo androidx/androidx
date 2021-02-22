@@ -1,0 +1,29 @@
+// Baseline format: 1.0
+ActionValue: androidx.contentpager.content.ContentPager#EXTRA_HONORED_ARGS:
+    Inconsistent extra value; expected `androidx.contentpager.content.extra.HONORED_ARGS`, was `android.content.extra.HONORED_ARGS`
+ActionValue: androidx.contentpager.content.ContentPager#EXTRA_REQUESTED_LIMIT:
+    Inconsistent extra value; expected `androidx.contentpager.content.extra.REQUESTED_LIMIT`, was `android-support:extra-ignored-limit`
+ActionValue: androidx.contentpager.content.ContentPager#EXTRA_SUGGESTED_LIMIT:
+    Inconsistent extra value; expected `androidx.contentpager.content.extra.SUGGESTED_LIMIT`, was `android-support:extra-suggested-limit`
+ActionValue: androidx.contentpager.content.ContentPager#EXTRA_TOTAL_COUNT:
+    Inconsistent extra value; expected `androidx.contentpager.content.extra.TOTAL_COUNT`, was `android.content.extra.TOTAL_COUNT`
+
+
+CallbackMethodName: androidx.contentpager.content.ContentPager.QueryRunner.Callback#runQueryInBackground(androidx.contentpager.content.Query):
+    Callback method names must follow the on<Something> style: runQueryInBackground
+
+
+ExecutorRegistration: androidx.contentpager.content.ContentPager#query(android.net.Uri, String[], android.os.Bundle, android.os.CancellationSignal, androidx.contentpager.content.ContentPager.ContentCallback):
+    Registration methods should have overload that accepts delivery Executor: `query`
+ExecutorRegistration: androidx.contentpager.content.ContentPager.QueryRunner#query(androidx.contentpager.content.Query, androidx.contentpager.content.ContentPager.QueryRunner.Callback):
+    Registration methods should have overload that accepts delivery Executor: `query`
+
+
+MissingNullability: androidx.contentpager.content.ContentPager#ContentPager(android.content.ContentResolver, androidx.contentpager.content.ContentPager.QueryRunner) parameter #0:
+    Missing nullability on parameter `resolver` in method `ContentPager`
+MissingNullability: androidx.contentpager.content.ContentPager#ContentPager(android.content.ContentResolver, androidx.contentpager.content.ContentPager.QueryRunner) parameter #1:
+    Missing nullability on parameter `queryRunner` in method `ContentPager`
+
+
+PublicTypedef: androidx.contentpager.content.ContentPager.CursorDisposition:
+    Don't expose @IntDef: CursorDisposition must be hidden.

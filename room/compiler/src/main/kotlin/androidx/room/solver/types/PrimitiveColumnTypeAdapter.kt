@@ -17,57 +17,57 @@
 package androidx.room.solver.types
 
 import androidx.room.ext.L
-import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SQLTypeAffinity.REAL
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.PrimitiveType
-import javax.lang.model.type.TypeKind.BYTE
-import javax.lang.model.type.TypeKind.CHAR
-import javax.lang.model.type.TypeKind.DOUBLE
-import javax.lang.model.type.TypeKind.FLOAT
-import javax.lang.model.type.TypeKind.INT
-import javax.lang.model.type.TypeKind.LONG
-import javax.lang.model.type.TypeKind.SHORT
+import capitalize
+import com.squareup.javapoet.TypeName.BYTE
+import com.squareup.javapoet.TypeName.CHAR
+import com.squareup.javapoet.TypeName.DOUBLE
+import com.squareup.javapoet.TypeName.FLOAT
+import com.squareup.javapoet.TypeName.INT
+import com.squareup.javapoet.TypeName.LONG
+import com.squareup.javapoet.TypeName.SHORT
+import java.util.Locale
 
 /**
  * Adapters for all primitives that has direct cursor mappings.
  */
 open class PrimitiveColumnTypeAdapter(
-    out: PrimitiveType,
+    out: XType,
     val cursorGetter: String,
     val stmtSetter: String,
     typeAffinity: SQLTypeAffinity
-) :
-        ColumnTypeAdapter(out, typeAffinity) {
-    val cast = if (cursorGetter == "get${out.typeName().toString().capitalize()}")
-                    ""
-                else
-                    "(${out.typeName()}) "
+) : ColumnTypeAdapter(out, typeAffinity) {
+    val cast = if (cursorGetter == "get${out.typeName.toString().capitalize(Locale.US)}")
+        ""
+    else
+        "(${out.typeName}) "
 
     companion object {
         fun createPrimitiveAdapters(
-            processingEnvironment: ProcessingEnvironment
+            processingEnvironment: XProcessingEnv
         ): List<PrimitiveColumnTypeAdapter> {
             return listOf(
-                    Triple(INT, "getInt", "bindLong"),
-                    Triple(SHORT, "getShort", "bindLong"),
-                    Triple(BYTE, "getShort", "bindLong"),
-                    Triple(LONG, "getLong", "bindLong"),
-                    Triple(CHAR, "getInt", "bindLong"),
-                    Triple(FLOAT, "getFloat", "bindDouble"),
-                    Triple(DOUBLE, "getDouble", "bindDouble")
+                Triple(INT, "getInt", "bindLong"),
+                Triple(SHORT, "getShort", "bindLong"),
+                Triple(BYTE, "getShort", "bindLong"),
+                Triple(LONG, "getLong", "bindLong"),
+                Triple(CHAR, "getInt", "bindLong"),
+                Triple(FLOAT, "getFloat", "bindDouble"),
+                Triple(DOUBLE, "getDouble", "bindDouble")
             ).map {
                 PrimitiveColumnTypeAdapter(
-                        out = processingEnvironment.typeUtils.getPrimitiveType(it.first),
-                        cursorGetter = it.second,
-                        stmtSetter = it.third,
-                        typeAffinity = when (it.first) {
-                            INT, SHORT, BYTE, LONG, CHAR -> SQLTypeAffinity.INTEGER
-                            FLOAT, DOUBLE -> REAL
-                            else -> throw IllegalArgumentException("invalid type")
-                        }
+                    out = processingEnvironment.requireType(it.first),
+                    cursorGetter = it.second,
+                    stmtSetter = it.third,
+                    typeAffinity = when (it.first) {
+                        INT, SHORT, BYTE, LONG, CHAR -> SQLTypeAffinity.INTEGER
+                        FLOAT, DOUBLE -> REAL
+                        else -> throw IllegalArgumentException("invalid type")
+                    }
                 )
             }
         }
@@ -80,7 +80,7 @@ open class PrimitiveColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         scope.builder()
-                .addStatement("$L.$L($L, $L)", stmtName, stmtSetter, indexVarName, valueVarName)
+            .addStatement("$L.$L($L, $L)", stmtName, stmtSetter, indexVarName, valueVarName)
     }
 
     override fun readFromCursor(
@@ -90,7 +90,9 @@ open class PrimitiveColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         scope.builder()
-                .addStatement("$L = $L$L.$L($L)", outVarName, cast, cursorVarName,
-                        cursorGetter, indexVarName)
+            .addStatement(
+                "$L = $L$L.$L($L)", outVarName, cast, cursorVarName,
+                cursorGetter, indexVarName
+            )
     }
 }

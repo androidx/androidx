@@ -31,6 +31,7 @@ class LiveDataSubjectTest {
 
     @Test
     fun testHasActiveObservers() {
+        @Suppress("UNCHECKED_CAST")
         val observer = mock(Observer::class.java) as Observer<Any>
         val liveData = MutableLiveData<Any>()
         liveData.observeForever(observer)

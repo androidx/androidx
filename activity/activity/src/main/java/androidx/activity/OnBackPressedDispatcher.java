@@ -178,9 +178,9 @@ public final class OnBackPressedDispatcher {
      * {@link OnBackPressedCallback#isEnabled() enabled}
      * will any previously added callback be called.
      * <p>
-     * It is strongly recommended to call {@link #hasEnabledCallbacks()} prior to calling
-     * this method to determine if there are any enabled callbacks that will be triggered
-     * by this method as calling this method.
+     * If {@link #hasEnabledCallbacks()} is <code>false</code> when this method is called, the
+     * fallback Runnable set by {@link #OnBackPressedDispatcher(Runnable) the constructor}
+     * will be triggered.
      */
     @MainThread
     public void onBackPressed() {

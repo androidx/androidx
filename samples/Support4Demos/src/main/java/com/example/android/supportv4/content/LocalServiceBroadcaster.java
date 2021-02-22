@@ -115,6 +115,7 @@ public class LocalServiceBroadcaster extends Activity {
 
         static final int MSG_UPDATE = 1;
 
+        @SuppressWarnings("deprecation")
         Handler mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {

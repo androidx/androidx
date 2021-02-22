@@ -1,6 +1,4 @@
-/*
- * Copyright 2019 The Android Open Source Project
- *
+ /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.0.0")
+    api("androidx.annotation:annotation:1.0.0")
 }
 
 android {
@@ -37,8 +35,8 @@ android {
 androidx {
     name = "Jetpack Camera Library OEM Extensions Stub"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.CAMERA
     mavenGroup = LibraryGroups.CAMERA
+    mavenVersion = LibraryVersions.CAMERA_EXTENSIONS
     inceptionYear = "2019"
     description = "OEM Extensions stub implementation for the Jetpack Camera Library, a library providing interfaces" +
             " to integrate with OEM specific camera features."

@@ -26,26 +26,20 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-android {
-    buildTypes {
-        debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
-        }
-    }
-}
-
 dependencies {
     api(project(":navigation:navigation-runtime"))
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
     api(project(":navigation:navigation-common-ktx"))
-    api(project(":activity:activity-ktx")) {
-        because 'Mirror navigation-runtime dependency graph for -ktx artifacts'
+    api("androidx.activity:activity-ktx:1.1.0") {
+        because "Mirror navigation-runtime dependency graph for -ktx artifacts"
     }
-    api(project(":lifecycle:lifecycle-viewmodel-ktx")) {
-        because 'Mirror navigation-runtime dependency graph for -ktx artifacts'
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0") {
+        because "Mirror navigation-runtime dependency graph for -ktx artifacts"
     }
     api(KOTLIN_STDLIB)
-    androidTestImplementation(project(":navigation:navigation-testing"))
+    androidTestImplementation(project(":internal-testutils-navigation"), {
+        exclude group: "androidx.navigation", module: "navigation-common-ktx"
+    })
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -57,9 +51,7 @@ dependencies {
 androidx {
     name = "Android Navigation Runtime Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Android Navigation-Runtime-Ktx"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

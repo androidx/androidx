@@ -16,6 +16,7 @@
 
 package com.example.androidx.webkit;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.webkit.WebResourceRequest;
@@ -24,22 +25,26 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import static androidx.webkit.WebViewAssetLoader.AssetsPathHandler;
-import static androidx.webkit.WebViewAssetLoader.ResourcesPathHandler;
-
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.espresso.idling.net.UriIdlingResource;
 import androidx.webkit.WebViewAssetLoader;
+import androidx.webkit.WebViewAssetLoader.AssetsPathHandler;
+import androidx.webkit.WebViewAssetLoader.ResourcesPathHandler;
 
 /**
- * An {@link Activity} to show a more useful usecase: performing ajax calls to load files from
+ * An {@link Activity} to show a more useful use case: performing ajax calls to load files from
  * local app assets and resources in a safer way using WebViewAssetLoader.
  */
 public class AssetLoaderAjaxActivity extends AppCompatActivity {
+    private static final int MAX_IDLE_TIME_MS = 5000;
 
     private class MyWebViewClient extends WebViewClient {
         @Override
+        @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             return false;
         }
@@ -47,19 +52,39 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
         @Override
         @RequiresApi(21)
         public WebResourceResponse shouldInterceptRequest(WebView view,
-                                            WebResourceRequest request) {
-            return mAssetLoader.shouldInterceptRequest(request.getUrl());
+                                                          WebResourceRequest request) {
+            if (mUriIdlingResource != null) {
+                mUriIdlingResource.beginLoad(request.getUrl().toString());
+            }
+            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(request.getUrl());
+            if (mUriIdlingResource != null) {
+                mUriIdlingResource.endLoad(request.getUrl().toString());
+            }
+            return response;
         }
 
         @Override
+        @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
         public WebResourceResponse shouldInterceptRequest(WebView view, String request) {
-            return mAssetLoader.shouldInterceptRequest(Uri.parse(request));
+            if (mUriIdlingResource != null) {
+                mUriIdlingResource.beginLoad(request);
+            }
+            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(Uri.parse(request));
+            if (mUriIdlingResource != null) {
+                mUriIdlingResource.endLoad(request);
+            }
+            return response;
         }
     }
 
     private WebViewAssetLoader mAssetLoader;
     private WebView mWebView;
+    // IdlingResource that indicates that WebView has finished loading all WebResourceRequests
+    // by waiting until there are no requests made for 5000ms.
+    @NonNull
+    private UriIdlingResource mUriIdlingResource;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,5 +126,19 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
                 .build();
         // Load the url https://example.com/androidx_webkit/example/assets/www/ajax_requests.html
         mWebView.loadUrl(path.toString());
+    }
+
+    /**
+     * Create and return {@link UriIdlingResource} which indicates if WebView has finished loading
+     * all requested URIs.
+     */
+    @VisibleForTesting
+    @NonNull
+    public UriIdlingResource getUriIdlingResource() {
+        if (mUriIdlingResource == null) {
+            mUriIdlingResource =
+                    new UriIdlingResource("AssetLoaderWebViewUriIdlingResource", MAX_IDLE_TIME_MS);
+        }
+        return mUriIdlingResource;
     }
 }

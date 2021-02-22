@@ -35,7 +35,6 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.TaskExecutor;
-import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -44,7 +43,6 @@ import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.TestLifecycleOwner;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
@@ -98,9 +96,6 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 return true;
             }
         });
-
-        TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
-        lifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.CREATED);
 
         mScheduler = mock(Scheduler.class);
         Context context = ApplicationProvider.getApplicationContext();
@@ -165,6 +160,25 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         continuation.enqueue().getResult().get();
         verifyEnqueued(continuation);
         verifyScheduled(mScheduler, continuation);
+    }
+
+    @Test
+    public void testContinuation_withEmptyNode_enqueue() throws ExecutionException,
+            InterruptedException {
+        OneTimeWorkRequest first = createTestWorker();
+        OneTimeWorkRequest second = createTestWorker();
+        WorkContinuation continuation = new WorkContinuationImpl(mWorkManagerImpl,
+                Collections.singletonList(first));
+        continuation = continuation.then(Collections.<OneTimeWorkRequest>emptyList());
+        continuation = continuation.then(Collections.singletonList(second));
+        continuation.enqueue().getResult().get();
+        WorkSpec firstWorkSpec = mDatabase.workSpecDao().getWorkSpec(first.getStringId());
+        WorkSpec secondWorkSpec = mDatabase.workSpecDao().getWorkSpec(second.getStringId());
+        assertThat(firstWorkSpec, is(notNullValue()));
+        assertThat(secondWorkSpec, is(notNullValue()));
+        List<String> prerequisites =
+                mDatabase.dependencyDao().getPrerequisites(second.getStringId());
+        assertThat(prerequisites, containsInAnyOrder(first.getStringId()));
     }
 
     @Test

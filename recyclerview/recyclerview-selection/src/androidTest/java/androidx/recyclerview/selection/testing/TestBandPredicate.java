@@ -18,6 +18,7 @@ package androidx.recyclerview.selection.testing;
 
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.BandPredicate;
 
 public class TestBandPredicate extends BandPredicate {
@@ -29,7 +30,7 @@ public class TestBandPredicate extends BandPredicate {
     }
 
     @Override
-    public boolean canInitiate(MotionEvent e) {
+    public boolean canInitiate(@NonNull MotionEvent e) {
         return mCanInitiate;
     }
 

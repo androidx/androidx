@@ -22,15 +22,15 @@ import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("java")
+    id("java-library")
 }
 
 dependencies {
-    compile(project(":lifecycle:lifecycle-common"))
-    compile("androidx.annotation:annotation:1.1.0")
+    api(project(":lifecycle:lifecycle-common"))
+    api("androidx.annotation:annotation:1.1.0")
 
-    testCompile(JUNIT)
-    testCompile(MOCKITO_CORE)
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
 }
 
 androidx {
@@ -40,5 +40,4 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle-Common for Java 8 Language"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

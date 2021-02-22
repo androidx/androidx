@@ -40,7 +40,7 @@ public abstract class BandPredicate {
     /**
      * @return true if band selection can be initiated in response to the {@link MotionEvent}.
      */
-    public abstract boolean canInitiate(MotionEvent e);
+    public abstract boolean canInitiate(@NonNull MotionEvent e);
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static boolean hasSupportedLayoutManager(@NonNull RecyclerView recyclerView) {

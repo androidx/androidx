@@ -17,27 +17,28 @@
 package androidx.lifecycle
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.testing.TestLifecycleOwner
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
 
+@Suppress("DEPRECATION")
 class TransformationsTest {
 
     @get:Rule
     val mInstantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private val lifecycleOwner = object : LifecycleOwner {
-        private val registry = LifecycleRegistry(this).apply {
-            currentState = Lifecycle.State.STARTED
-        }
-        override fun getLifecycle() = registry
-    }
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    private val lifecycleOwner = TestLifecycleOwner(
+        coroutineDispatcher = TestCoroutineDispatcher()
+    )
 
     @Test fun map() {
         val source = MutableLiveData<String>()
         val mapped = source.map { input -> input.length }
         var receivedValue = -1
-        mapped.observe(lifecycleOwner) { receivedValue = it }
+        mapped.observe<Int>(lifecycleOwner) { receivedValue = it }
         source.value = "four"
         assertThat(receivedValue).isEqualTo(4)
     }
@@ -49,7 +50,7 @@ class TransformationsTest {
         val result = trigger.switchMap { input -> if (input == 1) first else second }
 
         var receivedValue = ""
-        result.observe(lifecycleOwner) { receivedValue = it }
+        result.observe<String>(lifecycleOwner) { receivedValue = it }
         first.value = "first"
         trigger.value = 1
         second.value = "second"
@@ -65,7 +66,7 @@ class TransformationsTest {
         val dedupedLiveData = originalLiveData.distinctUntilChanged()
 
         var counter = 0
-        dedupedLiveData.observe(lifecycleOwner) { counter++ }
+        dedupedLiveData.observe<String>(lifecycleOwner) { counter++ }
         assertThat(counter).isEqualTo(0)
 
         originalLiveData.value = "new value"

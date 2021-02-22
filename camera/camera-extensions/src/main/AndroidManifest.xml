@@ -17,6 +17,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.camera.extensions">
 
+    <queries>
+        <intent>
+            <action android:name="androidx.camera.extensions.action.VENDOR_ACTION" />
+        </intent>
+    </queries>
+
     <application>
         <uses-library
             android:name="androidx.camera.extensions.impl"

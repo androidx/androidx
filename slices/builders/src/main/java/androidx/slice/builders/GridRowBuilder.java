@@ -279,12 +279,18 @@ public class GridRowBuilder {
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_IMAGE = 2;
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public static final int TYPE_OVERLAY = 3;
 
-        private List<Object> mObjects = new ArrayList<>();
-        private List<Integer> mTypes = new ArrayList<>();
-        private List<Boolean> mLoadings = new ArrayList<>();
+        private final List<Object> mObjects = new ArrayList<>();
+        private final List<Integer> mTypes = new ArrayList<>();
+        private final List<Boolean> mLoadings = new ArrayList<>();
         private CharSequence mCellDescription;
         private PendingIntent mContentIntent;
+        private SliceAction mSliceAction;
 
         /**
          * Create a builder which will construct a slice displayed as a cell in a grid.
@@ -391,6 +397,36 @@ public class GridRowBuilder {
         }
 
         /**
+         * Adds text to the cell. Text added with this method will be overlaid in the image in
+         * the cell. There can be only one overlay text, the first added will be used, others
+         * will be ignored.
+         */
+        @NonNull
+        public CellBuilder addOverlayText(@NonNull CharSequence text) {
+            return addOverlayText(text, false /* isLoading */);
+        }
+
+        /**
+         * Adds text to the cell. Text added with this method will be overlaid in the image in
+         * the cell. There can be only one overlay text, the first added will be used, others
+         * will be ignored.
+         * <p>
+         * Use this method to specify content that will appear in the template once it's been
+         * loaded.
+         * </p>
+         *
+         * @param isLoading indicates whether the app is doing work to load the added content in the
+         *                  background or not.
+         */
+        @NonNull
+        public CellBuilder addOverlayText(@Nullable CharSequence text, boolean isLoading) {
+            mObjects.add(text);
+            mTypes.add(TYPE_OVERLAY);
+            mLoadings.add(isLoading);
+            return this;
+        }
+
+        /**
          * Sets the action to be invoked if the user taps on this cell in the row.
          */
         @NonNull
@@ -414,6 +450,17 @@ public class GridRowBuilder {
         @NonNull
         public CellBuilder setContentDescription(@NonNull CharSequence description) {
             mCellDescription = description;
+            return this;
+        }
+
+        /**
+         * Sets the SliceAction for the cell. It could be an action or a toggle button or a
+         * date/time picker. The actionTitle and icon image of the SliceAction will only be used
+         * when there is no other text or image in the cell.
+         */
+        @NonNull
+        public CellBuilder setSliceAction(@NonNull SliceAction action) {
+            mSliceAction = action;
             return this;
         }
 
@@ -483,6 +530,15 @@ public class GridRowBuilder {
                 }
             }
             return null;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @Nullable
+        public SliceAction getSliceAction() {
+            return mSliceAction;
         }
     }
 }

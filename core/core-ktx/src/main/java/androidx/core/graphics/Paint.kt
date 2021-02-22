@@ -25,6 +25,6 @@ import android.graphics.Paint
  * compatible way. This method is a no-op for BlendModes that have no equivalent
  * on older API levels
  */
-inline fun Paint.setBlendMode(blendModeCompat: BlendModeCompat?): Boolean {
+public inline fun Paint.setBlendMode(blendModeCompat: BlendModeCompat?): Boolean {
     return PaintCompat.setBlendMode(this, blendModeCompat)
 }

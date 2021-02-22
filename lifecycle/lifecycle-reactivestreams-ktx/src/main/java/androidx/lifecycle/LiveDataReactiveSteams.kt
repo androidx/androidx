@@ -25,7 +25,7 @@ import org.reactivestreams.Publisher
  *
  * @see LiveDataReactiveStreams.toPublisher
  */
-inline fun <T> LiveData<T>.toPublisher(lifecycle: LifecycleOwner): Publisher<T> =
+public inline fun <T> LiveData<T>.toPublisher(lifecycle: LifecycleOwner): Publisher<T> =
     LiveDataReactiveStreams.toPublisher(lifecycle, this)
 
 /**
@@ -33,5 +33,5 @@ inline fun <T> LiveData<T>.toPublisher(lifecycle: LifecycleOwner): Publisher<T> 
  *
  * @see LiveDataReactiveStreams.fromPublisher
  */
-inline fun <T> Publisher<T>.toLiveData(): LiveData<T> =
+public inline fun <T> Publisher<T>.toLiveData(): LiveData<T> =
     LiveDataReactiveStreams.fromPublisher(this)

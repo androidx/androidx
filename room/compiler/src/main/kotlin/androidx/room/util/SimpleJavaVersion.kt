@@ -23,8 +23,11 @@ package androidx.room.util
  * [androidx.room.RoomProcessor.methodParametersVisibleInClassFiles] check only. If you want to use
  * this class, consider expanding the implementation or use a different library.
  */
-data class SimpleJavaVersion(val major: Int, val minor: Int, val update: Int? = null) :
-    Comparable<SimpleJavaVersion> {
+data class SimpleJavaVersion(
+    val major: Int,
+    val minor: Int,
+    val update: Int? = null
+) : Comparable<SimpleJavaVersion> {
 
     override fun compareTo(other: SimpleJavaVersion): Int {
         return compareValuesBy(
@@ -58,11 +61,24 @@ data class SimpleJavaVersion(val major: Int, val minor: Int, val update: Int? = 
             }
 
             val parts = version.split('.')
-            if (parts.size != 3) {
-                return null
+
+            // There are valid JDK version strings with no parts split by dots.
+            // For example: "15+36".
+            if (parts.size == 1) {
+                return try {
+                    val major = parts[0].substringBeforeNonDigitChar()
+                    SimpleJavaVersion(major.toInt(), 0)
+                } catch (e: NumberFormatException) {
+                    null
+                }
             }
 
             if (parts[0] == "1") {
+                // All 3 parts are needed when JDK versions strings where major version is 1.
+                // For example: "1.8.0_202-release-1483-b39-5396753"
+                if (parts.size < 3) {
+                    return null
+                }
                 val major = parts[1]
                 val minorAndUpdate = parts[2].substringBefore('-').split('_')
                 if (minorAndUpdate.size != 2) {
@@ -79,10 +95,20 @@ data class SimpleJavaVersion(val major: Int, val minor: Int, val update: Int? = 
                 }
             } else {
                 return try {
-                    SimpleJavaVersion(parts[0].toInt(), parts[1].toInt())
+                    val minor = parts[1].substringBeforeNonDigitChar()
+                    SimpleJavaVersion(parts[0].toInt(), minor.toInt())
                 } catch (e: NumberFormatException) {
                     null
                 }
+            }
+        }
+
+        private fun String.substringBeforeNonDigitChar(): String {
+            val nonDigitIndex = indexOfFirst { !it.isDigit() }
+            return if (nonDigitIndex == -1) {
+                this
+            } else {
+                substring(0, nonDigitIndex)
             }
         }
 

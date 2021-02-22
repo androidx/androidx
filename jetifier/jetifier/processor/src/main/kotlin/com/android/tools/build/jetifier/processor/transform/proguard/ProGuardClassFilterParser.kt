@@ -28,13 +28,15 @@ class ProGuardClassFilterParser(private val mapper: ProGuardTypesMapper) {
 
     companion object {
         private const val RULES = "(adaptclassstrings|dontnote|dontwarn)"
+
+        // Allows us to match comments at the end of the line.
+        private const val COMMENT = "([ \\t]+#[^\\n]*)?"
     }
 
     val replacer = GroupsReplacer(
-        pattern = PatternHelper.build("^ *-$RULES ｟[^-]+｠ *$", Pattern.MULTILINE),
-        groupsMap = listOf(
-            { filter: String -> listOf(rewriteClassFilter(filter)) }
-        )
+        // As this is multiline regex, [^-#\n] prevents from selecting comments or new lines.
+        pattern = PatternHelper.build("^ *-$RULES ｟[^-#\\n]+｠$COMMENT$", Pattern.MULTILINE),
+        groupsMap = listOf { filter: String -> listOf(rewriteClassFilter(filter)) }
     )
 
     private fun rewriteClassFilter(classFilter: String): String {
@@ -61,7 +63,7 @@ class ProGuardClassFilterParser(private val mapper: ProGuardTypesMapper) {
 
         val withoutNegation = type.substring(1, type.length)
         return mapper.replaceType(withoutNegation)
-            .map { '!' + it }
+            .map { "!$it" }
             .toList()
     }
 }

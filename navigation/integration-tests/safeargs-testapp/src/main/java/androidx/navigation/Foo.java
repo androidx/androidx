@@ -17,7 +17,7 @@
 package androidx.navigation;
 
 /**
- * Dummy file, because android gradle plugin requires not empty sources
+ * Placeholder file, because android gradle plugin requires not empty sources
  */
 public class Foo {
 }

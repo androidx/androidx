@@ -18,15 +18,12 @@ package androidx.camera.camera2.impl;
 
 import android.hardware.camera2.CameraCaptureSession;
 
-import androidx.annotation.RestrictTo;
-import androidx.camera.core.CaptureConfig;
+import androidx.annotation.Nullable;
+import androidx.camera.core.impl.CaptureConfig;
 
 /**
  * A callback object for tracking the camera capture session event and get request data.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class CameraEventCallback {
 
     /**
@@ -37,6 +34,7 @@ public abstract class CameraEventCallback {
      *
      * @return CaptureConfig The request information to customize the session.
      */
+    @Nullable
     public CaptureConfig onPresetSession() {
         return null;
     }
@@ -49,6 +47,7 @@ public abstract class CameraEventCallback {
      *
      * @return CaptureConfig The request information to customize the session.
      */
+    @Nullable
     public CaptureConfig onEnableSession() {
         return null;
     }
@@ -60,6 +59,7 @@ public abstract class CameraEventCallback {
      *
      * @return CaptureConfig The request information to customize the session.
      */
+    @Nullable
     public CaptureConfig onRepeating() {
         return null;
     }
@@ -72,6 +72,7 @@ public abstract class CameraEventCallback {
      *
      * @return CaptureConfig The request information to customize the session.
      */
+    @Nullable
     public CaptureConfig onDisableSession() {
         return null;
     }

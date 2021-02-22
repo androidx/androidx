@@ -17,28 +17,25 @@
 package androidx.room.solver.query.result
 
 import androidx.room.ext.AndroidTypeNames
+import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
-import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
-import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.ClassName
+import androidx.room.solver.RxType
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import javax.lang.model.element.Modifier
-import javax.lang.model.type.TypeMirror
 
 /**
  * Generic Result binder for Rx classes that accept a callable.
  */
-class RxCallableQueryResultBinder(
+internal class RxCallableQueryResultBinder(
     private val rxType: RxType,
-    val typeArg: TypeMirror,
+    val typeArg: XType,
     adapter: QueryResultAdapter?
 ) : QueryResultBinder(adapter) {
     override fun convertAndReturn(
@@ -48,20 +45,21 @@ class RxCallableQueryResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val callable = CallableTypeSpecBuilder(typeArg.typeName()) {
+        val callable = CallableTypeSpecBuilder(typeArg.typeName) {
             fillInCallMethod(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 dbField = dbField,
                 inTransaction = inTransaction,
-                scope = scope)
+                scope = scope
+            )
         }.apply {
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
             }
         }.build()
         scope.builder().apply {
-            if (rxType == RxType.SINGLE) {
-                addStatement("return $T.createSingle($L)", RoomRxJava2TypeNames.RX_ROOM, callable)
+            if (rxType.isSingle()) {
+                addStatement("return $T.createSingle($L)", rxType.version.rxRoomClassName, callable)
             } else {
                 addStatement("return $T.fromCallable($L)", rxType.className, callable)
             }
@@ -84,23 +82,27 @@ class RxCallableQueryResultBinder(
         val shouldCopyCursor = adapter?.shouldCopyCursor() == true
         val outVar = scope.getTmpVar("_result")
         val cursorVar = scope.getTmpVar("_cursor")
-        addStatement("final $T $L = $T.query($N, $L, $L, $L)",
-                AndroidTypeNames.CURSOR,
-                cursorVar,
-                RoomTypeNames.DB_UTIL,
-                dbField,
-                roomSQLiteQueryVar,
-                if (shouldCopyCursor) "true" else "false",
-                "null")
+        addStatement(
+            "final $T $L = $T.query($N, $L, $L, $L)",
+            AndroidTypeNames.CURSOR,
+            cursorVar,
+            RoomTypeNames.DB_UTIL,
+            dbField,
+            roomSQLiteQueryVar,
+            if (shouldCopyCursor) "true" else "false",
+            "null"
+        )
         beginControlFlow("try").apply {
             adapter?.convert(outVar, cursorVar, adapterScope)
             addCode(adapterScope.generate())
             if (!rxType.canBeNull) {
                 beginControlFlow("if($L == null)", outVar).apply {
-                    addStatement("throw new $T($S + $L.getSql())",
-                            RoomRxJava2TypeNames.RX_EMPTY_RESULT_SET_EXCEPTION,
-                            "Query returned empty result set: ",
-                            roomSQLiteQueryVar)
+                    addStatement(
+                        "throw new $T($S + $L.getSql())",
+                        rxType.version.emptyResultExceptionClassName,
+                        "Query returned empty result set: ",
+                        roomSQLiteQueryVar
+                    )
                 }
                 endControlFlow()
             }
@@ -120,10 +122,5 @@ class RxCallableQueryResultBinder(
             addAnnotation(Override::class.java)
             addStatement("$L.release()", roomSQLiteQueryVar)
         }.build()
-    }
-
-    enum class RxType(val className: ClassName, val canBeNull: Boolean) {
-        SINGLE(RxJava2TypeNames.SINGLE, canBeNull = false),
-        MAYBE(RxJava2TypeNames.MAYBE, canBeNull = true);
     }
 }

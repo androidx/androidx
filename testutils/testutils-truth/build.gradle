@@ -25,7 +25,3 @@ dependencies {
     api(TRUTH)
     api(KOTLIN_STDLIB)
 }
-
-androidx {
-    toolingProject = true
-}

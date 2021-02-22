@@ -18,6 +18,7 @@ package androidx.recyclerview.selection.testing;
 
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 
 import javax.annotation.Nullable;
@@ -30,7 +31,7 @@ public class TestItemDetailsLookup extends ItemDetailsLookup<String> {
     private @Nullable TestItemDetails mItem;
 
     @Override
-    public @Nullable ItemDetails<String> getItemDetails(MotionEvent e) {
+    public @Nullable ItemDetails<String> getItemDetails(@NonNull MotionEvent e) {
         return mItem;
     }
 

@@ -69,7 +69,7 @@ public class GridLayoutManagerBaseConfigSetTest extends BaseGridLayoutManagerTes
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                assertSame("test sanity", mRecyclerView, rv);
+                assertSame("Assumption check", mRecyclerView, rv);
                 int globalScrollPosition = 0;
                 int visited = 0;
                 while (visited < mAdapter.getItemCount()) {
@@ -109,7 +109,7 @@ public class GridLayoutManagerBaseConfigSetTest extends BaseGridLayoutManagerTes
             }
         });
         checkForMainThreadException();
-        // test sanity, ensure scroll happened
+        // Assumption check, ensure scroll happened
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {

@@ -120,6 +120,32 @@ public final class NavOptions {
         return mPopExitAnim;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NavOptions that = (NavOptions) o;
+        return mSingleTop == that.mSingleTop
+                && mPopUpTo == that.mPopUpTo
+                && mPopUpToInclusive == that.mPopUpToInclusive
+                && mEnterAnim == that.mEnterAnim
+                && mExitAnim == that.mExitAnim
+                && mPopEnterAnim == that.mPopEnterAnim
+                && mPopExitAnim == that.mPopExitAnim;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = shouldLaunchSingleTop() ? 1 : 0;
+        result = 31 * result + getPopUpTo();
+        result = 31 * result + (isPopUpToInclusive() ? 1 : 0);
+        result = 31 * result + getEnterAnim();
+        result = 31 * result + getExitAnim();
+        result = 31 * result + getPopEnterAnim();
+        result = 31 * result + getPopExitAnim();
+        return result;
+    }
+
     /**
      * Builder for constructing new instances of NavOptions.
      */

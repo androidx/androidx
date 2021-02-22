@@ -11,7 +11,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.1.0")
+    api("androidx.core:core:1.3.2")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.customview:customview:1.0.0")
 
@@ -22,6 +22,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(TRUTH)
     androidTestImplementation(JUNIT)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(project(":internal-testutils-espresso"))
@@ -30,6 +31,8 @@ dependencies {
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
+    testImplementation(KOTLIN_STDLIB)
+    lintPublish(project(":recyclerview:recyclerview-lint"))
 }
 
 android {
@@ -44,14 +47,18 @@ android {
     buildTypes.all {
         consumerProguardFiles("proguard-rules.pro")
     }
+
+    defaultConfig {
+        testInstrumentationRunner "androidx.testutils.ActivityRecyclingAndroidJUnitRunner"
+    }
 }
 
 androidx {
-    name = "Android Support RecyclerView v7"
+    name = "Android Support RecyclerView"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.RECYCLERVIEW
     mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2014"
-    description = "Android Support RecyclerView v7"
+    description = "Android Support RecyclerView"
     failOnDeprecationWarnings = false
 }

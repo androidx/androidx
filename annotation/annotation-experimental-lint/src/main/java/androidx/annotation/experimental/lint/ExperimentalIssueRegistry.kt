@@ -17,7 +17,10 @@
 package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
+import com.android.tools.lint.detector.api.CURRENT_API
 
 class ExperimentalIssueRegistry : IssueRegistry() {
+    override val minApi = CURRENT_API
+    override val api = 8
     override val issues get() = ExperimentalDetector.ISSUES
 }

@@ -26,8 +26,9 @@ import android.view.ViewConfiguration;
 /**
  * RV specific layout tests.
  */
-public class TouchUtils {
-    public static void tapView(Instrumentation inst, RecyclerView recyclerView,
+@SuppressWarnings({"unused", "UnusedReturnValue", "SameParameterValue", "WeakerAccess"})
+class TouchUtils {
+    static void tapView(Instrumentation inst, RecyclerView recyclerView,
             View v) {
         int[] xy = new int[2];
         v.getLocationOnScreen(xy);
@@ -59,7 +60,7 @@ public class TouchUtils {
         inst.waitForIdleSync();
     }
 
-    public static void touchAndCancelView(Instrumentation inst, View v) {
+    static void touchAndCancelView(Instrumentation inst, View v) {
         int[] xy = new int[2];
         v.getLocationOnScreen(xy);
 
@@ -83,10 +84,9 @@ public class TouchUtils {
                 x + (touchSlop / 2.0f), y + (touchSlop / 2.0f), 0);
         inst.sendPointerSync(event);
         inst.waitForIdleSync();
-
     }
 
-    public static void clickView(Instrumentation inst, View v) {
+    static void clickView(Instrumentation inst, View v) {
         int[] xy = new int[2];
         v.getLocationOnScreen(xy);
 
@@ -164,11 +164,11 @@ public class TouchUtils {
         inst.waitForIdleSync();
     }
 
-    public static void scrollView(int axis, int axisValue, int inputDevice, View v) {
-        MotionEvent.PointerProperties[] pointerProperties = { new MotionEvent.PointerProperties() };
+    static void scrollView(int axis, int axisValue, int inputDevice, View v) {
+        MotionEvent.PointerProperties[] pointerProperties = {new MotionEvent.PointerProperties()};
         MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
         coords.setAxisValue(axis, axisValue);
-        MotionEvent.PointerCoords[] pointerCoords = { coords };
+        MotionEvent.PointerCoords[] pointerCoords = {coords};
         MotionEvent e = MotionEvent.obtain(
                 0, System.currentTimeMillis(), MotionEvent.ACTION_SCROLL,
                 1, pointerProperties, pointerCoords, 0, 0, 1, 1, 0, 0, inputDevice, 0);
@@ -176,11 +176,11 @@ public class TouchUtils {
         e.recycle();
     }
 
-    public static void dragViewToTop(Instrumentation inst, View v) {
+    static void dragViewToTop(Instrumentation inst, View v) {
         dragViewToTop(inst, v, calculateStepsForDistance(v.getTop()));
     }
 
-    public static void dragViewToTop(Instrumentation inst, View v, int stepCount) {
+    static void dragViewToTop(Instrumentation inst, View v, int stepCount) {
         int[] xy = new int[2];
         v.getLocationOnScreen(xy);
 
@@ -227,7 +227,7 @@ public class TouchUtils {
         }
     }
 
-    public static int dragViewTo(Instrumentation inst, View v, int gravity, int toX,
+    static int dragViewTo(Instrumentation inst, View v, int gravity, int toX,
             int toY) {
         int[] xy = new int[2];
 
@@ -245,7 +245,12 @@ public class TouchUtils {
         return distance;
     }
 
-    public static int dragViewToX(Instrumentation inst, View v, int gravity, int toX) {
+    static int dragViewToX(Instrumentation inst, View v, int gravity, int toX) {
+        return dragViewToX(inst, v, gravity, toX, true);
+    }
+
+    static int dragViewToX(Instrumentation inst, View v, int gravity, int toX,
+            boolean waitForIdleSync) {
         int[] xy = new int[2];
 
         getStartLocation(v, gravity, xy);
@@ -255,12 +260,17 @@ public class TouchUtils {
 
         int deltaX = fromX - toX;
 
-        drag(inst, fromX, toX, fromY, fromY, calculateStepsForDistance(deltaX));
+        drag(inst, fromX, toX, fromY, fromY, calculateStepsForDistance(deltaX), waitForIdleSync);
 
         return deltaX;
     }
 
-    public static int dragViewToY(Instrumentation inst, View v, int gravity, int toY) {
+    static int dragViewToY(Instrumentation inst, View v, int gravity, int toY) {
+        return dragViewToY(inst, v, gravity, toY, true);
+    }
+
+    static int dragViewToY(Instrumentation inst, View v, int gravity, int toY,
+            boolean waitForIdleSync) {
         int[] xy = new int[2];
 
         getStartLocation(v, gravity, xy);
@@ -270,14 +280,19 @@ public class TouchUtils {
 
         int deltaY = fromY - toY;
 
-        drag(inst, fromX, fromX, fromY, toY, calculateStepsForDistance(deltaY));
+        drag(inst, fromX, fromX, fromY, toY, calculateStepsForDistance(deltaY), waitForIdleSync);
 
         return deltaY;
     }
 
-
-    public static void drag(Instrumentation inst, float fromX, float toX, float fromY,
+    static void drag(Instrumentation inst, float fromX, float toX, float fromY,
             float toY, int stepCount) {
+        drag(inst, fromX, toX, fromY, toY, stepCount, true);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    static void drag(Instrumentation inst, float fromX, float toX, float fromY,
+            float toY, int stepCount, boolean waitForIdleSync) {
         long downTime = SystemClock.uptimeMillis();
         long eventTime = SystemClock.uptimeMillis();
 
@@ -301,7 +316,9 @@ public class TouchUtils {
         eventTime = SystemClock.uptimeMillis();
         event = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_UP, x, y, 0);
         inst.sendPointerSync(event);
-        inst.waitForIdleSync();
+        if (waitForIdleSync) {
+            inst.waitForIdleSync();
+        }
     }
 
     private static int calculateStepsForDistance(int distance) {

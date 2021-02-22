@@ -15,14 +15,13 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "@types/express": "^4.16.1",
-    "@types/puppeteer": "^1.12.3",
-    "express": "^4.16.4",
-    "puppeteer": "^1.14.0",
-    "yarn": "^1.15.2"
+    "@types/express": "^4.17.7",
+    "@types/puppeteer": "^3.0.1",
+    "express": "^4.17.1",
+    "puppeteer": "^5.2.1"
   },
   "devDependencies": {
-    "nodemon": "^1.18.11",
-    "typescript": "^3.4.5"
+    "nodemon": "^2.0.4",
+    "typescript": "^3.9.7"
   }
 }
