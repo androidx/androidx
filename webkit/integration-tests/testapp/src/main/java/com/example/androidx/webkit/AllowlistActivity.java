@@ -18,9 +18,7 @@ package com.example.androidx.webkit;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.webkit.ValueCallback;
 import android.webkit.WebView;
-import android.widget.CompoundButton;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -56,14 +54,11 @@ public class AllowlistActivity extends AppCompatActivity {
 
         SwitchCompat allowlistSwitch = findViewById(R.id.allowlist_switch);
         allowlistSwitch.setChecked(true);
-        allowlistSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    allowlistSafeBrowsingTestSite(null);
-                } else {
-                    clearAllowlist();
-                }
+        allowlistSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                allowlistSafeBrowsingTestSite(null);
+            } else {
+                clearAllowlist();
             }
         });
 
@@ -77,12 +72,8 @@ public class AllowlistActivity extends AppCompatActivity {
         }
 
         // Set the allowlist and load the test site.
-        allowlistSafeBrowsingTestSite(new Runnable() {
-            @Override
-            public void run() {
-                mAllowlistWebView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE);
-            }
-        });
+        allowlistSafeBrowsingTestSite(
+                () -> mAllowlistWebView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE));
     }
 
     @Override
@@ -104,15 +95,13 @@ public class AllowlistActivity extends AppCompatActivity {
         // To clear the allowlist (and check all domains with Safe Browsing), pass an empty list.
         final Activity activity = this;
         WebViewCompat.setSafeBrowsingAllowlist(
-                    Collections.emptySet(), new ValueCallback<Boolean>() {
-            @Override
-            public void onReceiveValue(Boolean success) {
-                if (!success) {
-                    WebkitHelpers.showMessageInActivity(activity,
-                            R.string.invalid_allowlist_input_message);
-                } // Nothing interesting to do if this succeeds, let user continue to use the app.
-            }
-        });
+                Collections.emptySet(), success -> {
+                    if (!success) {
+                        WebkitHelpers.showMessageInActivity(activity,
+                                R.string.invalid_allowlist_input_message);
+                    }
+                    // Nothing interesting to do if this succeeds, let user continue to use the app.
+                });
     }
 
     private void allowlistSafeBrowsingTestSite(@Nullable Runnable onSuccess) {
@@ -121,17 +110,14 @@ public class AllowlistActivity extends AppCompatActivity {
         final Set<String> allowlist = new HashSet<>();
         allowlist.add(SafeBrowsingHelpers.TEST_SAFE_BROWSING_DOMAIN);
         final Activity activity = this;
-        WebViewCompat.setSafeBrowsingAllowlist(allowlist, new ValueCallback<Boolean>() {
-            @Override
-            public void onReceiveValue(Boolean success) {
-                if (success) {
-                    if (onSuccess != null) {
-                        onSuccess.run();
-                    }
-                } else {
-                    WebkitHelpers.showMessageInActivity(activity,
-                            R.string.invalid_allowlist_input_message);
+        WebViewCompat.setSafeBrowsingAllowlist(allowlist, success -> {
+            if (success) {
+                if (onSuccess != null) {
+                    onSuccess.run();
                 }
+            } else {
+                WebkitHelpers.showMessageInActivity(activity,
+                        R.string.invalid_allowlist_input_message);
             }
         });
     }
