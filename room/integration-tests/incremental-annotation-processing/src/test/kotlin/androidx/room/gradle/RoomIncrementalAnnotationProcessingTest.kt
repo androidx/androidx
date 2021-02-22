@@ -91,8 +91,19 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
     @Before
     fun setup() {
         val projectRoot = projectSetup.rootDir
-        val prebuiltsRoot = projectSetup.props.prebuiltsRoot
-        val localSupportRepo = projectSetup.props.localSupportRepo
+        val repositoriesBlock = buildString {
+            appendLine("repositories {")
+            projectSetup.allRepositoryPaths.forEach {
+                appendLine(
+                    """
+                    maven {
+                        url "$it"
+                    }
+                    """.trimIndent()
+                )
+            }
+            appendLine("}")
+        }
         val agpDependency = projectSetup.props.agpDependency
 
         // copy test project
@@ -102,10 +113,7 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
         File(projectRoot, "build.gradle").writeText(
             """
             buildscript {
-                repositories {
-                    maven { url "$prebuiltsRoot/androidx/external" }
-                    maven { url "$prebuiltsRoot/androidx/internal" }
-                }
+                ${repositoriesBlock.prependIndent("    ")}
                 dependencies {
                     classpath "$agpDependency"
                 }
@@ -113,16 +121,7 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
 
             apply plugin: 'com.android.application'
 
-            repositories {
-                maven { url "$prebuiltsRoot/androidx/external" }
-                maven { url "$localSupportRepo" }
-                maven {
-                    url "$prebuiltsRoot/androidx/internal"
-                    content {
-                        excludeModule("androidx.room", "room-compiler")
-                    }
-                }
-            }
+            $repositoriesBlock
 
             %s
 
