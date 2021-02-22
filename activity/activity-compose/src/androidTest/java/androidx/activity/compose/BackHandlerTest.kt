@@ -18,6 +18,9 @@ package androidx.activity.compose
 
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -70,6 +73,31 @@ class BackHandlerTest {
         composeTestRule.runOnIdle {
             assertThat(parentBackCounter).isEqualTo(1)
             assertThat(childBackCounter).isEqualTo(0)
+        }
+    }
+
+    /**
+     * Test that [BackHandler] updates the dispatcher callback successfully when the
+     * `onBack` function parameter changes
+     */
+    @Test
+    fun testBackHandlerOnBackChanged() {
+        val results = mutableListOf<String>()
+        var handler by mutableStateOf({ results += "initial" })
+        composeTestRule.setContent {
+            BackHandler(onBack = handler)
+            val dispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
+            Button(onClick = { dispatcher.onBackPressed() }) {
+                Text(text = "Press Back")
+            }
+        }
+        composeTestRule.onNodeWithText("Press Back").performClick()
+        composeTestRule.runOnIdle {
+            handler = { results += "changed" }
+        }
+        composeTestRule.onNodeWithText("Press Back").performClick()
+        composeTestRule.runOnIdle {
+            assertThat(results).isEqualTo(listOf("initial", "changed"))
         }
     }
 }
