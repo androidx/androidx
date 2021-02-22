@@ -30,7 +30,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.model.CarColor;
-import androidx.car.app.model.CarText;
 import androidx.car.app.serialization.Bundler;
 import androidx.car.app.serialization.BundlerException;
 import androidx.core.app.NotificationCompat;
@@ -399,7 +398,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code contentTitle} is {@code null}
-         * @see CarText for details on text handling and span support.
          */
         @NonNull
         public Builder setContentTitle(@NonNull CharSequence contentTitle) {
@@ -418,7 +416,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * @param contentText override for the notification's content text. If set to an empty
          *                    string, it will be treated as if there is no context text
          * @throws NullPointerException if {@code contentText} is {@code null}
-         * @see CarText for details on text handling and span support.
          */
         @NonNull
         public Builder setContentText(@NonNull CharSequence contentText) {
