@@ -1037,6 +1037,19 @@ public abstract class FragmentManager implements FragmentResultOwner {
         return null;
     }
 
+    void onContainerAvailable(@NonNull FragmentContainerView container) {
+        for (FragmentStateManager fragmentStateManager:
+                mFragmentStore.getActiveFragmentStateManagers()) {
+            Fragment fragment = fragmentStateManager.getFragment();
+            if (fragment.mContainerId == container.getId() && fragment.mView != null
+                    && fragment.mView.getParent() == null
+            ) {
+                fragment.mContainer = container;
+                fragmentStateManager.addViewToContainer();
+            }
+        }
+    }
+
     /**
      * Recurse up the view hierarchy, looking for a FragmentManager
      *
