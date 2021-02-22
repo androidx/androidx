@@ -25,6 +25,8 @@ internal fun ideSummaryString(
     benchmarkName: String,
     statsList: List<Stats>
 ): String {
+    require(statsList.isNotEmpty()) { "Require non-empty list of stats." }
+
     val maxLabelLength = Collections.max(statsList.map { it.name.length })
 
     // max string length of any printed min/median/max is the largest max value seen. used to pad.
