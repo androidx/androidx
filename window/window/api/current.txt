@@ -33,8 +33,15 @@ package androidx.window {
   public class FoldingFeature implements androidx.window.DisplayFeature {
     ctor public FoldingFeature(android.graphics.Rect, int, int);
     method public android.graphics.Rect getBounds();
+    method public int getOcclusionMode();
+    method public int getOrientation();
     method public int getState();
-    method public int getType();
+    method @Deprecated public int getType();
+    method public boolean isSeparating();
+    field public static final int OCCLUSION_FULL = 1; // 0x1
+    field public static final int OCCLUSION_NONE = 0; // 0x0
+    field public static final int ORIENTATION_HORIZONTAL = 1; // 0x1
+    field public static final int ORIENTATION_VERTICAL = 0; // 0x0
     field public static final int STATE_FLAT = 1; // 0x1
     field public static final int STATE_FLIPPED = 3; // 0x3
     field public static final int STATE_HALF_OPENED = 2; // 0x2
