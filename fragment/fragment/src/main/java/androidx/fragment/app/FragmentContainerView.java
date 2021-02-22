@@ -175,6 +175,7 @@ public final class FragmentContainerView extends FrameLayout {
                     .add(this, containerFragment, tag)
                     .commitNowAllowingStateLoss();
         }
+        fm.onContainerAvailable(this);
     }
 
     /**
