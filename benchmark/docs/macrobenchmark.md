@@ -84,6 +84,9 @@ performance).
 
 ## Module Setup
 
+
+### Configuration
+
 Macrobenchmark currently is only available as a snapshot, so
 [add the Androidx snapshot maven artifact to your top level `build.gradle` file](https://androidx.dev/).
 
@@ -96,6 +99,31 @@ dependencies {
     androidTestImplementation "androidx.benchmark:benchmark-macro-junit4:$benchmark_version"
 }
 ```
+
+The macrobenchmark module needs to declare that it is going to `query` the app being benchmarked
+(called the *target* of the macrobenchmark). This is to account for
+[Package visibility restrictions](https://developer.android.com/about/versions/11/privacy/package-visibility)
+in Android 11.
+
+Add the following snippet to the module's `AndroidManifest.xml`.
+
+```xml
+<!-- This snippet needs be in `src/main/AndroidManifest.xml` for the macrobenchmark module -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.macrobenchmark">
+
+    <queries>
+        <!-- The macrobenchmark target package -->
+        <package android:name="com.example.macrobenchmark.target" />
+    </queries>
+    <!-- ... -->
+</manifest>
+```
+
+See the [sample macrobenchmark module](https://github.com/android/performance-samples/tree/macrobenchmark/MacrobenchmarkSample/macrobenchmark)
+for reference.
+
+### Writing Macrobenchmarks
 
 Unlike microbenchmarks written with `BenchmarkRule`, no gradle plugin is
 required.
