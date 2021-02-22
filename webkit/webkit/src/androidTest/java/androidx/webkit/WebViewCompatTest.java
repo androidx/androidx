@@ -29,7 +29,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Build;
 import android.os.Looper;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -83,12 +82,7 @@ public class WebViewCompatTest {
         mWebViewOnUiThread.loadUrl("about:blank");
 
         final ResolvableFuture<Long> visualStateFuture = ResolvableFuture.create();
-        mWebViewOnUiThread.postVisualStateCallbackCompat(kRequest,
-                new WebViewCompat.VisualStateCallback() {
-                        public void onComplete(long requestId) {
-                            visualStateFuture.set(requestId);
-                        }
-                });
+        mWebViewOnUiThread.postVisualStateCallbackCompat(kRequest, visualStateFuture::set);
 
         assertEquals(kRequest, (long) WebkitUtils.waitForFuture(visualStateFuture));
     }
@@ -98,12 +92,8 @@ public class WebViewCompatTest {
         // Skip this test if VisualStateCallback is not supported.
         WebkitUtils.checkFeature(WebViewFeature.VISUAL_STATE_CALLBACK);
         try {
-            WebViewCompat.postVisualStateCallback(mWebViewOnUiThread.getWebViewOnCurrentThread(), 5,
-                    new WebViewCompat.VisualStateCallback() {
-                        @Override
-                        public void onComplete(long requestId) {
-                        }
-                    });
+            WebViewCompat.postVisualStateCallback(
+                    mWebViewOnUiThread.getWebViewOnCurrentThread(), 5, requestId -> {});
         } catch (RuntimeException e) {
             return;
         }
@@ -140,12 +130,8 @@ public class WebViewCompatTest {
                 new MockContext(
                         ApplicationProvider.getApplicationContext().getApplicationContext());
         final ResolvableFuture<Boolean> startSafeBrowsingFuture = ResolvableFuture.create();
-        WebViewCompat.startSafeBrowsing(ctx, new ValueCallback<Boolean>() {
-            @Override
-            public void onReceiveValue(Boolean value) {
-                startSafeBrowsingFuture.set(ctx.wasGetApplicationContextCalled());
-            }
-        });
+        WebViewCompat.startSafeBrowsing(ctx,
+                value -> startSafeBrowsingFuture.set(ctx.wasGetApplicationContextCalled()));
         assertTrue(WebkitUtils.waitForFuture(startSafeBrowsingFuture));
     }
 
@@ -174,23 +160,14 @@ public class WebViewCompatTest {
         final ResolvableFuture<Boolean> startSafeBrowsingFuture = ResolvableFuture.create();
         WebViewCompat.startSafeBrowsing(
                 ApplicationProvider.getApplicationContext().getApplicationContext(),
-                new ValueCallback<Boolean>() {
-                    @Override
-                    public void onReceiveValue(Boolean value) {
-                        startSafeBrowsingFuture.set(Looper.getMainLooper().isCurrentThread());
-                    }
-                });
+                value -> startSafeBrowsingFuture.set(Looper.getMainLooper().isCurrentThread()));
         assertTrue(WebkitUtils.waitForFuture(startSafeBrowsingFuture));
     }
 
     private static boolean setSafeBrowsingAllowlistSync(Set<String> allowlist) {
         final ResolvableFuture<Boolean> safeBrowsingAllowlistFuture = ResolvableFuture.create();
-        WebViewCompat.setSafeBrowsingAllowlist(allowlist, new ValueCallback<Boolean>() {
-            @Override
-            public void onReceiveValue(Boolean success) {
-                safeBrowsingAllowlistFuture.set(success);
-            }
-        });
+        WebViewCompat.setSafeBrowsingAllowlist(allowlist,
+                safeBrowsingAllowlistFuture::set);
         return WebkitUtils.waitForFuture(safeBrowsingAllowlistFuture);
     }
 
