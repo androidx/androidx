@@ -15,12 +15,23 @@
  */
 package androidx.core.widget;
 
+import static android.widget.EdgeEffect.TYPE_GLOW;
+import static android.widget.EdgeEffect.TYPE_STRETCH;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
+import android.util.AttributeSet;
 import android.widget.EdgeEffect;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Helper for accessing {@link android.widget.EdgeEffect}.
@@ -33,6 +44,13 @@ import androidx.annotation.NonNull;
 public final class EdgeEffectCompat {
     private EdgeEffect mEdgeEffect;
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({TYPE_GLOW, TYPE_STRETCH})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EdgeEffectType {
+    }
+
     /**
      * Construct a new EdgeEffect themed using the given context.
      *
@@ -41,11 +59,77 @@ public final class EdgeEffectCompat {
      *
      * @param context Context to use for theming the effect
      *
-     * @deprecated Use {@link EdgeEffect} constructor directly.
+     * @deprecated Use {@link EdgeEffect} constructor directly or
+     * {@link EdgeEffectCompat#create(Context, AttributeSet)}.
      */
     @Deprecated
     public EdgeEffectCompat(Context context) {
         mEdgeEffect = new EdgeEffect(context);
+    }
+
+    /**
+     * Constructs and returns a new EdgeEffect themed using the given context, allowing support
+     * for the <code>edgeEffectType</code> attribute in the tag.
+     *
+     * @param context Context to use for theming the effect
+     * @param attrs The attributes of the XML tag that is inflating the view
+     */
+    @NonNull
+    public static EdgeEffect create(@NonNull Context context, @Nullable AttributeSet attrs) {
+        if (isSOrHigher()) {
+            return EdgeEffectCompatApi31.create(context, attrs);
+        }
+
+        return new EdgeEffect(context);
+    }
+
+    /**
+     * Return the edge effect type to use. This will always be {@link EdgeEffect#TYPE_GLOW} for
+     * API versions {@link Build.VERSION_CODES#R} and earlier.
+     *
+     * @return The edge effect type to use.
+     * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
+     */
+    @EdgeEffectType
+    public static int getType(@NonNull EdgeEffect edgeEffect) {
+        if (isSOrHigher()) {
+            return EdgeEffectCompatApi31.getType(edgeEffect);
+        }
+        return TYPE_GLOW;
+    }
+
+    /**
+     * Sets the edge effect type to use. The default without a theme attribute set is
+     * {@link EdgeEffect#TYPE_GLOW}. This does not affect the edge effect type for versions
+     * {@link Build.VERSION_CODES#R} and earlier.
+     *
+     * @param type The edge effect type to use.
+     * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
+     */
+    public static void setType(@NonNull EdgeEffect edgeEffect, @EdgeEffectType int type) {
+        if (isSOrHigher()) {
+            EdgeEffectCompatApi31.setType(edgeEffect, type);
+        }
+    }
+
+    /**
+     * Returns the pull distance needed to be released to remove the showing effect.
+     * It is determined by the {@link #onPull(float, float)} <code>deltaDistance</code> and
+     * any animating values, including from {@link #onAbsorb(int)} and {@link #onRelease()}.
+     *
+     * This can be used in conjunction with {@link #onPullDistance(EdgeEffect, float, float)} to
+     * release the currently showing effect.
+     *
+     * On {@link Build.VERSION_CODES#R} and earlier, this will return 0.
+     *
+     * @return The pull distance that must be released to remove the showing effect or 0 for
+     * versions {@link Build.VERSION_CODES#R} and earlier.
+     */
+    public static float getDistance(@NonNull EdgeEffect edgeEffect) {
+        if (isSOrHigher()) {
+            return EdgeEffectCompatApi31.getDistance(edgeEffect);
+        }
+        return 0;
     }
 
     /**
@@ -157,6 +241,51 @@ public final class EdgeEffectCompat {
     }
 
     /**
+     * A view should call this when content is pulled away from an edge by the user.
+     * This will update the state of the current visual effect and its associated animation.
+     * The host view should always {@link android.view.View#invalidate()} after this
+     * and draw the results accordingly. This works similarly to {@link #onPull(float, float)},
+     * but returns the amount of <code>deltaDistance</code> that has been consumed. For versions
+     * {@link Build.VERSION_CODES#S} and above, if the {@link #getDistance(EdgeEffect)} is currently
+     * 0 and <code>deltaDistance</code> is negative, this function will return 0 and the drawn value
+     * will remain unchanged. For versions {@link Build.VERSION_CODES#R} and below, this will
+     * consume all of the provided value and return <code>deltaDistance</code>.
+     *
+     * This method can be used to reverse the effect from a pull or absorb and partially consume
+     * some of a motion:
+     *
+     * <pre class="prettyprint">
+     *     if (deltaY < 0 && EdgeEffectCompat.getDistance(edgeEffect) != 0) {
+     *         float displacement = x / getWidth();
+     *         float dist = deltaY / getHeight();
+     *         float consumed = EdgeEffectCompat.onPullDistance(edgeEffect, dist, displacement);
+     *         deltaY -= consumed * getHeight();
+     *         if (edgeEffect.getDistance() == 0f) edgeEffect.onRelease();
+     *     }
+     * </pre>
+     *
+     * @param deltaDistance Change in distance since the last call. Values may be 0 (no change) to
+     *                      1.f (full length of the view) or negative values to express change
+     *                      back toward the edge reached to initiate the effect.
+     * @param displacement The displacement from the starting side of the effect of the point
+     *                     initiating the pull. In the case of touch this is the finger position.
+     *                     Values may be from 0-1.
+     * @return The amount of <code>deltaDistance</code> that was consumed, a number between
+     * 0 and <code>deltaDistance</code>.
+     */
+    public static float onPullDistance(
+            @NonNull EdgeEffect edgeEffect,
+            float deltaDistance,
+            float displacement
+    ) {
+        if (isSOrHigher()) {
+            return EdgeEffectCompatApi31.onPullDistance(edgeEffect, deltaDistance, displacement);
+        }
+        onPull(edgeEffect, deltaDistance, displacement);
+        return deltaDistance;
+    }
+
+    /**
      * Call when the object is released after being pulled.
      * This will begin the "decay" phase of the effect. After calling this method
      * the host view should {@link android.view.View#invalidate()} if this method
@@ -206,5 +335,42 @@ public final class EdgeEffectCompat {
     @Deprecated
     public boolean draw(Canvas canvas) {
         return mEdgeEffect.draw(canvas);
+    }
+
+    private static boolean isSOrHigher() {
+        // TODO(b/181171227): Simplify this when S has a real version.
+        int sdk = Build.VERSION.SDK_INT;
+        return sdk > Build.VERSION_CODES.R
+                || (sdk == Build.VERSION_CODES.R && Build.VERSION.PREVIEW_SDK_INT != 0);
+    }
+
+    // TODO(b/181171227): This actually requires S, but we don't have a version for S yet.
+    @RequiresApi(Build.VERSION_CODES.R)
+    private static class EdgeEffectCompatApi31 {
+        private EdgeEffectCompatApi31() {}
+
+        public static EdgeEffect create(Context context, AttributeSet attrs) {
+            return new EdgeEffect(context, attrs);
+        }
+
+        public static float onPullDistance(
+                EdgeEffect edgeEffect,
+                float deltaDistance,
+                float displacement
+        ) {
+            return edgeEffect.onPullDistance(deltaDistance, displacement);
+        }
+
+        public static float getDistance(EdgeEffect edgeEffect) {
+            return edgeEffect.getDistance();
+        }
+
+        public static int getType(EdgeEffect edgeEffect) {
+            return edgeEffect.getType();
+        }
+
+        public static void setType(EdgeEffect edgeEffect, int type) {
+            edgeEffect.setType(type);
+        }
     }
 }

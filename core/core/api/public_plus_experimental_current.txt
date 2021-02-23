@@ -3338,15 +3338,20 @@ package androidx.core.widget {
 
   public final class EdgeEffectCompat {
     ctor @Deprecated public EdgeEffectCompat(android.content.Context!);
+    method public static android.widget.EdgeEffect create(android.content.Context, android.util.AttributeSet?);
     method @Deprecated public boolean draw(android.graphics.Canvas!);
     method @Deprecated public void finish();
+    method public static float getDistance(android.widget.EdgeEffect);
+    method public static int getType(android.widget.EdgeEffect);
     method @Deprecated public boolean isFinished();
     method @Deprecated public boolean onAbsorb(int);
     method @Deprecated public boolean onPull(float);
     method @Deprecated public boolean onPull(float, float);
     method public static void onPull(android.widget.EdgeEffect, float, float);
+    method public static float onPullDistance(android.widget.EdgeEffect, float, float);
     method @Deprecated public boolean onRelease();
     method @Deprecated public void setSize(int, int);
+    method public static void setType(android.widget.EdgeEffect, int);
   }
 
   public class ImageViewCompat {

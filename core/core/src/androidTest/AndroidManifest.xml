@@ -79,6 +79,8 @@
 
         <activity android:name="androidx.core.app.FrameMetricsActivity"/>
         <activity android:name="androidx.core.app.FrameMetricsSubActivity"/>
+        <activity
+            android:name="androidx.core.widget.EdgeEffectCompatTest$EdgeEffectCompatTestActivity"/>
 
         <activity
             android:name="androidx.core.view.WindowCompatActivity"
