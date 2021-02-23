@@ -103,6 +103,9 @@ internal fun macrobenchmark(
     setupBlock: MacrobenchmarkScope.(Boolean) -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
+    require(metrics.isNotEmpty()) {
+        "Empty list of metrics passed to metrics param, must pass at least one Metric"
+    }
     val suppressionState = checkErrors(packageName)
     var warningMessage = suppressionState?.warningMessage ?: ""
 
@@ -148,6 +151,14 @@ internal fun macrobenchmark(
                 .reduce { sum, element -> sum + element }
         }.mergeToMetricResults()
 
+        require(metricResults.isNotEmpty()) {
+            """
+                Unable to read any metrics during benchmark (metric list: $metrics).
+                Check that you're performing the operations to be measured. For example, if
+                using StartupTimingMetric, are you starting an activity for the specified package
+                in the measure block?
+            """.trimIndent()
+        }
         InstrumentationResults.instrumentationReport {
             val statsList = metricResults.map { it.stats }
             ideSummaryRecord(ideSummaryString(warningMessage, uniqueName, statsList))

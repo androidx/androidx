@@ -22,6 +22,7 @@ import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertFailsWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -67,5 +68,12 @@ class IdeSummaryStringTest {
             """.trimMargin(),
             ideSummaryString("warning\nstring\n", "foo", listOf(stats))
         )
+    }
+
+    @Test
+    fun requireNotEmpty() {
+        assertFailsWith<IllegalArgumentException> {
+            ideSummaryString(warningLines = "", benchmarkName = "foo", statsList = emptyList())
+        }
     }
 }
