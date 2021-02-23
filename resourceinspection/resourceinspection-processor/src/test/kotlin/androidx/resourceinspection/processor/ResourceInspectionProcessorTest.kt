@@ -200,7 +200,8 @@ class ResourceInspectionProcessorTest {
                 fakeR(
                     "androidx.pkg", "testBoolean", "testByte", "testCharacter", "testDouble",
                     "testFloat", "testInt", "testLong", "testShort", "testString",
-                    "colorInt", "colorLong", "colorObject", "layoutResourceId", "anyResourceId"
+                    "colorInt", "colorLong", "colorObject", "layoutResourceId", "anyResourceId",
+                    "gravityInt"
                 ),
                 java(
                     "androidx.pkg.SimpleTypesTestView",
@@ -214,6 +215,7 @@ class ResourceInspectionProcessorTest {
                         import androidx.annotation.AnyRes;
                         import androidx.annotation.ColorInt;
                         import androidx.annotation.ColorLong;
+                        import androidx.annotation.GravityInt;
                         import androidx.annotation.NonNull;
                         import androidx.annotation.LayoutRes;
                         import androidx.resourceinspection.annotation.Attribute;
@@ -298,6 +300,12 @@ class ResourceInspectionProcessorTest {
                             public int getAnyResourceId() {
                                 return 13;
                             }
+
+                            @GravityInt
+                            @Attribute("androidx.pkg:gravityInt")
+                            public int getGravityInt() {
+                                return 14;
+                            }
                         }
                     """
                 )
@@ -327,6 +335,7 @@ class ResourceInspectionProcessorTest {
                             private int mColorIntId;
                             private int mColorLongId;
                             private int mColorObjectId;
+                            private int mGravityIntId;
                             private int mLayoutResourceIdId;
                             private int mTestBooleanId;
                             private int mTestByteId;
@@ -348,6 +357,8 @@ class ResourceInspectionProcessorTest {
                                     .mapColor("colorLong", R.attr.colorLong);
                                 mColorObjectId = propertyMapper
                                     .mapColor("colorObject", R.attr.colorObject);
+                                mGravityIntId = propertyMapper
+                                    .mapGravity("gravityInt", R.attr.gravityInt)
                                 mLayoutResourceIdId = propertyMapper
                                     .mapResourceId("layoutResourceId", R.attr.layoutResourceId);
                                 mTestBooleanId = propertyMapper
@@ -390,6 +401,9 @@ class ResourceInspectionProcessorTest {
                                 propertyReader.readColor(
                                     mColorObjectId,
                                     simpleTypesTestView.getColorObject());
+                                propertyReader.readGravity(
+                                    mGravityIntId,
+                                    simpleTypesTestView.getGravityInt());
                                 propertyReader.readResourceId(
                                     mLayoutResourceIdId,
                                     simpleTypesTestView.getLayoutResourceId());
