@@ -1106,18 +1106,12 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                     handler(null, parsedQuery, invocation)
                 }
             } else {
-                assertThat(adapter, nullValue())
+                assertThat(adapter, notNullValue())
             }
         }
         if (enableVerification) {
             return assertion
         } else {
-            assertion.failsToCompile()
-                .withErrorContaining(
-                    cannotFindQueryResultAdapter(
-                        ClassName.get("foo.bar", "MyClass", "Pojo")
-                    )
-                )
             return null
         }
     }
