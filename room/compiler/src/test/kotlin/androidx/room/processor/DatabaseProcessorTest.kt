@@ -176,11 +176,12 @@ class DatabaseProcessorTest {
         val AUTOMIGRATION: JavaFileObject = JavaFileObjects.forSourceString(
             "foo.bar.MyAutoMigration",
             """
-                package foo.bar;
-                import androidx.room.AutoMigration;
-                @AutoMigration(from=41, to=42)
-                abstract class MyAutoMigration implements AutoMigration {}
-                """
+            package foo.bar;
+            import androidx.room.migration.AutoMigrationCallback;
+            import androidx.room.AutoMigration;
+            import androidx.sqlite.db.SupportSQLiteDatabase;
+            interface MyAutoMigration extends AutoMigrationCallback {}
+            """
         )
     }
 

@@ -804,10 +804,12 @@ object ProcessorErrors {
         return "Invalid query argument: $typeName. It must be a class or an interface."
     }
 
-    val AUTOMIGRATION_ANNOTATED_TYPE_ELEMENT_MUST_BE_ABSTRACT = "The @AutoMigration annotated " +
-        "type must be an abstract class."
+    val AUTOMIGRATION_ANNOTATED_TYPE_ELEMENT_MUST_BE_INTERFACE = "The @AutoMigration annotated " +
+        "type must be an interface."
     val AUTOMIGRATION_ANNOTATION_MISSING = "The @AutoMigration annotation has not been found. " +
         "Cannot generate auto migrations."
+    val AUTOMIGRATION_ELEMENT_MUST_IMPLEMENT_AUTOMIGRATION_CALLBACK = "AutoMigration element must" +
+        " implement the AutoMigrationCallback interface."
 
     // TODO: (b/180389433) If the files don't exist the getSchemaFile() method should return
     //  null and before calling process
