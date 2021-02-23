@@ -20,10 +20,8 @@
      own application, the package name must be changed from "com.example.*"
      to come from a domain that you own or have control over. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.android.supportv4">
-    <!-- TODO: Remove this override after androidx.window lowers the level -->
-    <uses-sdk tools:overrideLibrary="androidx.slidingpanelayout, androidx.window" />
+
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
