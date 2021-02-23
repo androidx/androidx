@@ -49,6 +49,7 @@ import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
 import java.io.FileNotFoundException
@@ -203,8 +204,11 @@ public class WatchFace @JvmOverloads constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface EditorDelegate {
-        /** The [WatchFace]'s [UserStyleRepository]. */
-        public val userStyleRepository: UserStyleRepository
+        /** The [WatchFace]'s [UserStyleSchema]. */
+        public val userStyleSchema: UserStyleSchema
+
+        /** The watch face's  [UserStyle]. */
+        public var userStyle: UserStyle
 
         /** The [WatchFace]'s [ComplicationsManager]. */
         public val complicationsManager: ComplicationsManager
@@ -637,8 +641,15 @@ internal class WatchFaceImpl(
     internal fun createWFEditorDelegate() = WFEditorDelegate() as WatchFace.EditorDelegate
 
     internal inner class WFEditorDelegate : WatchFace.EditorDelegate {
-        override val userStyleRepository: UserStyleRepository
-            get() = this@WatchFaceImpl.userStyleRepository
+        override val userStyleSchema: UserStyleSchema
+            get() = userStyleRepository.schema
+
+        override var userStyle: UserStyle
+            get() = userStyleRepository.userStyle
+            set(value) {
+                userStyleRepository.userStyle = value
+                watchFaceHostApi.onUserStyleChanged()
+            }
 
         override val complicationsManager: ComplicationsManager
             get() = this@WatchFaceImpl.complicationsManager

@@ -261,13 +261,16 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.ComplicationsManager getComplicationsManager();
     method public long getPreviewReferenceTimeMillis();
     method public android.graphics.Rect getScreenBounds();
-    method public androidx.wear.watchface.style.UserStyleRepository getUserStyleRepository();
+    method public androidx.wear.watchface.style.UserStyle getUserStyle();
+    method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method public void onDestroy();
+    method public void setUserStyle(androidx.wear.watchface.style.UserStyle p);
     method public android.graphics.Bitmap takeScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
     property public abstract androidx.wear.watchface.ComplicationsManager complicationsManager;
     property public abstract long previewReferenceTimeMillis;
     property public abstract android.graphics.Rect screenBounds;
-    property public abstract androidx.wear.watchface.style.UserStyleRepository userStyleRepository;
+    property public abstract androidx.wear.watchface.style.UserStyle userStyle;
+    property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
   }
 
   public static final class WatchFace.LegacyWatchFaceOverlayStyle {
@@ -296,6 +299,7 @@ package androidx.wear.watchface {
     method public android.os.Handler getHandler();
     method public androidx.wear.watchface.style.data.UserStyleWireFormat? getInitialUserStyle();
     method @UiThread public void invalidate();
+    method public void onUserStyleChanged();
     method public void setActiveComplications(int[] watchFaceComplicationIds);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setContentDescriptionLabels(android.support.wearable.watchface.accessibility.ContentDescriptionLabel![] labels);
     method public void setDefaultComplicationProviderWithFallbacks(int watchFaceComplicationId, java.util.List<android.content.ComponentName>? providers, @androidx.wear.complications.SystemProviders.ProviderId int fallbackSystemProvider, int type);
