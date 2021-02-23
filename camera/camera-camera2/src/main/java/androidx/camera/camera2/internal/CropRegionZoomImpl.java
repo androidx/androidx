@@ -52,6 +52,10 @@ final class CropRegionZoomImpl implements ZoomControl.ZoomImpl {
         if (maxZoom == null) {
             return MIN_DIGITAL_ZOOM;
         }
+
+        if (maxZoom < getMinZoom()) {
+            return getMinZoom();
+        }
         return maxZoom;
     }
 
