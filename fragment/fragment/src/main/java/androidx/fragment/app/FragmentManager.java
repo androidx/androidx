@@ -1596,9 +1596,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 }
             }
         }
-        if (fragment.mAdded && isMenuAvailable(fragment)) {
-            mNeedMenuInvalidate = true;
-        }
+        invalidateMenuForFragment(fragment);
         fragment.mHiddenChanged = false;
         fragment.onHiddenChanged(fragment.mHidden);
     }
@@ -3565,6 +3563,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     private boolean isMenuAvailable(@NonNull Fragment f) {
         return (f.mHasMenu && f.mMenuVisible) || f.mChildFragmentManager.checkForMenus();
+    }
+
+    void invalidateMenuForFragment(@NonNull Fragment f) {
+        if (f.mAdded && isMenuAvailable(f)) {
+            mNeedMenuInvalidate = true;
+        }
     }
 
     static int reverseTransit(int transit) {

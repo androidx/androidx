@@ -24,13 +24,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -53,6 +57,43 @@ class OptionsMenuFragmentTest {
             .that(fragment.hasOptionsMenu()).isTrue()
         assertWithMessage("Child fragments should not have an options menu")
             .that(fragment.mChildFragmentManager.checkForMenus()).isFalse()
+    }
+
+    @LargeTest
+    @Test
+    fun setMenuVisibilityShowHide() {
+        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
+
+            val fragment = MenuFragment()
+
+            withActivity {
+                fm.beginTransaction()
+                    .add(R.id.fragmentContainer, fragment)
+                    .commitNow()
+            }
+
+            assertWithMessage("Fragment should have an options menu")
+                .that(fragment.hasOptionsMenu()).isTrue()
+
+            withActivity {
+                fm.beginTransaction()
+                    .hide(fragment)
+                    .commitNow()
+            }
+
+            fragment.onCreateOptionsMenuCountDownLatch = CountDownLatch(1)
+
+            withActivity {
+                fm.beginTransaction()
+                    .show(fragment)
+                    .commitNow()
+            }
+
+            assertWithMessage("conCreateOptions menu was not called")
+                .that(fragment.onCreateOptionsMenuCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
+                .isTrue()
+        }
     }
 
     @Test
@@ -200,7 +241,7 @@ class OptionsMenuFragmentTest {
     }
 
     class MenuFragment : StrictViewFragment(R.layout.fragment_a) {
-        val onCreateOptionsMenuCountDownLatch = CountDownLatch(1)
+        var onCreateOptionsMenuCountDownLatch = CountDownLatch(1)
         val onPrepareOptionsMenuCountDownLatch = CountDownLatch(1)
 
         override fun onCreate(savedInstanceState: Bundle?) {

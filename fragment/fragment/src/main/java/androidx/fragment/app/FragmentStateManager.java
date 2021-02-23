@@ -343,6 +343,9 @@ class FragmentStateManager {
                         controller.enqueueShow(this);
                     }
                 }
+                if (mFragment.mFragmentManager != null) {
+                    mFragment.mFragmentManager.invalidateMenuForFragment(mFragment);
+                }
                 mFragment.mHiddenChanged = false;
                 mFragment.onHiddenChanged(mFragment.mHidden);
             }
