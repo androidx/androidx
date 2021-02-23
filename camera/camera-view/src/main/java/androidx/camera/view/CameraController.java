@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Display;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -1032,7 +1033,7 @@ public abstract class CameraController {
      */
     @NonNull
     @MainThread
-    public ListenableFuture<Void> setLinearZoom(float linearZoom) {
+    public ListenableFuture<Void> setLinearZoom(@FloatRange(from = 0f, to = 1f) float linearZoom) {
         Threads.checkMainThread();
         if (!isCameraAttached()) {
             Logger.w(TAG, CAMERA_NOT_ATTACHED);
