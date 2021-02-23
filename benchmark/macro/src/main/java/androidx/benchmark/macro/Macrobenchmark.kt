@@ -20,11 +20,9 @@ import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.InstrumentationResults
-import androidx.benchmark.MetricResult
 import androidx.benchmark.ResultWriter
 import androidx.benchmark.macro.perfetto.PerfettoCaptureWrapper
 import androidx.test.platform.app.InstrumentationRegistry
@@ -186,25 +184,6 @@ internal fun macrobenchmark(
     } finally {
         scope.killProcess()
     }
-}
-
-/**
- * Merge the Map<String, Long> results from each iteration into one Map<MetricResult>
- */
-private fun List<Map<String, Long>>.mergeToMetricResults(): List<MetricResult> {
-    val setOfAllKeys = flatMap { it.keys }.toSet()
-    val listResults = setOfAllKeys.map { key ->
-        // b/174175947
-        key to mapNotNull {
-            if (key !in it) {
-                Log.w(TAG, "Value $key missing from one iteration {$it}")
-            }
-            it[key]
-        }
-    }.toMap()
-    return listResults.map { (metricName, values) ->
-        MetricResult(metricName, values.toLongArray())
-    }.sortedBy { it.stats.name }
 }
 
 fun macrobenchmarkWithStartupMode(
