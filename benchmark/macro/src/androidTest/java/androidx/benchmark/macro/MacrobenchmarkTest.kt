@@ -17,18 +17,20 @@
 package androidx.benchmark.macro
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.lang.IllegalArgumentException
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class MacrobenchmarkTest {
     @Test
     fun macrobenchmarkWithStartupMode_emptyMetricList() {
-        assertFailsWith<IllegalArgumentException> {
+        val exception = assertFailsWith<IllegalArgumentException> {
             macrobenchmarkWithStartupMode(
                 uniqueName = "uniqueName", // ignored, uniqueness not important
                 className = "className",
@@ -42,5 +44,45 @@ class MacrobenchmarkTest {
                 measureBlock = {}
             )
         }
+        assertTrue(exception.message!!.contains("Empty list of metrics"))
+    }
+
+    @Test
+    fun macrobenchmarkWithStartupMode_iterations() {
+        val exception = assertFailsWith<IllegalArgumentException> {
+            macrobenchmarkWithStartupMode(
+                uniqueName = "uniqueName", // ignored, uniqueness not important
+                className = "className",
+                testName = "testName",
+                packageName = "com.ignored",
+                metrics = listOf(FrameTimingMetric()),
+                compilationMode = CompilationMode.None,
+                iterations = 0, // invalid
+                startupMode = null,
+                setupBlock = {},
+                measureBlock = {}
+            )
+        }
+        assertTrue(exception.message!!.contains("Require iterations > 0"))
+    }
+
+    @SdkSuppress(maxSdkVersion = 28)
+    @Test
+    fun macrobenchmarkWithStartupMode_sdkVersion() {
+        val exception = assertFailsWith<IllegalArgumentException> {
+            macrobenchmarkWithStartupMode(
+                uniqueName = "uniqueName", // ignored, uniqueness not important
+                className = "className",
+                testName = "testName",
+                packageName = "com.ignored",
+                metrics = listOf(FrameTimingMetric()),
+                compilationMode = CompilationMode.None,
+                iterations = 1,
+                startupMode = null,
+                setupBlock = {},
+                measureBlock = {}
+            )
+        }
+        assertTrue(exception.message!!.contains("requires Android 10 (API 29) or greater"))
     }
 }
