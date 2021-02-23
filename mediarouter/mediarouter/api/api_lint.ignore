@@ -117,6 +117,28 @@ MissingNullability: androidx.mediarouter.media.MediaRouteSelector#EMPTY:
     Missing nullability on field `EMPTY` in class `class androidx.mediarouter.media.MediaRouteSelector`
 
 
+NullableCollection: androidx.mediarouter.media.MediaItemStatus#getExtras():
+    Return type of method androidx.mediarouter.media.MediaItemStatus.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.MediaRouteDescriptor#getExtras():
+    Return type of method androidx.mediarouter.media.MediaRouteDescriptor.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.MediaRouter.ControlRequestCallback#onError(String, android.os.Bundle) parameter #1:
+    Type of parameter data in androidx.mediarouter.media.MediaRouter.ControlRequestCallback.onError(String error, android.os.Bundle data) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.MediaRouter.ControlRequestCallback#onResult(android.os.Bundle) parameter #0:
+    Type of parameter data in androidx.mediarouter.media.MediaRouter.ControlRequestCallback.onResult(android.os.Bundle data) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.MediaRouter.RouteInfo#getExtras():
+    Return type of method androidx.mediarouter.media.MediaRouter.RouteInfo.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.MediaSessionStatus#getExtras():
+    Return type of method androidx.mediarouter.media.MediaSessionStatus.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.ActionCallback#onError(String, int, android.os.Bundle) parameter #2:
+    Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.ActionCallback.onError(String error, int code, android.os.Bundle data) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.OnMessageReceivedListener#onMessageReceived(String, android.os.Bundle) parameter #1:
+    Type of parameter message in androidx.mediarouter.media.RemotePlaybackClient.OnMessageReceivedListener.onMessageReceived(String sessionId, android.os.Bundle message) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.StatusCallback#onItemStatusChanged(android.os.Bundle, String, androidx.mediarouter.media.MediaSessionStatus, String, androidx.mediarouter.media.MediaItemStatus) parameter #0:
+    Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.StatusCallback.onItemStatusChanged(android.os.Bundle data, String sessionId, androidx.mediarouter.media.MediaSessionStatus sessionStatus, String itemId, androidx.mediarouter.media.MediaItemStatus itemStatus) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.StatusCallback#onSessionStatusChanged(android.os.Bundle, String, androidx.mediarouter.media.MediaSessionStatus) parameter #0:
+    Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.StatusCallback.onSessionStatusChanged(android.os.Bundle data, String sessionId, androidx.mediarouter.media.MediaSessionStatus sessionStatus) is a nullable collection (`android.os.Bundle`); must be non-null
+
+
 RegistrationName: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback):
     Callback methods should be named register/unregister; was addCallback
 RegistrationName: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback, int):

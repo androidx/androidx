@@ -157,6 +157,38 @@ MissingGetterMatchingBuilder: androidx.browser.trusted.TrustedWebActivityIntentB
     androidx.browser.trusted.TrustedWebActivityIntent does not declare a `getSplashScreenParams()` method matching method androidx.browser.trusted.TrustedWebActivityIntentBuilder.setSplashScreenParams(android.os.Bundle)
 
 
+NullableCollection: androidx.browser.customtabs.CustomTabsCallback#extraCallback(String, android.os.Bundle) parameter #1:
+    Type of parameter args in androidx.browser.customtabs.CustomTabsCallback.extraCallback(String callbackName, android.os.Bundle args) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.customtabs.CustomTabsCallback#extraCallbackWithResult(String, android.os.Bundle):
+    Return type of method androidx.browser.customtabs.CustomTabsCallback.extraCallbackWithResult(String,android.os.Bundle) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.customtabs.CustomTabsCallback#extraCallbackWithResult(String, android.os.Bundle) parameter #1:
+    Type of parameter args in androidx.browser.customtabs.CustomTabsCallback.extraCallbackWithResult(String callbackName, android.os.Bundle args) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.customtabs.CustomTabsCallback#onMessageChannelReady(android.os.Bundle) parameter #0:
+    Type of parameter extras in androidx.browser.customtabs.CustomTabsCallback.onMessageChannelReady(android.os.Bundle extras) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.customtabs.CustomTabsCallback#onNavigationEvent(int, android.os.Bundle) parameter #1:
+    Type of parameter extras in androidx.browser.customtabs.CustomTabsCallback.onNavigationEvent(int navigationEvent, android.os.Bundle extras) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.customtabs.CustomTabsCallback#onPostMessage(String, android.os.Bundle) parameter #1:
+    Type of parameter extras in androidx.browser.customtabs.CustomTabsCallback.onPostMessage(String message, android.os.Bundle extras) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.customtabs.CustomTabsCallback#onRelationshipValidationResult(int, android.net.Uri, boolean, android.os.Bundle) parameter #3:
+    Type of parameter extras in androidx.browser.customtabs.CustomTabsCallback.onRelationshipValidationResult(int relation, android.net.Uri requestedOrigin, boolean result, android.os.Bundle extras) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.customtabs.CustomTabsClient#extraCommand(String, android.os.Bundle):
+    Return type of method androidx.browser.customtabs.CustomTabsClient.extraCommand(String,android.os.Bundle) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.customtabs.CustomTabsIntent#startAnimationBundle:
+    Type of field androidx.browser.customtabs.CustomTabsIntent.startAnimationBundle is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.customtabs.CustomTabsService#extraCommand(String, android.os.Bundle):
+    Return type of method androidx.browser.customtabs.CustomTabsService.extraCommand(String,android.os.Bundle) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.trusted.TrustedWebActivityCallback#onExtraCallback(String, android.os.Bundle) parameter #1:
+    Type of parameter args in androidx.browser.trusted.TrustedWebActivityCallback.onExtraCallback(String callbackName, android.os.Bundle args) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.trusted.TrustedWebActivityService#onExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallbackRemote):
+    Return type of method androidx.browser.trusted.TrustedWebActivityService.onExtraCommand(String,android.os.Bundle,androidx.browser.trusted.TrustedWebActivityCallbackRemote) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.trusted.TrustedWebActivityServiceConnection#sendExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallback):
+    Return type of method androidx.browser.trusted.TrustedWebActivityServiceConnection.sendExtraCommand(String,android.os.Bundle,androidx.browser.trusted.TrustedWebActivityCallback) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.browser.trusted.sharing.ShareData#uris:
+    Type of field androidx.browser.trusted.sharing.ShareData.uris is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.browser.trusted.sharing.ShareTarget.Params#files:
+    Type of field androidx.browser.trusted.sharing.ShareTarget.Params.files is a nullable collection (`java.util.List`); must be non-null
+
+
 OptionalBuilderConstructorArgument: androidx.browser.customtabs.CustomTabsIntent.Builder#Builder(androidx.browser.customtabs.CustomTabsSession) parameter #0:
     Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter session in androidx.browser.customtabs.CustomTabsIntent.Builder(androidx.browser.customtabs.CustomTabsSession session)
 

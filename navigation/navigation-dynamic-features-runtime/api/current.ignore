@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.navigation.dynamicfeatures.DynamicExtras#DynamicExtras():
+    Removed constructor androidx.navigation.dynamicfeatures.DynamicExtras()

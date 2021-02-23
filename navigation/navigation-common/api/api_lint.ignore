@@ -59,3 +59,9 @@ MissingGetterMatchingBuilder: androidx.navigation.NavArgument.Builder#setIsNulla
     androidx.navigation.NavArgument does not declare a `isIsNullable()` method matching method androidx.navigation.NavArgument.Builder.setIsNullable(boolean)
 MissingGetterMatchingBuilder: androidx.navigation.NavOptions.Builder#setLaunchSingleTop(boolean):
     androidx.navigation.NavOptions does not declare a `isLaunchSingleTop()` method matching method androidx.navigation.NavOptions.Builder.setLaunchSingleTop(boolean)
+
+
+NullableCollection: androidx.navigation.NavAction#getDefaultArguments():
+    Return type of method androidx.navigation.NavAction.getDefaultArguments() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.navigation.Navigator#onSaveState():
+    Return type of method androidx.navigation.Navigator.onSaveState() is a nullable collection (`android.os.Bundle`); must be non-null
