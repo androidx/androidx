@@ -32,6 +32,7 @@ public class EditorService : IEditorService.Stub() {
     private var nextId: Int = 0
     private val observers = HashMap<Int, IEditorObserver>()
     private val deathObservers = HashMap<Int, IBinder.DeathRecipient>()
+    private val closeEditorCallbacks = HashSet<CloseCallback>()
 
     public companion object {
         /** [EditorService] singleton. */
@@ -58,6 +59,40 @@ public class EditorService : IEditorService.Stub() {
             }
             observers.remove(observerId)
             deathObservers.remove(observerId)
+        }
+    }
+
+    public abstract class CloseCallback {
+        /** Called when [closeEditor] is called. */
+        public abstract fun onClose()
+    }
+
+    override fun closeEditor() {
+        val callbackCopy = synchronized(lock) {
+            HashSet<CloseCallback>(closeEditorCallbacks)
+        }
+        // We iterate on a copy of closeEditorCallbacks to avoid calls to removeCloseCallback
+        // mutating a set we're iterating.
+        for (observer in callbackCopy) {
+            observer.onClose()
+        }
+    }
+
+    /**
+     * Adds [closeCallback] to the set of observers to be called if the client calls [closeEditor].
+     */
+    public fun addCloseCallback(closeCallback: CloseCallback) {
+        synchronized(lock) {
+            closeEditorCallbacks.add(closeCallback)
+        }
+    }
+
+    /**
+     * Removes [closeCallback] from set of observers to be called if the client calls [closeEditor].
+     */
+    public fun removeCloseCallback(closeCallback: CloseCallback) {
+        synchronized(lock) {
+            closeEditorCallbacks.remove(closeCallback)
         }
     }
 

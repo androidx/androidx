@@ -24,6 +24,7 @@ import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSett
 import androidx.wear.watchface.style.UserStyleSetting.Option.Companion.maxIdLength
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
 import androidx.wear.watchface.style.data.ComplicationsOptionWireFormat
 import androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.CustomValueOptionWireFormat
@@ -410,15 +411,15 @@ public sealed class UserStyleSetting(
             }
 
             internal constructor(
-                wireFormat: ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat
+                wireFormat: ComplicationOverlayWireFormat
             ) : this(
                 wireFormat.mComplicationId,
                 when (wireFormat.mEnabled) {
-                    ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat
+                    ComplicationOverlayWireFormat
                         .ENABLED_UNKNOWN -> null
-                    ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat
+                    ComplicationOverlayWireFormat
                         .ENABLED_YES -> true
-                    ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat
+                    ComplicationOverlayWireFormat
                         .ENABLED_NO -> false
                     else -> throw InvalidParameterException(
                         "Unrecognised wireFormat.mEnabled " + wireFormat.mEnabled
@@ -428,7 +429,7 @@ public sealed class UserStyleSetting(
             )
 
             internal fun toWireFormat() =
-                ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat(
+                ComplicationOverlayWireFormat(
                     complicationId,
                     enabled,
                     complicationBounds?.perComplicationTypeBounds
