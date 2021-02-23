@@ -227,10 +227,19 @@ fun XType.isKotlinUnit(): Boolean = typeName == KnownTypeNames.KOTLIN_UNIT
  */
 fun XType.isByte(): Boolean = typeName == TypeName.BYTE || typeName == KnownTypeNames.BOXED_BYTE
 
+fun XType.isString(): Boolean = typeName == KnownTypeNames.STRING
+
+fun XType.isPojoByExclusion(): Boolean =
+    !isVoid() &&
+    !isString() &&
+    !typeName.isPrimitive &&
+    !typeName.isBoxedPrimitive
+
 internal object KnownTypeNames {
     val BOXED_VOID = TypeName.VOID.box()
     val BOXED_INT = TypeName.INT.box()
     val BOXED_LONG = TypeName.LONG.box()
     val BOXED_BYTE = TypeName.BYTE.box()
     val KOTLIN_UNIT = ClassName.get("kotlin", "Unit")
+    val STRING = ClassName.get("java.lang", "String")
 }
