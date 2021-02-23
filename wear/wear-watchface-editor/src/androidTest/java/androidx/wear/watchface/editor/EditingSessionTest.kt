@@ -236,7 +236,7 @@ public class EditorSessionTest {
     private val testComponentName = ComponentName("test.package", "test.class")
     private val testEditorPackageName = "test.package"
     private val testInstanceId = "TEST_INSTANCE_ID"
-    private var editorDelegate = Mockito.mock(WatchFace.EditorDelegate::class.java)
+    private lateinit var editorDelegate: WatchFace.EditorDelegate
     private val screenBounds = Rect(0, 0, 400, 400)
 
     private val redStyleOption =
@@ -323,6 +323,8 @@ public class EditorSessionTest {
             DefaultComplicationProviderPolicy()
         ).build()
 
+    private val fakeBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+
     private class TestEditorObserver : IEditorObserver.Stub() {
         private lateinit var editorState: EditorStateWireFormat
         private var latch = CountDownLatch(1)
@@ -349,11 +351,27 @@ public class EditorSessionTest {
         val userStyleRepository = UserStyleRepository(UserStyleSchema(userStyleSettings))
         val complicationsManager = ComplicationsManager(complications, userStyleRepository)
 
+        // Mocking getters and setters with mockito at the same time is hard so we do this instead.
+        editorDelegate = object : WatchFace.EditorDelegate {
+            override val userStyleSchema = userStyleRepository.schema
+            override var userStyle: UserStyle
+                get() = userStyleRepository.userStyle
+                set(value) { userStyleRepository.userStyle = value }
+
+            override val complicationsManager = complicationsManager
+            override val screenBounds = this@EditorSessionTest.screenBounds
+            override val previewReferenceTimeMillis = previewReferenceTimeMillis
+
+            override fun takeScreenshot(
+                renderParameters: RenderParameters,
+                calendarTimeMillis: Long,
+                idToComplicationData: Map<Int, androidx.wear.complications.data.ComplicationData>?
+            ) = fakeBitmap
+
+            override fun onDestroy() {
+            }
+        }
         WatchFace.registerEditorDelegate(testComponentName, editorDelegate)
-        `when`(editorDelegate.complicationsManager).thenReturn(complicationsManager)
-        `when`(editorDelegate.userStyleRepository).thenReturn(userStyleRepository)
-        `when`(editorDelegate.screenBounds).thenReturn(screenBounds)
-        `when`(editorDelegate.previewReferenceTimeMillis).thenReturn(previewReferenceTimeMillis)
 
         return ActivityScenario.launch(
             WatchFaceEditorContractForTest().createIntent(
@@ -751,14 +769,6 @@ public class EditorSessionTest {
     @Test
     public fun takeWatchFaceScreenshot() {
         val scenario = createOnWatchFaceEditingTestActivity(emptyList(), emptyList())
-        val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-        `when`(
-            editorDelegate.takeScreenshot(
-                RenderParameters.DEFAULT_INTERACTIVE,
-                1234L,
-                null
-            )
-        ).thenReturn(bitmap)
 
         scenario.onActivity {
             assertThat(
@@ -767,7 +777,7 @@ public class EditorSessionTest {
                     1234L,
                     null
                 )
-            ).isEqualTo(bitmap)
+            ).isEqualTo(fakeBitmap)
         }
     }
 
@@ -805,9 +815,8 @@ public class EditorSessionTest {
         assertTrue(result.commitChanges)
 
         // The style change should also have been applied to the watchface
-        assertThat(editorDelegate.userStyleRepository.userStyle[colorStyleSetting]!!.id)
-            .isEqualTo(blueStyleOption.id)
-        assertThat(editorDelegate.userStyleRepository.userStyle[watchHandStyleSetting]!!.id)
+        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id).isEqualTo(blueStyleOption.id)
+        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id)
             .isEqualTo(gothicStyleOption.id)
 
         assertThat(result.previewComplicationData.size).isEqualTo(2)
@@ -891,9 +900,9 @@ public class EditorSessionTest {
         val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
         scenario.onActivity { activity ->
             runBlocking {
-                assertThat(editorDelegate.userStyleRepository.userStyle[colorStyleSetting]!!.id)
+                assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id)
                     .isEqualTo(redStyleOption.id)
-                assertThat(editorDelegate.userStyleRepository.userStyle[watchHandStyleSetting]!!.id)
+                assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id)
                     .isEqualTo(classicStyleOption.id)
 
                 // Select [blueStyleOption] and [gothicStyleOption].
@@ -920,9 +929,8 @@ public class EditorSessionTest {
 
         // The original style should be applied to the watch face however because
         // commitChangesOnClose is false.
-        assertThat(editorDelegate.userStyleRepository.userStyle[colorStyleSetting]!!.id)
-            .isEqualTo(redStyleOption.id)
-        assertThat(editorDelegate.userStyleRepository.userStyle[watchHandStyleSetting]!!.id)
+        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id).isEqualTo(redStyleOption.id)
+        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id)
             .isEqualTo(classicStyleOption.id)
 
         EditorService.globalEditorService.unregisterObserver(observerId)
