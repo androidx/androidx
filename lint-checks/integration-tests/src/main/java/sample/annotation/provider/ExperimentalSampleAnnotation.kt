@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-package androidx
+package sample.annotation.provider
 
-fun lambdaFunction(lambda: () -> Unit) {
-    lambda()
-}
-
-/**
- * This function uses an unnecessary lambda and should trigger UnnecessaryLambdaCreationDetector
- */
-fun confirmCustomComposeLintChecksRun() {
-    val lambda = {}
-    lambdaFunction {
-        lambda()
-    }
-}
+@RequiresOptIn
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+annotation class ExperimentalSampleAnnotation
