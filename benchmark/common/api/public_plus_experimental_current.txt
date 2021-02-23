@@ -57,8 +57,7 @@ package androidx.benchmark {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class InstrumentationResultScope {
-    ctor public InstrumentationResultScope(android.os.Bundle bundle);
-    ctor public InstrumentationResultScope();
+    ctor public InstrumentationResultScope(optional android.os.Bundle bundle);
     method public void fileRecord(String key, String path);
     method public android.os.Bundle getBundle();
     method public void ideSummaryRecord(String value);

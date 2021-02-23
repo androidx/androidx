@@ -63,7 +63,7 @@ package android.support.wearable.watchface {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class WatchFaceStyle implements android.os.Parcelable {
-    ctor public WatchFaceStyle(android.content.ComponentName component, int viewProtectionMode, int statusBarGravity, @ColorInt int accentColor, boolean showUnreadCountIndicator, boolean hideNotificationIndicator, boolean acceptsTapEvents, android.os.Bundle? compatBundle);
+    ctor public WatchFaceStyle(android.content.ComponentName component, int viewProtectionMode, int statusBarGravity, @ColorInt int accentColor, boolean showUnreadCountIndicator, boolean hideNotificationIndicator, boolean acceptsTapEvents, optional android.os.Bundle? compatBundle);
     method public int describeContents();
     method public final int getAccentColor();
     method public final boolean getAcceptsTapEvents();

@@ -45,8 +45,6 @@ MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onSaveInstanceStat
     Missing nullability on method `onSaveInstanceState` return
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onTouchEvent`
-MissingNullability: androidx.drawerlayout.widget.DrawerLayout#setDrawerListener(androidx.drawerlayout.widget.DrawerLayout.DrawerListener) parameter #0:
-    Missing nullability on parameter `listener` in method `setDrawerListener`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#setDrawerShadow(android.graphics.drawable.Drawable, int) parameter #0:
     Missing nullability on parameter `shadowDrawable` in method `setDrawerShadow`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout.SavedState#CREATOR:

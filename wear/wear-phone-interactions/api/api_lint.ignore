@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+NullableCollection: androidx.wear.phone.interactions.notifications.BridgingConfig#getExcludedTags():
+    Return type of method androidx.wear.phone.interactions.notifications.BridgingConfig.getExcludedTags() is a nullable collection (`java.util.Set`); must be non-null
