@@ -5,8 +5,6 @@ MissingNullability: androidx.exifinterface.media.ExifInterface#BITS_PER_SAMPLE_G
     Missing nullability on field `BITS_PER_SAMPLE_GREYSCALE_2` in class `class androidx.exifinterface.media.ExifInterface`
 MissingNullability: androidx.exifinterface.media.ExifInterface#BITS_PER_SAMPLE_RGB:
     Missing nullability on field `BITS_PER_SAMPLE_RGB` in class `class androidx.exifinterface.media.ExifInterface`
-MissingNullability: androidx.exifinterface.media.ExifInterface#getLatLong(float[]) parameter #0:
-    Missing nullability on parameter `output` in method `getLatLong`
 MissingNullability: androidx.exifinterface.media.ExifInterface#setGpsInfo(android.location.Location) parameter #0:
     Missing nullability on parameter `location` in method `setGpsInfo`
 
