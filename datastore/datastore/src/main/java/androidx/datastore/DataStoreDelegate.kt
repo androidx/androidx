@@ -26,7 +26,6 @@ import androidx.datastore.core.Serializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import java.io.File
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -44,9 +43,9 @@ import kotlin.reflect.KProperty
  * }
  * ```
  *
- * @param fileName the filename relative to Context.filesDir that DataStore acts on. The File is
- * obtained by calling File(context.filesDir, "datastore/$fileName")). No two instances of DataStore
- * should act on the same file at the same time.
+ * @param fileName the filename relative to Context.applicationContext.filesDir that DataStore
+ * acts on. The File is obtained from [dataStoreFile]. It is created in the "/datastore"
+ * subdirectory.
  * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
  * [androidx.datastore.core.CorruptionException] when attempting to read data. CorruptionExceptions
  * are thrown by serializers when data can not be de-serialized.
@@ -96,12 +95,7 @@ internal class DataStoreSingletonDelegate<T> internal constructor(
             if (INSTANCE == null) {
                 INSTANCE = DataStoreFactory.create(
                     serializer = serializer,
-                    produceFile = {
-                        File(
-                            thisRef.applicationContext.filesDir,
-                            "datastore/$fileName"
-                        )
-                    },
+                    produceFile = { thisRef.dataStoreFile(fileName) },
                     corruptionHandler = corruptionHandler,
                     migrations = migrations,
                     scope = scope

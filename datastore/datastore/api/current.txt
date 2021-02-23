@@ -8,6 +8,10 @@ package androidx.datastore {
     method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<T>> dataStore(String fileName, androidx.datastore.core.Serializer<T> serializer);
   }
 
+  public final class DataStoreFile {
+    method public static java.io.File dataStoreFile(android.content.Context, String fileName);
+  }
+
 }
 
 package androidx.datastore.migrations {

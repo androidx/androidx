@@ -59,7 +59,7 @@ val Context.dsWithMigrationTo123 by dataStore(
 )
 
 @ExperimentalCoroutinesApi
-class GlobalDataStoreTest {
+class DataStoreDelegateTest {
 
     @get:Rule
     val tmp = TemporaryFolder()
@@ -88,7 +88,7 @@ class GlobalDataStoreTest {
     @Test
     fun testCorruptedDs_runsCorruptionHandler() = runBlocking<Unit> {
         // File needs to exist or we don't actually hit the serializer:
-        File(context.filesDir, "datastore/file2").let { file ->
+        context.dataStoreFile("file2").let { file ->
             file.parentFile!!.mkdirs()
             FileOutputStream(file).use {
                 it.write(0)
