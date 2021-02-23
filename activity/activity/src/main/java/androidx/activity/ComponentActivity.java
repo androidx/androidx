@@ -82,8 +82,6 @@ import androidx.savedstate.SavedStateRegistryOwner;
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 import androidx.tracing.Trace;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -141,7 +139,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     private final AtomicInteger mNextLocalRequestCode = new AtomicInteger();
 
-    private ActivityResultRegistry mActivityResultRegistry = new ActivityResultRegistry() {
+    private final ActivityResultRegistry mActivityResultRegistry = new ActivityResultRegistry() {
 
         @Override
         public <I, O> void onLaunch(
@@ -179,22 +177,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 String[] permissions = intent.getStringArrayExtra(EXTRA_PERMISSIONS);
 
                 if (permissions == null) {
-                    return;
+                    permissions = new String[0];
                 }
 
-                List<String> nonGrantedPermissions = new ArrayList<>();
-                for (String permission : permissions) {
-                    if (checkPermission(permission,
-                            android.os.Process.myPid(), android.os.Process.myUid())
-                            != PackageManager.PERMISSION_GRANTED) {
-                        nonGrantedPermissions.add(permission);
-                    }
-                }
-
-                if (!nonGrantedPermissions.isEmpty()) {
-                    ActivityCompat.requestPermissions(activity,
-                            nonGrantedPermissions.toArray(new String[0]), requestCode);
-                }
+                ActivityCompat.requestPermissions(activity, permissions, requestCode);
             } else if (ACTION_INTENT_SENDER_REQUEST.equals(intent.getAction())) {
                 IntentSenderRequest request =
                         intent.getParcelableExtra(EXTRA_INTENT_SENDER_REQUEST);
