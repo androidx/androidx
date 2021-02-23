@@ -551,7 +551,6 @@ class TypeAdapterStore private constructor(
                 rowAdapterLogs?.writeTo(context)
                 return rowAdapter
             }
-
             return null
         } else {
             val singleColumn = findCursorValueReader(typeMirror, null) ?: return null
