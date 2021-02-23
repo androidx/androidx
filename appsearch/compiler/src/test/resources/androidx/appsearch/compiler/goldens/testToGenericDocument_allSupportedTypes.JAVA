@@ -2,7 +2,6 @@ package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DocumentClassFactory;
-import androidx.appsearch.app.DocumentClassFactoryRegistry;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Boolean;
@@ -212,10 +211,9 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Collection<Gift> collectGiftCopy = document.collectGift;
     if (collectGiftCopy != null) {
       GenericDocument[] collectGiftConv = new GenericDocument[collectGiftCopy.size()];
-      DocumentClassFactory<Gift> factory = DocumentClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class);
       int i = 0;
       for (Gift item : collectGiftCopy) {
-        collectGiftConv[i++] = factory.toGenericDocument(item);
+        collectGiftConv[i++] = GenericDocument.fromDocumentClass(item);
       }
       builder.setPropertyDocument("collectGift", collectGiftConv);
     }
@@ -306,9 +304,8 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Gift[] arrGiftCopy = document.arrGift;
     if (arrGiftCopy != null) {
       GenericDocument[] arrGiftConv = new GenericDocument[arrGiftCopy.length];
-      DocumentClassFactory<Gift> factory = DocumentClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class);
       for (int i = 0; i < arrGiftConv.length; i++) {
-        arrGiftConv[i] = factory.toGenericDocument(arrGiftCopy[i]);
+        arrGiftConv[i] = GenericDocument.fromDocumentClass(arrGiftCopy[i]);
       }
       builder.setPropertyDocument("arrGift", arrGiftConv);
     }
@@ -347,7 +344,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     }
     Gift giftCopy = document.gift;
     if (giftCopy != null) {
-      GenericDocument giftConv = DocumentClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).toGenericDocument(giftCopy);
+      GenericDocument giftConv = GenericDocument.fromDocumentClass(giftCopy);
       builder.setPropertyDocument("gift", giftConv);
     }
     return builder.build();

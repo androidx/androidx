@@ -67,6 +67,10 @@ public abstract class AnnotationProcessorTestBase {
     static class Card {
         @Document.Uri
         String mUri;
+
+        @Document.CreationTimestampMillis
+        long mCreationTimestampMillis;
+
         @Document.Property
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;        // 3a
@@ -89,6 +93,9 @@ public abstract class AnnotationProcessorTestBase {
     static class Gift {
         @Document.Uri
         String mUri;
+
+        @Document.CreationTimestampMillis
+        long mCreationTimestampMillis;
 
         // Collections
         @Document.Property
@@ -224,6 +231,56 @@ public abstract class AnnotationProcessorTestBase {
             assertThat(second).isNotNull();
             assertThat(first.toArray()).isEqualTo(second.toArray());
         }
+
+        public static Gift createPopulatedGift() {
+            Gift gift = new Gift();
+            gift.mUri = "gift.uri";
+
+            gift.mArrBoxBoolean = new Boolean[]{true, false};
+            gift.mArrBoxDouble = new Double[]{0.0, 1.0};
+            gift.mArrBoxFloat = new Float[]{2.0F, 3.0F};
+            gift.mArrBoxInteger = new Integer[]{4, 5};
+            gift.mArrBoxLong = new Long[]{6L, 7L};
+            gift.mArrString = new String[]{"cat", "dog"};
+            gift.mBoxByteArr = new Byte[]{8, 9};
+            gift.mArrUnboxBoolean = new boolean[]{false, true};
+            gift.mArrUnboxByteArr = new byte[][]{{0, 1}, {2, 3}};
+            gift.mArrUnboxDouble = new double[]{1.0, 0.0};
+            gift.mArrUnboxFloat = new float[]{3.0f, 2.0f};
+            gift.mArrUnboxInt = new int[]{5, 4};
+            gift.mArrUnboxLong = new long[]{7, 6};
+
+            Card card1 = new Card();
+            card1.mUri = "card.uri1";
+            Card card2 = new Card();
+            card2.mUri = "card.uri2";
+            gift.mArrCard = new Card[]{card2, card2};
+
+            gift.mCollectLong = Arrays.asList(gift.mArrBoxLong);
+            gift.mCollectInteger = Arrays.asList(gift.mArrBoxInteger);
+            gift.mCollectBoolean = Arrays.asList(gift.mArrBoxBoolean);
+            gift.mCollectString = Arrays.asList(gift.mArrString);
+            gift.mCollectDouble = Arrays.asList(gift.mArrBoxDouble);
+            gift.mCollectFloat = Arrays.asList(gift.mArrBoxFloat);
+            gift.mCollectByteArr = Arrays.asList(gift.mArrUnboxByteArr);
+            gift.mCollectCard = Arrays.asList(card2, card2);
+
+            gift.mString = "String";
+            gift.mBoxLong = 1L;
+            gift.mUnboxLong = 2L;
+            gift.mBoxInteger = 3;
+            gift.mUnboxInt = 4;
+            gift.mBoxDouble = 5.0;
+            gift.mUnboxDouble = 6.0;
+            gift.mBoxFloat = 7.0F;
+            gift.mUnboxFloat = 8.0f;
+            gift.mBoxBoolean = true;
+            gift.mUnboxBoolean = false;
+            gift.mUnboxByteArr = new byte[]{1, 2, 3};
+            gift.mCard = card1;
+
+            return gift;
+        }
     }
 
     @Test
@@ -235,51 +292,7 @@ public abstract class AnnotationProcessorTestBase {
                 .get();
 
         // Create a Gift object and assign values.
-        Gift inputDocument = new Gift();
-        inputDocument.mUri = "gift.uri";
-
-        inputDocument.mArrBoxBoolean = new Boolean[]{true, false};
-        inputDocument.mArrBoxDouble = new Double[]{0.0, 1.0};
-        inputDocument.mArrBoxFloat = new Float[]{2.0F, 3.0F};
-        inputDocument.mArrBoxInteger = new Integer[]{4, 5};
-        inputDocument.mArrBoxLong = new Long[]{6L, 7L};
-        inputDocument.mArrString = new String[]{"cat", "dog"};
-        inputDocument.mBoxByteArr = new Byte[]{8, 9};
-        inputDocument.mArrUnboxBoolean = new boolean[]{false, true};
-        inputDocument.mArrUnboxByteArr = new byte[][]{{0, 1}, {2, 3}};
-        inputDocument.mArrUnboxDouble = new double[]{1.0, 0.0};
-        inputDocument.mArrUnboxFloat = new float[]{3.0f, 2.0f};
-        inputDocument.mArrUnboxInt = new int[]{5, 4};
-        inputDocument.mArrUnboxLong = new long[]{7, 6};
-
-        Card card1 = new Card();
-        card1.mUri = "card.uri1";
-        Card card2 = new Card();
-        card2.mUri = "card.uri2";
-        inputDocument.mArrCard = new Card[]{card2, card2};
-
-        inputDocument.mCollectLong = Arrays.asList(inputDocument.mArrBoxLong);
-        inputDocument.mCollectInteger = Arrays.asList(inputDocument.mArrBoxInteger);
-        inputDocument.mCollectBoolean = Arrays.asList(inputDocument.mArrBoxBoolean);
-        inputDocument.mCollectString = Arrays.asList(inputDocument.mArrString);
-        inputDocument.mCollectDouble = Arrays.asList(inputDocument.mArrBoxDouble);
-        inputDocument.mCollectFloat = Arrays.asList(inputDocument.mArrBoxFloat);
-        inputDocument.mCollectByteArr = Arrays.asList(inputDocument.mArrUnboxByteArr);
-        inputDocument.mCollectCard = Arrays.asList(card2, card2);
-
-        inputDocument.mString = "String";
-        inputDocument.mBoxLong = 1L;
-        inputDocument.mUnboxLong = 2L;
-        inputDocument.mBoxInteger = 3;
-        inputDocument.mUnboxInt = 4;
-        inputDocument.mBoxDouble = 5.0;
-        inputDocument.mUnboxDouble = 6.0;
-        inputDocument.mBoxFloat = 7.0F;
-        inputDocument.mUnboxFloat = 8.0f;
-        inputDocument.mBoxBoolean = true;
-        inputDocument.mUnboxBoolean = false;
-        inputDocument.mUnboxByteArr = new byte[]{1, 2, 3};
-        inputDocument.mCard = card1;
+        Gift inputDocument = Gift.createPopulatedGift();
 
         // Index the Gift document and query it.
         checkIsBatchResultSuccess(mSession.put(
@@ -290,12 +303,8 @@ public abstract class AnnotationProcessorTestBase {
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(1);
 
-        // Create DocumentClassFactory for Gift.
-        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
-        DocumentClassFactory<Gift> factory = registry.getOrCreateFactory(Gift.class);
-
         // Convert GenericDocument to Gift and check values.
-        Gift outputDocument = factory.fromGenericDocument(documents.get((0)));
+        Gift outputDocument = documents.get(0).toDocumentClass(Gift.class);
         assertThat(outputDocument).isEqualTo(inputDocument);
     }
 
@@ -352,5 +361,18 @@ public abstract class AnnotationProcessorTestBase {
                         .build());
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(3);
+    }
+
+    @Test
+    public void testGenericDocumentConversion() throws Exception {
+        Gift inGift = Gift.createPopulatedGift();
+        GenericDocument genericDocument1 = GenericDocument.fromDocumentClass(inGift);
+        GenericDocument genericDocument2 = GenericDocument.fromDocumentClass(inGift);
+        Gift outGift = genericDocument2.toDocumentClass(Gift.class);
+
+        assertThat(inGift).isNotSameInstanceAs(outGift);
+        assertThat(inGift).isEqualTo(outGift);
+        assertThat(genericDocument1).isNotSameInstanceAs(genericDocument2);
+        assertThat(genericDocument1).isEqualTo(genericDocument2);
     }
 }

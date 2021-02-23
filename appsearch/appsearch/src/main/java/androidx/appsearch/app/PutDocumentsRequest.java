@@ -121,18 +121,10 @@ public final class PutDocumentsRequest {
             Preconditions.checkNotNull(documents);
             List<GenericDocument> genericDocuments = new ArrayList<>(documents.size());
             for (Object document : documents) {
-                GenericDocument genericDocument = toGenericDocument(document);
+                GenericDocument genericDocument = GenericDocument.fromDocumentClass(document);
                 genericDocuments.add(genericDocument);
             }
             return addGenericDocuments(genericDocuments);
-        }
-
-        @NonNull
-        private static <T> GenericDocument toGenericDocument(@NonNull T document)
-                throws AppSearchException {
-            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
-            DocumentClassFactory<T> factory = registry.getOrCreateFactory(document);
-            return factory.toGenericDocument(document);
         }
 // @exportToFramework:endStrip()
 

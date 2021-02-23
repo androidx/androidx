@@ -177,6 +177,7 @@ package androidx.appsearch.app {
 
   public class GenericDocument {
     ctor protected GenericDocument(androidx.appsearch.app.GenericDocument);
+    method public static androidx.appsearch.app.GenericDocument fromDocumentClass(Object) throws androidx.appsearch.exceptions.AppSearchException;
     method public long getCreationTimestampMillis();
     method public static int getMaxIndexedProperties();
     method public String getNamespace();
