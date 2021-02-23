@@ -171,6 +171,7 @@ package androidx.work {
   public abstract static class ListenableWorker.Result {
     method public static androidx.work.ListenableWorker.Result failure();
     method public static androidx.work.ListenableWorker.Result failure(androidx.work.Data);
+    method public abstract androidx.work.Data getOutputData();
     method public static androidx.work.ListenableWorker.Result retry();
     method public static androidx.work.ListenableWorker.Result success();
     method public static androidx.work.ListenableWorker.Result success(androidx.work.Data);
