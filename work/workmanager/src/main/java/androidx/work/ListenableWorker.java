@@ -391,6 +391,13 @@ public abstract class ListenableWorker {
         }
 
         /**
+         * @return The output {@link Data} which will be merged into the input {@link Data} of
+         * any {@link OneTimeWorkRequest} that is dependent on this work request.
+         */
+        @NonNull
+        public abstract Data getOutputData();
+
+        /**
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -422,10 +429,7 @@ public abstract class ListenableWorker {
                 mOutputData = outputData;
             }
 
-            /**
-             * @hide
-             */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            @Override
             public @NonNull Data getOutputData() {
                 return mOutputData;
             }
@@ -477,10 +481,7 @@ public abstract class ListenableWorker {
                 mOutputData = outputData;
             }
 
-            /**
-             * @hide
-             */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            @Override
             public @NonNull Data getOutputData() {
                 return mOutputData;
             }
@@ -531,6 +532,12 @@ public abstract class ListenableWorker {
             public int hashCode() {
                 String name = Retry.class.getName();
                 return name.hashCode();
+            }
+
+            @NonNull
+            @Override
+            public Data getOutputData() {
+                return Data.EMPTY;
             }
 
             @Override
