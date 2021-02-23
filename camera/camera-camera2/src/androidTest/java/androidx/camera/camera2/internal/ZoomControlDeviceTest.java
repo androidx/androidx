@@ -45,6 +45,7 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraControlInternal.ControlUpdateCallback;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -590,5 +591,11 @@ public final class ZoomControlDeviceTest {
 
         assertThat(mZoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(
                 ZoomControl.DEFAULT_ZOOM_RATIO);
+    }
+
+    @Test
+    public void maxZoomShouldBeLargerThanOrEqualToMinZoom() {
+        ZoomState zoomState = mZoomControl.getZoomState().getValue();
+        assertThat(zoomState.getMaxZoomRatio()).isAtLeast(zoomState.getMinZoomRatio());
     }
 }
