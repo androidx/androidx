@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.fragment.app;
+package androidx.fragment.app.strictmode;
 
 import android.annotation.SuppressLint;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
@@ -24,7 +25,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.fragment.app.strictmode.Violation;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -193,7 +195,7 @@ public final class FragmentStrictMode {
         }
 
         if (policy.listener != null) {
-            runOnHostThread(fragment.mHost, new Runnable() {
+            runOnHostThread(fragment, new Runnable() {
                 @Override
                 public void run() {
                     policy.listener.onViolation(violation);
@@ -202,7 +204,7 @@ public final class FragmentStrictMode {
         }
 
         if (policy.flags.contains(Flag.PENALTY_DEATH)) {
-            runOnHostThread(fragment.mHost, new Runnable() {
+            runOnHostThread(fragment, new Runnable() {
                 @Override
                 public void run() {
                     Log.e(TAG, "Policy violation with PENALTY_DEATH in " + fragmentName, violation);
@@ -212,11 +214,16 @@ public final class FragmentStrictMode {
         }
     }
 
-    private static void runOnHostThread(FragmentHostCallback<?> host, Runnable runnable) {
-        if (host == null || host.getHandler().getLooper() == Looper.myLooper()) {
-            runnable.run(); // Already on correct thread -> run synchronously
+    private static void runOnHostThread(@NonNull Fragment fragment, @NonNull Runnable runnable) {
+        if (fragment.isAdded()) {
+            Handler handler = fragment.getParentFragmentManager().getHost().getHandler();
+            if (handler.getLooper() == Looper.myLooper()) {
+                runnable.run(); // Already on correct thread -> run synchronously
+            } else {
+                handler.post(runnable); // Switch to correct thread
+            }
         } else {
-            host.getHandler().post(runnable); // Switch to correct thread
+            runnable.run(); // Fragment is not attached to any host -> run synchronously
         }
     }
 }

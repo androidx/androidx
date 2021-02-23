@@ -63,6 +63,7 @@ import androidx.annotation.StringRes;
 import androidx.collection.ArraySet;
 import androidx.core.os.CancellationSignal;
 import androidx.fragment.R;
+import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -2896,8 +2897,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mLaunchedFragments = new ArrayDeque<>(fms.mLaunchedFragments);
     }
 
+    /** @hide */
     @NonNull
-    FragmentHostCallback<?> getHost() {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public FragmentHostCallback<?> getHost() {
         return mHost;
     }
 
