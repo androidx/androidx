@@ -57,13 +57,17 @@ import java.util.function.Predicate;
  */
 @RequiresApi(24)
 public final class OngoingActivity {
+    @Nullable
+    private final String mTag;
     private final int mNotificationId;
     private final NotificationCompat.Builder mNotificationBuilder;
     private final OngoingActivityData mData;
 
-    private OngoingActivity(int notificationId,
+    private OngoingActivity(@Nullable String tag,
+            int notificationId,
             @NonNull NotificationCompat.Builder notificationBuilder,
             @NonNull OngoingActivityData data) {
+        this.mTag = tag;
         this.mNotificationId = notificationId;
         this.mNotificationBuilder = notificationBuilder;
         this.mData = data;
@@ -75,6 +79,7 @@ public final class OngoingActivity {
     public static final class Builder {
         private final Context mContext;
         private final int mNotificationId;
+        private final String mTag;
         private final NotificationCompat.Builder mNotificationBuilder;
 
         // Ongoing Activity Data
@@ -98,7 +103,25 @@ public final class OngoingActivity {
          */
         public Builder(@NonNull Context context, int notificationId,
                 @NonNull NotificationCompat.Builder notificationBuilder) {
+            this(context, null, notificationId, notificationBuilder);
+        }
+
+        /**
+         * Construct a new empty {@link Builder}, associated with the given notification.
+         *
+         * @param context             to be used during the life of this {@link Builder}, will
+         *                            NOT pass a reference into the built {@link OngoingActivity}
+         * @param tag                 tag that will be used to post the notification associated
+         *                            with this Ongoing Activity
+         * @param notificationId      id that will be used to post the notification associated
+         *                            with this Ongoing Activity
+         * @param notificationBuilder builder for the notification associated with this Ongoing
+         *                            Activity
+         */
+        public Builder(@NonNull Context context, @NonNull String tag, int notificationId,
+                @NonNull NotificationCompat.Builder notificationBuilder) {
             this.mContext = context;
+            this.mTag = tag;
             this.mNotificationId = notificationId;
             this.mNotificationBuilder = notificationBuilder;
         }
@@ -252,7 +275,7 @@ public final class OngoingActivity {
 
             String category = mCategory == null ? notification.category : mCategory;
 
-            return new OngoingActivity(mNotificationId, mNotificationBuilder,
+            return new OngoingActivity(mTag, mNotificationId, mNotificationBuilder,
                     new OngoingActivityData(
                         mAnimatedIcon,
                         staticIcon,
@@ -292,7 +315,12 @@ public final class OngoingActivity {
         mData.setStatus(status);
         Notification notification = mData.extendAndBuild(mNotificationBuilder);
 
-        context.getSystemService(NotificationManager.class).notify(mNotificationId, notification);
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        if (mTag == null) {
+            manager.notify(mNotificationId, notification);
+        } else {
+            manager.notify(mTag, mNotificationId, notification);
+        }
     }
 
     /**
@@ -315,7 +343,9 @@ public final class OngoingActivity {
             OngoingActivityData data =
                     OngoingActivityData.create(statusBarNotification.getNotification());
             if (data != null && filter.test(data)) {
-                return new OngoingActivity(statusBarNotification.getId(),
+                return new OngoingActivity(
+                        statusBarNotification.getTag(),
+                        statusBarNotification.getId(),
                         new NotificationCompat.Builder(context,
                                 statusBarNotification.getNotification()),
                         data);

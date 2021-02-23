@@ -11,6 +11,7 @@ package androidx.wear.ongoing {
 
   public static final class OngoingActivity.Builder {
     ctor public OngoingActivity.Builder(android.content.Context, int, androidx.core.app.NotificationCompat.Builder);
+    ctor public OngoingActivity.Builder(android.content.Context, String, int, androidx.core.app.NotificationCompat.Builder);
     method public androidx.wear.ongoing.OngoingActivity build();
     method public androidx.wear.ongoing.OngoingActivity.Builder setAnimatedIcon(android.graphics.drawable.Icon);
     method public androidx.wear.ongoing.OngoingActivity.Builder setAnimatedIcon(@DrawableRes int);
