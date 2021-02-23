@@ -19,6 +19,7 @@ package androidx.room.solver
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isEnum
+import androidx.room.compiler.processing.isPojoByExclusion
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
 import androidx.room.ext.isEntityElement
@@ -511,6 +512,24 @@ class TypeAdapterStore private constructor(
                         ).process()
                     )
                 }
+
+                // use pojo adapter if we exclude other types.
+                // this happens when @RawQuery or @SkipVerification is used.
+                if (typeMirror.isPojoByExclusion()) {
+                    val pojo = PojoProcessor.createFor(
+                        context = context,
+                        element = typeElement,
+                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                        parent = null
+                    ).process()
+                    return PojoRowAdapter(
+                        context = context,
+                        info = query.resultInfo,
+                        pojo = pojo,
+                        out = typeMirror
+                    )
+                }
+
             }
 
             if (rowAdapter != null && rowAdapterLogs?.hasErrors() != true) {
@@ -532,23 +551,7 @@ class TypeAdapterStore private constructor(
                 rowAdapterLogs?.writeTo(context)
                 return rowAdapter
             }
-            if (query.runtimeQueryPlaceholder || query.skippedVerification) {
-                // just go w/ pojo and hope for the best. this happens for @RawQuery where we
-                // try to guess user's intention and hope that their query fits the result.
-                // or when @SkipVerification was used on a query that returns a pojo.
-                val pojo = PojoProcessor.createFor(
-                    context = context,
-                    element = typeElement,
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                    parent = null
-                ).process()
-                return PojoRowAdapter(
-                    context = context,
-                    info = null,
-                    pojo = pojo,
-                    out = typeMirror
-                )
-            }
+
             return null
         } else {
             val singleColumn = findCursorValueReader(typeMirror, null) ?: return null

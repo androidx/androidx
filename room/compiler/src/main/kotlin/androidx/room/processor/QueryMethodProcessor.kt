@@ -162,7 +162,6 @@ private class InternalQueryProcessor(
     private fun validateQuery(query: ParsedQuery) {
         val skipQueryVerification = executableElement.hasAnnotation(SkipQueryVerification::class)
         if (skipQueryVerification) {
-            query.skippedVerification = true
             return
         }
         query.resultInfo = dbVerifier?.analyze(query.original)
