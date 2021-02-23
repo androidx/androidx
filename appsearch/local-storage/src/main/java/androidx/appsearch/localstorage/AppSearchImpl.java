@@ -1215,26 +1215,6 @@ public final class AppSearchImpl implements Closeable {
         return schemaProto.getSchema();
     }
 
-    /**
-     * Returns true if the {@code packageName} and {@code databaseName} has the
-     * {@code schemaType}
-     */
-    @GuardedBy("mReadWriteLock")
-    boolean hasSchemaTypeLocked(@NonNull String packageName, @NonNull String databaseName,
-            @NonNull String schemaType) {
-        Preconditions.checkNotNull(packageName);
-        Preconditions.checkNotNull(databaseName);
-        Preconditions.checkNotNull(schemaType);
-
-        String prefix = createPrefix(packageName, databaseName);
-        Set<String> schemaTypes = mSchemaMapLocked.get(prefix);
-        if (schemaTypes == null) {
-            return false;
-        }
-
-        return schemaTypes.contains(prefix + schemaType);
-    }
-
     /** Returns a set of all prefixes AppSearchImpl knows about. */
     // TODO(b/180058203): Remove this method once platform has switched away from using this method.
     @GuardedBy("mReadWriteLock")
