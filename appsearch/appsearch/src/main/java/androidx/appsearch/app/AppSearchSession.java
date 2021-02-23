@@ -89,11 +89,11 @@ public interface AppSearchSession extends Closeable {
      * <p>It is a no-op to set the same schema as has been previously set; this is handled
      * efficiently.
      *
-     * <p>By default, documents are visible on platform surfaces. To opt out, call {@code
-     * SetSchemaRequest.Builder#setPlatformSurfaceable} with {@code surfaceable} as false. Any
-     * visibility settings apply only to the schemas that are included in the {@code request}.
-     * Visibility settings for a schema type do not apply or persist across
-     * {@link SetSchemaRequest}s.
+     * <p>By default, documents are visible on platform surfaces. To opt out, call
+     * {@link SetSchemaRequest.Builder#setSchemaTypeVisibilityForSystemUi} with {@code visible} as
+     * false. Any visibility settings apply only to the schemas that are included in the
+     * {@code request}. Visibility settings for a schema type do not persist across
+     * {@link #setSchema} calls.
      *
      * <p>Migration: make non-backwards-compatible changes will delete all stored documents in
      * old schema. You can save your documents by setting
