@@ -29,6 +29,9 @@ package android.support.wearable.watchface {
     field public static final String KEY_ACCENT_COLOR = "accentColor";
     field public static final String KEY_ACCEPTS_TAPS = "acceptsTapEvents";
     field public static final String KEY_BACKGROUND_IMAGE_SETTINGS = "key_background_image_settings";
+    field public static final String KEY_BITMAP_CONFIG_ORDINAL = "KEY_BITMAP_CONFIG_ORDINAL";
+    field public static final String KEY_BITMAP_HEIGHT_PX = "KEY_BITMAP_HEIGHT_PX";
+    field public static final String KEY_BITMAP_WIDTH_PX = "KEY_BITMAP_WIDTH_PX";
     field public static final String KEY_BOUNDS = "KEY_BOUNDS";
     field public static final String KEY_COMPLICATIONS_SETTINGS = "key_complications_settings";
     field public static final String KEY_COMPONENT = "component";
@@ -58,8 +61,8 @@ package android.support.wearable.watchface {
   }
 
   @RequiresApi(27) public static final class SharedMemoryImage.Companion {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.os.Bundle ashmemCompressedImageBundle(android.graphics.Bitmap bitmap, int quality);
-    method public android.graphics.Bitmap ashmemCompressedImageBundleToBitmap(android.os.Bundle bundle);
+    method public android.graphics.Bitmap ashmemReadImageBundle(android.os.Bundle bundle);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.os.Bundle ashmemWriteImageBundle(android.graphics.Bitmap bitmap);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class WatchFaceStyle implements android.os.Parcelable {
@@ -121,12 +124,11 @@ package android.support.wearable.watchface.accessibility {
 package androidx.wear.watchface.control.data {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class ComplicationScreenshotParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationScreenshotParams(int, androidx.wear.watchface.data.RenderParametersWireFormat, int, long, android.support.wearable.complications.ComplicationData?, androidx.wear.watchface.style.data.UserStyleWireFormat?);
+    ctor public ComplicationScreenshotParams(int, androidx.wear.watchface.data.RenderParametersWireFormat, long, android.support.wearable.complications.ComplicationData?, androidx.wear.watchface.style.data.UserStyleWireFormat?);
     method public int describeContents();
     method public long getCalendarTimeMillis();
     method public android.support.wearable.complications.ComplicationData? getComplicationData();
     method public int getComplicationId();
-    method public int getCompressionQuality();
     method public androidx.wear.watchface.data.RenderParametersWireFormat getRenderParametersWireFormat();
     method public androidx.wear.watchface.style.data.UserStyleWireFormat? getUserStyle();
     method public void writeToParcel(android.os.Parcel, int);
@@ -159,10 +161,9 @@ package androidx.wear.watchface.control.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class WatchfaceScreenshotParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public WatchfaceScreenshotParams(androidx.wear.watchface.data.RenderParametersWireFormat, int, long, androidx.wear.watchface.style.data.UserStyleWireFormat?, java.util.List<androidx.wear.watchface.data.IdAndComplicationDataWireFormat!>?);
+    ctor public WatchfaceScreenshotParams(androidx.wear.watchface.data.RenderParametersWireFormat, long, androidx.wear.watchface.style.data.UserStyleWireFormat?, java.util.List<androidx.wear.watchface.data.IdAndComplicationDataWireFormat!>?);
     method public int describeContents();
     method public long getCalendarTimeMillis();
-    method public int getCompressionQuality();
     method public java.util.List<androidx.wear.watchface.data.IdAndComplicationDataWireFormat!>? getIdAndComplicationDatumWireFormats();
     method public androidx.wear.watchface.data.RenderParametersWireFormat getRenderParametersWireFormat();
     method public androidx.wear.watchface.style.data.UserStyleWireFormat? getUserStyle();

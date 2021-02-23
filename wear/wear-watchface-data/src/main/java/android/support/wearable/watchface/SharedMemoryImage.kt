@@ -17,14 +17,11 @@
 package android.support.wearable.watchface
 
 import android.graphics.Bitmap
-import android.graphics.Bitmap.CompressFormat
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.SharedMemory
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.utility.TraceEvent
-import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
 /**
@@ -37,27 +34,22 @@ import java.nio.ByteBuffer
 public class SharedMemoryImage {
     @RequiresApi(27)
     public companion object {
-        /**
-         * WebP compresses a [Bitmap] with the specified quality (100 = lossless) which is
-         * stored in shared memory and serialized to a bundle.
-         */
+        /** Stores a [Bitmap] in shared memory and serializes it as a bundle. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Suppress("DEPRECATION")
-        public fun ashmemCompressedImageBundle(
-            bitmap: Bitmap,
-            quality: Int
-        ): Bundle = TraceEvent("SharedMemoryImage.ashmemCompressedImageBundle").use {
-            val stream = ByteArrayOutputStream()
-            TraceEvent("Bitmap.compress").use {
-                bitmap.compress(CompressFormat.WEBP, quality, stream)
-            }
-            val bytes = stream.toByteArray()
-            val ashmem = SharedMemory.create("WatchFace.Screenshot.Bitmap", bytes.size)
+        public fun ashmemWriteImageBundle(
+            bitmap: Bitmap
+        ): Bundle = TraceEvent("SharedMemoryImage.ashmemWriteImageBundle").use {
+            val ashmem =
+                SharedMemory.create("WatchFace.Screenshot.Bitmap", bitmap.allocationByteCount)
             var byteBuffer: ByteBuffer? = null
             try {
                 byteBuffer = ashmem.mapReadWrite()
-                byteBuffer.put(bytes)
+                bitmap.copyPixelsToBuffer(byteBuffer)
                 return Bundle().apply {
+                    this.putInt(Constants.KEY_BITMAP_WIDTH_PX, bitmap.width)
+                    this.putInt(Constants.KEY_BITMAP_HEIGHT_PX, bitmap.height)
+                    this.putInt(Constants.KEY_BITMAP_CONFIG_ORDINAL, bitmap.config.ordinal)
                     this.putParcelable(Constants.KEY_SCREENSHOT, ashmem)
                 }
             } finally {
@@ -68,21 +60,27 @@ public class SharedMemoryImage {
         }
 
         /**
-         * Deserializes a [Bundle] containing a [Bitmap] serialized by
-         * [ashmemCompressedImageBundle].
+         * Deserializes a [Bundle] containing a [Bitmap] serialized by [ashmemWriteImageBundle].
          */
-        public fun ashmemCompressedImageBundleToBitmap(
+        public fun ashmemReadImageBundle(
             bundle: Bundle
-        ): Bitmap = TraceEvent("SharedMemoryImage.ashmemCompressedImageBundleToBitmap").use {
+        ): Bitmap = TraceEvent("SharedMemoryImage.ashmemReadImageBundle").use {
             bundle.classLoader = SharedMemory::class.java.classLoader
             val ashmem = bundle.getParcelable<SharedMemory>(Constants.KEY_SCREENSHOT)
                 ?: throw IllegalStateException("Bundle did not contain " + Constants.KEY_SCREENSHOT)
+            val width = bundle.getInt(Constants.KEY_BITMAP_WIDTH_PX)
+            val height = bundle.getInt(Constants.KEY_BITMAP_HEIGHT_PX)
+            val configOrdinal = bundle.getInt(Constants.KEY_BITMAP_CONFIG_ORDINAL)
             var byteBuffer: ByteBuffer? = null
             try {
+                val bitmap = Bitmap.createBitmap(
+                    width,
+                    height,
+                    Bitmap.Config.values().find { it.ordinal == configOrdinal }!!
+                )
                 byteBuffer = ashmem.mapReadOnly()
-                val bufferBytes = ByteArray(byteBuffer.remaining())
-                byteBuffer.get(bufferBytes)
-                return BitmapFactory.decodeByteArray(bufferBytes, /* offset= */0, bufferBytes.size)
+                bitmap.copyPixelsFromBuffer(byteBuffer)
+                return bitmap
             } finally {
                 if (byteBuffer != null) {
                     SharedMemory.unmap(byteBuffer)

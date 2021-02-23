@@ -259,7 +259,7 @@ class WatchFaceServiceImageTest {
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
                     WatchfaceScreenshotParams(
                         RenderParameters(
@@ -268,7 +268,6 @@ class WatchFaceServiceImageTest {
                             null,
                             Color.RED
                         ).toWireFormat(),
-                        100,
                         123456789,
                         null,
                         null
@@ -293,7 +292,7 @@ class WatchFaceServiceImageTest {
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
                     WatchfaceScreenshotParams(
                         RenderParameters(
@@ -302,7 +301,6 @@ class WatchFaceServiceImageTest {
                             null,
                             Color.RED
                         ).toWireFormat(),
-                        100,
                         123456789,
                         null,
                         null
@@ -342,7 +340,7 @@ class WatchFaceServiceImageTest {
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
                     WatchfaceScreenshotParams(
                         RenderParameters(
@@ -355,7 +353,6 @@ class WatchFaceServiceImageTest {
                             null,
                             Color.RED
                         ).toWireFormat(),
-                        100,
                         123456789,
                         null,
                         null
@@ -380,7 +377,7 @@ class WatchFaceServiceImageTest {
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
                     WatchfaceScreenshotParams(
                         RenderParameters(
@@ -393,7 +390,6 @@ class WatchFaceServiceImageTest {
                             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
                             Color.RED
                         ).toWireFormat(),
-                        100,
                         123456789,
                         null,
                         null
@@ -436,7 +432,7 @@ class WatchFaceServiceImageTest {
         waitForPendingTaskToRunOnHandler()
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
                     WatchfaceScreenshotParams(
                         RenderParameters(
@@ -445,7 +441,6 @@ class WatchFaceServiceImageTest {
                             null,
                             Color.RED
                         ).toWireFormat(),
-                        100,
                         123456789,
                         null,
                         previewComplicationData
