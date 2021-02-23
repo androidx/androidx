@@ -17,6 +17,7 @@
 package androidx.benchmark.macro.junit4
 
 import androidx.annotation.IntRange
+import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.Metric
@@ -29,6 +30,7 @@ import org.junit.runners.model.Statement
 /**
  * JUnit rule for benchmarking large app operations like startup.
  */
+@RequiresApi(29)
 class MacrobenchmarkRule : TestRule {
     private lateinit var currentDescription: Description
 
