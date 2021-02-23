@@ -227,8 +227,18 @@ fun XType.isKotlinUnit(): Boolean = typeName == KnownTypeNames.KOTLIN_UNIT
  */
 fun XType.isByte(): Boolean = typeName == TypeName.BYTE || typeName == KnownTypeNames.BOXED_BYTE
 
+/**
+ * Returns `true` if this represents a [String] type.
+ */
 fun XType.isString(): Boolean = typeName == KnownTypeNames.STRING
 
+/**
+ * Returns `true` if represents very likely a Pojo and none of
+ * the following types:
+ * - Primitive or boxed primitive
+ * - String
+ * - Void
+ */
 fun XType.isPojoByExclusion(): Boolean =
     !isVoid() &&
     !isString() &&
