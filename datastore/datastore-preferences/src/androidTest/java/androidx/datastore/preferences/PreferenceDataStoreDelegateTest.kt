@@ -34,7 +34,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
 import kotlin.test.assertEquals
 
 val stringKey = stringPreferencesKey("key1")
@@ -73,18 +72,15 @@ val Context.withMigrations by preferencesDataStore(
 @ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 @FlowPreview
-class GlobalPreferenceDataStoreTest {
+class PreferenceDataStoreDelegateTest {
     @get:Rule
     val tmp = TemporaryFolder()
 
-    private lateinit var testFile: File
     private lateinit var dataStoreScope: TestCoroutineScope
     private lateinit var context: Context
 
     @Before
     fun setUp() {
-        testFile =
-            tmp.newFile("test_file." + /*PreferencesSerializer.fileExtension=*/"preferences_pb")
         dataStoreScope = TestCoroutineScope()
         context = ApplicationProvider.getApplicationContext()
     }
@@ -105,7 +101,7 @@ class GlobalPreferenceDataStoreTest {
 
     @Test
     fun testCorruptionHandlerInstalled() = runBlocking<Unit> {
-        File(context.applicationContext.filesDir, "datastore/test2.preferences_pb").let {
+        context.preferencesDataStoreFile("test2").let {
             it.parentFile!!.mkdirs()
 
             it.writeBytes(
