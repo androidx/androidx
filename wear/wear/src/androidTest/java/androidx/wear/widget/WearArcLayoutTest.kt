@@ -45,17 +45,15 @@ import androidx.test.espresso.action.Tap
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.test.R
-import androidx.wear.widget.util.AsyncViewActions.waitForMatchingView
 import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_CENTER
-import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_OUTER
 import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_INNER
+import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_OUTER
+import androidx.wear.widget.util.AsyncViewActions.waitForMatchingView
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.any
 import org.hamcrest.Matcher
@@ -63,15 +61,14 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @MediumTest
-class WearArcLayoutTest {
-
-    private val bitmap = Bitmap.createBitmap(SCREEN_WIDTH, SCREEN_HEIGHT, Bitmap.Config.ARGB_8888)
-    private val canvas = Canvas(bitmap)
+class WearArcLayoutTest(private val testHeight: Int) {
+    private val testWidth: Int = SCREEN_SIZE_DEFAULT
     private val renderDoneLatch = CountDownLatch(1)
 
     @get:Rule
@@ -84,6 +81,9 @@ class WearArcLayoutTest {
         interactiveFunction: (FrameLayout.() -> Unit)? = null
 
     ) {
+        val bitmap = Bitmap.createBitmap(testWidth, testHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
         // Set the main frame.
         val mainFrame = FrameLayout(ApplicationProvider.getApplicationContext())
         mainFrame.setBackgroundColor(backgroundColor)
@@ -91,10 +91,10 @@ class WearArcLayoutTest {
         for (view in views) {
             mainFrame.addView(view)
         }
-        val screenWidth = MeasureSpec.makeMeasureSpec(SCREEN_WIDTH, MeasureSpec.EXACTLY)
-        val screenHeight = MeasureSpec.makeMeasureSpec(SCREEN_HEIGHT, MeasureSpec.EXACTLY)
+        val screenWidth = MeasureSpec.makeMeasureSpec(testWidth, MeasureSpec.EXACTLY)
+        val screenHeight = MeasureSpec.makeMeasureSpec(testHeight, MeasureSpec.EXACTLY)
         mainFrame.measure(screenWidth, screenHeight)
-        mainFrame.layout(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+        mainFrame.layout(0, 0, testWidth, testHeight)
         mainFrame.draw(canvas)
         // If an interactive function is set, call it now and redraw.
         // The function will generate mouse events and then we draw again to see the result
@@ -104,7 +104,7 @@ class WearArcLayoutTest {
             mainFrame.draw(canvas)
         }
         renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
-        bitmap.assertAgainstGolden(screenshotRule, key)
+        bitmap.assertAgainstGolden(screenshotRule, key + "_" + testHeight)
     }
 
     private fun createArc(text1: String = "SWEEP", text2: String = "Default") =
@@ -397,10 +397,7 @@ class WearArcLayoutTest {
 
     @Test
     fun testMargins() {
-        doOneTest(
-            "margin_test",
-            createTwoArcsWithMargin()
-        )
+        doOneTest("margin_test", createTwoArcsWithMargin())
     }
 
     @Test
@@ -507,11 +504,9 @@ class WearArcLayoutTest {
     // Sending clicks is slow, around a quarter of a second each, on a desktop emulator.
     @Test(timeout = 100000)
     fun testTouchEvents() {
+        val bitmap = Bitmap.createBitmap(testWidth, testHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
         val scenario = ActivityScenario.launch(TouchTestActivity::class.java)
-
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val widgetWidth = context.resources.getDimension(R.dimen.touch_test_widget_width)
-        val widgetHeight = context.resources.getDimension(R.dimen.touch_test_widget_height)
 
         val STEP = 30
 
@@ -529,6 +524,15 @@ class WearArcLayoutTest {
                 )
             )
 
+        theView.perform(object : ViewAction {
+            override fun getConstraints(): Matcher<View> = any(View::class.java)
+            override fun getDescription(): String = "Resize view to fit the test."
+            override fun perform(uiController: UiController?, view: View?) {
+                (view as? FrameLayout)?.layoutParams =
+                    FrameLayout.LayoutParams(testWidth, testHeight)
+            }
+        })
+
         // Setup on-click handlers for each view so we can get the index of the clicked view.
         var clicked: Int
         scenario.onActivity {
@@ -545,9 +549,9 @@ class WearArcLayoutTest {
         // Simulate clicks in a grid all over the screen and draw a circle centered in the
         // position of the click and which color indicates the view that got clicked.
         // Black means no view got the click event, white means a out of range value.
-        for (y in STEP / 2 until widgetHeight.toInt() step STEP) {
+        for (y in STEP / 2 until testHeight step STEP) {
             val points = mutableListOf<ColoredPoint>()
-            for (x in STEP / 2 until widgetWidth.toInt() step STEP) {
+            for (x in STEP / 2 until testWidth step STEP) {
                 // Perform a click, and record a point colored according to which view was clicked.
                 clicked = -1
                 theView.perform(customClick(x.toFloat(), y.toFloat()))
@@ -579,7 +583,7 @@ class WearArcLayoutTest {
         scenario.onActivity {
             it.findViewById<View>(R.id.curved_frame).draw(canvas)
         }
-        bitmap.assertAgainstGolden(screenshotRule, "touch_screenshot")
+        bitmap.assertAgainstGolden(screenshotRule, "touch_screenshot" + "_" + testHeight)
     }
 
     // This is not testing the full event journey as the previous method does, but it's faster so
@@ -627,8 +631,8 @@ class WearArcLayoutTest {
             // Simulate clicks in a grid all over the screen and draw a circle centered in the
             // position of the click and which color indicates the view that got clicked.
             // Black means no view got the click event, white means a out of range value.
-            for (y in STEP / 2 until SCREEN_HEIGHT step STEP) {
-                for (x in STEP / 2 until SCREEN_WIDTH step STEP) {
+            for (y in STEP / 2 until testHeight step STEP) {
+                for (x in STEP / 2 until testWidth step STEP) {
                     // Perform a click, and record a point colored according to which view was clicked.
                     clicked = -1
 
@@ -705,16 +709,24 @@ class WearArcLayoutTest {
     }
 
     @FlakyTest // b/182268136
-    @Test(timeout = 5000)
+    @Test(timeout = 10000)
     fun testMarginTouch() {
         val views = createTwoArcsWithMargin()
         testEventsFast("touch_fast_margin_screenshot", views)
     }
 
     companion object {
-        private const val SCREEN_WIDTH = 390
-        private const val SCREEN_HEIGHT = 390
+        private const val SCREEN_SIZE_DEFAULT = 390
+        private const val SCREEN_SIZE_DIFF = 100
         private const val TIMEOUT_MS = 1000L
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "testHeight={0}")
+        fun initParameters() = listOf(
+            SCREEN_SIZE_DEFAULT,
+            SCREEN_SIZE_DEFAULT + SCREEN_SIZE_DIFF,
+            SCREEN_SIZE_DEFAULT - SCREEN_SIZE_DIFF
+        )
     }
 }
 
