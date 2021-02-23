@@ -17,6 +17,7 @@
 
 package com.example.android.supportv4.widget;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
@@ -157,7 +158,11 @@ public class SlidingPaneLayoutActivity extends Activity {
      * Create a compatible helper that will manipulate the action bar if available.
      */
     private ActionBarHelper createActionBarHelper() {
-        return new ActionBarHelper();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            return new ActionBarHelperICS();
+        } else {
+            return new ActionBarHelper();
+        }
     }
 
     /**
@@ -169,6 +174,56 @@ public class SlidingPaneLayoutActivity extends Activity {
         public void onPanelOpened() {}
         public void onFirstLayout() {}
         public void setTitle(CharSequence title) {}
+    }
+
+    /**
+     * Action bar helper for use on ICS and newer devices.
+     */
+    private class ActionBarHelperICS extends ActionBarHelper {
+        private final ActionBar mActionBar;
+        private CharSequence mDrawerTitle;
+        private CharSequence mTitle;
+
+        ActionBarHelperICS() {
+            mActionBar = getActionBar();
+        }
+
+        @Override
+        public void init() {
+            mActionBar.setDisplayHomeAsUpEnabled(true);
+            mActionBar.setHomeButtonEnabled(true);
+            mTitle = mDrawerTitle = getTitle();
+        }
+
+        @Override
+        public void onPanelClosed() {
+            super.onPanelClosed();
+            mActionBar.setDisplayHomeAsUpEnabled(true);
+            mActionBar.setHomeButtonEnabled(true);
+            mActionBar.setTitle(mTitle);
+        }
+
+        @Override
+        public void onPanelOpened() {
+            super.onPanelOpened();
+            mActionBar.setHomeButtonEnabled(false);
+            mActionBar.setDisplayHomeAsUpEnabled(false);
+            mActionBar.setTitle(mDrawerTitle);
+        }
+
+        @Override
+        public void onFirstLayout() {
+            if (mSlidingLayout.isSlideable() && !mSlidingLayout.isOpen()) {
+                onPanelClosed();
+            } else {
+                onPanelOpened();
+            }
+        }
+
+        @Override
+        public void setTitle(CharSequence title) {
+            mTitle = title;
+        }
     }
 
 }
