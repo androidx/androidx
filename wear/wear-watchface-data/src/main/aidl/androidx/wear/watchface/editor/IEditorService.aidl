@@ -26,7 +26,7 @@ import androidx.wear.watchface.editor.IEditorObserver;
 interface IEditorService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 4
+    // Next Id: 5
 
     /**
      * API version number. This should be incremented every time a new method is added.
@@ -57,4 +57,9 @@ interface IEditorService {
      * @since API version 1.
      */
     void unregisterObserver(int observerId) = 3;
+
+    /**
+     * Instructs any open editor to close.
+     */
+    void closeEditor() = 4;
 }

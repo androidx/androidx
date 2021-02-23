@@ -1286,7 +1286,7 @@ internal fun <R> Handler.runOnHandlerWithTracing(
         var exception: Exception? = null
         if (post {
             try {
-                returnVal = TraceEvent("Handler.runOnHandlerWithTracing invokeTask").use {
+                returnVal = TraceEvent("$traceEventName invokeTask").use {
                     task.invoke()
                 }
             } catch (e: Exception) {

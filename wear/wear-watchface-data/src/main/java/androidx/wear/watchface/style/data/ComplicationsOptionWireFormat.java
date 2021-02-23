@@ -43,14 +43,14 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
 
     /**
      * Great care should be taken to ensure backwards compatibility of the versioned parcelable
-     * if {@link ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat} is ever
+     * if {@link ComplicationOverlayWireFormat} is ever
      * extended.
      */
     @ParcelField(100)
     @NonNull
-    public ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat[]
+    public ComplicationOverlayWireFormat[]
             mComplicationOverlays =
-            new ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat[0];
+            new ComplicationOverlayWireFormat[0];
 
     ComplicationsOptionWireFormat() {
     }
@@ -59,7 +59,7 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
             @NonNull String id,
             @NonNull CharSequence displayName,
             @Nullable Icon icon,
-            @NonNull ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat[]
+            @NonNull ComplicationOverlayWireFormat[]
                     complicationOverlays
     ) {
         super(id);
