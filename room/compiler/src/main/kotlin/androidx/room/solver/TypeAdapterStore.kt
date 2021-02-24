@@ -550,12 +550,11 @@ class TypeAdapterStore private constructor(
                 ).process()
                 return PojoRowAdapter(
                     context = context,
-                    info = query.resultInfo,
+                    info = null,
                     pojo = pojo,
                     out = typeMirror
                 )
             }
-
             return null
         } else {
             val singleColumn = findCursorValueReader(typeMirror, null) ?: return null
