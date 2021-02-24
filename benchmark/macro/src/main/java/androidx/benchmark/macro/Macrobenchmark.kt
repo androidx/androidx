@@ -101,9 +101,16 @@ internal fun macrobenchmark(
     setupBlock: MacrobenchmarkScope.(Boolean) -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
+    require(iterations > 0) {
+        "Require iterations > 0 (iterations = $iterations)"
+    }
     require(metrics.isNotEmpty()) {
         "Empty list of metrics passed to metrics param, must pass at least one Metric"
     }
+    require(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        "Macrobenchmark currently requires Android 10 (API 29) or greater."
+    }
+
     val suppressionState = checkErrors(packageName)
     var warningMessage = suppressionState?.warningMessage ?: ""
 
