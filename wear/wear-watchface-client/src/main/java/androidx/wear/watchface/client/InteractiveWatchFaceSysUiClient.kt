@@ -24,7 +24,6 @@ import android.os.IBinder
 import android.support.wearable.complications.TimeDependentText
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntDef
-import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.data.ComplicationData
@@ -130,23 +129,20 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
     public val contentDescriptionLabels: List<ContentDescriptionLabel>
 
     /**
-     * Requests for a WebP compressed shared memory backed [Bitmap] containing a screenshot of
-     * the watch face with the given settings.
+     * Requests a shared memory backed [Bitmap] containing a screenshot of the watch face with the
+     * given settings.
      *
      * @param renderParameters The [RenderParameters] to draw with.
-     * @param compressionQuality The WebP compression quality, 100 = loss less.
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with.
      * @param userStyle Optional [UserStyle] to render with, if null the current style is used.
      * @param idAndComplicationData Map of complication ids to [ComplicationData] to render with, or
      *     if null then the existing complication data if any is used.
-     * @return A WebP compressed shared memory backed [Bitmap] containing a screenshot of the watch
-     *     face with the given settings.
+     * @return A shared memory backed [Bitmap] containing a screenshot of the watch face with the
+     *     given settings.
      */
     @RequiresApi(27)
     public fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
-        @IntRange(from = 0, to = 100)
-        compressionQuality: Int,
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
@@ -195,17 +191,14 @@ internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
     @RequiresApi(27)
     override fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
-        @IntRange(from = 0, to = 100)
-        compressionQuality: Int,
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
     ): Bitmap = TraceEvent("InteractiveWatchFaceSysUiClientImpl.takeWatchFaceScreenshot").use {
-        SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+        SharedMemoryImage.ashmemReadImageBundle(
             iInteractiveWatchFaceSysUI.takeWatchFaceScreenshot(
                 WatchfaceScreenshotParams(
                     renderParameters.toWireFormat(),
-                    compressionQuality,
                     calendarTimeMillis,
                     userStyle?.toWireFormat(),
                     idAndComplicationData?.map {

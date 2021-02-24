@@ -574,7 +574,6 @@ internal class HeadlessEditorSession(
         requireNotClosed()
         return headlessWatchFaceClient.takeWatchFaceScreenshot(
             renderParameters,
-            100,
             calendarTimeMillis,
             userStyle,
             idToComplicationData
