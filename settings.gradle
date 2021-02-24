@@ -363,7 +363,6 @@ includeProject(":gridlayout:gridlayout", "gridlayout/gridlayout", [BuildType.MAI
 includeProject(":heifwriter:heifwriter", "heifwriter/heifwriter", [BuildType.MAIN])
 includeProject(":hilt:hilt-common", "hilt/hilt-common", [BuildType.MAIN])
 includeProject(":hilt:hilt-compiler", "hilt/hilt-compiler", [BuildType.MAIN])
-includeProject(":hilt:hilt-lifecycle-viewmodel", "hilt/hilt-lifecycle-viewmodel", [BuildType.MAIN])
 includeProject(":hilt:hilt-navigation", "hilt/hilt-navigation", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":hilt:hilt-navigation-compose", "hilt/hilt-navigation-compose", [BuildType.COMPOSE])
 includeProject(":hilt:hilt-navigation-fragment", "hilt/hilt-navigation-fragment", [BuildType.MAIN])
