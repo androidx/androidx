@@ -169,7 +169,6 @@ class WatchFaceControlClientTest {
                 null,
                 Color.RED
             ),
-            100,
             1234567,
             null,
             complications
@@ -207,7 +206,6 @@ class WatchFaceControlClientTest {
                 null,
                 Color.YELLOW
             ),
-            100,
             1234567,
             null,
             complications
@@ -326,7 +324,6 @@ class WatchFaceControlClientTest {
                 null,
                 Color.RED
             ),
-            100,
             1234567,
             null,
             complications
@@ -372,7 +369,6 @@ class WatchFaceControlClientTest {
                 null,
                 Color.RED
             ),
-            100,
             1234567,
             null,
             complications
@@ -633,7 +629,6 @@ class WatchFaceControlClientTest {
                 null,
                 Color.RED
             ),
-            100,
             1234567,
             null,
             complications

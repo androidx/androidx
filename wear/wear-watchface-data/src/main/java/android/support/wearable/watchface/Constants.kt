@@ -52,6 +52,9 @@ public class Constants {
         /** Key used for top level background image item. */
         public const val KEY_BACKGROUND_IMAGE_SETTINGS: String = "key_background_image_settings"
 
+        public const val KEY_BITMAP_WIDTH_PX: String = "KEY_BITMAP_WIDTH_PX"
+        public const val KEY_BITMAP_HEIGHT_PX: String = "KEY_BITMAP_HEIGHT_PX"
+        public const val KEY_BITMAP_CONFIG_ORDINAL: String = "KEY_BITMAP_CONFIG_ORDINAL"
         public const val KEY_SCREENSHOT: String = "KEY_SCREENSHOT"
 
         /** Used to identify our provider chooser requests. */

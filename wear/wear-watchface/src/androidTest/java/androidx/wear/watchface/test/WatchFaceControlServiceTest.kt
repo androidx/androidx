@@ -83,7 +83,7 @@ class WatchFaceControlServiceTest {
     @Test
     fun createHeadlessWatchFaceInstance() {
         val instance = createInstance(100, 100)
-        val bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+        val bitmap = SharedMemoryImage.ashmemReadImageBundle(
             instance.takeWatchFaceScreenshot(
                 WatchfaceScreenshotParams(
                     RenderParameters(
@@ -92,7 +92,6 @@ class WatchFaceControlServiceTest {
                         null,
                         Color.RED
                     ).toWireFormat(),
-                    100,
                     1234567890,
                     null,
                     listOf(
@@ -127,7 +126,7 @@ class WatchFaceControlServiceTest {
     @Test
     fun testCommandTakeComplicationScreenShot() {
         val instance = createInstance(400, 400)
-        val bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+        val bitmap = SharedMemoryImage.ashmemReadImageBundle(
             instance.takeComplicationScreenshot(
                 ComplicationScreenshotParams(
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
@@ -137,7 +136,6 @@ class WatchFaceControlServiceTest {
                         null,
                         Color.RED
                     ).toWireFormat(),
-                    100,
                     123456789,
                     ShortTextComplicationData.Builder(PlainComplicationText.Builder("Mon").build())
                         .setTitle(PlainComplicationText.Builder("23rd").build())

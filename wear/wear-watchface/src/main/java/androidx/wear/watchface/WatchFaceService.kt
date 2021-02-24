@@ -606,10 +606,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             }
 
-            return SharedMemoryImage.ashmemCompressedImageBundle(
-                bitmap,
-                params.compressionQuality
-            )
+            return SharedMemoryImage.ashmemWriteImageBundle(bitmap)
         }
 
         @UiThread
@@ -665,10 +662,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     watchFaceImpl.onSetStyleInternal(UserStyle(oldStyle))
                 }
 
-                SharedMemoryImage.ashmemCompressedImageBundle(
-                    complicationBitmap,
-                    params.compressionQuality
-                )
+                SharedMemoryImage.ashmemWriteImageBundle(complicationBitmap)
             }
         }
 
