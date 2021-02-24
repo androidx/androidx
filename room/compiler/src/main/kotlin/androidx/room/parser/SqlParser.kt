@@ -108,7 +108,6 @@ class QueryVisitor(
             inputs = bindingExpressions.sortedBy { it.sourceInterval.a },
             tables = tableNames,
             syntaxErrors = syntaxErrors,
-            runtimeQueryPlaceholder = forRuntimeQuery
         )
     }
 
@@ -209,7 +208,6 @@ class SqlParser {
                     inputs = emptyList(),
                     tables = emptySet(),
                     syntaxErrors = syntaxErrors,
-                    runtimeQueryPlaceholder = false
                 )
             }
         )
@@ -227,7 +225,6 @@ class SqlParser {
                 inputs = emptyList(),
                 tables = tableNames.map { Table(name = it, alias = it) }.toSet(),
                 syntaxErrors = emptyList(),
-                runtimeQueryPlaceholder = true
             )
         }
     }
