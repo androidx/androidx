@@ -3,3 +3,7 @@ MissingNullability: androidx.versionedparcelable.ParcelUtils#getVersionedParcela
     Missing nullability on parameter `bundle` in method `getVersionedParcelableList`
 MissingNullability: androidx.versionedparcelable.ParcelUtils#getVersionedParcelableList(android.os.Bundle, String) parameter #1:
     Missing nullability on parameter `key` in method `getVersionedParcelableList`
+
+
+NullableCollection: androidx.versionedparcelable.ParcelUtils#getVersionedParcelableList(android.os.Bundle, String):
+    Return type of method androidx.versionedparcelable.ParcelUtils.getVersionedParcelableList(android.os.Bundle,String) is a nullable collection (`java.util.List`); must be non-null

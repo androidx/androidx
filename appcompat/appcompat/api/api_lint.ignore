@@ -59,24 +59,12 @@ MissingBuildMethod: androidx.appcompat.app.AlertDialog.Builder:
 
 MissingNullability: androidx.appcompat.app.ActionBar#addOnMenuVisibilityListener(androidx.appcompat.app.ActionBar.OnMenuVisibilityListener) parameter #0:
     Missing nullability on parameter `listener` in method `addOnMenuVisibilityListener`
-MissingNullability: androidx.appcompat.app.ActionBar#addTab(androidx.appcompat.app.ActionBar.Tab) parameter #0:
-    Missing nullability on parameter `tab` in method `addTab`
-MissingNullability: androidx.appcompat.app.ActionBar#addTab(androidx.appcompat.app.ActionBar.Tab, boolean) parameter #0:
-    Missing nullability on parameter `tab` in method `addTab`
-MissingNullability: androidx.appcompat.app.ActionBar#addTab(androidx.appcompat.app.ActionBar.Tab, int) parameter #0:
-    Missing nullability on parameter `tab` in method `addTab`
-MissingNullability: androidx.appcompat.app.ActionBar#addTab(androidx.appcompat.app.ActionBar.Tab, int, boolean) parameter #0:
-    Missing nullability on parameter `tab` in method `addTab`
 MissingNullability: androidx.appcompat.app.ActionBar#getCustomView():
     Missing nullability on method `getCustomView` return
 MissingNullability: androidx.appcompat.app.ActionBar#getThemedContext():
     Missing nullability on method `getThemedContext` return
 MissingNullability: androidx.appcompat.app.ActionBar#removeOnMenuVisibilityListener(androidx.appcompat.app.ActionBar.OnMenuVisibilityListener) parameter #0:
     Missing nullability on parameter `listener` in method `removeOnMenuVisibilityListener`
-MissingNullability: androidx.appcompat.app.ActionBar#removeTab(androidx.appcompat.app.ActionBar.Tab) parameter #0:
-    Missing nullability on parameter `tab` in method `removeTab`
-MissingNullability: androidx.appcompat.app.ActionBar#selectTab(androidx.appcompat.app.ActionBar.Tab) parameter #0:
-    Missing nullability on parameter `tab` in method `selectTab`
 MissingNullability: androidx.appcompat.app.ActionBar#setCustomView(android.view.View) parameter #0:
     Missing nullability on parameter `view` in method `setCustomView`
 MissingNullability: androidx.appcompat.app.ActionBar#setCustomView(android.view.View, androidx.appcompat.app.ActionBar.LayoutParams) parameter #0:
@@ -85,10 +73,6 @@ MissingNullability: androidx.appcompat.app.ActionBar#setCustomView(android.view.
     Missing nullability on parameter `layoutParams` in method `setCustomView`
 MissingNullability: androidx.appcompat.app.ActionBar#setIcon(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `icon` in method `setIcon`
-MissingNullability: androidx.appcompat.app.ActionBar#setListNavigationCallbacks(android.widget.SpinnerAdapter, androidx.appcompat.app.ActionBar.OnNavigationListener) parameter #0:
-    Missing nullability on parameter `adapter` in method `setListNavigationCallbacks`
-MissingNullability: androidx.appcompat.app.ActionBar#setListNavigationCallbacks(android.widget.SpinnerAdapter, androidx.appcompat.app.ActionBar.OnNavigationListener) parameter #1:
-    Missing nullability on parameter `callback` in method `setListNavigationCallbacks`
 MissingNullability: androidx.appcompat.app.ActionBar#setLogo(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `logo` in method `setLogo`
 MissingNullability: androidx.appcompat.app.ActionBar#setSplitBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
@@ -415,8 +399,6 @@ MissingNullability: androidx.appcompat.app.AppCompatDelegate#addContentView(andr
     Missing nullability on parameter `v` in method `addContentView`
 MissingNullability: androidx.appcompat.app.AppCompatDelegate#addContentView(android.view.View, android.view.ViewGroup.LayoutParams) parameter #1:
     Missing nullability on parameter `lp` in method `addContentView`
-MissingNullability: androidx.appcompat.app.AppCompatDelegate#attachBaseContext(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `attachBaseContext`
 MissingNullability: androidx.appcompat.app.AppCompatDelegate#createView(android.view.View, String, android.content.Context, android.util.AttributeSet):
     Missing nullability on method `createView` return
 MissingNullability: androidx.appcompat.app.AppCompatDelegate#createView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #1:

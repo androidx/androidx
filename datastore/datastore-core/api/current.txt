@@ -2,7 +2,7 @@
 package androidx.datastore.core {
 
   public final class CorruptionException extends java.io.IOException {
-    ctor public CorruptionException(String message, Throwable? cause);
+    ctor public CorruptionException(String message, optional Throwable? cause);
   }
 
   public interface DataMigration<T> {
