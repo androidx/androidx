@@ -18,6 +18,7 @@ package androidx.core.content.res;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
@@ -304,7 +305,7 @@ public final class ResourcesCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public final void callbackSuccessAsync(final Typeface typeface, @Nullable Handler handler) {
-            ensureHandler(handler).post(new Runnable() {
+            getHandler(handler).post(new Runnable() {
                 @Override
                 public void run() {
                     onFontRetrieved(typeface);
@@ -320,7 +321,7 @@ public final class ResourcesCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public final void callbackFailAsync(
                 @FontRequestFailReason final int reason, @Nullable Handler handler) {
-            ensureHandler(handler).post(new Runnable() {
+            getHandler(handler).post(new Runnable() {
                 @Override
                 public void run() {
                     onFontRetrievalFailed(reason);
@@ -328,7 +329,10 @@ public final class ResourcesCompat {
             });
         }
 
-        private static Handler ensureHandler(@Nullable Handler handler) {
+        /** @hide */
+        @RestrictTo(LIBRARY)
+        @NonNull
+        public static Handler getHandler(@Nullable Handler handler) {
             return handler == null ? new Handler(Looper.getMainLooper()) : handler;
         }
     }
