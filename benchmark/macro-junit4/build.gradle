@@ -39,8 +39,9 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(project(":benchmark:benchmark-macro"))
     implementation(project(":benchmark:benchmark-common"))
-    implementation(ANDROIDX_TEST_EXT_JUNIT)
-    implementation(ANDROIDX_TEST_UIAUTOMATOR)
+    implementation("androidx.test:rules:1.3.0")
+    implementation("androidx.test:runner:1.3.0")
+    implementation("androidx.test.uiautomator:uiautomator:2.2.0")
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
