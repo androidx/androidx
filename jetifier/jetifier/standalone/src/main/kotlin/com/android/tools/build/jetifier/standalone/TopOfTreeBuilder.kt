@@ -57,14 +57,16 @@ class TopOfTreeBuilder {
                 val name = pomFile.relativePath.toFile().nameWithoutExtension
                 val nameAar = name + ".aar"
                 val nameJar = name + ".jar"
-                val artifactFile = libFiles.first {
+                val artifactFile = libFiles.firstOrNull {
                     it.fileName == nameAar || it.fileName == nameJar
                 }
                 val nameSources = name + "-sources.jar"
-                val sourcesFile = libFiles.first {
+                val sourcesFile = libFiles.firstOrNull {
                     it.fileName == nameSources
                 }
-                process(pomFile, artifactFile, sourcesFile, newFiles)
+                if (artifactFile != null && sourcesFile != null) {
+                    process(pomFile, artifactFile, sourcesFile, newFiles)
+                }
             }
         }
 
