@@ -538,7 +538,8 @@ class TypeAdapterStore private constructor(
 
             // use pojo adapter as a last resort.
             // this happens when @RawQuery or @SkipVerification is used.
-            if (typeMirror.isNotVoid() &&
+            if (query.resultInfo == null &&
+                typeMirror.isNotVoid() &&
                 typeMirror.isNotVoidObject() &&
                 typeMirror.isNotKotlinUnit()
             ) {
