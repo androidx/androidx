@@ -17,6 +17,7 @@
 package androidx.car.app.serialization;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.utils.LogTags.TAG_BUNDLER;
 
 import static java.util.Objects.requireNonNull;
 
@@ -87,7 +88,6 @@ public final class Bundler {
 
     private static final int MAX_VALUE_LOG_LENGTH = 32;
 
-    private static final String TAG = "car.bundler";
     private static final Map<Class<?>, String> UNOBFUSCATED_TYPE_NAMES =
             initUnobfuscatedTypeNames();
     private static final Map<Integer, String> BUNDLED_TYPE_NAMES = initBundledTypeNames();
@@ -121,7 +121,9 @@ public final class Bundler {
     @NonNull
     public static Bundle toBundle(@NonNull Object obj) throws BundlerException {
         String className = getUnobfuscatedClassName(obj.getClass());
-        Log.d(TAG, "Bundling " + className);
+        if (Log.isLoggable(TAG_BUNDLER, Log.DEBUG)) {
+            Log.d(TAG_BUNDLER, "Bundling " + className);
+        }
         return toBundle(obj, className, Trace.create());
     }
 
@@ -181,7 +183,9 @@ public final class Bundler {
      */
     @NonNull
     public static Object fromBundle(@NonNull Bundle bundle) throws BundlerException {
-        Log.d(TAG, "Unbundling " + getBundledTypeName(bundle.getInt(TAG_CLASS_TYPE)));
+        if (Log.isLoggable(TAG_BUNDLER, Log.DEBUG)) {
+            Log.d(TAG_BUNDLER, "Unbundling " + getBundledTypeName(bundle.getInt(TAG_CLASS_TYPE)));
+        }
         return fromBundle(bundle, Trace.create());
     }
 
@@ -550,7 +554,9 @@ public final class Bundler {
                 if (value instanceof Bundle) {
                     field.set(obj, fromBundle((Bundle) value, trace));
                 } else if (value == null) {
-                    Log.d(TAG, "Value is null for field: " + field);
+                    if (Log.isLoggable(TAG_BUNDLER, Log.DEBUG)) {
+                        Log.d(TAG_BUNDLER, "Value is null for field: " + field);
+                    }
                 }
             }
             return obj;
@@ -804,7 +810,9 @@ public final class Bundler {
             if (obj != null) { // not the root
                 Frame frame = new Frame(obj, display);
                 frames.addFirst(frame);
-                Log.v(TAG, getIndent(frames.size()) + frame.toTraceString());
+                if (Log.isLoggable(TAG_BUNDLER, Log.VERBOSE)) {
+                    Log.v(TAG_BUNDLER, getIndent(frames.size()) + frame.toTraceString());
+                }
             }
         }
     }
