@@ -212,23 +212,6 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
     }
 
     @Test
-    fun skipQueryVerificationPojo() {
-        singleDao(
-            """
-            @Dao interface MyDao {
-                    @SkipQueryVerification
-                    @Query("SELECT bookId, uid  FROM User")
-                    abstract NotAnEntity getPojo();
-                }
-                """
-        ) { dao, _ ->
-            assertThat(dao.queryMethods.size, `is`(1))
-            val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getPojo"))
-        }
-    }
-
-    @Test
     fun suppressedWarnings() {
         singleDao(
             """
@@ -438,8 +421,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                     "foo.bar.MyDao",
                     DAO_PREFIX + inputs.joinToString("\n")
                 ),
-                Source.fromJavaFileObject(COMMON.USER),
-                Source.fromJavaFileObject(COMMON.NOT_AN_ENTITY)
+                Source.fromJavaFileObject(COMMON.USER)
             ),
             classpath = classpathFiles
         ) { invocation: XTestInvocation ->
