@@ -19,11 +19,13 @@ package androidx.room.solver
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isEnum
-import androidx.room.compiler.processing.isPojoByExclusion
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.isNotByte
+import androidx.room.ext.isNotKotlinUnit
+import androidx.room.ext.isNotVoid
+import androidx.room.ext.isNotVoidObject
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.Context
@@ -512,24 +514,6 @@ class TypeAdapterStore private constructor(
                         ).process()
                     )
                 }
-
-                // use pojo adapter if we exclude other types.
-                // this happens when @RawQuery or @SkipVerification is used.
-                if (typeMirror.isPojoByExclusion()) {
-                    val pojo = PojoProcessor.createFor(
-                        context = context,
-                        element = typeElement,
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                        parent = null
-                    ).process()
-                    return PojoRowAdapter(
-                        context = context,
-                        info = query.resultInfo,
-                        pojo = pojo,
-                        out = typeMirror
-                    )
-                }
-
             }
 
             if (rowAdapter != null && rowAdapterLogs?.hasErrors() != true) {
@@ -551,6 +535,27 @@ class TypeAdapterStore private constructor(
                 rowAdapterLogs?.writeTo(context)
                 return rowAdapter
             }
+
+            // use pojo adapter as a last resort.
+            // this happens when @RawQuery or @SkipVerification is used.
+            if (typeMirror.isNotVoid() &&
+                typeMirror.isNotVoidObject() &&
+                typeMirror.isNotKotlinUnit()
+            ) {
+                val pojo = PojoProcessor.createFor(
+                    context = context,
+                    element = typeElement,
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    parent = null
+                ).process()
+                return PojoRowAdapter(
+                    context = context,
+                    info = query.resultInfo,
+                    pojo = pojo,
+                    out = typeMirror
+                )
+            }
+
             return null
         } else {
             val singleColumn = findCursorValueReader(typeMirror, null) ?: return null
