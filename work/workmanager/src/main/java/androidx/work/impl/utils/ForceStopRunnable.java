@@ -17,6 +17,7 @@
 package androidx.work.impl.utils;
 
 import static android.app.AlarmManager.RTC_WAKEUP;
+import static android.app.ApplicationExitInfo.REASON_USER_REQUESTED;
 import static android.app.PendingIntent.FLAG_MUTABLE;
 import static android.app.PendingIntent.FLAG_NO_CREATE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
@@ -24,7 +25,9 @@ import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 
+import android.app.ActivityManager;
 import android.app.AlarmManager;
+import android.app.ApplicationExitInfo;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
@@ -152,13 +155,38 @@ public class ForceStopRunnable implements Runnable {
         // Even though API 23, 24 are probably safe, OEMs may choose to do
         // something different.
         try {
-            PendingIntent pendingIntent = getPendingIntent(mContext, FLAG_NO_CREATE);
-            if (pendingIntent == null) {
+            int flags = FLAG_NO_CREATE;
+            if (BuildCompat.isAtLeastS()) {
+                flags |= FLAG_MUTABLE;
+            }
+            PendingIntent pendingIntent = getPendingIntent(mContext, flags);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // We no longer need the alarm.
+                if (pendingIntent != null) {
+                    pendingIntent.cancel();
+                }
+                ActivityManager activityManager =
+                        (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+                List<ApplicationExitInfo> exitInfoList =
+                        activityManager.getHistoricalProcessExitReasons(
+                                null /* match caller uid */,
+                                0, // ignore
+                                0 // ignore
+                        );
+
+                if (exitInfoList != null && !exitInfoList.isEmpty()) {
+                    for (int i = 0; i < exitInfoList.size(); i++) {
+                        ApplicationExitInfo info = exitInfoList.get(i);
+                        if (info.getReason() == REASON_USER_REQUESTED) {
+                            return true;
+                        }
+                    }
+                }
+            } else if (pendingIntent == null) {
                 setAlarm(mContext);
                 return true;
-            } else {
-                return false;
             }
+            return false;
         } catch (SecurityException exception) {
             // Setting Alarms on some devices fails due to OEM introduced bugs in AlarmManager.
             // When this happens, there is not much WorkManager can do, other can reschedule
@@ -276,7 +304,7 @@ public class ForceStopRunnable implements Runnable {
     }
 
     /**
-     * @param flags   The {@link PendingIntent} flags.
+     * @param flags The {@link PendingIntent} flags.
      * @return an instance of the {@link PendingIntent}.
      */
     private static PendingIntent getPendingIntent(Context context, int flags) {
