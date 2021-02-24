@@ -18,6 +18,7 @@ package androidx.room.vo
 
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.migration.bundle.FieldBundle
+import com.squareup.javapoet.ClassName
 
 data class AutoMigrationResult(
     val element: XTypeElement,
@@ -25,6 +26,14 @@ data class AutoMigrationResult(
     val to: Int?,
     val addedColumns: List<AddedColumn>
 ) {
+
+    val implTypeName: ClassName by lazy {
+        ClassName.get(
+            element.className.packageName(),
+            "${element.className.simpleNames().joinToString("_")}_Impl"
+        )
+    }
+
     /**
      * Stores the table name and the relevant field bundle of a column that was added to a
      * database in a newer version.

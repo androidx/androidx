@@ -25,6 +25,7 @@ import androidx.room.processor.MissingTypeException
 import androidx.room.processor.ProcessorErrors
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Warning
+import androidx.room.writer.AutoMigrationWriter
 import androidx.room.writer.DaoWriter
 import androidx.room.writer.DatabaseWriter
 import java.io.File
@@ -91,6 +92,9 @@ class DatabaseProcessingStep : XProcessingStep {
                         )
                     )
                 }
+            }
+            db.autoMigrations.forEach { autoMigration ->
+                AutoMigrationWriter(db.element, autoMigration).write(context.processingEnv)
             }
         }
         return rejectedElements
