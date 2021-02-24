@@ -113,6 +113,7 @@ class ViewPagerActivityTest(private val lensFacing: Int) {
             onView(withId(R.id.blank_textview)).check(matches(isDisplayed()))
 
             onView(withId(R.id.viewPager)).perform(swipeRight())
+            onView(withId(R.id.preview_textureview)).check(matches(isDisplayed()))
             // Check if the surface texture of TextureView continues getting updates after
             // detaching from window and then attaching to window.
             assertSurfaceTextureFramesUpdate(scenario)
@@ -135,6 +136,7 @@ class ViewPagerActivityTest(private val lensFacing: Int) {
 
             // After resume, swipe in CameraFragment to check Preview in stream state
             onView(withId(R.id.viewPager)).perform(swipeRight())
+            onView(withId(R.id.preview_textureview)).check(matches(isDisplayed()))
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
             // The test covers pause/resume and ViewPager2 swipe out/in behaviors. Hence, need to
