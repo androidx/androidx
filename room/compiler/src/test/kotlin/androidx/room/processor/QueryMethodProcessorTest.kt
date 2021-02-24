@@ -750,11 +750,11 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             )
             val adapter = parsedQuery.queryResultBinder.adapter
             assertThat(checkNotNull(adapter))
-            assertThat(adapter::class, `is`(PojoRowAdapter::class))
+            assertThat(adapter::class, `is`(SingleEntityQueryResultAdapter::class))
             val rowAdapter = adapter.rowAdapter
             assertThat(checkNotNull(rowAdapter))
             assertThat(rowAdapter::class, `is`(PojoRowAdapter::class))
-        }
+        }.compilesWithoutError()
     }
 
     @Test
