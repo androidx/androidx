@@ -1132,10 +1132,10 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 assertThat(adapter, notNullValue())
             }
         }
-        if (enableVerification) {
-            return assertion
+        return if (enableVerification) {
+            assertion
         } else {
-            return null
+            null
         }
     }
 
