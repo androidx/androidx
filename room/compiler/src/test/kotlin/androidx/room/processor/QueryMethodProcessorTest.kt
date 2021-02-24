@@ -969,7 +969,12 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         ) { _, _, _ ->
         }?.failsToCompile()
             ?.withErrorContaining("no such column: age")
-            ?.and()?.withErrorCount(1)
+            ?.and()?.withErrorContaining(
+                cannotFindQueryResultAdapter(
+                    ClassName.get("foo.bar", "MyClass", "Pojo")
+                )
+            )
+            ?.and()?.withErrorCount(2)
             ?.withWarningCount(0)
     }
 
@@ -1130,6 +1135,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         return if (enableVerification) {
             assertion
         } else {
+            assertion.compilesWithoutError()
             null
         }
     }
