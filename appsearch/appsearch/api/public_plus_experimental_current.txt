@@ -227,7 +227,6 @@ package androidx.appsearch.app {
 
   public static final class GetByUriRequest.Builder {
     ctor public GetByUriRequest.Builder();
-    method public androidx.appsearch.app.GetByUriRequest.Builder addProjection(String, java.lang.String!...);
     method public androidx.appsearch.app.GetByUriRequest.Builder addProjection(String, java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.GetByUriRequest.Builder addUris(java.lang.String!...);
     method public androidx.appsearch.app.GetByUriRequest.Builder addUris(java.util.Collection<java.lang.String!>);
@@ -347,7 +346,6 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec.Builder addFilterPackageNames(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addFilterSchemas(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addFilterSchemas(java.util.Collection<java.lang.String!>);
-    method public androidx.appsearch.app.SearchSpec.Builder addProjection(String, java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addProjection(String, java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec build();
     method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(@IntRange(from=0, to=androidx.appsearch.app.SearchSpec.MAX_SNIPPET_SIZE_LIMIT) int);
