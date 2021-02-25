@@ -41,7 +41,7 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     testImplementation(GOOGLE_COMPILE_TESTING)
-    testImplementation(HILT_ANDROID)
+    testImplementation(HILT_CORE)
     testImplementation(fileTree(
             dir: "${new File(project(":hilt:hilt-work").buildDir, "libJar")}",
             include : "*.jar"))
