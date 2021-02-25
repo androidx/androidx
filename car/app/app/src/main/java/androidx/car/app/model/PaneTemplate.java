@@ -91,13 +91,13 @@ public final class PaneTemplate implements Template {
     }
 
     /**
-     * Returns the {@link Pane} to display in the template or {@code null} if not set.
+     * Returns the {@link Pane} to display in the template.
      *
      * @see Builder#Builder(Pane)
      */
-    @Nullable
+    @NonNull
     public Pane getPane() {
-        return mPane;
+        return requireNonNull(mPane);
     }
 
     @NonNull

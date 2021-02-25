@@ -45,14 +45,13 @@ public final class Place {
     }
 
     /**
-     * Returns the {@link CarLocation} instance associated with this place or {@code null} if one
-     * is not set.
+     * Returns the {@link CarLocation} instance associated with this place.
      *
      * @see Builder#Builder(CarLocation)
      */
-    @Nullable
+    @NonNull
     public CarLocation getLocation() {
-        return mLocation;
+        return requireNonNull(mLocation);
     }
 
     @Override
