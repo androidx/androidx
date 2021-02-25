@@ -128,6 +128,7 @@ internal fun macrobenchmark(
     // Perfetto collector is separate from metrics, so we can control file
     // output, and give it different (test-wide) lifecycle
     val perfettoCollector = PerfettoCaptureWrapper()
+    val tracePaths = mutableListOf<String>()
     try {
         metrics.forEach {
             it.configure(packageName)
@@ -136,25 +137,27 @@ internal fun macrobenchmark(
         val metricResults = List(iterations) { iteration ->
             setupBlock(scope, isFirstRun)
             isFirstRun = false
-            perfettoCollector.start()
 
-            try {
-                metrics.forEach {
-                    it.start()
+            val tracePath = perfettoCollector.record(uniqueName, iteration) {
+                try {
+                    metrics.forEach {
+                        it.start()
+                    }
+                    measureBlock(scope)
+                } finally {
+                    metrics.forEach {
+                        it.stop()
+                    }
                 }
-                measureBlock(scope)
-            } finally {
-                metrics.forEach {
-                    it.stop()
-                }
-            }
-            val tracePath = perfettoCollector.stop(uniqueName, iteration)
+            }!!
+
+            tracePaths.add(tracePath)
             metrics
                 // capture list of Map<String,Long> per metric
-                .map { it.getMetrics(packageName, tracePath!!) }
+                .map { it.getMetrics(packageName, tracePath) }
                 // merge into one map
                 .reduce { sum, element -> sum + element }
-        }.mergeToMetricResults()
+        }.mergeToMetricResults(tracePaths)
 
         require(metricResults.isNotEmpty()) {
             """

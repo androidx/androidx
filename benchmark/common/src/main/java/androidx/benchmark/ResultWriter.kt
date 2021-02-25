@@ -112,6 +112,7 @@ public object ResultWriter {
 
     private fun JsonWriter.buildInfoObject(): JsonWriter {
         beginObject()
+            .name("brand").value(Build.BRAND)
             .name("device").value(Build.DEVICE)
             .name("fingerprint").value(Build.FINGERPRINT)
             .name("model").value(Build.MODEL)
