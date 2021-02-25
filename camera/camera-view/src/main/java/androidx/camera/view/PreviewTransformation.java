@@ -54,6 +54,8 @@ import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.core.internal.compat.quirk.PreviewStretchedQuirk;
 import androidx.core.util.Preconditions;
 
 /**
@@ -248,7 +250,7 @@ final class PreviewTransformation {
                 previewViewCropRectVertices, mPreviewRotationDegrees);
 
         // Get the source of the mapping, the vertices of the crop rect in Surface.
-        float[] surfaceCropRectVertices = rectToVertices(new RectF(mSurfaceCropRect));
+        float[] surfaceCropRectVertices = getSurfaceCropRectVertices();
 
         // Map source to target.
         matrix.setPolyToPoly(surfaceCropRectVertices, 0, rotatedPreviewViewCropRectVertices, 0, 4);
@@ -272,6 +274,25 @@ final class PreviewTransformation {
             }
         }
         return matrix;
+    }
+
+    /**
+     * Gets the vertices of the crop rect in Surface.
+     */
+    private float[] getSurfaceCropRectVertices() {
+        RectF cropRectF = new RectF(mSurfaceCropRect);
+        PreviewStretchedQuirk quirk = DeviceQuirks.get(PreviewStretchedQuirk.class);
+        if (quirk != null) {
+            // Correct crop rect if the device has a quirk.
+            Matrix correction = new Matrix();
+            correction.setScale(
+                    quirk.getCropRectScaleX(),
+                    quirk.getCropRectScaleY(),
+                    mSurfaceCropRect.centerX(),
+                    mSurfaceCropRect.centerY());
+            correction.mapRect(cropRectF);
+        }
+        return rectToVertices(cropRectF);
     }
 
     /**

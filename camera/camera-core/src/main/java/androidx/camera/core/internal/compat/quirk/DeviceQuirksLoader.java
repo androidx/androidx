@@ -47,6 +47,10 @@ public class DeviceQuirksLoader {
             quirks.add(new ImageCaptureRotationOptionQuirk());
         }
 
+        if (PreviewStretchedQuirk.load()) {
+            quirks.add(new PreviewStretchedQuirk());
+        }
+
         return quirks;
     }
 }
