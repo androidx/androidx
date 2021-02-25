@@ -135,7 +135,7 @@ git config --global diff.renameLimit 999999
 `androidx-main` has a publicly-accessible
 [code search](https://cs.android.com/androidx/platform/frameworks/support) that
 allows you to explore all of the source code in the repository. Links to this
-URL may be shared on public Buganizer and other external sites.
+URL may be shared on the public issue tracked and other external sites.
 
 We recommend setting up a custom search engine in Chrome as a faster (and
 publicly-accessible) alternative to `cs/`.
