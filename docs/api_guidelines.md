@@ -80,7 +80,7 @@ dependency on `androidx.library:1.1.0`, there is no easy way for the developer
 to discover this solution from the class duplication error raised at compile
 time.
 
-#### Same-version (atomic) groups
+#### Same-version (atomic) groups {#modules-atomic}
 
 Library groups are encouraged to opt-in to a same-version policy whereby all
 libraries in the group use the same version and express exact-match dependencies
@@ -110,11 +110,6 @@ androidx {
 }
 ```
 
-There is one exception to this policy. Newly-added libraries within an atomic
-group may stay within the `1.0.0-alphaXX` before conforming to the same-version
-policy. When the library would like to move to `beta`, it must match the version
-used by the atomic group (which must be `beta` at the time).
-
 The benefits of using an atomic group are:
 
 -   Easier for developers to understand dependency versioning
@@ -128,6 +123,26 @@ Potential drawbacks include:
 -   All libraries within the group must be versioned identically at head
 -   All libraries within the group must release at the same time
 
+#### Early-stage development {#modules-atomic-alpha}
+
+There is one exception to the same-version policy: newly-added libraries within
+an atomic group may be "quarantined" from other libraries to allow for rapid
+iteration until they are API-stable.
+
+A quarantined library must stay within the `1.0.0-alphaXX` cycle until it is
+ready to conform to the same-version policy. While in quarantime, a library is
+treated at though it is in a separate group from its nomical same-version group:
+
+-   Must stay in `1.0.0-alphaXX`, e.g. same-version policy is not enforced
+-   May use `project` or pinned version dependencies, e.g. strict-match
+    dependencies are not enforced
+-   May release on a separate cadence from other libraries within group
+-   Must not reference restricted `LIBRARY-GROUP`-scoped APIs
+
+When the library would like to leave quarantine, it must wait for its atomic
+group to be within a `beta` cycle and then match the version. It is okay for a
+library in this situation to skip versions, e.g. move directly from
+`1.0.0-alpha02` to `2.1.3-beta06`.
 
 ### Choosing a `minSdkVersion` {#module-minsdkversion}
 
@@ -454,6 +469,11 @@ Implementation requirements
 *   Package name **must** be `androidx.<platform.package>`
 *   Superclass **must not** be `<PlatformClass>`
 *   Class **must not** expose `PlatformClass` in public API
+    *   In exceptional cases, a _released_ standalone class may add conversion
+        between itself and the equivalent platform class; however, _new_ classes
+        that support conversion should follow the [Wrapper](#wrapper)
+        guidelines. In these cases, use a `toPlatform<PlatformClass>` and
+        `static toCompat<PlatformClass>` method naming convention.
 *   Implementation _may_ delegate to `PlatformClass` methods when available
 
 ### Standalone JAR library (no Android dependencies) {#standalone-jar-library-no-android-dependencies}
@@ -954,12 +974,18 @@ public final class MetadataHolderService {
 ## Dependencies {#dependencies}
 
 Generally, Jetpack libraries should avoid dependencies that negatively impact
-developers without providing substantial benefit. This includes large
-dependencies where only a small portion is needed, dependencies that slow down
-build times through annotation processing or compiler overhead, and generally
-any dependency that negatively affects system health.
+developers without providing substantial benefit.
 
-### Kotlin {#dependencies-kotlin}
+### System health {#dependencies-health}
+
+Libraries should consider the system health implications of their dependencies,
+including:
+
+-   Large dependencies where only a small portion is needed (e.g. APK bloat)
+-   Dependencies that slow down build times through annotation processing or
+    compiler overhead
+
+#### Kotlin {#dependencies-kotlin}
 
 Kotlin is _strongly recommended_ for new libraries; however, it's important to
 consider its size impact on clients. Currently, the Kotlin stdlib adds a minimum
@@ -972,7 +998,7 @@ Java-facing version of Kotlin API reference docs. Java-based libraries _may_
 migrate to Kotlin, but they must consider the docs usability and size impacts on
 existing Java-only and space-constrained clients.
 
-### Kotlin coroutines {#dependencies-coroutines}
+#### Kotlin coroutines {#dependencies-coroutines}
 
 Kotlin's coroutine library adds around 100kB post-shrinking. New libraries that
 are written in Kotlin should prefer coroutines over `ListenableFuture`, but
@@ -980,7 +1006,7 @@ existing libraries must consider the size impact on their clients. See
 [Asynchronous work with return values](#async-return) for more details on using
 Kotlin coroutines in Jetpack libraries.
 
-### Guava {#dependencies-guava}
+#### Guava {#dependencies-guava}
 
 The full Guava library is very large and *must not* be used. Libraries that
 would like to depend on Guava's `ListenableFuture` may instead depend on the
@@ -988,7 +1014,7 @@ standalone `com.google.guava:listenablefuture` artifact. See
 [Asynchronous work with return values](#async-return) for more details on using
 `ListenableFuture` in Jetpack libraries.
 
-### Java 8 {#dependencies-java8}
+#### Java 8 {#dependencies-java8}
 
 NOTE All Jetpack libraries will migrate to Java 8 as soon as Android Studio 4.2
 launches to stable. Until then, new dependencies on Java 8 should weigh the pros
@@ -1011,6 +1037,41 @@ android {
     }
 }
 ```
+
+### Open-source compatibility {#dependencies-aosp}
+
+[Jetpack Principles](principles.md) require that libraries consider the
+open-source compatibility implications of their dependencies, including:
+
+-   Closed-source or proprietary libraries or services that may not be available
+    on AOSP devices
+-   Dependencies that may prevent developers from effectively isolating their
+    tests from third-party libraries or services
+
+Primary artifacts, e.g. `workmanager`, **must not** depend on closed-source
+components including libraries and hard-coded references to packages,
+permissions, or IPC mechanisms that may only be fulfulled by closed-source
+components.
+
+Optional artifacts, e.g. `workmanager-gcm`, _may_ depend on closed-source
+components or configure a primary artifact to be backed by a closed-source
+component via service discovery or initialization.
+
+Some examples of safely depending on closed-source components include:
+
+-   WorkManager's GCM Network Manager integration, which uses manifest metadata
+    for service discovery and provides an optional artifact exposing the
+    service.
+-   Ads Identifier's Play Services integration, which provides a default backend
+    and uses `Intent` handling as a service discovery mechanism for Play
+    Services.
+-   Downloadable Fonts integration with Play Services, which plugs in via a
+    `ContentProvider` as a service discovery mechanism with developer-specified
+    signature verification for additional security.
+
+Note that in all cases, the developer is not _required_ to use GCM or Play
+Services and may instead use another compatible service implementing the same
+publicly-defined protocols.
 
 ## More API guidelines {#more-api-guidelines}
 
@@ -1210,6 +1271,47 @@ error-prone defaults.
 
 See the [Dependencies](#dependencies) section for more information on using
 Kotlin coroutines and Guava in your library.
+
+#### Cancellation
+
+Libraries that expose APIs for performing asynchronous work should support
+cancellation. There are _very few_ cases where it is not feasible to support
+cancellation.
+
+Libraries that use `ListenableFuture` must be careful to follow the exact
+specification of
+[`Future.cancel(boolean mayInterruptIfRunning)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Future.html?is-external=true#cancel-boolean-)
+behavior.
+
+```java {.bad}
+@Override
+public boolean cancel(boolean mayInterruptIfRunning) {
+    // Does not support cancellation.
+    return false;
+}
+```
+
+```java {.bad}
+@Override
+public boolean cancel(boolean mayInterruptIfRunning) {
+    // Aggressively does not support cancellation.
+    throw new UnsupportedOperationException();
+}
+```
+
+```java {.good}
+@Override
+public boolean cancel(boolean mayInterruptIfRunning) {
+    // Pseudocode that ignores threading but follows the spec.
+    if (mCompleted
+            || mCancelled
+            || mRunning && !mayInterruptIfRunning) {
+        return false;
+    }
+    mCancelled = true;
+    return true;
+}
+```
 
 #### Avoid `synchronized` methods
 
@@ -1420,7 +1522,20 @@ It may be necessary to soft-revert a high-risk behavior change with only 24-hour
 notice, which should be achievable by flipping the behavior flag to off.
 
 ```java
-[example code pending]
+// Flag for whether to throw exceptions when the state is known to be bad. This
+// is expected to be a high-risk change since apps may be working fine even with
+// a bad state, so we may need to disable this as a hotfix.
+private static final boolean FLAG_EXCEPTION_ON_BAD_STATE = false;
+```
+
+```java
+/**
+ * Allows a developer to toggle throwing exceptions when the state is known to
+ * be bad. This method is intended to give developers time to update their code.
+ * It is temporary and will be removed in a future release.
+ */
+@TemporaryFeatureFlag
+public void setExceptionOnBadStateEnabled(boolean enabled);
 ```
 
 Avoid adding multiple high-risk changes during a feature cycle, as verifying the
