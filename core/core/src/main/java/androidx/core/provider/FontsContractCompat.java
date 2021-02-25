@@ -18,6 +18,7 @@ package androidx.core.provider;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -92,7 +93,9 @@ public class FontsContractCompat {
             final @NonNull FontRequestCallback callback,
             final @NonNull Handler handler
     ) {
-        FontRequestWorker.requestFontInternal(context.getApplicationContext(), request, callback,
+        FontRequestCallbackWithHandler callbackWrapper = new FontRequestCallbackWithHandler(
+                callback);
+        FontRequestWorker.requestFont(context.getApplicationContext(), request, callbackWrapper,
                 handler);
     }
 
@@ -122,37 +125,49 @@ public class FontsContractCompat {
     }
 
     /**
+     * Loads a Typeface. Based on the parameters isBlockingFetch, and timeoutInMillis, the fetch
+     * is either sync or async.
+     * - If timeoutInMillis is infinite, and isBlockingFetch is true -> sync
+     * - If timeoutInMillis is NOT infinite, and isBlockingFetch is true -> sync with timeout
+     * - else -> async without timeout.
+     *
      * Used by TypefaceCompat and tests.
+     *
      * @param context Context
      * @param request FontRequest that defines the font to be loaded.
-     * @param fontCallback the callback to be called for async loading
-     * @param handler the Handler that the callback will be called on.
-     * @param isBlockingFetch when boolean the call will be synchronous
-     * @param timeout timeout the timeout for blocking requests
-     * @param style Typeface Style such as NORMAL, BOLD, ITALIC, BOLD_ITALIC
+     * @param fontCallback the callback to be called.
+     * @param handler the handler to call the callback on.
+     * @param isBlockingFetch when true the call will be synchronous.
+     * @param timeout timeout in milliseconds for the request. It is not used for async
+     *                request.
+     * @param style Typeface Style such as {@link Typeface#NORMAL}, {@link Typeface#BOLD}
+     *              {@link Typeface#ITALIC}, {@link Typeface#BOLD_ITALIC}.
      *
-     * @return Typeface the resulting Typeface if it is not an asynch request.
+     * @return the resulting Typeface if it is not an async request.
      *
      * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
-    public static Typeface getFont(
+    public static Typeface requestFont(
             @NonNull final Context context,
             @NonNull final FontRequest request,
-            @Nullable final ResourcesCompat.FontCallback fontCallback,
-            @Nullable final Handler handler,
+            @NonNull final FontRequestCallback fontCallback,
+            @NonNull final Handler handler,
             boolean isBlockingFetch,
             @IntRange(from = 0) int timeout,
             final int style
     ) {
-        return FontRequestWorker.getTypeface(context, request, fontCallback, handler,
+        FontRequestCallbackWithHandler callbackWrapper = new FontRequestCallbackWithHandler(
+                fontCallback, handler
+        );
+        return FontRequestWorker.requestFont(context, request, callbackWrapper,
                 isBlockingFetch, timeout, style);
     }
 
     /** @hide */
     @VisibleForTesting
-    @RestrictTo(LIBRARY)
+    @RestrictTo(TESTS)
     public static void resetTypefaceCache() {
         FontRequestWorker.resetTypefaceCache();
     }
@@ -529,7 +544,11 @@ public class FontsContractCompat {
             int timeout,
             final int style
     ) {
-        return FontRequestWorker.getTypeface(context, request, fontCallback, handler,
+        FontRequestCallbackWithHandler callbackWrapper = new FontRequestCallbackWithHandler(
+                new TypefaceCompat.ResourcesCallbackAdapter(fontCallback),
+                ResourcesCompat.FontCallback.getHandler(handler)
+        );
+        return FontRequestWorker.requestFont(context, request, callbackWrapper,
                 isBlockingFetch, timeout, style);
     }
 

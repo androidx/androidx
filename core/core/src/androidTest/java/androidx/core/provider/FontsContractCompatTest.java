@@ -40,10 +40,11 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ProviderInfo;
 import android.content.pm.Signature;
 import android.graphics.Typeface;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Base64;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.provider.FontsContractCompat.FontInfo;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -402,7 +403,8 @@ public class FontsContractCompatTest {
         inst.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                FontsContractCompat.getFont(mContext, request, callback, null,
+                Handler handler = new Handler(Looper.getMainLooper());
+                FontsContractCompat.requestFont(mContext, request, callback, handler,
                         false /* isBlockingFetch */, 300 /* timeout */, Typeface.NORMAL);
             }
         });
@@ -410,7 +412,7 @@ public class FontsContractCompatTest {
         assertNull(callback.mTypeface);
     }
 
-    public static class FontCallback extends ResourcesCompat.FontCallback {
+    public static class FontCallback extends FontsContractCompat.FontRequestCallback {
         private final CountDownLatch mLatch;
         Typeface mTypeface;
 
@@ -419,13 +421,13 @@ public class FontsContractCompatTest {
         }
 
         @Override
-        public void onFontRetrieved(@NonNull Typeface typeface) {
+        public void onTypefaceRetrieved(@NonNull Typeface typeface) {
             mTypeface = typeface;
             mLatch.countDown();
         }
 
         @Override
-        public void onFontRetrievalFailed(int reason) {
+        public void onTypefaceRequestFailed(int reason) {
             mLatch.countDown();
         }
     }
