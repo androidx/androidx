@@ -47,6 +47,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * Utility class to deal with Font ContentProviders.
@@ -77,29 +78,6 @@ public class FontsContractCompat {
     }
 
     /**
-     * Create a typeface object given a font request. The font will be asynchronously fetched,
-     * therefore the result is delivered to the given callback. See {@link FontRequest}.
-     * Only one of the methods in callback will be invoked, depending on whether the request
-     * succeeds or fails. These calls will happen on the caller thread.
-     * @param context A context to be used for fetching from font provider.
-     * @param request A {@link FontRequest} object that identifies the provider and query for the
-     *                request. May not be null.
-     * @param callback A callback that will be triggered when results are obtained. May not be null.
-     * @param handler A handler to be processed the font fetching.
-     */
-    public static void requestFont(
-            final @NonNull Context context,
-            final @NonNull FontRequest request,
-            final @NonNull FontRequestCallback callback,
-            final @NonNull Handler handler
-    ) {
-        FontRequestCallbackWithHandler callbackWrapper = new FontRequestCallbackWithHandler(
-                callback);
-        FontRequestWorker.requestFont(context.getApplicationContext(), request, callbackWrapper,
-                handler);
-    }
-
-    /**
      * Fetch fonts given a font request.
      *
      * @param context A {@link Context} to be used for fetching fonts.
@@ -125,6 +103,29 @@ public class FontsContractCompat {
     }
 
     /**
+     * Create a typeface object given a font request. The font will be asynchronously fetched,
+     * therefore the result is delivered to the given callback. See {@link FontRequest}.
+     * Only one of the methods in callback will be invoked, depending on whether the request
+     * succeeds or fails. These calls will happen on the caller thread.
+     * @param context A context to be used for fetching from font provider.
+     * @param request A {@link FontRequest} object that identifies the provider and query for the
+     *                request. May not be null.
+     * @param callback A callback that will be triggered when results are obtained. May not be null.
+     * @param handler A handler to be processed the font fetching.
+     */
+    public static void requestFont(
+            final @NonNull Context context,
+            final @NonNull FontRequest request,
+            final @NonNull FontRequestCallback callback,
+            final @NonNull Handler handler
+    ) {
+        CallbackWithHandler callbackWrapper = new CallbackWithHandler(callback);
+        Executor executor = RequestExecutor.createHandlerExecutor(handler);
+        FontRequestWorker.requestFontAsync(context.getApplicationContext(), request,
+                Typeface.NORMAL, executor, callbackWrapper);
+    }
+
+    /**
      * Loads a Typeface. Based on the parameters isBlockingFetch, and timeoutInMillis, the fetch
      * is either sync or async.
      * - If timeoutInMillis is infinite, and isBlockingFetch is true -> sync
@@ -135,15 +136,16 @@ public class FontsContractCompat {
      *
      * @param context Context
      * @param request FontRequest that defines the font to be loaded.
-     * @param fontCallback the callback to be called.
-     * @param handler the handler to call the callback on.
+     * @param style Typeface Style such as {@link Typeface#NORMAL}, {@link Typeface#BOLD}
+     *              {@link Typeface#ITALIC}, {@link Typeface#BOLD_ITALIC}.
      * @param isBlockingFetch when true the call will be synchronous.
      * @param timeout timeout in milliseconds for the request. It is not used for async
      *                request.
-     * @param style Typeface Style such as {@link Typeface#NORMAL}, {@link Typeface#BOLD}
-     *              {@link Typeface#ITALIC}, {@link Typeface#BOLD_ITALIC}.
+     * @param handler the handler to call the callback on.
+     * @param callback the callback to be called.
      *
-     * @return the resulting Typeface if it is not an async request.
+     * @return the resulting Typeface if the requested font is in the cache or the request is a
+     * sync request.
      *
      * @hide
      */
@@ -152,17 +154,21 @@ public class FontsContractCompat {
     public static Typeface requestFont(
             @NonNull final Context context,
             @NonNull final FontRequest request,
-            @NonNull final FontRequestCallback fontCallback,
-            @NonNull final Handler handler,
+            final int style,
             boolean isBlockingFetch,
             @IntRange(from = 0) int timeout,
-            final int style
+            @NonNull final Handler handler,
+            @NonNull final FontRequestCallback callback
     ) {
-        FontRequestCallbackWithHandler callbackWrapper = new FontRequestCallbackWithHandler(
-                fontCallback, handler
-        );
-        return FontRequestWorker.requestFont(context, request, callbackWrapper,
-                isBlockingFetch, timeout, style);
+        CallbackWithHandler callbackWrapper = new CallbackWithHandler(callback, handler);
+
+        if (isBlockingFetch) {
+            return FontRequestWorker.requestFontSync(context, request, callbackWrapper, style,
+                    timeout);
+        } else {
+            return FontRequestWorker.requestFontAsync(context, request, style, null /*executor*/,
+                    callbackWrapper);
+        }
     }
 
     /** @hide */
@@ -459,7 +465,6 @@ public class FontsContractCompat {
          */
         public static final int FAIL_REASON_MALFORMED_QUERY = Columns.RESULT_CODE_MALFORMED_QUERY;
 
-        // TODO Move to @RestrictTo(LIBRARY)
         /** @hide */
         @SuppressWarnings("deprecation")
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -544,12 +549,11 @@ public class FontsContractCompat {
             int timeout,
             final int style
     ) {
-        FontRequestCallbackWithHandler callbackWrapper = new FontRequestCallbackWithHandler(
-                new TypefaceCompat.ResourcesCallbackAdapter(fontCallback),
-                ResourcesCompat.FontCallback.getHandler(handler)
+        FontRequestCallback newCallback = new TypefaceCompat.ResourcesCallbackAdapter(fontCallback);
+        Handler newHandler = ResourcesCompat.FontCallback.getHandler(handler);
+        return requestFont(context, request, style, isBlockingFetch, timeout, newHandler,
+                newCallback
         );
-        return FontRequestWorker.requestFont(context, request, callbackWrapper,
-                isBlockingFetch, timeout, style);
     }
 
     /**

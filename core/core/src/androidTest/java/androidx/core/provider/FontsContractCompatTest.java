@@ -404,8 +404,8 @@ public class FontsContractCompatTest {
             @Override
             public void run() {
                 Handler handler = new Handler(Looper.getMainLooper());
-                FontsContractCompat.requestFont(mContext, request, callback, handler,
-                        false /* isBlockingFetch */, 300 /* timeout */, Typeface.NORMAL);
+                FontsContractCompat.requestFont(mContext, request, Typeface.NORMAL,
+                        false /* isBlockingFetch */, 300 /* timeout */, handler, callback);
             }
         });
         assertTrue(latch.await(5L, TimeUnit.SECONDS));

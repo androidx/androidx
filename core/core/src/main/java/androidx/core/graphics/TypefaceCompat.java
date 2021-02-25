@@ -144,7 +144,7 @@ public class TypefaceCompat {
             Handler newHandler = ResourcesCompat.FontCallback.getHandler(handler);
             ResourcesCallbackAdapter newCallback = new ResourcesCallbackAdapter(fontCallback);
             typeface = FontsContractCompat.requestFont(context, providerEntry.getRequest(),
-                    newCallback, newHandler, isBlocking, timeout, style);
+                    style, isBlocking, timeout, newHandler, newCallback);
         } else {
             typeface = sTypefaceCompatImpl.createFromFontFamilyFilesResourceEntry(
                     context, (FontFamilyFilesResourceEntry) entry, resources, style);

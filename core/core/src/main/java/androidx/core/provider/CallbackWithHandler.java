@@ -26,23 +26,23 @@ import androidx.core.provider.FontRequestWorker.TypefaceResult;
 import androidx.core.provider.FontsContractCompat.FontRequestCallback;
 
 /**
- * Wraps a {@link FontRequestCallback} and a {@link Handler} in order to handle posting on a
- * the handler for callback functions.
+ * Wraps a {@link FontRequestCallback} and a {@link Handler} in order to call the callback
+ * functions on the provided handler.
  *
  * If no Handler is provided, {@link CalleeHandler#create()} is used instead.
  */
-class FontRequestCallbackWithHandler {
+class CallbackWithHandler {
     @NonNull private final FontRequestCallback mCallback;
     @NonNull private final Handler mCallbackHandler;
 
-    FontRequestCallbackWithHandler(
+    CallbackWithHandler(
             @NonNull FontRequestCallback callback,
             @NonNull Handler callbackHandler) {
         this.mCallback = callback;
         this.mCallbackHandler = callbackHandler;
     }
 
-    FontRequestCallbackWithHandler(@NonNull FontRequestCallback callback) {
+    CallbackWithHandler(@NonNull FontRequestCallback callback) {
         this.mCallback = callback;
         this.mCallbackHandler = CalleeHandler.create();
     }
