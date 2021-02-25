@@ -23,7 +23,7 @@ package androidx.camera.view {
     method @MainThread public void setImageAnalysisBackpressureStrategy(int);
     method @MainThread public void setImageAnalysisImageQueueDepth(int);
     method @MainThread public void setImageCaptureFlashMode(int);
-    method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setLinearZoom(float);
+    method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setLinearZoom(@FloatRange(from=0.0f, to=1.0f) float);
     method @MainThread public void setPinchToZoomEnabled(boolean);
     method @MainThread public void setTapToFocusEnabled(boolean);
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setZoomRatio(float);
