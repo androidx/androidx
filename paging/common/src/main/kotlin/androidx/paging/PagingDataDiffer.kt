@@ -195,15 +195,23 @@ abstract class PagingDataDiffer<T : Any>(
                         val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
                             !(event.loadType == APPEND && appendDone)
 
+                        /**
+                         *  If the insert is empty due to aggressive filtering, another hint must be
+                         *  sent to fetcher-side to notify that PagingDataDiffer received the page,
+                         *  since fetcher estimates prefetchDistance based on page indices presented
+                         *  by PagingDataDiffer and we cannot rely on a new item being bound to
+                         *  trigger another hint since the presented page is empty.
+                         */
+                        val emptyInsert = event.pages.all { it.data.isEmpty() }
                         if (!canContinueLoading) {
                             // Reset lastAccessedIndexUnfulfilled since endOfPaginationReached
                             // means there are no more pages to load that could fulfill this index.
                             lastAccessedIndexUnfulfilled = false
-                        } else if (lastAccessedIndexUnfulfilled) {
-                            val shouldResendHint =
+                        } else if (lastAccessedIndexUnfulfilled || emptyInsert) {
+                            val shouldResendHint = emptyInsert ||
                                 lastAccessedIndex < presenter.placeholdersBefore ||
-                                    lastAccessedIndex > presenter.placeholdersBefore +
-                                    presenter.storageCount
+                                lastAccessedIndex > presenter.placeholdersBefore +
+                                presenter.storageCount
 
                             if (shouldResendHint) {
                                 receiver?.accessHint(
