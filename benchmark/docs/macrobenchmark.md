@@ -164,8 +164,15 @@ speed).
 
 ## Run the Macrobenchmark
 
+```
+Some users are experiencing issues running macro benchmarks on certain devices and OS versions, especially non-Pixel devices.
+If you run into an issue please [report feedback](#feedback), with the exception and a logcat snippet from the test run.
+
+If you hit a problem, try a different test device as a temporary workaround.
+```
+
 Run the test from within Studio to measure the performance of your app on your
-device. Note that you must run the test on a physical device, and not an
+device. Note that you **must run the test on a physical device**, and not an
 emulator, as emulators do not produce performance numbers representative of
 end-user experience.
 
