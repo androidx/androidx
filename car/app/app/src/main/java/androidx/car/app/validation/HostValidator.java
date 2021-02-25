@@ -95,10 +95,14 @@ public final class HostValidator {
      */
     public boolean isValidHost(@NonNull HostInfo hostInfo) {
         requireNonNull(hostInfo);
-        Log.d(TAG_HOST_VALIDATION, "Evaluating " + hostInfo);
+        if (Log.isLoggable(TAG_HOST_VALIDATION, Log.DEBUG)) {
+            Log.d(TAG_HOST_VALIDATION, "Evaluating " + hostInfo);
+        }
 
         if (mAllowAllHosts) {
-            Log.d(TAG_HOST_VALIDATION, "Accepted - Validator disabled, all hosts allowed");
+            if (Log.isLoggable(TAG_HOST_VALIDATION, Log.DEBUG)) {
+                Log.d(TAG_HOST_VALIDATION, "Accepted - Validator disabled, all hosts allowed");
+            }
             return true;
         }
 
@@ -135,7 +139,7 @@ public final class HostValidator {
                         PackageManager.GET_SIGNATURES | PackageManager.GET_PERMISSIONS);
             }
         } catch (PackageManager.NameNotFoundException e) {
-            Log.d(TAG_HOST_VALIDATION, "Package " + packageName + " not found.", e);
+            Log.w(TAG_HOST_VALIDATION, "Package " + packageName + " not found.", e);
             return null;
         }
     }
@@ -144,13 +148,13 @@ public final class HostValidator {
         String hostPackageName = hostInfo.getPackageName();
         PackageInfo packageInfo = getPackageInfo(hostPackageName);
         if (packageInfo == null) {
-            Log.d(TAG_HOST_VALIDATION, "Rejected - package name " + hostPackageName + " not found");
+            Log.w(TAG_HOST_VALIDATION, "Rejected - package name " + hostPackageName + " not found");
             return false;
         }
 
         Signature[] signatures = getSignatures(packageInfo);
         if (signatures == null || signatures.length == 0) {
-            Log.d(TAG_HOST_VALIDATION, "Package " + hostPackageName + " is not signed or "
+            Log.w(TAG_HOST_VALIDATION, "Package " + hostPackageName + " is not signed or "
                     + "it has more than one signature");
             return false;
         }
@@ -169,24 +173,32 @@ public final class HostValidator {
         // Validate
         if (uid == Process.myUid()) {
             // If it's the same app making the call, allow it.
-            Log.d(TAG_HOST_VALIDATION, "Accepted - Local service call");
+            if (Log.isLoggable(TAG_HOST_VALIDATION, Log.DEBUG)) {
+                Log.d(TAG_HOST_VALIDATION, "Accepted - Local service call");
+            }
             return true;
         }
 
         if (isAllowListed) {
             // If it's one of the apps in the allow list, allow it.
-            Log.d(TAG_HOST_VALIDATION, "Accepted - Host in allow-list");
+            if (Log.isLoggable(TAG_HOST_VALIDATION, Log.DEBUG)) {
+                Log.d(TAG_HOST_VALIDATION, "Accepted - Host in allow-list");
+            }
             return true;
         }
 
         if (uid == Process.SYSTEM_UID) {
             // If the system is making the call, allow it.
-            Log.d(TAG_HOST_VALIDATION, "Accepted - System binding");
+            if (Log.isLoggable(TAG_HOST_VALIDATION, Log.DEBUG)) {
+                Log.d(TAG_HOST_VALIDATION, "Accepted - System binding");
+            }
             return true;
         }
 
         if (hasPermission) {
-            Log.d(TAG_HOST_VALIDATION, "Accepted - Host has " + TEMPLATE_RENDERER_PERMISSION);
+            if (Log.isLoggable(TAG_HOST_VALIDATION, Log.DEBUG)) {
+                Log.d(TAG_HOST_VALIDATION, "Accepted - Host has " + TEMPLATE_RENDERER_PERMISSION);
+            }
             return true;
         }
 

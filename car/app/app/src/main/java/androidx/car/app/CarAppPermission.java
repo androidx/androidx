@@ -103,15 +103,16 @@ public final class CarAppPermission {
      */
     public static void checkHasLibraryPermission(
             @NonNull Context context, @NonNull @LibraryPermission String permission) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG,
+                    "Checking to see if the car app requested the required library permission: "
+                            + permission);
+        }
+
         try {
             checkHasPermission(context, permission);
             return;
         } catch (SecurityException e) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG,
-                        "Checking to see if the car app requested the required library permission: "
-                                + permission);
-            }
             // Do nothing, we use a fallback for library permissions.
         }
 

@@ -368,9 +368,12 @@ public class CarContext extends ContextWrapper {
     void onCarConfigurationChanged(@NonNull Configuration configuration) {
         ThreadUtils.checkMainThread();
 
-        Log.d(TAG,
-                "Car configuration changed, configuration: " + configuration + ", displayMetrics: "
-                        + getResources().getDisplayMetrics());
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG,
+                    "Car configuration changed, configuration: " + configuration
+                            + ", displayMetrics: "
+                            + getResources().getDisplayMetrics());
+        }
 
         getResources()
                 .updateConfiguration(requireNonNull(configuration),
