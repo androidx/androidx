@@ -683,16 +683,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         sb.append("}");
         sb.append(" (");
         sb.append(mWho);
-        sb.append(")");
         if (mFragmentId != 0) {
             sb.append(" id=0x");
             sb.append(Integer.toHexString(mFragmentId));
         }
         if (mTag != null) {
-            sb.append(" ");
+            sb.append(" tag=");
             sb.append(mTag);
         }
-        sb.append('}');
+        sb.append(")");
         return sb.toString();
     }
 
