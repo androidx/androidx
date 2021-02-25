@@ -21,6 +21,8 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SimpleArrayMap;
 
@@ -41,6 +43,7 @@ import java.util.Set;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class VersionedParcelStream extends VersionedParcel {
 
+    @NonNull
     private static final Charset UTF_16 = Charset.forName("UTF-16");
 
     // Supported types held inside a bundle. These cannot be added to or changed once shipped.
@@ -60,11 +63,16 @@ class VersionedParcelStream extends VersionedParcel {
     private static final int TYPE_FLOAT = 13;
     private static final int TYPE_FLOAT_ARRAY = 14;
 
+    @Nullable
     private final DataInputStream mMasterInput;
+    @Nullable
     private final DataOutputStream mMasterOutput;
 
+    @Nullable
     private DataInputStream mCurrentInput;
+    @Nullable
     private DataOutputStream mCurrentOutput;
+    @Nullable
     private FieldBuffer mFieldBuffer;
     private boolean mIgnoreParcelables;
 
@@ -72,15 +80,18 @@ class VersionedParcelStream extends VersionedParcel {
     private int mFieldId = -1;
     int mFieldSize = -1;
 
-    public VersionedParcelStream(InputStream input, OutputStream output) {
+    VersionedParcelStream(@Nullable InputStream input, @Nullable OutputStream output) {
         this(input, output, new SimpleArrayMap<String, Method>(),
                 new SimpleArrayMap<String, Method>(), new SimpleArrayMap<String, Class<?>>());
     }
 
-    private VersionedParcelStream(InputStream input, OutputStream output,
-            SimpleArrayMap<String, Method> readCache,
-            SimpleArrayMap<String, Method> writeCache,
-            SimpleArrayMap<String, Class<?>> parcelizerCache) {
+    private VersionedParcelStream(
+            @Nullable InputStream input,
+            @Nullable OutputStream output,
+            @NonNull SimpleArrayMap<String, Method> readCache,
+            @NonNull SimpleArrayMap<String, Method> writeCache,
+            @NonNull SimpleArrayMap<String, Class<?>> parcelizerCache
+    ) {
         super(readCache, writeCache, parcelizerCache);
         mMasterInput = input != null ? new DataInputStream(new FilterInputStream(input) {
             @Override
@@ -152,7 +163,7 @@ class VersionedParcelStream extends VersionedParcel {
     }
 
     @Override
-    protected VersionedParcel createSubParcel() {
+    protected @NonNull VersionedParcel createSubParcel() {
         return new VersionedParcelStream(mCurrentInput, mCurrentOutput, mReadCache, mWriteCache,
                 mParcelizerCache);
     }
@@ -194,7 +205,7 @@ class VersionedParcelStream extends VersionedParcel {
     }
 
     @Override
-    public void writeByteArray(byte[] b) {
+    public void writeByteArray(@Nullable byte[] b) {
         try {
             if (b != null) {
                 mCurrentOutput.writeInt(b.length);
@@ -208,7 +219,7 @@ class VersionedParcelStream extends VersionedParcel {
     }
 
     @Override
-    public void writeByteArray(byte[] b, int offset, int len) {
+    public void writeByteArray(@Nullable byte[] b, int offset, int len) {
         try {
             if (b != null) {
                 mCurrentOutput.writeInt(len);
@@ -222,7 +233,7 @@ class VersionedParcelStream extends VersionedParcel {
     }
 
     @Override
-    protected void writeCharSequence(CharSequence charSequence) {
+    protected void writeCharSequence(@Nullable CharSequence charSequence) {
         if (!mIgnoreParcelables) {
             throw new RuntimeException("CharSequence cannot be written to an OutputStream");
         }
@@ -268,7 +279,7 @@ class VersionedParcelStream extends VersionedParcel {
     }
 
     @Override
-    public void writeString(String val) {
+    public void writeString(@Nullable String val) {
         try {
             if (val != null) {
                 byte[] bytes = val.getBytes(UTF_16);
@@ -292,33 +303,35 @@ class VersionedParcelStream extends VersionedParcel {
     }
 
     @Override
-    public void writeStrongBinder(IBinder val) {
+    public void writeStrongBinder(@Nullable IBinder val) {
         if (!mIgnoreParcelables) {
             throw new RuntimeException("Binders cannot be written to an OutputStream");
         }
     }
 
     @Override
-    public void writeParcelable(Parcelable p) {
+    public void writeParcelable(@Nullable Parcelable p) {
         if (!mIgnoreParcelables) {
             throw new RuntimeException("Parcelables cannot be written to an OutputStream");
         }
     }
 
     @Override
-    public void writeStrongInterface(IInterface val) {
+    public void writeStrongInterface(@Nullable IInterface val) {
         if (!mIgnoreParcelables) {
             throw new RuntimeException("Binders cannot be written to an OutputStream");
         }
     }
 
     @Override
+    @Nullable
     public IBinder readStrongBinder() {
         return null;
     }
 
     @Override
     @SuppressWarnings("TypeParameterUnusedInFormals")
+    @Nullable
     public <T extends Parcelable> T readParcelable() {
         return null;
     }
@@ -360,6 +373,7 @@ class VersionedParcelStream extends VersionedParcel {
     }
 
     @Override
+    @Nullable
     public String readString() {
         try {
             int len = mCurrentInput.readInt();
@@ -376,6 +390,7 @@ class VersionedParcelStream extends VersionedParcel {
     }
 
     @Override
+    @Nullable
     public byte[] readByteArray() {
         try {
             int len = mCurrentInput.readInt();
@@ -392,6 +407,7 @@ class VersionedParcelStream extends VersionedParcel {
     }
 
     @Override
+    @Nullable
     protected CharSequence readCharSequence() {
         return null;
     }
@@ -425,6 +441,7 @@ class VersionedParcelStream extends VersionedParcel {
     }
 
     @Override
+    @Nullable
     public Bundle readBundle() {
         int size = readInt();
         if (size < 0) {
@@ -438,7 +455,7 @@ class VersionedParcelStream extends VersionedParcel {
         return b;
     }
 
-    private void writeObject(Object o) {
+    private void writeObject(@Nullable Object o) {
         if (o == null) {
             writeInt(TYPE_NULL);
         } else if (o instanceof Bundle) {
@@ -485,7 +502,7 @@ class VersionedParcelStream extends VersionedParcel {
         }
     }
 
-    private void readObject(int type, String key, Bundle b) {
+    private void readObject(int type, @Nullable String key, @NonNull Bundle b) {
         switch (type) {
             case TYPE_NULL:
                 b.putParcelable(key, null);
@@ -541,12 +558,15 @@ class VersionedParcelStream extends VersionedParcel {
     // TODO: Use less buffers
     private static class FieldBuffer {
 
+        @NonNull
         final ByteArrayOutputStream mOutput = new ByteArrayOutputStream();
+        @NonNull
         final DataOutputStream mDataStream = new DataOutputStream(mOutput);
         private final int mFieldId;
+        @NonNull
         private final DataOutputStream mTarget;
 
-        FieldBuffer(int fieldId, DataOutputStream target) {
+        FieldBuffer(int fieldId, @NonNull DataOutputStream target) {
             mFieldId = fieldId;
             mTarget = target;
         }

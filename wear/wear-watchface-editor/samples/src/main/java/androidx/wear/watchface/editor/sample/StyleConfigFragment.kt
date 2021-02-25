@@ -31,12 +31,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.R
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.widget.SwipeDismissFrameLayout
@@ -193,13 +193,15 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
         settingId = requireArguments().getCharSequence(SETTING_ID).toString()
 
         styleSchema = UserStyleSchema(
-            ParcelUtils.fromParcelable(requireArguments().getParcelable(STYLE_SCHEMA)!!) as
-                UserStyleSchemaWireFormat
+            ParcelUtils.fromParcelable<UserStyleSchemaWireFormat>(
+                requireArguments().getParcelable(STYLE_SCHEMA)!!
+            )!!
         )
 
         userStyle = UserStyle(
-            ParcelUtils.fromParcelable(requireArguments().getParcelable(USER_STYLE)!!) as
-                UserStyleWireFormat,
+            ParcelUtils.fromParcelable<UserStyleWireFormat>(
+                requireArguments().getParcelable(USER_STYLE)!!
+            )!!,
             styleSchema
         )
 
