@@ -30,7 +30,10 @@ public final class LogTags {
     /** Tag to use for logging in the library. */
     public static final String TAG = "CarApp";
 
-    /** Tag to use for host validation. */
+    /** Tag to use for IPC dispatching */
+    public static final String TAG_DISPATCH = TAG + ".Dispatch";
+
+    /** Tag to use for host validation */
     public static final String TAG_HOST_VALIDATION = TAG + ".Val";
 
     /** Tag to use for navigation manager. */

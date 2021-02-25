@@ -93,7 +93,10 @@ public class OnClickDelegateImpl implements OnClickDelegate {
 
         @Override
         public void onClick(IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(mOnClickListener::onClick, callback, "onClick");
+            RemoteUtils.dispatchCallFromHost(callback, "onClick", () -> {
+                mOnClickListener.onClick();
+                return null;
+            });
         }
     }
 }

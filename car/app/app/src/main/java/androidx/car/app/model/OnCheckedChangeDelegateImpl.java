@@ -80,9 +80,11 @@ public class OnCheckedChangeDelegateImpl implements OnCheckedChangeDelegate {
 
         @Override
         public void onCheckedChange(boolean isChecked, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mListener.onCheckedChange(isChecked), callback,
-                    "onCheckedChange");
+            RemoteUtils.dispatchCallFromHost(callback, "onCheckedChange", () -> {
+                        mListener.onCheckedChange(isChecked);
+                        return null;
+                    }
+            );
         }
     }
 }

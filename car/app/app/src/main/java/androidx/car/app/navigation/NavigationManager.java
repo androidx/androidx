@@ -41,6 +41,10 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.util.concurrent.Executor;
 
@@ -62,6 +66,7 @@ public class NavigationManager {
     private final CarContext mCarContext;
     private final INavigationManager.Stub mNavigationManager;
     private final HostDispatcher mHostDispatcher;
+
 
     // Guarded by main thread access.
     @Nullable
@@ -117,11 +122,11 @@ public class NavigationManager {
 
         mHostDispatcher.dispatch(
                 CarContext.NAVIGATION_SERVICE,
-                (INavigationHost service) -> {
+                "updateTrip", (INavigationHost service) -> {
                     service.updateTrip(bundle);
                     return null;
-                },
-                "updateTrip");
+                }
+        );
     }
 
     /**
@@ -207,11 +212,11 @@ public class NavigationManager {
         mIsNavigating = true;
         mHostDispatcher.dispatch(
                 CarContext.NAVIGATION_SERVICE,
-                (INavigationHost service) -> {
+                "navigationStarted", (INavigationHost service) -> {
                     service.navigationStarted();
                     return null;
-                },
-                "navigationStarted");
+                }
+        );
     }
 
     /**
@@ -234,11 +239,11 @@ public class NavigationManager {
         mIsNavigating = false;
         mHostDispatcher.dispatch(
                 CarContext.NAVIGATION_SERVICE,
-                (INavigationHost service) -> {
+                "navigationEnded", (INavigationHost service) -> {
                     service.navigationEnded();
                     return null;
-                },
-                "navigationEnded");
+                }
+        );
     }
 
     /**
@@ -249,8 +254,12 @@ public class NavigationManager {
     @RestrictTo(LIBRARY)
     @NonNull
     public static NavigationManager create(@NonNull CarContext carContext,
-            @NonNull HostDispatcher hostDispatcher) {
-        return new NavigationManager(carContext, hostDispatcher);
+            @NonNull HostDispatcher hostDispatcher, @NonNull Lifecycle lifecycle) {
+        requireNonNull(carContext);
+        requireNonNull(hostDispatcher);
+        requireNonNull(lifecycle);
+
+        return new NavigationManager(carContext, hostDispatcher, lifecycle);
     }
 
     /**
@@ -302,9 +311,8 @@ public class NavigationManager {
         mIsAutoDriveEnabled = true;
         NavigationManagerCallback callback = mNavigationManagerCallback;
         if (callback != null) {
-            requireNonNull(mNavigationManagerCallbackExecutor).execute(() -> {
-                callback.onAutoDriveEnabled();
-            });
+            requireNonNull(mNavigationManagerCallbackExecutor).execute(
+                    callback::onAutoDriveEnabled);
         } else {
             Log.w(TAG_NAVIGATION_MANAGER,
                     "NavigationManagerCallback not set, skipping onAutoDriveEnabled");
@@ -315,17 +323,29 @@ public class NavigationManager {
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     @SuppressWarnings({"methodref.receiver.bound.invalid"})
     protected NavigationManager(@NonNull CarContext carContext,
-            @NonNull HostDispatcher hostDispatcher) {
-        mCarContext = carContext;
+            @NonNull HostDispatcher hostDispatcher, @NonNull Lifecycle lifecycle) {
+        mCarContext = requireNonNull(carContext);
         mHostDispatcher = requireNonNull(hostDispatcher);
         mNavigationManager =
                 new INavigationManager.Stub() {
                     @Override
                     public void onStopNavigation(IOnDoneCallback callback) {
-                        RemoteUtils.dispatchHostCall(
-                                NavigationManager.this::onStopNavigation, callback,
-                                "onStopNavigation");
+                        RemoteUtils.dispatchCallFromHost(
+                                lifecycle, callback,
+                                "onStopNavigation",
+                                () -> {
+                                    NavigationManager.this.onStopNavigation();
+                                    return null;
+                                });
                     }
                 };
+        LifecycleObserver observer = new DefaultLifecycleObserver() {
+            @Override
+            public void onDestroy(@NonNull LifecycleOwner lifecycleOwner) {
+                NavigationManager.this.onStopNavigation();
+                lifecycle.removeObserver(this);
+            }
+        };
+        lifecycle.addObserver(observer);
     }
 }

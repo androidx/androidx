@@ -100,13 +100,58 @@ public class HostDispatcherTest {
     }
 
     @Test
-    public void dispatch_callGoesToProperRemoteService() throws RemoteException {
-        mHostDispatcher.dispatch(CarContext.APP_SERVICE,
-                (IAppHost service) -> {
+    public void dispatchForResult_callGoesToProperRemoteService() throws RemoteException {
+        mHostDispatcher.dispatchForResult(CarContext.APP_SERVICE,
+                "test", (IAppHost service) -> {
                     service.invalidate();
                     return null;
-                },
-                "test");
+                }
+        );
+
+        verify(mMockAppHost).invalidate();
+    }
+
+    @Test
+    public void dispatchForResult_callThrowsSecurityException_throwsSecurityException() {
+        assertThrows(
+                SecurityException.class,
+                () -> mHostDispatcher.dispatchForResult(
+                        CarContext.APP_SERVICE,
+                        "test", (IAppHost service) -> {
+                            throw new SecurityException();
+                        }
+                ));
+    }
+
+    @Test
+    public void dispatchForResult_callThrowsRemoteException_throws() {
+        assertThrows(RemoteException.class, () -> mHostDispatcher.dispatchForResult(
+                CarContext.APP_SERVICE,
+                "test", (IAppHost service) -> {
+                    throw new RemoteException();
+                }));
+    }
+
+    @Test
+    public void dispatchForResult_callThrowsRuntimeException_throwsHostException() {
+        assertThrows(
+                HostException.class,
+                () -> mHostDispatcher.dispatchForResult(
+                        CarContext.APP_SERVICE,
+                        "test", (IAppHost service) -> {
+                            throw new IllegalStateException();
+                        }
+                ));
+    }
+
+    @Test
+    public void dispatch_callGoesToProperRemoteService() throws RemoteException {
+        mHostDispatcher.dispatch(CarContext.APP_SERVICE,
+                "test", (IAppHost service) -> {
+                    service.invalidate();
+                    return null;
+                }
+        );
 
         verify(mMockAppHost).invalidate();
     }
@@ -117,22 +162,19 @@ public class HostDispatcherTest {
                 SecurityException.class,
                 () -> mHostDispatcher.dispatch(
                         CarContext.APP_SERVICE,
-                        (IAppHost service) -> {
+                        "test", (IAppHost service) -> {
                             throw new SecurityException();
-                        },
-                        "test"));
+                        }
+                ));
     }
 
     @Test
-    public void dispatch_callThrowsRemoteException_throwsHostException() {
-        assertThrows(
-                HostException.class,
-                () -> mHostDispatcher.dispatch(
-                        CarContext.APP_SERVICE,
-                        (IAppHost service) -> {
-                            throw new RemoteException();
-                        },
-                        "test"));
+    public void dispatch_callThrowsRemoteException_doesNotCrash() {
+        mHostDispatcher.dispatch(
+                CarContext.APP_SERVICE,
+                "test", (IAppHost service) -> {
+                    throw new RemoteException();
+                });
     }
 
     @Test
@@ -141,10 +183,10 @@ public class HostDispatcherTest {
                 HostException.class,
                 () -> mHostDispatcher.dispatch(
                         CarContext.APP_SERVICE,
-                        (IAppHost service) -> {
+                        "test", (IAppHost service) -> {
                             throw new IllegalStateException();
-                        },
-                        "test"));
+                        }
+                ));
     }
 
     @Test
@@ -153,6 +195,7 @@ public class HostDispatcherTest {
 
         mHostDispatcher.resetHosts();
 
+        mHostDispatcher.setCarHost(mMockCarHost);
         doThrow(new IllegalStateException()).when(mMockCarHost).getHost(any());
 
         assertThrows(HostException.class, () -> mHostDispatcher.getHost(CarContext.APP_SERVICE));
@@ -168,15 +211,15 @@ public class HostDispatcherTest {
     }
 
     @Test
-    public void getHost_appHost_returnsProperHostService() {
+    public void getHost_appHost_returnsProperHostService() throws RemoteException {
         assertThat(mHostDispatcher.getHost(CarContext.APP_SERVICE)).isEqualTo(mAppHost);
     }
 
     @Test
-    public void getHost_appHost_hostThrowsRemoteException_throwsHostException()
+    public void getHost_appHost_hostThrowsRemoteException_throwsTheException()
             throws RemoteException {
         when(mMockCarHost.getHost(any())).thenThrow(new RemoteException());
-        assertThrows(HostException.class, () -> mHostDispatcher.getHost(CarContext.APP_SERVICE));
+        assertThrows(RemoteException.class, () -> mHostDispatcher.getHost(CarContext.APP_SERVICE));
     }
 
     @Test
@@ -187,16 +230,16 @@ public class HostDispatcherTest {
     }
 
     @Test
-    public void getHost_navigationHost_returnsProperHostService() {
+    public void getHost_navigationHost_returnsProperHostService() throws RemoteException {
         assertThat(mHostDispatcher.getHost(CarContext.NAVIGATION_SERVICE)).isEqualTo(
                 mNavigationHost);
     }
 
     @Test
-    public void getHost_navigationHost_hostThrowsRemoteException_throwsHostException()
+    public void getHost_navigationHost_hostThrowsRemoteException()
             throws RemoteException {
         when(mMockCarHost.getHost(any())).thenThrow(new RemoteException());
-        assertThrows(HostException.class,
+        assertThrows(RemoteException.class,
                 () -> mHostDispatcher.getHost(CarContext.NAVIGATION_SERVICE));
     }
 
@@ -209,16 +252,16 @@ public class HostDispatcherTest {
     }
 
     @Test
-    public void getHost_afterReset_throwsHostException() {
+    public void getHost_afterReset_returnsNull() throws RemoteException {
         mHostDispatcher.resetHosts();
 
-        assertThrows(HostException.class, () -> mHostDispatcher.getHost(CarContext.APP_SERVICE));
+        assertThat(mHostDispatcher.getHost(CarContext.APP_SERVICE)).isNull();
     }
 
     @Test
-    public void getHost_notBound_throwsHostException() {
+    public void getHost_notBound_returnsNull() throws RemoteException {
         mHostDispatcher = new HostDispatcher();
 
-        assertThrows(HostException.class, () -> mHostDispatcher.getHost(CarContext.APP_SERVICE));
+        assertThat(mHostDispatcher.getHost(CarContext.APP_SERVICE)).isNull();
     }
 }
