@@ -2,7 +2,7 @@
 package androidx.wear.watchface.client {
 
   public final class ComplicationState {
-    ctor public ComplicationState(android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled, androidx.wear.complications.data.ComplicationType currentType, boolean fixedComplicationProvider);
+    ctor public ComplicationState(android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.complications.data.ComplicationType currentType, boolean fixedComplicationProvider);
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();
     method public androidx.wear.complications.data.ComplicationType getCurrentType();
@@ -11,6 +11,7 @@ package androidx.wear.watchface.client {
     method public java.util.List<androidx.wear.complications.data.ComplicationType> getSupportedTypes();
     method public boolean isEnabled();
     method public boolean isFixedComplicationProvider();
+    method public boolean isInitiallyEnabled();
     property public final android.graphics.Rect bounds;
     property public final int boundsType;
     property public final androidx.wear.complications.data.ComplicationType currentType;
@@ -18,6 +19,7 @@ package androidx.wear.watchface.client {
     property public final androidx.wear.complications.data.ComplicationType defaultProviderType;
     property public final boolean fixedComplicationProvider;
     property public final boolean isEnabled;
+    property public final boolean isInitiallyEnabled;
     property public final java.util.List<androidx.wear.complications.data.ComplicationType> supportedTypes;
   }
 

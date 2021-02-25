@@ -485,6 +485,7 @@ internal class OnWatchFaceEditorSessionImpl(
                 it.value.defaultProviderPolicy,
                 it.value.defaultProviderType,
                 it.value.enabled,
+                it.value.initiallyEnabled,
                 it.value.renderer.getIdAndData()?.complicationData?.type
                     ?: ComplicationType.NO_DATA,
                 it.value.fixedComplicationProvider
