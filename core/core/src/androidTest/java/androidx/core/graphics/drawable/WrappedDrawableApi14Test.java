@@ -23,15 +23,15 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class WrappedDrawableApi14Test {
 
     /**
@@ -40,6 +40,7 @@ public class WrappedDrawableApi14Test {
     @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testSetLayoutDirection() {
+        // Note that Mockito is VERY SLOW on CF targets, so this test must be medium+.
         Drawable baseDrawable = Mockito.spy(new ColorDrawable());
         WrappedDrawableApi14 drawable = new WrappedDrawableApi14(baseDrawable);
         drawable.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
