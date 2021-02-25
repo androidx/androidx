@@ -81,16 +81,21 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
     public val previewReferenceTimeMillis: Long
 
     /**
-     * Sets the watch face's current [UserStyle]. Note this may alter [complicationState].
+     * Renames this instance to [newInstanceId] (must be unique, usually this would be different
+     * from the old ID but that's not a requirement). Sets the current [UserStyle] and clears
+     * any complication data. Setting the new UserStyle may have a side effect of enabling or
+     * disabling complications, which will be visible via [ComplicationState.isEnabled].
      */
-    public fun setUserStyle(userStyle: UserStyle)
+    public fun updateInstance(newInstanceId: String, userStyle: UserStyle)
 
     /**
-     * Sets the watch face's current UserStyle represented as a Map<String, String>.  This can be
-     * helpful to avoid having to construct a [UserStyle] which requires the [UserStyleSchema]
-     * which is an additional IPC. Note this may alter [complicationState].
+     * Renames this instance to [newInstanceId] (must be unique, usually this would be different
+     * from the old ID but that's not a requirement). Sets the current [UserStyle] represented as a
+     * Map<String, String> and clears any complication data. Setting the new UserStyle may have
+     * a side effect of enabling or disabling complications, which will be visible via
+     * [ComplicationState.isEnabled].
      */
-    public fun setUserStyle(userStyle: Map<String, String>)
+    public fun updateInstance(newInstanceId: String, userStyle: Map<String, String>)
 
     /** Returns the ID of this watch face instance. */
     public val instanceId: String
@@ -170,16 +175,16 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
     override val previewReferenceTimeMillis: Long
         get() = iInteractiveWatchFaceWcs.previewReferenceTimeMillis
 
-    override fun setUserStyle(userStyle: UserStyle) = TraceEvent(
-        "InteractiveWatchFaceWcsClientImpl.setUserStyle"
+    override fun updateInstance(newInstanceId: String, userStyle: UserStyle) = TraceEvent(
+        "InteractiveWatchFaceWcsClientImpl.updateInstance"
     ).use {
-        iInteractiveWatchFaceWcs.setCurrentUserStyle(userStyle.toWireFormat())
+        iInteractiveWatchFaceWcs.updateInstance(newInstanceId, userStyle.toWireFormat())
     }
 
-    override fun setUserStyle(userStyle: Map<String, String>) = TraceEvent(
-        "InteractiveWatchFaceWcsClientImpl.setUserStyle"
+    override fun updateInstance(newInstanceId: String, userStyle: Map<String, String>) = TraceEvent(
+        "InteractiveWatchFaceWcsClientImpl.updateInstance"
     ).use {
-        iInteractiveWatchFaceWcs.setCurrentUserStyle(UserStyleWireFormat(userStyle))
+        iInteractiveWatchFaceWcs.updateInstance(newInstanceId, UserStyleWireFormat(userStyle))
     }
 
     override val instanceId: String

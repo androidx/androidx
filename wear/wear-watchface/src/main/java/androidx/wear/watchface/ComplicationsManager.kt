@@ -30,6 +30,7 @@ import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.data.IdAndComplicationData
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.UserStyle
@@ -284,6 +285,15 @@ public class ComplicationsManager(
         )
         (complication.complicationData as MutableObservableWatchData<ComplicationData>).value =
             data
+    }
+
+    @UiThread
+    internal fun clearComplicationData() {
+        for ((_, complication) in complications) {
+            complication.renderer.clearIdAndData()
+            (complication.complicationData as MutableObservableWatchData).value =
+                EmptyComplicationData()
+        }
     }
 
     /**
