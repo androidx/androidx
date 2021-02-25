@@ -2646,6 +2646,27 @@ public abstract class FragmentManager implements FragmentResultOwner {
             }
         }
 
+        // Ensure that there are no retained fragments in the affected fragments or
+        // their transitive set of child fragments
+        ArrayDeque<Fragment> fragmentsToSearch = new ArrayDeque<>(allFragments);
+        while (!fragmentsToSearch.isEmpty()) {
+            Fragment currentFragment = fragmentsToSearch.removeFirst();
+            if (currentFragment.mRetainInstance) {
+                throwException(new IllegalArgumentException("saveBackStack(\"" + name + "\") "
+                        + "must not contain retained fragments. Found "
+                        + (allFragments.contains(currentFragment)
+                        ? "direct reference to retained "
+                        : "retained child ")
+                        + "fragment " + currentFragment));
+            }
+            // Then recursively check the child fragments for retained fragments
+            for (Fragment f : currentFragment.mChildFragmentManager.getActiveFragments()) {
+                if (f != null) {
+                    fragmentsToSearch.addLast(f);
+                }
+            }
+        }
+
         // Now actually record each save
         for (int i = mBackStack.size() - 1; i >= index; i--) {
             // TODO: Pre-process each BackStackRecord so that they actually save state
