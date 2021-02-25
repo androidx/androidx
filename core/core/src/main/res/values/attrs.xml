@@ -15,6 +15,9 @@
   ~ limitations under the License.
   -->
 <resources>
+    <!-- Default style for NestedScrollView. Should be set in your theme. -->
+    <attr name="nestedScrollViewStyle" format="reference" />
+
     <!-- Attributes that are read when parsing a <fontfamily> tag. -->
     <declare-styleable name="FontFamily">
         <!-- The authority of the Font Provider to be used for the request. -->
