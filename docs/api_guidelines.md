@@ -173,6 +173,12 @@ behavior is not feasible.
 
 ## Platform compatibility API patterns {#platform-compatibility-apis}
 
+NOTE For all library APIs that wrap or provide parity with platform APIs,
+_parity with the platform APIs overrides API guidelines_. For example, if the
+platform API being wrapped has incorrect `Executor` and `Callback` ordering
+according to the API Guidelines, the corresponding library API should have the
+exact same (incorrect) ordering.
+
 ### Static shims (ex. [ViewCompat](https://developer.android.com/reference/android/support/v4/view/ViewCompat.html)) {#static-shim}
 
 When to use?
