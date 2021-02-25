@@ -18,6 +18,7 @@ package androidx.car.app.navigation;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.car.app.utils.LogTags.TAG_NAVIGATION_MANAGER;
 import static androidx.car.app.utils.ThreadUtils.checkMainThread;
 
 import static java.util.Objects.requireNonNull;
@@ -58,8 +59,6 @@ import java.util.concurrent.Executor;
  * {@link NavigationManagerCallback#onStopNavigation()} issued by the host.
  */
 public class NavigationManager {
-    private static final String TAG = "NavigationManager";
-
     private final CarContext mCarContext;
     private final INavigationManager.Stub mNavigationManager;
     private final HostDispatcher mHostDispatcher;
@@ -296,14 +295,17 @@ public class NavigationManager {
     @MainThread
     public void onAutoDriveEnabled() {
         checkMainThread();
+        if (Log.isLoggable(TAG_NAVIGATION_MANAGER, Log.DEBUG)) {
+            Log.d(TAG_NAVIGATION_MANAGER, "Executing onAutoDriveEnabled");
+        }
+
         mIsAutoDriveEnabled = true;
         if (mNavigationManagerCallback != null) {
-            Log.d(TAG, "Executing onAutoDriveEnabled");
-            requireNonNull(mNavigationManagerCallbackExecutor).execute(() -> {
-                mNavigationManagerCallback.onAutoDriveEnabled();
-            });
+            requireNonNull(mNavigationManagerCallbackExecutor).execute(
+                    () -> mNavigationManagerCallback.onAutoDriveEnabled());
         } else {
-            Log.w(TAG, "NavigationManagerCallback not set, skipping onAutoDriveEnabled");
+            Log.w(TAG_NAVIGATION_MANAGER,
+                    "NavigationManagerCallback not set, skipping onAutoDriveEnabled");
         }
     }
 

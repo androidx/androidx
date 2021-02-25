@@ -70,7 +70,9 @@ public final class RemoteUtils {
     public static <ReturnT> ReturnT call(@NonNull RemoteCall<ReturnT> remoteCall,
             @NonNull String callName) {
         try {
-            Log.d(TAG, "Dispatching call " + callName + " to host");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Dispatching call " + callName + " to host");
+            }
             return remoteCall.call();
         } catch (SecurityException e) {
             // SecurityException is treated specially where we allow it to flow through since

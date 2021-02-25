@@ -207,7 +207,9 @@ public class ScreenManager {
         checkMainThread();
 
         Screen screen = getTop();
-        Log.d(TAG, "Requesting template from Screen " + screen);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Requesting template from Screen " + screen);
+        }
 
         TemplateWrapper templateWrapper = screen.getTemplateWrapper();
 
@@ -239,7 +241,9 @@ public class ScreenManager {
     }
 
     private void pushInternal(Screen screen) {
-        Log.d(TAG, "Pushing screen " + screen + " to the top of the screen stack");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Pushing screen " + screen + " to the top of the screen stack");
+        }
 
         if (mScreenStack.contains(screen)) {
             moveToTop(screen, false);
@@ -277,11 +281,15 @@ public class ScreenManager {
 
         // Stop and destroy all screens popped.
         for (Screen screen : poppedScreens) {
-            Log.d(TAG, "Popping screen " + screen + " off the screen stack");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Popping screen " + screen + " off the screen stack");
+            }
             stop(screen, true);
         }
 
-        Log.d(TAG, "Screen " + newTop + " is at the top of the screen stack");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Screen " + newTop + " is at the top of the screen stack");
+        }
         if (mAppLifecycle.getCurrentState().isAtLeast(State.RESUMED)) {
             if (mScreenStack.contains(newTop)) {
                 // During the Screen teardown it can send the result to any screen that called

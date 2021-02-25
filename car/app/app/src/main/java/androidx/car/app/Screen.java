@@ -352,7 +352,9 @@ public abstract class Screen implements LifecycleOwner {
 
         mTemplateWrapper = wrapper;
 
-        Log.d(TAG, "Returning " + template + " from screen " + this);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Returning " + template + " from screen " + this);
+        }
         return wrapper;
     }
 

@@ -16,6 +16,7 @@
 
 package androidx.car.app;
 
+import static androidx.car.app.utils.LogTags.TAG;
 import static androidx.car.app.utils.ThreadUtils.runOnMain;
 
 import android.app.Service;
@@ -102,7 +103,6 @@ public abstract class CarAppService extends Service {
      */
     public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
 
-    private static final String TAG = "CarAppService";
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 
     private AppInfo mAppInfo;
@@ -141,7 +141,9 @@ public abstract class CarAppService extends Service {
      */
     @Override
     public final boolean onUnbind(@NonNull Intent intent) {
-        Log.d(TAG, "onUnbind intent: " + intent);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "onUnbind intent: " + intent);
+        }
         runOnMain(() -> {
             // Destroy the session
             if (mCurrentSession != null) {
@@ -162,9 +164,11 @@ public abstract class CarAppService extends Service {
             mCurrentSession = null;
         });
 
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "onUnbind completed");
+        }
         // Return true to request an onRebind call.  This means that the process will cache this
         // instance of the Service to return on future bind calls.
-        Log.d(TAG, "onUnbind completed");
         return true;
     }
 
@@ -229,7 +233,9 @@ public abstract class CarAppService extends Service {
 
         for (String arg : args) {
             if (AUTO_DRIVE.equals(arg)) {
-                Log.d(TAG, "Executing onAutoDriveEnabled");
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Executing onAutoDriveEnabled");
+                }
                 runOnMain(() -> {
                     if (mCurrentSession != null) {
                         mCurrentSession.getCarContext().getCarService(
@@ -314,7 +320,9 @@ public abstract class CarAppService extends Service {
                         Intent intent,
                         Configuration configuration,
                         IOnDoneCallback callback) {
-                    Log.d(TAG, "onAppCreate intent: " + intent);
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "onAppCreate intent: " + intent);
+                    }
                     RemoteUtils.dispatchHostCall(() -> {
                         Session session = getCurrentSession();
                         if (session == null
@@ -339,19 +347,26 @@ public abstract class CarAppService extends Service {
                         int screenStackSize = carContext.getCarService(
                                 ScreenManager.class).getScreenStack().size();
                         if (!state.isAtLeast(State.CREATED) || screenStackSize < 1) {
-                            Log.d(TAG, "onAppCreate the app was not yet created or the "
-                                    + "screen stack was empty state: "
-                                    + registry.getCurrentState()
-                                    + ", stack size: " + screenStackSize);
+                            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                                Log.d(TAG, "onAppCreate the app was not yet created or the "
+                                        + "screen stack was empty state: "
+                                        + registry.getCurrentState()
+                                        + ", stack size: " + screenStackSize);
+                            }
                             registry.handleLifecycleEvent(Event.ON_CREATE);
                             carContext.getCarService(ScreenManager.class).push(
                                     session.onCreateScreen(intent));
                         } else {
-                            Log.d(TAG, "onAppCreate the app was already created");
+                            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                                Log.d(TAG, "onAppCreate the app was already created");
+                            }
                             onNewIntentInternal(session, intent);
                         }
                     }, callback, "onAppCreate");
-                    Log.d(TAG, "onAppCreate completed");
+
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "onAppCreate completed");
+                    }
                 }
 
                 @Override
@@ -486,7 +501,9 @@ public abstract class CarAppService extends Service {
                 private void onConfigurationChangedInternal(Session session,
                         Configuration configuration) {
                     ThreadUtils.checkMainThread();
-                    Log.d(TAG, "onCarConfigurationChanged configuration: " + configuration);
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "onCarConfigurationChanged configuration: " + configuration);
+                    }
 
                     session.getCarContext().onCarConfigurationChanged(configuration);
                     session.onCarConfigurationChanged(
