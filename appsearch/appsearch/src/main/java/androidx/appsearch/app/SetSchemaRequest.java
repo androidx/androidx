@@ -74,18 +74,18 @@ import java.util.Set;
  */
 public final class SetSchemaRequest {
     private final Set<AppSearchSchema> mSchemas;
-    private final Set<String> mSchemasNotVisibleToSystemUi;
+    private final Set<String> mSchemasNotDisplayedBySystem;
     private final Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages;
     private final Map<String, AppSearchSchema.Migrator> mMigrators;
     private final boolean mForceOverride;
 
     SetSchemaRequest(@NonNull Set<AppSearchSchema> schemas,
-            @NonNull Set<String> schemasNotVisibleToSystemUi,
+            @NonNull Set<String> schemasNotDisplayedBySystem,
             @NonNull Map<String, Set<PackageIdentifier>> schemasVisibleToPackages,
             @NonNull Map<String, AppSearchSchema.Migrator> migrators,
             boolean forceOverride) {
         mSchemas = Preconditions.checkNotNull(schemas);
-        mSchemasNotVisibleToSystemUi = Preconditions.checkNotNull(schemasNotVisibleToSystemUi);
+        mSchemasNotDisplayedBySystem = Preconditions.checkNotNull(schemasNotDisplayedBySystem);
         mSchemasVisibleToPackages = Preconditions.checkNotNull(schemasVisibleToPackages);
         mMigrators = Preconditions.checkNotNull(migrators);
         mForceOverride = forceOverride;
@@ -102,8 +102,8 @@ public final class SetSchemaRequest {
      * system UI surface.
      */
     @NonNull
-    public Set<String> getSchemasNotVisibleToSystemUi() {
-        return Collections.unmodifiableSet(mSchemasNotVisibleToSystemUi);
+    public Set<String> getSchemasNotDisplayedBySystem() {
+        return Collections.unmodifiableSet(mSchemasNotDisplayedBySystem);
     }
 
     /**
@@ -157,7 +157,7 @@ public final class SetSchemaRequest {
      */
     public static final class Builder {
         private final Set<AppSearchSchema> mSchemas = new ArraySet<>();
-        private final Set<String> mSchemasNotVisibleToSystemUi = new ArraySet<>();
+        private final Set<String> mSchemasNotDisplayedBySystem = new ArraySet<>();
         private final Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages =
                 new ArrayMap<>();
         private final Map<String, AppSearchSchema.Migrator> mMigrators = new ArrayMap<>();
@@ -168,6 +168,8 @@ public final class SetSchemaRequest {
          * Adds one or more {@link AppSearchSchema} types to the schema.
          *
          * <p>An {@link AppSearchSchema} object represents one type of structured data.
+         *
+         * <p>Any documents of these types will be displayed on system UI surfaces by default.
          *
          * @throws IllegalStateException if the builder has already been used.
          */
@@ -244,24 +246,26 @@ public final class SetSchemaRequest {
          * <p>This setting applies to the provided {@code schemaType} only, and does not persist
          * across {@link AppSearchSession#setSchema} calls.
          *
-         * <p>By default, documents are displayed and visible on system UI surfaces.
+         * <p>The default behavior, if this method is not called, is to allow types to be
+         * displayed on system UI surfaces.
          *
-         * @param schemaType The schema type to set visibility on.
-         * @param visible    Whether the {@code schemaType} will be visible or not.
+         * @param schemaType The name of an {@link AppSearchSchema} within the same
+         *                   {@link SetSchemaRequest}, which will be configured.
+         * @param displayed  Whether documents of this type will be displayed on system UI surfaces.
          * @throws IllegalStateException if the builder has already been used.
          */
-        // Merged list available from getSchemasNotVisibleToSystemUi
+        // Merged list available from getSchemasNotDisplayedBySystem
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setSchemaTypeVisibilityForSystemUi(@NonNull String schemaType,
-                boolean visible) {
+        public Builder setSchemaTypeDisplayedBySystem(
+                @NonNull String schemaType, boolean displayed) {
             Preconditions.checkNotNull(schemaType);
             Preconditions.checkState(!mBuilt, "Builder has already been used");
 
-            if (visible) {
-                mSchemasNotVisibleToSystemUi.remove(schemaType);
+            if (displayed) {
+                mSchemasNotDisplayedBySystem.remove(schemaType);
             } else {
-                mSchemasNotVisibleToSystemUi.add(schemaType);
+                mSchemasNotDisplayedBySystem.add(schemaType);
             }
             return this;
         }
@@ -337,6 +341,7 @@ public final class SetSchemaRequest {
         }
 
 // @exportToFramework:startStrip()
+
         /**
          * Sets whether or not documents from the provided
          * {@link androidx.appsearch.annotation.Document} annotated class will be displayed and
@@ -346,23 +351,27 @@ public final class SetSchemaRequest {
          * annotated class only, and does not persist across {@link AppSearchSession#setSchema}
          * calls.
          *
-         * <p>By default, documents are displayed and visible on system UI surfaces.
+         * <p>The default behavior, if this method is not called, is to allow types to be
+         * displayed on system UI surfaces.
          *
-         * @param documentClass The schema to set visibility on.
-         * @param visible   Whether the {@code documentClass} will be visible or not.
+         * @param documentClass A class annotated with
+         *                      {@link androidx.appsearch.annotation.Document}, the visibility of
+         *                      which will be configured
+         * @param displayed     Whether documents of this type will be displayed on system UI
+         *                      surfaces.
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
          *                            has not generated a schema for the given document class.
          */
-        // Merged list available from getSchemasNotVisibleToSystemUi
+        // Merged list available from getSchemasNotDisplayedBySystem
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setDocumentClassVisibilityForSystemUi(@NonNull Class<?> documentClass,
-                boolean visible) throws AppSearchException {
+        public Builder setDocumentClassDisplayedBySystem(@NonNull Class<?> documentClass,
+                boolean displayed) throws AppSearchException {
             Preconditions.checkNotNull(documentClass);
 
             DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
             DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
-            return setSchemaTypeVisibilityForSystemUi(factory.getSchemaName(), visible);
+            return setSchemaTypeDisplayedBySystem(factory.getSchemaName(), displayed);
         }
 
         /**
@@ -434,10 +443,10 @@ public final class SetSchemaRequest {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBuilt = true;
 
-            // Verify that any schema types with visibility settings refer to a real schema.
+            // Verify that any schema types with display or visibility settings refer to a real
+            // schema.
             // Create a copy because we're going to remove from the set for verification purposes.
-            Set<String> referencedSchemas = new ArraySet<>(
-                    mSchemasNotVisibleToSystemUi);
+            Set<String> referencedSchemas = new ArraySet<>(mSchemasNotDisplayedBySystem);
             referencedSchemas.addAll(mSchemasVisibleToPackages.keySet());
 
             for (AppSearchSchema schema : mSchemas) {
@@ -447,11 +456,10 @@ public final class SetSchemaRequest {
                 // We still have schema types that weren't seen in our mSchemas set. This means
                 // there wasn't a corresponding AppSearchSchema.
                 throw new IllegalArgumentException(
-                        "Schema types " + referencedSchemas
-                                + " referenced, but were not added.");
+                        "Schema types " + referencedSchemas + " referenced, but were not added.");
             }
 
-            return new SetSchemaRequest(mSchemas, mSchemasNotVisibleToSystemUi,
+            return new SetSchemaRequest(mSchemas, mSchemasNotDisplayedBySystem,
                     mSchemasVisibleToPackages, mMigrators, mForceOverride);
         }
     }

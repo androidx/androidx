@@ -127,7 +127,7 @@ class SearchSessionImpl implements AppSearchSession {
                     mPackageName,
                     mDatabaseName,
                     new ArrayList<>(request.getSchemas()),
-                    new ArrayList<>(request.getSchemasNotVisibleToSystemUi()),
+                    new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
                     copySchemasPackageAccessible,
                     /*forceOverride=*/false);
 
@@ -170,7 +170,7 @@ class SearchSessionImpl implements AppSearchSession {
                         mPackageName,
                         mDatabaseName,
                         new ArrayList<>(request.getSchemas()),
-                        new ArrayList<>(request.getSchemasNotVisibleToSystemUi()),
+                        new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
                         copySchemasPackageAccessible,
                         /*forceOverride=*/ true);
             }
@@ -380,7 +380,7 @@ class SearchSessionImpl implements AppSearchSession {
                 mPackageName,
                 mDatabaseName,
                 new ArrayList<>(request.getSchemas()),
-                new ArrayList<>(request.getSchemasNotVisibleToSystemUi()),
+                new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
                 copySchemasPackageAccessible,
                 request.isForceOverride());
         if (!request.isForceOverride()) {

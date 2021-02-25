@@ -58,9 +58,9 @@ public final class RequestToPlatformConverter {
         for (AppSearchSchema jetpackSchema : jetpackRequest.getSchemas()) {
             platformBuilder.addSchemas(SchemaToPlatformConverter.toPlatformSchema(jetpackSchema));
         }
-        for (String schemaNotVisibleToSystemUi : jetpackRequest.getSchemasNotVisibleToSystemUi()) {
+        for (String schemaNotDisplayedBySystem : jetpackRequest.getSchemasNotDisplayedBySystem()) {
             platformBuilder.setSchemaTypeVisibilityForSystemUi(
-                    schemaNotVisibleToSystemUi, /*visible=*/ false);
+                    schemaNotDisplayedBySystem, /*visible=*/ false);
         }
         for (Map.Entry<String, Set<PackageIdentifier>> jetpackSchemaVisibleToPackage :
                 jetpackRequest.getSchemasVisibleToPackagesInternal().entrySet()) {

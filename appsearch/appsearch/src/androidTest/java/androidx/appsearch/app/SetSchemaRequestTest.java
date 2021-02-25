@@ -93,9 +93,9 @@ public class SetSchemaRequestTest {
     }
 
     @Test
-    public void testInvalidSchemaReferences_fromSystemUiVisibility() {
+    public void testInvalidSchemaReferences_fromDisplayedBySystem() {
         IllegalArgumentException expected = assertThrows(IllegalArgumentException.class,
-                () -> new SetSchemaRequest.Builder().setSchemaTypeVisibilityForSystemUi(
+                () -> new SetSchemaRequest.Builder().setSchemaTypeDisplayedBySystem(
                         "InvalidSchema", false).build());
         assertThat(expected).hasMessageThat().contains("referenced, but were not added");
     }
@@ -110,49 +110,49 @@ public class SetSchemaRequestTest {
     }
 
     @Test
-    public void testSchemaTypeVisibilityForSystemUi_visible() {
+    public void testSetSchemaTypeDisplayedBySystem_displayed() {
         AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
 
-        // By default, the schema is visible.
+        // By default, the schema is displayed.
         SetSchemaRequest request =
                 new SetSchemaRequest.Builder().addSchemas(schema).build();
-        assertThat(request.getSchemasNotVisibleToSystemUi()).isEmpty();
+        assertThat(request.getSchemasNotDisplayedBySystem()).isEmpty();
 
         request = new SetSchemaRequest.Builder()
-                .addSchemas(schema).setSchemaTypeVisibilityForSystemUi("Schema", true).build();
-        assertThat(request.getSchemasNotVisibleToSystemUi()).isEmpty();
+                .addSchemas(schema).setSchemaTypeDisplayedBySystem("Schema", true).build();
+        assertThat(request.getSchemasNotDisplayedBySystem()).isEmpty();
     }
 
     @Test
-    public void testSchemaTypeVisibilityForSystemUi_notVisible() {
+    public void testSetSchemaTypeDisplayedBySystem_notDisplayed() {
         AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
         SetSchemaRequest request = new SetSchemaRequest.Builder()
-                .addSchemas(schema).setSchemaTypeVisibilityForSystemUi("Schema", false).build();
-        assertThat(request.getSchemasNotVisibleToSystemUi()).containsExactly("Schema");
+                .addSchemas(schema).setSchemaTypeDisplayedBySystem("Schema", false).build();
+        assertThat(request.getSchemasNotDisplayedBySystem()).containsExactly("Schema");
     }
 
 // @exportToFramework:startStrip()
     @Test
-    public void testSetDocumentClassVisibilityForSystemUi_visible() throws Exception {
-        // By default, the schema is visible.
+    public void testSetDocumentClassDisplayedBySystem_displayed() throws Exception {
+        // By default, the schema is displayed.
         SetSchemaRequest request =
                 new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build();
-        assertThat(request.getSchemasNotVisibleToSystemUi()).isEmpty();
+        assertThat(request.getSchemasNotDisplayedBySystem()).isEmpty();
 
         request =
                 new SetSchemaRequest.Builder().addDocumentClasses(
-                        Card.class).setDocumentClassVisibilityForSystemUi(
+                        Card.class).setDocumentClassDisplayedBySystem(
                         Card.class, true).build();
-        assertThat(request.getSchemasNotVisibleToSystemUi()).isEmpty();
+        assertThat(request.getSchemasNotDisplayedBySystem()).isEmpty();
     }
 
     @Test
-    public void testSetDocumentClassVisibilityForSystemUi_notVisible() throws Exception {
+    public void testSetDocumentClassDisplayedBySystem_notDisplayed() throws Exception {
         SetSchemaRequest request =
                 new SetSchemaRequest.Builder().addDocumentClasses(
-                        Card.class).setDocumentClassVisibilityForSystemUi(
+                        Card.class).setDocumentClassDisplayedBySystem(
                         Card.class, false).build();
-        assertThat(request.getSchemasNotVisibleToSystemUi()).containsExactly("Card");
+        assertThat(request.getSchemasNotDisplayedBySystem()).containsExactly("Card");
     }
 // @exportToFramework:endStrip()
 
