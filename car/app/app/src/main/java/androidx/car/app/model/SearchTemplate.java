@@ -69,6 +69,7 @@ public final class SearchTemplate implements Template {
     @Keep
     private final boolean mIsLoading;
     @Keep
+    @Nullable
     private final SearchCallbackDelegate mSearchCallbackDelegate;
     @Keep
     @Nullable
@@ -149,12 +150,11 @@ public final class SearchTemplate implements Template {
     }
 
     /**
-     * Returns the {@link SearchCallbackDelegate} for search callbacks or {@code null} if one is
-     * not set.
+     * Returns the {@link SearchCallbackDelegate} for search callbacks.
      */
-    @Nullable
+    @NonNull
     public SearchCallbackDelegate getSearchCallbackDelegate() {
-        return mSearchCallbackDelegate;
+        return requireNonNull(mSearchCallbackDelegate);
     }
 
     /**

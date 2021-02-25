@@ -57,6 +57,12 @@ public final class TravelEstimate {
     @Keep
     private final CarColor mRemainingDistanceColor;
 
+    /**
+     * Returns the remaining {@link Distance} until arriving at the destination,  or {@code null}
+     * if not set.
+     *
+     * @see Builder#Builder(Distance, DateTimeWithZone)
+     */
     @Nullable
     public Distance getRemainingDistance() {
         return mRemainingDistance;
