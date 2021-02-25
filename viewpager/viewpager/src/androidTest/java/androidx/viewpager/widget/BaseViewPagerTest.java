@@ -23,6 +23,7 @@ import static android.support.v4.testutils.TestUtilsMatchers.isOfClass;
 import static android.support.v4.testutils.TestUtilsMatchers.startAlignedToParent;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.actionWithAssertions;
 import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.swipeLeft;
 import static androidx.test.espresso.action.ViewActions.swipeRight;
@@ -54,6 +55,7 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.v4.testutils.TestUtilsMatchers;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -66,10 +68,15 @@ import android.widget.TextView;
 
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.EspressoKey;
+import androidx.test.espresso.action.GeneralLocation;
+import androidx.test.espresso.action.GeneralSwipeAction;
+import androidx.test.espresso.action.Press;
+import androidx.test.espresso.action.Swipe;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
+import androidx.testutils.TranslatedCoordinatesProvider;
 import androidx.viewpager.test.R;
 
 import org.junit.After;
@@ -93,6 +100,13 @@ import java.util.List;
 public abstract class BaseViewPagerTest<T extends Activity> {
     @Rule
     public final ActivityTestRule<T> mActivityTestRule;
+
+    /**
+     * The distance of a swipe's start position from the view's edge, in terms of the view's length.
+     * We do not start the swipe exactly on the view's edge, but somewhat more inward, since swiping
+     * from the exact edge may behave in an unexpected way (e.g. may open a navigation drawer).
+     */
+    private static final float EDGE_FUZZ_FACTOR = 0.083f;
 
     private static final int DIRECTION_LEFT = -1;
     private static final int DIRECTION_RIGHT = 1;
@@ -418,8 +432,13 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         onView(withId(R.id.pager)).perform(ViewPagerActions.wrap(swipeLeft()), ViewPagerActions.wrap(swipeLeft()));
         assertEquals("Swipe twice left", 2, mViewPager.getCurrentItem());
 
-        onView(withId(R.id.pager)).perform(ViewPagerActions.wrap(swipeLeft()), ViewPagerActions.wrap(swipeRight()));
-        assertEquals("Swipe left beyond last page and then right", 1, mViewPager.getCurrentItem());
+        onView(withId(R.id.pager)).perform(ViewPagerActions.wrap(swipeLeft()),
+                ViewPagerActions.wrap(slowSwipeRight()));
+        // On S and above, the swipe right will be absorbed by the EdgeEffect created during
+        // swipe left.
+        int leftRightPage = isSOrHigher() ? 2 : 1;
+        assertEquals("Swipe left beyond last page and then right", leftRightPage,
+                mViewPager.getCurrentItem());
 
         onView(withId(R.id.pager)).perform(
                 ViewPagerActions.wrap(swipeRight()), ViewPagerActions.wrap(swipeRight()));
@@ -427,8 +446,47 @@ public abstract class BaseViewPagerTest<T extends Activity> {
                 mViewPager.getCurrentItem());
 
         onView(withId(R.id.pager)).perform(
-                ViewPagerActions.wrap(swipeRight()), ViewPagerActions.wrap(swipeLeft()));
-        assertEquals("Swipe right beyond first page and then left", 1, mViewPager.getCurrentItem());
+                ViewPagerActions.wrap(swipeRight()), ViewPagerActions.wrap(slowSwipeLeft()));
+        // On S and above, the swipe left will be absorbed by the EdgeEffect created during
+        // swipe right.
+        int rightLeftPage = isSOrHigher() ? 0 : 1;
+        assertEquals("Swipe right beyond first page and then left", rightLeftPage,
+                mViewPager.getCurrentItem());
+    }
+
+    /**
+     * Returns an action that performs a slow swipe left-to-right across the vertical center of the
+     * view. The swipe doesn't start at the very edge of the view, but is a bit offset.<br>
+     */
+    public static ViewAction slowSwipeRight() {
+        return actionWithAssertions(
+                new GeneralSwipeAction(
+                        Swipe.SLOW,
+                        new TranslatedCoordinatesProvider(
+                                GeneralLocation.CENTER_LEFT, EDGE_FUZZ_FACTOR, 0),
+                        GeneralLocation.CENTER_RIGHT,
+                        Press.FINGER));
+    }
+
+    /**
+     * Returns an action that performs a slow swipe left-to-right across the vertical center of the
+     * view. The swipe doesn't start at the very edge of the view, but is a bit offset.<br>
+     */
+    public static ViewAction slowSwipeLeft() {
+        return actionWithAssertions(
+                new GeneralSwipeAction(
+                        Swipe.SLOW,
+                        new TranslatedCoordinatesProvider(
+                                GeneralLocation.CENTER_RIGHT, -EDGE_FUZZ_FACTOR, 0),
+                        GeneralLocation.CENTER_LEFT,
+                        Press.FINGER));
+    }
+
+    public static boolean isSOrHigher() {
+        // TODO(b/181171227): Simplify this
+        int sdk = Build.VERSION.SDK_INT;
+        return sdk > Build.VERSION_CODES.R
+                || (sdk == Build.VERSION_CODES.R && Build.VERSION.PREVIEW_SDK_INT != 0);
     }
 
     private void verifyPageContent(boolean smoothScroll) {

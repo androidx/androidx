@@ -16,6 +16,9 @@
 
 package androidx.viewpager.widget;
 
+import static android.widget.EdgeEffect.TYPE_GLOW;
+import static android.widget.EdgeEffect.TYPE_STRETCH;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -46,15 +49,18 @@ import android.widget.Scroller;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
+import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.widget.EdgeEffectCompat;
 import androidx.customview.view.AbsSavedState;
 
 import java.lang.annotation.ElementType;
@@ -124,6 +130,13 @@ public class ViewPager extends ViewGroup {
     static final int[] LAYOUT_ATTRS = new int[] {
         android.R.attr.layout_gravity
     };
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({TYPE_GLOW, TYPE_STRETCH})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EdgeEffectType {
+    }
 
     /**
      * Used to track what the expected number of items in the adapter should be.
@@ -391,19 +404,18 @@ public class ViewPager extends ViewGroup {
 
     public ViewPager(@NonNull Context context) {
         super(context);
-        initViewPager();
+        initViewPager(context, null);
     }
 
     public ViewPager(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        initViewPager();
+        initViewPager(context, attrs);
     }
 
-    void initViewPager() {
+    void initViewPager(@NonNull Context context, @Nullable AttributeSet attrs) {
         setWillNotDraw(false);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setFocusable(true);
-        final Context context = getContext();
         mScroller = new Scroller(context, sInterpolator);
         final ViewConfiguration configuration = ViewConfiguration.get(context);
         final float density = context.getResources().getDisplayMetrics().density;
@@ -411,8 +423,8 @@ public class ViewPager extends ViewGroup {
         mTouchSlop = configuration.getScaledPagingTouchSlop();
         mMinimumVelocity = (int) (MIN_FLING_VELOCITY * density);
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
-        mLeftEdge = new EdgeEffect(context);
-        mRightEdge = new EdgeEffect(context);
+        mLeftEdge = EdgeEffectCompat.create(context, attrs);
+        mRightEdge = EdgeEffectCompat.create(context, attrs);
 
         mFlingDistance = (int) (MIN_DISTANCE_FOR_FLING * density);
         mCloseEnough = (int) (CLOSE_ENOUGH * density);
@@ -475,6 +487,27 @@ public class ViewPager extends ViewGroup {
                                 .build();
                     }
                 });
+    }
+
+    /**
+     * Returns the {@link EdgeEffect#getType()} for the edge effects.
+     * @return the {@link EdgeEffect#getType()} for the edge effects.
+     * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
+     */
+    @EdgeEffectType
+    public int getEdgeEffectType() {
+        return EdgeEffectCompat.getType(mLeftEdge);
+    }
+
+    /**
+     * Sets the {@link EdgeEffect#setType(int)} for the edge effects.
+     * @param type The edge effect type to use for the edge effects.
+     * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
+     */
+    public void setEdgeEffectType(@EdgeEffectType int type) {
+        EdgeEffectCompat.setType(mLeftEdge, type);
+        EdgeEffectCompat.setType(mRightEdge, type);
+        invalidate();
     }
 
     @Override
@@ -2107,7 +2140,7 @@ public class ViewPager extends ViewGroup {
                 }
                 if (mIsBeingDragged) {
                     // Scroll to follow the motion event
-                    if (performDrag(x)) {
+                    if (performDrag(x, y)) {
                         ViewCompat.postInvalidateOnAnimation(this);
                     }
                 }
@@ -2135,6 +2168,18 @@ public class ViewPager extends ViewGroup {
                     mIsBeingDragged = true;
                     requestParentDisallowInterceptTouchEvent(true);
                     setScrollState(SCROLL_STATE_DRAGGING);
+                } else if (EdgeEffectCompat.getDistance(mLeftEdge) != 0
+                        || EdgeEffectCompat.getDistance(mRightEdge) != 0) {
+                    // Caught the edge glow animation
+                    mIsBeingDragged = true;
+                    setScrollState(SCROLL_STATE_DRAGGING);
+                    if (EdgeEffectCompat.getDistance(mLeftEdge) != 0) {
+                        EdgeEffectCompat.onPullDistance(mLeftEdge, 0f,
+                                1 - mLastMotionY / getHeight());
+                    }
+                    if (EdgeEffectCompat.getDistance(mRightEdge) != 0) {
+                        EdgeEffectCompat.onPullDistance(mRightEdge, 0f, mLastMotionY / getHeight());
+                    }
                 } else {
                     completeScroll(false);
                     mIsBeingDragged = false;
@@ -2243,7 +2288,7 @@ public class ViewPager extends ViewGroup {
                     // Scroll to follow the motion event
                     final int activePointerIndex = ev.findPointerIndex(mActivePointerId);
                     final float x = ev.getX(activePointerIndex);
-                    needsInvalidate |= performDrag(x);
+                    needsInvalidate |= performDrag(x, ev.getY());
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -2310,11 +2355,42 @@ public class ViewPager extends ViewGroup {
         }
     }
 
-    private boolean performDrag(float x) {
+    /**
+     * If either of the horizontal edge glows are currently active, this consumes part or all of
+     * deltaX on the edge glow.
+     *
+     * @param deltaX The pointer motion, in pixels, in the horizontal direction, positive
+     *                         for moving down and negative for moving up.
+     * @param y The vertical position of the pointer.
+     * @return The amount of <code>deltaX</code> that has been consumed by the
+     * edge glow.
+     */
+    private float releaseHorizontalGlow(float deltaX, float y) {
+        // First allow releasing existing overscroll effect:
+        float consumed = 0;
+        float displacement = y / getHeight();
+        float pullDistance = (float) deltaX / getWidth();
+        if (EdgeEffectCompat.getDistance(mLeftEdge) != 0) {
+            consumed = -EdgeEffectCompat.onPullDistance(mLeftEdge, -pullDistance, 1 - displacement);
+        } else if (EdgeEffectCompat.getDistance(mRightEdge) != 0) {
+            consumed = EdgeEffectCompat.onPullDistance(mRightEdge, pullDistance, displacement);
+        }
+        return consumed * getWidth();
+    }
+
+    private boolean performDrag(float x, float y) {
         boolean needsInvalidate = false;
 
-        final float deltaX = mLastMotionX - x;
+        final float dX = mLastMotionX - x;
         mLastMotionX = x;
+        final float releaseConsumed = releaseHorizontalGlow(dX, y);
+        final float deltaX = dX - releaseConsumed;
+        if (releaseConsumed != 0) {
+            needsInvalidate = true;
+        }
+        if (Math.abs(deltaX) < 0.0001f) { // ignore rounding errors from releaseHorizontalGlow()
+            return needsInvalidate;
+        }
 
         float oldScrollX = getScrollX();
         float scrollX = oldScrollX + deltaX;
@@ -2339,14 +2415,14 @@ public class ViewPager extends ViewGroup {
         if (scrollX < leftBound) {
             if (leftAbsolute) {
                 float over = leftBound - scrollX;
-                mLeftEdge.onPull(Math.abs(over) / width);
+                EdgeEffectCompat.onPullDistance(mLeftEdge, over / width, 1 - y / getHeight());
                 needsInvalidate = true;
             }
             scrollX = leftBound;
         } else if (scrollX > rightBound) {
             if (rightAbsolute) {
                 float over = scrollX - rightBound;
-                mRightEdge.onPull(Math.abs(over) / width);
+                EdgeEffectCompat.onPullDistance(mRightEdge, over / width, y / getHeight());
                 needsInvalidate = true;
             }
             scrollX = rightBound;
@@ -2407,7 +2483,9 @@ public class ViewPager extends ViewGroup {
 
     private int determineTargetPage(int currentPage, float pageOffset, int velocity, int deltaX) {
         int targetPage;
-        if (Math.abs(deltaX) > mFlingDistance && Math.abs(velocity) > mMinimumVelocity) {
+        if (Math.abs(deltaX) > mFlingDistance && Math.abs(velocity) > mMinimumVelocity
+                && EdgeEffectCompat.getDistance(mLeftEdge) == 0 // don't fling while stretched
+                && EdgeEffectCompat.getDistance(mRightEdge) == 0) {
             targetPage = velocity > 0 ? currentPage : currentPage + 1;
         } else {
             final float truncator = currentPage >= mCurItem ? 0.4f : 0.6f;
