@@ -240,6 +240,48 @@ class FragmentTransitionTest(
         assertThat(fragment2.destroyViewCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
 
+    @Test
+    fun noSharedElementReturnSharedElement() {
+        val fragment1 = setupInitialFragment()
+
+        fragment1.sharedElementEnterTransition = null
+        fragment1.sharedElementReturnTransition = null
+        fragment1.setEnterSharedElementCallback(null)
+        fragment1.setExitSharedElementCallback(null)
+
+        // Now do a transition to scene2
+        val fragment2 = SharedElementOnlyTransitionFragment()
+
+        fragment2.sharedElementEnterTransition = null
+        fragment2.setEnterSharedElementCallback(null)
+
+        val startOnBackStackChanged = onBackStackChangedTimes
+        val startBlue = activityRule.findBlue()
+        val startGreen = activityRule.findGreen()
+
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .addSharedElement(startBlue, "blueSquare")
+            .replace(R.id.fragmentContainer, fragment2)
+            .addToBackStack(null)
+            .commit()
+
+        activityRule.waitForExecution()
+        assertThat(onBackStackChangedTimes).isEqualTo(startOnBackStackChanged + 1)
+
+        verifyNoOtherTransitions(fragment2)
+
+        fragment1.exitTransition.verifyAndClearTransition {
+            exitingViews += listOfNotNull(startBlue, startGreen)
+        }
+        verifyNoOtherTransitions(fragment1)
+
+        // Now pop the back stack
+        verifyPopTransition(1, fragment2, fragment1)
+
+        assertThat(fragment2.destroyViewCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+    }
+
     // Test that shared elements transition from one fragment to the next
     // and back during pop.
     @Suppress("DEPRECATION")
