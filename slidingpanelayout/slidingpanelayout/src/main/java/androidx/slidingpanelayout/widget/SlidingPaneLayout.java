@@ -129,10 +129,10 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     View mSlideableView;
 
     /**
-     * How far the panel is offset from its closed position.
-     * range [0, 1] where 0 = closed, 1 = open.
+     * How far the panel is offset from its usual position.
+     * range [0, 1] where 0 = open, 1 = closed.
      */
-    float mSlideOffset;
+    float mSlideOffset = 1.f;
 
     /**
      * How far the non-sliding panel is parallaxed from its usual position when open.
@@ -184,26 +184,26 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     public static final int LOCK_MODE_UNLOCKED = 0;
 
     /**
-     * The list pane is locked open. The user cannot swipe from list to detail, but can swipe from
-     * detail to list. The app can close the list pane programmatically.
+     * The detail pane is locked in an open position. The user cannot swipe to close the detail
+     * pane, but the app can close the detail pane programmatically.
      */
     public static final int LOCK_MODE_LOCKED_OPEN = 1;
 
     /**
-     * The list pane is locked closed. The user cannot swipe from detail to list, but can swipe from
-     * list to detail. The app can open the list pane programmatically.
+     * The detail pane is locked in a closed position. The user cannot swipe to open the detail
+     * pane, but the app can open the detail pane programmatically.
      */
     public static final int LOCK_MODE_LOCKED_CLOSED = 2;
 
     /**
      * The user cannot swipe between list and detail panes, though the app can open or close the
-     * list pane programmatically.
+     * detail pane programmatically.
      */
-    public static final int LOCK_MODE_OPEN_ONLY = 3;
+    public static final int LOCK_MODE_LOCKED = 3;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({LOCK_MODE_UNLOCKED, LOCK_MODE_LOCKED_OPEN, LOCK_MODE_LOCKED_CLOSED,
-            LOCK_MODE_OPEN_ONLY})
+            LOCK_MODE_LOCKED})
     @interface LockMode {
     }
 
@@ -232,7 +232,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      */
     public interface PanelSlideListener {
         /**
-         * Called when a sliding pane's position changes.
+         * Called when a detail view's position changes.
          *
          * @param panel       The child view that was moved
          * @param slideOffset The new offset of this sliding pane within its range, from 0-1
@@ -240,18 +240,16 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         void onPanelSlide(@NonNull View panel, float slideOffset);
 
         /**
-         * Called when a sliding pane becomes slid completely open. The pane may or may not
-         * be interactive at this point depending on how much of the pane is visible.
+         * Called when a detail view becomes slid completely open.
          *
-         * @param panel The child view that was slid to an open position, revealing other panes
+         * @param panel The detail view that was slid to an open position
          */
         void onPanelOpened(@NonNull View panel);
 
         /**
-         * Called when a sliding pane becomes slid completely closed. The pane is now guaranteed
-         * to be interactive. It may now obscure other views in the layout.
+         * Called when a detail view becomes slid completely closed.
          *
-         * @param panel The child view that was slid to a closed position
+         * @param panel The detail view that was slid to a closed position
          */
         void onPanelClosed(@NonNull View panel);
     }
@@ -753,7 +751,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         int nextXStart = xStart;
 
         if (mFirstLayout) {
-            mSlideOffset = mCanSlide && mPreservedOpenState ? 1.f : 0.f;
+            mSlideOffset = mCanSlide && mPreservedOpenState ? 0.f : 1.f;
         }
 
         for (int i = 0; i < childCount; i++) {
@@ -839,7 +837,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             // After the first things will be slideable.
             final View secondChild = getChildAt(1);
             if (secondChild != null) {
-                mPreservedOpenState = !mDragHelper.isViewUnder(secondChild,
+                mPreservedOpenState = mDragHelper.isViewUnder(secondChild,
                         (int) ev.getX(), (int) ev.getY());
             }
         }
@@ -931,7 +929,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     private boolean closePane(int initialVelocity) {
-        if (mFirstLayout || smoothSlideTo(0.f, initialVelocity)) {
+        if (mFirstLayout || smoothSlideTo(1.f, initialVelocity)) {
             mPreservedOpenState = false;
             return true;
         }
@@ -939,7 +937,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     private boolean openPane(int initialVelocity) {
-        if (mFirstLayout || smoothSlideTo(1.f, initialVelocity)) {
+        if (mFirstLayout || smoothSlideTo(0.f, initialVelocity)) {
             mPreservedOpenState = true;
             return true;
         }
@@ -955,7 +953,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     /**
-     * Open the sliding pane if it is currently slideable. If first layout
+     * Open the detail view if it is currently slideable. If first layout
      * has already completed this will animate.
      */
     @Override
@@ -964,7 +962,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     /**
-     * Open the sliding pane if it is currently slideable. If first layout
+     * Open the detail view if it is currently slideable. If first layout
      * has already completed this will animate.
      *
      * @return true if the pane was slideable and is now open/in the process of opening
@@ -982,7 +980,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     /**
-     * Close the sliding pane if it is currently slideable. If first layout
+     * Close the detail view if it is currently slideable. If first layout
      * has already completed this will animate.
      */
     @Override
@@ -991,7 +989,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     /**
-     * Close the sliding pane if it is currently slideable. If first layout
+     * Close the detail view if it is currently slideable. If first layout
      * has already completed this will animate.
      *
      * @return true if the pane was slideable and is now closed/in the process of closing
@@ -1001,14 +999,14 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     /**
-     * Check if the layout is completely open. It can be open either because the slider
-     * itself is open revealing the left pane, or if all content fits without sliding.
+     * Check if the detail view is completely open. It can be open either because the slider
+     * itself is open revealing the detail view, or if all content fits without sliding.
      *
-     * @return true if sliding panels are completely open
+     * @return true if the detail view is completely open
      */
     @Override
     public boolean isOpen() {
-        return !mCanSlide || mSlideOffset == 1;
+        return !mCanSlide || mSlideOffset == 0;
     }
 
     /**
@@ -1058,11 +1056,11 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         final boolean isLayoutRtl = isLayoutRtlSupport();
-        final boolean enableEdgeRightTracking = isLayoutRtl ^ isOpen();
-        if (enableEdgeRightTracking) {
-            mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_RIGHT);
-        } else {
+        final boolean enableEdgeLeftTracking = isLayoutRtl ^ isOpen();
+        if (enableEdgeLeftTracking) {
             mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
+        } else {
+            mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_RIGHT);
         }
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         boolean result;
@@ -1408,7 +1406,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         @Override
         public void onViewDragStateChanged(int state) {
             if (mDragHelper.getViewDragState() == ViewDragHelper.STATE_IDLE) {
-                if (mSlideOffset == 0) {
+                if (mSlideOffset == 1) {
                     updateObscuredViewsVisibility(mSlideableView);
                     dispatchOnPanelClosed(mSlideableView);
                     mPreservedOpenState = false;
@@ -1464,12 +1462,12 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             int newLeft = left;
             if (slidingDetailToList) {
                 if (getLockMode() == LOCK_MODE_LOCKED_CLOSED
-                        || getLockMode() == LOCK_MODE_OPEN_ONLY) {
+                        || getLockMode() == LOCK_MODE_LOCKED) {
                     newLeft -= dx;
                 }
             } else {
                 if (getLockMode() == LOCK_MODE_LOCKED_OPEN
-                        || getLockMode() == LOCK_MODE_OPEN_ONLY) {
+                        || getLockMode() == LOCK_MODE_LOCKED) {
                     newLeft -= dx;
                 }
             }
