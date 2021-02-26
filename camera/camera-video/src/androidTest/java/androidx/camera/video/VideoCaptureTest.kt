@@ -555,10 +555,14 @@ class VideoCaptureTest(
         val savedFile = File.createTempFile("CameraX", ".tmp")
         savedFile.deleteOnExit()
 
-        val fd: FileDescriptor = ParcelFileDescriptor.open(
+        // It's needed to have a variable here to hold the parcel file descriptor reference which
+        // returned from ParcelFileDescriptor.open(), the returned parcel descriptor reference might
+        // be garbage collected unexpectedly. That will caused an "invalid file descriptor" issue.
+        val pfd: ParcelFileDescriptor = ParcelFileDescriptor.open(
             savedFile,
             ParcelFileDescriptor.MODE_READ_WRITE
-        ).fileDescriptor
+        )
+        val fd: FileDescriptor = pfd.fileDescriptor
 
         instrumentation.runOnMainSync {
             try {
@@ -585,6 +589,7 @@ class VideoCaptureTest(
         verify(callback, Mockito.timeout(2000))
             .onVideoSaved(outputFileResultsArgumentCaptor.capture())
         verifyRecordingResult(Uri.fromFile(savedFile))
+        pfd.close()
     }
 
     /** Return a VideoOutputFileOption which is used to save a video.  */
