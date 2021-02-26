@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class BackStackRecordTest {
+class BackStackStateTest {
 
     @get:Rule
     var activityRule = ActivityScenarioRule(EmptyFragmentTestActivity::class.java)
