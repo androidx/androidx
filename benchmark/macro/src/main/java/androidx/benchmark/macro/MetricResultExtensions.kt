@@ -21,7 +21,9 @@ import androidx.benchmark.MetricResult
 /**
  * Merge the Map<String, Long> results from each iteration into one List<MetricResult>
  */
-internal fun List<Map<String, Long>>.mergeToMetricResults(): List<MetricResult> {
+internal fun List<Map<String, Long>>.mergeToMetricResults(
+    tracePaths: List<String>
+): List<MetricResult> {
     val setOfAllKeys = flatMap { it.keys }.toSet()
 
     // validate each key shows up in each iteration
@@ -32,8 +34,11 @@ internal fun List<Map<String, Long>>.mergeToMetricResults(): List<MetricResult> 
     }
     if (iterationErrorStrings.isNotEmpty()) {
         throw IllegalStateException(
-            "Error, different metrics observed in different iterations.\n" +
-                iterationErrorStrings.joinToString("\n")
+            "Error, different metrics observed in different iterations.\n\n" +
+                iterationErrorStrings.joinToString("\n") +
+                "Please report a bug, and include a logcat capture, and all traces captured by " +
+                "this test run:\n" + tracePaths.joinToString("\n") + "\n" +
+                DeviceInfo.deviceSummaryString
         )
     }
 

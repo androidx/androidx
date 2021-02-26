@@ -47,6 +47,11 @@ internal object DeviceInfo {
     val initialBatteryPercent: Int
 
     /**
+     * String summarizing device hardware and software, for bug reporting purposes.
+     */
+    val deviceSummaryString: String
+
+    /**
      * General errors about device configuration, applicable to all types of benchmark.
      *
      * These errors indicate no performance tests should be performed on this device, in it's
@@ -63,6 +68,11 @@ internal object DeviceInfo {
             val scale = getIntExtra(BatteryManager.EXTRA_SCALE, 100)
             level * 100 / scale
         } ?: 100
+
+        deviceSummaryString = "DeviceInfo(Brand=${Build.BRAND}" +
+            ", Model=${Build.MODEL}" +
+            ", SDK=${Build.VERSION.SDK_INT}" +
+            ", BuildFp=${Build.FINGERPRINT})"
 
         errors = listOfNotNull(
             conditionalError(

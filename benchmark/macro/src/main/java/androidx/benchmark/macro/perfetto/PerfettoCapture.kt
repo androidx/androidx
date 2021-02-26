@@ -58,11 +58,7 @@ class PerfettoCapture {
         val textProtoFile = File(context.getExternalFilesDir(null), "trace_config.textproto")
         try {
             textProtoFile.writeBytes(configBytes)
-            // Start tracing
-            if (!helper.startCollecting(textProtoFile.absolutePath, true)) {
-                // TODO: move internal failures to be exceptions
-                throw IllegalStateException("Unable to read start collecting")
-            }
+            helper.startCollecting(textProtoFile.absolutePath, true)
         } finally {
             textProtoFile.delete()
         }

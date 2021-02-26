@@ -39,7 +39,7 @@ class MetricResultExtensionsTest {
             ),
             actual = listOf(
                 mapOf("foo" to 0L, "bar" to 1L)
-            ).mergeToMetricResults()
+            ).mergeToMetricResults(tracePaths = emptyList())
         )
     }
 
@@ -54,7 +54,7 @@ class MetricResultExtensionsTest {
                 mapOf("foo" to 100L, "bar" to 101L),
                 mapOf("foo" to 300L, "bar" to 301L),
                 mapOf("foo" to 200L, "bar" to 201L),
-            ).mergeToMetricResults()
+            ).mergeToMetricResults(tracePaths = emptyList())
         )
     }
 
@@ -65,10 +65,13 @@ class MetricResultExtensionsTest {
                 mapOf("foo" to 100L, "bar" to 101L),
                 mapOf("foo" to 300L), // bar missing! Time to crash!
                 mapOf("foo" to 200L, "bar" to 201L),
-            ).mergeToMetricResults()
+            ).mergeToMetricResults(
+                tracePaths = listOf("trace1.trace", "trace2.trace", "trace3.trace")
+            )
         }
         val message = exception.message
         assertNotNull(message)
         assertTrue(message.contains("Iteration 1 missing keys [bar]"))
+        assertTrue(message.contains("trace1.trace\ntrace2.trace\ntrace3.trace"))
     }
 }

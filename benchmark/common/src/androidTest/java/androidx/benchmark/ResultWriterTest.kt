@@ -81,6 +81,7 @@ public class ResultWriterTest {
             {
                 "context": {
                     "build": {
+                        "brand": "${Build.BRAND}",
                         "device": "${Build.DEVICE}",
                         "fingerprint": "${Build.FINGERPRINT}",
                         "model": "${Build.MODEL}",
