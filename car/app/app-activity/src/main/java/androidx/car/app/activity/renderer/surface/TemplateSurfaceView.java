@@ -94,6 +94,7 @@ public final class TemplateSurfaceView extends SurfaceView {
     @Nullable
     private OnBackPressedListener mOnBackPressedListener;
 
+    @Nullable
     ISurfaceControl mSurfaceControl;
     private boolean mIsInInputMode;
 

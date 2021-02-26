@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.serialization.Bundler;
 import androidx.car.app.serialization.BundlerException;
+import androidx.car.app.utils.CollectionUtils;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -152,6 +153,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     private PendingIntent mContentIntent;
     @Nullable
     private PendingIntent mDeleteIntent;
+    @Nullable
     private ArrayList<Action> mActions;
     private int mImportance;
     @Nullable
@@ -243,7 +245,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
             carExtensions.putParcelable(EXTRA_DELETE_INTENT, mDeleteIntent);
         }
 
-        if (!mActions.isEmpty()) {
+        if (mActions != null && !mActions.isEmpty()) {
             carExtensions.putParcelableArrayList(EXTRA_ACTIONS, mActions);
         }
 
@@ -345,7 +347,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
      */
     @NonNull
     public List<Action> getActions() {
-        return mActions;
+        return CollectionUtils.emptyIfNull(mActions);
     }
 
     /**
