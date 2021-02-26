@@ -136,4 +136,88 @@ class SaveRestoreBackStackTest {
             }
         }
     }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun saveRetainedFragment() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictFragment()
+            val fragmentReplacement = StrictFragment()
+            fragmentReplacement.retainInstance = true
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            try {
+                withActivity {
+                    fm.saveBackStack("replacement")
+                    fm.executePendingTransactions()
+                }
+                fail("executePendingTransactions() should fail with an IllegalArgumentException")
+            } catch (e: IllegalArgumentException) {
+                assertThat(e)
+                    .hasMessageThat()
+                    .startsWith(
+                        "saveBackStack(\"replacement\") must not contain retained fragments. " +
+                            "Found direct reference to retained fragment "
+                    )
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun saveRetainedChildFragment() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictFragment()
+            val fragmentReplacement = StrictFragment()
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            fragmentReplacement.childFragmentManager.beginTransaction()
+                .add(StrictFragment().apply { retainInstance = true }, "retained")
+                .commit()
+            executePendingTransactions(fragmentReplacement.childFragmentManager)
+
+            try {
+                withActivity {
+                    fm.saveBackStack("replacement")
+                    fm.executePendingTransactions()
+                }
+                fail("executePendingTransactions() should fail with an IllegalArgumentException")
+            } catch (e: IllegalArgumentException) {
+                assertThat(e)
+                    .hasMessageThat()
+                    .startsWith(
+                        "saveBackStack(\"replacement\") must not contain retained fragments. " +
+                            "Found retained child fragment "
+                    )
+            }
+        }
+    }
 }
