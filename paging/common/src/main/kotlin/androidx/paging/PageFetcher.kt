@@ -120,11 +120,11 @@ internal class PageFetcher<Key : Any, Value : Any>(
         return simpleChannelFlow {
             val loadStates = MutableLoadStateCollection()
 
-            suspend fun dispatchIfValid(state: LoadState) {
+            suspend fun dispatchIfValid(prevLoadStates: CombinedLoadStates) {
                 // not loading events are sent w/ insert-drop events.
                 if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(
-                        state,
-                        fromMediator = true
+                        prevLoadStates,
+                        loadStates.snapshot()
                     )
                 ) {
                     send(
@@ -139,17 +139,14 @@ internal class PageFetcher<Key : Any, Value : Any>(
             launch {
                 var prev = LoadStates.IDLE
                 accessor.state.collect {
-                    if (prev.refresh != it.refresh) {
+                    if (prev != it) {
+                        val prevCombinedLoadStates = loadStates.snapshot()
+
                         loadStates.set(REFRESH, true, it.refresh)
-                        dispatchIfValid(it.refresh)
-                    }
-                    if (prev.prepend != it.prepend) {
                         loadStates.set(PREPEND, true, it.prepend)
-                        dispatchIfValid(it.prepend)
-                    }
-                    if (prev.append != it.append) {
                         loadStates.set(APPEND, true, it.append)
-                        dispatchIfValid(it.append)
+
+                        dispatchIfValid(prevCombinedLoadStates)
                     }
 
                     prev = it

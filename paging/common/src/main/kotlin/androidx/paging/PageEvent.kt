@@ -197,8 +197,29 @@ internal sealed class PageEvent<T : Any> {
              *
              * This prevents multiple related RV animations from happening simultaneously
              */
-            internal fun canDispatchWithoutInsert(loadState: LoadState, fromMediator: Boolean) =
-                loadState is LoadState.Loading || loadState is LoadState.Error || fromMediator
+            internal fun canDispatchWithoutInsert(
+                prevLoadStates: CombinedLoadStates,
+                loadStates: CombinedLoadStates
+            ): Boolean {
+                // If prev and current load states are the same can't dispatch without insert
+                if (prevLoadStates == loadStates) {
+                    return false
+                }
+
+                // Check which state changed, then check if the changed state would be able to
+                // be dispatched without an insert
+                var canDispatch = false
+                loadStates.forEach { loadType, fromMediator, loadState ->
+                    if (prevLoadStates.get(loadType, fromMediator) != loadState) {
+                        if (loadState is LoadState.Loading || loadState is LoadState.Error ||
+                            fromMediator
+                        ) {
+                            canDispatch = true
+                        }
+                    }
+                }
+                return canDispatch
+            }
         }
     }
 

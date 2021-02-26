@@ -214,6 +214,7 @@ internal class FlattenedPageEventStorage<T : Any> {
      * anyway - remote state being added after initial, empty, PagingData.
      */
     private val loadStates = MutableLoadStateCollection()
+    private var prevLoadStates: CombinedLoadStates = CombinedLoadStates.IDLE_SOURCE
     fun add(event: PageEvent<T>) {
         when (event) {
             is PageEvent.Insert<T> -> handleInsert(event)
@@ -226,6 +227,7 @@ internal class FlattenedPageEventStorage<T : Any> {
         // TODO: include state in drop event for simplicity, instead of reconstructing behavior.
         //  This allows upstream to control how drop affects states (e.g. letting drop affect both
         //  remote and local)
+        prevLoadStates = loadStates.snapshot()
         loadStates.set(event.loadType, false, LoadState.NotLoading.Incomplete)
 
         when (event.loadType) {
@@ -242,6 +244,7 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handleInsert(event: PageEvent.Insert<T>) {
+        prevLoadStates = loadStates.snapshot()
         loadStates.set(event.combinedLoadStates)
         when (event.loadType) {
             LoadType.REFRESH -> {
@@ -264,6 +267,7 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handleLoadStateUpdate(event: PageEvent.LoadStateUpdate<T>) {
+        prevLoadStates = loadStates.snapshot()
         loadStates.set(event.combinedLoadStates)
     }
 
@@ -279,7 +283,10 @@ internal class FlattenedPageEventStorage<T : Any> {
                 )
             )
         } else {
-            if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(loadStates.snapshot())) {
+            if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(
+                    prevLoadStates, loadStates.snapshot()
+                )
+            ) {
                 events.add(PageEvent.LoadStateUpdate(loadStates.snapshot()))
             }
         }

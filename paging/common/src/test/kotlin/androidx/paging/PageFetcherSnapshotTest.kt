@@ -2599,22 +2599,6 @@ class PageFetcherSnapshotTest {
                     refreshRemote = Loading
                 )
             ),
-            LoadStateUpdate<PageEvent<Int>>(
-                remoteLoadStatesOf(
-                    refresh = Loading,
-                    refreshLocal = Loading,
-                    refreshRemote = NotLoading.Complete
-                )
-            ),
-            LoadStateUpdate<Int>(
-                remoteLoadStatesOf(
-                    refresh = Loading,
-                    prepend = NotLoading.Complete,
-                    refreshLocal = Loading,
-                    refreshRemote = NotLoading.Complete,
-                    prependRemote = NotLoading.Complete
-                )
-            ),
             LoadStateUpdate<Int>(
                 remoteLoadStatesOf(
                     refresh = Loading,
@@ -3293,24 +3277,6 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         assertThat(fetcherState.newEvents()).containsExactly(
-            LoadStateUpdate<Int>(
-                remoteLoadStatesOf(
-                    refresh = NotLoading.Complete,
-                    refreshRemote = NotLoading.Complete,
-                    prependLocal = NotLoading.Complete,
-                    appendLocal = NotLoading.Complete
-                )
-            ),
-            LoadStateUpdate<Int>(
-                remoteLoadStatesOf(
-                    refresh = NotLoading.Complete,
-                    prepend = NotLoading.Complete,
-                    refreshRemote = NotLoading.Complete,
-                    prependRemote = NotLoading.Complete,
-                    prependLocal = NotLoading.Complete,
-                    appendLocal = NotLoading.Complete
-                )
-            ),
             LoadStateUpdate<Int>(
                 remoteLoadStatesOf(
                     append = NotLoading.Complete,
