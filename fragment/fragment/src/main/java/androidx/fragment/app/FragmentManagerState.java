@@ -30,6 +30,8 @@ final class FragmentManagerState implements Parcelable {
     BackStackRecordState[] mBackStack;
     int mBackStackIndex;
     String mPrimaryNavActiveWho = null;
+    ArrayList<String> mBackStackStateKeys = new ArrayList<>();
+    ArrayList<BackStackState> mBackStackStates = new ArrayList<>();
     ArrayList<String> mResultKeys = new ArrayList<>();
     ArrayList<Bundle> mResults = new ArrayList<>();
     ArrayList<FragmentManager.LaunchedFragmentInfo> mLaunchedFragments;
@@ -43,6 +45,8 @@ final class FragmentManagerState implements Parcelable {
         mBackStack = in.createTypedArray(BackStackRecordState.CREATOR);
         mBackStackIndex = in.readInt();
         mPrimaryNavActiveWho = in.readString();
+        mBackStackStateKeys = in.createStringArrayList();
+        mBackStackStates = in.createTypedArrayList(BackStackState.CREATOR);
         mResultKeys = in.createStringArrayList();
         mResults = in.createTypedArrayList(Bundle.CREATOR);
         mLaunchedFragments = in.createTypedArrayList(FragmentManager.LaunchedFragmentInfo.CREATOR);
@@ -60,6 +64,8 @@ final class FragmentManagerState implements Parcelable {
         dest.writeTypedArray(mBackStack, flags);
         dest.writeInt(mBackStackIndex);
         dest.writeString(mPrimaryNavActiveWho);
+        dest.writeStringList(mBackStackStateKeys);
+        dest.writeTypedList(mBackStackStates);
         dest.writeStringList(mResultKeys);
         dest.writeTypedList(mResults);
         dest.writeTypedList(mLaunchedFragments);

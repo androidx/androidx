@@ -440,6 +440,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     private final AtomicInteger mBackStackIndex = new AtomicInteger();
 
+    private final Map<String, BackStackState> mBackStackStates =
+            Collections.synchronizedMap(new HashMap<String, BackStackState>());
+
     private final Map<String, Bundle> mResults =
             Collections.synchronizedMap(new HashMap<String, Bundle>());
     private final Map<String, LifecycleAwareResultListener> mResultListeners =
@@ -2815,6 +2818,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (mPrimaryNav != null) {
             fms.mPrimaryNavActiveWho = mPrimaryNav.mWho;
         }
+        fms.mBackStackStateKeys.addAll(mBackStackStates.keySet());
+        fms.mBackStackStates.addAll(mBackStackStates.values());
         fms.mResultKeys.addAll(mResults.keySet());
         fms.mResults.addAll(mResults.values());
         fms.mLaunchedFragments = new ArrayList<>(mLaunchedFragments);
@@ -2918,6 +2923,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (fms.mPrimaryNavActiveWho != null) {
             mPrimaryNav = findActiveFragment(fms.mPrimaryNavActiveWho);
             dispatchParentPrimaryNavigationFragmentChanged(mPrimaryNav);
+        }
+
+        ArrayList<String> savedBackStackStateKeys = fms.mBackStackStateKeys;
+        if (savedBackStackStateKeys != null) {
+            for (int i = 0; i < savedBackStackStateKeys.size(); i++) {
+                mBackStackStates.put(savedBackStackStateKeys.get(i), fms.mBackStackStates.get(i));
+            }
         }
 
         ArrayList<String> savedResultKeys = fms.mResultKeys;
