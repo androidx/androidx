@@ -43,6 +43,7 @@ android {
         buildConfig = true
     }
     defaultConfig {
+        multiDexEnabled true
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
@@ -94,6 +95,7 @@ dependencies {
     implementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_COROUTINES_ANDROID)
+    implementation(MULTIDEX)
     // depend on the shadowed version so that it tests with the shipped artifact
     // this is a temporary attribute until KSP and AndroidX plugin supports variants.
     if (useKsp) {
@@ -123,6 +125,7 @@ dependencies {
     androidTestImplementation(project(":room:room-rxjava3"))
     androidTestImplementation(project(":room:room-ktx"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation(projectOrArtifact(":paging:paging-runtime"))
     androidTestImplementation(GUAVA_ANDROID)
     androidTestImplementation(RX_JAVA)
     testImplementation(MOCKITO_CORE)
