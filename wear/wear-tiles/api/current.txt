@@ -26,6 +26,12 @@ package androidx.wear.tiles {
     method public void requestUpdate(Class<? extends android.app.Service>);
   }
 
+  public class ViewerTileUpdateRequester implements androidx.wear.tiles.TileUpdateRequester {
+    ctor public ViewerTileUpdateRequester(android.content.Context);
+    method public void requestUpdate(Class<? extends android.app.Service>);
+    field public static final String ACTION_REQUEST_TILE_UPDATE = "androidx.wear.tiles.action.REQUEST_TILE_UPDATE";
+  }
+
 }
 
 package androidx.wear.tiles.builders {

@@ -33,7 +33,7 @@ import java.util.function.BiFunction;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings("AndroidApiChecker") // Uses java.util.function.Function
 public abstract class ProtoParcelable implements Parcelable {
     private final byte[] mContents;

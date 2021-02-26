@@ -184,7 +184,7 @@ public final class TimelineBuilders {
     public static final class Timeline {
         private final TimelineProto.Timeline mImpl;
 
-        private Timeline(TimelineProto.Timeline impl) {
+        Timeline(TimelineProto.Timeline impl) {
             this.mImpl = impl;
         }
 

@@ -1,10 +1,54 @@
 // Signature format: 4.0
 package androidx.wear.tiles {
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class ProtoParcelable implements android.os.Parcelable {
+    ctor protected ProtoParcelable(byte[], int);
+    method public int describeContents();
+    method public byte[] getContents();
+    method public int getVersion();
+    method public void writeToParcel(android.os.Parcel, int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ResourcesData extends androidx.wear.tiles.ProtoParcelable {
+    ctor public ResourcesData(byte[], int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.ResourcesData!>! CREATOR;
+    field public static final int VERSION_PROTOBUF = 1; // 0x1
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ResourcesRequestData extends androidx.wear.tiles.ProtoParcelable {
+    ctor public ResourcesRequestData(byte[], int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.ResourcesRequestData!>! CREATOR;
+    field public static final int VERSION_PROTOBUF = 1; // 0x1
+  }
+
   public class SysUiTileUpdateRequester implements androidx.wear.tiles.TileUpdateRequester {
     ctor public SysUiTileUpdateRequester(android.content.Context);
     method public void requestUpdate(Class<? extends android.app.Service>);
     field public static final String ACTION_BIND_UPDATE_REQUESTER = "androidx.wear.tiles.action.BIND_UPDATE_REQUESTER";
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileAddEventData extends androidx.wear.tiles.ProtoParcelable {
+    ctor public TileAddEventData(byte[], int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileAddEventData!>! CREATOR;
+    field public static final int VERSION_PROTOBUF = 1; // 0x1
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileData extends androidx.wear.tiles.ProtoParcelable {
+    ctor public TileData(byte[], int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileData!>! CREATOR;
+    field public static final int VERSION_PROTOBUF = 1; // 0x1
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileEnterEventData extends androidx.wear.tiles.ProtoParcelable {
+    ctor public TileEnterEventData(byte[], int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileEnterEventData!>! CREATOR;
+    field public static final int VERSION_PROTOBUF = 1; // 0x1
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileLeaveEventData extends androidx.wear.tiles.ProtoParcelable {
+    ctor public TileLeaveEventData(byte[], int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileLeaveEventData!>! CREATOR;
+    field public static final int VERSION_PROTOBUF = 1; // 0x1
   }
 
   public abstract class TileProviderService extends android.app.Service {
@@ -22,8 +66,32 @@ package androidx.wear.tiles {
     field public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileRemoveEventData extends androidx.wear.tiles.ProtoParcelable {
+    ctor public TileRemoveEventData(byte[], int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileRemoveEventData!>! CREATOR;
+    field public static final int VERSION_PROTOBUF = 1; // 0x1
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileRequestData extends androidx.wear.tiles.ProtoParcelable {
+    ctor public TileRequestData(byte[], int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileRequestData!>! CREATOR;
+    field public static final int VERSION_PROTOBUF = 1; // 0x1
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileUpdateRequestData extends androidx.wear.tiles.ProtoParcelable {
+    ctor public TileUpdateRequestData();
+    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileUpdateRequestData!>! CREATOR;
+    field public static final int VERSION_PLACEHOLDER = 1; // 0x1
+  }
+
   public interface TileUpdateRequester {
     method public void requestUpdate(Class<? extends android.app.Service>);
+  }
+
+  public class ViewerTileUpdateRequester implements androidx.wear.tiles.TileUpdateRequester {
+    ctor public ViewerTileUpdateRequester(android.content.Context);
+    method public void requestUpdate(Class<? extends android.app.Service>);
+    field public static final String ACTION_REQUEST_TILE_UPDATE = "androidx.wear.tiles.action.REQUEST_TILE_UPDATE";
   }
 
 }
