@@ -2789,6 +2789,10 @@ public class ViewCompat {
     @Nullable
     public static ContentInfoCompat performReceiveContent(@NonNull View view,
             @NonNull ContentInfoCompat payload) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "performReceiveContent: " + payload
+                    + ", view=" + view.getClass().getSimpleName() + "[" + view.getId() + "]");
+        }
         OnReceiveContentListener listener =
                 (OnReceiveContentListener) view.getTag(R.id.tag_on_receive_content_listener);
         if (listener != null) {
