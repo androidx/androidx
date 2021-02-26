@@ -31,6 +31,8 @@ import kotlin.reflect.KProperty
  * in a file (at the top level), and all usages of the DataStore should use a reference the same
  * Instance. The receiver type for the property delegate must be an instance of [Context].
  *
+ * This should only be used from a single application in a single classloader in a single process.
+ *
  * Example usage:
  * ```
  * val Context.myRxDataStore by rxDataStore("filename", serializer)
@@ -46,9 +48,10 @@ import kotlin.reflect.KProperty
  * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
  * [androidx.datastore.core.CorruptionException] when attempting to read data. CorruptionExceptions
  * are thrown by serializers when data can not be de-serialized.
- * @param migrations are run before any access to data can occur. Each producer and migration
- * may be run more than once whether or not it already succeeded (potentially because another
- * migration failed or a write to disk failed.)
+ * @param produceMigrations produce the migrations. The ApplicationContext is passed in to these
+ * callbacks as a parameter. DataMigrations are run before any access to data can occur. Each
+ * producer and migration may be run more than once whether or not it already succeeded
+ * (potentially because another migration failed or a write to disk failed.)
  * @param scheduler The scheduler in which IO operations and transform functions will execute.
  *
  * @return a property delegate that manages a datastore as a singleton.
@@ -58,14 +61,14 @@ public fun <T : Any> rxDataStore(
     fileName: String,
     serializer: Serializer<T>,
     corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
-    migrations: List<DataMigration<T>> = listOf(),
+    produceMigrations: (Context) -> List<DataMigration<T>> = { listOf() },
     scheduler: Scheduler = Schedulers.io()
 ): ReadOnlyProperty<Context, RxDataStore<T>> {
     return RxDataStoreSingletonDelegate(
         fileName,
         serializer,
         corruptionHandler,
-        migrations,
+        produceMigrations,
         scheduler
     )
 }
@@ -77,7 +80,7 @@ internal class RxDataStoreSingletonDelegate<T : Any> internal constructor(
     private val fileName: String,
     private val serializer: Serializer<T>,
     private val corruptionHandler: ReplaceFileCorruptionHandler<T>?,
-    private val migrations: List<DataMigration<T>>,
+    private val produceMigrations: (Context) -> List<DataMigration<T>> = { listOf() },
     private val scheduler: Scheduler
 ) : ReadOnlyProperty<Context, RxDataStore<T>> {
 
@@ -98,7 +101,9 @@ internal class RxDataStoreSingletonDelegate<T : Any> internal constructor(
             if (INSTANCE == null) {
                 INSTANCE = with(RxDataStoreBuilder(thisRef, fileName, serializer)) {
                     setIoScheduler(scheduler)
-                    migrations.forEach { addDataMigration(it) }
+                    produceMigrations(thisRef.applicationContext).forEach {
+                        addDataMigration(it)
+                    }
                     corruptionHandler?.let { setCorruptionHandler(it) }
                     build()
                 }

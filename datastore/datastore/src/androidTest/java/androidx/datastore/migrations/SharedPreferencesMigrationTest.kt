@@ -22,11 +22,13 @@ import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.TestingSerializer
+import androidx.datastore.dataStore
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
@@ -35,13 +37,28 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
 
+private const val sharedPrefsName = "shared_prefs_name"
+
+private val Context.dsWithSpMigration by dataStore(
+    "ds_with_sp_migration",
+    serializer = TestingSerializer(),
+    produceMigrations = { applicationContext ->
+        listOf(
+            SharedPreferencesMigration(
+                applicationContext,
+                sharedPrefsName
+            ) { sharedPreferencesView: SharedPreferencesView, t: Byte ->
+                t.plus(sharedPreferencesView.getInt("integer_key", -1)).toByte()
+            }
+        )
+    }
+)
+
 @MediumTest
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class SharedPreferencesMigrationTest {
     @get:Rule
     val temporaryFolder = TemporaryFolder()
-
-    private val sharedPrefsName = "shared_prefs_name"
 
     private lateinit var context: Context
     private lateinit var sharedPrefs: SharedPreferences
@@ -150,6 +167,14 @@ class SharedPreferencesMigrationTest {
 
         val dataStore = getDataStoreWithMigrations(listOf(migration))
         assertThat(dataStore.data.first()).isEqualTo(123)
+    }
+
+    @Test
+    fun testWithTopLevelDataStoreDelegate() = runBlocking<Unit> {
+        File(context.filesDir, "/datastore").deleteRecursively()
+        assertThat(sharedPrefs.edit().putInt("integer_key", 123).commit()).isTrue()
+
+        assertThat(context.dsWithSpMigration.data.first()).isEqualTo(123)
     }
 
     private fun getDataStoreWithMigrations(

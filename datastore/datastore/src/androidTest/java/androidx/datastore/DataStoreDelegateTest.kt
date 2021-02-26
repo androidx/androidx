@@ -48,14 +48,17 @@ val Context.corruptedDs by dataStore(
 val Context.dsWithMigrationTo123 by dataStore(
     fileName = "file4",
     serializer = TestingSerializer(),
-    migrations = listOf(
-        object : DataMigration<Byte> {
-            override suspend fun shouldMigrate(currentData: Byte) = true
-            override suspend fun migrate(currentData: Byte): Byte = currentData.plus(123).toByte()
-            override suspend fun cleanUp() {}
-        }
+    produceMigrations = {
+        listOf(
+            object : DataMigration<Byte> {
+                override suspend fun shouldMigrate(currentData: Byte) = true
+                override suspend fun migrate(currentData: Byte): Byte =
+                    currentData.plus(123).toByte()
 
-    )
+                override suspend fun cleanUp() {}
+            }
+        )
+    }
 )
 
 @ExperimentalCoroutinesApi
