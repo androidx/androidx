@@ -733,7 +733,6 @@ public final class Bundler {
         private static final int MAX_LOG_INDENT = 12;
         private static final int MAX_FLAT_FRAMES = 8;
 
-        @Nullable
         private String[] mIndents; // memoized blank lines used for indentation
         private final ArrayDeque<Frame> mFrames;
 

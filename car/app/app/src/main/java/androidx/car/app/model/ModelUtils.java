@@ -18,8 +18,6 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import static java.util.Objects.requireNonNull;
-
 import android.text.Spanned;
 import android.text.style.CharacterStyle;
 
@@ -122,17 +120,12 @@ public final class ModelUtils {
             }
             Row row = (Row) rowObj;
 
+            boolean hasImage = row.getImage() != null;
+            Place place = row.getMetadata().getPlace();
+            boolean hasMarker = place != null && place.getMarker() != null;
 
-            Metadata metadata = row.getMetadata();
-            if (metadata != null) {
-                boolean hasImage = row.getImage() != null;
-                Place place = metadata.getPlace();
-                boolean hasMarker = place != null && place.getMarker() != null;
-
-                if (hasImage && hasMarker) {
-                    throw new IllegalArgumentException(
-                            "Rows can't have both a marker and an image");
-                }
+            if (hasImage && hasMarker) {
+                throw new IllegalArgumentException("Rows can't have both a marker and an image");
             }
         }
     }
@@ -141,7 +134,7 @@ public final class ModelUtils {
      * Returns {@code true} if the given row has a span of the given type, {@code false} otherwise.
      */
     private static boolean checkRowHasSpanType(Row row, Class<? extends CharacterStyle> spanType) {
-        CarText title = requireNonNull(row.getTitle());
+        CarText title = row.getTitle();
         if (checkCarTextHasSpanType(title, spanType)) {
             return true;
         }

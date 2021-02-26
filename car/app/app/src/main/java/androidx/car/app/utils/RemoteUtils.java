@@ -126,11 +126,6 @@ public final class RemoteUtils {
                 });
     }
 
-    /**
-     * Invoke onSuccess on the given {@code callback} instance with the given {@code response}.
-     */
-    // TODO(b/178748627): the nullable annotation from the AIDL file is not being considered.
-    @SuppressWarnings("NullAway")
     public static void sendSuccessResponse(
             @NonNull IOnDoneCallback callback, @NonNull String callName,
             @Nullable Object response) {
@@ -145,9 +140,6 @@ public final class RemoteUtils {
         }, callName + " onSuccess");
     }
 
-    /**
-     * Invoke onFailure on the given {@code callback} instance with the given {@link Throwable}.
-     */
     public static void sendFailureResponse(@NonNull IOnDoneCallback callback,
             @NonNull String callName,
             @NonNull Throwable e) {

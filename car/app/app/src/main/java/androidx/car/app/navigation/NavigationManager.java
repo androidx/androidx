@@ -300,11 +300,9 @@ public class NavigationManager {
         }
 
         mIsAutoDriveEnabled = true;
-        NavigationManagerCallback callback = mNavigationManagerCallback;
-        if (callback != null) {
-            requireNonNull(mNavigationManagerCallbackExecutor).execute(() -> {
-                callback.onAutoDriveEnabled();
-            });
+        if (mNavigationManagerCallback != null) {
+            requireNonNull(mNavigationManagerCallbackExecutor).execute(
+                    () -> mNavigationManagerCallback.onAutoDriveEnabled());
         } else {
             Log.w(TAG_NAVIGATION_MANAGER,
                     "NavigationManagerCallback not set, skipping onAutoDriveEnabled");
