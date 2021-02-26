@@ -144,8 +144,12 @@ class VideoCaptureTest {
             deleteOnExit()
         }
 
-        val fileDescriptor =
-            ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE).fileDescriptor
+        // It's needed to have a variable here to hold the parcel file descriptor reference which
+        // returned from ParcelFileDescriptor.open(), the returned parcel descriptor reference might
+        // be garbage collected unexpectedly. That will caused an "invalid file descriptor" issue.
+        val parcelFileDescriptor =
+            ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
+        val fileDescriptor = parcelFileDescriptor.fileDescriptor
         val useCase = VideoCapture.Builder().build()
 
         mInstrumentation.runOnMainSync {
@@ -166,6 +170,7 @@ class VideoCaptureTest {
         useCase.stopRecording()
 
         verify(callback, timeout(10000)).onVideoSaved(any())
+        parcelFileDescriptor.close()
     }
 
     @Test
