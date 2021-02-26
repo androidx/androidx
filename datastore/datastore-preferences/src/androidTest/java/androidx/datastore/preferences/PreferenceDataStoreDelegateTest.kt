@@ -49,24 +49,29 @@ val Context.withCorruptionHandler by preferencesDataStore(
 
 val Context.withMigrations by preferencesDataStore(
     name = "test3",
-    migrations = listOf(
-        object : DataMigration<Preferences> {
-            override suspend fun shouldMigrate(currentData: Preferences) = true
+    produceMigrations = {
+        listOf(
+            object : DataMigration<Preferences> {
+                override suspend fun shouldMigrate(currentData: Preferences) = true
 
-            override suspend fun migrate(currentData: Preferences) =
-                currentData.toMutablePreferences().apply { set(stringKey, "value") }.toPreferences()
+                override suspend fun migrate(currentData: Preferences) =
+                    currentData.toMutablePreferences().apply { set(stringKey, "value") }
+                        .toPreferences()
 
-            override suspend fun cleanUp() {}
-        },
-        object : DataMigration<Preferences> {
-            override suspend fun shouldMigrate(currentData: Preferences) = true
+                override suspend fun cleanUp() {}
+            },
+            object : DataMigration<Preferences> {
+                override suspend fun shouldMigrate(currentData: Preferences) = true
 
-            override suspend fun migrate(currentData: Preferences) =
-                currentData.toMutablePreferences().apply { set(booleanKey, true) }.toPreferences()
+                override suspend fun migrate(currentData: Preferences) =
+                    currentData.toMutablePreferences().apply { set(booleanKey, true) }
+                        .toPreferences()
 
-            override suspend fun cleanUp() {}
-        }
-    )
+                override suspend fun cleanUp() {}
+            }
+
+        )
+    }
 )
 
 @ObsoleteCoroutinesApi

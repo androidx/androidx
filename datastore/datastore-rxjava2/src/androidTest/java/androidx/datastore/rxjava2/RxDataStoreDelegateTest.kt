@@ -34,11 +34,15 @@ val Context.rxDataStore by rxDataStore("file1", TestingSerializer())
 
 val Context.rxdsWithMigration by rxDataStore(
     "file2", TestingSerializer(),
-    migrations = listOf(object : DataMigration<Byte> {
-        override suspend fun shouldMigrate(currentData: Byte) = true
-        override suspend fun migrate(currentData: Byte) = 123.toByte()
-        override suspend fun cleanUp() {}
-    })
+    produceMigrations = {
+        listOf(
+            object : DataMigration<Byte> {
+                override suspend fun shouldMigrate(currentData: Byte) = true
+                override suspend fun migrate(currentData: Byte) = 123.toByte()
+                override suspend fun cleanUp() {}
+            }
+        )
+    }
 )
 
 val Context.rxdsWithCorruptionHandler by rxDataStore(
