@@ -45,10 +45,40 @@ public class AsWireComplicationTextTest {
     }
 
     @Test
-    public fun timeDifferenceText() {
+    public fun timeDifferenceText_CountUpTimeReference() {
+        val referenceMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
         val text = TimeDifferenceComplicationText.Builder(
             TimeDifferenceStyle.STOPWATCH,
-            TimeReference.starting(10000L)
+            CountDownTimeReference(referenceMillis)
+        )
+            .setText("^1 after lunch")
+            .setDisplayAsNow(false)
+            .setMinimumUnit(TimeUnit.SECONDS)
+            .build()
+
+        ParcelableSubject.assertThat(text.asWireComplicationText())
+            .hasSameSerializationAs(
+                WireTimeDifferenceBuilder()
+                    .setStyle(WireComplicationText.DIFFERENCE_STYLE_STOPWATCH)
+                    .setSurroundingText("^1 after lunch")
+                    .setShowNowText(false)
+                    .setMinimumUnit(TimeUnit.SECONDS)
+                    .setReferencePeriodEndMillis(referenceMillis)
+                    .build()
+            )
+
+        val twoMinutesThreeSecondAfter = referenceMillis + 2.minutes + 3.seconds
+        assertThat(
+            text.getTextAt(getResource(), twoMinutesThreeSecondAfter).toString()
+        ).isEqualTo("02:03 after lunch")
+    }
+
+    @Test
+    public fun timeDifferenceText_CountDownTimeReference() {
+        val referenceMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
+        val text = TimeDifferenceComplicationText.Builder(
+            TimeDifferenceStyle.STOPWATCH,
+            CountUpTimeReference(referenceMillis)
         )
             .setText("^1 before lunch")
             .setDisplayAsNow(false)
@@ -62,9 +92,14 @@ public class AsWireComplicationTextTest {
                     .setSurroundingText("^1 before lunch")
                     .setShowNowText(false)
                     .setMinimumUnit(TimeUnit.SECONDS)
-                    .setReferencePeriodStartMillis(10000L)
+                    .setReferencePeriodStartMillis(referenceMillis)
                     .build()
             )
+
+        val twoMinutesThreeSecondBefore = referenceMillis - 2.minutes - 3.seconds
+        assertThat(
+            text.getTextAt(getResource(), twoMinutesThreeSecondBefore).toString()
+        ).isEqualTo("02:03 before lunch")
     }
 
     @Test
@@ -85,6 +120,8 @@ public class AsWireComplicationTextTest {
                     .build()
             )
     }
+
+    private fun getResource() = ApplicationProvider.getApplicationContext<Context>().resources
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
