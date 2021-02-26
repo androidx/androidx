@@ -23,6 +23,7 @@ public class MainFragmentArgs implements NavArgs {
     private MainFragmentArgs() {
     }
 
+    @SuppressWarnings("unchecked")
     private MainFragmentArgs(HashMap argumentsMap) {
         this.arguments.putAll(argumentsMap);
     }
@@ -455,10 +456,12 @@ public class MainFragmentArgs implements NavArgs {
     public static class Builder {
         private final HashMap arguments = new HashMap();
 
+        @SuppressWarnings("unchecked")
         public Builder(MainFragmentArgs original) {
             this.arguments.putAll(original.arguments);
         }
 
+        @SuppressWarnings("unchecked")
         public Builder(@NonNull String main, @NonNull float[] floatArrayArg,
                 @NonNull ActivityInfo[] objectArrayArg) {
             if (main == null) {
@@ -482,6 +485,7 @@ public class MainFragmentArgs implements NavArgs {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setMain(@NonNull String main) {
             if (main == null) {
                 throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
@@ -491,30 +495,35 @@ public class MainFragmentArgs implements NavArgs {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setOptional(int optional) {
             this.arguments.put("optional", optional);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setReference(int reference) {
             this.arguments.put("reference", reference);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setReferenceZeroDefaultValue(int referenceZeroDefaultValue) {
             this.arguments.put("referenceZeroDefaultValue", referenceZeroDefaultValue);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setFloatArg(float floatArg) {
             this.arguments.put("floatArg", floatArg);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setFloatArrayArg(@NonNull float[] floatArrayArg) {
             if (floatArrayArg == null) {
                 throw new IllegalArgumentException("Argument \"floatArrayArg\" is marked as non-null but was passed a null value.");
@@ -524,6 +533,7 @@ public class MainFragmentArgs implements NavArgs {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setObjectArrayArg(@NonNull ActivityInfo[] objectArrayArg) {
             if (objectArrayArg == null) {
                 throw new IllegalArgumentException("Argument \"objectArrayArg\" is marked as non-null but was passed a null value.");
@@ -533,18 +543,21 @@ public class MainFragmentArgs implements NavArgs {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setBoolArg(boolean boolArg) {
             this.arguments.put("boolArg", boolArg);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setOptionalParcelable(@Nullable ActivityInfo optionalParcelable) {
             this.arguments.put("optionalParcelable", optionalParcelable);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setEnumArg(@NonNull AccessMode enumArg) {
             if (enumArg == null) {
                 throw new IllegalArgumentException("Argument \"enumArg\" is marked as non-null but was passed a null value.");

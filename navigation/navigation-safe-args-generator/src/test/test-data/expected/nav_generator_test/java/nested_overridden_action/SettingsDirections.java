@@ -31,6 +31,7 @@ public class SettingsDirections {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Main setEnterReason(@NonNull String enterReason) {
             if (enterReason == null) {
                 throw new IllegalArgumentException("Argument \"enterReason\" is marked as non-null but was passed a null value.");
@@ -108,6 +109,7 @@ public class SettingsDirections {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Exit setExitReason(@NonNull String exitReason) {
             if (exitReason == null) {
                 throw new IllegalArgumentException("Argument \"exitReason\" is marked as non-null but was passed a null value.");

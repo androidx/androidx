@@ -246,12 +246,14 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
         val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build()
 
         val copyConstructor = MethodSpec.constructorBuilder()
+            .addAnnotation(specs.suppressAnnotationSpec)
             .addModifiers(Modifier.PUBLIC)
             .addParameter(className, "original")
             .addCode(specs.copyMapContents("this", "original"))
             .build()
 
         val fromMapConstructor = MethodSpec.constructorBuilder()
+            .addAnnotation(specs.suppressAnnotationSpec)
             .addModifiers(Modifier.PRIVATE)
             .addParameter(HASHMAP_CLASSNAME, "argumentsMap")
             .addStatement(
@@ -362,6 +364,7 @@ private class ClassWithArgsSpecs(
     fun setters(thisClassName: ClassName) = args.map { arg ->
         MethodSpec.methodBuilder("set${arg.sanitizedName.capitalize()}").apply {
             addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
+            addAnnotation(suppressAnnotationSpec)
             addModifiers(Modifier.PUBLIC)
             addParameter(generateParameterSpec(arg))
             addNullCheck(arg, arg.sanitizedName)
@@ -377,6 +380,9 @@ private class ClassWithArgsSpecs(
     }
 
     fun constructor() = MethodSpec.constructorBuilder().apply {
+        if (args.filterNot(Argument::isOptional).isNotEmpty()) {
+            addAnnotation(suppressAnnotationSpec)
+        }
         addModifiers(if (privateConstructor) Modifier.PRIVATE else Modifier.PUBLIC)
         args.filterNot(Argument::isOptional).forEach { arg ->
             addParameter(generateParameterSpec(arg))
