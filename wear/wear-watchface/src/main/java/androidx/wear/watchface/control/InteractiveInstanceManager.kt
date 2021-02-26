@@ -56,7 +56,7 @@ internal class InteractiveInstanceManager {
         fun addInstance(impl: InteractiveWatchFaceImpl) {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 require(!instances.containsKey(impl.instanceId)) {
-                    "Already have an InteractiveWatchFaceImpl with id " + impl.instanceId
+                    "Already have an InteractiveWatchFaceImpl with id ${impl.instanceId}"
                 }
                 instances[impl.instanceId] = RefCountedInteractiveWatchFaceInstance(impl, 1)
             }
@@ -86,6 +86,20 @@ internal class InteractiveInstanceManager {
         fun deleteInstance(instanceId: String) {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 instances.remove(instanceId)
+            }
+        }
+
+        @SuppressLint("SyntheticAccessor")
+        fun renameInstance(oldInstanceId: String, newInstanceId: String) {
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                val instance = instances.remove(oldInstanceId)
+                require(instance != null) {
+                    "Expected an InteractiveWatchFaceImpl with id $oldInstanceId"
+                }
+                require(!instances.containsKey(newInstanceId)) {
+                    "Already have an InteractiveWatchFaceImpl with id $newInstanceId"
+                }
+                instances.put(newInstanceId, instance)
             }
         }
 

@@ -885,6 +885,13 @@ internal class WatchFaceImpl(
         watchFaceHostApi.invalidate()
     }
 
+    /** Clears all [ComplicationData]. */
+    @UiThread
+    internal fun clearComplicationData() {
+        complicationsManager.clearComplicationData()
+        watchFaceHostApi.invalidate()
+    }
+
     /**
      * Called when a tap or touch related event occurs. Detects double and single taps on
      * complications and triggers the associated action.

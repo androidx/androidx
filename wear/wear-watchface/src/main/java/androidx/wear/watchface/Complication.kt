@@ -95,6 +95,9 @@ public interface CanvasComplication {
         idAndComplicationData: IdAndComplicationData?,
         loadDrawablesAsynchronous: Boolean
     )
+
+    /** The [IdAndComplicationData] should be cleared. */
+    public fun clearIdAndData()
 }
 
 /**
@@ -234,6 +237,11 @@ public open class CanvasComplicationDrawable(
             idAndComplicationData?.complicationData?.asWireComplicationData(),
             loadDrawablesAsynchronous
         )
+    }
+
+    override fun clearIdAndData() {
+        _idAndData = null
+        drawable.setComplicationData(null, false)
     }
 }
 

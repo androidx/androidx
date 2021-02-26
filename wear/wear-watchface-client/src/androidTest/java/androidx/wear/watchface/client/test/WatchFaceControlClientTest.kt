@@ -585,10 +585,12 @@ class WatchFaceControlClientTest {
         assertThat(contentDescriptionLabels[2].bounds).isEqualTo(Rect(240, 160, 320, 240))
         assertThat(contentDescriptionLabels[2].getTextAt(context.resources, 0))
             .isEqualTo("ID Right")
+
+        sysUiInterface.close()
     }
 
     @Test
-    fun setUserStyle() {
+    fun updateInstance() {
         val deferredInteractiveInstance =
             service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(
                 "testId",
@@ -613,15 +615,35 @@ class WatchFaceControlClientTest {
             }
         }
 
+        assertThat(interactiveInstance.instanceId).isEqualTo("testId")
+
         // Note this map doesn't include all the categories, which is fine the others will be set
         // to their defaults.
-        interactiveInstance.setUserStyle(
+        interactiveInstance.updateInstance(
+            "testId2",
             mapOf(
                 COLOR_STYLE_SETTING to BLUE_STYLE,
                 WATCH_HAND_LENGTH_STYLE_SETTING to "0.9",
             )
         )
 
+        assertThat(interactiveInstance.instanceId).isEqualTo("testId2")
+
+        // The complications should have been cleared.
+        val leftComplication =
+            interactiveInstance.complicationState[EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID]!!
+        val rightComplication =
+            interactiveInstance.complicationState[EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID]!!
+        assertThat(leftComplication.currentType).isEqualTo(ComplicationType.NO_DATA)
+        assertThat(rightComplication.currentType).isEqualTo(ComplicationType.NO_DATA)
+
+        // It should be possible to create a SysUI instance with the updated id.
+        val sysUiInterface =
+            service.getInteractiveWatchFaceSysUiClientInstance("testId2")
+        assertThat(sysUiInterface).isNotNull()
+        sysUiInterface?.close()
+
+        interactiveInstance.updateComplicationData(complications)
         val bitmap = interactiveInstance.takeWatchFaceScreenshot(
             RenderParameters(
                 DrawMode.INTERACTIVE,

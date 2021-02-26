@@ -492,6 +492,13 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
+        fun clearComplicationData() {
+            require(watchFaceCreated()) {
+                "WatchFace must have been created first"
+            }
+            watchFaceImpl.clearComplicationData()
+        }
+
         @UiThread
         fun getComplicationState(): List<IdAndComplicationStateWireFormat> =
             uiThreadHandler.runOnHandlerWithTracing("EngineWrapper.getComplicationState") {
