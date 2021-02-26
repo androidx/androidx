@@ -513,6 +513,7 @@ public abstract class WatchFaceService : WallpaperService() {
                             it.value.defaultProviderPolicy.systemProviderFallback,
                             it.value.defaultProviderType.asWireComplicationType(),
                             it.value.enabled,
+                            it.value.initiallyEnabled,
                             it.value.renderer.getIdAndData()?.complicationData?.type
                                 ?.asWireComplicationType()
                                 ?: ComplicationType.NO_DATA.asWireComplicationType(),

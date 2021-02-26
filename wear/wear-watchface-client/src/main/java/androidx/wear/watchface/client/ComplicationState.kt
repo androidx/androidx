@@ -24,6 +24,8 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationStateWireFormat
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
 
 /** State of the [Complication]. */
 public class ComplicationState(
@@ -42,9 +44,16 @@ public class ComplicationState(
     /** The default [ComplicationType] for this complication. */
     public val defaultProviderType: ComplicationType,
 
-    /** Whether or not the complication is drawn. */
+    /** Whether or not the complication is currently enabled (i.e. it should be drawn). */
     @get:JvmName("isEnabled")
     public val isEnabled: Boolean,
+
+    /**
+     * Whether or not the complication was initially enabled before considering any
+     * [ComplicationsOption] whose [ComplicationOverlay]s may enable or disable complications.
+     */
+    @get:JvmName("isInitiallyEnabled")
+    public val isInitiallyEnabled: Boolean,
 
     /** The [ComplicationType] of the complication's current [ComplicationData]. */
     public val currentType: ComplicationType,
@@ -67,6 +76,7 @@ public class ComplicationState(
         ),
         ComplicationType.fromWireType(complicationStateWireFormat.defaultProviderType),
         complicationStateWireFormat.isEnabled,
+        complicationStateWireFormat.isInitiallyEnabled,
         ComplicationType.fromWireType(complicationStateWireFormat.currentType),
         complicationStateWireFormat.isFixedComplicationProvider
     )
