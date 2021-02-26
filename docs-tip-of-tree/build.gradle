@@ -118,7 +118,6 @@ dependencies {
     docs(project(":gridlayout:gridlayout"))
     docs(project(":heifwriter:heifwriter"))
     docs(project(":hilt:hilt-common"))
-    docs(project(":hilt:hilt-lifecycle-viewmodel"))
     docs(project(":hilt:hilt-navigation"))
     docs(project(":hilt:hilt-navigation-compose"))
     docs(project(":hilt:hilt-navigation-fragment"))
