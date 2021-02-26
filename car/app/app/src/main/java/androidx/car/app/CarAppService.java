@@ -462,8 +462,13 @@ public abstract class CarAppService extends Service {
 
                 @Override
                 public void getAppInfo(IOnDoneCallback callback) {
-                    RemoteUtils.sendSuccessResponse(
-                            callback, "getAppInfo", CarAppService.this.getAppInfo());
+                    try {
+                        RemoteUtils.sendSuccessResponse(
+                                callback, "getAppInfo", CarAppService.this.getAppInfo());
+                    } catch (IllegalArgumentException e) {
+                        // getAppInfo() could fail with the specified API version is invalid.
+                        RemoteUtils.sendFailureResponse(callback, "getAppInfo", e);
+                    }
                 }
 
                 @Override

@@ -48,7 +48,7 @@ import androidx.car.app.versioning.CarAppApiLevels;
  *   <application ...>
  *     <meta-data
  *         android:name="androidx.car.app.min-api-level"
- *         android:value="2" />
+ *         android:value="1" />
  *     ...
  *   </application>
  * </manifest>
