@@ -33,6 +33,7 @@ public class MainFragment$InnerFragmentArgs implements NavArgs {
     private MainFragment$InnerFragmentArgs() {
     }
 
+    @SuppressWarnings("unchecked")
     private MainFragment$InnerFragmentArgs(HashMap argumentsMap) {
         this.arguments.putAll(argumentsMap);
     }
@@ -125,10 +126,12 @@ public class MainFragment$InnerFragmentArgs implements NavArgs {
     public static class Builder {
         private final HashMap arguments = new HashMap();
 
+        @SuppressWarnings("unchecked")
         public Builder(MainFragment$InnerFragmentArgs original) {
             this.arguments.putAll(original.arguments);
         }
 
+        @SuppressWarnings("unchecked")
         public Builder(@NonNull String mainArg) {
             if (mainArg == null) {
                 throw new IllegalArgumentException("Argument \"mainArg\" is marked as non-null but was passed a null value.");
@@ -143,6 +146,7 @@ public class MainFragment$InnerFragmentArgs implements NavArgs {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setMainArg(@NonNull String mainArg) {
             if (mainArg == null) {
                 throw new IllegalArgumentException("Argument \"mainArg\" is marked as non-null but was passed a null value.");

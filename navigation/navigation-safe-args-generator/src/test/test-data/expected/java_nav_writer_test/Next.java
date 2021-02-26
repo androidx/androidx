@@ -33,6 +33,7 @@ import java.util.HashMap;
 public static class Next implements NavDirections {
     private final HashMap arguments = new HashMap();
 
+    @SuppressWarnings("unchecked")
     private Next(@NonNull String main, int mainInt, @NonNull ActivityInfo parcelable,
             @NonNull ActivityInfo.WindowLayout innerData) {
         if (main == null) {
@@ -51,6 +52,7 @@ public static class Next implements NavDirections {
     }
 
     @NonNull
+    @SuppressWarnings("unchecked")
     public Next setMain(@NonNull String main) {
         if (main == null) {
             throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
@@ -60,12 +62,14 @@ public static class Next implements NavDirections {
     }
 
     @NonNull
+    @SuppressWarnings("unchecked")
     public Next setMainInt(int mainInt) {
         this.arguments.put("mainInt", mainInt);
         return this;
     }
 
     @NonNull
+    @SuppressWarnings("unchecked")
     public Next setOptional(@NonNull String optional) {
         if (optional == null) {
             throw new IllegalArgumentException("Argument \"optional\" is marked as non-null but was passed a null value.");
@@ -75,18 +79,21 @@ public static class Next implements NavDirections {
     }
 
     @NonNull
+    @SuppressWarnings("unchecked")
     public Next setOptionalInt(int optionalInt) {
         this.arguments.put("optionalInt", optionalInt);
         return this;
     }
 
     @NonNull
+    @SuppressWarnings("unchecked")
     public Next setOptionalParcelable(@Nullable ActivityInfo optionalParcelable) {
         this.arguments.put("optionalParcelable", optionalParcelable);
         return this;
     }
 
     @NonNull
+    @SuppressWarnings("unchecked")
     public Next setParcelable(@NonNull ActivityInfo parcelable) {
         if (parcelable == null) {
             throw new IllegalArgumentException("Argument \"parcelable\" is marked as non-null but was passed a null value.");
@@ -96,6 +103,7 @@ public static class Next implements NavDirections {
     }
 
     @NonNull
+    @SuppressWarnings("unchecked")
     public Next setInnerData(@NonNull ActivityInfo.WindowLayout innerData) {
         if (innerData == null) {
             throw new IllegalArgumentException("Argument \"innerData\" is marked as non-null but was passed a null value.");

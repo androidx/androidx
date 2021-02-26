@@ -33,6 +33,7 @@ public class SanitizedMainFragmentArgs implements NavArgs {
     private SanitizedMainFragmentArgs() {
     }
 
+    @SuppressWarnings("unchecked")
     private SanitizedMainFragmentArgs(HashMap argumentsMap) {
         this.arguments.putAll(argumentsMap);
     }
@@ -180,10 +181,12 @@ public class SanitizedMainFragmentArgs implements NavArgs {
     public static class Builder {
         private final HashMap arguments = new HashMap();
 
+        @SuppressWarnings("unchecked")
         public Builder(SanitizedMainFragmentArgs original) {
             this.arguments.putAll(original.arguments);
         }
 
+        @SuppressWarnings("unchecked")
         public Builder(int nameWithDot, int nameWithUnderscore, int nameWithSpaces) {
             this.arguments.put("name.with.dot", nameWithDot);
             this.arguments.put("name_with_underscore", nameWithUnderscore);
@@ -197,18 +200,21 @@ public class SanitizedMainFragmentArgs implements NavArgs {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setNameWithDot(int nameWithDot) {
             this.arguments.put("name.with.dot", nameWithDot);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setNameWithUnderscore(int nameWithUnderscore) {
             this.arguments.put("name_with_underscore", nameWithUnderscore);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setNameWithSpaces(int nameWithSpaces) {
             this.arguments.put("name with spaces", nameWithSpaces);
             return this;
