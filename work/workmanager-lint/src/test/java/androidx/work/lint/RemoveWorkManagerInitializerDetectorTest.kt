@@ -51,7 +51,7 @@ class RemoveWorkManagerInitializerDetectorTest {
                   package="com.example">
                   <application>
                         <provider
-                          android:name="androidx.work.impl.WorkManagerInitializer"
+                          android:name="androidx.startup.InitializationProvider"
                           android:authorities="com.example.workmanager-init"
                           tools:node="remove"/>
 
@@ -193,9 +193,12 @@ class RemoveWorkManagerInitializerDetectorTest {
                   package="com.example">
                   <application>
                         <provider
-                          android:name="androidx.work.impl.WorkManagerInitializer"
-                          android:authorities="com.example.workmanager-init"/>
-
+                          android:name="androidx.startup.InitializationProvider"
+                          android:authorities="com.example.workmanager-init">
+                          <meta-data
+                            android:name="androidx.work.impl.WorkManagerInitializer"
+                            android:value="@string/androidx_startup" />
+                      </provider>
                   </application>
                 </manifest>
         """
@@ -213,9 +216,9 @@ class RemoveWorkManagerInitializerDetectorTest {
             .run()
             .expect(
                 """
-                AndroidManifest.xml:5: Error: Remove androidx.work.impl.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization. [RemoveWorkManagerInitializer]
-                         <provider
-                         ^
+                AndroidManifest.xml:8: Error: Remove androidx.work.impl.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization. [RemoveWorkManagerInitializer]
+                           <meta-data
+                           ^
                 1 errors, 0 warnings
                 """.trimIndent()
             )
