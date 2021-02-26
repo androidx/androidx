@@ -34,8 +34,6 @@ dependencies {
     implementation("androidx.annotation:annotation-experimental:1.1.0-beta01")
     compileOnly KOTLIN_STDLIB // Due to :annotation-experimental
 
-    annotationProcessor(NULLAWAY)
-
     // TODO(shiufai): We need this for assertThrows. Point back to the AndroidX shared version if
     // it is ever upgraded.
     testImplementation("junit:junit:4.13")

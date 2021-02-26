@@ -35,7 +35,6 @@ import androidx.car.app.utils.CollectionUtils;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -89,6 +88,7 @@ public final class Row implements Item {
     @Nullable
     private final CarText mTitle;
     @Keep
+    @Nullable
     private final List<CarText> mTexts;
     @Keep
     @Nullable
@@ -267,7 +267,7 @@ public final class Row implements Item {
     /** Constructs an empty instance, used by serialization code. */
     private Row() {
         mTitle = null;
-        mTexts = Collections.emptyList();
+        mTexts = null;
         mImage = null;
         mToggle = null;
         mOnClickDelegate = null;

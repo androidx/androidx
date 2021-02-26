@@ -56,8 +56,6 @@ public class AppManager {
      *                           surface
      * @throws HostException     if the remote call fails
      */
-    // TODO(b/178748627): the nullable annotation from the AIDL file is not being considered.
-    @SuppressWarnings("NullAway")
     @SuppressLint("ExecutorRegistration")
     public void setSurfaceCallback(@Nullable SurfaceCallback surfaceCallback) {
         mHostDispatcher.dispatch(

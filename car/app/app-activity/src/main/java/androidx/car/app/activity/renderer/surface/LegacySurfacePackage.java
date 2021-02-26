@@ -26,7 +26,6 @@ import android.view.MotionEvent;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 
@@ -39,7 +38,6 @@ import androidx.car.app.serialization.BundlerException;
  */
 public final class LegacySurfacePackage {
     @Keep
-    @Nullable
     private ISurfaceControl mISurfaceControl;
 
     /**
@@ -90,7 +88,7 @@ public final class LegacySurfacePackage {
 
     @NonNull
     ISurfaceControl getSurfaceControl() {
-        return requireNonNull(mISurfaceControl);
+        return mISurfaceControl;
     }
 }
 

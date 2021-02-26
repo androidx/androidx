@@ -16,8 +16,6 @@
 
 package androidx.car.app.activity.renderer.surface;
 
-import static java.util.Objects.requireNonNull;
-
 import android.os.IBinder;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -43,7 +41,6 @@ public final class SurfaceWrapper {
     @Keep
     private int mDensityDpi;
     @Keep
-    @Nullable
     private Surface mSurface;
 
     /**
@@ -94,6 +91,6 @@ public final class SurfaceWrapper {
 
     @NonNull
     Surface getSurface() {
-        return requireNonNull(mSurface);
+        return mSurface;
     }
 }

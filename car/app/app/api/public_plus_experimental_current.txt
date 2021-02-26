@@ -28,7 +28,7 @@ package androidx.car.app {
     method @CallSuper public final void dump(java.io.FileDescriptor, java.io.PrintWriter, String![]?);
     method public final androidx.car.app.Session? getCurrentSession();
     method public final androidx.car.app.HostInfo? getHostInfo();
-    method @CallSuper public final android.os.IBinder onBind(android.content.Intent);
+    method @CallSuper public final android.os.IBinder? onBind(android.content.Intent);
     method public abstract androidx.car.app.Session onCreateSession();
     method public final boolean onUnbind(android.content.Intent);
     field public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
