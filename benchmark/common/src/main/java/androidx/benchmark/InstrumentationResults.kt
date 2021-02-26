@@ -26,8 +26,21 @@ import java.text.NumberFormat
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class InstrumentationResultScope(public val bundle: Bundle = Bundle()) {
-    public fun ideSummaryRecord(value: String) {
-        bundle.putString(IDE_SUMMARY_KEY, value)
+    @Suppress("MissingJvmstatic")
+    public fun ideSummaryRecord(
+        /**
+         * Simple text-only result summary string to output to IDE.
+         */
+        summaryV1: String,
+        /**
+         * V2 output string, supports linking to files in the output dir via links of the format
+         * `[link](file://<relative-path-to-trace>`).
+         */
+        summaryV2: String = summaryV1
+    ) {
+        bundle.putString(IDE_V1_SUMMARY_KEY, summaryV1)
+        bundle.putString(IDE_V2_OUTPUT_DIR_PATH_KEY, Arguments.outputDirectoryPath)
+        bundle.putString(IDE_V2_SUMMARY_KEY, summaryV2)
     }
 
     public fun fileRecord(key: String, path: String) {
@@ -35,7 +48,11 @@ public class InstrumentationResultScope(public val bundle: Bundle = Bundle()) {
     }
 
     internal companion object {
-        private const val IDE_SUMMARY_KEY = "android.studio.display.benchmark"
+        private const val IDE_V1_SUMMARY_KEY = "android.studio.display.benchmark"
+
+        private const val IDE_V2_OUTPUT_DIR_PATH_KEY =
+            "android.studio.v2display.benchmark.outputDirPath"
+        private const val IDE_V2_SUMMARY_KEY = "android.studio.v2display.benchmark"
     }
 }
 

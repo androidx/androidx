@@ -169,7 +169,13 @@ internal fun macrobenchmark(
         }
         InstrumentationResults.instrumentationReport {
             val statsList = metricResults.map { it.stats }
-            ideSummaryRecord(ideSummaryString(warningMessage, uniqueName, statsList))
+            val (summaryV1, summaryV2) = ideSummaryStrings(
+                warningMessage,
+                uniqueName,
+                statsList,
+                tracePaths
+            )
+            ideSummaryRecord(summaryV1 = summaryV1, summaryV2 = summaryV2)
             warningMessage = "" // warning only printed once
             statsList.forEach { it.putInBundle(bundle, suppressionState?.prefix ?: "") }
         }
