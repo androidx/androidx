@@ -70,7 +70,6 @@ public final class HostValidator {
     private final Map<String, List<String>> mAllowedHosts;
     private final boolean mAllowAllHosts;
     private final Map<String, Pair<Integer, Boolean>> mCallerChecked = new HashMap<>();
-    @Nullable
     private final PackageManager mPackageManager;
 
     HostValidator(@Nullable PackageManager packageManager,
@@ -133,13 +132,6 @@ public final class HostValidator {
     @SuppressWarnings("deprecation")
     private PackageInfo getPackageInfo(String packageName) {
         try {
-            if (mPackageManager == null) {
-                Log.d(TAG_HOST_VALIDATION,
-                        "PackageManager is null. Package info cannot be found for package "
-                                + packageName);
-                return null;
-            }
-
             if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.getPackageInfo(mPackageManager, packageName);
             } else {
@@ -147,7 +139,7 @@ public final class HostValidator {
                         PackageManager.GET_SIGNATURES | PackageManager.GET_PERMISSIONS);
             }
         } catch (PackageManager.NameNotFoundException e) {
-            Log.w(TAG_HOST_VALIDATION, "Package " + packageName + " not found", e);
+            Log.w(TAG_HOST_VALIDATION, "Package " + packageName + " not found.", e);
             return null;
         }
     }
@@ -326,7 +318,6 @@ public final class HostValidator {
         }
 
         @DoNotInline
-        @Nullable
         static Signature[] getSignatures(@NonNull PackageInfo packageInfo) {
             if (packageInfo.signingInfo == null) {
                 return null;

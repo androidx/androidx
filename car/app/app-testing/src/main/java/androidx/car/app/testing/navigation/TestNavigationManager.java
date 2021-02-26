@@ -46,7 +46,6 @@ import java.util.concurrent.Executor;
  */
 public class TestNavigationManager extends NavigationManager {
     private final List<Trip> mTripsSent = new ArrayList<>();
-    @Nullable
     private NavigationManagerCallback mCallback;
     private int mNavigationStartedCount;
     private int mNavigationEndedCount;

@@ -38,7 +38,6 @@ import androidx.car.app.serialization.BundlerException;
  */
 @RestrictTo(LIBRARY)
 public class SurfaceHolderListener implements SurfaceHolder.Callback {
-    @Nullable
     private ISurfaceListener mSurfaceListener;
     private boolean mIsSurfaceAvailable;
     private final SurfaceWrapperProvider mSurfaceWrapperProvider;

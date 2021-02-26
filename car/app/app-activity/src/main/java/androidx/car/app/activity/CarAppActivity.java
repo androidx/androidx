@@ -72,7 +72,6 @@ public final class CarAppActivity extends Activity {
     @VisibleForTesting
     static final String ACTION_RENDER = "android.car.template.host.action.RENDER";
 
-    @Nullable
     private ComponentName mServiceComponentName;
     TemplateSurfaceView mSurfaceView;
     SurfaceHolderListener mSurfaceHolderListener;
@@ -217,10 +216,6 @@ public final class CarAppActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_template);
-        mSurfaceView = requireViewById(R.id.template_view_surface);
-        mActivityLifecycleDelegate = new ActivityLifecycleDelegate();
-        mSurfaceHolderListener = new SurfaceHolderListener(
-                new SurfaceWrapperProvider(mSurfaceView));
 
         mServiceComponentName = serviceComponentName();
         if (mServiceComponentName == null) {
@@ -229,11 +224,16 @@ public final class CarAppActivity extends Activity {
             return;
         }
 
+        mActivityLifecycleDelegate = new ActivityLifecycleDelegate();
         registerActivityLifecycleCallbacks(mActivityLifecycleDelegate);
+
+        mSurfaceView = requireViewById(R.id.template_view_surface);
 
         // Set the z-order to receive the UI events on the surface.
         mSurfaceView.setZOrderOnTop(true);
 
+        mSurfaceHolderListener = new SurfaceHolderListener(
+                new SurfaceWrapperProvider(mSurfaceView));
         mSurfaceView.getHolder().addCallback(mSurfaceHolderListener);
         mDisplayId = getWindowManager().getDefaultDisplay().getDisplayId();
         bindService();
@@ -383,7 +383,6 @@ public final class CarAppActivity extends Activity {
      */
     void initializeService(@NonNull IRendererService rendererService) {
         requireNonNull(rendererService);
-        requireNonNull(mServiceComponentName);
         try {
             if (!rendererService.initialize(mCarActivity, mServiceComponentName,
                     mDisplayId)) {
@@ -406,7 +405,7 @@ public final class CarAppActivity extends Activity {
             return;
         }
         try {
-            mRendererService.terminate(requireNonNull(mServiceComponentName));
+            mRendererService.terminate(mServiceComponentName);
         } catch (RemoteException e) {
             // We are already unbinding (maybe because the host has already cut the connection)
             // Let's not log more errors unnecessarily.
@@ -424,7 +423,6 @@ public final class CarAppActivity extends Activity {
      */
     void updateIntent(@NonNull IRendererService rendererService) {
         requireNonNull(rendererService);
-        requireNonNull(mServiceComponentName);
         Intent intent = getIntent();
         try {
             if (!rendererService.onNewIntent(intent, mServiceComponentName, mDisplayId)) {
