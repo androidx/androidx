@@ -60,16 +60,7 @@ class PhoneTypeHelperTest {
 
     @Test
     fun testGetDeviceType_returnsIosWhenAltMode() {
-        Mockito.`when`(
-            mockContentProvider!!.query(
-                ArgumentMatchers.eq(bluetoothModeUri),
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any()
-            )
-        )
-            .thenReturn(createFakeBluetoothModeCursor(PhoneTypeHelper.IOS_MODE))
+        createFakePhoneTypeQuery(PhoneTypeHelper.IOS_MODE)
         assertEquals(
             getPhoneDeviceType(ApplicationProvider.getApplicationContext()).toLong(),
             PhoneTypeHelper.DEVICE_TYPE_IOS.toLong()
@@ -78,16 +69,7 @@ class PhoneTypeHelperTest {
 
     @Test
     fun testGetDeviceType_returnsAndroidWhenNonAltMode() {
-        Mockito.`when`(
-            mockContentProvider!!.query(
-                ArgumentMatchers.eq(bluetoothModeUri),
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any()
-            )
-        )
-            .thenReturn(createFakeBluetoothModeCursor(PhoneTypeHelper.ANDROID_MODE))
+        createFakePhoneTypeQuery(PhoneTypeHelper.ANDROID_MODE)
         assertEquals(
             getPhoneDeviceType(ApplicationProvider.getApplicationContext()).toLong(),
             PhoneTypeHelper.DEVICE_TYPE_ANDROID.toLong()
@@ -96,16 +78,7 @@ class PhoneTypeHelperTest {
 
     @Test
     fun testGetDeviceType_returnsErrorWhenModeUnknown() {
-        Mockito.`when`(
-            mockContentProvider!!.query(
-                ArgumentMatchers.eq(bluetoothModeUri),
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any()
-            )
-        )
-            .thenReturn(createFakeBluetoothModeCursor(PhoneTypeHelper.DEVICE_TYPE_UNKNOWN))
+        createFakePhoneTypeQuery(PhoneTypeHelper.DEVICE_TYPE_UNKNOWN)
         assertEquals(
             getPhoneDeviceType(ApplicationProvider.getApplicationContext()).toLong(),
             PhoneTypeHelper.DEVICE_TYPE_UNKNOWN.toLong()
@@ -183,5 +156,18 @@ class PhoneTypeHelperTest {
             cursor.addRow(arrayOf<Any>(PhoneTypeHelper.BLUETOOTH_MODE, bluetoothMode))
             return cursor
         }
+    }
+
+    private fun createFakePhoneTypeQuery(phoneType: Int) {
+        Mockito.`when`(
+            mockContentProvider!!.query(
+                ArgumentMatchers.eq(bluetoothModeUri),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any()
+            )
+        )
+            .thenReturn(createFakeBluetoothModeCursor(phoneType))
     }
 }
