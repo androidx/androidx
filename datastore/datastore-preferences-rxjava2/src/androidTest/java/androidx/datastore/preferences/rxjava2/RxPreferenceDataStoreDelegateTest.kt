@@ -40,11 +40,16 @@ val Context.rxDataStore by rxPreferencesDataStore("file1")
 
 val Context.rxdsWithMigration by rxPreferencesDataStore(
     "file2",
-    migrations = listOf(object : DataMigration<Preferences> {
-        override suspend fun shouldMigrate(currentData: Preferences) = true
-        override suspend fun migrate(currentData: Preferences) = preferencesOf(intKey to 123)
-        override suspend fun cleanUp() {}
-    })
+    produceMigrations = {
+        listOf(
+            object : DataMigration<Preferences> {
+                override suspend fun shouldMigrate(currentData: Preferences) = true
+                override suspend fun migrate(currentData: Preferences) =
+                    preferencesOf(intKey to 123)
+
+                override suspend fun cleanUp() {}
+            })
+    }
 )
 
 val Context.rxdsWithCorruptionHandler by rxPreferencesDataStore(
