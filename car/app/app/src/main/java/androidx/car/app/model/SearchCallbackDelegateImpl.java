@@ -19,11 +19,14 @@ package androidx.car.app.model;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.model.SearchTemplate.SearchCallback;
 
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
@@ -38,13 +41,14 @@ import androidx.car.app.utils.RemoteUtils;
 public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
 
     @Keep
+    @Nullable
     private final ISearchCallback mStubCallback;
 
     @Override
     public void sendSearchTextChanged(@NonNull String searchText,
             @NonNull OnDoneCallback callback) {
         try {
-            mStubCallback.onSearchTextChanged(searchText,
+            requireNonNull(mStubCallback).onSearchTextChanged(searchText,
                     RemoteUtils.createOnDoneCallbackStub(callback));
         } catch (RemoteException e) {
             throw new RuntimeException(e);
@@ -55,7 +59,7 @@ public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
     public void sendSearchSubmitted(@NonNull String searchText,
             @NonNull OnDoneCallback callback) {
         try {
-            mStubCallback.onSearchSubmitted(searchText,
+            requireNonNull(mStubCallback).onSearchSubmitted(searchText,
                     RemoteUtils.createOnDoneCallbackStub(callback));
         } catch (RemoteException e) {
             throw new RuntimeException(e);

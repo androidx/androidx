@@ -175,6 +175,7 @@ public final class NavigationTemplate implements Template {
         CarColor mBackgroundColor;
         @Nullable
         TravelEstimate mDestinationTravelEstimate;
+        @Nullable
         ActionStrip mActionStrip;
 
         /**
