@@ -2,6 +2,7 @@
 package androidx.wear.watchface {
 
   public interface CanvasComplication {
+    method public void clearIdAndData();
     method public androidx.wear.complications.data.IdAndComplicationData? getIdAndData();
     method public boolean isHighlighted();
     method @UiThread public void onAttach(androidx.wear.watchface.Complication complication);
@@ -14,6 +15,7 @@ package androidx.wear.watchface {
 
   public class CanvasComplicationDrawable implements androidx.wear.watchface.CanvasComplication {
     ctor public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable, androidx.wear.watchface.WatchState watchState);
+    method public void clearIdAndData();
     method public void drawOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, @ColorInt int color);
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
     method public androidx.wear.complications.data.IdAndComplicationData? getIdAndData();

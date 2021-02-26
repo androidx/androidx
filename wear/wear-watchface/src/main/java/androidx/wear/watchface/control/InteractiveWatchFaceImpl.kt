@@ -30,19 +30,19 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 @RequiresApi(27)
 internal class InteractiveWatchFaceImpl(
     internal val engine: WatchFaceService.EngineWrapper,
-    internal val instanceId: String,
+    internal var instanceId: String,
     private val uiThreadHandler: Handler
 ) {
-    fun createSysUiApi() = SysUiApi(engine, instanceId, uiThreadHandler)
+    fun createSysUiApi() = SysUiApi(engine, this, uiThreadHandler)
 
-    fun createWCSApi() = WCSApi(engine, instanceId, uiThreadHandler)
+    fun createWCSApi() = WCSApi(engine, this, uiThreadHandler)
 }
 
 /** The interface for SysUI. */
 @RequiresApi(27)
 internal class SysUiApi(
     private val engine: WatchFaceService.EngineWrapper,
-    private val instanceIdentifier: String,
+    private val instance: InteractiveWatchFaceImpl,
     private val uiThreadHandler: Handler
 ) : IInteractiveWatchFaceSysUI.Stub() {
     override fun getApiVersion() = IInteractiveWatchFaceSysUI.API_VERSION
@@ -71,7 +71,7 @@ internal class SysUiApi(
         }
     }
 
-    override fun getInstanceId(): String = instanceIdentifier
+    override fun getInstanceId(): String = instance.instanceId
 
     override fun ambientTickUpdate() {
         uiThreadHandler.runOnHandlerWithTracing("SysUiApi.ambientTickUpdate") {
@@ -90,7 +90,7 @@ internal class SysUiApi(
 @RequiresApi(27)
 internal class WCSApi(
     private val engine: WatchFaceService.EngineWrapper,
-    private val instanceIdentifier: String,
+    private val instance: InteractiveWatchFaceImpl,
     private val uiThreadHandler: Handler
 ) : IInteractiveWatchFaceWCS.Stub() {
     override fun getApiVersion() = IInteractiveWatchFaceWCS.API_VERSION
@@ -110,13 +110,21 @@ internal class WCSApi(
 
     override fun getPreviewReferenceTimeMillis() = engine.watchFaceImpl.previewReferenceTimeMillis
 
-    override fun setCurrentUserStyle(userStyle: UserStyleWireFormat) {
-        uiThreadHandler.runOnHandlerWithTracing("WCSApi.setCurrentUserStyle") {
+    override fun updateInstance(
+        newInstanceId: String,
+        userStyle: UserStyleWireFormat
+    ) {
+        uiThreadHandler.runOnHandlerWithTracing("WCSApi.updateInstance") {
+            if (instance.instanceId != newInstanceId) {
+                InteractiveInstanceManager.renameInstance(instance.instanceId, newInstanceId)
+                instance.instanceId = newInstanceId
+            }
             engine.setUserStyle(userStyle)
+            engine.clearComplicationData()
         }
     }
 
-    override fun getInstanceId(): String = instanceIdentifier
+    override fun getInstanceId(): String = instance.instanceId
 
     override fun release() {
         uiThreadHandler.runOnHandlerWithTracing("WCSApi.release") {

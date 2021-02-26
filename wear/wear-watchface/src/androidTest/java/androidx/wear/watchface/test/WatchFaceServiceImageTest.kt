@@ -322,9 +322,11 @@ class WatchFaceServiceImageTest {
         handler.post(this::initCanvasWatchFace)
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         handler.post {
-            interactiveWatchFaceInstanceWCS.setCurrentUserStyle(
+            interactiveWatchFaceInstanceWCS.updateInstance(
+                "newId",
                 UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE))
             )
+            sendComplications()
             engineWrapper.draw()
         }
 
