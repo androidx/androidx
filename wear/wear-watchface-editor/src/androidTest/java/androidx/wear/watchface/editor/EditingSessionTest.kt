@@ -321,7 +321,7 @@ public class EditorSessionTest {
             mockBackgroundCanvasComplication,
             emptyList(),
             DefaultComplicationProviderPolicy()
-        ).build()
+        ).setEnabled(false).build()
 
     private val fakeBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
     private val onDestroyLatch = CountDownLatch(1)
@@ -473,6 +473,9 @@ public class EditorSessionTest {
             assertFalse(
                 it.editorSession.complicationState[LEFT_COMPLICATION_ID]!!.fixedComplicationProvider
             )
+            assertTrue(
+                it.editorSession.complicationState[LEFT_COMPLICATION_ID]!!.isInitiallyEnabled
+            )
 
             assertThat(it.editorSession.complicationState[RIGHT_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(Rect(240, 160, 320, 240))
@@ -482,6 +485,9 @@ public class EditorSessionTest {
                 it.editorSession.complicationState[RIGHT_COMPLICATION_ID]!!
                     .fixedComplicationProvider
             )
+            assertTrue(
+                it.editorSession.complicationState[RIGHT_COMPLICATION_ID]!!.isInitiallyEnabled
+            )
 
             assertThat(it.editorSession.complicationState[BACKGROUND_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(screenBounds)
@@ -490,6 +496,9 @@ public class EditorSessionTest {
             assertFalse(
                 it.editorSession.complicationState[BACKGROUND_COMPLICATION_ID]!!
                     .fixedComplicationProvider
+            )
+            assertFalse(
+                it.editorSession.complicationState[BACKGROUND_COMPLICATION_ID]!!.isInitiallyEnabled
             )
             // We could test more state but this should be enough.
         }
