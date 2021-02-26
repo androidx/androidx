@@ -30,9 +30,9 @@ package androidx.slidingpanelayout.widget {
     method @Deprecated public void setSliderFadeColor(@ColorInt int);
     method @Deprecated public void smoothSlideClosed();
     method @Deprecated public void smoothSlideOpen();
+    field public static final int LOCK_MODE_LOCKED = 3; // 0x3
     field public static final int LOCK_MODE_LOCKED_CLOSED = 2; // 0x2
     field public static final int LOCK_MODE_LOCKED_OPEN = 1; // 0x1
-    field public static final int LOCK_MODE_OPEN_ONLY = 3; // 0x3
     field public static final int LOCK_MODE_UNLOCKED = 0; // 0x0
   }
 

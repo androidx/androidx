@@ -80,7 +80,6 @@ public class SlidingPaneLayoutActivity extends Activity {
         mContent = findViewById(R.id.content_text);
 
         mSlidingLayout.setPanelSlideListener(new SliderListener());
-        mSlidingLayout.openPane();
 
         mList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
                 LoremIpsum.TITLES));
@@ -95,11 +94,12 @@ public class SlidingPaneLayoutActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         /*
-         * The action bar up action should open the slider if it is currently closed,
-         * as the left pane contains content one level up in the navigation hierarchy.
+         * The action bar up action should close the detail view if it is
+         * currently open, as the left pane contains content one level up in the navigation
+         * hierarchy.
          */
-        if (item.getItemId() == android.R.id.home && !mSlidingLayout.isOpen()) {
-            mSlidingLayout.openPane();
+        if (item.getItemId() == android.R.id.home && mSlidingLayout.isOpen()) {
+            mSlidingLayout.closePane();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -115,7 +115,7 @@ public class SlidingPaneLayoutActivity extends Activity {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             mContent.setText(LoremIpsum.DIALOGUE[position]);
             mActionBar.setTitle(LoremIpsum.TITLES[position]);
-            mSlidingLayout.closePane();
+            mSlidingLayout.openPane();
         }
     }
 
