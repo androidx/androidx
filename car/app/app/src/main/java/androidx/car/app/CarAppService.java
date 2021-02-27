@@ -19,6 +19,8 @@ package androidx.car.app;
 import static androidx.car.app.utils.LogTags.TAG;
 import static androidx.car.app.utils.ThreadUtils.runOnMain;
 
+import static java.util.Objects.requireNonNull;
+
 import android.app.Service;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -105,6 +107,7 @@ public abstract class CarAppService extends Service {
 
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 
+    @Nullable
     private AppInfo mAppInfo;
 
     @Nullable
@@ -129,7 +132,7 @@ public abstract class CarAppService extends Service {
      */
     @Override
     @CallSuper
-    @Nullable
+    @NonNull
     public final IBinder onBind(@NonNull Intent intent) {
         return mBinder;
     }
@@ -328,7 +331,8 @@ public abstract class CarAppService extends Service {
                         if (session == null
                                 || session.getLifecycle().getCurrentState() == State.DESTROYED) {
                             session = onCreateSession();
-                            session.getCarContext().updateHandshakeInfo(getHandshakeInfo());
+                            session.getCarContext().updateHandshakeInfo(
+                                    requireNonNull(getHandshakeInfo()));
                             setCurrentSession(session);
                         }
 
@@ -516,7 +520,7 @@ public abstract class CarAppService extends Service {
                 }
             };
 
-    Session throwIfInvalid(Session session) {
+    Session throwIfInvalid(@Nullable Session session) {
         if (session == null) {
             throw new IllegalStateException("Null session found when non-null expected");
         }
