@@ -31,7 +31,7 @@ package androidx.paging
     "DEPRECATION"
 )
 @JvmSynthetic
-fun Config(
+public fun Config(
     pageSize: Int,
     prefetchDistance: Int = pageSize,
     enablePlaceholders: Boolean = true,

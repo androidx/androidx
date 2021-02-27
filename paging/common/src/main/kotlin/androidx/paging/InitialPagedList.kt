@@ -29,7 +29,7 @@ import kotlinx.coroutines.CoroutineScope
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class InitialPagedList<K : Any, V : Any>(
+public class InitialPagedList<K : Any, V : Any>(
     pagingSource: PagingSource<K, V>,
     coroutineScope: CoroutineScope,
     notifyDispatcher: CoroutineDispatcher,
