@@ -53,6 +53,7 @@ import java.util.Objects;
 @RequiresCarApi(2)
 public final class ClickableSpan extends CarSpan {
     @Keep
+    @Nullable
     private final OnClickDelegate mOnClickDelegate;
 
     /**
@@ -72,7 +73,7 @@ public final class ClickableSpan extends CarSpan {
     /** Returns the {@link OnClickDelegate} associated with this span. */
     @NonNull
     public OnClickDelegate getOnClickDelegate() {
-        return mOnClickDelegate;
+        return requireNonNull(mOnClickDelegate);
     }
 
     @Override

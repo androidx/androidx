@@ -18,6 +18,8 @@ import androidx.build.LibraryType
 import androidx.build.Publish
 import androidx.build.LibraryVersions
 
+import static androidx.build.dependencies.DependenciesKt.NULLAWAY
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -28,6 +30,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation project(path: ':lifecycle:lifecycle-runtime')
+
+    annotationProcessor(NULLAWAY)
 }
 
 android {
