@@ -132,18 +132,19 @@ package androidx.navigation {
     method public android.os.Bundle getArguments();
   }
 
-  public class NavGraph extends androidx.navigation.NavDestination implements java.lang.Iterable<androidx.navigation.NavDestination> {
-    ctor public NavGraph(androidx.navigation.Navigator<? extends androidx.navigation.NavGraph>);
-    method public final void addAll(androidx.navigation.NavGraph);
-    method public final void addDestination(androidx.navigation.NavDestination);
-    method public final void addDestinations(java.util.Collection<androidx.navigation.NavDestination!>);
-    method public final void addDestinations(androidx.navigation.NavDestination!...);
+  public class NavGraph extends androidx.navigation.NavDestination implements java.lang.Iterable<androidx.navigation.NavDestination> kotlin.jvm.internal.markers.KMappedMarker {
+    ctor public NavGraph(androidx.navigation.Navigator<? extends androidx.navigation.NavGraph> navGraphNavigator);
+    method public final void addAll(androidx.navigation.NavGraph other);
+    method public final void addDestination(androidx.navigation.NavDestination node);
+    method public final void addDestinations(java.util.Collection<? extends androidx.navigation.NavDestination> nodes);
+    method public final void addDestinations(androidx.navigation.NavDestination... nodes);
     method public final void clear();
-    method public final androidx.navigation.NavDestination? findNode(@IdRes int);
+    method public final androidx.navigation.NavDestination? findNode(@IdRes int resid);
     method @IdRes public final int getStartDestination();
-    method public final java.util.Iterator<androidx.navigation.NavDestination!> iterator();
-    method public final void remove(androidx.navigation.NavDestination);
-    method public final void setStartDestination(@IdRes int);
+    method public final java.util.Iterator<androidx.navigation.NavDestination> iterator();
+    method public final void remove(androidx.navigation.NavDestination node);
+    method public final void setStartDestination(int startDestId);
+    property @IdRes public final int startDestination;
   }
 
   @androidx.navigation.Navigator.Name("navigation") public class NavGraphNavigator extends androidx.navigation.Navigator<androidx.navigation.NavGraph> {
