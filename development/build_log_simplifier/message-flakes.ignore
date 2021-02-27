@@ -33,3 +33,6 @@ Remote build cache is disabled when running with \-\-offline\.
 \[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:deprecation for details\.
 \[ant\:jacocoReport\] Note\: Some input files use unchecked or unsafe operations\.
 \[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:unchecked for details\.
+# > Task :jetifier-core:compileKotlin
+Could not perform incremental compilation\: Could not connect to Kotlin compile daemon
+Could not connect to kotlin daemon\. Using fallback strategy\.
