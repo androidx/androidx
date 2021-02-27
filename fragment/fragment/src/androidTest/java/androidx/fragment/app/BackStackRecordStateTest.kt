@@ -33,8 +33,8 @@ import org.junit.runner.RunWith
 class BackStackRecordStateTest {
 
     @get:Rule
-    var activityRule = ActivityScenarioRule(EmptyFragmentTestActivity::class.java)
-    private val fragmentManager get() = activityRule.scenario.withActivity {
+    val activityRule = ActivityScenarioRule(EmptyFragmentTestActivity::class.java)
+    private val fragmentManager get() = activityRule.withActivity {
         supportFragmentManager
     }
 
