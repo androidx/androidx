@@ -26,17 +26,23 @@ package androidx.navigation {
 
   public final class NavArgument {
     method public Object? getDefaultValue();
-    method public androidx.navigation.NavType<?> getType();
+    method public androidx.navigation.NavType<java.lang.Object> getType();
     method public boolean isDefaultValuePresent();
     method public boolean isNullable();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void putDefaultValue(String name, android.os.Bundle bundle);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean verify(String name, android.os.Bundle bundle);
+    property public final Object? defaultValue;
+    property public final boolean isDefaultValuePresent;
+    property public final boolean isNullable;
+    property public final androidx.navigation.NavType<java.lang.Object> type;
   }
 
   public static final class NavArgument.Builder {
     ctor public NavArgument.Builder();
     method public androidx.navigation.NavArgument build();
-    method public androidx.navigation.NavArgument.Builder setDefaultValue(Object?);
-    method public androidx.navigation.NavArgument.Builder setIsNullable(boolean);
-    method public androidx.navigation.NavArgument.Builder setType(androidx.navigation.NavType<?>);
+    method public androidx.navigation.NavArgument.Builder setDefaultValue(Object? defaultValue);
+    method public androidx.navigation.NavArgument.Builder setIsNullable(boolean isNullable);
+    method public <T> androidx.navigation.NavArgument.Builder setType(androidx.navigation.NavType<T> type);
   }
 
   public final class NavDeepLink {
