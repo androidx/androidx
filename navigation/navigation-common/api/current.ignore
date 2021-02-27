@@ -1,6 +1,8 @@
 // Baseline format: 1.0
 ChangedType: androidx.navigation.NavArgument#getType():
     Method androidx.navigation.NavArgument.getType has changed return type from androidx.navigation.NavType<?> to androidx.navigation.NavType<java.lang.Object>
+ChangedType: androidx.navigation.NavDestination#getArguments():
+    Method androidx.navigation.NavDestination.getArguments has changed return type from java.util.Map<java.lang.String!,androidx.navigation.NavArgument!> to java.util.Map<java.lang.String,androidx.navigation.NavArgument>
 ChangedType: androidx.navigation.NavType#BoolArrayType:
     Field androidx.navigation.NavType.BoolArrayType has changed type from androidx.navigation.NavType<boolean[]!> to androidx.navigation.NavType<boolean[]>
 ChangedType: androidx.navigation.NavType#BoolType:
