@@ -16,6 +16,22 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
+import androidx.build.Release
+import androidx.build.checkapi.LibraryApiTaskConfig
+import androidx.build.metalava.MetalavaRunnerKt
+import androidx.build.uptodatedness.EnableCachingKt
+import androidx.build.Version
+
+import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.api.AndroidSourceDirectorySet
+import com.android.build.gradle.api.SourceKind
+import com.google.common.io.Files
+import org.apache.commons.io.FileUtils
+
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -47,6 +63,10 @@ dependencies {
     testImplementation project(path: ':car:app:app-testing')
 }
 
+project.ext {
+    latestCarAppApiLevel = "3"
+}
+
 android {
     defaultConfig {
         minSdkVersion 23
@@ -74,3 +94,353 @@ androidx {
     inceptionYear = "2020"
     description = "Build navigation, parking, and charging apps for Android Auto"
 }
+
+// Use MetalavaRunnerKt to execute Metalava operations. MetalavaRunnerKt is defined in the buildSrc
+// project and provides convience methods for interacting with Metalava. Configruation required
+// for MetalavaRunnerKt is taken from buildSrc/src/main/kotlin/androidx/build/checkapi/ApiTasks.kt.
+class ProtocolApiTask extends DefaultTask {
+    private final WorkerExecutor workerExecutor
+
+    @Inject
+    ProtocolApiTask(WorkerExecutor workerExecutor) {
+        this.workerExecutor = workerExecutor
+    }
+
+    @Internal
+    def getLibraryVariant() {
+        LibraryExtension extension = project.extensions.getByType(LibraryExtension.class)
+        LibraryApiTaskConfig config = new LibraryApiTaskConfig(extension)
+        return config.library.libraryVariants.find({
+            it.name == Release.DEFAULT_PUBLISH_CONFIG
+        })
+    }
+
+    @Internal
+    def getLibraryExtension() {
+        return project.extensions.getByType(LibraryExtension.class)
+    }
+
+    @Internal
+    def getSourceDirs() {
+        List<File> sourceDirs = new ArrayList<File>()
+        for (ConfigurableFileTree fileTree : getLibraryVariant().getSourceFolders(SourceKind
+                .JAVA)) {
+            if (fileTree.getDir().exists()) {
+                sourceDirs.add(fileTree.getDir())
+            }
+        }
+        return sourceDirs
+    }
+
+    @Internal
+    def runMetalava(List<String> additionalArgs) {
+        FileCollection metalavaClasspath = MetalavaRunnerKt.getMetalavaClasspath(project)
+        FileCollection dependencyClasspath = getLibraryVariant().getCompileClasspath(null).filter {
+            it.exists()
+        }
+
+        List<File> classpath = new ArrayList<File>()
+        classpath.addAll(getLibraryExtension().bootClasspath)
+        classpath.addAll(dependencyClasspath)
+
+        List<String> standardArgs = [
+                "--classpath",
+                classpath.join(File.pathSeparator),
+                '--source-path',
+                sourceDirs.join(File.pathSeparator),
+                '--format=v4',
+                '--output-kotlin-nulls=yes',
+                '--quiet'
+        ]
+        standardArgs.addAll(additionalArgs)
+
+        MetalavaRunnerKt.runMetalavaWithArgs(
+                metalavaClasspath,
+                standardArgs,
+                workerExecutor,
+        )
+    }
+}
+
+// Use Metalava to generate an API signature file that only includes public API that is annotated
+// with @androidx.car.app.annotations.CarProtocol
+class GenerateProtocolApiTask extends ProtocolApiTask {
+    @Inject
+    GenerateProtocolApiTask(WorkerExecutor workerExecutor) {
+        super(workerExecutor)
+    }
+
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
+    FileCollection inputSourceDirs = project.files() // Re-run on source changes
+
+    @OutputFile
+    File generatedApi
+
+    @TaskAction
+    def exec() {
+        List<String> args = [
+                '--api',
+                generatedApi.toString(),
+                "--show-annotation",
+                "@androidx.car.app.annotations.CarProtocol",
+                "--hide",
+                "UnhiddenSystemApi"
+        ]
+
+        runMetalava(args)
+    }
+}
+
+// Compare two files and throw an exception if they are not equivalent. This task is used to check
+// for diffs to generated Metalava API signature files, which would indicate a protocol API change.
+class CheckProtocolApiTask extends DefaultTask {
+    @InputFile
+    @Optional
+    File currentApi
+
+    @InputFile
+    File generatedApi
+
+    def summarizeDiff(File a, File b) {
+        if (!a.exists()) {
+            return "$a does not exist"
+        }
+        if (!b.exists()) {
+            return "$b does not exist"
+        }
+        Process process = new ProcessBuilder(Arrays.asList("diff", a.toString(), b.toString()))
+                .redirectOutput(ProcessBuilder.Redirect.PIPE)
+                .start()
+        process.waitFor(5, TimeUnit.SECONDS)
+        List<String> diffLines = process.inputStream.newReader().readLines()
+        int maxSummaryLines = 50
+        if (diffLines.size() > maxSummaryLines) {
+            diffLines = diffLines.subList(0, maxSummaryLines)
+            diffLines.add("[long diff was truncated]")
+        }
+        return String.join("\n", diffLines)
+    }
+
+    @TaskAction
+    def exec() {
+        if (currentApi == null) {
+            return
+        }
+
+        if (!FileUtils.contentEquals(currentApi, generatedApi)) {
+            String diff = summarizeDiff(currentApi, generatedApi)
+            String message = """API definition has changed
+
+                    Declared definition is $currentApi
+                    True     definition is $generatedApi
+
+                    Please run `./gradlew updateProtocolApi` to confirm these changes are
+                    intentional by updating the API definition.
+
+                    Difference between these files:
+                    $diff"""
+
+            throw new GradleException("Protocol changes detected!\n$message")
+        }
+    }
+}
+
+// Check for compatibility breaking changes between two Metalava API signature files. This task is
+// used to detect backward-compatibility breaking changes to protocol API.
+class CheckProtocolApiCompatibilityTask extends ProtocolApiTask {
+    @Inject
+    CheckProtocolApiCompatibilityTask(WorkerExecutor workerExecutor) {
+        super(workerExecutor)
+    }
+
+    @InputFile
+    @Optional
+    File previousApi
+
+    @InputFile
+    @Optional
+    File generatedApi
+
+    @TaskAction
+    def exec() {
+        if (previousApi == null || generatedApi == null) {
+            return
+        }
+
+        List<String> args = [
+                '--source-files',
+                generatedApi.toString(),
+                "--check-compatibility:api:released",
+                previousApi.toString()
+        ]
+        runMetalava(args)
+    }
+}
+
+// Update protocol API signature file for current Car API level to reflect the state of current
+// protocol API in the project.
+class UpdateProtocolApiTask extends DefaultTask {
+    @InputDirectory
+    File protocolDir
+
+    @InputFile
+    File generatedApi
+
+    @InputFile
+    @Optional
+    File currentApi
+
+    @TaskAction
+    def exec() {
+        // The expected Car protocol API signature file for the current Car API level and project
+        // version
+        File updatedApi = new File(protocolDir, String.format(
+                "protocol-%s_%s.txt", project.latestCarAppApiLevel, project.version))
+
+        // Determine whether this API level was previously released by checking whether the project
+        // version matches
+        boolean alreadyReleased = currentApi != updatedApi
+
+        // Determine whether this API level is final (Only snapshot, dev, alpha releases are
+        // non-final)
+        boolean isCurrentApiFinal = false
+        if (currentApi != null) {
+            String currentApiFileName = currentApi.name
+            int versionStart = currentApiFileName.indexOf("_")
+            int versionEnd = currentApiFileName.indexOf(".txt")
+
+            String parsedCurrentVersion = currentApiFileName.substring(versionStart + 1, versionEnd)
+            Version currentVersion = new Version(parsedCurrentVersion)
+            isCurrentApiFinal = currentVersion.isFinalApi()
+        }
+
+        if (currentApi != null && alreadyReleased && isCurrentApiFinal) {
+            throw new GradleException("Version has changed for current Car API level. Increment " +
+                    "Car API level before making protocol API changes")
+        }
+
+        // Overwrite protocol API signature file for current Car API level
+        Files.copy(generatedApi, updatedApi)
+    }
+}
+
+class ApiLevelFileWriterTask extends DefaultTask {
+    @Input
+    String carApiLevel = project.latestCarAppApiLevel
+
+    @OutputFile
+    File apiLevelFile
+
+    @TaskAction
+    def exec() {
+        PrintWriter writer = new PrintWriter(apiLevelFile)
+        writer.println(carApiLevel)
+        writer.close()
+    }
+}
+
+// Paths and file locations required for protocol API operations
+class ProtocolLocation {
+    File buildDir
+    File protocolDir
+    File generatedApi
+    File currentApi
+    File previousApi
+
+    def getProtocolApiFile(int carApiLevel) {
+        File[] apiFiles = protocolDir.listFiles(new FilenameFilter() {
+            boolean accept(File dir, String name) {
+                return name.startsWith(String.format("protocol-%d_", carApiLevel))
+            }
+        })
+
+        if (apiFiles == null || apiFiles.size() == 0) {
+            return null
+        } else if (apiFiles.size() > 1) {
+            StringBuilder builder = new StringBuilder()
+            for (File file : currentApis) {
+                builder.append(file.path)
+                builder.append("\n")
+            }
+
+            throw new GradleException(
+                    String.format("Multiple API signature files found for Car API level %s\n%s",
+                            carApiLevel, builder.toString()))
+        }
+
+        return apiFiles[0]
+    }
+
+    ProtocolLocation(Project project) {
+        buildDir = new File(project.buildDir, "/protocol/")
+        generatedApi = new File(buildDir, "/generated.txt")
+        protocolDir = new File(project.projectDir, "/protocol/")
+        int currentApiLevel = Integer.parseInt(project.latestCarAppApiLevel)
+        currentApi = getProtocolApiFile(currentApiLevel)
+        previousApi = getProtocolApiFile(currentApiLevel - 1)
+    }
+}
+
+def RESOURCE_DIRECTORY = "generatedResources"
+def API_LEVEL_FILE_PATH = "$RESOURCE_DIRECTORY/car-app-api.level"
+
+LibraryExtension library = project.extensions.getByType(LibraryExtension.class)
+
+// afterEvaluate required to read extension properties
+afterEvaluate {
+    task writeCarApiLevelFile(type: ApiLevelFileWriterTask) {
+        File artifactName = new File(buildDir, API_LEVEL_FILE_PATH)
+        apiLevelFile = artifactName
+    }
+
+    AndroidSourceDirectorySet resources = library.sourceSets.getByName("main").resources
+    Set<File> resFiles = new HashSet<>()
+    resFiles.add(resources.srcDirs)
+    resFiles.add(new File(buildDir, RESOURCE_DIRECTORY))
+    resources.srcDirs(resFiles)
+    Set<String> includes = resources.includes
+    if (!includes.isEmpty()) {
+        includes.add("*.level")
+        resources.setIncludes(includes)
+    }
+
+    ProtocolLocation projectProtocolLocation = new ProtocolLocation(project)
+    task generateProtocolApi(type: GenerateProtocolApiTask) {
+        description = "Generate an API signature file for the classes annotated with @CarProtocol"
+        generatedApi = projectProtocolLocation.generatedApi
+        dependsOn(assemble)
+    }
+    task checkProtocolApiCompat(type: CheckProtocolApiCompatibilityTask) {
+        description = "Check for BREAKING changes to the protocol API"
+        if (projectProtocolLocation.previousApi != null) {
+            previousApi = projectProtocolLocation.previousApi
+        }
+        generatedApi = projectProtocolLocation.generatedApi
+        dependsOn(generateProtocolApi)
+    }
+    task checkProtocolApi(type: CheckProtocolApiTask) {
+        description = "Check for changes to the protocol API"
+        generatedApi = projectProtocolLocation.generatedApi
+        currentApi = projectProtocolLocation.currentApi
+        dependsOn(checkProtocolApiCompat)
+    }
+    task updateProtocolApi(type: UpdateProtocolApiTask) {
+        description = "Update protocol API signature file for current Car API level to reflect" +
+                "the current state of the protocol API in the source tree."
+        protocolDir = projectProtocolLocation.protocolDir
+        generatedApi = projectProtocolLocation.generatedApi
+        currentApi = projectProtocolLocation.currentApi
+        dependsOn(checkProtocolApiCompat)
+    }
+    EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApi)
+    EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApiCompat)
+    checkApi.dependsOn(checkProtocolApi)
+}
+
+library.libraryVariants.all { variant ->
+    variant.processJavaResourcesProvider.configure {
+        it.dependsOn(writeCarApiLevelFile)
+    }
+}
+
