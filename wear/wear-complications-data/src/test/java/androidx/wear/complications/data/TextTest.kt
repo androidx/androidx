@@ -88,7 +88,7 @@ public class AsWireComplicationTextTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
-public class FromWireComplicationText {
+public class FromWireComplicationTextTest {
     @Test
     public fun plainText() {
         val wireText = WireComplicationText.plainText("abc")
