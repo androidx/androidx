@@ -109,7 +109,6 @@ open class OngoingActivityTest {
 
         // Get the notification and check that the status, and only the status has been updated.
         val notifications = notificationManager.activeNotifications
-        notifications.forEach { n -> println(n) }
         assertEquals(1, notifications.size)
 
         val received = OngoingActivityData.create(notifications[0].notification)!!
@@ -314,4 +313,54 @@ open class OngoingActivityTest {
         notification = builder.build()
         assertTrue(OngoingActivityData.hasOngoingActivity(notification))
     }
+
+    @Test
+    fun testTagSupport() {
+        val tag = "TAG"
+        val builder1 = NotificationCompat.Builder(context, ChannelId)
+        val oa1 = OngoingActivity.Builder(context, NotificationId, builder1)
+            .setStaticIcon(StaticIconResourceId)
+            .setStatus(OngoingActivityStatus.forPart(TextStatusPart("status1")))
+            .setOngoingActivityId(1)
+            .setTouchIntent(PendingIntentValue)
+            .build()
+        oa1.apply(context)
+        notificationManager.notify(NotificationId, builder1.build())
+
+        val builder2 = NotificationCompat.Builder(context, ChannelId)
+        val oa2 = OngoingActivity.Builder(context, tag, NotificationId, builder2)
+            .setStaticIcon(StaticIconResourceId)
+            .setStatus(OngoingActivityStatus.forPart(TextStatusPart("status2")))
+            .setOngoingActivityId(2)
+            .setTouchIntent(PendingIntentValue)
+            .build()
+        oa2.apply(context)
+        notificationManager.notify(tag, NotificationId, builder2.build())
+
+        assertEquals(2, notificationManager.activeNotifications.size)
+
+        // After posting, send an update to the second OA and check the statuses.
+        val newStatus2 = OngoingActivityStatus.forPart(TextStatusPart("update2"))
+        OngoingActivity.fromExistingOngoingActivity(context, 2)?.update(context, newStatus2)
+
+        assertEquals("status1, update2", getStatuses())
+
+        // Update the first OA, and check the statuses.
+        val newStatus1 = OngoingActivityStatus.forPart(TextStatusPart("updated-one"))
+        oa1.update(context, newStatus1)
+
+        assertEquals("updated-one, update2", getStatuses())
+
+        // Clean up.
+        notificationManager.cancel(NotificationId)
+        notificationManager.cancel(tag, NotificationId)
+
+        assertEquals(0, notificationManager.activeNotifications.size)
+    }
+
+    private fun getStatuses(): String =
+        notificationManager.activeNotifications
+            .mapNotNull { OngoingActivityData.create(it.notification) }
+            .sortedBy { it.mOngoingActivityId }
+            .joinToString { it.status?.getText(context, 0L).toString() }
 }
