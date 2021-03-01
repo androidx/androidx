@@ -65,7 +65,7 @@ import java.util.List;
 public final class CarAppActivity extends Activity {
     @VisibleForTesting
     static final String SERVICE_METADATA_KEY = "car-app-service";
-    private static final String TAG = "TemplateActivity";
+    private static final String TAG = "CarAppActivity";
 
     // TODO(b/177448399): Update after service intent action is added to car-lib.
     @SuppressLint({"ActionValue"})
