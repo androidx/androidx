@@ -98,7 +98,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         mCameraCharacteristicsCompat = cameraCharacteristicsCompat;
         mCamera2CameraInfo = new Camera2CameraInfo(this);
         mCameraQuirks = CameraQuirks.get(cameraId, cameraCharacteristicsCompat);
-        mCamera2CamcorderProfileProvider = new Camera2CamcorderProfileProvider(cameraId);
+        mCamera2CamcorderProfileProvider = new Camera2CamcorderProfileProvider(cameraId,
+                cameraCharacteristicsCompat);
     }
 
     /**

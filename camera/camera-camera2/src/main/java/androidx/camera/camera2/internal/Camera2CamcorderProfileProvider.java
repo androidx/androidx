@@ -20,6 +20,10 @@ import android.media.CamcorderProfile;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.quirk.CamcorderProfileResolutionQuirk;
+import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
+import androidx.camera.camera2.internal.compat.workaround.CamcorderProfileResolutionValidator;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CamcorderProfileProxy;
@@ -30,8 +34,10 @@ public class Camera2CamcorderProfileProvider implements CamcorderProfileProvider
 
     private final boolean mHasValidCameraId;
     private final int mCameraId;
+    private final CamcorderProfileResolutionValidator mCamcorderProfileResolutionValidator;
 
-    public Camera2CamcorderProfileProvider(@NonNull String cameraId) {
+    public Camera2CamcorderProfileProvider(@NonNull String cameraId,
+            @NonNull CameraCharacteristicsCompat cameraCharacteristics) {
         boolean hasValidCameraId = false;
         int intCameraId = -1;
         try {
@@ -43,6 +49,9 @@ public class Camera2CamcorderProfileProvider implements CamcorderProfileProvider
         }
         mHasValidCameraId = hasValidCameraId;
         mCameraId = intCameraId;
+        CamcorderProfileResolutionQuirk quirk = CameraQuirks.get(cameraId, cameraCharacteristics)
+                .get(CamcorderProfileResolutionQuirk.class);
+        mCamcorderProfileResolutionValidator = new CamcorderProfileResolutionValidator(quirk);
     }
 
     /** {@inheritDoc} */
@@ -51,7 +60,17 @@ public class Camera2CamcorderProfileProvider implements CamcorderProfileProvider
         if (!mHasValidCameraId) {
             return false;
         }
-        return CamcorderProfile.hasProfile(mCameraId, quality);
+
+        if (!CamcorderProfile.hasProfile(mCameraId, quality)) {
+            return false;
+        }
+
+        if (mCamcorderProfileResolutionValidator.hasQuirk()) {
+            // Only get profile when quirk exist for performance concern.
+            CamcorderProfileProxy profile = getProfileInternal(quality);
+            return mCamcorderProfileResolutionValidator.hasValidVideoResolution(profile);
+        }
+        return true;
     }
 
     /** {@inheritDoc} */
@@ -61,6 +80,20 @@ public class Camera2CamcorderProfileProvider implements CamcorderProfileProvider
         if (!mHasValidCameraId) {
             return null;
         }
+
+        if (!CamcorderProfile.hasProfile(mCameraId, quality)) {
+            return null;
+        }
+
+        CamcorderProfileProxy profile = getProfileInternal(quality);
+        if (!mCamcorderProfileResolutionValidator.hasValidVideoResolution(profile)) {
+            return null;
+        }
+        return profile;
+    }
+
+    @Nullable
+    private CamcorderProfileProxy getProfileInternal(int quality) {
         CamcorderProfile profile = null;
         try {
             profile = CamcorderProfile.get(mCameraId, quality);

@@ -16,8 +16,12 @@
 
 package androidx.camera.camera2.internal
 
+import android.hardware.camera2.CameraCharacteristics
 import android.media.CamcorderProfile
+import android.util.Size
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.testing.CameraUtil
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -51,6 +55,8 @@ public class Camera2CamcorderProfileProviderTest(private val quality: Int) {
     }
 
     private lateinit var camcorderProfileProvider: Camera2CamcorderProfileProvider
+    private lateinit var cameraCharacteristics: CameraCharacteristicsCompat
+    private var isLegacyCamera = false
     private var intCameraId = -1
 
     @Before
@@ -60,28 +66,94 @@ public class Camera2CamcorderProfileProviderTest(private val quality: Int) {
         val cameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK)!!
         intCameraId = cameraId.toInt()
 
-        camcorderProfileProvider = Camera2CamcorderProfileProvider(cameraId)
+        cameraCharacteristics = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+            CameraUtil.getCameraCharacteristics(CameraSelector.LENS_FACING_BACK)!!
+        )
+        val hardwareLevel =
+            cameraCharacteristics[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
+
+        isLegacyCamera = hardwareLevel != null && hardwareLevel == CameraCharacteristics
+            .INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+
+        camcorderProfileProvider = Camera2CamcorderProfileProvider(cameraId, cameraCharacteristics)
     }
 
     @Test
-    public fun hasProfile_returnSameResult() {
+    public fun nonLegacyCamera_hasProfile_returnSameResult() {
+        assumeTrue(!isLegacyCamera)
+
         assertThat(camcorderProfileProvider.hasProfile(quality))
             .isEqualTo(CamcorderProfile.hasProfile(intCameraId, quality))
     }
 
     @Test
-    public fun notHasProfile_getReturnNull() {
+    public fun nonLegacyCamera_notHasProfile_getReturnNull() {
+        assumeTrue(!isLegacyCamera)
         assumeTrue(!CamcorderProfile.hasProfile(intCameraId, quality))
 
         assertThat(camcorderProfileProvider.get(quality)).isNull()
     }
 
     @Test
-    public fun hasProfile_getReturnSameQualityProfile() {
+    public fun nonLegacyCamera_hasProfile_getReturnSameQualityProfile() {
+        assumeTrue(!isLegacyCamera)
         assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
 
         val profileProxy = camcorderProfileProvider.get(quality)!!
         val profile = CamcorderProfile.get(intCameraId, quality)
         assertThat(profileProxy.quality).isEqualTo(profile.quality)
     }
+
+    @Test
+    public fun legacyCamera_notHasProfile_returnFalse() {
+        assumeTrue(isLegacyCamera)
+        assumeTrue(!CamcorderProfile.hasProfile(intCameraId, quality))
+
+        assertThat(camcorderProfileProvider.hasProfile(quality)).isFalse()
+    }
+
+    @Test
+    public fun legacyCamera_hasProfile_shouldCheckSupportedResolution() {
+        assumeTrue(isLegacyCamera)
+        assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
+
+        val videoSupportedResolutions = getVideoSupportedResolutions()
+        val isResolutionSupported =
+            videoSupportedResolutions.contains(CamcorderProfile.get(intCameraId, quality).size())
+
+        assertThat(camcorderProfileProvider.hasProfile(quality)).isEqualTo(isResolutionSupported)
+    }
+
+    @Test
+    public fun legacyCamera_notHasProfile_getReturnNull() {
+        assumeTrue(isLegacyCamera)
+        assumeTrue(!CamcorderProfile.hasProfile(intCameraId, quality))
+
+        assertThat(camcorderProfileProvider.get(quality)).isNull()
+    }
+
+    @Test
+    public fun legacyCamera_hasProfile_getShouldCheckSupportedResolution() {
+        assumeTrue(isLegacyCamera)
+        assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
+
+        val profile = CamcorderProfile.get(intCameraId, quality)
+        val videoSupportedResolutions = getVideoSupportedResolutions()
+        val isResolutionSupported = videoSupportedResolutions.contains(profile.size())
+
+        val profileProxy = camcorderProfileProvider.get(quality)
+        if (isResolutionSupported) {
+            assertThat(profileProxy!!.quality).isEqualTo(profile.quality)
+        } else {
+            assertThat(profileProxy).isNull()
+        }
+    }
+
+    private fun getVideoSupportedResolutions(): Array<Size> {
+        val map = cameraCharacteristics[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
+        return map.getOutputSizes(ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE)
+            ?: emptyArray()
+    }
+
+    private fun CamcorderProfile.size() = Size(videoFrameWidth, videoFrameHeight)
 }
