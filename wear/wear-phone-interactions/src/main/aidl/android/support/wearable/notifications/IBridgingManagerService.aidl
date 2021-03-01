@@ -34,7 +34,7 @@ interface IBridgingManagerService {
     /**
      * Sets the bridging configuration
      *
-     * @since API version 1
+     * @since API version 0
      */
     void setBridgingConfig(in Bundle bridgingConfig) = 0;
 
