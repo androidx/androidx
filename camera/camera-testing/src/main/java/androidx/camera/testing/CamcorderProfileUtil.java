@@ -163,4 +163,40 @@ public final class CamcorderProfileUtil {
                 DEFAULT_AUDIO_CHANNELS
         );
     }
+
+    /**
+     * Copies a CamcorderProfileProxy and sets the quality to
+     * {@link CamcorderProfile#QUALITY_HIGH}.
+     */
+    @NonNull
+    public static CamcorderProfileProxy asHighQuality(@NonNull CamcorderProfileProxy profile) {
+        return asQuality(profile, CamcorderProfile.QUALITY_HIGH);
+    }
+
+    /**
+     * Copies a CamcorderProfileProxy and sets the quality to
+     * {@link CamcorderProfile#QUALITY_LOW}.
+     */
+    @NonNull
+    public static CamcorderProfileProxy asLowQuality(@NonNull CamcorderProfileProxy profile) {
+        return asQuality(profile, CamcorderProfile.QUALITY_LOW);
+    }
+
+    private static CamcorderProfileProxy asQuality(@NonNull CamcorderProfileProxy profile,
+            int quality) {
+        return CamcorderProfileProxy.create(
+                profile.getDuration(),
+                quality,
+                profile.getFileFormat(),
+                profile.getVideoCodec(),
+                profile.getVideoBitRate(),
+                profile.getVideoFrameRate(),
+                profile.getVideoFrameWidth(),
+                profile.getVideoFrameHeight(),
+                profile.getAudioCodec(),
+                profile.getAudioBitRate(),
+                profile.getAudioSampleRate(),
+                profile.getAudioChannels()
+        );
+    }
 }
