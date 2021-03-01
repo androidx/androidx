@@ -336,7 +336,8 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             tapListener,
-            true
+            true,
+            null
         )
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -373,7 +374,8 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            false
+            false,
+            null
         )
 
         InteractiveInstanceManager
@@ -1089,7 +1091,8 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            true
+            true,
+            null
         )
 
         // Trigger watch face creation.
@@ -1421,7 +1424,8 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            true
+            true,
+            null
         )
         engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -1640,7 +1644,8 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            true
+            true,
+            null
         )
 
         engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
@@ -2086,7 +2091,8 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             tapListener,
-            true
+            true,
+            null
         )
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -2231,5 +2237,105 @@ public class WatchFaceServiceTest {
                 0
             )
         ).isEqualTo("INITIAL_VALUE")
+    }
+
+    @Test
+    public fun directBoot() {
+        val userStyleRepository = UserStyleRepository(
+            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting))
+        )
+        val testRenderer = TestRenderer(
+            surfaceHolder,
+            userStyleRepository,
+            watchState.asWatchState(),
+            INTERACTIVE_UPDATE_RATE_MS
+        )
+        val instanceId = "DirectBootInstance"
+        val service = TestWatchFaceService(
+            WatchFaceType.ANALOG,
+            ComplicationsManager(emptyList(), userStyleRepository),
+            testRenderer,
+            userStyleRepository,
+            watchState,
+            handler,
+            null,
+            false, // Allows DirectBoot
+            WallpaperInteractiveWatchFaceInstanceParams(
+                instanceId,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(
+                    hashMapOf(
+                        colorStyleSetting to blueStyleOption,
+                        watchHandStyleSetting to gothicStyleOption
+                    )
+                ).toWireFormat(),
+                null
+            )
+        )
+
+        service.onCreateEngine()
+
+        runPendingPostedDispatchedContinuationTasks()
+
+        val instance = InteractiveInstanceManager.getAndRetainInstance(instanceId)
+        assertThat(instance).isNotNull()
+        val userStyle = instance!!.engine.watchFaceImpl.userStyleRepository.userStyle
+        assertThat(userStyle[colorStyleSetting]).isEqualTo(blueStyleOption)
+        assertThat(userStyle[watchHandStyleSetting]).isEqualTo(gothicStyleOption)
+
+        InteractiveInstanceManager.deleteInstance(instanceId)
+    }
+
+    @Test
+    public fun headlessFlagPreventsDirectBoot() {
+        watchState.isHeadless = true
+        val userStyleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
+        val testRenderer = TestRenderer(
+            surfaceHolder,
+            userStyleRepository,
+            watchState.asWatchState(),
+            INTERACTIVE_UPDATE_RATE_MS
+        )
+        val instanceId = "DirectBootInstance"
+        val service = TestWatchFaceService(
+            WatchFaceType.ANALOG,
+            ComplicationsManager(emptyList(), userStyleRepository),
+            testRenderer,
+            userStyleRepository,
+            watchState,
+            handler,
+            null,
+            false, // Allows DirectBoot
+            WallpaperInteractiveWatchFaceInstanceParams(
+                instanceId,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(
+                    hashMapOf(
+                        colorStyleSetting to blueStyleOption,
+                        watchHandStyleSetting to gothicStyleOption
+                    )
+                ).toWireFormat(),
+                null
+            )
+        )
+
+        service.onCreateEngine()
+
+        runPendingPostedDispatchedContinuationTasks()
+
+        val instance = InteractiveInstanceManager.getAndRetainInstance(instanceId)
+        assertThat(instance).isNull()
     }
 }
