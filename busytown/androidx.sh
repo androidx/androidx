@@ -6,8 +6,7 @@ echo "Starting $0 at $(date)"
 cd "$(dirname $0)"
 
 # Run Gradle
-impl/build.sh listTaskOutputs "$@"
-impl/build.sh buildOnServer checkExternalLicenses validateAllProperties \
+impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs validateAllProperties \
     --profile "$@"
 
 # Parse performance profile reports (generated with the --profile option above) and re-export the metrics in an easily machine-readable format for tracking
