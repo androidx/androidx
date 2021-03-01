@@ -1279,6 +1279,9 @@ public class NavController {
     }
 
     void setLifecycleOwner(@NonNull LifecycleOwner owner) {
+        if (owner == mLifecycleOwner) {
+            return;
+        }
         mLifecycleOwner = owner;
         mLifecycleOwner.getLifecycle().addObserver(mLifecycleObserver);
     }
@@ -1305,6 +1308,9 @@ public class NavController {
     }
 
     void setViewModelStore(@NonNull ViewModelStore viewModelStore) {
+        if (mViewModel == NavControllerViewModel.getInstance(viewModelStore)) {
+            return;
+        }
         if (!mBackStack.isEmpty()) {
             throw new IllegalStateException("ViewModelStore should be set before setGraph call");
         }

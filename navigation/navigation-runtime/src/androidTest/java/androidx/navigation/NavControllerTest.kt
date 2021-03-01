@@ -26,6 +26,8 @@ import android.os.Parcelable
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
@@ -221,6 +223,58 @@ class NavControllerTest {
             fail("getGraph() should throw an IllegalStateException before setGraph()")
         } catch (expected: IllegalStateException) {
         }
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSetViewModelStoreOwnerAfterGraphSet() {
+        val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.start_test
+        ) {
+            test(R.id.start_test)
+        }
+        navController.setGraph(navGraph, null)
+
+        try {
+            navController.setViewModelStore(ViewModelStore())
+        } catch (e: IllegalStateException) {
+            assertThat(e).hasMessageThat().contains(
+                "ViewModelStore should be set before setGraph call"
+            )
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSetSameViewModelStoreOwnerAfterGraphSet() {
+        val navController = createNavController()
+        val viewModelStore = ViewModelStore()
+        navController.setViewModelStore(viewModelStore)
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.start_test
+        ) {
+            test(R.id.start_test)
+        }
+        navController.setGraph(navGraph, null)
+
+        navController.setViewModelStore(viewModelStore)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSetSameLifecycleOwner() {
+        val navController = createNavController()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+
+        navController.setLifecycleOwner(lifecycleOwner)
+        assertThat(lifecycleOwner.observerCount).isEqualTo(1)
+
+        navController.setLifecycleOwner(lifecycleOwner)
+        assertThat(lifecycleOwner.observerCount).isEqualTo(1)
     }
 
     @UiThreadTest
