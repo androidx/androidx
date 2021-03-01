@@ -167,7 +167,7 @@ public class BundlerTest {
     }
 
     @Test
-    public void binderSerialization() throws BundlerException {
+    public void iInterfaceSerialization() throws BundlerException {
         OnClickListener clickListener = mock(OnClickListener.class);
 
         ItemList itemList =
