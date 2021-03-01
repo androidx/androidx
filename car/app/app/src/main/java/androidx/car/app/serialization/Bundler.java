@@ -65,6 +65,7 @@ import java.util.Set;
  * <li>{@link String}
  * <li>{@link Parcelable} - parcelables will serialize using {@link Parcelable} logic.
  * <li>{@link IInterface}
+ * <li>{@link IBinder}
  * <li>{@link Map} - maps will be deserialize into {@link HashMap}s, and need to hold objects that
  * are also serializable as per this list.
  * <li>{@link List} - lists will deserialize into {@link ArrayList}s, and need to hold objects that
@@ -99,7 +100,7 @@ public final class Bundler {
     private static final String TAG_2 = "tag_2";
 
     private static final int PRIMITIVE = 0;
-    private static final int BINDER = 1;
+    private static final int IINTERFACE = 1;
     private static final int MAP = 2;
     private static final int SET = 3;
     private static final int LIST = 4;
@@ -107,6 +108,7 @@ public final class Bundler {
     private static final int IMAGE = 6;
     private static final int ENUM = 7;
     private static final int CLASS = 8;
+    private static final int IBINDER = 9;
 
     /**
      * Serializes an object into a {@link Bundle} for sending over IPC.
@@ -145,6 +147,8 @@ public final class Bundler {
                 return serializePrimitive(obj, trace);
             } else if (obj instanceof IInterface) {
                 return serializeBinder((IInterface) obj);
+            } else if (obj instanceof IBinder) {
+                return serializeIBinder((IBinder) obj);
             } else if (obj instanceof Map) {
                 return serializeMap((Map<Object, Object>) obj, trace);
             } else if (obj instanceof List) {
@@ -200,8 +204,10 @@ public final class Bundler {
             switch (classType) {
                 case PRIMITIVE:
                     return deserializePrimitive(bundle, trace);
-                case BINDER:
+                case IINTERFACE:
                     return deserializeBinder(bundle, trace);
+                case IBINDER:
+                    return deserializeIBinder(bundle, trace);
                 case MAP:
                     return deserializeMap(bundle, trace);
                 case SET:
@@ -261,9 +267,18 @@ public final class Bundler {
 
         String className = iInterface.getClass().getName();
 
-        bundle.putInt(TAG_CLASS_TYPE, BINDER);
+        bundle.putInt(TAG_CLASS_TYPE, IINTERFACE);
         bundle.putBinder(TAG_VALUE, iInterface.asBinder());
         bundle.putString(TAG_CLASS_NAME, className);
+
+        return bundle;
+    }
+
+    private static Bundle serializeIBinder(IBinder binder) {
+        Bundle bundle = new Bundle(2);
+
+        bundle.putInt(TAG_CLASS_TYPE, IBINDER);
+        bundle.putBinder(TAG_VALUE, binder);
 
         return bundle;
     }
@@ -424,6 +439,15 @@ public final class Bundler {
                     trace,
                     e);
         }
+    }
+
+    private static Object deserializeIBinder(Bundle bundle, Trace trace) throws BundlerException {
+        IBinder binder = bundle.getBinder(TAG_VALUE);
+        if (binder == null) {
+            throw new TracedBundlerException("Bundle is missing the binder", trace);
+        }
+
+        return binder;
     }
 
     @SuppressWarnings("argument.type.incompatible") // so that we can put null values in the map
@@ -641,7 +665,7 @@ public final class Bundler {
     private static Map<Integer, String> initBundledTypeNames() {
         ArrayMap<Integer, String> map = new ArrayMap<>();
         map.put(PRIMITIVE, "primitive");
-        map.put(BINDER, "binder");
+        map.put(IINTERFACE, "binder");
         map.put(MAP, "map");
         map.put(SET, "set");
         map.put(LIST, "list");
