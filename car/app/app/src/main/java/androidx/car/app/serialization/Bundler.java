@@ -146,7 +146,7 @@ public final class Bundler {
             } else if (isPrimitiveType(obj) || obj instanceof Parcelable) {
                 return serializePrimitive(obj, trace);
             } else if (obj instanceof IInterface) {
-                return serializeBinder((IInterface) obj);
+                return serializeIInterface((IInterface) obj);
             } else if (obj instanceof IBinder) {
                 return serializeIBinder((IBinder) obj);
             } else if (obj instanceof Map) {
@@ -205,7 +205,7 @@ public final class Bundler {
                 case PRIMITIVE:
                     return deserializePrimitive(bundle, trace);
                 case IINTERFACE:
-                    return deserializeBinder(bundle, trace);
+                    return deserializeIInterface(bundle, trace);
                 case IBINDER:
                     return deserializeIBinder(bundle, trace);
                 case MAP:
@@ -262,7 +262,7 @@ public final class Bundler {
         return bundle;
     }
 
-    private static Bundle serializeBinder(IInterface iInterface) {
+    private static Bundle serializeIInterface(IInterface iInterface) {
         Bundle bundle = new Bundle(3);
 
         String className = iInterface.getClass().getName();
@@ -407,7 +407,8 @@ public final class Bundler {
     }
 
     @SuppressWarnings("argument.type.incompatible") // so that we can invoke static asInterface
-    private static Object deserializeBinder(Bundle bundle, Trace trace) throws BundlerException {
+    private static Object deserializeIInterface(Bundle bundle, Trace trace)
+            throws BundlerException {
         IBinder binder = bundle.getBinder(TAG_VALUE);
         if (binder == null) {
             throw new TracedBundlerException("Bundle is missing the binder", trace);
@@ -665,7 +666,8 @@ public final class Bundler {
     private static Map<Integer, String> initBundledTypeNames() {
         ArrayMap<Integer, String> map = new ArrayMap<>();
         map.put(PRIMITIVE, "primitive");
-        map.put(IINTERFACE, "binder");
+        map.put(IINTERFACE, "iInterface");
+        map.put(IBINDER, "iBinder");
         map.put(MAP, "map");
         map.put(SET, "set");
         map.put(LIST, "list");
