@@ -25,12 +25,12 @@ import kotlinx.coroutines.flow.flowOf
  * Each refresh of data (generally either pushed by local storage, or pulled from the network)
  * will have a separate corresponding [PagingData].
  */
-class PagingData<T : Any> internal constructor(
+public class PagingData<T : Any> internal constructor(
     internal val flow: Flow<PageEvent<T>>,
     internal val receiver: UiReceiver
 ) {
 
-    companion object {
+    public companion object {
         internal val NOOP_RECEIVER = object : UiReceiver {
             override fun accessHint(viewportHint: ViewportHint) {}
 
@@ -51,7 +51,7 @@ class PagingData<T : Any> internal constructor(
          */
         @Suppress("UNCHECKED_CAST")
         @JvmStatic // Convenience for Java developers.
-        fun <T : Any> empty() = EMPTY as PagingData<T>
+        public fun <T : Any> empty(): PagingData<T> = EMPTY as PagingData<T>
 
         /**
          * Create a [PagingData] that immediately displays a static list of items when submitted to
@@ -60,7 +60,7 @@ class PagingData<T : Any> internal constructor(
          * @param data Static list of [T] to display.
          */
         @JvmStatic // Convenience for Java developers.
-        fun <T : Any> from(data: List<T>) = PagingData(
+        public fun <T : Any> from(data: List<T>): PagingData<T> = PagingData(
             flow = flowOf(
                 PageEvent.Insert.Refresh(
                     pages = listOf(TransformablePage(originalPageOffset = 0, data = data)),

@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.Flow
  * RxJava support is available as extension properties provided by the
  * `androidx.paging:paging-rxjava2` artifact.
  */
-class Pager<Key : Any, Value : Any>
+public class Pager<Key : Any, Value : Any>
 // Experimental usage is propagated to public API via constructor argument.
 @ExperimentalPagingApi constructor(
     config: PagingConfig,
@@ -48,7 +48,7 @@ class Pager<Key : Any, Value : Any>
     // Experimental usage is internal, so opt-in is allowed here.
     @JvmOverloads
     @OptIn(ExperimentalPagingApi::class)
-    constructor(
+    public constructor(
         config: PagingConfig,
         initialKey: Key? = null,
         pagingSourceFactory: () -> PagingSource<Key, Value>
@@ -59,7 +59,7 @@ class Pager<Key : Any, Value : Any>
      * invalidated by [PagingSource.invalidate] or calls to [AsyncPagingDataDiffer.refresh] or
      * [PagingDataAdapter.refresh].
      */
-    val flow: Flow<PagingData<Value>> = PageFetcher(
+    public val flow: Flow<PagingData<Value>> = PageFetcher(
         pagingSourceFactory = if (
             pagingSourceFactory is SuspendingPagingSourceFactory<Key, Value>
         ) {

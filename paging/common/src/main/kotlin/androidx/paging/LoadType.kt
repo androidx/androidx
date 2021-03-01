@@ -25,7 +25,7 @@ package androidx.paging
  *
  * @see LoadState
  */
-enum class LoadType {
+public enum class LoadType {
     /**
      * [PagingData] content being refreshed, which can be a result of [PagingSource]
      * invalidation, refresh that may contain content updates, or the initial load.

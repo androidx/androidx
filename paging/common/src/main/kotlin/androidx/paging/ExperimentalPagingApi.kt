@@ -21,4 +21,4 @@ package androidx.paging
  * source-incompatible change in newer versions of the artifact that supplies it.
  */
 @RequiresOptIn
-annotation class ExperimentalPagingApi
+public annotation class ExperimentalPagingApi

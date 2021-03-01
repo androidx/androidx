@@ -28,7 +28,7 @@ import androidx.annotation.VisibleForTesting
  *
  * @param pagingSourceFactory The [PagingSource] factory that returns a PagingSource when called
  */
-class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
+public class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
     private val pagingSourceFactory: () -> PagingSource<Key, Value>
 ) : () -> PagingSource<Key, Value> {
 
@@ -47,7 +47,7 @@ class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
      * Calls [PagingSource.invalidate] on each [PagingSource] that was produced by this
      * [InvalidatingPagingSourceFactory]
      */
-    fun invalidate() {
+    public fun invalidate() {
         while (pagingSources.isNotEmpty()) {
             pagingSources.removeFirst().also {
                 if (!it.invalid) {

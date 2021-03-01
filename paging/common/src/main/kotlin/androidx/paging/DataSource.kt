@@ -96,7 +96,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * position in data set. Note - this is distinct from e.g. Room's `<Value> Value type
  * loaded by the DataSource.
  */
-abstract class DataSource<Key : Any, Value : Any>
+public abstract class DataSource<Key : Any, Value : Any>
 // Since we currently rely on implementation details of two implementations, prevent external
 // subclassing, except through exposed subclasses.
 internal constructor(internal val type: KeyType) {
@@ -109,7 +109,7 @@ internal constructor(internal val type: KeyType) {
     /**
      * @return `true` if the data source is invalid, and can no longer be queried for data.
      */
-    open val isInvalid
+    public open val isInvalid: Boolean
         @WorkerThread
         get() = _invalid.get()
 
@@ -135,7 +135,7 @@ internal constructor(internal val type: KeyType) {
      * @param Key Key identifying items in DataSource.
      * @param Value Type of items in the list loaded by the DataSources.
      */
-    abstract class Factory<Key : Any, Value : Any> {
+    public abstract class Factory<Key : Any, Value : Any> {
         /**
          * Create a [DataSource].
          *
@@ -149,7 +149,7 @@ internal constructor(internal val type: KeyType) {
          *
          * @return the new DataSource.
          */
-        abstract fun create(): DataSource<Key, Value>
+        public abstract fun create(): DataSource<Key, Value>
 
         /**
          * Applies the given function to each value emitted by DataSources produced by this Factory.
@@ -165,8 +165,11 @@ internal constructor(internal val type: KeyType) {
          * @see DataSource.map
          * @see DataSource.mapByPage
          */
-        open fun <ToValue : Any> map(function: Function<Value, ToValue>): Factory<Key, ToValue> =
-            mapByPage(Function { list -> list.map { function.apply(it) } })
+        public open fun <ToValue : Any> map(
+            function: Function<Value, ToValue>
+        ): Factory<Key, ToValue> {
+            return mapByPage(Function { list -> list.map { function.apply(it) } })
+        }
 
         /**
          * Applies the given function to each value emitted by DataSources produced by this Factory.
@@ -185,8 +188,9 @@ internal constructor(internal val type: KeyType) {
          * @see DataSource.mapByPage
          */
         @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
-        open fun <ToValue : Any> map(function: (Value) -> ToValue): Factory<Key, ToValue> =
-            mapByPage(Function { list -> list.map(function) })
+        public open fun <ToValue : Any> map(function: (Value) -> ToValue): Factory<Key, ToValue> {
+            return mapByPage(Function { list -> list.map(function) })
+        }
 
         /**
          * Applies the given function to each value emitted by DataSources produced by this Factory.
@@ -202,7 +206,7 @@ internal constructor(internal val type: KeyType) {
          * @see DataSource.map
          * @see DataSource.mapByPage
          */
-        open fun <ToValue : Any> mapByPage(
+        public open fun <ToValue : Any> mapByPage(
             function: Function<List<Value>, List<ToValue>>
         ): Factory<Key, ToValue> = object : Factory<Key, ToValue>() {
             override fun create(): DataSource<Key, ToValue> =
@@ -226,12 +230,12 @@ internal constructor(internal val type: KeyType) {
          * @see DataSource.mapByPage
          */
         @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
-        open fun <ToValue : Any> mapByPage(
+        public open fun <ToValue : Any> mapByPage(
             function: (List<Value>) -> List<ToValue>
         ): Factory<Key, ToValue> = mapByPage(Function { function(it) })
 
         @JvmOverloads
-        fun asPagingSourceFactory(
+        public fun asPagingSourceFactory(
             fetchDispatcher: CoroutineDispatcher = Dispatchers.IO
         ): () -> PagingSource<Key, Value> = SuspendingPagingSourceFactory(
             delegate = {
@@ -255,7 +259,7 @@ internal constructor(internal val type: KeyType) {
      * @see DataSource.Factory.map
      * @see DataSource.Factory.mapByPage
      */
-    open fun <ToValue : Any> mapByPage(
+    public open fun <ToValue : Any> mapByPage(
         function: Function<List<Value>, List<ToValue>>
     ): DataSource<Key, ToValue> = WrapperDataSource(this, function)
 
@@ -276,7 +280,7 @@ internal constructor(internal val type: KeyType) {
      * @see DataSource.Factory.mapByPage
      */
     @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
-    open fun <ToValue : Any> mapByPage(
+    public open fun <ToValue : Any> mapByPage(
         function: (List<Value>) -> List<ToValue>
     ): DataSource<Key, ToValue> = mapByPage(Function { function(it) })
 
@@ -294,8 +298,11 @@ internal constructor(internal val type: KeyType) {
      * @see DataSource.Factory.map
      * @see DataSource.Factory.mapByPage
      */
-    open fun <ToValue : Any> map(function: Function<Value, ToValue>): DataSource<Key, ToValue> =
-        mapByPage { list -> list.map { function.apply(it) } }
+    public open fun <ToValue : Any> map(
+        function: Function<Value, ToValue>
+    ): DataSource<Key, ToValue> {
+        return mapByPage { list -> list.map { function.apply(it) } }
+    }
 
     /**
      * Applies the given function to each value emitted by the DataSource.
@@ -314,7 +321,7 @@ internal constructor(internal val type: KeyType) {
      *
      */
     @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
-    open fun <ToValue : Any> map(
+    public open fun <ToValue : Any> map(
         function: (Value) -> ToValue
     ): DataSource<Key, ToValue> = map(Function { function(it) })
 
@@ -332,7 +339,7 @@ internal constructor(internal val type: KeyType) {
      * Used to signal when a [DataSource] a data source has become invalid, and that a new data
      * source is needed to continue loading data.
      */
-    fun interface InvalidatedCallback {
+    public fun interface InvalidatedCallback {
         /**
          * Called when the data backing the list has become invalid. This callback is typically used
          * to signal that a new data source is needed.
@@ -342,7 +349,7 @@ internal constructor(internal val type: KeyType) {
          * invalidate it.
          */
         @AnyThread
-        fun onInvalidated()
+        public fun onInvalidated()
     }
 
     /**
@@ -358,7 +365,7 @@ internal constructor(internal val type: KeyType) {
      */
     @AnyThread
     @Suppress("RegistrationName")
-    open fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
+    public open fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         onInvalidatedCallbacks.add(onInvalidatedCallback)
     }
 
@@ -369,7 +376,7 @@ internal constructor(internal val type: KeyType) {
      */
     @AnyThread
     @Suppress("RegistrationName")
-    open fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
+    public open fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         onInvalidatedCallbacks.remove(onInvalidatedCallback)
     }
 
@@ -379,7 +386,7 @@ internal constructor(internal val type: KeyType) {
      * If invalidate has already been called, this method does nothing.
      */
     @AnyThread
-    open fun invalidate() {
+    public open fun invalidate() {
         if (_invalid.compareAndSet(false, true)) {
             onInvalidatedCallbacks.forEach { it.onInvalidated() }
         }
