@@ -58,7 +58,8 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private val retryFlow: Flow<Unit>,
     private val triggerRemoteRefresh: Boolean = false,
     val remoteMediatorConnection: RemoteMediatorConnection<Key, Value>? = null,
-    private val invalidate: () -> Unit = {}
+    private val previousPagingState: PagingState<Key, Value>? = null,
+    private val invalidate: () -> Unit = {},
 ) {
     init {
         require(config.jumpThreshold == COUNT_UNDEFINED || pagingSource.jumpingSupported) {
@@ -148,7 +149,9 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
         if (triggerRemoteRefresh) {
             remoteMediatorConnection?.let {
-                val pagingState = stateHolder.withLock { state -> state.currentPagingState(null) }
+                val pagingState = previousPagingState ?: stateHolder.withLock { state ->
+                    state.currentPagingState(null)
+                }
                 it.requestLoad(REFRESH, pagingState)
             }
         }
@@ -193,17 +196,8 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         pageEventChannelFlowJob.cancel()
     }
 
-    suspend fun refreshKeyInfo(): PagingState<Key, Value>? {
-        return stateHolder.withLock { state ->
-            lastHint?.let { lastHint ->
-                if (state.pages.isEmpty()) {
-                    // Default to initialKey if no pages loaded.
-                    null
-                } else {
-                    state.currentPagingState(lastHint)
-                }
-            }
-        }
+    suspend fun currentPagingState(): PagingState<Key, Value> {
+        return stateHolder.withLock { state -> state.currentPagingState(lastHint) }
     }
 
     private fun CoroutineScope.startConsumingHints() {
