@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
  */
 @Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-open class ContiguousPagedList<K : Any, V : Any>(
+public open class ContiguousPagedList<K : Any, V : Any>(
     final override val pagingSource: PagingSource<K, V>,
     coroutineScope: CoroutineScope,
     notifyDispatcher: CoroutineDispatcher,
@@ -52,6 +52,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
 ),
     PagedStorage.Callback,
     LegacyPageFetcher.PageConsumer<V> {
+
     internal companion object {
         internal fun getPrependItemsRequested(
             prefetchDistance: Int,
@@ -102,7 +103,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                 ?: initialLastKey
         }
 
-    override val isDetached
+    override val isDetached: Boolean
         get() = pager.isDetached
 
     /**
@@ -368,7 +369,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
         tryDispatchBoundaryCallbacks(true)
     }
 
-    override fun detach() = pager.detach()
+    override fun detach(): Unit = pager.detach()
 
     @MainThread
     override fun onInitialized(count: Int) {
@@ -399,8 +400,11 @@ open class ContiguousPagedList<K : Any, V : Any>(
         notifyInserted(endPosition + changed, added)
     }
 
-    override fun onPagesRemoved(startOfDrops: Int, count: Int) = notifyRemoved(startOfDrops, count)
+    override fun onPagesRemoved(startOfDrops: Int, count: Int) {
+        notifyRemoved(startOfDrops, count)
+    }
 
-    override fun onPagesSwappedToPlaceholder(startOfDrops: Int, count: Int) =
+    override fun onPagesSwappedToPlaceholder(startOfDrops: Int, count: Int) {
         notifyChanged(startOfDrops, count)
+    }
 }

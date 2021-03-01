@@ -46,7 +46,9 @@ import kotlin.coroutines.resume
         "androidx.paging.PagingSource"
     )
 )
-abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Value>(PAGE_KEYED) {
+public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Value>(
+    PAGE_KEYED
+) {
 
     /**
      * Holder object for inputs to [loadInitial].
@@ -58,9 +60,9 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * @property placeholdersEnabled Defines whether placeholders are enabled, and whether the
      * loaded total count will be ignored.
      */
-    open class LoadInitialParams<Key : Any>(
-        @JvmField val requestedLoadSize: Int,
-        @JvmField val placeholdersEnabled: Boolean
+    public open class LoadInitialParams<Key : Any>(
+        @JvmField public val requestedLoadSize: Int,
+        @JvmField public val placeholdersEnabled: Boolean
     )
 
     /**
@@ -75,7 +77,10 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * Returned page can be of this size, but it may be altered if that is easier, e.g. a network
      * data source where the backend defines page size.
      */
-    open class LoadParams<Key : Any>(@JvmField val key: Key, @JvmField val requestedLoadSize: Int)
+    public open class LoadParams<Key : Any>(
+        @JvmField public val key: Key,
+        @JvmField public val requestedLoadSize: Int
+    )
 
     /**
      * Callback for [loadInitial] to return data and, optionally, position/count information.
@@ -95,7 +100,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * @param Key Type of data used to query pages.
      * @param Value Type of items being loaded.
      */
-    abstract class LoadInitialCallback<Key, Value> {
+    public abstract class LoadInitialCallback<Key, Value> {
         /**
          * Called to pass initial load state from a DataSource.
          *
@@ -115,7 +120,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
          * Includes the number in the initial `data` parameter as well as any items that can be
          * loaded in front or behind of `data`.
          */
-        abstract fun onResult(
+        public abstract fun onResult(
             data: List<Value>,
             position: Int,
             totalCount: Int,
@@ -138,7 +143,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
          * @param nextPageKey Key for page after the initial load result, or `null` if no more data
          * can be loaded after.
          */
-        abstract fun onResult(data: List<Value>, previousPageKey: Key?, nextPageKey: Key?)
+        public abstract fun onResult(data: List<Value>, previousPageKey: Key?, nextPageKey: Key?)
     }
 
     /**
@@ -153,7 +158,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * @param Key Type of data used to query pages.
      * @param Value Type of items being loaded.
      */
-    abstract class LoadCallback<Key, Value> {
+    public abstract class LoadCallback<Key, Value> {
         /**
          * Called to pass loaded data from a [DataSource].
          *
@@ -173,7 +178,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
          * page in [loadAfter]), or `null` if there are no more pages to load in the current load
          * direction.
          */
-        abstract fun onResult(data: List<Value>, adjacentPageKey: Key?)
+        public abstract fun onResult(data: List<Value>, adjacentPageKey: Key?)
     }
 
     /**
@@ -270,7 +275,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * @param params Parameters for initial load, including requested load size.
      * @param callback Callback that receives initial load data.
      */
-    abstract fun loadInitial(
+    public abstract fun loadInitial(
         params: LoadInitialParams<Key>,
         callback: LoadInitialCallback<Key, Value>
     )
@@ -293,7 +298,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * size.
      * @param callback Callback that receives loaded data.
      */
-    abstract fun loadBefore(params: LoadParams<Key>, callback: LoadCallback<Key, Value>)
+    public abstract fun loadBefore(params: LoadParams<Key>, callback: LoadCallback<Key, Value>)
 
     /**
      * Append page with the key specified by [LoadParams.key].
@@ -313,7 +318,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * size.
      * @param callback Callback that receives loaded data.
      */
-    abstract fun loadAfter(params: LoadParams<Key>, callback: LoadCallback<Key, Value>)
+    public abstract fun loadAfter(params: LoadParams<Key>, callback: LoadCallback<Key, Value>)
 
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
     internal override fun getKeyInternal(item: Value): Key =

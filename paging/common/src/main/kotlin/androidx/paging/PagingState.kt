@@ -23,22 +23,22 @@ import androidx.paging.PagingSource.LoadResult.Page
  * Snapshot state of Paging system including the loaded [pages], the last accessed [anchorPosition],
  * and the [config] used.
  */
-class PagingState<Key : Any, Value : Any> constructor(
+public class PagingState<Key : Any, Value : Any> constructor(
     /**
      * Loaded pages of data in the list.
      */
-    val pages: List<Page<Key, Value>>,
+    public val pages: List<Page<Key, Value>>,
     /**
      * Most recently accessed index in the list, including placeholders.
      *
      * `null` if no access in the [PagingData] has been made yet. E.g., if this snapshot was
      * generated before or during the first load.
      */
-    val anchorPosition: Int?,
+    public val anchorPosition: Int?,
     /**
      * [PagingConfig] that was given when initializing the [PagingData] stream.
      */
-    val config: PagingConfig,
+    public val config: PagingConfig,
     /**
      * Number of placeholders before the first loaded item if placeholders are enabled, otherwise 0.
      */
@@ -70,7 +70,7 @@ class PagingState<Key : Any, Value : Any> constructor(
      * @return The closest loaded [Value] in [pages] to the provided [anchorPosition]. `null` if
      * all loaded [pages] are empty.
      */
-    fun closestItemToPosition(anchorPosition: Int): Value? {
+    public fun closestItemToPosition(anchorPosition: Int): Value? {
         if (pages.all { it.data.isEmpty() }) return null
 
         anchorPositionToPagedIndices(anchorPosition) { pageIndex, index ->
@@ -97,7 +97,7 @@ class PagingState<Key : Any, Value : Any> constructor(
      * @return The closest loaded [Value] in [pages] to the provided [anchorPosition]. `null` if
      * all loaded [pages] are empty.
      */
-    fun closestPageToPosition(anchorPosition: Int): Page<Key, Value>? {
+    public fun closestPageToPosition(anchorPosition: Int): Page<Key, Value>? {
         if (pages.all { it.data.isEmpty() }) return null
 
         anchorPositionToPagedIndices(anchorPosition) { pageIndex, index ->
@@ -112,19 +112,23 @@ class PagingState<Key : Any, Value : Any> constructor(
      * @return `true` if all loaded pages are empty or no pages were loaded when this [PagingState]
      * was created, `false` otherwise.
      */
-    fun isEmpty() = pages.all { it.data.isEmpty() }
+    public fun isEmpty(): Boolean = pages.all { it.data.isEmpty() }
 
     /**
      * @return The first loaded item in the list or `null` if all loaded pages are empty or no pages
      * were loaded when this [PagingState] was created.
      */
-    fun firstItemOrNull(): Value? = pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()
+    public fun firstItemOrNull(): Value? {
+        return pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()
+    }
 
     /**
      * @return The last loaded item in the list or `null` if all loaded pages are empty or no pages
      * were loaded when this [PagingState] was created.
      */
-    fun lastItemOrNull(): Value? = pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
+    public fun lastItemOrNull(): Value? {
+        return pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
+    }
 
     override fun toString(): String {
         return "PagingState(pages=$pages, anchorPosition=$anchorPosition, config=$config, " +

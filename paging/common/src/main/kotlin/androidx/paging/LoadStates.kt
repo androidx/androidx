@@ -22,16 +22,16 @@ import androidx.paging.LoadState.NotLoading
 /**
  * Collection of pagination [LoadState]s - refresh, prepend, and append.
  */
-data class LoadStates(
+public data class LoadStates(
     /** [LoadState] corresponding to [LoadType.REFRESH] loads. */
-    val refresh: LoadState,
+    public val refresh: LoadState,
     /** [LoadState] corresponding to [LoadType.PREPEND] loads. */
-    val prepend: LoadState,
+    public val prepend: LoadState,
     /** [LoadState] corresponding to [LoadType.APPEND] loads. */
-    val append: LoadState
+    public val append: LoadState
 ) {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    inline fun forEach(op: (LoadType, LoadState) -> Unit) {
+    public inline fun forEach(op: (LoadType, LoadState) -> Unit) {
         op(LoadType.REFRESH, refresh)
         op(LoadType.PREPEND, prepend)
         op(LoadType.APPEND, append)
