@@ -364,7 +364,10 @@ public abstract class WatchFaceService : WallpaperService() {
         private var createdBy = "?"
 
         init {
-            maybeCreateWCSApi()
+            // If this is a headless instance then we don't want to create a WCS instance.
+            if (!mutableWatchState.isHeadless) {
+                maybeCreateWCSApi()
+            }
         }
 
         @SuppressWarnings("NewApi")

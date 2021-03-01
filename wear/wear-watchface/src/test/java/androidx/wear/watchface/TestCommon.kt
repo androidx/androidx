@@ -47,7 +47,8 @@ internal class TestWatchFaceService(
     private val watchState: MutableWatchState,
     private val handler: Handler,
     private val tapListener: WatchFace.TapListener?,
-    private val preAndroidR: Boolean
+    private val preAndroidR: Boolean,
+    private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
 ) : WatchFaceService() {
     var singleTapCount = 0
     var complicationSingleTapped: Int? = null
@@ -113,7 +114,7 @@ internal class TestWatchFaceService(
     override fun readDirectBootPrefs(
         context: Context,
         fileName: String
-    ) = null
+    ) = directBootParams
 
     override fun writeDirectBootPrefs(
         context: Context,
