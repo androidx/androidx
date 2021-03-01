@@ -57,8 +57,7 @@ import java.util.concurrent.Executor;
  *
  * <pre>{@code testCarContext.getCarService(TestScreenManager.class)}</pre>
  *
- * <p>Allows retrieving all {@link Intent}s sent via {@link CarContext#startCarApp(Intent)} and
- * {@link CarContext#startCarApp(Intent, Intent)}.
+ * <p>Allows retrieving all {@link Intent}s sent via {@link CarContext#startCarApp(Intent)}.
  */
 public class TestCarContext extends CarContext {
     private final Map<String, Object> mOverriddenService = new HashMap<>();
@@ -164,7 +163,7 @@ public class TestCarContext extends CarContext {
     }
 
     /**
-     * Returns all {@link Intent}s sent via {@link CarContext#startCarApp}.
+     * Returns all {@link Intent}s sent via {@link CarContext#startCarApp(Intent)}.
      *
      * <p>The {@link Intent}s are stored in the order of when they were sent, where the first
      * intent in the list, is the first intent sent.
@@ -229,7 +228,14 @@ public class TestCarContext extends CarContext {
         return mTestLifecycleOwner;
     }
 
-    IStartCarApp getStartCarAppStub() {
+    /**
+     * Returns the {@link IStartCarApp} instance that is being used by this CarContext.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    public IStartCarApp getStartCarAppStub() {
         return mStartCarApp;
     }
 

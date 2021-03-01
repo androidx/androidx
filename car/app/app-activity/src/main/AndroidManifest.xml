@@ -23,6 +23,11 @@
             <action android:name="android.car.template.host.RendererService" />
         </intent>
     </queries>
+
+    <!--
+     singleTop so that if a new Intent is sent targeting this activity, we will use the same
+     instance instead of creating a new one.
+    -->
     <application>
         <activity
             android:name=".CarAppActivity"

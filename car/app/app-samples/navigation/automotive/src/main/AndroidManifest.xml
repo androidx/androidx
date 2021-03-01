@@ -56,17 +56,6 @@
         android:exported="true">
     </service>
 
-    <!-- TODO(b/184079723): investigate whether we need DeepLinkNotificationReceiver
-    in automotive samples -->
-    <receiver
-        android:name="androidx.car.app.sample.navigation.common.nav.DeepLinkNotificationReceiver"
-        android:enabled="true"
-        android:exported="true">
-      <intent-filter>
-        <action android:name="com.navigation.INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP"/>
-      </intent-filter>
-    </receiver>
-
     <activity-alias
         android:enabled="true"
         android:exported="true"

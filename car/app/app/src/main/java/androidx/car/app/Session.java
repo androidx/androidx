@@ -69,8 +69,8 @@ public abstract class Session implements LifecycleOwner {
      * <p>Called by the system, do not call this method directly.
      *
      * @param intent the intent that was used to start this app. If the app was started with a
-     *               call to {@link CarContext#startCarApp}, this intent will be equal to the
-     *               intent passed to that method
+     *               call to {@link CarContext#startCarApp(Intent)}, this intent will be equal to
+     *               the intent passed to that method
      */
     @NonNull
     public abstract Screen onCreateScreen(@NonNull Intent intent);
@@ -88,9 +88,9 @@ public abstract class Session implements LifecycleOwner {
      * <p>Called by the system, do not call this method directly.
      *
      * @param intent the intent that was used to start this app. If the app was started with a
-     *               call to {@link CarContext#startCarApp}, this intent will be equal to the
-     *               intent passed to that method
-     * @see CarContext#startCarApp
+     *               call to {@link CarContext#startCarApp(Intent)}, this intent will be equal to
+     *               the intent passed to that method
+     * @see CarContext#startCarApp(Intent)
      */
     public void onNewIntent(@NonNull Intent intent) {
     }

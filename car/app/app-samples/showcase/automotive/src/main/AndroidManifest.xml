@@ -65,19 +65,6 @@
         android:exported="true">
     </service>
 
-    <!-- TODO(b/184079723): investigate whether we need DeepLinkNotificationReceiver
-    in automotive samples -->
-    <receiver
-        android:name="androidx.car.app.sample.showcase.common.DeepLinkNotificationReceiver"
-        android:enabled="true"
-        android:exported="true">
-      <intent-filter>
-        <action android:name="com.showcase.INTENT_ACTION_PHONE"/>
-        <action android:name="com.showcase.INTENT_ACTION_CANCEL_RESERVATION"/>
-        <action android:name="com.showcase.INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP"/>
-      </intent-filter>
-    </receiver>
-
     <provider
         android:name="androidx.car.app.sample.showcase.common.textandicons.DelayedFileProvider"
         android:authorities="com.showcase.fileprovider"

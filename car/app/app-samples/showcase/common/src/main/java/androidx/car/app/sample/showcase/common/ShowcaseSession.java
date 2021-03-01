@@ -16,10 +16,10 @@
 
 package androidx.car.app.sample.showcase.common;
 
-import android.content.BroadcastReceiver;
+import static androidx.car.app.sample.showcase.common.ShowcaseService.INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP;
+
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.util.Log;
@@ -27,21 +27,16 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
-import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.Session;
-import androidx.car.app.sample.showcase.common.misc.GoToPhoneScreen;
 import androidx.car.app.sample.showcase.common.misc.PreSeedingFlowScreen;
-import androidx.car.app.sample.showcase.common.misc.ReservationCancelledScreen;
 import androidx.car.app.sample.showcase.common.navigation.NavigationNotificationsDemoScreen;
 import androidx.car.app.sample.showcase.common.navigation.SurfaceRenderer;
 import androidx.car.app.sample.showcase.common.navigation.routing.NavigatingDemoScreen;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
-
-import java.util.Objects;
 
 /** Session class for the Showcase sample app. */
 class ShowcaseSession extends Session implements DefaultLifecycleObserver {
@@ -50,16 +45,6 @@ class ShowcaseSession extends Session implements DefaultLifecycleObserver {
 
     @Nullable
     private SurfaceRenderer mRenderer;
-
-    private final BroadcastReceiver mReceiver =
-            new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    CarToast.makeText(getCarContext(), "Returned from phone", CarToast.LENGTH_LONG)
-                            .show();
-                    getGoToPhoneScreenAndSetItAsTop().onPhoneFlowComplete();
-                }
-            };
 
     @NonNull
     @Override
@@ -111,18 +96,6 @@ class ShowcaseSession extends Session implements DefaultLifecycleObserver {
     }
 
     @Override
-    public void onStart(@NonNull LifecycleOwner owner) {
-        getCarContext()
-                .registerReceiver(
-                        mReceiver, new IntentFilter(GoToPhoneScreen.PHONE_COMPLETE_ACTION));
-    }
-
-    @Override
-    public void onStop(@NonNull LifecycleOwner owner) {
-        getCarContext().unregisterReceiver(mReceiver);
-    }
-
-    @Override
     public void onDestroy(@NonNull LifecycleOwner owner) {
         Log.i("SHOWCASE", "onDestroy");
     }
@@ -148,22 +121,11 @@ class ShowcaseSession extends Session implements DefaultLifecycleObserver {
                 && URI_HOST.equals(uri.getSchemeSpecificPart())) {
 
             Screen top = screenManager.getTop();
-            switch (uri.getFragment()) {
-                case DeepLinkNotificationReceiver.INTENT_ACTION_PHONE:
-                    getGoToPhoneScreenAndSetItAsTop();
-                    break;
-                case DeepLinkNotificationReceiver.INTENT_ACTION_CANCEL_RESERVATION:
-                    if (!(top instanceof ReservationCancelledScreen)) {
-                        screenManager.push(new ReservationCancelledScreen(getCarContext()));
-                    }
-                    break;
-                case DeepLinkNotificationReceiver.INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP:
-                    if (!(top instanceof NavigationNotificationsDemoScreen)) {
-                        screenManager.push(new NavigationNotificationsDemoScreen(getCarContext()));
-                    }
-                    break;
-                default:
-                    // No-op
+            // No-op
+            if (INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP.equals(uri.getFragment())) {
+                if (!(top instanceof NavigationNotificationsDemoScreen)) {
+                    screenManager.push(new NavigationNotificationsDemoScreen(getCarContext()));
+                }
             }
         }
     }
@@ -173,17 +135,5 @@ class ShowcaseSession extends Session implements DefaultLifecycleObserver {
         if (mRenderer != null) {
             mRenderer.onCarConfigurationChanged();
         }
-    }
-
-    GoToPhoneScreen getGoToPhoneScreenAndSetItAsTop() {
-        ScreenManager screenManager =
-                Objects.requireNonNull(getCarContext().getCarService(ScreenManager.class));
-
-        Screen top = screenManager.getTop();
-        if (!(top instanceof GoToPhoneScreen)) {
-            top = new GoToPhoneScreen(getCarContext());
-            screenManager.push(top);
-        }
-        return (GoToPhoneScreen) top;
     }
 }

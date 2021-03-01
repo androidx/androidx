@@ -193,24 +193,6 @@ public class CarContextTest {
     }
 
     @Test
-    public void startCarApp_nullIntent_throws() {
-        assertThrows(NullPointerException.class, () -> CarContext.startCarApp(null, null));
-        assertThrows(
-                NullPointerException.class,
-                () -> CarContext.startCarApp(mIntentFromNotification, null));
-        assertThrows(NullPointerException.class, () -> CarContext.startCarApp(null, new Intent()));
-    }
-
-    @Test
-    public void startCarApp_callsTheBinder() throws RemoteException {
-        Intent startCarAppIntent = new Intent("foo");
-
-        CarContext.startCarApp(mIntentFromNotification, startCarAppIntent);
-
-        verify(mMockStartCarApp).startCarApp(startCarAppIntent);
-    }
-
-    @Test
     public void finishCarApp() throws RemoteException {
         mCarContext.finishCarApp();
 

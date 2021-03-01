@@ -523,6 +523,11 @@ Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/b
 Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyPairGeneratorSpi\$X[0-9]+\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
 Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyPairGeneratorSpi\$XDH\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
 Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/module\-info\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/ow[0-9]+/asm/asm\-commons/[0-9]+\.[0-9]+/asm\-commons\-[0-9]+\.[0-9]+\.jar:module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/ow[0-9]+/asm/asm\-util/[0-9]+\.[0-9]+/asm\-util\-[0-9]+\.[0-9]+\.jar:module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/ow[0-9]+/asm/asm\-analysis/[0-9]+\.[0-9]+/asm\-analysis\-[0-9]+\.[0-9]+\.jar:module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/ow[0-9]+/asm/asm\-tree/[0-9]+\.[0-9]+/asm\-tree\-[0-9]+\.[0-9]+\.jar:module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/ow[0-9]+/asm/asm/[0-9]+\.[0-9]+/asm\-[0-9]+\.[0-9]+\.jar:module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
 # > Task :compose:foundation:foundation-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR\/androidx\/compose\/foundation\/foundation\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:material:material-benchmark:processReleaseAndroidTestManifest
@@ -927,3 +932,6 @@ Did you make a typo\? Are you trying to refer to something not visible to users\
 Writing .* to \$OUT_DIR/.*/build/generated/source/wire
 # > Task :benchmark:benchmark-macro:lintDebug
 Error processing \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar:META\-INF/versions/[0-9]+/module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
+# > Task :docs-tip-of-tree:doclavaDocs
+javadoc\: warning \- Multiple sources of package comments found for package \"javax\.annotation\"
+[0-9]+ warning
