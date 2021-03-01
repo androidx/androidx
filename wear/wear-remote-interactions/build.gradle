@@ -37,6 +37,12 @@ dependencies {
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RULES)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(ROBOLECTRIC)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(MOCKITO_KOTLIN)
+
+    implementation(PLAY_SERVICES_BASE)
 }
 
 android {
