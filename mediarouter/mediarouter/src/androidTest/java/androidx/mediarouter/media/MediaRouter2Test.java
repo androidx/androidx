@@ -35,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -127,6 +128,7 @@ public class MediaRouter2Test {
     }
 
     @Test
+    @FlakyTest
     @MediumTest
     public void selectFromMr1AndStopFromSystem_unselect() throws Exception {
         CountDownLatch onRouteSelectedLatch = new CountDownLatch(1);
