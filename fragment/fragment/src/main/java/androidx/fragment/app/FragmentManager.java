@@ -2941,8 +2941,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mLaunchedFragments = new ArrayDeque<>(fms.mLaunchedFragments);
     }
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
-    FragmentHostCallback<?> getHost() {
+    public FragmentHostCallback<?> getHost() {
         return mHost;
     }
 
