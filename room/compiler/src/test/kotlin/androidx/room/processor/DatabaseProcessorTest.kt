@@ -1178,7 +1178,7 @@ class DatabaseProcessorTest {
                                 query = ParsedQuery(
                                     "", QueryType.SELECT, emptyList(),
                                     names.map { Table(it, it) }.toSet(),
-                                    emptyList(), false
+                                    emptyList()
                                 ),
                                 type = mock(XType::class.java),
                                 fields = emptyList(),

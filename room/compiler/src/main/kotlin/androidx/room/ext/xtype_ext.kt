@@ -18,9 +18,24 @@ package androidx.room.ext
 
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isByte
+import androidx.room.compiler.processing.isKotlinUnit
 import androidx.room.compiler.processing.isVoid
+import androidx.room.compiler.processing.isVoidObject
 
+/**
+ * Returns `true` if this type is not the `void` type.
+ */
 fun XType.isNotVoid() = !isVoid()
+
+/**
+ * Returns `true` if this does not represent a [Void] type.
+ */
+fun XType.isNotVoidObject() = !isVoidObject()
+
+/**
+ * Returns `true` if this type does not represent a [Unit] type.
+ */
+fun XType.isNotKotlinUnit() = !isKotlinUnit()
 
 /**
  * Returns `true` if this type represents a valid resolvable type.

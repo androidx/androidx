@@ -23,6 +23,9 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.isNotByte
+import androidx.room.ext.isNotKotlinUnit
+import androidx.room.ext.isNotVoid
+import androidx.room.ext.isNotVoidObject
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.Context
@@ -532,9 +535,14 @@ class TypeAdapterStore private constructor(
                 rowAdapterLogs?.writeTo(context)
                 return rowAdapter
             }
-            if (query.runtimeQueryPlaceholder) {
-                // just go w/ pojo and hope for the best. this happens for @RawQuery where we
-                // try to guess user's intention and hope that their query fits the result.
+
+            // use pojo adapter as a last resort.
+            // this happens when @RawQuery or @SkipVerification is used.
+            if (query.resultInfo == null &&
+                typeMirror.isNotVoid() &&
+                typeMirror.isNotVoidObject() &&
+                typeMirror.isNotKotlinUnit()
+            ) {
                 val pojo = PojoProcessor.createFor(
                     context = context,
                     element = typeElement,
