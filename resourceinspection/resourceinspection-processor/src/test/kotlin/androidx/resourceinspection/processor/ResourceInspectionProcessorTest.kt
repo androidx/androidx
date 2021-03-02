@@ -786,6 +786,49 @@ class ResourceInspectionProcessorTest {
         ).hadErrorContaining("@Attribute getter must be public")
     }
 
+    @Test
+    fun `fails on duplicate attributes`() {
+        val compilation = compile(
+            fakeR("androidx.pkg", "duplicated"),
+            java(
+                "androidx.pkg.DuplicateAttributesTestView",
+                """
+                    package androidx.pkg;
+
+                    import android.content.Context;
+                    import android.util.AttributeSet;
+                    import android.view.View;
+                    import androidx.annotation.ColorInt;
+                    import androidx.resourceinspection.annotation.Attribute;
+
+                    public final class DuplicateAttributesTestView extends View {
+                        public DuplicateAttributesTestView(Context context, AttributeSet attrs) {
+                            super(context, attrs);
+                        }
+
+                        @Attribute("androidx.pkg:duplicated")
+                        public int getDuplicated1() {
+                            return 1;
+                        }
+
+                        @Attribute("androidx.pkg:duplicated")
+                        public int getDuplicated2() {
+                            return 2;
+                        }
+                    }
+                """
+            )
+        )
+
+        assertThat(compilation).hadErrorContaining(
+            "Duplicate attribute androidx.pkg:duplicated is also present on getDuplicated1()"
+        )
+
+        assertThat(compilation).hadErrorContaining(
+            "Duplicate attribute androidx.pkg:duplicated is also present on getDuplicated2()"
+        )
+    }
+
     private fun compile(vararg sources: JavaFileObject): Compilation {
         return javac()
             .withProcessors(ResourceInspectionProcessor())

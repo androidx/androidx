@@ -38,7 +38,9 @@ internal data class AttributeIR(
     val name: String,
     val type: AttributeTypeIR,
     val intMapping: List<IntMapIR>
-)
+) {
+    val qualifiedName: String = "$namespace:$name"
+}
 
 /** Represents an [Attribute.IntMap] entry. */
 internal data class IntMapIR(
