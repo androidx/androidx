@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="MediaControlView_subtitle_off_text" msgid="3464220590351304587">"꺼짐"</string>
+    <string name="MediaControlView_audio_track_text" msgid="3309135445007366582">"오디오 트랙"</string>
+    <string name="MediaControlView_audio_track_none_text" msgid="2659752099246305694">"없음"</string>
+    <string name="MediaControlView_playback_speed_text" msgid="1481072528142380025">"재생 속도"</string>
+    <string name="MediaControlView_playback_speed_normal" msgid="2029510260288453183">"일반"</string>
+    <string name="MediaControlView_time_placeholder" msgid="6734584158942500617">"00:00:00"</string>
+    <string name="MediaControlView_subtitle_track_number_text" msgid="2241078077382492349">"<xliff:g id="TRACK_NUMBER">%1$d</xliff:g>번 트랙"</string>
+    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="2268860463481696609">"<xliff:g id="TRACK_NUMBER">%1$d</xliff:g>번 트랙 - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView_audio_track_number_text" msgid="4263103361854223806">"<xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>번 트랙"</string>
+    <string name="mcv2_non_music_title_unknown_text" msgid="2032814146738922144">"동영상 제목 알 수 없음"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="6037645626002038645">"노래 제목 알 수 없음"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="5393558204040775454">"아티스트 알 수 없음"</string>
+    <string name="mcv2_playback_error_text" msgid="6061787693725630293">"요청한 항목을 재생할 수 없습니다."</string>
+    <string name="mcv2_error_dialog_button" msgid="5940167897992933850">"확인"</string>
+    <string name="mcv2_back_button_desc" msgid="1540894858499118373">"뒤로"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="2749567167276435888">"이전 버튼 목록으로 돌아가기"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="7388732945289831383">"버튼 더보기"</string>
+    <string name="mcv2_seek_bar_desc" msgid="24915699029009384">"재생 진행률"</string>
+    <string name="mcv2_settings_button_desc" msgid="811917224044739656">"설정"</string>
+    <string name="mcv2_cc_is_on" msgid="5427119422911561783">"자막이 켜져 있습니다. 자막을 숨기려면 클릭하세요."</string>
+    <string name="mcv2_cc_is_off" msgid="2380791179816122456">"자막이 꺼져 있습니다. 자막을 표시하려면 클릭하세요."</string>
+    <string name="mcv2_replay_button_desc" msgid="3128622733570179596">"다시 재생"</string>
+    <string name="mcv2_play_button_desc" msgid="4881308324856085359">"재생"</string>
+    <string name="mcv2_pause_button_desc" msgid="7391720675120766278">"일시중지"</string>
+    <string name="mcv2_previous_button_desc" msgid="3080315055670437389">"이전 미디어"</string>
+    <string name="mcv2_next_button_desc" msgid="1204572886248099893">"다음 미디어"</string>
+    <string name="mcv2_rewind_button_desc" msgid="578809901971186362">"10초 되감기"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="611689280746097673">"30초 앞으로 이동"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="1609817079594941003">"전체 화면"</string>
+</resources>
