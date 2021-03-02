@@ -46,7 +46,11 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
             (adapter?.accessedTableNames() ?: emptyList()) +
                 query.tables.map { it.name }
             ).toSet()
-        val countedBinder = PositionalDataSourceQueryResultBinder(adapter, tableNames)
+        val countedBinder = PositionalDataSourceQueryResultBinder(
+            listAdapter = adapter,
+            tableNames = tableNames,
+            forPaging3 = false
+        )
         return DataSourceFactoryQueryResultBinder(countedBinder)
     }
 
