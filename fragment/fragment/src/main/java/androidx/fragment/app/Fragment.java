@@ -2948,7 +2948,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @Nullable Bundle savedInstanceState) {
         mChildFragmentManager.noteStateNotSaved();
         mPerformedCreateView = true;
-        mViewLifecycleOwner = new FragmentViewLifecycleOwner();
+        mViewLifecycleOwner = new FragmentViewLifecycleOwner(getViewModelStore());
         mView = onCreateView(inflater, container, savedInstanceState);
         if (mView != null) {
             // Initialize the view lifecycle
@@ -2957,7 +2957,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             // to mViewLifecycleOwnerLiveData and before onViewCreated, so that calls to
             // ViewTree get() methods return something meaningful
             ViewTreeLifecycleOwner.set(mView, mViewLifecycleOwner);
-            ViewTreeViewModelStoreOwner.set(mView, this);
+            ViewTreeViewModelStoreOwner.set(mView, mViewLifecycleOwner);
             ViewTreeSavedStateRegistryOwner.set(mView, mViewLifecycleOwner);
             // Then inform any Observers of the new LifecycleOwner
             mViewLifecycleOwnerLiveData.setValue(mViewLifecycleOwner);
