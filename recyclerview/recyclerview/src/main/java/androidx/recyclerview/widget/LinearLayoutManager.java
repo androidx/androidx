@@ -552,11 +552,26 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         // resolve layout direction
         resolveShouldLayoutReverse();
 
+        boolean layoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
+
+        // The 2 booleans below are necessary because if we are laying out from the end, and the
+        // previous measured dimension is different from the new measured value, then any
+        // previously calculated anchor will be incorrect.
+        boolean reCalcAnchorDueToVertical = layoutFromEnd
+                && getOrientation() == RecyclerView.VERTICAL
+                && state.getPreviousMeasuredHeight() != getHeight();
+        boolean reCalcAnchorDueToHorizontal = layoutFromEnd
+                && getOrientation() == RecyclerView.HORIZONTAL
+                && state.getPreviousMeasuredWidth() != getWidth();
+
+        boolean reCalcAnchor = reCalcAnchorDueToVertical || reCalcAnchorDueToHorizontal
+                || mPendingScrollPosition != RecyclerView.NO_POSITION || mPendingSavedState != null;
+
         final View focused = getFocusedChild();
-        if (!mAnchorInfo.mValid || mPendingScrollPosition != RecyclerView.NO_POSITION
-                || mPendingSavedState != null) {
+
+        if (!mAnchorInfo.mValid || reCalcAnchor) {
             mAnchorInfo.reset();
-            mAnchorInfo.mLayoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
+            mAnchorInfo.mLayoutFromEnd = layoutFromEnd;
             // calculate anchor position and coordinate
             updateAnchorInfoForLayout(recycler, state, mAnchorInfo);
             mAnchorInfo.mValid = true;
@@ -695,7 +710,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             // because layout from end may be changed by scroll to position
             // we re-calculate it.
             // find which side we should check for gaps.
-            if (mShouldReverseLayout ^ mStackFromEnd) {
+            if (layoutFromEnd) {
                 int fixOffset = fixLayoutEndGap(endOffset, recycler, state, true);
                 startOffset += fixOffset;
                 endOffset += fixOffset;

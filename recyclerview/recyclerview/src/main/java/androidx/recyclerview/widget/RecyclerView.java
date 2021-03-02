@@ -3817,6 +3817,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
+        internalOnMeasure(widthSpec, heightSpec);
+        mState.mPreviousMeasuredWidth = this.getMeasuredWidth();
+        mState.mPreviousMeasuredHeight = this.getMeasuredHeight();
+    }
+
+    private void internalOnMeasure(int widthSpec, int heightSpec) {
         if (mLayout == null) {
             defaultOnMeasure(widthSpec, heightSpec);
             return;
@@ -13127,6 +13133,42 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         boolean mRunSimpleAnimations = false;
 
         boolean mRunPredictiveAnimations = false;
+
+        /**
+         * The values in these fields reflect the values passed to
+         * {@link RecyclerView#setMeasuredDimension(int, int)} and are set just before
+         * {@link RecyclerView#onMeasure(int, int)} is completed. They are intended to be used to
+         * during onMeasure(int, int) to know how the RecyclerView was measured during previous
+         * calls to onMeasure(int, int).
+         */
+        int mPreviousMeasuredWidth = 0;
+        int mPreviousMeasuredHeight = 0;
+
+        // TODO(b/181991552): Make this public after 1.2.0 stable.
+        /**
+         * Returns the previously measured width of the {@link RecyclerView} that was most
+         * recently set via {@link RecyclerView#setMeasuredDimension(int, int)} during the most
+         * recent call to {@link RecyclerView#onMeasure(int, int)}. This is intended to be used
+         * during {@link LayoutManager#onLayoutChildren(Recycler, State)} when
+         * {@link State#isMeasuring()} is {@code true} in order to understand how the current
+         * measure specs compare to the result of any previous measurement.
+         */
+        int getPreviousMeasuredWidth() {
+            return mPreviousMeasuredWidth;
+        }
+
+        // TODO(b/181991552): Make this public after 1.2.0 stable.
+        /**
+         * Returns the previously measured height of the {@link RecyclerView} that was most
+         * recently set via {@link RecyclerView#setMeasuredDimension(int, int)} during the most
+         * recent call to {@link RecyclerView#onMeasure(int, int)}. This is intended to be used
+         * during {@link LayoutManager#onLayoutChildren(Recycler, State)} when
+         * {@link State#isMeasuring()} is {@code true} in order to understand how the current
+         * measure specs compare to the result of any previous measurement.
+         */
+        int getPreviousMeasuredHeight() {
+            return mPreviousMeasuredHeight;
+        }
 
         /**
          * This data is saved before a layout calculation happens. After the layout is finished,
