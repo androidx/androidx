@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="MediaControlView_subtitle_off_text" msgid="3464220590351304587">"ປິດ"</string>
+    <string name="MediaControlView_audio_track_text" msgid="3309135445007366582">"ແທຣັກສຽງ"</string>
+    <string name="MediaControlView_audio_track_none_text" msgid="2659752099246305694">"ບໍ່ມີ"</string>
+    <string name="MediaControlView_playback_speed_text" msgid="1481072528142380025">"ຄວາມໄວການຫຼິ້ນ"</string>
+    <string name="MediaControlView_playback_speed_normal" msgid="2029510260288453183">"ທຳມະດາ"</string>
+    <string name="MediaControlView_time_placeholder" msgid="6734584158942500617">"00:00:00"</string>
+    <string name="MediaControlView_subtitle_track_number_text" msgid="2241078077382492349">"ແທຣກັ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="2268860463481696609">"ແທຣັກ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView_audio_track_number_text" msgid="4263103361854223806">"ແທຣັກ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="mcv2_non_music_title_unknown_text" msgid="2032814146738922144">"ບໍ່ຮູ້ຈັກຊື່ວິດີໂອ"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="6037645626002038645">"ບໍ່ຮູ້ຈັກຊື່ເພງ"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="5393558204040775454">"ບໍ່ຮູ້ຈັກສິນລະປິນ"</string>
+    <string name="mcv2_playback_error_text" msgid="6061787693725630293">"ບໍ່ສາມາດຫຼິ້ນລາຍການທີ່ທ່ານຮ້ອງຂໍໄວ້"</string>
+    <string name="mcv2_error_dialog_button" msgid="5940167897992933850">"ຕົກລົງ"</string>
+    <string name="mcv2_back_button_desc" msgid="1540894858499118373">"ກັບຄືນ"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="2749567167276435888">"ກັບໄປທີ່ລາຍຊື່ປຸ່ມກ່ອນໜ້າ"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="7388732945289831383">"ເບິ່ງປຸ່ມເພີ່ມເຕີມ"</string>
+    <string name="mcv2_seek_bar_desc" msgid="24915699029009384">"ສະຖານະການຫຼິ້ນ"</string>
+    <string name="mcv2_settings_button_desc" msgid="811917224044739656">"ການຕັ້ງຄ່າ"</string>
+    <string name="mcv2_cc_is_on" msgid="5427119422911561783">"ເປີດຄຳແປແລ້ວ. ຄລິກເພື່ອເຊື່ອງມັນ."</string>
+    <string name="mcv2_cc_is_off" msgid="2380791179816122456">"ຄຳແປປິດຢູ່. ຄລິກເພື່ອສະແດງມັນ."</string>
+    <string name="mcv2_replay_button_desc" msgid="3128622733570179596">"ຫຼິ້ນຄືນໃໝ່"</string>
+    <string name="mcv2_play_button_desc" msgid="4881308324856085359">"ຫຼິ້ນ"</string>
+    <string name="mcv2_pause_button_desc" msgid="7391720675120766278">"ຢຸດຊົ່ວຄາວ"</string>
+    <string name="mcv2_previous_button_desc" msgid="3080315055670437389">"ມີເດຍຜ່ານມາ"</string>
+    <string name="mcv2_next_button_desc" msgid="1204572886248099893">"ມີເດຍຕໍ່ໄປ"</string>
+    <string name="mcv2_rewind_button_desc" msgid="578809901971186362">"ກັບຫຼັງ 10 ວິນາທີ"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="611689280746097673">"ເລື່ອນໄປໜ້າ 30 ວິນາທີ"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="1609817079594941003">"ເຕັມຈໍ"</string>
+</resources>
