@@ -58,7 +58,9 @@ public fun <T : ViewModel> viewModel(
     modelClass: Class<T>,
     key: String? = null,
     factory: ViewModelProvider.Factory? = null
-): T = LocalViewModelStoreOwner.current.get(modelClass, key, factory)
+): T = checkNotNull(LocalViewModelStoreOwner.current) {
+    "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+}.get(modelClass, key, factory)
 
 private fun <T : ViewModel> ViewModelStoreOwner.get(
     javaClass: Class<T>,
