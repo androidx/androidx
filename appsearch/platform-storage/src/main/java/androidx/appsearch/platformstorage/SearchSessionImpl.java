@@ -150,9 +150,8 @@ class SearchSessionImpl implements AppSearchSession {
         android.app.appsearch.SearchResults platformSearchResults =
                 mPlatformSession.search(
                         queryExpression,
-                        SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec),
-                        mExecutorService);
-        return new SearchResultsImpl(platformSearchResults);
+                        SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec));
+        return new SearchResultsImpl(platformSearchResults, mExecutorService);
     }
 
     @Override
