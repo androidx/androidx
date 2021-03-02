@@ -123,6 +123,7 @@ package androidx.navigation {
 
   public interface NavHost {
     method public androidx.navigation.NavController getNavController();
+    property public abstract androidx.navigation.NavController navController;
   }
 
   public class NavHostController extends androidx.navigation.NavController {
