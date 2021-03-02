@@ -2,40 +2,53 @@
 package androidx.navigation {
 
   @androidx.navigation.Navigator.Name("activity") public class ActivityNavigator extends androidx.navigation.Navigator<androidx.navigation.ActivityNavigator.Destination> {
-    ctor public ActivityNavigator(android.content.Context);
-    method public static void applyPopAnimationsToPendingTransition(android.app.Activity);
+    ctor public ActivityNavigator(android.content.Context context);
+    method public static final void applyPopAnimationsToPendingTransition(android.app.Activity activity);
     method public androidx.navigation.ActivityNavigator.Destination createDestination();
-    method public androidx.navigation.NavDestination? navigate(androidx.navigation.ActivityNavigator.Destination, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
+    method public androidx.navigation.NavDestination? navigate(androidx.navigation.ActivityNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
     method public boolean popBackStack();
+    field public static final androidx.navigation.ActivityNavigator.Companion Companion;
   }
 
-  @androidx.navigation.NavDestination.ClassType(Activity.class) public static class ActivityNavigator.Destination extends androidx.navigation.NavDestination {
-    ctor public ActivityNavigator.Destination(androidx.navigation.NavigatorProvider);
-    ctor public ActivityNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.ActivityNavigator.Destination>);
+  public static final class ActivityNavigator.Companion {
+    method public void applyPopAnimationsToPendingTransition(android.app.Activity activity);
+  }
+
+  @androidx.navigation.NavDestination.ClassType(Activity::class) public static class ActivityNavigator.Destination extends androidx.navigation.NavDestination {
+    ctor public ActivityNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.ActivityNavigator.Destination> activityNavigator);
+    ctor public ActivityNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
     method public final String? getAction();
     method public final android.content.ComponentName? getComponent();
     method public final android.net.Uri? getData();
     method public final String? getDataPattern();
     method public final android.content.Intent? getIntent();
     method public final String? getTargetPackage();
-    method public final androidx.navigation.ActivityNavigator.Destination setAction(String?);
-    method public final androidx.navigation.ActivityNavigator.Destination setComponentName(android.content.ComponentName?);
-    method public final androidx.navigation.ActivityNavigator.Destination setData(android.net.Uri?);
-    method public final androidx.navigation.ActivityNavigator.Destination setDataPattern(String?);
-    method public final androidx.navigation.ActivityNavigator.Destination setIntent(android.content.Intent?);
-    method public final androidx.navigation.ActivityNavigator.Destination setTargetPackage(String?);
+    method public final androidx.navigation.ActivityNavigator.Destination setAction(String? action);
+    method public final androidx.navigation.ActivityNavigator.Destination setComponentName(android.content.ComponentName? name);
+    method public final androidx.navigation.ActivityNavigator.Destination setData(android.net.Uri? data);
+    method public final androidx.navigation.ActivityNavigator.Destination setDataPattern(String? dataPattern);
+    method public final androidx.navigation.ActivityNavigator.Destination setIntent(android.content.Intent? intent);
+    method public final androidx.navigation.ActivityNavigator.Destination setTargetPackage(String? packageName);
+    property public final String? action;
+    property public final android.content.ComponentName? component;
+    property public final android.net.Uri? data;
+    property public final String? dataPattern;
+    property public final android.content.Intent? intent;
+    property public final String? targetPackage;
   }
 
   public static final class ActivityNavigator.Extras implements androidx.navigation.Navigator.Extras {
     method public androidx.core.app.ActivityOptionsCompat? getActivityOptions();
     method public int getFlags();
+    property public final androidx.core.app.ActivityOptionsCompat? activityOptions;
+    property public final int flags;
   }
 
   public static final class ActivityNavigator.Extras.Builder {
     ctor public ActivityNavigator.Extras.Builder();
-    method public androidx.navigation.ActivityNavigator.Extras.Builder addFlags(int);
+    method public androidx.navigation.ActivityNavigator.Extras.Builder addFlags(int flags);
     method public androidx.navigation.ActivityNavigator.Extras build();
-    method public androidx.navigation.ActivityNavigator.Extras.Builder setActivityOptions(androidx.core.app.ActivityOptionsCompat);
+    method public androidx.navigation.ActivityNavigator.Extras.Builder setActivityOptions(androidx.core.app.ActivityOptionsCompat activityOptions);
   }
 
   public final class NavBackStackEntry implements androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
