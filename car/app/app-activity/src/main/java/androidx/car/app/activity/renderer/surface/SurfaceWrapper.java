@@ -29,7 +29,6 @@ import androidx.annotation.Nullable;
 /**
  * A class holding the information needed to render the content on a surface.
  */
-
 public final class SurfaceWrapper {
     @Keep
     @Nullable
@@ -71,29 +70,49 @@ public final class SurfaceWrapper {
     private SurfaceWrapper() {
     }
 
+    /**
+     * Returns the host token corresponding to the {@link SurfaceView} contained in this class.
+     */
     @Nullable
     public IBinder getHostToken() {
         return mHostToken;
     }
 
-    int getWidth() {
+    /**
+     * Returns the width of the {@link SurfaceView} contained in this class.
+     */
+    public int getWidth() {
         return mWidth;
     }
 
-    int getHeight() {
+    /**
+     * Returns the width of the {@link SurfaceView} contained in this class.
+     */
+    public int getHeight() {
         return mHeight;
     }
 
-    int getDisplayId() {
+    /**
+     * Returns the display id of the {@link android.view.Display} for the {@link SurfaceView}
+     * contained in this class.
+     */
+    public int getDisplayId() {
         return mDisplayId;
     }
 
-    int getDensityDpi() {
+    /**
+     * Returns the display id of the {@link SurfaceView} contained in this class.
+     */
+    public int getDensityDpi() {
         return mDensityDpi;
     }
 
+    /**
+     * Returns the screen density of the {@link android.view.Display} for the {@link SurfaceView}
+     * contained in this class.
+     */
     @NonNull
-    Surface getSurface() {
+    public Surface getSurface() {
         return requireNonNull(mSurface);
     }
 }

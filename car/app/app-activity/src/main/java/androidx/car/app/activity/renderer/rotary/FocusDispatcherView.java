@@ -16,6 +16,8 @@
 
 package androidx.car.app.activity.renderer.rotary;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
@@ -24,17 +26,21 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.activity.R;
 
 /**
  * A view to dispatch the focus to another view.
  *
  * Once focused, dispatches the focus to the focus target specified as app:focusTarget.
+ *
+ * @hide
  */
-final class FocusDispatcherView extends View {
+@RestrictTo(LIBRARY)
+public final class FocusDispatcherView extends View {
     private final int mFocusTargetId;
 
-    FocusDispatcherView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public FocusDispatcherView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs, 0);
         // This view is focusable, visible and enabled so it can take focus.
         setFocusable(FOCUSABLE);
