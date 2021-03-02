@@ -57,8 +57,9 @@ class DynamicActivityNavigatorTest {
         noOpNavigator = NoOpNavigator()
         provider.addNavigator(noOpNavigator)
         dynamicDestination = navigator.createDestination()
-        dynamicDestination.intent =
+        dynamicDestination.setIntent(
             Intent(activityTestRule.activity, DestinationActivity::class.java)
+        )
     }
 
     @Test
@@ -72,7 +73,7 @@ class DynamicActivityNavigatorTest {
         val destination = DynamicActivityNavigator.Destination(NavigatorProvider())
         val navDestination = mock(DynamicActivityNavigator.Destination::class.java).apply {
             mockWhen(moduleName).thenReturn("module")
-            intent = Intent(activityTestRule.activity, DestinationActivity::class.java)
+            setIntent(Intent(activityTestRule.activity, DestinationActivity::class.java))
         }
         navigator.navigate(navDestination, null, null, null)
     }

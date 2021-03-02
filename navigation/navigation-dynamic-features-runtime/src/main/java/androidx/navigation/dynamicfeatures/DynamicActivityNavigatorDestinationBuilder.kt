@@ -75,10 +75,10 @@ public class DynamicActivityNavigatorDestinationBuilder(
                     )
                 )
             }
-            destination.targetPackage = targetPackage
+            destination.setTargetPackage(targetPackage)
             destination.moduleName = moduleName
-            destination.action = action
-            destination.data = data
-            destination.dataPattern = dataPattern
+            destination.setAction(action)
+            destination.setData(data)
+            destination.setDataPattern(dataPattern)
         }
 }
