@@ -135,8 +135,12 @@ package androidx.navigation {
   }
 
   public final class NavInflater {
-    ctor public NavInflater(android.content.Context, androidx.navigation.NavigatorProvider);
-    method public androidx.navigation.NavGraph inflate(@NavigationRes int);
+    ctor public NavInflater(android.content.Context context, androidx.navigation.NavigatorProvider navigatorProvider);
+    method public androidx.navigation.NavGraph inflate(@NavigationRes int graphResId);
+    field public static final androidx.navigation.NavInflater.Companion Companion;
+  }
+
+  public static final class NavInflater.Companion {
   }
 
   public final class Navigation {
