@@ -18,6 +18,8 @@ package androidx.car.app.activity.renderer.rotary;
 
 import static android.view.accessibility.AccessibilityNodeInfo.ACTION_FOCUS;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -26,6 +28,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /**
  * A transparent {@link View} that can take focus. It's used by the Rotary service to support rotary
@@ -53,8 +56,11 @@ import androidx.annotation.Nullable;
  * still be focused in order to clear focus highlight in the window, such as when RotaryService
  * performs {@link android.view.accessibility.AccessibilityNodeInfo#ACTION_FOCUS} on the
  * FocusParkingView, or the window has lost focus.
+ *
+ * @hide
  */
-class FocusParkingView extends View {
+@RestrictTo(LIBRARY)
+public class FocusParkingView extends View {
     /**
      * This value should not change, even if the actual package containing this class is different
      * as this value must match the value defined at
@@ -66,23 +72,23 @@ class FocusParkingView extends View {
     /** Action performed on this view to hide the IME. */
     private static final int ACTION_HIDE_IME = 0x08000000;
 
-    FocusParkingView(@NonNull Context context) {
+    public FocusParkingView(@NonNull Context context) {
         super(context);
         init();
     }
 
-    FocusParkingView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public FocusParkingView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    FocusParkingView(@NonNull Context context, @Nullable AttributeSet attrs,
+    public FocusParkingView(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
-    FocusParkingView(@NonNull Context context, @Nullable AttributeSet attrs,
+    public FocusParkingView(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);

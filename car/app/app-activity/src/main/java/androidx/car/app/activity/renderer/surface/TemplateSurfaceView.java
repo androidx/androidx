@@ -116,7 +116,7 @@ public final class TemplateSurfaceView extends SurfaceView {
                 }
             };
 
-    TemplateSurfaceView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public TemplateSurfaceView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs, 0);
     }
 
