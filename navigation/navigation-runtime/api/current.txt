@@ -59,6 +59,9 @@ package androidx.navigation {
     method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    property public final android.os.Bundle? arguments;
+    property public final androidx.navigation.NavDestination destination;
+    property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
   }
 
   public class NavController {

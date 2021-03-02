@@ -328,7 +328,7 @@ public class NavController {
                     entry.setMaxLifecycle(Lifecycle.State.DESTROYED);
                 }
                 if (mViewModel != null) {
-                    mViewModel.clear(entry.mId);
+                    mViewModel.clear(entry.getId());
                 }
                 popped = true;
             } else {
