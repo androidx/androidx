@@ -47,7 +47,11 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
                 query.tables.map { it.name }
             ).toSet()
         return PagingSourceQueryResultBinder(
-            PositionalDataSourceQueryResultBinder(listAdapter, tableNames)
+            PositionalDataSourceQueryResultBinder(
+                listAdapter = listAdapter,
+                tableNames = tableNames,
+                forPaging3 = true
+            )
         )
     }
 
