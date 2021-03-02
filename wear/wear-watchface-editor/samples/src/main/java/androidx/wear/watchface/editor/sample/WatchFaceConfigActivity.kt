@@ -81,7 +81,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handler = Handler(Looper.getMainLooper())
-        coroutineScope = CoroutineScope(handler.asCoroutineDispatcher())
+        coroutineScope = CoroutineScope(handler.asCoroutineDispatcher().immediate)
         val deferredEditorSession = EditorSession.createOnWatchEditingSessionAsync(
             this@WatchFaceConfigActivity,
             intent!!

@@ -109,14 +109,14 @@ private class IWatchFaceInstanceServiceStub(
     ): IHeadlessWatchFace? = uiThreadHandler.runOnHandlerWithTracing(
         "IWatchFaceInstanceServiceStub.createHeadlessWatchFaceInstance"
     ) {
-        val engine = createEngine(params.watchFaceName, context)
+        val engine = createHeadlessEngine(params.watchFaceName, context)
         engine?.let {
             // This is serviced on a background thread so it should be fine to block.
             runBlocking { it.createHeadlessInstance(params) }
         }
     }
 
-    private fun createEngine(
+    private fun createHeadlessEngine(
         watchFaceName: ComponentName,
         context: Context
     ) = TraceEvent("IWatchFaceInstanceServiceStub.createEngine").use {
@@ -130,7 +130,8 @@ private class IWatchFaceInstanceServiceStub(
                 val watchFaceService =
                     watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
                 watchFaceService.setContext(context)
-                val engine = watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+                val engine =
+                    watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
                 engine
             }
         } catch (e: ClassNotFoundException) {

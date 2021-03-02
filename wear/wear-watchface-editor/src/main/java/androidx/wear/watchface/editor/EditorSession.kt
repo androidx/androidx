@@ -178,7 +178,7 @@ public abstract class EditorSession : AutoCloseable {
             "EditorSession.createOnWatchEditingSessionAsyncImpl"
         ).use {
             val coroutineScope =
-                CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher())
+                CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate)
             return EditorRequest.createFromIntent(editIntent)?.let { editorRequest ->
                 // We need to respect the lifecycle and register the ActivityResultListener now.
                 val session = OnWatchFaceEditorSessionImpl(
@@ -228,7 +228,9 @@ public abstract class EditorSession : AutoCloseable {
                     object : ProviderInfoRetrieverProvider {
                         override fun getProviderInfoRetriever() = ProviderInfoRetriever(activity)
                     },
-                    CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher())
+                    CoroutineScope(
+                        Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate
+                    )
                 )
             }
         }
