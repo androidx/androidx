@@ -13,31 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.navigation
 
-package androidx.navigation;
-
-
-import android.os.Bundle;
-
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
+import android.os.Bundle
+import androidx.annotation.IdRes
 
 /**
  * An interface that describes a navigation operation: action's id and arguments
  */
 public interface NavDirections {
-
     /**
      * Returns a action id to navigate with.
      *
      * @return id of an action
      */
-    @IdRes
-    int getActionId();
+    @get:IdRes
+    public val actionId: Int
 
     /**
      * Returns arguments to pass to the destination
      */
-    @NonNull
-    Bundle getArguments();
+    public val arguments: Bundle
 }

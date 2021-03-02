@@ -45,7 +45,7 @@ class NavOptionsTest {
             .that(navOptions.popUpTo)
             .isEqualTo(DESTINATION_ID)
         assertWithMessage("NavOptions should have isPopUpToInclusive false by default")
-            .that(navOptions.isPopUpToInclusive)
+            .that(navOptions.isPopUpToInclusive())
             .isFalse()
     }
 
@@ -60,7 +60,7 @@ class NavOptionsTest {
             .that(navOptions.popUpTo)
             .isEqualTo(DESTINATION_ID)
         assertWithMessage("NavOptions should have isPopUpToInclusive set")
-            .that(navOptions.isPopUpToInclusive)
+            .that(navOptions.isPopUpToInclusive())
             .isTrue()
     }
 
