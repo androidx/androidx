@@ -21,7 +21,6 @@ import com.google.common.truth.Expect
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.AssumptionViolatedException
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -445,14 +444,6 @@ class RoomIncrementalAnnotationProcessingTest(
 
     @Test
     fun `delete group of source files`() {
-        if (useKsp) {
-            throw AssumptionViolatedException(
-                """
-                KSP has a KI where it sometimes do not clear the output:
-                https://github.com/google/ksp/issues/332
-                """
-            )
-        }
         runFullBuild()
 
         // Delete the first group of source files
