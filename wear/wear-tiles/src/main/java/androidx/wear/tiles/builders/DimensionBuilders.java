@@ -43,7 +43,7 @@ public final class DimensionBuilders {
 
     /** Shortcut for building a {@link SpProp} using a measurement in SP. */
     @NonNull
-    public static SpProp sp(@Dimension(unit = SP) int valueSp) {
+    public static SpProp sp(@Dimension(unit = SP) float valueSp) {
         return SpProp.builder().setValue(valueSp).build();
     }
 
@@ -192,7 +192,7 @@ public final class DimensionBuilders {
             /** Sets the value, in sp. */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setValue(@Dimension(unit = SP) int value) {
+            public Builder setValue(@Dimension(unit = SP) float value) {
                 mImpl.setValue(value);
                 return this;
             }

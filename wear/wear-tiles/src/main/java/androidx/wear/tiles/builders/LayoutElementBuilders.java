@@ -988,7 +988,11 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /** A portion of text which can be added to a {@link Span}. */
+    /**
+     * A portion of text which can be added to a {@link Span}. Two different {@link SpanText}
+     * elements on the same line will be aligned to the same baseline, regardless of the size of
+     * each {@link SpanText}.
+     */
     public static final class SpanText implements Span {
         private final LayoutElementProto.SpanText mImpl;
 
