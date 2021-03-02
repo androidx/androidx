@@ -17,8 +17,8 @@
 package androidx.navigation.test
 
 import androidx.navigation.NavArgument
-import androidx.navigation.NavType.IntType
-import androidx.navigation.NavType.StringType
+import androidx.navigation.NavType.Companion.IntType
+import androidx.navigation.NavType.Companion.StringType
 
 // region IntType
 fun intArgument() = NavArgument.Builder().setType(IntType).build()
