@@ -18,7 +18,6 @@ package androidx.camera.integration.view
 
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
-import androidx.camera.view.CameraView
 import androidx.camera.view.PreviewView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -123,9 +122,10 @@ class CameraViewFragmentTest {
     }
 }
 
+@Suppress("DEPRECATION")
 private suspend inline fun FragmentScenario<CameraViewFragment>.assertStreaming() {
     val streamState = withFragment {
-        (view?.findViewById<CameraView>(R.id.camera)?.previewStreamState)!!
+        (view?.findViewById<androidx.camera.view.CameraView>(R.id.camera)?.previewStreamState)!!
     }.asFlow().first {
         it == PreviewView.StreamState.STREAMING
     }
