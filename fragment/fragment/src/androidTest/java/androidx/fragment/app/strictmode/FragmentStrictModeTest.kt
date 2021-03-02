@@ -16,12 +16,14 @@
 
 package androidx.fragment.app.strictmode
 
+import android.os.Looper
 import androidx.fragment.app.StrictFragment
 import androidx.fragment.app.executePendingTransactions
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -87,15 +89,42 @@ public class FragmentStrictModeTest {
 
             FragmentStrictMode.setDefaultPolicy(policy("Default policy"))
             FragmentStrictMode.onPolicyViolation(childFragment, violation)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(lastTriggeredPolicy).isEqualTo("Default policy")
 
             fragmentManager.strictModePolicy = policy("Parent policy")
             FragmentStrictMode.onPolicyViolation(childFragment, violation)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(lastTriggeredPolicy).isEqualTo("Parent policy")
 
             parentFragment.childFragmentManager.strictModePolicy = policy("Child policy")
             FragmentStrictMode.onPolicyViolation(childFragment, violation)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(lastTriggeredPolicy).isEqualTo("Child policy")
+        }
+    }
+
+    @Test
+    public fun listenerCalledOnCorrectThread() {
+        var thread: Thread? = null
+
+        val policy = FragmentStrictMode.Policy.Builder()
+            .penaltyListener { thread = Thread.currentThread() }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+
+            val fragment = StrictFragment()
+            fragmentManager.beginTransaction()
+                .add(fragment, null)
+                .commit()
+            executePendingTransactions()
+
+            FragmentStrictMode.onPolicyViolation(fragment, object : Violation() {})
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            assertThat(thread).isEqualTo(Looper.getMainLooper().thread)
         }
     }
 }
