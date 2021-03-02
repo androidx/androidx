@@ -661,7 +661,6 @@ public class NoPermissionComplicationData internal constructor(
      * You must at a minimum set the [tapAction].
      */
     public class Builder {
-        private var tapAction: PendingIntent? = null
         private var text: ComplicationText? = null
         private var title: ComplicationText? = null
         private var monochromaticImage: MonochromaticImage? = null

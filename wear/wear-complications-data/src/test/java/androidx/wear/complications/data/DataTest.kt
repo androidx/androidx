@@ -342,6 +342,17 @@ public class TapActionTest {
                 .tapAction
         ).isEqualTo(mPendingIntent)
     }
+
+    @Test
+    public fun photoImageComplicationData() {
+        val icon = Icon.createWithContentUri("someuri")
+        val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
+        assertThat(
+            SmallImageComplicationData.Builder(image).setTapAction(mPendingIntent).build()
+                .asWireComplicationData()
+                .tapAction
+        ).isEqualTo(mPendingIntent)
+    }
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
