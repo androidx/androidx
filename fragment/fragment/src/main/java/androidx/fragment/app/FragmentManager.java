@@ -2898,8 +2898,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     /** @hide */
-    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
     public FragmentHostCallback<?> getHost() {
         return mHost;
     }

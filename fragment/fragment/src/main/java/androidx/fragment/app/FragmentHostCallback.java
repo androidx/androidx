@@ -249,8 +249,8 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     }
 
     /** @hide */
-    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
     public Handler getHandler() {
         return mHandler;
     }
