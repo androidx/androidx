@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.util.runner
 
+import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.SyntheticJavacProcessor
 import androidx.room.compiler.processing.util.CompilationResult
 import androidx.room.compiler.processing.util.KotlinCompilationUtil
@@ -23,6 +24,7 @@ import androidx.room.compiler.processing.util.KotlinCompileTestingCompilationRes
 import com.tschuchort.compiletesting.KotlinCompilation
 import java.io.ByteArrayOutputStream
 
+@ExperimentalProcessingApi
 internal object KaptCompilationTestRunner : CompilationTestRunner {
 
     override val name: String = "kapt"

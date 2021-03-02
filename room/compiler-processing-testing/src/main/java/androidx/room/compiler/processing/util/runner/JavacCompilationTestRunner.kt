@@ -16,12 +16,14 @@
 
 package androidx.room.compiler.processing.util.runner
 
+import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.SyntheticJavacProcessor
 import androidx.room.compiler.processing.util.CompilationResult
 import androidx.room.compiler.processing.util.JavaCompileTestingCompilationResult
 import androidx.room.compiler.processing.util.Source
 import com.google.testing.compile.Compiler
 
+@ExperimentalProcessingApi
 internal object JavacCompilationTestRunner : CompilationTestRunner {
 
     override val name: String = "javac"

@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.util.runner
 
+import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.SyntheticKspProcessor
 import androidx.room.compiler.processing.util.CompilationResult
 import androidx.room.compiler.processing.util.KotlinCompilationUtil
@@ -30,6 +31,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.tools.Diagnostic
 
+@ExperimentalProcessingApi
 internal object KspCompilationTestRunner : CompilationTestRunner {
 
     override val name: String = "ksp"

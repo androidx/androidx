@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import javax.lang.model.SourceVersion
 
 @Suppress("VisibleForTests")
+@ExperimentalProcessingApi
 class SyntheticJavacProcessor private constructor(
     private val impl: SyntheticProcessorImpl
 ) : JavacTestProcessor(), SyntheticProcessor by impl {

@@ -246,7 +246,8 @@ tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarDebug")
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn",
-                             "-Xopt-in=kotlin.contracts.ExperimentalContracts"]
+                             "-Xopt-in=kotlin.contracts.ExperimentalContracts",
+                             "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"]
     }
 }
 

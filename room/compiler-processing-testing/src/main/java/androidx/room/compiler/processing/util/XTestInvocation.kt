@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
 import com.google.common.truth.Truth
@@ -24,6 +25,7 @@ import kotlin.reflect.KClass
 /**
  * Data holder for XProcessing tests to access the processing environment.
  */
+@ExperimentalProcessingApi
 class XTestInvocation(
     processingEnv: XProcessingEnv,
     roundEnv: XRoundEnv
