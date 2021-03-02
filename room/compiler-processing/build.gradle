@@ -49,7 +49,8 @@ dependencies {
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn",
-                             "-Xopt-in=kotlin.contracts.ExperimentalContracts"]
+                             "-Xopt-in=kotlin.contracts.ExperimentalContracts",
+                             "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"]
     }
 }
 
@@ -60,7 +61,7 @@ tasks.withType(Test).configureEach {
 
 androidx {
     name = "AndroidX Room XProcessor"
-    type = LibraryType.ANNOTATION_PROCESSOR
+    type = LibraryType.ANNOTATION_PROCESSOR_UTILS
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2020"
     description = "Processing Environment Abstraction for AndroidX Room"

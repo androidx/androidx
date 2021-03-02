@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.SyntheticJavacProcessor
 import androidx.room.compiler.processing.SyntheticProcessor
 import androidx.room.compiler.processing.util.runner.CompilationTestRunner
@@ -34,6 +35,7 @@ import javax.tools.Diagnostic
 /**
  * Holds the information about a test compilation result.
  */
+@ExperimentalProcessingApi
 abstract class CompilationResult internal constructor(
     /**
      * The test infra which run this test
@@ -87,6 +89,7 @@ abstract class CompilationResult internal constructor(
  * Truth subject that can run assertions on the [CompilationResult].
  * see: [XTestInvocation.assertCompilationResult]
  */
+@ExperimentalProcessingApi
 class CompilationResultSubject(
     failureMetadata: FailureMetadata,
     val compilationResult: CompilationResult,
@@ -370,7 +373,7 @@ class CompilationResultSubject(
         }
     }
 }
-
+@ExperimentalProcessingApi
 internal class JavaCompileTestingCompilationResult(
     testRunner: CompilationTestRunner,
     @Suppress("unused")
@@ -397,7 +400,7 @@ internal class JavaCompileTestingCompilationResult(
         }
     }
 }
-
+@ExperimentalProcessingApi
 internal class KotlinCompileTestingCompilationResult(
     testRunner: CompilationTestRunner,
     @Suppress("unused")
