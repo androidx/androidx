@@ -29,7 +29,7 @@ plugins {
 
 dependencies {
     implementation(project(":resourceinspection:resourceinspection-annotation"))
-    implementation("androidx.annotation:annotation:1.1.0")
+    implementation(project(":annotation:annotation"))
 
     implementation(AUTO_COMMON)
     implementation(AUTO_SERVICE_ANNOTATIONS)
