@@ -358,4 +358,62 @@ class ActivityResultRegistryTest {
     fun testOnRestoreInstanceStateNoKeys() {
         registry.onRestoreInstanceState(Bundle())
     }
+
+    @Test
+    fun testKeepKeyAfterLaunch() {
+        var code = 0
+        val noDispatchRegistry = object : ActivityResultRegistry() {
+            override fun <I : Any?, O : Any?> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                code = requestCode
+            }
+        }
+
+        val activityResult = noDispatchRegistry.register("key", StartActivityForResult()) { }
+
+        activityResult.launch(null)
+        activityResult.unregister()
+
+        var callbackExecuted = false
+        noDispatchRegistry.register("key", StartActivityForResult()) {
+            callbackExecuted = true
+        }
+
+        noDispatchRegistry.dispatchResult(code, RESULT_OK, Intent())
+
+        assertThat(callbackExecuted).isTrue()
+    }
+
+    @Test
+    fun testKeepKeyAfterLaunchDispatchResult() {
+        var code = 0
+        val noDispatchRegistry = object : ActivityResultRegistry() {
+            override fun <I : Any?, O : Any?> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                code = requestCode
+            }
+        }
+
+        val activityResult = noDispatchRegistry.register("key", StartActivityForResult()) { }
+
+        activityResult.launch(null)
+        activityResult.unregister()
+
+        var callbackExecuted = false
+        noDispatchRegistry.register("key", StartActivityForResult()) {
+            callbackExecuted = true
+        }
+
+        noDispatchRegistry.dispatchResult(code, ActivityResult(RESULT_OK, Intent()))
+
+        assertThat(callbackExecuted).isTrue()
+    }
 }
