@@ -15,12 +15,19 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.lifecycle.process">
+
     <application>
-        <provider android:authorities="${applicationId}.lifecycle-process"
-            android:multiprocess="true"
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
-            android:name="androidx.lifecycle.ProcessLifecycleOwnerInitializer"/>
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+                android:value="androidx.startup" />
+        </provider>
     </application>
 </manifest>
 
