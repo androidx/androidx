@@ -420,7 +420,15 @@ public abstract class WatchFaceService : WallpaperService() {
                     // empty list. NB we can't actually serialise complications anyway so that's
                     // just as well...
                     params.idAndComplicationDataWireFormats = emptyList()
-                    writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
+
+                    // Writing even small amounts of data to storage is quite slow and if we did
+                    // that immediately, we'd delay the first frame which is rendered via
+                    // onSurfaceRedrawNeeded. By posting this task we expedite first frame
+                    // rendering. There is a small window where the direct boot could be stale if
+                    // the watchface crashed but this seems unlikely in practice.
+                    uiThreadHandler.post {
+                        writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
+                    }
                 }
             }
         }
@@ -995,8 +1003,14 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         override fun onSurfaceRedrawNeeded(holder: SurfaceHolder) {
+            if (TRACE_DRAW) {
+                Trace.beginSection("onSurfaceRedrawNeeded")
+            }
             if (watchFaceCreated()) {
                 watchFaceImpl.onSurfaceRedrawNeeded()
+            }
+            if (TRACE_DRAW) {
+                Trace.endSection()
             }
         }
 
@@ -1067,7 +1081,9 @@ public abstract class WatchFaceService : WallpaperService() {
             pendingSetWatchFaceStyle = false
         }
 
-        override fun onVisibilityChanged(visible: Boolean) {
+        override fun onVisibilityChanged(visible: Boolean): Unit = TraceEvent(
+            "onVisibilityChanged"
+        ).use {
             super.onVisibilityChanged(visible)
 
             // We are requesting state every time the watch face changes its visibility because
