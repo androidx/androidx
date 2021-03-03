@@ -595,3 +595,11 @@ Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/b
 \$OUT_DIR\/androidx\/compose\/foundation\/foundation\-layout\/foundation\-layout\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:ui:ui-text:ui-text-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR\/androidx\/compose\/ui\/ui\-text\/ui\-text\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
+# > Task :compose:benchmark-utils:benchmark-utils-benchmark:processReleaseAndroidTestManifest
+\$OUT_DIR\/androidx\/compose\/benchmark\-utils\/benchmark\-utils\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
+# > Task :compose:ui:ui-benchmark:processReleaseAndroidTestManifest
+\$OUT_DIR\/androidx\/compose\/ui\/ui\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
+# > Task :compose:animation:animation-core:animation-core-benchmark:processReleaseAndroidTestManifest
+\$OUT_DIR\/androidx\/compose\/animation\/animation\-core\/animation\-core\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
+# > Task :compose:ui:ui-graphics:ui-graphics-benchmark:processReleaseAndroidTestManifest
+\$OUT_DIR\/androidx\/compose\/ui\/ui\-graphics\/ui\-graphics\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
