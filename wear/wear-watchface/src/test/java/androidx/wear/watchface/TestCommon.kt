@@ -227,6 +227,7 @@ class WatchFaceTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass
         InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
             .doNotInstrumentPackage("android.support.wearable.watchface")
             .doNotInstrumentPackage("androidx.wear.complications")
+            .doNotInstrumentPackage("androidx.wear.utility")
             .doNotInstrumentPackage("androidx.wear.watchface")
             .doNotInstrumentPackage("androidx.wear.watchface.ui")
             .doNotInstrumentPackage("androidx.wear.watchfacestyle")

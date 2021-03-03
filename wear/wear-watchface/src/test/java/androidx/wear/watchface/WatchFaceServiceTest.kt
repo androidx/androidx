@@ -2294,7 +2294,6 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun headlessFlagPreventsDirectBoot() {
-        watchState.isHeadless = true
         val userStyleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
         val testRenderer = TestRenderer(
             surfaceHolder,
@@ -2331,7 +2330,7 @@ public class WatchFaceServiceTest {
             )
         )
 
-        service.onCreateEngine()
+        service.createHeadlessEngine()
 
         runPendingPostedDispatchedContinuationTasks()
 
