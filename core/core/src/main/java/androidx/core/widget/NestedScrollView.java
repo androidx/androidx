@@ -101,8 +101,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     private final Rect mTempRect = new Rect();
     private OverScroller mScroller;
-    private EdgeEffect mEdgeGlowTop;
-    private EdgeEffect mEdgeGlowBottom;
+    private final EdgeEffect mEdgeGlowTop;
+    private final EdgeEffect mEdgeGlowBottom;
 
     /**
      * Position of the last motion event.
@@ -197,6 +197,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     public NestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mEdgeGlowTop = EdgeEffectCompat.create(context, attrs);
+        mEdgeGlowBottom = EdgeEffectCompat.create(context, attrs);
+
         initScrollView();
 
         final TypedArray a = context.obtainStyledAttributes(
@@ -213,6 +216,28 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         setNestedScrollingEnabled(true);
 
         ViewCompat.setAccessibilityDelegate(this, ACCESSIBILITY_DELEGATE);
+    }
+
+    /**
+     * Returns the {@link EdgeEffect#getType()} for the edge effects.
+     * @return the {@link EdgeEffect#getType()} for the edge effects.
+     * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
+     */
+    @EdgeEffectCompat.EdgeEffectType
+    public int getEdgeEffectType() {
+        // Both bottom and top will have the same type.
+        return EdgeEffectCompat.getType(mEdgeGlowBottom);
+    }
+
+    /**
+     * Sets the {@link EdgeEffect#setType(int)} for the edge effects.
+     * @param type The edge effect type to use for the edge effects.
+     * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
+     */
+    public void setEdgeEffectType(@EdgeEffectCompat.EdgeEffectType int type) {
+        EdgeEffectCompat.setType(mEdgeGlowTop, type);
+        EdgeEffectCompat.setType(mEdgeGlowBottom, type);
+        invalidate();
     }
 
     // NestedScrollingChild3
@@ -774,7 +799,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             case MotionEvent.ACTION_DOWN: {
                 final int y = (int) ev.getY();
                 if (!inChild((int) ev.getX(), y)) {
-                    mIsBeingDragged = false;
+                    mIsBeingDragged = stopGlowAnimations(ev) || !mScroller.isFinished();
                     recycleVelocityTracker();
                     break;
                 }
@@ -791,11 +816,12 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 /*
                  * If being flinged and user touches the screen, initiate drag;
                  * otherwise don't. mScroller.isFinished should be false when
-                 * being flinged. We need to call computeScrollOffset() first so that
+                 * being flinged. We also want to catch the edge glow and start dragging
+                 * if one is being animated. We need to call computeScrollOffset() first so that
                  * isFinished() is correct.
                 */
                 mScroller.computeScrollOffset();
-                mIsBeingDragged = !mScroller.isFinished();
+                mIsBeingDragged = stopGlowAnimations(ev) || !mScroller.isFinished();
                 startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
                 break;
             }
@@ -841,7 +867,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 if (getChildCount() == 0) {
                     return false;
                 }
-                if ((mIsBeingDragged = !mScroller.isFinished())) {
+                if (mIsBeingDragged) {
                     final ViewParent parent = getParent();
                     if (parent != null) {
                         parent.requestDisallowInterceptTouchEvent(true);
@@ -871,6 +897,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
                 final int y = (int) ev.getY(activePointerIndex);
                 int deltaY = mLastMotionY - y;
+                deltaY -= releaseVerticalGlow(deltaY, ev.getX(activePointerIndex));
                 if (!mIsBeingDragged && Math.abs(deltaY) > mTouchSlop) {
                     final ViewParent parent = getParent();
                     if (parent != null) {
@@ -921,24 +948,23 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
                     if (canOverscroll) {
                         deltaY -= mScrollConsumed[1];
-                        ensureGlows();
                         final int pulledToY = oldY + deltaY;
                         if (pulledToY < 0) {
-                            EdgeEffectCompat.onPull(mEdgeGlowTop, (float) deltaY / getHeight(),
+                            EdgeEffectCompat.onPullDistance(mEdgeGlowTop,
+                                    (float) -deltaY / getHeight(),
                                     ev.getX(activePointerIndex) / getWidth());
                             if (!mEdgeGlowBottom.isFinished()) {
                                 mEdgeGlowBottom.onRelease();
                             }
                         } else if (pulledToY > range) {
-                            EdgeEffectCompat.onPull(mEdgeGlowBottom, (float) deltaY / getHeight(),
-                                    1.f - ev.getX(activePointerIndex)
-                                            / getWidth());
+                            EdgeEffectCompat.onPullDistance(mEdgeGlowBottom,
+                                    (float) deltaY / getHeight(),
+                                    1.f - ev.getX(activePointerIndex) / getWidth());
                             if (!mEdgeGlowTop.isFinished()) {
                                 mEdgeGlowTop.onRelease();
                             }
                         }
-                        if (mEdgeGlowTop != null
-                                && (!mEdgeGlowTop.isFinished() || !mEdgeGlowBottom.isFinished())) {
+                        if (!mEdgeGlowTop.isFinished() || !mEdgeGlowBottom.isFinished()) {
                             ViewCompat.postInvalidateOnAnimation(this);
                         }
                     }
@@ -988,6 +1014,30 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         vtev.recycle();
 
         return true;
+    }
+
+    /**
+     * This stops any edge glow animation that is currently running by applying a
+     * 0 length pull at the displacement given by the provided MotionEvent. On pre-S devices,
+     * this method does nothing, allowing any animating edge effect to continue animating and
+     * returning <code>false</code> always.
+     *
+     * @param e The motion event to use to indicate the finger position for the displacement of
+     *          the current pull.
+     * @return <code>true</code> if any edge effect had an existing effect to be drawn ond the
+     * animation was stopped or <code>false</code> if no edge effect had a value to display.
+     */
+    private boolean stopGlowAnimations(MotionEvent e) {
+        boolean stopped = false;
+        if (EdgeEffectCompat.getDistance(mEdgeGlowTop) != 0) {
+            EdgeEffectCompat.onPullDistance(mEdgeGlowTop, 0, e.getY() / getHeight());
+            stopped = true;
+        }
+        if (EdgeEffectCompat.getDistance(mEdgeGlowBottom) != 0) {
+            EdgeEffectCompat.onPullDistance(mEdgeGlowBottom, 0, 1 - e.getY() / getHeight());
+            stopped = true;
+        }
+        return stopped;
     }
 
     private void onSecondaryPointerUp(MotionEvent ev) {
@@ -1638,7 +1688,6 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             final boolean canOverscroll = mode == OVER_SCROLL_ALWAYS
                     || (mode == OVER_SCROLL_IF_CONTENT_SCROLLS && range > 0);
             if (canOverscroll) {
-                ensureGlows();
                 if (unconsumed < 0) {
                     if (mEdgeGlowTop.isFinished()) {
                         mEdgeGlowTop.onAbsorb((int) mScroller.getCurrVelocity());
@@ -1657,6 +1706,40 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         } else {
             stopNestedScroll(ViewCompat.TYPE_NON_TOUCH);
         }
+    }
+
+    /**
+     * If either of the vertical edge glows are currently active, this consumes part or all of
+     * deltaY on the edge glow.
+     *
+     * @param deltaY The pointer motion, in pixels, in the vertical direction, positive
+     *                         for moving down and negative for moving up.
+     * @param x The vertical position of the pointer.
+     * @return The amount of <code>deltaY</code> that has been consumed by the
+     * edge glow.
+     */
+    private int releaseVerticalGlow(int deltaY, float x) {
+        // First allow releasing existing overscroll effect:
+        float consumed = 0;
+        float displacement = x / getWidth();
+        float pullDistance = (float) deltaY / getHeight();
+        if (EdgeEffectCompat.getDistance(mEdgeGlowTop) != 0) {
+            consumed = -EdgeEffectCompat.onPullDistance(mEdgeGlowTop, -pullDistance, displacement);
+            if (EdgeEffectCompat.getDistance(mEdgeGlowTop) == 0) {
+                mEdgeGlowTop.onRelease();
+            }
+        } else if (EdgeEffectCompat.getDistance(mEdgeGlowBottom) != 0) {
+            consumed = EdgeEffectCompat.onPullDistance(mEdgeGlowBottom, pullDistance,
+                    1 - displacement);
+            if (EdgeEffectCompat.getDistance(mEdgeGlowBottom) == 0) {
+                mEdgeGlowBottom.onRelease();
+            }
+        }
+        int pixelsConsumed = Math.round(consumed * getHeight());
+        if (pixelsConsumed != 0) {
+            invalidate();
+        }
+        return pixelsConsumed;
     }
 
     private void runAnimatedScroll(boolean participateInNestedScrolling) {
@@ -1951,10 +2034,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         recycleVelocityTracker();
         stopNestedScroll(ViewCompat.TYPE_TOUCH);
 
-        if (mEdgeGlowTop != null) {
-            mEdgeGlowTop.onRelease();
-            mEdgeGlowBottom.onRelease();
-        }
+        mEdgeGlowTop.onRelease();
+        mEdgeGlowBottom.onRelease();
     }
 
     /**
@@ -1980,67 +2061,52 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         }
     }
 
-    private void ensureGlows() {
-        if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
-            if (mEdgeGlowTop == null) {
-                Context context = getContext();
-                mEdgeGlowTop = new EdgeEffect(context);
-                mEdgeGlowBottom = new EdgeEffect(context);
-            }
-        } else {
-            mEdgeGlowTop = null;
-            mEdgeGlowBottom = null;
-        }
-    }
-
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        if (mEdgeGlowTop != null) {
-            final int scrollY = getScrollY();
-            if (!mEdgeGlowTop.isFinished()) {
-                final int restoreCount = canvas.save();
-                int width = getWidth();
-                int height = getHeight();
-                int xTranslation = 0;
-                int yTranslation = Math.min(0, scrollY);
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP || getClipToPadding()) {
-                    width -= getPaddingLeft() + getPaddingRight();
-                    xTranslation += getPaddingLeft();
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && getClipToPadding()) {
-                    height -= getPaddingTop() + getPaddingBottom();
-                    yTranslation += getPaddingTop();
-                }
-                canvas.translate(xTranslation, yTranslation);
-                mEdgeGlowTop.setSize(width, height);
-                if (mEdgeGlowTop.draw(canvas)) {
-                    ViewCompat.postInvalidateOnAnimation(this);
-                }
-                canvas.restoreToCount(restoreCount);
+        final int scrollY = getScrollY();
+        if (!mEdgeGlowTop.isFinished()) {
+            final int restoreCount = canvas.save();
+            int width = getWidth();
+            int height = getHeight();
+            int xTranslation = 0;
+            int yTranslation = Math.min(0, scrollY);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP || getClipToPadding()) {
+                width -= getPaddingLeft() + getPaddingRight();
+                xTranslation += getPaddingLeft();
             }
-            if (!mEdgeGlowBottom.isFinished()) {
-                final int restoreCount = canvas.save();
-                int width = getWidth();
-                int height = getHeight();
-                int xTranslation = 0;
-                int yTranslation = Math.max(getScrollRange(), scrollY) + height;
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP || getClipToPadding()) {
-                    width -= getPaddingLeft() + getPaddingRight();
-                    xTranslation += getPaddingLeft();
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && getClipToPadding()) {
-                    height -= getPaddingTop() + getPaddingBottom();
-                    yTranslation -= getPaddingBottom();
-                }
-                canvas.translate(xTranslation - width, yTranslation);
-                canvas.rotate(180, width, 0);
-                mEdgeGlowBottom.setSize(width, height);
-                if (mEdgeGlowBottom.draw(canvas)) {
-                    ViewCompat.postInvalidateOnAnimation(this);
-                }
-                canvas.restoreToCount(restoreCount);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && getClipToPadding()) {
+                height -= getPaddingTop() + getPaddingBottom();
+                yTranslation += getPaddingTop();
             }
+            canvas.translate(xTranslation, yTranslation);
+            mEdgeGlowTop.setSize(width, height);
+            if (mEdgeGlowTop.draw(canvas)) {
+                ViewCompat.postInvalidateOnAnimation(this);
+            }
+            canvas.restoreToCount(restoreCount);
+        }
+        if (!mEdgeGlowBottom.isFinished()) {
+            final int restoreCount = canvas.save();
+            int width = getWidth();
+            int height = getHeight();
+            int xTranslation = 0;
+            int yTranslation = Math.max(getScrollRange(), scrollY) + height;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP || getClipToPadding()) {
+                width -= getPaddingLeft() + getPaddingRight();
+                xTranslation += getPaddingLeft();
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && getClipToPadding()) {
+                height -= getPaddingTop() + getPaddingBottom();
+                yTranslation -= getPaddingBottom();
+            }
+            canvas.translate(xTranslation - width, yTranslation);
+            canvas.rotate(180, width, 0);
+            mEdgeGlowBottom.setSize(width, height);
+            if (mEdgeGlowBottom.draw(canvas)) {
+                ViewCompat.postInvalidateOnAnimation(this);
+            }
+            canvas.restoreToCount(restoreCount);
         }
     }
 

@@ -3848,6 +3848,7 @@ package androidx.core.widget {
     method public boolean executeKeyEvent(android.view.KeyEvent);
     method public void fling(int);
     method public boolean fullScroll(int);
+    method public int getEdgeEffectType();
     method public int getMaxScrollAmount();
     method public boolean hasNestedScrollingParent(int);
     method public boolean isFillViewport();
@@ -3860,6 +3861,7 @@ package androidx.core.widget {
     method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
     method public void onStopNestedScroll(android.view.View, int);
     method public boolean pageScroll(int);
+    method public void setEdgeEffectType(int);
     method public void setFillViewport(boolean);
     method public void setOnScrollChangeListener(androidx.core.widget.NestedScrollView.OnScrollChangeListener?);
     method public void setSmoothScrollingEnabled(boolean);

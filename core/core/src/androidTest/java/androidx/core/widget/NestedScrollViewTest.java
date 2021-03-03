@@ -16,16 +16,26 @@
 
 package androidx.core.widget;
 
+import static android.widget.EdgeEffect.TYPE_GLOW;
+import static android.widget.EdgeEffect.TYPE_STRETCH;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Parcelable;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EdgeEffect;
 
+import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -301,6 +311,90 @@ public class NestedScrollViewTest {
         mNestedScrollView.scrollTo(0, 100);
 
         assertThat(mNestedScrollView.getScrollY(), is(100));
+    }
+
+    @Test
+    public void testEdgeEffectType() {
+        Context context = ApplicationProvider.getApplicationContext();
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
+        mNestedScrollView = (NestedScrollView) layoutInflater.inflate(
+                R.layout.nested_scroll_view_stretch, null);
+
+        if (isSOrHigher()) {
+            assertEquals(TYPE_STRETCH, mNestedScrollView.getEdgeEffectType());
+            mNestedScrollView.setEdgeEffectType(EdgeEffect.TYPE_GLOW);
+            assertEquals(TYPE_GLOW, mNestedScrollView.getEdgeEffectType());
+        } else {
+            // Older versions can't change. They're always glow edge effects.
+            assertEquals(TYPE_GLOW, mNestedScrollView.getEdgeEffectType());
+            mNestedScrollView.setEdgeEffectType(TYPE_STRETCH);
+            assertEquals(TYPE_GLOW, mNestedScrollView.getEdgeEffectType());
+        }
+    }
+
+    @Test
+    public void testTopEdgeEffectReversal() {
+        setup(200);
+        setChildMargins(0, 0);
+        measureAndLayout(100);
+        swipeDown(false);
+        assertEquals(0, mNestedScrollView.getScrollY());
+        swipeUp(true);
+        if (isSOrHigher()) {
+            // This should just reverse the overscroll effect
+            assertEquals(0, mNestedScrollView.getScrollY());
+        } else {
+            // Can't catch the overscroll effect for R and earlier
+            assertNotEquals(0, mNestedScrollView.getScrollY());
+        }
+    }
+
+    @Test
+    public void testBottomEdgeEffectReversal() {
+        setup(200);
+        setChildMargins(0, 0);
+        measureAndLayout(100);
+        int scrollRange = mNestedScrollView.getScrollRange();
+        mNestedScrollView.scrollTo(0, scrollRange);
+        assertEquals(scrollRange, mNestedScrollView.getScrollY());
+        swipeUp(false);
+        assertEquals(scrollRange, mNestedScrollView.getScrollY());
+        swipeDown(true);
+        if (isSOrHigher()) {
+            // This should just reverse the overscroll effect
+            assertEquals(scrollRange, mNestedScrollView.getScrollY());
+        } else {
+            // Can't catch the overscroll effect for R and earlier
+            assertNotEquals(scrollRange, mNestedScrollView.getScrollY());
+        }
+    }
+
+    private void swipeDown(boolean shortSwipe) {
+        float endY = shortSwipe ? mNestedScrollView.getHeight() / 2f :
+                mNestedScrollView.getHeight() - 1;
+        swipe(0, endY);
+    }
+
+    private void swipeUp(boolean shortSwipe) {
+        float endY = shortSwipe ? mNestedScrollView.getHeight() / 2f : 0;
+        swipe(mNestedScrollView.getHeight() - 1, endY);
+    }
+
+    private void swipe(float startY, float endY) {
+        float x = mNestedScrollView.getWidth() / 2f;
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, x, startY, 0);
+        mNestedScrollView.dispatchTouchEvent(down);
+        MotionEvent move = MotionEvent.obtain(0, 10, MotionEvent.ACTION_MOVE, x, endY, 0);
+        mNestedScrollView.dispatchTouchEvent(move);
+        MotionEvent up = MotionEvent.obtain(0, 1000, MotionEvent.ACTION_UP, x, endY, 0);
+        mNestedScrollView.dispatchTouchEvent(up);
+    }
+
+    private static boolean isSOrHigher() {
+        // TODO(b/181171227): Simplify this
+        int sdk = Build.VERSION.SDK_INT;
+        return sdk > Build.VERSION_CODES.R
+                || (sdk == Build.VERSION_CODES.R && Build.VERSION.PREVIEW_SDK_INT != 0);
     }
 
     private void setup(int childHeight) {
