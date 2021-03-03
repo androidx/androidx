@@ -54,6 +54,9 @@ import androidx.core.widget.TextViewOnReceiveContentListener;
 import androidx.core.widget.TintableCompoundDrawablesView;
 import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+
 /**
  * A {@link EditText} which supports compatible features on older versions of the platform,
  * including:
@@ -309,7 +312,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     @RequiresApi(api = 26)
     public void setTextClassifier(@Nullable TextClassifier textClassifier) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P || mTextClassifierHelper == null) {
-            super.setTextClassifier(textClassifier);
+            MethodHandleWrappers.setTextClassifier(this, textClassifier);
             return;
         }
         mTextClassifierHelper.setTextClassifier(textClassifier);
@@ -327,7 +330,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         // The null check is necessary because getTextClassifier is called when we are invoking
         // the super class's constructor.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P || mTextClassifierHelper == null) {
-            return super.getTextClassifier();
+            return MethodHandleWrappers.getTextClassifier(this);
         }
         return mTextClassifierHelper.getTextClassifier();
     }
@@ -495,5 +498,62 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     public void setSupportCompoundDrawablesTintMode(@Nullable PorterDuff.Mode tintMode) {
         mTextHelper.setCompoundDrawableTintMode(tintMode);
         mTextHelper.applyCompoundDrawablesTints();
+    }
+
+    @RequiresApi(api = 26)
+    private static class MethodHandleWrappers {
+        @Nullable
+        private static MethodHandle sMethodGetTextClassifier;
+        @Nullable
+        private static MethodHandle sMethodSetTextClassifier;
+
+        static {
+            try {
+                MethodHandles.Lookup lookup = MethodHandles.lookup().in(TextView.class);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    sMethodGetTextClassifier = lookup
+                            .unreflectSpecial(
+                                    TextView.class.getDeclaredMethod("getTextClassifier"),
+                                    TextView.class);
+                    sMethodSetTextClassifier = lookup
+                            .unreflectSpecial(
+                                    TextView.class.getDeclaredMethod("setTextClassifier",
+                                            TextClassifier.class),
+                                    TextView.class);
+                } else {
+                    sMethodGetTextClassifier = null;
+                    sMethodSetTextClassifier = null;
+                }
+            } catch (IllegalAccessException | NoSuchMethodException e) {
+                sMethodGetTextClassifier = null;
+                sMethodSetTextClassifier = null;
+            }
+        }
+
+        @Nullable
+        public static TextClassifier getTextClassifier(AppCompatEditText editText) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    assert sMethodGetTextClassifier != null;
+                    return (TextClassifier) sMethodGetTextClassifier.bindTo(editText)
+                            .invokeWithArguments();
+                }
+            } catch (Throwable throwable) {
+                return null;
+            }
+            return null;
+        }
+
+        public static void setTextClassifier(AppCompatEditText editText,
+                TextClassifier textClassifier) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    assert sMethodSetTextClassifier != null;
+                    sMethodSetTextClassifier.bindTo(editText).invokeWithArguments(textClassifier);
+                }
+            } catch (Throwable throwable) {
+                // NOTHING
+            }
+        }
     }
 }

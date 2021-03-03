@@ -50,6 +50,8 @@ import androidx.core.widget.TextViewCompat;
 import androidx.core.widget.TintableCompoundDrawablesView;
 import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -285,7 +287,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     public void setAutoSizeTextTypeWithDefaults(
             @TextViewCompat.AutoSizeTextType int autoSizeTextType) {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
-            super.setAutoSizeTextTypeWithDefaults(autoSizeTextType);
+            MethodHandleWrappers.setAutoSizeTextTypeWithDefaults(this, autoSizeTextType);
         } else {
             if (mTextHelper != null) {
                 mTextHelper.setAutoSizeTextTypeWithDefaults(autoSizeTextType);
@@ -308,7 +310,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
             int autoSizeStepGranularity,
             int unit) throws IllegalArgumentException {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
-            super.setAutoSizeTextTypeUniformWithConfiguration(
+            MethodHandleWrappers.setAutoSizeTextTypeUniformWithConfiguration(this,
                     autoSizeMinTextSize, autoSizeMaxTextSize, autoSizeStepGranularity, unit);
         } else {
             if (mTextHelper != null) {
@@ -330,7 +332,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     public void setAutoSizeTextTypeUniformWithPresetSizes(@NonNull int[] presetSizes, int unit)
             throws IllegalArgumentException {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
-            super.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
+            MethodHandleWrappers.setAutoSizeTextTypeUniformWithPresetSizes(this, presetSizes, unit);
         } else {
             if (mTextHelper != null) {
                 mTextHelper.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
@@ -351,7 +353,8 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @SuppressLint("WrongConstant")
     public int getAutoSizeTextType() {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
-            return super.getAutoSizeTextType() == TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM
+            return MethodHandleWrappers.getAutoSizeTextType(this) == TextView
+                    .AUTO_SIZE_TEXT_TYPE_UNIFORM
                     ? TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM
                     : TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE;
         } else {
@@ -372,7 +375,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     public int getAutoSizeStepGranularity() {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
-            return super.getAutoSizeStepGranularity();
+            return MethodHandleWrappers.getAutoSizeStepGranularity(this);
         } else {
             if (mTextHelper != null) {
                 return mTextHelper.getAutoSizeStepGranularity();
@@ -391,7 +394,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     public int getAutoSizeMinTextSize() {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
-            return super.getAutoSizeMinTextSize();
+            return MethodHandleWrappers.getAutoSizeMinTextSize(this);
         } else {
             if (mTextHelper != null) {
                 return mTextHelper.getAutoSizeMinTextSize();
@@ -410,7 +413,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     public int getAutoSizeMaxTextSize() {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
-            return super.getAutoSizeMaxTextSize();
+            return MethodHandleWrappers.getAutoSizeMaxTextSize(this);
         } else {
             if (mTextHelper != null) {
                 return mTextHelper.getAutoSizeMaxTextSize();
@@ -429,7 +432,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     public int[] getAutoSizeTextAvailableSizes() {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
-            return super.getAutoSizeTextAvailableSizes();
+            return MethodHandleWrappers.getAutoSizeTextAvailableSizes(this);
         } else {
             if (mTextHelper != null) {
                 return mTextHelper.getAutoSizeTextAvailableSizes();
@@ -448,7 +451,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     public void setFirstBaselineToTopHeight(@Px @IntRange(from = 0) int firstBaselineToTopHeight) {
         if (Build.VERSION.SDK_INT >= 28) {
-            super.setFirstBaselineToTopHeight(firstBaselineToTopHeight);
+            MethodHandleWrappers.setFirstBaselineToTopHeight(this, firstBaselineToTopHeight);
         } else {
             TextViewCompat.setFirstBaselineToTopHeight(this, firstBaselineToTopHeight);
         }
@@ -458,7 +461,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     public void setLastBaselineToBottomHeight(
             @Px @IntRange(from = 0) int lastBaselineToBottomHeight) {
         if (Build.VERSION.SDK_INT >= 28) {
-            super.setLastBaselineToBottomHeight(lastBaselineToBottomHeight);
+            MethodHandleWrappers.setLastBaselineToBottomHeight(this, lastBaselineToBottomHeight);
         } else {
             TextViewCompat.setLastBaselineToBottomHeight(this,
                     lastBaselineToBottomHeight);
@@ -559,7 +562,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RequiresApi(api = 26)
     public void setTextClassifier(@Nullable TextClassifier textClassifier) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P || mTextClassifierHelper == null) {
-            super.setTextClassifier(textClassifier);
+            MethodHandleWrappers.setTextClassifier(this, textClassifier);
             return;
         }
         mTextClassifierHelper.setTextClassifier(textClassifier);
@@ -571,13 +574,12 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * {@link android.view.textclassifier.TextClassificationManager}.
      */
     @Override
-    @NonNull
     @RequiresApi(api = 26)
     public TextClassifier getTextClassifier() {
         // The null check is necessary because getTextClassifier is called when we are invoking
         // the super class's constructor.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P || mTextClassifierHelper == null) {
-            return super.getTextClassifier();
+            return MethodHandleWrappers.getTextClassifier(this);
         }
         return mTextClassifierHelper.getTextClassifier();
     }
@@ -775,5 +777,195 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
             mIsSetTypefaceProcessing = false;
         }
 
+    }
+
+    @RequiresApi(api = 26)
+    private static class MethodHandleWrappers {
+        private static MethodHandle sMethodGetAutoSizeMaxTextSize;
+        private static MethodHandle sMethodGetAutoSizeMinTextSize;
+        private static MethodHandle sMethodGetAutoSizeStepGranularity;
+        private static MethodHandle sMethodGetAutoSizeTextAvailableSizes;
+        private static MethodHandle sMethodGetAutoSizeTextType;
+        private static MethodHandle sMethodGetTextClassifier;
+        private static MethodHandle sMethodSetAutoSizeTextTypeUniformWithConfiguration;
+        private static MethodHandle sMethodSetAutoSizeTextTypeUniformWithPresetSizes;
+        private static MethodHandle sMethodSetAutoSizeTextTypeWithDefaults;
+        private static MethodHandle sMethodSetFirstBaselineToTopHeight;
+        private static MethodHandle sMethodSetLastBaselineToBottomHeight;
+        private static MethodHandle sMethodSetTextClassifier;
+        public static final String GET_AUTO_SIZE_MAX_TEXT_SIZE = "getAutoSizeMaxTextSize";
+        public static final String GET_AUTO_SIZE_MIN_TEXT_SIZE = "getAutoSizeMinTextSize";
+        public static final String GET_AUTO_SIZE_STEP_GRANULARITY = "getAutoSizeStepGranularity";
+        public static final String GET_AUTO_SIZE_TEXT_AVAILABLE_SIZES =
+                "getAutoSizeTextAvailableSizes";
+        public static final String GET_AUTO_SIZE_TEXT_TYPE = "getAutoSizeTextType";
+        public static final String GET_TEXT_CLASSIFIER = "getTextClassifier";
+        public static final String SET_AUTO_SIZE_TEXT_TYPE_UNIFORM_WITH_CONFIGURATION =
+                "setAutoSizeTextTypeUniformWithConfiguration";
+        public static final String SET_AUTO_SIZE_TEXT_TYPE_UNIFORM_WITH_PRESET_SIZES =
+                "setAutoSizeTextTypeUniformWithPresetSizes";
+        public static final String SET_AUTO_SIZE_TEXT_TYPE_WITH_DEFAULTS =
+                "setAutoSizeTextTypeWithDefaults";
+        public static final String SET_FIRST_BASELINE_TO_TOP_HEIGHT = "setFirstBaselineToTopHeight";
+        public static final String SET_FIRST_BASELINE_TO_BOTTOM_HEIGHT =
+                "setLastBaselineToBottomHeight";
+        public static final String SET_TEXT_CLASSIFIER = "setTextClassifier";
+
+        static {
+            try {
+                MethodHandles.Lookup lookup = MethodHandles.lookup().in(TextView.class);
+                sMethodGetAutoSizeMaxTextSize = lookup.unreflectSpecial(
+                        TextView.class.getDeclaredMethod(GET_AUTO_SIZE_MAX_TEXT_SIZE),
+                        TextView.class);
+                sMethodGetAutoSizeMinTextSize = lookup.unreflectSpecial(
+                        TextView.class.getDeclaredMethod(GET_AUTO_SIZE_MIN_TEXT_SIZE),
+                        TextView.class);
+                sMethodGetAutoSizeStepGranularity = lookup.unreflectSpecial(
+                        TextView.class.getDeclaredMethod(GET_AUTO_SIZE_STEP_GRANULARITY),
+                        TextView.class);
+                sMethodGetAutoSizeTextAvailableSizes = lookup.unreflectSpecial(
+                        TextView.class.getDeclaredMethod(GET_AUTO_SIZE_TEXT_AVAILABLE_SIZES),
+                        TextView.class);
+                sMethodGetAutoSizeTextType = lookup
+                        .unreflectSpecial(TextView.class.getDeclaredMethod(GET_AUTO_SIZE_TEXT_TYPE),
+                                TextView.class);
+                sMethodGetTextClassifier = lookup.unreflectSpecial(
+                        TextView.class.getDeclaredMethod(GET_TEXT_CLASSIFIER), TextView.class);
+                sMethodSetAutoSizeTextTypeUniformWithConfiguration = lookup.unreflectSpecial(
+                        TextView.class.getDeclaredMethod(
+                                SET_AUTO_SIZE_TEXT_TYPE_UNIFORM_WITH_CONFIGURATION,
+                                int.class, int.class, int.class, int.class
+                        ), TextView.class);
+                sMethodSetAutoSizeTextTypeUniformWithPresetSizes = lookup.unreflectSpecial(
+                        TextView.class.getDeclaredMethod(
+                                SET_AUTO_SIZE_TEXT_TYPE_UNIFORM_WITH_PRESET_SIZES,
+                                int[].class, int.class
+                        ), TextView.class);
+                sMethodSetAutoSizeTextTypeWithDefaults = lookup.unreflectSpecial(
+                        TextView.class.getDeclaredMethod(SET_AUTO_SIZE_TEXT_TYPE_WITH_DEFAULTS,
+                                int.class), TextView.class);
+                sMethodSetFirstBaselineToTopHeight = lookup.unreflectSpecial(
+                        TextView.class.getDeclaredMethod(SET_FIRST_BASELINE_TO_TOP_HEIGHT,
+                                int.class),
+                        TextView.class);
+                sMethodSetLastBaselineToBottomHeight = lookup.unreflectSpecial(
+                        TextView.class.getDeclaredMethod(SET_FIRST_BASELINE_TO_BOTTOM_HEIGHT,
+                                int.class),
+                        TextView.class);
+                sMethodSetTextClassifier = lookup.unreflectSpecial(
+                        TextView.class.getDeclaredMethod(SET_TEXT_CLASSIFIER, TextClassifier.class),
+                        TextView.class);
+            } catch (IllegalAccessException | NoSuchMethodException e) {
+                //NOTHING
+            }
+        }
+
+        static int getAutoSizeMaxTextSize(AppCompatTextView textView) {
+            try {
+                return (int) sMethodGetAutoSizeMaxTextSize.bindTo(textView).invokeWithArguments();
+            } catch (Throwable throwable) {
+                return -1;
+            }
+        }
+
+        static int getAutoSizeMinTextSize(AppCompatTextView textView) {
+            try {
+                return (int) sMethodGetAutoSizeMinTextSize.bindTo(textView).invokeWithArguments();
+            } catch (Throwable throwable) {
+                return -1;
+            }
+        }
+
+        static int getAutoSizeStepGranularity(AppCompatTextView textView) {
+            try {
+                return (int) sMethodGetAutoSizeStepGranularity.bindTo(textView)
+                        .invokeWithArguments();
+            } catch (Throwable throwable) {
+                return -1;
+            }
+        }
+
+        static int[] getAutoSizeTextAvailableSizes(AppCompatTextView textView) {
+            try {
+                return (int[]) sMethodGetAutoSizeTextAvailableSizes.bindTo(textView)
+                        .invokeWithArguments();
+            } catch (Throwable throwable) {
+                return null;
+            }
+        }
+
+        static int getAutoSizeTextType(AppCompatTextView textView) {
+            try {
+                return (int) sMethodGetAutoSizeTextType.bindTo(textView).invokeWithArguments();
+            } catch (Throwable throwable) {
+                return -1;
+            }
+        }
+
+        static TextClassifier getTextClassifier(AppCompatTextView textView) {
+            try {
+                return (TextClassifier) sMethodGetTextClassifier.bindTo(textView)
+                        .invokeWithArguments();
+            } catch (Throwable throwable) {
+                return null;
+            }
+        }
+
+        static void setAutoSizeTextTypeUniformWithConfiguration(AppCompatTextView textView,
+                Object... args) {
+            try {
+                sMethodSetAutoSizeTextTypeUniformWithConfiguration.bindTo(textView)
+                        .invokeWithArguments(args);
+            } catch (Throwable throwable) {
+                //NOTHING
+            }
+        }
+
+        static void setAutoSizeTextTypeUniformWithPresetSizes(AppCompatTextView textView,
+                Object... args) {
+            try {
+                sMethodSetAutoSizeTextTypeUniformWithPresetSizes.bindTo(textView)
+                        .invokeWithArguments(args);
+            } catch (Throwable throwable) {
+                //NOTHING
+            }
+        }
+
+        static void setAutoSizeTextTypeWithDefaults(AppCompatTextView textView,
+                Object... args) {
+            try {
+                sMethodSetAutoSizeTextTypeWithDefaults.bindTo(textView)
+                        .invokeWithArguments(args);
+            } catch (Throwable throwable) {
+                //NOTHING
+            }
+        }
+
+        static void setFirstBaselineToTopHeight(AppCompatTextView textView,
+                Object... args) {
+            try {
+                sMethodSetFirstBaselineToTopHeight.bindTo(textView).invokeWithArguments(args);
+            } catch (Throwable throwable) {
+                //NOTHING
+            }
+        }
+
+        static void setLastBaselineToBottomHeight(AppCompatTextView textView,
+                Object... args) {
+            try {
+                sMethodSetLastBaselineToBottomHeight.bindTo(textView).invokeWithArguments(args);
+            } catch (Throwable throwable) {
+                //NOTHING
+            }
+        }
+
+        static void setTextClassifier(AppCompatTextView textView,
+                Object... args) {
+            try {
+                sMethodSetTextClassifier.bindTo(textView).invokeWithArguments(args);
+            } catch (Throwable throwable) {
+                //NOTHING
+            }
+        }
     }
 }
