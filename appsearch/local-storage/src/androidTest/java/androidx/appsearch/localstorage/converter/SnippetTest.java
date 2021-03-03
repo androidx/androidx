@@ -61,7 +61,6 @@ public class SnippetTest {
                 .addEntries(SnippetProto.EntryProto.newBuilder()
                         .setPropertyName(propertyKeyString)
                         .addSnippetMatches(SnippetMatchProto.newBuilder()
-                                .setValuesIndex(0)
                                 .setExactMatchPosition(29)
                                 .setExactMatchBytes(3)
                                 .setWindowPosition(26)
@@ -161,7 +160,6 @@ public class SnippetTest {
                                 .setPropertyName("sender.name")
                                 .addSnippetMatches(
                                         SnippetMatchProto.newBuilder()
-                                                .setValuesIndex(0)
                                                 .setExactMatchPosition(0)
                                                 .setExactMatchBytes(4)
                                                 .setWindowPosition(0)
@@ -173,7 +171,6 @@ public class SnippetTest {
                                 .setPropertyName("sender.email")
                                 .addSnippetMatches(
                                         SnippetMatchProto.newBuilder()
-                                                .setValuesIndex(0)
                                                 .setExactMatchPosition(0)
                                                 .setExactMatchBytes(20)
                                                 .setWindowPosition(0)
