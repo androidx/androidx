@@ -12,16 +12,11 @@ option java_outer_classname = "RequestProto";
 // Parameters passed to a Tile provider when the renderer is requesting a new
 // version of the tile.
 message TileRequest {
-  // The ID of the Clickable that was tapped to cause this request. Empty string
-  // if the request was not caused by a Clickable.
-  // TODO(b/167954298): Remove.
-  string clickable_id = 1 [deprecated = true];
-
   // Parameters describing the device requesting the tile update.
-  DeviceParameters device_parameters = 2;
+  DeviceParameters device_parameters = 1;
 
   // The state that should be used when building the tile.
-  State state = 3;
+  State state = 2;
 }
 
 // Parameters passed to a Tile provider when the renderer is requesting a

@@ -16,7 +16,9 @@ message DpProp {
 // A type for font sizes, measured in sp.
 message SpProp {
   // The value, in sp.
-  int32 value = 1;
+  float value = 2;
+
+  reserved 1;
 }
 
 // A type for font spacing, measured in em.

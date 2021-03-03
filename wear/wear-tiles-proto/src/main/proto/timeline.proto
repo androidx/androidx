@@ -22,12 +22,10 @@ message TimeInterval {
 // One piece of renderable content along with the time that it is valid for.
 message TimelineEntry {
   // The validity period for this timeline entry.
-  TimeInterval validity = 2;
+  TimeInterval validity = 1;
 
   // The contents of this timeline entry.
-  Layout layout = 3;
-
-  reserved 1;
+  Layout layout = 2;
 }
 
 // A collection of TimelineEntry items.
