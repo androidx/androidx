@@ -249,14 +249,14 @@ class NavHostTest {
             } else {
                 NavHostController(context).apply {
                     restoreState(savedState)
-                    setViewModelStore(LocalViewModelStoreOwner.current.viewModelStore)
+                    setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
                     navigatorProvider.addNavigator(ComposeNavigator())
                 }
             }
             if (state.value == 0) {
                 NavHost(navController, startDestination = "first") {
                     composable("first") {
-                        val provider = ViewModelProvider(LocalViewModelStoreOwner.current)
+                        val provider = ViewModelProvider(it)
                         viewModel = provider.get("key", TestViewModel::class.java)
                     }
                 }
