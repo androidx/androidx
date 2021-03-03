@@ -165,7 +165,7 @@ package androidx.wear.tiles.builders {
     method public static androidx.wear.tiles.builders.DimensionBuilders.DpProp dp(@Dimension(unit=androidx.annotation.Dimension.DP) float);
     method public static androidx.wear.tiles.builders.DimensionBuilders.EmProp em(int);
     method public static androidx.wear.tiles.builders.DimensionBuilders.ExpandedDimensionProp expand();
-    method public static androidx.wear.tiles.builders.DimensionBuilders.SpProp sp(@Dimension(unit=androidx.annotation.Dimension.SP) int);
+    method public static androidx.wear.tiles.builders.DimensionBuilders.SpProp sp(@Dimension(unit=androidx.annotation.Dimension.SP) float);
     method public static androidx.wear.tiles.builders.DimensionBuilders.WrappedDimensionProp wrap();
   }
 
@@ -251,7 +251,7 @@ package androidx.wear.tiles.builders {
 
   public static final class DimensionBuilders.SpProp.Builder {
     method public androidx.wear.tiles.builders.DimensionBuilders.SpProp build();
-    method public androidx.wear.tiles.builders.DimensionBuilders.SpProp.Builder setValue(@Dimension(unit=androidx.annotation.Dimension.SP) int);
+    method public androidx.wear.tiles.builders.DimensionBuilders.SpProp.Builder setValue(@Dimension(unit=androidx.annotation.Dimension.SP) float);
   }
 
   public static interface DimensionBuilders.SpacerDimension {
