@@ -228,7 +228,8 @@ public class CustomTabsClient {
     private static PendingIntent createSessionId(Context context, int sessionId) {
         // Create a {@link PendingIntent} with empty Action to prevent using it other than
         // a session identifier.
-        return PendingIntent.getActivity(context, sessionId, new Intent(), 0);
+        return PendingIntent.getActivity(
+                context, sessionId, new Intent(), PendingIntent.FLAG_IMMUTABLE);
     }
 
     /**
