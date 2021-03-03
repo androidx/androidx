@@ -426,6 +426,7 @@ package androidx.car.app.model {
 
   public static final class MessageTemplate.Builder {
     ctor public MessageTemplate.Builder(CharSequence);
+    ctor @androidx.car.app.annotations.ExperimentalCarApi public MessageTemplate.Builder(androidx.car.app.model.CarText);
     method public androidx.car.app.model.MessageTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.MessageTemplate build();
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(Throwable);
