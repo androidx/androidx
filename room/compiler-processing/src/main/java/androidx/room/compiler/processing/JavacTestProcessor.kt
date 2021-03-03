@@ -29,6 +29,7 @@ import javax.lang.model.element.TypeElement
  * in Auto Common.
  */
 @VisibleForTesting
+@ExperimentalProcessingApi
 abstract class JavacTestProcessor : AbstractProcessor() {
     val xProcessingEnv by lazy {
         // lazily create this as it is not available on construction time
