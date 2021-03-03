@@ -41,6 +41,8 @@ import androidx.wear.tiles.readers.RequestReaders.TileRequest;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -146,7 +148,13 @@ public abstract class TileProviderService extends Service {
      */
     @NonNull
     public static TileUpdateRequester getUpdater(@NonNull Context context) {
-        return new SysUiTileUpdateRequester(context);
+        // TODO(b/181747932): Detect which UpdateRequester to use rather than dispatching using
+        // both.
+        List<TileUpdateRequester> requesters = new ArrayList<>();
+        requesters.add(new SysUiTileUpdateRequester(context));
+        requesters.add(new ViewerTileUpdateRequester(context));
+
+        return new CompositeTileUpdateRequester(requesters);
     }
 
     private TileProvider.Stub mBinder;

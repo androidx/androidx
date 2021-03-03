@@ -28,7 +28,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
-@DoNotInstrument // See http://g/robolectric-users/fTi2FRXgyGA/m/PkB0wYuwBgAJ
+@DoNotInstrument
 public final class ProtoParcelableTest {
     public static class Wrapper extends ProtoParcelable {
         public static final int VERSION = 1;
