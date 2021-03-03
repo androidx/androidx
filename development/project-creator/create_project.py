@@ -270,7 +270,7 @@ def create_directories(group_id, artifact_id):
     # Java-only produces a jar, whereas an android library produces an aar.
     if (get_library_type(artifact_id) == "LINT" or
         ask_yes_or_no("Is this a java-only library? Java-only libraries produce"
-                      " JARs, whereas Android produce AARs.")):
+                      " JARs, whereas Android libraries produce AARs.")):
         sed("com.android.library", "java-library",
             full_artifact_path + "/build.gradle")
         sed("org.jetbrains.kotlin.android", "kotlin",
