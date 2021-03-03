@@ -243,7 +243,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
+    protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
         return builder.getUseCaseConfig();
     }
@@ -652,7 +652,7 @@ public abstract class UseCase {
      *
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
         mViewPortCropRect = viewPortCropRect;
     }
@@ -662,7 +662,7 @@ public abstract class UseCase {
      *
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public Rect getViewPortCropRect() {
         return mViewPortCropRect;

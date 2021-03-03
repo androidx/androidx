@@ -468,7 +468,7 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override
-    UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
+    protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
         if (builder.getMutableConfig().retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, null)
                 != null) {

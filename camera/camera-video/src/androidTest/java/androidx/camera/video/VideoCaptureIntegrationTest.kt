@@ -76,7 +76,7 @@ import kotlin.math.abs
 
 @LargeTest
 @RunWith(Parameterized::class)
-class VideoCaptureTest(
+class VideoCaptureIntegrationTest(
     private var cameraSelector: CameraSelector
 ) {
     companion object {
