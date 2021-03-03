@@ -18,6 +18,7 @@ package androidx.resourceinspection.processor
 
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorLong
+import androidx.annotation.GravityInt
 import androidx.resourceinspection.annotation.Attribute
 import com.google.auto.common.AnnotationMirrors.getAnnotationValue
 import com.google.auto.common.BasicAnnotationProcessor
@@ -158,10 +159,10 @@ internal class LayoutInspectionProcessingStep(
             TypeKind.SHORT -> AttributeTypeIR.SHORT
             TypeKind.INT -> when {
                 isAnnotationPresent(getter, ColorInt::class.java) -> AttributeTypeIR.COLOR
+                isAnnotationPresent(getter, GravityInt::class.java) -> AttributeTypeIR.GRAVITY
                 getter.hasResourceIdAnnotation() -> AttributeTypeIR.RESOURCE_ID
                 intMapping.any { it.mask != 0 } -> AttributeTypeIR.INT_FLAG
                 intMapping.isNotEmpty() -> AttributeTypeIR.INT_ENUM
-                // TODO(b/180040871): Detect gravity
                 else -> AttributeTypeIR.INT
             }
             TypeKind.LONG ->
