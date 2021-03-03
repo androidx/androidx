@@ -16,7 +16,13 @@
 
 package androidx.lifecycle.viewmodel.compose
 
+import android.app.Dialog
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
@@ -24,6 +30,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -37,6 +45,38 @@ public class ViewModelTest {
 
     @get:Rule
     public val rule: ComposeContentTestRule = createComposeRule()
+
+    @Test
+    public fun nullViewModelStoreOwner() {
+        var owner: ViewModelStoreOwner? = null
+        rule.setContent {
+            val context = LocalContext.current
+            val lifecycleOwner = LocalLifecycleOwner.current
+            val savedStateRegistryOwner = LocalSavedStateRegistryOwner.current
+            DisposableEffect(context, lifecycleOwner, savedStateRegistryOwner) {
+                val dialog = Dialog(context).apply {
+                    val composeView = ComposeView(context)
+                    composeView.setContent {
+                        // This should return null because no LocalViewModelStoreOwner was set
+                        owner = LocalViewModelStoreOwner.current
+                    }
+                    setContentView(composeView)
+                }
+                dialog.show()
+                dialog.window?.decorView?.run {
+                    // Specifically only set the LifecycleOwner and SavedStateRegistryOwner
+                    ViewTreeLifecycleOwner.set(this, lifecycleOwner)
+                    ViewTreeSavedStateRegistryOwner.set(this, savedStateRegistryOwner)
+                }
+
+                onDispose {
+                    dialog.dismiss()
+                }
+            }
+        }
+
+        assertThat(owner).isNull()
+    }
 
     @Test
     public fun viewModelCreatedViaDefaultFactory() {
