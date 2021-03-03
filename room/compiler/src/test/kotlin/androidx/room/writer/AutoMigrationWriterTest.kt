@@ -36,10 +36,10 @@ class AutoMigrationWriterTest {
             "foo.bar.ValidAutoMigrationWithDefault",
             """
             package foo.bar;
+            import androidx.room.migration.AutoMigrationCallback;
             import androidx.room.AutoMigration;
-            import androidx.room.migration.Migration;
-            @AutoMigration(from=1, to=2)
-            abstract class ValidAutoMigrationWithDefault {}
+            import androidx.sqlite.db.SupportSQLiteDatabase;
+            interface ValidAutoMigrationWithDefault extends AutoMigrationCallback {}
             """.trimIndent()
         )
 
@@ -81,13 +81,14 @@ class AutoMigrationWriterTest {
     @Test
     fun validAutoMigrationWithoutDefaultValue() {
         val source = Source.java(
-            "foo.bar.ValidAutoMigration",
+            "foo.bar.ValidAutoMigrationWithoutDefault",
             """
             package foo.bar;
+            import androidx.room.migration.AutoMigrationCallback;
             import androidx.room.AutoMigration;
-            import androidx.room.migration.Migration;
+            import androidx.sqlite.db.SupportSQLiteDatabase;
             @AutoMigration(from=1, to=2)
-            abstract class ValidAutoMigrationWithoutDefault {}
+            interface ValidAutoMigrationWithoutDefault extends AutoMigrationCallback {}
             """.trimIndent()
         )
 

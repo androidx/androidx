@@ -28,7 +28,7 @@ import org.junit.Test
 
 class AutoMigrationProcessorTest {
     @Test
-    fun testElementIsAbstract() {
+    fun testElementIsInterface() {
         val source = Source.java(
             "foo.bar.MyAutoMigration",
             """
@@ -46,7 +46,34 @@ class AutoMigrationProcessorTest {
                 from.database
             ).process()
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.AUTOMIGRATION_ANNOTATED_TYPE_ELEMENT_MUST_BE_ABSTRACT)
+                hasError(ProcessorErrors.AUTOMIGRATION_ANNOTATED_TYPE_ELEMENT_MUST_BE_INTERFACE)
+            }
+        }
+    }
+
+    @Test
+    fun testInterfaceExtendsAutoMigrationInterface() {
+        val source = Source.java(
+            "foo.bar.MyAutoMigration",
+            """
+            package foo.bar;
+            import androidx.room.migration.AutoMigrationCallback;
+            import androidx.room.AutoMigration;
+            import androidx.sqlite.db.SupportSQLiteDatabase;
+            interface MyAutoMigration {}
+            """.trimIndent()
+        )
+
+        runProcessorTest(listOf(source)) { invocation ->
+            AutoMigrationProcessor(
+                invocation.context,
+                invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
+                from.database
+            ).process()
+            invocation.assertCompilationResult {
+                hasError(
+                    ProcessorErrors.AUTOMIGRATION_ELEMENT_MUST_IMPLEMENT_AUTOMIGRATION_CALLBACK
+                )
             }
         }
     }

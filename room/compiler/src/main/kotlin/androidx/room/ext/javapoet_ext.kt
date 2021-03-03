@@ -93,6 +93,10 @@ object RoomTypeNames {
     val CURSOR_UTIL: ClassName =
         ClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
     val MIGRATION: ClassName = ClassName.get("$ROOM_PACKAGE.migration", "Migration")
+    val AUTO_MIGRATION_CALLBACK: ClassName = ClassName.get(
+        "$ROOM_PACKAGE.migration",
+        "AutoMigrationCallback"
+    )
 }
 
 object PagingTypeNames {
