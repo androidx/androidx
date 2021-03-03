@@ -78,6 +78,9 @@ class WatchFaceServiceImageTest {
     @Mock
     private lateinit var surfaceHolder: SurfaceHolder
 
+    @Mock
+    private lateinit var surface: Surface
+
     private val handler = Handler(Looper.getMainLooper())
 
     private val complicationProviders = mapOf(
@@ -136,6 +139,8 @@ class WatchFaceServiceImageTest {
         Mockito.`when`(surfaceHolder.unlockCanvasAndPost(canvas)).then {
             renderDoneLatch.countDown()
         }
+        Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
+        Mockito.`when`(surface.isValid).thenReturn(false)
 
         setPendingWallpaperInteractiveWatchFaceInstance()
 
@@ -188,10 +193,13 @@ class WatchFaceServiceImageTest {
                         ) {
                             interactiveWatchFaceInstanceWCS = iInteractiveWatchFaceWcs
                             sendComplications()
-                            // Set the timezone so it doesn't matter where the bots are running.
-                            engineWrapper.watchFaceImpl.calendar.timeZone =
-                                TimeZone.getTimeZone("UTC")
-                            initLatch.countDown()
+                            // engineWrapper won't be initialized yet, so defer execution.
+                            handler.post {
+                                // Set the timezone so it doesn't matter where the bots are running.
+                                engineWrapper.watchFaceImpl.calendar.timeZone =
+                                    TimeZone.getTimeZone("UTC")
+                                initLatch.countDown()
+                            }
                         }
                     }
                 )
@@ -467,6 +475,8 @@ class WatchFaceServiceImageTest {
         Mockito.`when`(surfaceHolder.unlockCanvasAndPost(canvas)).then {
             renderDoneLatch.countDown()
         }
+        Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
+        Mockito.`when`(surface.isValid).thenReturn(false)
 
         lateinit var engineWrapper: WatchFaceService.EngineWrapper
 
