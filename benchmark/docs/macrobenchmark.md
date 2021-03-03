@@ -137,11 +137,22 @@ class SampleStartupBenchmark {
 
 To macrobenchmark an app (called the *target* of the macrobenchmark), that app
 should be configured as close to user experience as possible - non-debuggable,
-preferabbly with minification on (which is beneficial for performance). This is
+preferably with minification on (which is beneficial for performance). This is
 typically done by installing the `release` variant of the target apk.
 
-It will also need to be profileable, to enable reading detailed trace
-information. This is enabled in the `<application>` tag of the app's
+Every Activity to be launched by a Macrobenchmark must
+[exported](https://developer.android.com/guide/topics/manifest/activity-element#exported).
+As of Android 11, this must be enabled explicitly in the app's
+AndroidManifest.xml:
+
+```xml
+    <activity
+        android:name=".MyActivity"
+        android:exported="true">
+```
+
+The target application must also be profileable, to enable reading detailed
+trace information. This is enabled in the `<application>` tag of the app's
 AndroidManifest.xml:
 
 ```xml
