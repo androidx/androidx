@@ -358,6 +358,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal var firstSetSystemState = true
         internal var immutableSystemStateDone = false
+        private var ignoreNextOnVisibilityChanged = false
 
         internal var lastActiveComplications: IntArray? = null
         internal var lastA11yLabels: Array<ContentDescriptionLabel>? = null
@@ -406,6 +407,12 @@ public abstract class WatchFaceService : WallpaperService() {
             if (pendingWallpaperInstance != null) {
                 val asyncTraceEvent =
                     AsyncTraceEvent("Create PendingWallpaperInteractiveWatchFaceInstance")
+                // The WallpaperService works around bugs in wallpapers (see b/5233826 and
+                // b/5209847) by sending onVisibilityChanged(true), onVisibilityChanged(false)
+                // after onSurfaceChanged during creation. This is unfortunate for us since we
+                // perform work in response (see WatchFace.visibilityObserver). So here we
+                // workaround the workaround...
+                ignoreNextOnVisibilityChanged = true
                 coroutineScope.launch {
                     pendingWallpaperInstance.callback.onInteractiveWatchFaceWcsCreated(
                         createInteractiveInstance(
@@ -1086,20 +1093,32 @@ public abstract class WatchFaceService : WallpaperService() {
         ).use {
             super.onVisibilityChanged(visible)
 
-            // We are requesting state every time the watch face changes its visibility because
-            // wallpaper commands have a tendency to be dropped. By requesting it on every
-            // visibility change, we ensure that we don't become a victim of some race condition.
-            sendBroadcast(
-                Intent(Constants.ACTION_REQUEST_STATE).apply {
-                    putExtra(Constants.EXTRA_WATCH_FACE_VISIBLE, visible)
-                }
-            )
-
-            // We can't guarantee the binder has been set and onSurfaceChanged called before this
-            // command.
-            if (!watchFaceCreated()) {
-                pendingVisibilityChanged = visible
+            if (ignoreNextOnVisibilityChanged) {
+                ignoreNextOnVisibilityChanged = false
                 return
+            }
+
+            // In the WSL flow Home doesn't know when WallpaperService has actually launched a
+            // watchface after requesting a change. It used [Constants.ACTION_REQUEST_STATE] as a
+            // signal to trigger the old boot flow (sending the binder etc). This is no longer
+            // required from android R onwards. See (b/181965946).
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                // We are requesting state every time the watch face changes its visibility because
+                // wallpaper commands have a tendency to be dropped. By requesting it on every
+                // visibility change, we ensure that we don't become a victim of some race
+                // condition.
+                sendBroadcast(
+                    Intent(Constants.ACTION_REQUEST_STATE).apply {
+                        putExtra(Constants.EXTRA_WATCH_FACE_VISIBLE, visible)
+                    }
+                )
+
+                // We can't guarantee the binder has been set and onSurfaceChanged called before
+                // this command.
+                if (!watchFaceCreated()) {
+                    pendingVisibilityChanged = visible
+                    return
+                }
             }
 
             mutableWatchState.isVisible.value = visible
@@ -1275,6 +1294,7 @@ public abstract class WatchFaceService : WallpaperService() {
             writer.println("createdBy=$createdBy")
             writer.println("watchFaceInitStarted=$watchFaceInitStarted")
             writer.println("asyncWatchFaceConstructionPending=$asyncWatchFaceConstructionPending")
+            writer.println("ignoreNextOnVisibilityChanged=$ignoreNextOnVisibilityChanged")
 
             if (this::interactiveInstanceId.isInitialized) {
                 writer.println("interactiveInstanceId=$interactiveInstanceId")
