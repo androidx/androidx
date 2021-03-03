@@ -30,7 +30,8 @@ internal typealias WireComplicationDataBuilder =
 /** Base type for all different types of [ComplicationData] types. */
 public sealed class ComplicationData constructor(
     public val type: ComplicationType,
-    public val tapAction: PendingIntent?
+    public val tapAction: PendingIntent?,
+    internal var cachedWireComplicationData: WireComplicationData?
 ) {
     /**
      * Converts this value to [WireComplicationData] object used for serialization.
@@ -49,6 +50,11 @@ public sealed class ComplicationData constructor(
      * This must be checked for any time for which the complication will be displayed.
      */
     public abstract fun isActiveAt(dateTimeMillis: Long): Boolean
+
+    internal fun createWireComplicationDataBuilder(): WireComplicationDataBuilder =
+        cachedWireComplicationData?.let {
+            WireComplicationDataBuilder(it)
+        } ?: WireComplicationDataBuilder(type.asWireComplicationType())
 }
 
 /** A pair of id and [ComplicationData]. */
@@ -71,7 +77,7 @@ public class IdAndComplicationData(
  * has no data to be displayed. Watch faces may choose whether to render this in some way or
  * leave the slot empty.
  */
-public class NoDataComplicationData : ComplicationData(TYPE, null) {
+public class NoDataComplicationData : ComplicationData(TYPE, null, null) {
     override fun isActiveAt(dateTimeMillis: Long): Boolean = true
 
     /** @hide */
@@ -91,7 +97,7 @@ public class NoDataComplicationData : ComplicationData(TYPE, null) {
  * i.e. when the user has chosen "Empty" in the provider chooser. Providers cannot send data of
  * this type.
  */
-public class EmptyComplicationData : ComplicationData(TYPE, null) {
+public class EmptyComplicationData : ComplicationData(TYPE, null, null) {
     override fun isActiveAt(dateTimeMillis: Long): Boolean = true
 
     /** @hide */
@@ -112,7 +118,7 @@ public class EmptyComplicationData : ComplicationData(TYPE, null) {
  * complication, and the watch face has not set a default provider. Providers cannot send data
  * of this type.
  */
-public class NotConfiguredComplicationData : ComplicationData(TYPE, null) {
+public class NotConfiguredComplicationData : ComplicationData(TYPE, null, null) {
     override fun isActiveAt(dateTimeMillis: Long): Boolean = true
 
     /** @hide */
@@ -141,8 +147,9 @@ public class ShortTextComplicationData internal constructor(
     public val monochromaticImage: MonochromaticImage?,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    public val validTimeRange: TimeRange?
-) : ComplicationData(TYPE, tapAction) {
+    public val validTimeRange: TimeRange?,
+    cachedWireComplicationData: WireComplicationData?
+) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
 
     public override fun isActiveAt(dateTimeMillis: Long): Boolean =
         validTimeRange?.contains(dateTimeMillis) ?: true
@@ -158,6 +165,7 @@ public class ShortTextComplicationData internal constructor(
         private var title: ComplicationText? = null
         private var monochromaticImage: MonochromaticImage? = null
         private var contentDescription: ComplicationText? = null
+        private var cachedWireComplicationData: WireComplicationData? = null
 
         /** Sets optional pending intent to be invoked when the complication is tapped. */
         public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
@@ -184,6 +192,12 @@ public class ShortTextComplicationData internal constructor(
             this.contentDescription = contentDescription
         }
 
+        internal fun setCachedWireComplicationData(
+            cachedWireComplicationData: WireComplicationData?
+        ): Builder = apply {
+            this.cachedWireComplicationData = cachedWireComplicationData
+        }
+
         /** Builds the [ShortTextComplicationData]. */
         public fun build(): ShortTextComplicationData =
             ShortTextComplicationData(
@@ -192,21 +206,22 @@ public class ShortTextComplicationData internal constructor(
                 monochromaticImage,
                 contentDescription,
                 tapAction,
-                validTimeRange
+                validTimeRange,
+                cachedWireComplicationData
             )
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData =
-        WireComplicationDataBuilder(TYPE.asWireComplicationType()).apply {
+        createWireComplicationDataBuilder().apply {
             setShortText(text.asWireComplicationText())
             setShortTitle(title?.asWireComplicationText())
             setContentDescription(contentDescription?.asWireComplicationText())
             monochromaticImage?.addToWireComplicationData(this)
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
-        }.build()
+        }.build().also { cachedWireComplicationData = it }
 
     /** @hide */
     public companion object {
@@ -233,8 +248,9 @@ public class LongTextComplicationData internal constructor(
     public val smallImage: SmallImage?,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    public val validTimeRange: TimeRange?
-) : ComplicationData(TYPE, tapAction) {
+    public val validTimeRange: TimeRange?,
+    cachedWireComplicationData: WireComplicationData?
+) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
 
     public override fun isActiveAt(dateTimeMillis: Long): Boolean =
         validTimeRange?.contains(dateTimeMillis) ?: true
@@ -251,6 +267,7 @@ public class LongTextComplicationData internal constructor(
         private var monochromaticImage: MonochromaticImage? = null
         private var smallImage: SmallImage? = null
         private var contentDescription: ComplicationText? = null
+        private var cachedWireComplicationData: WireComplicationData? = null
 
         /** Sets optional pending intent to be invoked when the complication is tapped. */
         public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
@@ -282,6 +299,12 @@ public class LongTextComplicationData internal constructor(
             this.contentDescription = contentDescription
         }
 
+        internal fun setCachedWireComplicationData(
+            cachedWireComplicationData: WireComplicationData?
+        ): Builder = apply {
+            this.cachedWireComplicationData = cachedWireComplicationData
+        }
+
         /** Builds the [LongTextComplicationData]. */
         public fun build(): LongTextComplicationData =
             LongTextComplicationData(
@@ -291,14 +314,15 @@ public class LongTextComplicationData internal constructor(
                 smallImage,
                 contentDescription,
                 tapAction,
-                validTimeRange
+                validTimeRange,
+                cachedWireComplicationData
             )
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData =
-        WireComplicationDataBuilder(TYPE.asWireComplicationType()).apply {
+        createWireComplicationDataBuilder().apply {
             setLongText(text.asWireComplicationText())
             setLongTitle(title?.asWireComplicationText())
             monochromaticImage?.addToWireComplicationData(this)
@@ -306,7 +330,7 @@ public class LongTextComplicationData internal constructor(
             setTapAction(tapAction)
             setContentDescription(contentDescription?.asWireComplicationText())
             setValidTimeRange(validTimeRange, this)
-        }.build()
+        }.build().also { cachedWireComplicationData = it }
 
     /** @hide */
     public companion object {
@@ -335,8 +359,9 @@ public class RangedValueComplicationData internal constructor(
     public val text: ComplicationText?,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    public val validTimeRange: TimeRange?
-) : ComplicationData(TYPE, tapAction) {
+    public val validTimeRange: TimeRange?,
+    cachedWireComplicationData: WireComplicationData?
+) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
 
     public override fun isActiveAt(dateTimeMillis: Long): Boolean =
         validTimeRange?.contains(dateTimeMillis) ?: true
@@ -357,6 +382,7 @@ public class RangedValueComplicationData internal constructor(
         private var title: ComplicationText? = null
         private var text: ComplicationText? = null
         private var contentDescription: ComplicationText? = null
+        private var cachedWireComplicationData: WireComplicationData? = null
 
         /** Sets optional pending intent to be invoked when the complication is tapped. */
         public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
@@ -388,6 +414,12 @@ public class RangedValueComplicationData internal constructor(
             this.contentDescription = contentDescription
         }
 
+        internal fun setCachedWireComplicationData(
+            cachedWireComplicationData: WireComplicationData?
+        ): Builder = apply {
+            this.cachedWireComplicationData = cachedWireComplicationData
+        }
+
         /** Builds the [RangedValueComplicationData]. */
         public fun build(): RangedValueComplicationData =
             RangedValueComplicationData(
@@ -399,14 +431,15 @@ public class RangedValueComplicationData internal constructor(
                 text,
                 contentDescription,
                 tapAction,
-                validTimeRange
+                validTimeRange,
+                cachedWireComplicationData
             )
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public override fun asWireComplicationData(): WireComplicationData =
-        WireComplicationDataBuilder(TYPE.asWireComplicationType()).apply {
+        createWireComplicationDataBuilder().apply {
             setRangedValue(value)
             setRangedMinValue(min)
             setRangedMaxValue(max)
@@ -416,7 +449,7 @@ public class RangedValueComplicationData internal constructor(
             setTapAction(tapAction)
             setContentDescription(contentDescription?.asWireComplicationText())
             setValidTimeRange(validTimeRange, this)
-        }.build()
+        }.build().also { cachedWireComplicationData = it }
 
     /** @hide */
     public companion object {
@@ -440,8 +473,9 @@ public class MonochromaticImageComplicationData internal constructor(
     public val monochromaticImage: MonochromaticImage,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    public val validTimeRange: TimeRange?
-) : ComplicationData(TYPE, tapAction) {
+    public val validTimeRange: TimeRange?,
+    cachedWireComplicationData: WireComplicationData?
+) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
 
     public override fun isActiveAt(dateTimeMillis: Long): Boolean =
         validTimeRange?.contains(dateTimeMillis) ?: true
@@ -455,6 +489,7 @@ public class MonochromaticImageComplicationData internal constructor(
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
         private var contentDescription: ComplicationText? = null
+        private var cachedWireComplicationData: WireComplicationData? = null
 
         /** Sets optional pending intent to be invoked when the complication is tapped. */
         public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
@@ -471,24 +506,31 @@ public class MonochromaticImageComplicationData internal constructor(
             this.contentDescription = contentDescription
         }
 
+        internal fun setCachedWireComplicationData(
+            cachedWireComplicationData: WireComplicationData?
+        ): Builder = apply {
+            this.cachedWireComplicationData = cachedWireComplicationData
+        }
+
         /** Builds the [MonochromaticImageComplicationData]. */
         public fun build(): MonochromaticImageComplicationData =
             MonochromaticImageComplicationData(
                 monochromaticImage,
                 contentDescription,
                 tapAction,
-                validTimeRange
+                validTimeRange,
+                cachedWireComplicationData
             )
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData =
-        WireComplicationDataBuilder(TYPE.asWireComplicationType()).apply {
+        createWireComplicationDataBuilder().apply {
             monochromaticImage.addToWireComplicationData(this)
             setContentDescription(contentDescription?.asWireComplicationText())
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
-        }.build()
+        }.build().also { cachedWireComplicationData = it }
 
     /** @hide */
     public companion object {
@@ -512,8 +554,9 @@ public class SmallImageComplicationData internal constructor(
     public val smallImage: SmallImage,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    public val validTimeRange: TimeRange?
-) : ComplicationData(TYPE, tapAction) {
+    public val validTimeRange: TimeRange?,
+    cachedWireComplicationData: WireComplicationData?
+) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
 
     public override fun isActiveAt(dateTimeMillis: Long): Boolean =
         validTimeRange?.contains(dateTimeMillis) ?: true
@@ -527,6 +570,7 @@ public class SmallImageComplicationData internal constructor(
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
         private var contentDescription: ComplicationText? = null
+        private var cachedWireComplicationData: WireComplicationData? = null
 
         /** Sets optional pending intent to be invoked when the complication is tapped. */
         public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
@@ -543,19 +587,31 @@ public class SmallImageComplicationData internal constructor(
             this.contentDescription = contentDescription
         }
 
+        internal fun setCachedWireComplicationData(
+            cachedWireComplicationData: WireComplicationData?
+        ): Builder = apply {
+            this.cachedWireComplicationData = cachedWireComplicationData
+        }
+
         /** Builds the [MonochromaticImageComplicationData]. */
         public fun build(): SmallImageComplicationData =
-            SmallImageComplicationData(smallImage, contentDescription, tapAction, validTimeRange)
+            SmallImageComplicationData(
+                smallImage,
+                contentDescription,
+                tapAction,
+                validTimeRange,
+                cachedWireComplicationData
+            )
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData =
-        WireComplicationDataBuilder(TYPE.asWireComplicationType()).apply {
+        createWireComplicationDataBuilder().apply {
             smallImage.addToWireComplicationData(this)
             setContentDescription(contentDescription?.asWireComplicationText())
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
-        }.build()
+        }.build().also { cachedWireComplicationData = it }
 
     /** @hide */
     public companion object {
@@ -583,8 +639,9 @@ public class PhotoImageComplicationData internal constructor(
     public val photoImage: Icon,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    public val validTimeRange: TimeRange?
-) : ComplicationData(TYPE, tapAction) {
+    public val validTimeRange: TimeRange?,
+    cachedWireComplicationData: WireComplicationData?
+) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
 
     public override fun isActiveAt(dateTimeMillis: Long): Boolean =
         validTimeRange?.contains(dateTimeMillis) ?: true
@@ -598,6 +655,7 @@ public class PhotoImageComplicationData internal constructor(
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
         private var contentDescription: ComplicationText? = null
+        private var cachedWireComplicationData: WireComplicationData? = null
 
         /** Sets optional pending intent to be invoked when the complication is tapped. */
         @SuppressWarnings("MissingGetterMatchingBuilder") // See http://b/174052810
@@ -616,18 +674,30 @@ public class PhotoImageComplicationData internal constructor(
             this.contentDescription = contentDescription
         }
 
+        internal fun setCachedWireComplicationData(
+            cachedWireComplicationData: WireComplicationData?
+        ): Builder = apply {
+            this.cachedWireComplicationData = cachedWireComplicationData
+        }
+
         /** Builds the [PhotoImageComplicationData]. */
         public fun build(): PhotoImageComplicationData =
-            PhotoImageComplicationData(photoImage, contentDescription, tapAction, validTimeRange)
+            PhotoImageComplicationData(
+                photoImage,
+                contentDescription,
+                tapAction,
+                validTimeRange,
+                cachedWireComplicationData
+            )
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData =
-        WireComplicationDataBuilder(TYPE.asWireComplicationType()).apply {
+        createWireComplicationDataBuilder().apply {
             setLargeImage(photoImage)
             setContentDescription(contentDescription?.asWireComplicationText())
             setValidTimeRange(validTimeRange, this)
-        }.build()
+        }.build().also { cachedWireComplicationData = it }
 
     /** @hide */
     public companion object {
@@ -651,7 +721,8 @@ public class NoPermissionComplicationData internal constructor(
     public val text: ComplicationText?,
     public val title: ComplicationText?,
     public val monochromaticImage: MonochromaticImage?,
-) : ComplicationData(TYPE, null) {
+    cachedWireComplicationData: WireComplicationData?
+) : ComplicationData(TYPE, null, cachedWireComplicationData) {
 
     override fun isActiveAt(dateTimeMillis: Long): Boolean = true
 
@@ -664,6 +735,7 @@ public class NoPermissionComplicationData internal constructor(
         private var text: ComplicationText? = null
         private var title: ComplicationText? = null
         private var monochromaticImage: MonochromaticImage? = null
+        private var cachedWireComplicationData: WireComplicationData? = null
 
         /** Sets optional text associated with the complication data. */
         public fun setText(text: ComplicationText?): Builder = apply {
@@ -680,19 +752,30 @@ public class NoPermissionComplicationData internal constructor(
             this.monochromaticImage = monochromaticImage
         }
 
+        internal fun setCachedWireComplicationData(
+            cachedWireComplicationData: WireComplicationData?
+        ): Builder = apply {
+            this.cachedWireComplicationData = cachedWireComplicationData
+        }
+
         /** Builds the [NoPermissionComplicationData]. */
         public fun build(): NoPermissionComplicationData =
-            NoPermissionComplicationData(text, title, monochromaticImage)
+            NoPermissionComplicationData(
+                text,
+                title,
+                monochromaticImage,
+                cachedWireComplicationData
+            )
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData =
-        WireComplicationDataBuilder(TYPE.asWireComplicationType()).apply {
+        createWireComplicationDataBuilder().apply {
             setShortText(text?.asWireComplicationText())
             setShortTitle(title?.asWireComplicationText())
             monochromaticImage?.addToWireComplicationData(this)
-        }.build()
+        }.build().also { cachedWireComplicationData = it }
 
     /** @hide */
     public companion object {
@@ -703,8 +786,9 @@ public class NoPermissionComplicationData internal constructor(
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun WireComplicationData.asApiComplicationData(): ComplicationData =
-    when (type) {
+public fun WireComplicationData.asApiComplicationData(): ComplicationData {
+    val wireComplicationData = this
+    return when (type) {
         NoDataComplicationData.TYPE.asWireComplicationType() -> NoDataComplicationData()
 
         EmptyComplicationData.TYPE.asWireComplicationType() -> EmptyComplicationData()
@@ -719,6 +803,7 @@ public fun WireComplicationData.asApiComplicationData(): ComplicationData =
                 setTitle(shortTitle?.asApiComplicationText())
                 setMonochromaticImage(parseIcon())
                 setContentDescription(contentDescription?.asApiComplicationText())
+                setCachedWireComplicationData(wireComplicationData)
             }.build()
 
         LongTextComplicationData.TYPE.asWireComplicationType() ->
@@ -729,6 +814,7 @@ public fun WireComplicationData.asApiComplicationData(): ComplicationData =
                 setMonochromaticImage(parseIcon())
                 setSmallImage(parseSmallImage())
                 setContentDescription(contentDescription?.asApiComplicationText())
+                setCachedWireComplicationData(wireComplicationData)
             }.build()
 
         RangedValueComplicationData.TYPE.asWireComplicationType() ->
@@ -742,6 +828,7 @@ public fun WireComplicationData.asApiComplicationData(): ComplicationData =
                 setTitle(shortTitle?.asApiComplicationText())
                 setText(shortText?.asApiComplicationText())
                 setContentDescription(contentDescription?.asApiComplicationText())
+                setCachedWireComplicationData(wireComplicationData)
             }.build()
 
         MonochromaticImageComplicationData.TYPE.asWireComplicationType() ->
@@ -749,6 +836,7 @@ public fun WireComplicationData.asApiComplicationData(): ComplicationData =
                 setTapAction(tapAction)
                 setValidTimeRange(parseTimeRange())
                 setContentDescription(contentDescription?.asApiComplicationText())
+                setCachedWireComplicationData(wireComplicationData)
             }.build()
 
         SmallImageComplicationData.TYPE.asWireComplicationType() ->
@@ -756,12 +844,14 @@ public fun WireComplicationData.asApiComplicationData(): ComplicationData =
                 setTapAction(tapAction)
                 setValidTimeRange(parseTimeRange())
                 setContentDescription(contentDescription?.asApiComplicationText())
+                setCachedWireComplicationData(wireComplicationData)
             }.build()
 
         PhotoImageComplicationData.TYPE.asWireComplicationType() ->
             PhotoImageComplicationData.Builder(largeImage!!).apply {
                 setValidTimeRange(parseTimeRange())
                 setContentDescription(contentDescription?.asApiComplicationText())
+                setCachedWireComplicationData(wireComplicationData)
             }.build()
 
         NoPermissionComplicationData.TYPE.asWireComplicationType() ->
@@ -769,10 +859,12 @@ public fun WireComplicationData.asApiComplicationData(): ComplicationData =
                 setMonochromaticImage(parseIcon())
                 setTitle(shortTitle?.asApiComplicationText())
                 setText(shortText?.asApiComplicationText())
+                setCachedWireComplicationData(wireComplicationData)
             }.build()
 
         else -> NoDataComplicationData()
     }
+}
 
 private fun WireComplicationData.parseTimeRange() =
     if ((startDateTimeMillis == 0L) and (endDateTimeMillis == Long.MAX_VALUE)) {
