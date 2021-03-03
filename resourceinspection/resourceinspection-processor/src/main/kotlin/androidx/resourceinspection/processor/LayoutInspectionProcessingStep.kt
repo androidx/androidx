@@ -87,13 +87,36 @@ internal class LayoutInspectionProcessingStep(
         }
 
         val attributes = getters.map(::parseAttribute)
+
+        val duplicateAttributes = attributes
+            .filterNotNull()
+            .groupBy { it.qualifiedName }
+            .values
+            .filter { it.size > 1 }
+
+        if (duplicateAttributes.any()) {
+            duplicateAttributes.forEach { duplicates ->
+                duplicates.forEach { attribute ->
+                    val qualifiedName = attribute.qualifiedName
+                    val otherGetters = duplicates
+                        .filter { it.getter != attribute.getter }
+                        .joinToString { it.getter.toString() }
+
+                    printError(
+                        "Duplicate attribute $qualifiedName is also present on $otherGetters",
+                        attribute.getter,
+                        attribute.annotation
+                    )
+                }
+            }
+            return null
+        }
+
         if (attributes.any { it == null }) {
             return null
         }
 
-        // TODO(b/180039786): Validate uniqueness of attributes
-
-        return ViewIR(type, attributes = attributes.filterNotNull().sortedBy { it.name })
+        return ViewIR(type, attributes = attributes.filterNotNull().sortedBy { it.qualifiedName })
     }
 
     /** Get an [AttributeIR] from a method known to have an [Attribute] annotation. */
