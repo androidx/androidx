@@ -289,7 +289,8 @@ public class BrowserActionsIntent {
             mIntent.setData(mUri);
             mIntent.putExtra(EXTRA_TYPE, mType);
             mIntent.putParcelableArrayListExtra(EXTRA_MENU_ITEMS, mMenuItems);
-            PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
             mIntent.putExtra(EXTRA_APP_ID, pendingIntent);
             if (mOnItemSelectedPendingIntent != null) {
                 mIntent.putExtra(
