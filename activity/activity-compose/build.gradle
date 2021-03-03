@@ -41,7 +41,7 @@ dependencies {
     androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
     androidTestImplementation projectOrArtifact(":compose:material:material")
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    implementation(ANDROIDX_TEST_EXT_KTX)
+    androidTestImplementation(ANDROIDX_TEST_EXT_KTX)
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
 }
