@@ -42,10 +42,7 @@ class AutoMigrationWriter(
         val builder = TypeSpec.classBuilder(autoMigrationResult.implTypeName)
         builder.apply {
             addOriginatingElement(dbElement)
-            // TODO: (b/180395129) Force user to extend an AutoMigration interface. For now it
-            //  should extend user annotated class but when the bug is resolved, the generated
-            //  code will extract the versions from the AutoMigration annotation and call the
-            //  super constructor since the generated class will extend Room's Migration class.
+            addSuperinterface(RoomTypeNames.AUTO_MIGRATION_CALLBACK)
             superclass(RoomTypeNames.MIGRATION)
             addMethod(createConstructor())
             addMethod(createMigrateMethod())
@@ -66,6 +63,7 @@ class AutoMigrationWriter(
                 addModifiers(Modifier.PUBLIC)
                 returns(TypeName.VOID)
                 addAutoMigrationResultToMigrate(this)
+                addStatement("onPostMigrate(database)")
             }
         return migrateFunctionBuilder.build()
     }

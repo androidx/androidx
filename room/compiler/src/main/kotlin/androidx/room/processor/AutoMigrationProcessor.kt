@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.AutoMigration
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle.deserialize
 import androidx.room.util.DiffException
@@ -30,8 +31,6 @@ class AutoMigrationProcessor(
     val element: XTypeElement,
     val latestDbSchema: DatabaseBundle
 ) {
-    // TODO: (b/180116756) Validate annotated class extends auto migration interface
-
     /**
      * Retrieves two schemas of the same database provided in the @AutoMigration annotation,
      * detects the schema changes that occurred between the two versions.
@@ -39,8 +38,21 @@ class AutoMigrationProcessor(
      * @return the AutoMigrationResult containing the schema changes detected
      */
     fun process(): AutoMigrationResult? {
-        if (!element.isAbstract()) {
-            context.logger.e(ProcessorErrors.AUTOMIGRATION_ANNOTATED_TYPE_ELEMENT_MUST_BE_ABSTRACT)
+        if (!element.isInterface()) {
+            context.logger.e(
+                ProcessorErrors.AUTOMIGRATION_ANNOTATED_TYPE_ELEMENT_MUST_BE_INTERFACE,
+                element
+            )
+            return null
+        }
+
+        if (!context.processingEnv.requireType(RoomTypeNames.AUTO_MIGRATION_CALLBACK)
+            .isAssignableFrom(element.type)
+        ) {
+            context.logger.e(
+                ProcessorErrors.AUTOMIGRATION_ELEMENT_MUST_IMPLEMENT_AUTOMIGRATION_CALLBACK,
+                element
+            )
             return null
         }
 
@@ -57,7 +69,10 @@ class AutoMigrationProcessor(
         val to = annotationBox.value.to
 
         if (to <= from) {
-            context.logger.e(ProcessorErrors.autoMigrationToVersionMustBeGreaterThanFrom(to, from))
+            context.logger.e(
+                ProcessorErrors.autoMigrationToVersionMustBeGreaterThanFrom(to, from),
+                element
+            )
             return null
         }
 
@@ -106,7 +121,8 @@ class AutoMigrationProcessor(
                 ProcessorErrors.autoMigrationSchemasNotFound(
                     context.schemaOutFolder.toString(),
                     "${element.qualifiedName}/$version.json"
-                )
+                ),
+                element
             )
             return null
         }
