@@ -83,7 +83,7 @@ class MethodSpecHelperTest {
             package foo.bar;
             import androidx.room.compiler.processing.testcode.OtherAnnotation;
 
-            open class Baz {
+            abstract class Baz {
                 open fun method1() {
                 }
 
@@ -135,6 +135,9 @@ class MethodSpecHelperTest {
                 @Throws(Exception::class)
                 protected open fun throwsException() {
                 }
+
+                // keep these at the end to match the order w/ KAPT because we fake them in KSP
+                internal abstract val abstractVal: String
             }
             """.trimIndent()
         )
