@@ -53,6 +53,8 @@ public abstract class ActivityResultRegistry {
             "KEY_COMPONENT_ACTIVITY_REGISTERED_RCS";
     private static final String KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS =
             "KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS";
+    private static final String KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS =
+            "KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS";
     private static final String KEY_COMPONENT_ACTIVITY_PENDING_RESULTS =
             "KEY_COMPONENT_ACTIVITY_PENDING_RESULT";
     private static final String KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT =
@@ -67,6 +69,7 @@ public abstract class ActivityResultRegistry {
     private final Map<Integer, String> mRcToKey = new HashMap<>();
     private final Map<String, Integer> mKeyToRc = new HashMap<>();
     private final Map<String, LifecycleContainer> mKeyToLifecycleContainers = new HashMap<>();
+    ArrayList<String> mLaunchedKeys = new ArrayList<>();
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final transient Map<String, CallbackAndContract<?>> mKeyToCallback = new HashMap<>();
@@ -159,6 +162,7 @@ public abstract class ActivityResultRegistry {
         return new ActivityResultLauncher<I>() {
             @Override
             public void launch(I input, @Nullable ActivityOptionsCompat options) {
+                mLaunchedKeys.add(key);
                 onLaunch(requestCode, contract, input, options);
             }
 
@@ -216,6 +220,7 @@ public abstract class ActivityResultRegistry {
         return new ActivityResultLauncher<I>() {
             @Override
             public void launch(I input, @Nullable ActivityOptionsCompat options) {
+                mLaunchedKeys.add(key);
                 onLaunch(requestCode, contract, input, options);
             }
 
@@ -240,9 +245,12 @@ public abstract class ActivityResultRegistry {
      */
     @MainThread
     final void unregister(@NonNull String key) {
-        Integer rc = mKeyToRc.remove(key);
-        if (rc != null) {
-            mRcToKey.remove(rc);
+        if (!mLaunchedKeys.contains(key)) {
+            // Only remove the key -> requestCode mapping if there isn't a launch in flight
+            Integer rc = mKeyToRc.remove(key);
+            if (rc != null) {
+                mRcToKey.remove(rc);
+            }
         }
         mKeyToCallback.remove(key);
         if (mParsedPendingResults.containsKey(key)) {
@@ -272,6 +280,8 @@ public abstract class ActivityResultRegistry {
                 new ArrayList<>(mRcToKey.keySet()));
         outState.putStringArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS,
                 new ArrayList<>(mRcToKey.values()));
+        outState.putStringArrayList(KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS,
+                new ArrayList<>(mLaunchedKeys));
         outState.putBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS,
                 (Bundle) mPendingResults.clone());
         outState.putSerializable(KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT, mRandom);
@@ -297,6 +307,8 @@ public abstract class ActivityResultRegistry {
         for (int i = 0; i < numKeys; i++) {
             bindRcKey(rcs.get(i), keys.get(i));
         }
+        mLaunchedKeys =
+                savedInstanceState.getStringArrayList(KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS);
         mRandom = (Random) savedInstanceState.getSerializable(KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT);
         mPendingResults.putAll(
                 savedInstanceState.getBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS));
@@ -319,6 +331,8 @@ public abstract class ActivityResultRegistry {
         if (key == null) {
             return false;
         }
+        mLaunchedKeys.remove(key);
+
         doDispatch(key, resultCode, data, mKeyToCallback.get(key));
         return true;
     }
@@ -338,6 +352,7 @@ public abstract class ActivityResultRegistry {
         if (key == null) {
             return false;
         }
+        mLaunchedKeys.remove(key);
 
         CallbackAndContract<?> callbackAndContract = mKeyToCallback.get(key);
         if (callbackAndContract == null || callbackAndContract.mCallback == null) {
