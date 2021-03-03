@@ -409,8 +409,7 @@ public class CarContext extends ContextWrapper {
         ThreadUtils.checkMainThread();
 
         // If this is the first time attaching the base, actually attach it, otherwise, just
-        // update the
-        // configuration.
+        // update the configuration.
         if (getBaseContext() == null) {
             // Create the virtual display with the proper dimensions.
             VirtualDisplay display =

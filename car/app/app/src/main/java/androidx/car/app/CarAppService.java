@@ -32,6 +32,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.car.app.CarContext.CarServiceType;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.serialization.Bundleable;
@@ -286,6 +287,15 @@ public abstract class CarAppService extends Service {
         return mAppInfo;
     }
 
+    /**
+     * Used by tests to verify the different behaviors when the app has different api level than
+     * the host.
+     */
+    @VisibleForTesting
+    void setAppInfo(@Nullable AppInfo appInfo) {
+        mAppInfo = appInfo;
+    }
+
     @NonNull
     HostValidator getHostValidator() {
         if (mHostValidator == null) {
@@ -294,7 +304,11 @@ public abstract class CarAppService extends Service {
         return mHostValidator;
     }
 
-    // Strictly to avoid synthetic accessor.
+    /**
+     * Used by tests to verify the different behaviors when the app has different api level than
+     * the host.
+     */
+    @VisibleForTesting
     void setHandshakeInfo(@NonNull HandshakeInfo handshakeInfo) {
         int apiLevel = handshakeInfo.getHostCarAppApiLevel();
         if (!CarAppApiLevels.isValid(apiLevel)) {
@@ -331,24 +345,18 @@ public abstract class CarAppService extends Service {
                         if (session == null
                                 || session.getLifecycle().getCurrentState() == State.DESTROYED) {
                             session = onCreateSession();
-                            session.getCarContext().updateHandshakeInfo(
-                                    requireNonNull(getHandshakeInfo()));
                             setCurrentSession(session);
                         }
 
-                        // CarContext is not set up until the base Context is attached. First
-                        // thing we need to do here is attach the base Context, so that any usage of
-                        // it works after this point.
-                        CarContext carContext = session.getCarContext();
-                        carContext.attachBaseContext(CarAppService.this, configuration);
-                        carContext.setCarHost(carHost);
+                        session.configure(CarAppService.this, requireNonNull(getHandshakeInfo()),
+                                carHost, configuration);
 
                         // Whenever the host unbinds, the screens in the stack are destroyed.  If
                         // there is another bind, before the OS has destroyed this Service, then
                         // the stack will be empty, and we need to treat it as a new instance.
                         LifecycleRegistry registry = (LifecycleRegistry) session.getLifecycle();
                         Lifecycle.State state = registry.getCurrentState();
-                        int screenStackSize = carContext.getCarService(
+                        int screenStackSize = session.getCarContext().getCarService(
                                 ScreenManager.class).getScreenStack().size();
                         if (!state.isAtLeast(State.CREATED) || screenStackSize < 1) {
                             if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -358,7 +366,7 @@ public abstract class CarAppService extends Service {
                                         + ", stack size: " + screenStackSize);
                             }
                             registry.handleLifecycleEvent(Event.ON_CREATE);
-                            carContext.getCarService(ScreenManager.class).push(
+                            session.getCarContext().getCarService(ScreenManager.class).push(
                                     session.onCreateScreen(intent));
                         } else {
                             if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -514,9 +522,7 @@ public abstract class CarAppService extends Service {
                         Log.d(TAG, "onCarConfigurationChanged configuration: " + configuration);
                     }
 
-                    session.getCarContext().onCarConfigurationChanged(configuration);
-                    session.onCarConfigurationChanged(
-                            session.getCarContext().getResources().getConfiguration());
+                    session.onCarConfigurationChangedInternal(configuration);
                 }
             };
 
