@@ -69,7 +69,18 @@ public class MacrobenchmarkScope(
         if (launchWithClearTask) {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
-        context.startActivity(intent)
+        try {
+            context.startActivity(intent)
+        } catch (securityException: SecurityException) {
+            // Android 11 sets exported=false by default, which means we can't launch, but this
+            // can also happen if "android:exported=false" is used directly.
+            throw SecurityException(
+                "Unable to launch Activity due to Security Exception. To launch an " +
+                    "activity from a benchmark, you may need to set android:exported=true " +
+                    "for the Activity in your application's manifest",
+                securityException
+            )
+        }
         device.wait(
             Until.hasObject(By.pkg(packageName).depth(0)),
             5000 /* ms */

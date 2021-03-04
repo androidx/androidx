@@ -16,22 +16,25 @@
 
 package androidx.benchmark.macro
 
+import android.content.Intent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import junit.framework.TestCase.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.fail
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class ActionsTest {
+class MacrobenchmarkScopeTest {
     @Test
-    @Ignore("Figure out why we can't launch the default activity.")
+    @Ignore("Apk dependencies not working in presubmit, b/181810492")
     fun killTest() {
         val scope = MacrobenchmarkScope(PACKAGE_NAME, launchWithClearTask = true)
         scope.pressHome()
@@ -42,7 +45,7 @@ class ActionsTest {
     }
 
     @Test
-    @Ignore("Compilation modes are a bit flaky")
+    @Ignore("Apk dependencies not working in presubmit, b/181810492")
     fun compile_speedProfile() {
         val scope = MacrobenchmarkScope(PACKAGE_NAME, launchWithClearTask = true)
         val iterations = 1
@@ -57,12 +60,30 @@ class ActionsTest {
     }
 
     @Test
-    @Ignore("Compilation modes are a bit flaky")
+    @Ignore("Apk dependencies not working in presubmit, b/181810492")
     fun compile_speed() {
         val compilation = CompilationMode.Speed
         compilation.compile(PACKAGE_NAME) {
             fail("Should never be called for $compilation")
         }
+    }
+
+    @Test
+    @Ignore("Apk dependencies not working in presubmit, b/181810492")
+    fun startActivityAndWait_activityNotExported() {
+        val scope = MacrobenchmarkScope(PACKAGE_NAME, launchWithClearTask = true)
+        scope.pressHome()
+
+        val intent = Intent()
+        intent.setPackage(PACKAGE_NAME)
+        intent.action = "$PACKAGE_NAME.NOT_EXPORTED_ACTIVITY"
+
+        // should throw, warning to set exported = true
+        val exceptionMessage = assertFailsWith<SecurityException> {
+            scope.startActivityAndWait(intent)
+        }.message
+        assertNotNull(exceptionMessage)
+        assertTrue(exceptionMessage.contains("android:exported=true"))
     }
 
     private fun processes(): List<String> {

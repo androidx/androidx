@@ -54,5 +54,19 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+
+        <!--
+        Activities need to be exported so the macrobenchmark can discover them
+        under the new package visibility changes for Android 11.
+         -->
+        <activity
+            android:name=".NotExportedActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="androidx.benchmark.integration.macrobenchmark.target.NOT_EXPORTED_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
