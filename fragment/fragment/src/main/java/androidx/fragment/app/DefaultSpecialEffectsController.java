@@ -708,7 +708,9 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 }
             }
         } else {
-            transitioningViews.add(view);
+            if (!transitioningViews.contains(view)) {
+                transitioningViews.add(view);
+            }
         }
     }
 
