@@ -16,6 +16,7 @@
 
 package androidx.camera.view;
 
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Size;
 import android.view.Surface;
@@ -71,6 +72,16 @@ public class TransformUtils {
             rotated[rotatedIndex] = original[originalIndex];
         }
         return rotated;
+    }
+
+    /**
+     * Gets the size of the {@link Rect}.
+     * @param rect
+     * @return
+     */
+    @NonNull
+    public static Size rectToSize(@NonNull Rect rect) {
+        return new Size(rect.width(), rect.height());
     }
 
     /**
