@@ -16,10 +16,12 @@
 
 package androidx.exifinterface.media;
 
-import static androidx.exifinterface.media.ExifInterface.IMAGE_TYPE_JPEG;
-import static androidx.exifinterface.media.ExifInterface.IMAGE_TYPE_PNG;
-import static androidx.exifinterface.media.ExifInterface.IMAGE_TYPE_WEBP;
+import android.os.Build;
+import android.system.Os;
+import android.util.Log;
 
+import java.io.Closeable;
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -97,14 +99,6 @@ class ExifInterfaceUtils {
         return true;
     }
 
-    static boolean isSupportedFormatForSavingAttributes(int mimeType) {
-        if (mimeType == IMAGE_TYPE_JPEG || mimeType == IMAGE_TYPE_PNG
-                || mimeType == IMAGE_TYPE_WEBP) {
-            return true;
-        }
-        return false;
-    }
-
     static String byteArrayToHexString(byte[] bytes) {
         StringBuilder sb = new StringBuilder(bytes.length * 2);
         for (int i = 0; i < bytes.length; i++) {
@@ -125,5 +119,38 @@ class ExifInterfaceUtils {
             // Ignored
         }
         return 0L;
+    }
+
+
+    /**
+     * Closes 'closeable', ignoring any checked exceptions. Does nothing if 'closeable' is null.
+     */
+    static void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (RuntimeException rethrown) {
+                throw rethrown;
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /**
+     * Closes a file descriptor that has been duplicated.
+     */
+    static void closeFileDescriptor(FileDescriptor fd) {
+        // Os.dup and Os.close was introduced in API 21 so this method shouldn't be called
+        // in API < 21.
+        if (Build.VERSION.SDK_INT >= 21) {
+            try {
+                Os.close(fd);
+                // Catching ErrnoException will raise error in API < 21
+            } catch (Exception ex) {
+                Log.e(TAG, "Error closing fd.");
+            }
+        } else {
+            Log.e(TAG, "closeFileDescriptor is called in API < 21, which must be wrong.");
+        }
     }
 }
