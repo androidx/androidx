@@ -68,11 +68,6 @@ public class SearchResultToPlatformConverter {
         Bundle bundle = new Bundle();
         bundle.putString(
                 SearchResult.MatchInfo.PROPERTY_PATH_FIELD, platformMatchInfo.getPropertyPath());
-        // TODO(b/175801531): The values index field is not exposed in the MatchInfo public API, so
-        //  we are not able to populate this correctly. All snippet information will be wrong for
-        //  repeated fields where the match occurred in a value other than the first one. We need to
-        //  either add the value index to the public API, or merge the index into the property path.
-        bundle.putInt(SearchResult.MatchInfo.VALUES_INDEX_FIELD, 0);
         bundle.putInt(
                 SearchResult.MatchInfo.EXACT_MATCH_POSITION_LOWER_FIELD,
                 platformMatchInfo.getExactMatchPosition().getStart());
