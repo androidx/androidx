@@ -209,7 +209,11 @@ class SimpleActorTest {
             onComplete = {},
             onUndeliveredElement = { msg, _ -> msg.complete(Unit) }
         ) {
-            awaitCancellation()
+            try {
+                awaitCancellation()
+            } finally {
+                it.complete(Unit)
+            }
         }
 
         val senderScope =
