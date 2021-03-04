@@ -476,13 +476,23 @@ public sealed class Renderer(
                     Log.w(TAG, "eglDestroySurface failed")
                 }
             }
-            eglSurface = EGL14.eglCreateWindowSurface(
-                eglDisplay,
-                eglConfig,
-                surfaceHolder.surface,
-                eglSurfaceAttribList,
-                0
-            )
+            eglSurface = if (watchState.isHeadless) {
+                // Headless instances have a fake surfaceHolder so fall back to a Pbuffer.
+                EGL14.eglCreatePbufferSurface(
+                    eglDisplay,
+                    eglConfig,
+                    intArrayOf(EGL14.EGL_WIDTH, width, EGL14.EGL_HEIGHT, height, EGL14.EGL_NONE),
+                    0
+                )
+            } else {
+                EGL14.eglCreateWindowSurface(
+                    eglDisplay,
+                    eglConfig,
+                    surfaceHolder.surface,
+                    eglSurfaceAttribList,
+                    0
+                )
+            }
             if (eglSurface == EGL14.EGL_NO_SURFACE) {
                 throw RuntimeException("eglCreateWindowSurface failed")
             }
