@@ -104,7 +104,7 @@ public class MediaRouter2Test {
                     mServiceImpl = (MediaRouteProviderService.MediaRouteProviderServiceImplApi30)
                             mService.mImpl;
                     mMr2ProviderServiceAdapter = mServiceImpl.mMR2ProviderServiceAdapter;
-                    return true;
+                    return mMr2ProviderServiceAdapter != null;
                 }
                 return false;
             }
