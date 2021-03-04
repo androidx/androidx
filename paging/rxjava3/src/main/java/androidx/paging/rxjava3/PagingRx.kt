@@ -36,6 +36,8 @@ import kotlinx.coroutines.rx3.asObservable
  * An [Observable] of [PagingData], which mirrors the stream provided by [Pager.flow], but exposes
  * it as an [Observable].
  */
+// Both annotations are needed here see: https://youtrack.jetbrains.com/issue/KT-45227
+@ExperimentalCoroutinesApi
 @get:ExperimentalCoroutinesApi
 val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData<Value>>
     get() = flow
@@ -46,6 +48,8 @@ val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData
  * A [Flowable] of [PagingData], which mirrors the stream provided by [Pager.flow], but exposes
  * it as a [Flowable].
  */
+// Both annotations are needed here see: https://youtrack.jetbrains.com/issue/KT-45227
+@ExperimentalCoroutinesApi
 @get:ExperimentalCoroutinesApi
 val <Key : Any, Value : Any> Pager<Key, Value>.flowable: Flowable<PagingData<Value>>
     get() = flow
