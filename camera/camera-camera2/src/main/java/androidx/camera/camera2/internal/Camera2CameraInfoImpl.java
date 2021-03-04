@@ -34,6 +34,7 @@ import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
+import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
@@ -84,6 +85,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @NonNull
     private final Quirks mCameraQuirks;
+    @NonNull
+    private final CamcorderProfileProvider mCamera2CamcorderProfileProvider;
 
     /**
      * Constructs an instance. Before {@link #linkWithCameraControl(Camera2CameraControlImpl)} is
@@ -95,6 +98,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         mCameraCharacteristicsCompat = cameraCharacteristicsCompat;
         mCamera2CameraInfo = new Camera2CameraInfo(this);
         mCameraQuirks = CameraQuirks.get(cameraId, cameraCharacteristicsCompat);
+        mCamera2CamcorderProfileProvider = new Camera2CamcorderProfileProvider(cameraId,
+                cameraCharacteristicsCompat);
     }
 
     /**
@@ -303,6 +308,13 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         final int hardwareLevel = getSupportedHardwareLevel();
         return hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
                 ? IMPLEMENTATION_TYPE_CAMERA2_LEGACY : IMPLEMENTATION_TYPE_CAMERA2;
+    }
+
+    /** {@inheritDoc} */
+    @NonNull
+    @Override
+    public CamcorderProfileProvider getCamcorderProfileProvider() {
+        return mCamera2CamcorderProfileProvider;
     }
 
     @Override

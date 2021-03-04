@@ -27,6 +27,7 @@ import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
+import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
@@ -34,6 +35,7 @@ import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.internal.ImmutableZoomState;
+import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -56,6 +58,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     private final MutableLiveData<ZoomState> mZoomLiveData;
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
+    private CamcorderProfileProvider mCamcorderProfileProvider = CamcorderProfileProvider.EMPTY;
 
     @NonNull
     private final List<Quirk> mCameraQuirks = new ArrayList<>();
@@ -163,6 +166,12 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return mImplementationType;
     }
 
+    @NonNull
+    @Override
+    public CamcorderProfileProvider getCamcorderProfileProvider() {
+        return mCamcorderProfileProvider;
+    }
+
     @Override
     public void addSessionCaptureCallback(@NonNull Executor executor,
             @NonNull CameraCaptureCallback callback) {
@@ -190,5 +199,11 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
      */
     public void setImplementationType(@NonNull @ImplementationType String implementationType) {
         mImplementationType = implementationType;
+    }
+
+    /** Set the CamcorderProfileProvider for testing */
+    public void setCamcorderProfileProvider(
+            @NonNull CamcorderProfileProvider camcorderProfileProvider) {
+        mCamcorderProfileProvider = Preconditions.checkNotNull(camcorderProfileProvider);
     }
 }

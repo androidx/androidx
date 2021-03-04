@@ -33,7 +33,9 @@ dependencies {
 
     annotationProcessor(AUTO_VALUE)
 
-    testImplementation("junit:junit:4.12")
+    // TODO(leohuang): We need this for assertThrows. Point back to the AndroidX shared version if
+    //  it is ever upgraded.
+    testImplementation("junit:junit:4.13")
     testImplementation(KOTLIN_STDLIB)
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)

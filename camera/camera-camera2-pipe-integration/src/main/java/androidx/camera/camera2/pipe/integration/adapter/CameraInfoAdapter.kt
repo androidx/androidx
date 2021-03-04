@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExposureState
 import androidx.camera.core.ZoomState
+import androidx.camera.core.impl.CamcorderProfileProvider
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Quirks
@@ -91,6 +92,12 @@ class CameraInfoAdapter @Inject constructor(
         cameraCallbackMap.removeCaptureCallback(callback)
 
     override fun getImplementationType(): String = "CameraPipe"
+
+    override fun getCamcorderProfileProvider(): CamcorderProfileProvider {
+        Log.warn { "TODO: CamcorderProfileProvider is not yet supported." }
+        return CamcorderProfileProvider.EMPTY
+    }
+
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
 
     override fun getCameraQuirks(): Quirks {
