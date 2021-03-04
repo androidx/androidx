@@ -58,7 +58,11 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     private final MutableLiveData<ZoomState> mZoomLiveData;
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
-    private CamcorderProfileProvider mCamcorderProfileProvider = CamcorderProfileProvider.EMPTY;
+
+    // Leave uninitialized to support camera-core:1.0.0 dependencies.
+    // Can be initialized during class init once there are no more pinned dependencies on
+    // camera-core:1.0.0
+    private CamcorderProfileProvider mCamcorderProfileProvider;
 
     @NonNull
     private final List<Quirk> mCameraQuirks = new ArrayList<>();
@@ -169,7 +173,8 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @NonNull
     @Override
     public CamcorderProfileProvider getCamcorderProfileProvider() {
-        return mCamcorderProfileProvider;
+        return mCamcorderProfileProvider == null ? CamcorderProfileProvider.EMPTY :
+                mCamcorderProfileProvider;
     }
 
     @Override
