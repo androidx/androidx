@@ -159,6 +159,16 @@ public class ScreenControllerTest {
     }
 
     @Test
+    public void getScreenResult() {
+        Screen screen = mScreenController.get();
+        String result = "this is the result";
+
+        screen.setResult(result);
+
+        assertThat(mScreenController.getScreenResult()).isEqualTo(result);
+    }
+
+    @Test
     public void reset() {
         mScreenController.start();
         mScreenController.reset();
