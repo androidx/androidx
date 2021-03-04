@@ -219,7 +219,7 @@ public final class PlaceMarker {
          *              size of 3 characters. Set to {@code null} to let the host choose a
          *              labelling scheme (for example, using a sequence of numbers)
          * @throws NullPointerException if the {@code label} is {@code null}
-         * @see CarText for details on text handling and span support.
+         * @see CarText
          */
         @NonNull
         public Builder setLabel(@NonNull CharSequence label) {

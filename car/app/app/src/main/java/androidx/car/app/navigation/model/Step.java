@@ -283,7 +283,7 @@ public final class Step {
          * that work with different car screen pixel densities.
          *
          * @throws NullPointerException if {@code cue} is {@code null}
-         * @see CarText for details on text handling and span support.
+         * @see CarText
          */
         @NonNull
         public Builder setCue(@NonNull CharSequence cue) {
@@ -302,7 +302,7 @@ public final class Step {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code destinations} is {@code null}
-         * @see CarText for details on text handling and span support.
+         * @see CarText
          */
         @NonNull
         public Builder setRoad(@NonNull CharSequence road) {
