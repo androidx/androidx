@@ -25,11 +25,12 @@ package androidx.car.app.testing {
     method public static androidx.car.app.testing.SessionController of(androidx.car.app.Session, androidx.car.app.testing.TestCarContext);
     method public androidx.car.app.testing.SessionController pause();
     method public androidx.car.app.testing.SessionController resume();
+    method public androidx.car.app.testing.SessionController start();
     method public androidx.car.app.testing.SessionController stop();
   }
 
   public class TestAppManager extends androidx.car.app.AppManager {
-    method public androidx.car.app.SurfaceCallback? getSurfaceListener();
+    method public androidx.car.app.SurfaceCallback? getSurfaceCallback();
     method public java.util.List<android.util.Pair<androidx.car.app.Screen!,androidx.car.app.model.Template!>!> getTemplatesReturned();
     method public java.util.List<java.lang.CharSequence!> getToastsShown();
     method public void reset();

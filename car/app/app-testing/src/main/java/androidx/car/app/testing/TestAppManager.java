@@ -66,7 +66,7 @@ public class TestAppManager extends AppManager {
      * set.
      */
     @Nullable
-    public SurfaceCallback getSurfaceListener() {
+    public SurfaceCallback getSurfaceCallback() {
         return mSurfaceCallback;
     }
 

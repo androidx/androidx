@@ -53,7 +53,7 @@ public class SessionController {
     }
 
     /**
-     * Starts the {@link Session} that is being controlled.
+     * Creates the {@link Session} that is being controlled.
      *
      * @see Session#getLifecycle
      */
@@ -64,6 +64,20 @@ public class SessionController {
 
         return this;
     }
+
+    /**
+     * Starts the {@link Session} that is being controlled.
+     *
+     * @see Session#getLifecycle
+     */
+    @NonNull
+    public SessionController start() {
+        LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
+        registry.handleLifecycleEvent(Event.ON_START);
+
+        return this;
+    }
+
 
     /**
      * Resumes the {@link Session} that is being controlled.
