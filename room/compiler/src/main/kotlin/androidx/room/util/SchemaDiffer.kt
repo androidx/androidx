@@ -17,7 +17,6 @@
 package androidx.room.util
 
 import androidx.room.migration.bundle.DatabaseBundle
-import androidx.room.migration.bundle.EntityBundle
 import androidx.room.processor.ProcessorErrors
 import androidx.room.vo.AutoMigrationResult
 
@@ -30,9 +29,11 @@ class DiffException(val errorMessage: String) : RuntimeException(errorMessage)
  * Contains the added, changed and removed columns detected.
  */
 data class SchemaDiffResult(
-    val added: List<AutoMigrationResult.AddedColumn>,
-    val changed: List<AutoMigrationResult.ChangedColumn>,
-    val removed: List<AutoMigrationResult.RemovedColumn>
+    val addedColumn: MutableList<AutoMigrationResult.AddedColumn>,
+    val changedColumn: List<AutoMigrationResult.ChangedColumn>,
+    val removedColumn: List<AutoMigrationResult.RemovedColumn>,
+    val addedTable: List<AutoMigrationResult.AddedTable>,
+    val removedTable: List<AutoMigrationResult.RemovedTable>
 )
 
 /**
@@ -53,8 +54,8 @@ class SchemaDiffer(
      * @return the AutoMigrationResult containing the schema changes detected
      */
     fun diffSchemas(): SchemaDiffResult {
-        val addedTables = mutableListOf<EntityBundle>()
-        val removedTables = mutableListOf<EntityBundle>()
+        val addedTables = mutableListOf<AutoMigrationResult.AddedTable>()
+        val removedTables = mutableListOf<AutoMigrationResult.RemovedTable>()
 
         val addedColumns = mutableListOf<AutoMigrationResult.AddedColumn>()
         val changedColumns = mutableListOf<AutoMigrationResult.ChangedColumn>()
@@ -65,7 +66,7 @@ class SchemaDiffer(
         fromSchemaBundle.entitiesByTableName.forEach { v1Table ->
             val v2Table = toSchemaBundle.entitiesByTableName[v1Table.key]
             if (v2Table == null) {
-                removedTables.add(v1Table.value)
+                removedTables.add(AutoMigrationResult.RemovedTable(v1Table.value))
             } else {
                 val v1Columns = v1Table.value.fieldsByColumnName
                 val v2Columns = v2Table.fieldsByColumnName
@@ -96,7 +97,7 @@ class SchemaDiffer(
         toSchemaBundle.entitiesByTableName.forEach { v2Table ->
             val v1Table = fromSchemaBundle.entitiesByTableName[v2Table.key]
             if (v1Table == null) {
-                addedTables.add(v2Table.value)
+                addedTables.add(AutoMigrationResult.AddedTable(v2Table.value))
             } else {
                 val v2Columns = v2Table.value.fieldsByColumnName
                 val v1Columns = v1Table.fieldsByColumnName
@@ -104,7 +105,7 @@ class SchemaDiffer(
                     val match = v1Columns[v2Column.key]
                     if (match == null) {
                         if (v2Column.value.isNonNull && v2Column.value.defaultValue == null) {
-                            throw DiffException(
+                            diffError(
                                 ProcessorErrors.newNotNullColumnMustHaveDefaultValue(v2Column.key)
                             )
                         }
@@ -121,15 +122,17 @@ class SchemaDiffer(
 
         if (changedColumns.isNotEmpty()) {
             changedColumns.forEach { changedColumn ->
-                throw DiffException(
+                diffError(
                     ProcessorErrors.columnWithChangedSchemaFound(
                         changedColumn.originalFieldBundle.columnName
                     )
                 )
             }
-        } else if (removedColumns.isNotEmpty()) {
+        }
+
+        if (removedColumns.isNotEmpty()) {
             removedColumns.forEach { removedColumn ->
-                throw DiffException(
+                diffError(
                     ProcessorErrors.removedOrRenamedColumnFound(
                         removedColumn.fieldBundle.columnName
                     )
@@ -137,10 +140,26 @@ class SchemaDiffer(
             }
         }
 
+        if (removedTables.isNotEmpty()) {
+            removedTables.forEach { removedTable ->
+                diffError(
+                    ProcessorErrors.removedOrRenamedTableFound(
+                        removedTable.entityBundle.tableName
+                    )
+                )
+            }
+        }
+
         return SchemaDiffResult(
-            added = addedColumns,
-            changed = changedColumns,
-            removed = removedColumns
+            addedColumn = addedColumns,
+            changedColumn = changedColumns,
+            removedColumn = removedColumns,
+            addedTable = addedTables,
+            removedTable = removedTables
         )
+    }
+
+    private fun diffError(errorMsg: String) {
+        throw DiffException(errorMsg)
     }
 }

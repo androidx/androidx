@@ -104,7 +104,8 @@ class AutoMigrationProcessor(
             element = element,
             from = fromSchemaBundle.version,
             to = toSchemaBundle.version,
-            addedColumns = schemaDiff.added
+            addedColumns = schemaDiff.addedColumn,
+            addedTables = schemaDiff.addedTable
         )
     }
 

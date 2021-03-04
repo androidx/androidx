@@ -76,6 +76,9 @@ class AutoMigrationWriter(
      * @param migrateFunctionBuilder Builder for the migrate() function to be generated
      */
     private fun addAutoMigrationResultToMigrate(migrateFunctionBuilder: MethodSpec.Builder) {
+        if (autoMigrationResult.addedTables.isNotEmpty()) {
+            addNewTableStatements(migrateFunctionBuilder)
+        }
         if (autoMigrationResult.addedColumns.isNotEmpty()) {
             addNewColumnStatements(migrateFunctionBuilder)
         }
@@ -91,16 +94,30 @@ class AutoMigrationWriter(
         autoMigrationResult.addedColumns.forEach {
             val addNewColumnSql = buildString {
                 append(
-                    "ALTER TABLE '${it.tableName}' ADD COLUMN `${it.fieldBundle.columnName}` " +
+                    "ALTER TABLE `${it.tableName}` ADD COLUMN `${it.fieldBundle.columnName}` " +
                         "${it.fieldBundle.affinity} "
                 )
                 if (it.fieldBundle.isNonNull) {
-                    append("NOT NULL DEFAULT '${it.fieldBundle.defaultValue}'")
+                    append("NOT NULL DEFAULT `${it.fieldBundle.defaultValue}`")
                 } else {
                     append("DEFAULT NULL")
                 }
             }
             migrateFunctionBuilder.addStatement("database.execSQL($S)", addNewColumnSql)
+        }
+    }
+
+    /**
+     * Adds the appropriate SQL statements for adding new tables to a database, into the
+     * generated migrate() function.
+     *
+     * @param migrateFunctionBuilder Builder for the migrate() function to be generated
+     */
+    private fun addNewTableStatements(migrateFunctionBuilder: MethodSpec.Builder) {
+        autoMigrationResult.addedTables.forEach { addedTable ->
+            migrateFunctionBuilder.addStatement(
+                "database.execSQL($S)", addedTable.entityBundle.createTable()
+            )
         }
     }
 

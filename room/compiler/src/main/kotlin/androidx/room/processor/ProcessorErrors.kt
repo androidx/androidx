@@ -850,6 +850,11 @@ object ProcessorErrors {
             "renamed. This change is not currently supported by AutoMigration."
     }
 
+    fun removedOrRenamedTableFound(tableName: String): String {
+        return "Table '$tableName' has been either removed or " +
+            "renamed. This change is not currently supported by AutoMigration."
+    }
+
     val AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF = "Cannot create auto-migrations when export " +
         "schema is OFF."
 }
