@@ -49,7 +49,9 @@ public final class FragmentStrictMode {
 
     private enum Flag {
         PENALTY_LOG,
-        PENALTY_DEATH
+        PENALTY_DEATH,
+
+        DETECT_SET_USER_VISIBLE_HINT
     }
 
     private FragmentStrictMode() {}
@@ -140,6 +142,14 @@ public final class FragmentStrictMode {
                 return this;
             }
 
+            /** Detects calls to #{@link Fragment#setUserVisibleHint}. */
+            @NonNull
+            @SuppressLint("BuilderSetStyle")
+            public Builder detectSetUserVisibleHint() {
+                flags.add(Flag.DETECT_SET_USER_VISIBLE_HINT);
+                return this;
+            }
+
             /**
              * Construct the Policy instance.
              *
@@ -185,9 +195,25 @@ public final class FragmentStrictMode {
         return defaultPolicy;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onSetUserVisibleHint(@NonNull Fragment fragment) {
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.flags.contains(Flag.DETECT_SET_USER_VISIBLE_HINT)) {
+            handlePolicyViolation(fragment, policy, new SetUserVisibleHintViolation());
+        }
+    }
+
     @VisibleForTesting
-    static void onPolicyViolation(@NonNull Fragment fragment, @NonNull final Violation violation) {
-        final Policy policy = getNearestPolicy(fragment);
+    static void onPolicyViolation(@NonNull Fragment fragment, @NonNull Violation violation) {
+        Policy policy = getNearestPolicy(fragment);
+        handlePolicyViolation(fragment, policy, violation);
+    }
+
+    private static void handlePolicyViolation(
+            @NonNull Fragment fragment,
+            @NonNull final Policy policy,
+            @NonNull final Violation violation
+    ) {
         final String fragmentName = fragment.getClass().getName();
 
         if (policy.flags.contains(Flag.PENALTY_LOG)) {

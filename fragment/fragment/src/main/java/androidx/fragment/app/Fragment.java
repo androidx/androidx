@@ -72,6 +72,7 @@ import androidx.arch.core.util.Function;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.view.LayoutInflaterCompat;
+import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
@@ -1319,6 +1320,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @Deprecated
     public void setUserVisibleHint(boolean isVisibleToUser) {
+        FragmentStrictMode.onSetUserVisibleHint(this);
         if (!mUserVisibleHint && isVisibleToUser && mState < STARTED
                 && mFragmentManager != null && isAdded() && mIsCreated) {
             mFragmentManager.performPendingDeferredStart(
