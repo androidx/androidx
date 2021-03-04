@@ -34,8 +34,6 @@ import androidx.window.extensions.ExtensionInterface;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
@@ -71,11 +69,6 @@ final class ExtensionWindowBackend implements WindowBackend {
     @GuardedBy("sLock")
     @VisibleForTesting
     DeviceState mLastReportedDeviceState;
-
-    /** Window layouts that were last reported through callbacks, used to filter out duplicates. */
-    @GuardedBy("sLock")
-    @VisibleForTesting
-    final Map<Activity, WindowLayoutInfo> mLastReportedWindowLayouts = new WeakHashMap<>();
 
     private static final String TAG = "WindowServer";
 
@@ -211,14 +204,8 @@ final class ExtensionWindowBackend implements WindowBackend {
             WindowLayoutChangeCallbackWrapper callbackWrapper =
                     new WindowLayoutChangeCallbackWrapper(activity, executor, callback);
             mWindowLayoutChangeCallbacks.add(callbackWrapper);
-            // Read value before registering in case the extension updates synchronously.
-            // A synchronous update would result in two values emitted.
-            WindowLayoutInfo lastReportedValue = mLastReportedWindowLayouts.get(activity);
             if (!isActivityRegistered) {
                 mWindowExtension.onWindowLayoutChangeListenerAdded(activity);
-            }
-            if (lastReportedValue != null) {
-                callbackWrapper.accept(lastReportedValue);
             }
         }
     }
@@ -349,18 +336,6 @@ final class ExtensionWindowBackend implements WindowBackend {
         @SuppressLint("SyntheticAccessor")
         public void onWindowLayoutChanged(@NonNull Activity activity,
                 @NonNull WindowLayoutInfo newLayout) {
-            synchronized (sLock) {
-                WindowLayoutInfo lastReportedValue = mLastReportedWindowLayouts.get(activity);
-                if (newLayout.equals(lastReportedValue)) {
-                    // Skipping, value already reported
-                    if (DEBUG) {
-                        Log.w(TAG, "Extension reported an old layout value");
-                    }
-                    return;
-                }
-                mLastReportedWindowLayouts.put(activity, newLayout);
-            }
-
             for (WindowLayoutChangeCallbackWrapper callbackWrapper : mWindowLayoutChangeCallbacks) {
                 if (!callbackWrapper.mActivity.equals(activity)) {
                     continue;
