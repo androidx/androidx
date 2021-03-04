@@ -20,21 +20,23 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
-import java.io.File
 
 /**
  * This allows tests to override arguments from code
  *
- * @suppress
+ * @hide
  */
 @RestrictTo(RestrictTo.Scope.TESTS)
 public var argumentSource: Bundle? = null
 
+/**
+ * @hide
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object Arguments {
+
     // public properties are shared by micro + macro benchmarks
     public val suppressedErrors: Set<String>
-    public val outputDirectoryPath: String
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
@@ -45,8 +47,7 @@ public object Arguments {
     internal val profilerSampleDurationSeconds: Long
 
     internal var error: String? = null
-
-    private val testOutputDir: File
+    internal val additionalTestOutputDir: String?
 
     private const val prefix = "androidx.benchmark."
 
@@ -105,19 +106,6 @@ public object Arguments {
                     "$profilerSampleFrequency, duration $profilerSampleDurationSeconds"
             )
         }
-
-        val additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
-        testOutputDir = additionalTestOutputDir?.let { File(it) }
-            ?: InstrumentationRegistry.getInstrumentation().context.externalCacheDir
-            ?: throw IllegalStateException(
-                "Unable to read externalCacheDir for writing files, " +
-                    "additionalTestOutputDir argument required to declare output dir."
-            )
-
-        outputDirectoryPath = testOutputDir.path
-    }
-
-    public fun testOutputFile(filename: String): File {
-        return File(testOutputDir, filename)
+        additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
     }
 }

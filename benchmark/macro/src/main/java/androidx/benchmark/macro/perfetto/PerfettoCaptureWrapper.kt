@@ -19,8 +19,7 @@ package androidx.benchmark.macro.perfetto
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.benchmark.Arguments
-import androidx.benchmark.InstrumentationResults
+import androidx.benchmark.Outputs
 import androidx.benchmark.macro.device
 import androidx.test.platform.app.InstrumentationRegistry
 
@@ -49,19 +48,15 @@ class PerfettoCaptureWrapper {
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun stop(benchmarkName: String, iteration: Int): String {
         val iterString = iteration.toString().padStart(3, '0')
-        // NOTE: macrobench still using legacy .trace name until
+        // NOTE: Macrobenchmarks still use legacy .trace name until
         // Studio supports .perfetto-trace extension (b/171251272)
         val traceName = "${benchmarkName}_iter$iterString.trace".replace(
             oldValue = " ",
             newValue = ""
         )
-        val destination = Arguments.testOutputFile(traceName).absolutePath
-        capture!!.stop(destination)
-        InstrumentationResults.reportAdditionalFileToCopy(
-            key = "perfetto_trace_$iterString",
-            absoluteFilePath = destination
-        )
-        return destination
+        return Outputs.writeFile(fileName = traceName, reportKey = "perfetto_trace_$iterString") {
+            capture!!.stop(it.absolutePath)
+        }
     }
 
     fun record(

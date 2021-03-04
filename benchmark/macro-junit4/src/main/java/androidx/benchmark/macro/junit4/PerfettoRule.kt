@@ -19,8 +19,7 @@ package androidx.benchmark.macro.junit4
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.benchmark.Arguments
-import androidx.benchmark.InstrumentationResults
+import androidx.benchmark.Outputs
 import androidx.benchmark.macro.perfetto.PerfettoCapture
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -74,10 +73,11 @@ internal fun PerfettoCapture.recordAndReportFile(traceName: String, block: () ->
         Log.d(PerfettoRule.TAG, "Recording perfetto trace $traceName")
         start()
         block()
-        val destinationPath = Arguments.testOutputFile(traceName).absolutePath
-        stop(destinationPath)
-        Log.d(PerfettoRule.TAG, "Finished recording to $destinationPath")
-        InstrumentationResults.reportAdditionalFileToCopy("perfetto_trace", destinationPath)
+        Outputs.writeFile(fileName = traceName, reportKey = "perfetto_trace") {
+            val destinationPath = it.absolutePath
+            stop(destinationPath)
+            Log.d(PerfettoRule.TAG, "Finished recording to $destinationPath")
+        }
     } finally {
         cancel()
     }
