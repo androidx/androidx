@@ -659,9 +659,9 @@ package androidx.media {
 
   public static class MediaBrowserServiceCompat.Result<T> {
     method public void detach();
-    method public void sendError(android.os.Bundle!);
-    method public void sendProgressUpdate(android.os.Bundle!);
-    method public void sendResult(T!);
+    method public void sendError(android.os.Bundle?);
+    method public void sendProgressUpdate(android.os.Bundle?);
+    method public void sendResult(T?);
   }
 
   public final class MediaSessionManager {

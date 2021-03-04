@@ -401,7 +401,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             final Result<List<MediaBrowserCompat.MediaItem>> result =
                     new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
                         @Override
-                        void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
+                        void onResultSent(@Nullable List<MediaBrowserCompat.MediaItem> list) {
                             List<Parcel> parcelList = null;
                             if (list != null) {
                                 parcelList = new ArrayList<>();
@@ -528,7 +528,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             final Result<MediaBrowserCompat.MediaItem> result =
                     new Result<MediaBrowserCompat.MediaItem>(itemId) {
                         @Override
-                        void onResultSent(MediaBrowserCompat.MediaItem item) {
+                        void onResultSent(@Nullable MediaBrowserCompat.MediaItem item) {
                             if (item == null) {
                                 resultWrapper.sendResult(null);
                             } else {
@@ -575,7 +575,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             final Result<List<MediaBrowserCompat.MediaItem>> result =
                     new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
                         @Override
-                        void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
+                        void onResultSent(@Nullable List<MediaBrowserCompat.MediaItem> list) {
                             if (list == null) {
                                 resultWrapper.sendResult(null);
                                 return;
@@ -845,7 +845,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         /**
          * Send the result back to the caller.
          */
-        public void sendResult(T result) {
+        public void sendResult(@Nullable T result) {
             if (mSendResultCalled || mSendErrorCalled) {
                 throw new IllegalStateException("sendResult() called when either sendResult() or "
                         + "sendError() had already been called for: " + mDebug);
@@ -860,7 +860,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
          *
          * @param extras A bundle that contains extra data.
          */
-        public void sendProgressUpdate(Bundle extras) {
+        public void sendProgressUpdate(@Nullable Bundle extras) {
             if (mSendResultCalled || mSendErrorCalled) {
                 throw new IllegalStateException("sendProgressUpdate() called when either "
                         + "sendResult() or sendError() had already been called for: " + mDebug);
@@ -875,7 +875,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
          *
          * @param extras A bundle that contains extra data.
          */
-        public void sendError(Bundle extras) {
+        public void sendError(@Nullable Bundle extras) {
             if (mSendResultCalled || mSendErrorCalled) {
                 throw new IllegalStateException("sendError() called when either sendResult() or "
                         + "sendError() had already been called for: " + mDebug);
@@ -920,13 +920,13 @@ public abstract class MediaBrowserServiceCompat extends Service {
          * Called when the result is sent, after assertions about not being called twice have
          * happened.
          */
-        void onResultSent(T result) {
+        void onResultSent(@Nullable T result) {
         }
 
         /**
          * Called when an interim update is sent.
          */
-        void onProgressUpdateSent(Bundle extras) {
+        void onProgressUpdateSent(@Nullable Bundle extras) {
             throw new UnsupportedOperationException("It is not supported to send an interim update "
                     + "for " + mDebug);
         }
@@ -935,12 +935,12 @@ public abstract class MediaBrowserServiceCompat extends Service {
          * Called when an error is sent, after assertions about not being called twice have
          * happened.
          */
-        void onErrorSent(Bundle extras) {
+        void onErrorSent(@Nullable Bundle extras) {
             throw new UnsupportedOperationException("It is not supported to send an error for "
                     + mDebug);
         }
 
-        private void checkExtraFields(Bundle extras) {
+        private void checkExtraFields(@Nullable Bundle extras) {
             if (extras == null) {
                 return;
             }
@@ -1716,7 +1716,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         final Result<List<MediaBrowserCompat.MediaItem>> result
                 = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
             @Override
-            void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
+            void onResultSent(@Nullable List<MediaBrowserCompat.MediaItem> list) {
                 if (mConnections.get(connection.callbacks.asBinder()) != connection) {
                     if (DEBUG) {
                         Log.d(TAG, "Not sending onLoadChildren result for connection that has"
@@ -1779,7 +1779,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         final Result<MediaBrowserCompat.MediaItem> result =
                 new Result<MediaBrowserCompat.MediaItem>(itemId) {
                     @Override
-                    void onResultSent(MediaBrowserCompat.MediaItem item) {
+                    void onResultSent(@Nullable MediaBrowserCompat.MediaItem item) {
                         if ((getFlags() & RESULT_FLAG_ON_LOAD_ITEM_NOT_IMPLEMENTED) != 0) {
                             receiver.send(RESULT_ERROR, null);
                             return;
@@ -1805,7 +1805,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         final Result<List<MediaBrowserCompat.MediaItem>> result =
                 new Result<List<MediaBrowserCompat.MediaItem>>(query) {
             @Override
-            void onResultSent(List<MediaBrowserCompat.MediaItem> items) {
+            void onResultSent(@Nullable List<MediaBrowserCompat.MediaItem> items) {
                 if ((getFlags() & RESULT_FLAG_ON_SEARCH_NOT_IMPLEMENTED) != 0
                         || items == null) {
                     receiver.send(RESULT_ERROR, null);
@@ -1832,17 +1832,17 @@ public abstract class MediaBrowserServiceCompat extends Service {
             final ResultReceiver receiver) {
         final Result<Bundle> result = new Result<Bundle>(action) {
                 @Override
-                void onResultSent(Bundle result) {
+                void onResultSent(@Nullable Bundle result) {
                     receiver.send(RESULT_OK, result);
                 }
 
                 @Override
-                void onProgressUpdateSent(Bundle data) {
+                void onProgressUpdateSent(@Nullable Bundle data) {
                     receiver.send(RESULT_PROGRESS_UPDATE, data);
                 }
 
                 @Override
-                void onErrorSent(Bundle data) {
+                void onErrorSent(@Nullable Bundle data) {
                     receiver.send(RESULT_ERROR, data);
                 }
             };
