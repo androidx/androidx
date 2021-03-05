@@ -16,40 +16,30 @@
 
 package androidx.lifecycle
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.resume
 
 /**
- * Launches and runs the given [block] in a coroutine that executes the [block] on the
- * main thread when this [LifecycleOwner]'s [Lifecycle] is at least at [state].
- * The launched coroutine will be cancelled when the lifecycle state falls below [state].
+ * Launches and runs the given [block] in a coroutine when `this` [LifecycleOwner]'s [Lifecycle]
+ * is at least at [state]. The launched coroutine will be cancelled when the lifecycle state falls
+ * below [state].
  *
  * The [block] will cancel and re-launch as the lifecycle moves in and out of the target state.
  * To permanently remove the work from the lifecycle, [Job.cancel] the returned [Job].
- *
- * [Lifecycle] is bound to the Android **main thread** and the lifecycle state is only
- * guaranteed to be valid and consistent on that main thread. [block] always runs on
- * [Dispatchers.Main] and launches when the lifecycle [state] is first reached.
- * **This overrides any [CoroutineDispatcher] specified in [coroutineContext].**
- *
- * An active coroutine is a child [Job] of any job present in [coroutineContext]. This returned
- * [Job] is the parent of any currently running [block] and will **complete** when the [Lifecycle]
- * is [destroyed][Lifecycle.Event.ON_DESTROY]. To perform an action when a [RepeatingWorkObserver]
- * is completed or cancelled, see [Job.join] or [Job.invokeOnCompletion].
  *
  * ```
  * // Runs the block of code in a coroutine when the lifecycleOwner is at least STARTED.
  * // The coroutine will be cancelled when the ON_STOP event happens and will restart executing
  * // if the lifecycleOwner's lifecycle receives the ON_START event again.
- * lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+ * lifecycleOwner.addRepeatingJob(Lifecycle.State.STARTED) {
  *     uiStateFlow.collect { uiState ->
  *         updateUi(uiState)
  *     }
@@ -60,141 +50,94 @@ import kotlin.coroutines.EmptyCoroutineContext
  * example, `onCreate` in an Activity, or `onViewCreated` in a Fragment. Otherwise, multiple
  * repeating jobs doing the same could be registered and be executed at the same time.
  *
- * Warning: [Lifecycle.State.DESTROYED] and [Lifecycle.State.INITIALIZED] are not allowed in this
- * API. Passing those as a parameter will throw an [IllegalArgumentException].
+ * Warning: [Lifecycle.State.INITIALIZED] is not allowed in this API. Passing it as a
+ * parameter will throw an [IllegalArgumentException].
  *
- * @param state [Lifecycle.State] in which the coroutine starts. That coroutine will cancel
- * if the lifecycle falls below that state, and will restart if it's in that state again.
- * @param coroutineContext [CoroutineContext] used to execute [block]. Note that its
- * [CoroutineDispatcher] will be replaced by [Dispatchers.Main].
+ * @see Lifecycle.repeatOnLifecycle for details
+ *
+ * @param state [Lifecycle.State] in which the coroutine running [block] starts. That coroutine
+ * will cancel if the lifecycle falls below that state, and will restart if it's in that state
+ * again.
+ * @param coroutineContext [CoroutineContext] used to execute [block].
  * @param block The block to run when the lifecycle is at least in [state] state.
  * @return [Job] to manage the repeating work.
  */
-public fun LifecycleOwner.repeatOnLifecycle(
+public fun LifecycleOwner.addRepeatingJob(
     state: Lifecycle.State,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     block: suspend CoroutineScope.() -> Unit
-): Job = lifecycle.repeatOnLifecycle(state, coroutineContext, block)
-
-/**
- * Launches and runs the given [block] in a coroutine that executes the [block] on the
- * main thread when this [Lifecycle] is at least at [state].
- * The launched coroutine will be cancelled when the lifecycle state falls below [state].
- *
- * The [block] will cancel and re-launch as the lifecycle moves in and out of the target state.
- * To permanently remove the work from the lifecycle, [Job.cancel] the returned [Job].
- *
- * [Lifecycle] is bound to the Android **main thread** and the lifecycle state is only
- * guaranteed to be valid and consistent on that main thread. [block] always runs on
- * [Dispatchers.Main] and launches when the lifecycle [state] is first reached.
- * **This overrides any [CoroutineDispatcher] specified in [coroutineContext].**
- *
- * An active coroutine is a child [Job] of any job present in [coroutineContext]. This returned
- * [Job] is the parent of any currently running [block] and will **complete** when the [Lifecycle]
- * is [destroyed][Lifecycle.Event.ON_DESTROY]. To perform an action when a [RepeatingWorkObserver]
- * is completed or cancelled, see [Job.join] or [Job.invokeOnCompletion].
- *
- * ```
- * class MyActivity : AppCompatActivity() {
- *     override fun onCreate(savedInstanceState: Bundle?) {
- *         /* ... */
- *         // Runs the block of code in a coroutine when the lifecycle is at least STARTED.
- *         // The coroutine will be cancelled when the ON_STOP event happens and will restart
- *         // executing if the lifecycle receives the ON_START event again.
- *         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
- *             uiStateFlow.collect { uiState ->
- *                 updateUi(uiState)
- *             }
- *         }
- *     }
- * }
- * ```
- *
- * The best practice is to call this function in the lifecycle callback when the View gets
- * created. For example, `onCreate` in an Activity, or `onViewCreated` in a Fragment. Otherwise,
- * multiple repeating jobs doing the same could be registered and be executed at the same time.
- *
- * Warning: [Lifecycle.State.DESTROYED] and [Lifecycle.State.INITIALIZED] are not allowed in this
- * API. Passing those as a parameter will throw an [IllegalArgumentException].
- *
- * @param state [Lifecycle.State] in which the coroutine starts. That coroutine will cancel
- * if the lifecycle falls below that state, and will restart if it's in that state again.
- * @param coroutineContext [CoroutineContext] used to execute [block]. Note that its
- * [CoroutineDispatcher] will be replaced by [Dispatchers.Main].
- * @param block The block to run when the lifecycle is at least in [state].
- * @return [Job] to manage the repeating work.
- */
-public fun Lifecycle.repeatOnLifecycle(
-    state: Lifecycle.State,
-    coroutineContext: CoroutineContext = EmptyCoroutineContext,
-    block: suspend CoroutineScope.() -> Unit
-): Job {
-    if (currentState === Lifecycle.State.DESTROYED) {
-        // Fast-path! As the work would immediately complete, return a completed Job
-        // to avoid extra allocations and adding/removing observers
-        return Job().apply { complete() }
-    }
-
-    return RepeatingWorkObserver(this, state, coroutineContext + Dispatchers.Main, block)
-        .also { observer ->
-            // Immediately add the LifecycleEventObserver to ensure that RepeatingWorkObserver Job's
-            // `invokeOnCompletion` that removes the observer doesn't happen before this in the case
-            // of a parent job cancelled early or an ON_DESTROY completing the observer
-            observer.launch(Dispatchers.Main.immediate) {
-                addObserver(observer)
-            }
-        }.job
+): Job = lifecycleScope.launch(coroutineContext) {
+    lifecycle.repeatOnLifecycle(state, block)
 }
 
 /**
- * [LifecycleEventObserver] that executes work periodically when the Lifecycle reaches
- * certain State.
+ * Runs the given [block] in a new coroutine when `this` [Lifecycle] is at least at [state] and
+ * suspends the execution until `this` [Lifecycle] is [Lifecycle.State.DESTROYED].
+ *
+ * The [block] will cancel and re-launch as the lifecycle moves in and out of the target state.
+ *
+ * Warning: [Lifecycle.State.INITIALIZED] is not allowed in this API. Passing it as a
+ * parameter will throw an [IllegalArgumentException].
+ *
+ * @param state [Lifecycle.State] in which `block` runs in a new coroutine. That coroutine
+ * will cancel if the lifecycle falls below that state, and will restart if it's in that state
+ * again.
+ * @param block The block to run when the lifecycle is at least in [state] state.
  */
-private class RepeatingWorkObserver(
-    private val lifecycle: Lifecycle,
+public suspend fun Lifecycle.repeatOnLifecycle(
     state: Lifecycle.State,
-    coroutineContext: CoroutineContext = EmptyCoroutineContext,
-    private val block: suspend CoroutineScope.() -> Unit,
-) : LifecycleEventObserver, CoroutineScope {
-
-    init {
-        if (state === Lifecycle.State.INITIALIZED || state === Lifecycle.State.DESTROYED) {
-            throw IllegalArgumentException(
-                "RepeatingWorkObserver cannot start work with lifecycle states that are " +
-                    "at least INITIALIZED or DESTROYED."
-            )
-        }
+    block: suspend CoroutineScope.() -> Unit
+) {
+    require(state !== Lifecycle.State.INITIALIZED) {
+        "repeatOnLifecycle cannot start work with the INITIALIZED lifecycle state."
     }
 
-    private val startWorkEvent = Lifecycle.Event.upTo(state)
-    private val cancelWorkEvent = Lifecycle.Event.downFrom(state)
-
-    // Exposing this job to enable cancelling RepeatingWorkObserver from the outside
-    val job = Job(coroutineContext[Job]).apply { invokeOnCompletion { removeSelf() } }
-    override val coroutineContext = coroutineContext + job
-
-    private var launchedJob: Job? = null
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        if (event == startWorkEvent) {
-            launchedJob = launch(start = CoroutineStart.UNDISPATCHED, block = block)
-            return
-        }
-        if (event == cancelWorkEvent) {
-            launchedJob?.cancel()
-            launchedJob = null
-        }
-        if (event == Lifecycle.Event.ON_DESTROY) {
-            job.complete()
-        }
+    if (currentState === Lifecycle.State.DESTROYED) {
+        return
     }
 
-    private fun removeSelf() {
-        if (Dispatchers.Main.immediate.isDispatchNeeded(EmptyCoroutineContext)) {
-            GlobalScope.launch(Dispatchers.Main.immediate) {
-                lifecycle.removeObserver(this@RepeatingWorkObserver)
+    coroutineScope {
+        withContext(Dispatchers.Main.immediate) {
+            // Check the current state of the lifecycle as the previous check is not guaranteed
+            // to be done on the main thread.
+            if (currentState === Lifecycle.State.DESTROYED) return@withContext
+
+            // Instance of the running repeating coroutine
+            var launchedJob: Job? = null
+
+            // Registered observer
+            var observer: LifecycleEventObserver? = null
+
+            try {
+                // Suspend the coroutine until the lifecycle is destroyed or
+                // the coroutine is cancelled
+                suspendCancellableCoroutine<Unit> { cont ->
+                    // Lifecycle observers that executes `block` when the lifecycle reaches certain state, and
+                    // cancels when it moves falls below that state.
+                    val startWorkEvent = Lifecycle.Event.upTo(state)
+                    val cancelWorkEvent = Lifecycle.Event.downFrom(state)
+                    observer = LifecycleEventObserver { _, event ->
+                        if (event == startWorkEvent) {
+                            // Launch the repeating work preserving the calling context
+                            launchedJob = this@coroutineScope.launch(block = block)
+                            return@LifecycleEventObserver
+                        }
+                        if (event == cancelWorkEvent) {
+                            launchedJob?.cancel()
+                            launchedJob = null
+                        }
+                        if (event == Lifecycle.Event.ON_DESTROY) {
+                            cont.resume(Unit)
+                        }
+                    }
+                    this@repeatOnLifecycle.addObserver(observer as LifecycleEventObserver)
+                }
+            } finally {
+                launchedJob?.cancel()
+                observer?.let {
+                    this@repeatOnLifecycle.removeObserver(it)
+                }
             }
-        } else lifecycle.removeObserver(this@RepeatingWorkObserver)
+        }
     }
 }
