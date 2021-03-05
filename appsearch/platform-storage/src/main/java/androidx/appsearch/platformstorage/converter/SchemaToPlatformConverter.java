@@ -45,7 +45,8 @@ public final class SchemaToPlatformConverter {
             @NonNull AppSearchSchema jetpackSchema) {
         Preconditions.checkNotNull(jetpackSchema);
         android.app.appsearch.AppSearchSchema.Builder platformBuilder =
-                new android.app.appsearch.AppSearchSchema.Builder(jetpackSchema.getSchemaType());
+                new android.app.appsearch.AppSearchSchema.Builder(jetpackSchema.getSchemaType())
+                .setVersion(jetpackSchema.getVersion());
         List<AppSearchSchema.PropertyConfig> properties = jetpackSchema.getProperties();
         for (int i = 0; i < properties.size(); i++) {
             android.app.appsearch.AppSearchSchema.PropertyConfig platformProperty =
@@ -64,7 +65,8 @@ public final class SchemaToPlatformConverter {
             @NonNull android.app.appsearch.AppSearchSchema platformSchema) {
         Preconditions.checkNotNull(platformSchema);
         AppSearchSchema.Builder jetpackBuilder =
-                new AppSearchSchema.Builder(platformSchema.getSchemaType());
+                new AppSearchSchema.Builder(platformSchema.getSchemaType())
+                        .setVersion(platformSchema.getVersion());
         List<android.app.appsearch.AppSearchSchema.PropertyConfig> properties =
                 platformSchema.getProperties();
         for (int i = 0; i < properties.size(); i++) {

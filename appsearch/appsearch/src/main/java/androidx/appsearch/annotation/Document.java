@@ -17,6 +17,7 @@
 package androidx.appsearch.annotation;
 
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.AppSearchSession;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -217,4 +218,16 @@ public @interface Document {
      * <p>If not specified, it will be automatically set to the simple name of the annotated class.
      */
     String name() default "";
+
+    /**
+     * The version number of this type.
+     *
+     * <p>The {@link AppSearchSession} database can only ever hold documents for one version
+     * of a {@link AppSearchSchema} type at a time.
+     *
+     * <p>The version must be nonnegative. If not set, defaults to 0.
+     *
+     * @see AppSearchSchema.Builder#setVersion
+     */
+    int version() default 0;
 }

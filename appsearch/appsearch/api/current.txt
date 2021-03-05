@@ -3,6 +3,7 @@ package androidx.appsearch.annotation {
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface Document {
     method public abstract String name() default "";
+    method public abstract int version() default 0;
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface Document.CreationTimestampMillis {
