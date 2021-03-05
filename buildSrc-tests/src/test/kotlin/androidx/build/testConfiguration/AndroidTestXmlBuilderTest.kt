@@ -162,7 +162,7 @@ private val goldenDefaultConfig = """
     See the License for the specific language governing permissions
     and limitations under the License.-->
     <configuration description="Runs tests for the module">
-    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.ShippingApiLevelModuleController">
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MinApiLevelModuleController">
     <option name="min-api-level" value="15" />
     </object>
     <option name="test-suite-tag" value="placeholder_tag" />
@@ -193,7 +193,7 @@ private val goldenMediaDefaultConfig = """
     See the License for the specific language governing permissions
     and limitations under the License.-->
     <configuration description="Runs tests for the module">
-    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.ShippingApiLevelModuleController">
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MinApiLevelModuleController">
     <option name="min-api-level" value="15" />
     </object>
     <option name="test-suite-tag" value="placeholder_tag" />
