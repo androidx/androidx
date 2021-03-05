@@ -34,7 +34,7 @@ class SchemaDifferTest {
             fromSchemaBundle = from.database,
             toSchemaBundle = toColumnAddedWithColumnInfoDefaultValue.database
         ).diffSchemas()
-        assertThat(schemaDiffResult.added[0].fieldBundle.columnName).isEqualTo("artistId")
+        assertThat(schemaDiffResult.addedColumn[0].fieldBundle.columnName).isEqualTo("artistId")
     }
 
     @Test
@@ -50,6 +50,16 @@ class SchemaDifferTest {
                 ProcessorErrors.newNotNullColumnMustHaveDefaultValue("artistId")
             )
         }
+    }
+
+    @Test
+    fun testTableAddedWithColumnInfoDefaultValue() {
+        val schemaDiffResult = SchemaDiffer(
+            fromSchemaBundle = from.database,
+            toSchemaBundle = toTableAddedWithColumnInfoDefaultValue.database
+        ).diffSchemas()
+        assertThat(schemaDiffResult.addedTable[0].entityBundle.tableName).isEqualTo("Artist")
+        assertThat(schemaDiffResult.addedTable[1].entityBundle.tableName).isEqualTo("Album")
     }
 
     @Test
@@ -204,7 +214,7 @@ class SchemaDifferTest {
      * The length column is removed from the first version. No other changes made.
      *
      */
-    val toColumnRemoved = SchemaBundle(
+    private val toColumnRemoved = SchemaBundle(
         2,
         DatabaseBundle(
             2,
@@ -248,7 +258,7 @@ class SchemaDifferTest {
      * Room will put null for that default value in the exported schema. In this case we
      * can't migrate.
      */
-    val toColumnAddedWithNoDefaultValue = SchemaBundle(
+    private val toColumnAddedWithNoDefaultValue = SchemaBundle(
         2,
         DatabaseBundle(
             2,
@@ -307,7 +317,7 @@ class SchemaDifferTest {
      */
     // TODO: We currently do not support column renames as we can't detect rename or deletion
     //  yet.
-    val toColumnRenamed = SchemaBundle(
+    private val toColumnRenamed = SchemaBundle(
         2,
         DatabaseBundle(
             2,
@@ -399,6 +409,149 @@ class SchemaDifferTest {
                     ),
                     mutableListOf(),
                     mutableListOf()
+                )
+            ),
+            mutableListOf(),
+            mutableListOf()
+        )
+    )
+
+    private val toTableAddedWithColumnInfoDefaultValue = SchemaBundle(
+        1,
+        DatabaseBundle(
+            1,
+            "",
+            mutableListOf(
+                EntityBundle(
+                    "Song",
+                    "CREATE TABLE IF NOT EXISTS `Song` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
+                ),
+                EntityBundle(
+                    "Artist",
+                    "CREATE TABLE IF NOT EXISTS `Artist` (`artistId` INTEGER NOT NULL, `name` " +
+                        "TEXT NOT NULL, PRIMARY KEY(`artistId`))",
+                    listOf(
+                        FieldBundle(
+                            "artistId",
+                            "artistId",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(true, listOf("artistId")),
+                    listOf(),
+                    listOf()
+                ),
+                EntityBundle(
+                    "Album",
+                    "CREATE TABLE IF NOT EXISTS `Album` (`albumId` INTEGER NOT NULL, `name` TEXT " +
+                        "NOT NULL, PRIMARY KEY(`albumId`))",
+                    listOf(
+                        FieldBundle(
+                            "albumId",
+                            "albumId",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(true, listOf("albumId")),
+                    listOf(),
+                    listOf()
+                )
+            ),
+            mutableListOf(),
+            mutableListOf()
+        )
+    )
+
+    val toTableAddedWithNoDefaultValue = SchemaBundle(
+        1,
+        DatabaseBundle(
+            1,
+            "",
+            mutableListOf(
+                EntityBundle(
+                    "Song",
+                    "CREATE TABLE IF NOT EXISTS `Song` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
+                ),
+                EntityBundle(
+                    "Album",
+                    "CREATE TABLE IF NOT EXISTS `Album` (`id` INTEGER NOT NULL, `name` TEXT NOT " +
+                        "NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "albumId",
+                            "albumId",
+                            "INTEGER",
+                            true,
+                            null
+                        )
+                    ),
+                    PrimaryKeyBundle(true, listOf("id")),
+                    listOf(),
+                    listOf()
                 )
             ),
             mutableListOf(),

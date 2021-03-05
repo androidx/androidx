@@ -10,14 +10,16 @@ import javax.annotation.processing.Generated;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
-class ValidAutoMigrationWithoutDefault_Impl extends Migration implements AutoMigrationCallback {
-    public ValidAutoMigrationWithoutDefault_Impl() {
+class ValidAutoMigrationWithNewTableAdded_Impl extends Migration implements AutoMigrationCallback {
+    public ValidAutoMigrationWithNewTableAdded_Impl() {
         super(1, 2);
     }
 
     @Override
     public void migrate(@NonNull SupportSQLiteDatabase database) {
-        database.execSQL("ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL");
+        database.execSQL("CREATE TABLE IF NOT EXISTS `Artist` (`artistId` INTEGER NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`artistId`))");
+        database.execSQL("CREATE TABLE IF NOT EXISTS `Album` (`albumId` INTEGER NOT NULL, PRIMARY KEY(`albumId`))");
+        database.execSQL("ALTER TABLE `Song` ADD COLUMN `songId` INTEGER DEFAULT NULL");
         onPostMigrate(database);
     }
 }
