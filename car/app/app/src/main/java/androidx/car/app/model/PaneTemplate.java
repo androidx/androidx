@@ -91,13 +91,13 @@ public final class PaneTemplate implements Template {
     }
 
     /**
-     * Returns the {@link Pane} to display in the template or {@code null} if not set.
+     * Returns the {@link Pane} to display in the template.
      *
      * @see Builder#Builder(Pane)
      */
-    @Nullable
+    @NonNull
     public Pane getPane() {
-        return mPane;
+        return requireNonNull(mPane);
     }
 
     @NonNull
@@ -160,8 +160,7 @@ public final class PaneTemplate implements Template {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code title} is {@code null}
-         *
-         * @see CarText for details on text handling and span support.
+         * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {

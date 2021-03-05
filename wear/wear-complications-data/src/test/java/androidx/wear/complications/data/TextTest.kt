@@ -37,7 +37,7 @@ private typealias WireTimeFormatBuilder =
 public class AsWireComplicationTextTest {
     @Test
     public fun plainText() {
-        val text = ComplicationText.plain("abc")
+        val text = PlainComplicationText.Builder("abc").build()
         ParcelableSubject.assertThat(text.asWireComplicationText())
             .hasSameSerializationAs(WireComplicationText.plainText("abc"))
         ParcelableSubject.assertThat(text.asWireComplicationText())
@@ -46,7 +46,7 @@ public class AsWireComplicationTextTest {
 
     @Test
     public fun timeDifferenceText() {
-        val text = ComplicationText.timeDifferenceBuilder(
+        val text = TimeDifferenceComplicationText.Builder(
             TimeDifferenceStyle.STOPWATCH,
             TimeReference.starting(10000L)
         )
@@ -69,7 +69,7 @@ public class AsWireComplicationTextTest {
 
     @Test
     public fun timeFormatText() {
-        val text = ComplicationText.timeFormatBuilder("h:m")
+        val text = TimeFormatComplicationText.Builder("h:m")
             .setText("^1 in London")
             .setStyle(TimeFormatStyle.UPPER_CASE)
             .setTimeZone(TimeZone.getTimeZone("Europe/London"))
@@ -88,7 +88,7 @@ public class AsWireComplicationTextTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
-public class FromWireComplicationText {
+public class FromWireComplicationTextTest {
     @Test
     public fun plainText() {
         val wireText = WireComplicationText.plainText("abc")

@@ -32,13 +32,14 @@ public object LocalViewModelStoreOwner {
         compositionLocalOf<ViewModelStoreOwner?> { null }
 
     /**
-     * Returns current composition local value for the owner.
+     * Returns current composition local value for the owner or `null` if one has not
+     * been provided nor is one available via [ViewTreeViewModelStoreOwner.get] on the
+     * current [LocalView].
      */
-    public val current: ViewModelStoreOwner
+    public val current: ViewModelStoreOwner?
         @Composable
         get() = LocalViewModelStoreOwner.current
             ?: ViewTreeViewModelStoreOwner.get(LocalView.current)
-            ?: error("No ViewModelStoreOwner provided")
 
     /**
      * Associates a [LocalViewModelStoreOwner] key to a value in a call to

@@ -82,7 +82,12 @@ import java.util.concurrent.Executor;
  * <p>Because the Camera is a limited resource and consumes a high amount of power, CameraView must
  * be opened/closed. CameraView will handle opening/closing automatically through use of a {@link
  * LifecycleOwner}. Use {@link #bindToLifecycle(LifecycleOwner)} to start the camera.
+ *
+ * @deprecated Use {@link LifecycleCameraController}. See
+ * <a href="https://medium.com/androiddevelopers/camerax-learn-how-to-use-cameracontroller
+ * -e3ed10fffecf">migration guide</a>.
  */
+@Deprecated
 public final class CameraView extends FrameLayout {
     static final String TAG = CameraView.class.getSimpleName();
 
@@ -487,7 +492,7 @@ public final class CameraView extends FrameLayout {
     /**
      * Takes a video and calls the OnVideoSavedCallback when done.
      *
-     * @param fd     The destination {@link ParcelFileDescriptor}.
+     * @param fd       The destination {@link ParcelFileDescriptor}.
      * @param executor The executor in which the callback methods will be run.
      * @param callback Callback which will receive success or failure.
      */

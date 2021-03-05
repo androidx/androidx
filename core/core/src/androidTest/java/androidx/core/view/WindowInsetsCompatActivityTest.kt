@@ -291,6 +291,45 @@ public class WindowInsetsCompatActivityTest(
         }
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public fun rootInsets_no_ime() {
+        scenario.onActivity { activity ->
+            WindowCompat.setDecorFitsSystemWindows(activity.window, false)
+        }
+        val container: View = scenario.withActivity { findViewById(R.id.container) }
+        scenario.onActivity { activity ->
+            WindowCompat.getInsetsController(activity.window, container)!!.show(
+                Type.systemBars()
+            )
+        }
+
+        // Get the current insets and check that the system bars insets are not empty
+        val navigationBar = ViewCompat.getRootWindowInsets(container)
+            ?.getInsets(Type.navigationBars())!!
+        assertNotEquals(
+            "The root window insets for NavigationBars not be empty",
+            Insets.NONE, navigationBar
+        )
+
+        val statusBar = ViewCompat.getRootWindowInsets(container)
+            ?.getInsets(Type.statusBars())!!
+        assertNotEquals(
+            "The root window insets for StatusBar not be empty", Insets.NONE, statusBar
+        )
+
+        // Check the same thing but for when insets are dispatched
+        val insets = container.requestAndAwaitInsets()
+        assertNotEquals(
+            "The dispatched insets for NavigationBars insets should not be empty",
+            Insets.NONE, insets.getInsets(Type.navigationBars())
+        )
+        assertNotEquals(
+            "The dispatched insets for StatusBar insets should not be empty",
+            Insets.NONE, insets.getInsets(Type.statusBars())
+        )
+    }
+
     private fun assumeNotCuttlefish() {
         // TODO: remove this if b/159103848 is resolved
         assumeFalse(

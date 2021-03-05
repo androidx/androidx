@@ -66,13 +66,21 @@ internal class PageFetcher<Key : Any, Value : Any>(
                     pagingSource = generateNewPagingSource(previousPagingSource = pagingSource)
                 }
 
-                var previousPagingState = previousGeneration?.snapshot?.refreshKeyInfo()
+                var previousPagingState = previousGeneration?.snapshot?.currentPagingState()
+
+                // If cached PagingState had pages loaded, but previous generation didn't, use
+                // the cached PagingState to handle cases where invalidation happens too quickly,
+                // so that getRefreshKey and remote refresh at least have some data to work with.
+                if (previousPagingState?.pages.isNullOrEmpty() &&
+                    previousGeneration?.state?.pages?.isNotEmpty() == true
+                ) {
+                    previousPagingState = previousGeneration.state
+                }
+
                 // If previous generation was invalidated before anchorPosition was established,
                 // re-use last PagingState that successfully loaded pages and has an anchorPosition.
                 // This prevents rapid invalidation from deleting the anchorPosition if the
-                // previous generation didn't have time to load before getting invalidated. We
-                // check for anchorPosition before overriding to prevent empty PagingState from
-                // overriding a PagingState with pages loaded, but no anchorPosition.
+                // previous generation didn't have time to load before getting invalidated.
                 if (previousPagingState?.anchorPosition == null &&
                     previousGeneration?.state?.anchorPosition != null
                 ) {
@@ -94,7 +102,8 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         // initialization or PagingSource invalidation.
                         triggerRemoteRefresh = triggerRemoteRefresh,
                         remoteMediatorConnection = remoteMediatorAccessor,
-                        invalidate = this@PageFetcher::refresh
+                        invalidate = this@PageFetcher::refresh,
+                        previousPagingState = previousPagingState,
                     ),
                     state = previousPagingState,
                 )

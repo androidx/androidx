@@ -260,7 +260,6 @@ public final class ItemList {
          * radio button group, while others may highlight the selected item's background.
          *
          * @throws NullPointerException if {@code onSelectedListener} is {@code null}
-         *
          * @see #setSelectedIndex(int)
          */
         @NonNull

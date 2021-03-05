@@ -20,7 +20,13 @@ import androidx.benchmark.Stats
 import java.util.Collections
 import kotlin.math.max
 
-internal fun ideSummaryString(benchmarkName: String, statsList: List<Stats>): String {
+internal fun ideSummaryString(
+    warningLines: String,
+    benchmarkName: String,
+    statsList: List<Stats>
+): String {
+    require(statsList.isNotEmpty()) { "Require non-empty list of stats." }
+
     val maxLabelLength = Collections.max(statsList.map { it.name.length })
 
     // max string length of any printed min/median/max is the largest max value seen. used to pad.
@@ -29,7 +35,7 @@ internal fun ideSummaryString(benchmarkName: String, statsList: List<Stats>): St
         .reduce { acc, maxValue -> max(acc, maxValue) }
         .toString().length
 
-    return "$benchmarkName\n" + statsList.joinToString("\n") {
+    return warningLines + "$benchmarkName\n" + statsList.joinToString("\n") {
         val displayName = it.name.padStart(maxLabelLength)
         val displayMin = it.min.toString().padStart(maxValueLength)
         val displayMedian = it.median.toString().padStart(maxValueLength)

@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.map
  * Mode for configuring when terminal separators (header and footer) would be displayed by the
  * [insertSeparators], [insertHeaderItem] or [insertFooterItem] operators on [PagingData].
  */
-enum class TerminalSeparatorType {
+public enum class TerminalSeparatorType {
     /**
      * Show terminal separators (header and footer) when both [PagingSource] and [RemoteMediator]
      * reaches the end of pagination.

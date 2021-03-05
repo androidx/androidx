@@ -21,7 +21,7 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement;
+import androidx.wear.tiles.builders.LayoutElementBuilders.Layout;
 import androidx.wear.tiles.proto.TimelineProto;
 
 /**
@@ -37,7 +37,7 @@ public final class TimelineBuilders {
     public static final class TimeInterval {
         private final TimelineProto.TimeInterval mImpl;
 
-        TimeInterval(TimelineProto.TimeInterval impl) {
+        private TimeInterval(TimelineProto.TimeInterval impl) {
             this.mImpl = impl;
         }
 
@@ -47,12 +47,15 @@ public final class TimelineBuilders {
             return new Builder();
         }
 
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static TimeInterval fromProto(@NonNull TimelineProto.TimeInterval proto) {
+            return new TimeInterval(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TimelineProto.TimeInterval toProto() {
             return mImpl;
@@ -84,7 +87,7 @@ public final class TimelineBuilders {
             /** Builds an instance from accumulated values. */
             @NonNull
             public TimeInterval build() {
-                return new TimeInterval(mImpl.build());
+                return TimeInterval.fromProto(mImpl.build());
             }
         }
     }
@@ -93,7 +96,7 @@ public final class TimelineBuilders {
     public static final class TimelineEntry {
         private final TimelineProto.TimelineEntry mImpl;
 
-        TimelineEntry(TimelineProto.TimelineEntry impl) {
+        private TimelineEntry(TimelineProto.TimelineEntry impl) {
             this.mImpl = impl;
         }
 
@@ -103,12 +106,15 @@ public final class TimelineBuilders {
             return new Builder();
         }
 
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static TimelineEntry fromProto(@NonNull TimelineProto.TimelineEntry proto) {
+            return new TimelineEntry(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TimelineProto.TimelineEntry toProto() {
             return mImpl;
@@ -120,22 +126,6 @@ public final class TimelineBuilders {
                     TimelineProto.TimelineEntry.newBuilder();
 
             Builder() {}
-
-            /** Sets the contents of this timeline entry. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setContent(@NonNull LayoutElement content) {
-                mImpl.setContent(content.toLayoutElementProto());
-                return this;
-            }
-
-            /** Sets the contents of this timeline entry. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setContent(@NonNull LayoutElement.Builder contentBuilder) {
-                mImpl.setContent(contentBuilder.build().toLayoutElementProto());
-                return this;
-            }
 
             /** Sets the validity period for this timeline entry. */
             @SuppressLint("MissingGetterMatchingBuilder")
@@ -153,10 +143,26 @@ public final class TimelineBuilders {
                 return this;
             }
 
+            /** Sets the contents of this timeline entry. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setLayout(@NonNull Layout layout) {
+                mImpl.setLayout(layout.toProto());
+                return this;
+            }
+
+            /** Sets the contents of this timeline entry. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setLayout(@NonNull Layout.Builder layoutBuilder) {
+                mImpl.setLayout(layoutBuilder.build().toProto());
+                return this;
+            }
+
             /** Builds an instance from accumulated values. */
             @NonNull
             public TimelineEntry build() {
-                return new TimelineEntry(mImpl.build());
+                return TimelineEntry.fromProto(mImpl.build());
             }
         }
     }
@@ -188,12 +194,15 @@ public final class TimelineBuilders {
             return new Builder();
         }
 
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Timeline fromProto(@NonNull TimelineProto.Timeline proto) {
+            return new Timeline(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TimelineProto.Timeline toProto() {
             return mImpl;
@@ -225,7 +234,7 @@ public final class TimelineBuilders {
             /** Builds an instance from accumulated values. */
             @NonNull
             public Timeline build() {
-                return new Timeline(mImpl.build());
+                return Timeline.fromProto(mImpl.build());
             }
         }
     }

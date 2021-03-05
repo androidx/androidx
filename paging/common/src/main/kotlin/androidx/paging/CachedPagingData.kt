@@ -75,9 +75,9 @@ private class MulticastedPagingData<T : Any>(
  * @param scope The coroutine scope where this page cache will be kept alive.
  */
 @CheckResult
-fun <T : Any> Flow<PagingData<T>>.cachedIn(
+public fun <T : Any> Flow<PagingData<T>>.cachedIn(
     scope: CoroutineScope
-) = cachedIn(scope, null)
+): Flow<PagingData<T>> = cachedIn(scope, null)
 
 internal fun <T : Any> Flow<PagingData<T>>.cachedIn(
     scope: CoroutineScope,

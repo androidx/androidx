@@ -587,3 +587,11 @@ Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/b
 Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyPairGeneratorSpi\$X[0-9]+\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
 Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/org\/bouncycastle\/jcajce\/provider\/asymmetric\/edec\/KeyPairGeneratorSpi\$XDH\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
 Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/bcprov\-jdk[0-9]+on\/[0-9]+\.[0-9]+\/bcprov\-jdk[0-9]+on\-[0-9]+\.[0-9]+\.jar\:META\-INF\/versions\/[0-9]+\/module\-info\.class\: broken class file\? \(This feature requires ASM[0-9]+\)
+# > Task :compose:foundation:foundation-benchmark:processReleaseAndroidTestManifest
+\$OUT_DIR\/androidx\/compose\/foundation\/foundation\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
+# > Task :compose:material:material-benchmark:processReleaseAndroidTestManifest
+\$OUT_DIR\/androidx\/compose\/material\/material\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
+# > Task :compose:foundation:foundation-layout:foundation-layout-benchmark:processReleaseAndroidTestManifest
+\$OUT_DIR\/androidx\/compose\/foundation\/foundation\-layout\/foundation\-layout\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
+# > Task :compose:ui:ui-text:ui-text-benchmark:processReleaseAndroidTestManifest
+\$OUT_DIR\/androidx\/compose\/ui\/ui\-text\/ui\-text\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:

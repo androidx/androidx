@@ -288,6 +288,8 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
      *
      * @param adapter    The adapter which is a sub adapter of this ConcatAdapter or itself.
      * @param viewHolder The view holder whose local position in the given adapter will be returned.
+     * @param localPosition The position of the given {@link ViewHolder} in this {@link Adapter}.
+     *
      * @return The local position of the given {@link ViewHolder} in the given {@link Adapter} or
      * {@link RecyclerView#NO_POSITION} if the {@link ViewHolder} is not bound to an item or the
      * given {@link Adapter} is not part of this ConcatAdapter.
@@ -296,8 +298,8 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
     public int findRelativeAdapterPositionIn(
             @NonNull Adapter<? extends ViewHolder> adapter,
             @NonNull ViewHolder viewHolder,
-            int globalPosition) {
-        return mController.getLocalAdapterPosition(adapter, viewHolder, globalPosition);
+            int localPosition) {
+        return mController.getLocalAdapterPosition(adapter, viewHolder, localPosition);
     }
 
     /**

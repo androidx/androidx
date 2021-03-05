@@ -2330,14 +2330,13 @@ package androidx.core.view {
   }
 
   public final class DisplayCompat {
-    method public static androidx.core.view.DisplayCompat.ModeCompat getMode(android.content.Context, android.view.Display);
     method public static androidx.core.view.DisplayCompat.ModeCompat![] getSupportedModes(android.content.Context, android.view.Display);
   }
 
   public static final class DisplayCompat.ModeCompat {
     method public int getPhysicalHeight();
     method public int getPhysicalWidth();
-    method @Deprecated public boolean isNative();
+    method public boolean isNative();
     method @RequiresApi(android.os.Build.VERSION_CODES.M) public android.view.Display.Mode? toMode();
   }
 

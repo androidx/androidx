@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.util.RecordingXMessager
@@ -22,6 +21,7 @@ import androidx.room.compiler.processing.util.XTestInvocation
 /**
  * Common interface for SyntheticProcessors that we create for testing.
  */
+@ExperimentalProcessingApi
 internal interface SyntheticProcessor {
     /**
      * List of invocations that was sent to the test code.
@@ -54,6 +54,7 @@ internal interface SyntheticProcessor {
  * Helper class to implement [SyntheticProcessor] processor that handles the communication with
  * the testing infrastructure.
  */
+@ExperimentalProcessingApi
 internal class SyntheticProcessorImpl(
     handlers: List<(XTestInvocation) -> Unit>
 ) : SyntheticProcessor {

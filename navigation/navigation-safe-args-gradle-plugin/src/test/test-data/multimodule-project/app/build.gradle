@@ -15,8 +15,8 @@
  */
 
 plugins {
-    id('com.android.dynamic-feature')
-    id('androidx.navigation.safeargs')
+    id("com.android.dynamic-feature")
+    id("androidx.navigation.safeargs")
 }
 
 android {
@@ -45,7 +45,7 @@ android {
 }
 
 dependencies {
-    implementation project(':feature')
-    implementation project(':base')
-    implementation "$navigationCommonDep"
+    implementation(project(":feature"))
+    implementation(project(":base"))
+    implementation("$navigationCommonDep")
 }

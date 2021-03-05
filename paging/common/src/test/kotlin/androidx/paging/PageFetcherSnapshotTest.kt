@@ -29,6 +29,7 @@ import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.RemoteMediatorMock.LoadEvent
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
@@ -62,7 +63,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -1870,14 +1870,7 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
-    fun refreshKeyInfo_nullHint() = testScope.runBlockingTest {
-        val pagingSource = pagingSourceFactory()
-        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
-        assertNull(pager.refreshKeyInfo())
-    }
-
-    @Test
-    fun refreshKeyInfo_pagesEmpty() = testScope.runBlockingTest {
+    fun currentPagingState_pagesEmptyWithHint() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
             val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
@@ -1891,12 +1884,53 @@ class PageFetcherSnapshotTest {
                     originalPageOffsetLast = 0
                 )
             )
-            assertNull(pager.refreshKeyInfo())
+            assertThat(pager.currentPagingState()).isEqualTo(
+                PagingState<Int, Int>(
+                    pages = listOf(),
+                    anchorPosition = 0,
+                    config = config,
+                    leadingPlaceholderCount = 0
+                )
+            )
         }
     }
 
+    /**
+     * Verify we re-use previous PagingState for remote refresh if there are no pages loaded.
+     */
     @Test
-    fun refreshKeyInfo_loadedIndex() = testScope.runBlockingTest {
+    fun currentPagingState_ignoredOnEmptyPages() = testScope.runBlockingTest {
+        val remoteMediator = RemoteMediatorMock()
+        val pagingSource = pagingSourceFactory()
+        val pager = PageFetcherSnapshot(
+            initialKey = 50,
+            pagingSource = pagingSource,
+            config = config,
+            retryFlow = retryBus.flow,
+            remoteMediatorConnection = RemoteMediatorAccessor(testScope, remoteMediator)
+        )
+        pager.accessHint(
+            ViewportHint.Access(
+                pageOffset = 0,
+                indexInPage = 0,
+                presentedItemsBefore = 0,
+                presentedItemsAfter = 1,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0
+            )
+        )
+        assertThat(pager.currentPagingState()).isEqualTo(
+            PagingState<Int, Int>(
+                pages = listOf(),
+                anchorPosition = 0,
+                config = config,
+                leadingPlaceholderCount = 0
+            )
+        )
+    }
+
+    @Test
+    fun currentPagingState_loadedIndex() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
             val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
@@ -1915,17 +1949,17 @@ class PageFetcherSnapshotTest {
                     )
                 )
 
-                val refreshKeyInfo = pager.refreshKeyInfo()
-                assertNotNull(refreshKeyInfo)
-                assertEquals(51, refreshKeyInfo.anchorPosition)
+                val pagingState = pager.currentPagingState()
+                assertNotNull(pagingState)
+                assertEquals(51, pagingState.anchorPosition)
 
                 // Assert from anchorPosition in placeholdersBefore
-                assertEquals(50, refreshKeyInfo.closestItemToPosition(10))
+                assertEquals(50, pagingState.closestItemToPosition(10))
                 // Assert from anchorPosition in loaded indices
-                assertEquals(50, refreshKeyInfo.closestItemToPosition(50))
-                assertEquals(51, refreshKeyInfo.closestItemToPosition(51))
+                assertEquals(50, pagingState.closestItemToPosition(50))
+                assertEquals(51, pagingState.closestItemToPosition(51))
                 // Assert from anchorPosition in placeholdersAfter
-                assertEquals(51, refreshKeyInfo.closestItemToPosition(90))
+                assertEquals(51, pagingState.closestItemToPosition(90))
 
                 val loadedPage = Page(
                     data = listOf(50, 51),
@@ -1934,20 +1968,20 @@ class PageFetcherSnapshotTest {
                     itemsBefore = 50,
                     itemsAfter = 48
                 )
-                assertEquals(listOf(loadedPage), refreshKeyInfo.pages)
+                assertEquals(listOf(loadedPage), pagingState.pages)
                 // Assert from anchorPosition in placeholdersBefore
-                assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(10))
+                assertEquals(loadedPage, pagingState.closestPageToPosition(10))
                 // Assert from anchorPosition in loaded indices
-                assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(50))
-                assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(51))
+                assertEquals(loadedPage, pagingState.closestPageToPosition(50))
+                assertEquals(loadedPage, pagingState.closestPageToPosition(51))
                 // Assert from anchorPosition in placeholdersAfter
-                assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(90))
+                assertEquals(loadedPage, pagingState.closestPageToPosition(90))
             }
         }
     }
 
     @Test
-    fun refreshKeyInfo_placeholdersBefore() = testScope.runBlockingTest {
+    fun currentPagingState_placeholdersBefore() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
             val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
@@ -1966,9 +2000,9 @@ class PageFetcherSnapshotTest {
                     )
                 )
 
-                val refreshKeyInfo = pager.refreshKeyInfo()
-                assertNotNull(refreshKeyInfo)
-                assertEquals(10, refreshKeyInfo.anchorPosition)
+                val pagingState = pager.currentPagingState()
+                assertNotNull(pagingState)
+                assertEquals(10, pagingState.anchorPosition)
                 assertEquals(
                     listOf(
                         Page(
@@ -1979,16 +2013,16 @@ class PageFetcherSnapshotTest {
                             itemsAfter = 48
                         )
                     ),
-                    refreshKeyInfo.pages
+                    pagingState.pages
                 )
 
                 // Assert from anchorPosition in placeholdersBefore
-                assertEquals(50, refreshKeyInfo.closestItemToPosition(10))
+                assertEquals(50, pagingState.closestItemToPosition(10))
                 // Assert from anchorPosition in loaded indices
-                assertEquals(50, refreshKeyInfo.closestItemToPosition(50))
-                assertEquals(51, refreshKeyInfo.closestItemToPosition(51))
+                assertEquals(50, pagingState.closestItemToPosition(50))
+                assertEquals(51, pagingState.closestItemToPosition(51))
                 // Assert from anchorPosition in placeholdersAfter
-                assertEquals(51, refreshKeyInfo.closestItemToPosition(90))
+                assertEquals(51, pagingState.closestItemToPosition(90))
 
                 val loadedPage = Page(
                     data = listOf(50, 51),
@@ -1998,18 +2032,18 @@ class PageFetcherSnapshotTest {
                     itemsAfter = 48
                 )
                 // Assert from anchorPosition in placeholdersBefore
-                assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(10))
+                assertEquals(loadedPage, pagingState.closestPageToPosition(10))
                 // Assert from anchorPosition in loaded indices
-                assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(50))
-                assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(51))
+                assertEquals(loadedPage, pagingState.closestPageToPosition(50))
+                assertEquals(loadedPage, pagingState.closestPageToPosition(51))
                 // Assert from anchorPosition in placeholdersAfter
-                assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(90))
+                assertEquals(loadedPage, pagingState.closestPageToPosition(90))
             }
         }
     }
 
     @Test
-    fun pageFetcherSnapshot_currentPagingState() = testScope.runBlockingTest {
+    fun currentPagingState_noHint() = testScope.runBlockingTest {
         val pager = PageFetcherSnapshot(
             initialKey = 50,
             pagingSource = TestPagingSource(loadDelay = 100),
@@ -2017,7 +2051,14 @@ class PageFetcherSnapshotTest {
             retryFlow = retryBus.flow
         )
 
-        assertEquals(null, pager.refreshKeyInfo())
+        assertThat(pager.currentPagingState()).isEqualTo(
+            PagingState<Int, Int>(
+                pages = listOf(),
+                anchorPosition = null,
+                config = config,
+                leadingPlaceholderCount = 0,
+            )
+        )
     }
 
     @Test
@@ -2235,6 +2276,71 @@ class PageFetcherSnapshotTest {
         assertEquals(1, remoteMediator.loadEvents.size)
         assertEquals(APPEND, remoteMediator.loadEvents[0].loadType)
         assertNotNull(remoteMediator.loadEvents[0].state)
+    }
+
+    @Test
+    fun remoteMediator_remoteRefreshCachesPreviousPagingState() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
+        val remoteMediator = RemoteMediatorMock().apply {
+            initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+            loadCallback = { _, _ -> RemoteMediator.MediatorResult.Success(true) }
+        }
+
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 1,
+            maxSize = 5
+        )
+        val pager = PageFetcher(
+            initialKey = 0,
+            pagingSourceFactory = { TestPagingSource(items = listOf(0)) },
+            config = config,
+            remoteMediator = remoteMediator
+        )
+
+        val state = collectFetcherState(pager)
+
+        // Let the initial page load; loaded data should be [0]
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents).containsExactly(
+            LoadEvent<Int, Int>(
+                loadType = REFRESH,
+                state = PagingState<Int, Int>(
+                    pages = listOf(),
+                    anchorPosition = null,
+                    config = config,
+                    leadingPlaceholderCount = 0,
+                ),
+            )
+        )
+
+        // Explicit call to refresh, which should trigger remote refresh with cached PagingState.
+        pager.refresh()
+        advanceUntilIdle()
+
+        assertThat(remoteMediator.newLoadEvents).containsExactly(
+            LoadEvent<Int, Int>(
+                loadType = REFRESH,
+                state = PagingState<Int, Int>(
+                    pages = listOf(
+                        Page(
+                            data = listOf(0),
+                            prevKey = null,
+                            nextKey = null,
+                            itemsBefore = 0,
+                            itemsAfter = 0,
+                        ),
+                    ),
+                    anchorPosition = null,
+                    config = config,
+                    leadingPlaceholderCount = 0,
+                ),
+            )
+        )
+
+        state.job.cancel()
     }
 
     @Test
@@ -2963,10 +3069,12 @@ class PageFetcherSnapshotTest {
                 jumpThreshold = 10
             )
             var didJump = false
-            val pager = PageFetcherSnapshot(
+            val pager = PageFetcherSnapshot<Int, Int>(
                 initialKey = 50,
                 pagingSource = pagingSourceFactory(),
-                config = config, retryFlow = retryBus.flow
+                config = config,
+                retryFlow = retryBus.flow,
+                previousPagingState = null,
             ) {
                 didJump = true
             }

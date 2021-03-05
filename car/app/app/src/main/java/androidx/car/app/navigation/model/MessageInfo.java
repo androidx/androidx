@@ -126,8 +126,7 @@ public final class MessageInfo implements NavigationInfo {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code message} is {@code null}
-         *
-         * @see CarText for details on text handling and span support.
+         * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -143,8 +142,7 @@ public final class MessageInfo implements NavigationInfo {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code text} is {@code null}
-         *
-         * @see CarText for details on text handling and span support.
+         * @see CarText
          */
         @NonNull
         public Builder setText(@NonNull CharSequence text) {

@@ -83,5 +83,13 @@ MutableBareField: androidx.slice.widget.EventInfo#state:
     Bare field state must be marked final, or moved behind accessors if mutable
 
 
+NullableCollection: androidx.slice.SliceMetadata#getSliceActions():
+    Return type of method androidx.slice.SliceMetadata.getSliceActions() is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.slice.SliceMetadata#getSliceKeywords():
+    Return type of method androidx.slice.SliceMetadata.getSliceKeywords() is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.slice.widget.SliceView#getSliceActions():
+    Return type of method androidx.slice.widget.SliceView.getSliceActions() is a nullable collection (`java.util.List`); must be non-null
+
+
 PublicTypedef: androidx.slice.widget.SliceLiveData.OnErrorListener.ErrorType:
     Don't expose @IntDef: ErrorType must be hidden.

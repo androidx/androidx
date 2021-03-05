@@ -29,7 +29,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
     api("androidx.lifecycle:lifecycle-common:2.0.0")
     api(project(":camera:camera-core"))
-    implementation project(path: ':camera:camera-lifecycle')
+    implementation(project(path: ":camera:camera-lifecycle"))
     api("androidx.annotation:annotation:1.0.0")
     implementation(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.core:core:1.1.0")
@@ -44,7 +44,7 @@ dependencies {
     testImplementation(TRUTH)
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation project(":camera:camera-testing")
+    testImplementation(project(":camera:camera-testing"))
 
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(MOCKITO_CORE)

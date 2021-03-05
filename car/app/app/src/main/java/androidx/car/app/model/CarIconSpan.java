@@ -123,10 +123,8 @@ public final class CarIconSpan extends CarSpan {
      * @param alignment the alignment of the {@link CarIcon} relative to the text. This should be
      *                  one of {@link #ALIGN_BASELINE}, {@link #ALIGN_BOTTOM} or
      *                  {@link #ALIGN_CENTER}
-     *
      * @throws NullPointerException     if {@code icon} is {@code null}
      * @throws IllegalArgumentException if {@code alignment} is not a valid value
-     *
      * @see #ALIGN_BASELINE
      * @see #ALIGN_BOTTOM
      * @see #ALIGN_CENTER
@@ -151,11 +149,17 @@ public final class CarIconSpan extends CarSpan {
         mAlignment = ALIGN_BASELINE;
     }
 
-    @Nullable
+    /**
+     * Returns the {@link CarIcon} instance associated with this span.
+     */
+    @NonNull
     public CarIcon getIcon() {
-        return mIcon;
+        return requireNonNull(mIcon);
     }
 
+    /**
+     * Returns the alignment that should be used with this span.
+     */
     @Alignment
     public int getAlignment() {
         return mAlignment;

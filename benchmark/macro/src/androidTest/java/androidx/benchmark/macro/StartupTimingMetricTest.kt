@@ -67,8 +67,6 @@ fun measureStartup(packageName: String, measureBlock: () -> Unit): Map<String, L
     val wrapper = PerfettoCaptureWrapper()
     val metric = StartupTimingMetric()
     metric.configure(packageName)
-    wrapper.start()
-    measureBlock()
-    val tracePath = wrapper.stop(packageName, 1)!!
+    val tracePath = wrapper.record(packageName, 1, measureBlock)!!
     return metric.getMetrics(packageName, tracePath)
 }

@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Matrix;
@@ -2652,9 +2653,12 @@ public class ViewCompat {
             return Api30Impl.getWindowInsetsController(view);
         } else {
             Context context = view.getContext();
-            if (context instanceof Activity) {
-                Window window = ((Activity) context).getWindow();
-                return window != null ? WindowCompat.getInsetsController(window, view) : null;
+            while (context instanceof ContextWrapper) {
+                if (context instanceof Activity) {
+                    Window window = ((Activity) context).getWindow();
+                    return window != null ? WindowCompat.getInsetsController(window, view) : null;
+                }
+                context = ((ContextWrapper) context).getBaseContext();
             }
             return null;
         }
@@ -2785,6 +2789,10 @@ public class ViewCompat {
     @Nullable
     public static ContentInfoCompat performReceiveContent(@NonNull View view,
             @NonNull ContentInfoCompat payload) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "performReceiveContent: " + payload
+                    + ", view=" + view.getClass().getSimpleName() + "[" + view.getId() + "]");
+        }
         OnReceiveContentListener listener =
                 (OnReceiveContentListener) view.getTag(R.id.tag_on_receive_content_listener);
         if (listener != null) {

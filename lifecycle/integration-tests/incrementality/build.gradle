@@ -27,7 +27,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
     testImplementation(JUNIT)
     testImplementation(TRUTH)
-    testImplementation gradleTestKit()
+    testImplementation(gradleTestKit())
 }
 
 SdkResourceGenerator.generateForHostTest(project)

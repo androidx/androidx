@@ -30,9 +30,9 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.model.CarColor;
-import androidx.car.app.model.CarText;
 import androidx.car.app.serialization.Bundler;
 import androidx.car.app.serialization.BundlerException;
+import androidx.car.app.utils.CollectionUtils;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -153,6 +153,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     private PendingIntent mContentIntent;
     @Nullable
     private PendingIntent mDeleteIntent;
+    @Nullable
     private ArrayList<Action> mActions;
     private int mImportance;
     @Nullable
@@ -244,7 +245,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
             carExtensions.putParcelable(EXTRA_DELETE_INTENT, mDeleteIntent);
         }
 
-        if (!mActions.isEmpty()) {
+        if (mActions != null && !mActions.isEmpty()) {
             carExtensions.putParcelableArrayList(EXTRA_ACTIONS, mActions);
         }
 
@@ -346,7 +347,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
      */
     @NonNull
     public List<Action> getActions() {
-        return mActions;
+        return CollectionUtils.emptyIfNull(mActions);
     }
 
     /**
@@ -399,8 +400,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code contentTitle} is {@code null}
-         *
-         * @see CarText for details on text handling and span support.
          */
         @NonNull
         public Builder setContentTitle(@NonNull CharSequence contentTitle) {
@@ -418,10 +417,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *
          * @param contentText override for the notification's content text. If set to an empty
          *                    string, it will be treated as if there is no context text
-         *
          * @throws NullPointerException if {@code contentText} is {@code null}
-         *
-         * @see CarText for details on text handling and span support.
          */
         @NonNull
         public Builder setContentText(@NonNull CharSequence contentText) {
@@ -475,7 +471,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * {@link NotificationCompat.Builder#setContentIntent(PendingIntent)} for the car screen.
          *
          * @param contentIntent override for the notification's content intent.
-         *
          * @throws NullPointerException if {@code contentIntent} is {@code null}
          */
         @NonNull
@@ -495,7 +490,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * {@link NotificationCompat.Builder#setDeleteIntent(PendingIntent)} for the car screen.
          *
          * @param deleteIntent override for the notification's delete intent
-         *
          * @throws NullPointerException if {@code deleteIntent} is {@code null}
          */
         @NonNull
@@ -529,7 +523,6 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *               navigation notifications in the rail widget, this intent will be sent
          *               when the user taps on the action icon in the rail
          *               widget
-         *
          * @throws NullPointerException if {@code title} or {@code intent} are {@code null}
          */
         @SuppressWarnings("deprecation")

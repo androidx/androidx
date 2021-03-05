@@ -14,3 +14,4 @@
 
 # Prevent Parcelizer objects from being removed or renamed.
 -keep public class androidx.wear.watchface.**Parcelizer { *; }
+-keep public class androidx.wear.watchface.style.data.ComplicationOverlayWireFormat { *; }

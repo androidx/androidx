@@ -32,7 +32,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_7
     }
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 

@@ -29,22 +29,22 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(KOTLIN_STDLIB)
-    api projectOrArtifact(":activity:activity-compose")
-    api projectOrArtifact(":compose:runtime:runtime")
-    api projectOrArtifact(":compose:runtime:runtime-saveable")
-    api projectOrArtifact(":compose:ui:ui")
-    api projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose")
-    api "androidx.navigation:navigation-runtime-ktx:2.3.1"
+    api(projectOrArtifact(":activity:activity-compose"))
+    api(projectOrArtifact(":compose:runtime:runtime"))
+    api(projectOrArtifact(":compose:runtime:runtime-saveable"))
+    api(projectOrArtifact(":compose:ui:ui"))
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose"))
+    api("androidx.navigation:navigation-runtime-ktx:2.3.4")
 
-    androidTestImplementation projectOrArtifact(":compose:material:material")
-    androidTestImplementation 'androidx.navigation:navigation-testing:2.3.1'
-    androidTestImplementation projectOrArtifact(":internal-testutils-navigation"), {
-        exclude group: 'androidx.navigation', module: 'navigation-common-ktx'
-    }
-    androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
+    androidTestImplementation(projectOrArtifact(":compose:material:material"))
+    androidTestImplementation("androidx.navigation:navigation-testing:2.3.1")
+    androidTestImplementation(projectOrArtifact(":internal-testutils-navigation"), {
+        exclude group: "androidx.navigation", module: "navigation-common-ktx"
+    })
+    androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)

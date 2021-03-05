@@ -28,7 +28,7 @@ buildscript {
 
     repositories {
         maven {
-            url "$buildDir/localMaven/"
+            url("$buildDir/localMaven/")
         }
     }
     dependencies {
@@ -42,12 +42,12 @@ plugins {
     id("com.android.application")
 }
 
-apply plugin: 'androidx.navigation.safeargs'
+apply plugin: "androidx.navigation.safeargs"
 apply from: "${supportRootFolder}/buildSrc/repos.gradle"
 repos.addMavenRepositories(repositories)
 repositories {
     maven {
-        url "$buildDir/localMaven/"
+        url("$buildDir/localMaven/")
     }
 }
 

@@ -53,9 +53,10 @@ class TestPagingSource(
         val key = params.key ?: 0
 
         val isPrepend = params is LoadParams.Prepend
-        val start = if (isPrepend) key - params.loadSize + 1 else key
-        var end = if (isPrepend) key + 1 else key + params.loadSize
-        end = minOf(end, items.size)
+        val start = (if (isPrepend) key - params.loadSize + 1 else key)
+            .coerceAtLeast(0)
+        val end = (if (isPrepend) key + 1 else key + params.loadSize)
+            .coerceAtMost(items.size)
 
         // This delay allows tests running withing DelayController APIs to control the order of
         // execution of events.

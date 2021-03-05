@@ -24,10 +24,7 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -143,9 +140,35 @@ public final class CameraStateRegistry {
      *
      * <p>This is used to track the states of all cameras in order to determine how many cameras
      * are available to be opened.
+     *
+     * @param camera Registered camera whose state is being set
+     * @param state  New state of the registered camera
      */
     public void markCameraState(@NonNull Camera camera, @NonNull CameraInternal.State state) {
-        List<CameraRegistration> camerasToNotify = null;
+        markCameraState(camera, state, true);
+    }
+
+    /**
+     * Mark the state of a registered camera.
+     *
+     * <p>This is used to track the states of all cameras in order to determine how many cameras
+     * are available to be opened.
+     *
+     * <p>If a camera slot if found to be available for opening during the execution of this
+     * method, the caller will not be notified of it if {@code notifyImmediately} is set to
+     * {@code false}. This can be useful if a camera moves its state to
+     * {@link CameraInternal.State#PENDING_OPEN} but doesn't wish to be opened even if a camera
+     * slot is available for opening, for example after the camera has continuously failed to open.
+     *
+     * @param camera            Registered camera whose state is being set
+     * @param state             New state of the registered camera
+     * @param notifyImmediately {@code true} if the registered camera should be notified
+     *                          immediately if a new slot for opening is available, {@code false}
+     *                          otherwise.
+     */
+    public void markCameraState(@NonNull Camera camera, @NonNull CameraInternal.State state,
+            boolean notifyImmediately) {
+        Map<Camera, CameraRegistration> camerasToNotify = null;
         synchronized (mLock) {
             CameraInternal.State previousState = null;
             int previousAvailableCameras = mAvailableCameras;
@@ -162,22 +185,28 @@ public final class CameraStateRegistry {
 
             if (previousAvailableCameras < 1 && mAvailableCameras > 0) {
                 // Cameras are now available, notify ALL cameras in a PENDING_OPEN state.
-                camerasToNotify = new ArrayList<>();
+                camerasToNotify = new HashMap<>();
                 for (Map.Entry<Camera, CameraRegistration> entry : mCameraStates.entrySet()) {
                     if (entry.getValue().getState() == CameraInternal.State.PENDING_OPEN) {
-                        camerasToNotify.add(entry.getValue());
+                        camerasToNotify.put(entry.getKey(), entry.getValue());
                     }
                 }
             } else if (state == CameraInternal.State.PENDING_OPEN && mAvailableCameras > 0) {
                 // This camera entered a PENDING_OPEN state while there are available cameras,
                 // only notify the single camera.
-                camerasToNotify = Collections.singletonList(mCameraStates.get(camera));
+                camerasToNotify = new HashMap<>();
+                camerasToNotify.put(camera, mCameraStates.get(camera));
+            }
+
+            // Omit notifying this camera if `notifyImmediately` is false
+            if (camerasToNotify != null && !notifyImmediately) {
+                camerasToNotify.remove(camera);
             }
         }
 
         // Notify pending cameras unlocked.
         if (camerasToNotify != null) {
-            for (CameraRegistration registration : camerasToNotify) {
+            for (CameraRegistration registration : camerasToNotify.values()) {
                 registration.notifyListener();
             }
         }

@@ -2,6 +2,7 @@
 package androidx.wear.watchface {
 
   public interface CanvasComplication {
+    method public void clearIdAndData();
     method public androidx.wear.complications.data.IdAndComplicationData? getIdAndData();
     method public boolean isHighlighted();
     method @UiThread public void onAttach(androidx.wear.watchface.Complication complication);
@@ -14,6 +15,7 @@ package androidx.wear.watchface {
 
   public class CanvasComplicationDrawable implements androidx.wear.watchface.CanvasComplication {
     ctor public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable, androidx.wear.watchface.WatchState watchState);
+    method public void clearIdAndData();
     method public void drawOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, @ColorInt int color);
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
     method public androidx.wear.complications.data.IdAndComplicationData? getIdAndData();
@@ -44,6 +46,7 @@ package androidx.wear.watchface {
     method public boolean isActiveAt(long dateTimeMillis);
     method @UiThread public boolean isEnabled();
     method public boolean isFixedComplicationProvider();
+    method public boolean isInitiallyEnabled();
     method @UiThread public void render(android.graphics.Canvas canvas, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
     method @UiThread public void setComplicationBounds(androidx.wear.complications.ComplicationBounds value);
     method @UiThread public void setRenderer(androidx.wear.watchface.CanvasComplication value);
@@ -55,6 +58,7 @@ package androidx.wear.watchface {
     property @UiThread public final androidx.wear.complications.data.ComplicationType defaultProviderType;
     property @UiThread public final boolean enabled;
     property public final boolean fixedComplicationProvider;
+    property public final boolean initiallyEnabled;
     property @UiThread public final androidx.wear.watchface.CanvasComplication renderer;
     property @UiThread public final java.util.List<androidx.wear.complications.data.ComplicationType> supportedTypes;
     field public static final androidx.wear.watchface.Complication.Companion Companion;
@@ -96,7 +100,6 @@ package androidx.wear.watchface {
   }
 
   public static interface ComplicationsManager.TapCallback {
-    method public default void onComplicationDoubleTapped(int complicationId);
     method public default void onComplicationSingleTapped(int complicationId);
   }
 
@@ -147,6 +150,7 @@ package androidx.wear.watchface {
 
   public final class RenderParameters {
     ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Map<androidx.wear.watchface.style.Layer,? extends androidx.wear.watchface.LayerMode> layerParameters, Integer? selectedComplicationId, @ColorInt int outlineTint);
+    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Map<androidx.wear.watchface.style.Layer,? extends androidx.wear.watchface.LayerMode> layerParameters, Integer? selectedComplicationId);
     method public androidx.wear.watchface.DrawMode getDrawMode();
     method public java.util.Map<androidx.wear.watchface.style.Layer,androidx.wear.watchface.LayerMode> getLayerParameters();
     method public int getOutlineTint();
@@ -191,8 +195,8 @@ package androidx.wear.watchface {
   }
 
   public abstract static class Renderer.GlesRenderer extends androidx.wear.watchface.Renderer {
-    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis, int[] eglConfigAttribList, int[] eglSurfaceAttribList);
-    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis, int[] eglConfigAttribList);
+    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList);
+    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList);
     ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
     method @UiThread public void onGlContextCreated();
     method @UiThread public void onGlSurfaceCreated(int width, int height);
@@ -203,7 +207,7 @@ package androidx.wear.watchface {
   }
 
   public final class WatchFace {
-    ctor public WatchFace(int watchFaceType, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.Renderer renderer, androidx.wear.watchface.ComplicationsManager complicationsManager);
+    ctor public WatchFace(int watchFaceType, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.Renderer renderer, optional androidx.wear.watchface.ComplicationsManager complicationsManager);
     ctor public WatchFace(int watchFaceType, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.Renderer renderer);
     method public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle getLegacyWatchFaceStyle();
     method public Long? getOverridePreviewReferenceTimeMillis();
@@ -223,7 +227,7 @@ package androidx.wear.watchface {
   }
 
   public static final class WatchFace.LegacyWatchFaceOverlayStyle {
-    ctor public WatchFace.LegacyWatchFaceOverlayStyle(int viewProtectionMode, int statusBarGravity, boolean tapEventsAccepted, @ColorInt int accentColor);
+    ctor public WatchFace.LegacyWatchFaceOverlayStyle(int viewProtectionMode, int statusBarGravity, boolean tapEventsAccepted, optional @ColorInt int accentColor);
     ctor public WatchFace.LegacyWatchFaceOverlayStyle(int viewProtectionMode, int statusBarGravity, boolean tapEventsAccepted);
     method public int getAccentColor();
     method public int getStatusBarGravity();

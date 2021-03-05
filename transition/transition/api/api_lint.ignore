@@ -169,3 +169,11 @@ NoClone: androidx.transition.Transition#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
 NoClone: androidx.transition.TransitionSet#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
+
+
+NullableCollection: androidx.transition.Transition#getTargetNames():
+    Return type of method androidx.transition.Transition.getTargetNames() is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.transition.Transition#getTargetTypes():
+    Return type of method androidx.transition.Transition.getTargetTypes() is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.transition.Transition#getTransitionProperties():
+    Return type of method androidx.transition.Transition.getTransitionProperties() is a nullable collection (`java.lang.String[]`); must be non-null

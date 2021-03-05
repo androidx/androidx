@@ -30,8 +30,10 @@ import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -106,6 +108,45 @@ class DialogFragmentTest {
         assertWithMessage("Dialog should have called setContentView by onStart")
             .that(fragment.parentSetInStart)
             .isTrue()
+    }
+
+    @Test
+    fun testInflatedFragmentTagDialogFragmentShowsNow() {
+        val fragment = InflatedDialogFragment(false)
+
+        activityTestRule.runOnUiThread {
+            fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
+        }
+
+        assertWithMessage("Dialog was not being shown")
+            .that(fragment.dialog?.isShowing)
+            .isTrue()
+    }
+
+    @Test
+    fun testInflatedFragmentContainerViewDialogFragmentShowsNow() {
+        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val fragment = InflatedDialogFragment()
+
+            withActivity {
+                fragment.showNow(supportFragmentManager, "fragment1")
+            }
+
+            assertWithMessage("Dialog was not being shown")
+                .that(fragment.dialog?.isShowing)
+                .isTrue()
+
+            recreate()
+
+            val restoredFragment = withActivity {
+                val fm = supportFragmentManager
+                fm.findFragmentByTag("fragment1") as InflatedDialogFragment
+            }
+
+            assertWithMessage("Dialog was not being shown")
+                .that(restoredFragment.dialog?.isShowing)
+                .isTrue()
+        }
     }
 
     @UiThreadTest
@@ -407,6 +448,26 @@ class DialogFragmentTest {
                 restoreAfterSetContent = true
                 setContentCalled = false
             }
+        }
+    }
+
+    class InflatedDialogFragment(val useFragmentContainerView: Boolean = true) : DialogFragment() {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            val view = if (useFragmentContainerView) {
+                layoutInflater.inflate(
+                    R.layout.inflated_fragment_container_view_no_parent,
+                    null,
+                    false
+                )
+            } else {
+                layoutInflater.inflate(R.layout.inflated_fragment_tag, null, false)
+            }
+            return AlertDialog.Builder(context)
+                .setTitle("Test")
+                .setMessage("Message")
+                .setView(view)
+                .setPositiveButton("Button", null)
+                .create()
         }
     }
 }

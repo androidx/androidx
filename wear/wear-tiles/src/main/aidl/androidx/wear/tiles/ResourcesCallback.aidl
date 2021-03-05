@@ -25,6 +25,7 @@ import androidx.wear.tiles.ResourcesData;
   * by standard proto version compatibility in the underlying payload. Any significant changes to
   * this interface will be handled by instead adding new calls into TileProvider.
   *
+  *
   * @hide
   */
 interface ResourcesCallback {

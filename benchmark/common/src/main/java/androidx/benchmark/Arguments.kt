@@ -31,26 +31,31 @@ import java.lang.IllegalStateException
 @RestrictTo(RestrictTo.Scope.TESTS)
 public var argumentSource: Bundle? = null
 
-internal object Arguments {
-    val testOutputDir: File
-    val outputEnable: Boolean
-    val startupMode: Boolean
-    val dryRunMode: Boolean
-    val suppressedErrors: Set<String>
-    val profiler: Profiler?
-    val profilerSampleFrequency: Int
-    val profilerSampleDurationSeconds: Long
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public object Arguments {
+    // public properties are shared by micro + macro benchmarks
+    public val suppressedErrors: Set<String>
 
-    var error: String? = null
+    // internal properties are microbenchmark only
+    internal val outputEnable: Boolean
+    internal val startupMode: Boolean
+    internal val dryRunMode: Boolean
+    internal val profiler: Profiler?
+    internal val profilerSampleFrequency: Int
+    internal val profilerSampleDurationSeconds: Long
 
-    const val prefix = "androidx.benchmark."
+    internal var error: String? = null
 
-    private fun Bundle.getArgument(key: String, defaultValue: String? = null) =
+    private val testOutputDir: File
+
+    private const val prefix = "androidx.benchmark."
+
+    private fun Bundle.getBenchmarkArgument(key: String, defaultValue: String? = null) =
         getString(prefix + key, defaultValue)
 
     private fun Bundle.getProfiler(outputIsEnabled: Boolean): Profiler? {
         val argumentName = "profiling.mode"
-        val argumentValue = getArgument(argumentName, "")
+        val argumentValue = getBenchmarkArgument(argumentName, "")
         val profiler = Profiler.getByName(argumentValue)
         if (profiler == null && argumentValue.isNotEmpty()) {
             error = "Could not parse $prefix$argumentName=$argumentValue"
@@ -67,17 +72,17 @@ internal object Arguments {
     init {
         val arguments = argumentSource ?: InstrumentationRegistry.getArguments()
 
-        dryRunMode = arguments.getArgument("dryRunMode.enable")?.toBoolean() ?: false
+        dryRunMode = arguments.getBenchmarkArgument("dryRunMode.enable")?.toBoolean() ?: false
 
         startupMode = !dryRunMode &&
-            (arguments.getArgument("startupMode.enable")?.toBoolean() ?: false)
+            (arguments.getBenchmarkArgument("startupMode.enable")?.toBoolean() ?: false)
 
         outputEnable = !dryRunMode &&
-            (arguments.getArgument("output.enable")?.toBoolean() ?: true)
+            (arguments.getBenchmarkArgument("output.enable")?.toBoolean() ?: true)
 
         // Transform comma-delimited list into set of suppressed errors
         // E.g. "DEBUGGABLE, UNLOCKED" -> setOf("DEBUGGABLE", "UNLOCKED")
-        suppressedErrors = arguments.getArgument("suppressErrors", "")
+        suppressedErrors = arguments.getBenchmarkArgument("suppressErrors", "")
             .split(',')
             .map { it.trim() }
             .filter { it.isNotEmpty() }
@@ -85,9 +90,12 @@ internal object Arguments {
 
         profiler = arguments.getProfiler(outputEnable)
         profilerSampleFrequency =
-            arguments.getArgument("profiling.sampleFrequency")?.ifBlank { null }?.toInt() ?: 10000
+            arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }
+            ?.toInt()
+            ?: 10000
         profilerSampleDurationSeconds =
-            arguments.getArgument("profiling.sampleDurationSeconds")?.ifBlank { null }?.toLong()
+            arguments.getBenchmarkArgument("profiling.sampleDurationSeconds")?.ifBlank { null }
+            ?.toLong()
             ?: 5
 
         if (profiler != null) {
@@ -105,5 +113,9 @@ internal object Arguments {
                 "Unable to read externalCacheDir for writing files, " +
                     "additionalTestOutputDir argument required to declare output dir."
             )
+    }
+
+    public fun testOutputFile(filename: String): File {
+        return File(testOutputDir, filename)
     }
 }

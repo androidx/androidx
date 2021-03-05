@@ -21,9 +21,14 @@ import android.os.Bundle
 import android.transition.Transition
 import android.transition.TransitionSet
 import android.view.View
+import android.widget.TextView
+import androidx.annotation.LayoutRes
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -121,6 +126,55 @@ class FragmentTransitionTest(
         }
         verifyNoOtherTransitions(fragment)
         assertThat(onBackStackChangedTimes).isEqualTo(4)
+    }
+
+    @Test
+    fun enterExitChildTransitions() {
+        // enter transition
+        val fragment = TransitionFragment()
+
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .replace(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .commit()
+        activityRule.waitForExecution()
+
+        fragment.waitForTransition()
+        val view = activityRule.activity.findViewById<TextView>(R.id.text1)
+        fragment.enterTransition.verifyAndClearTransition {
+            enteringViews += view
+        }
+        verifyNoOtherTransitions(fragment)
+
+        lateinit var parent: ParentTransitionFragment
+
+        activityRule.runOnUiThread {
+            parent = ParentTransitionFragment()
+        }
+
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .replace(R.id.fragmentContainer, parent)
+            .addToBackStack(null)
+            .commit()
+        activityRule.waitForExecution()
+
+        fragment.waitForTransition()
+        fragment.exitTransition.verifyAndClearTransition {
+            exitingViews += view
+        }
+        verifyNoOtherTransitions(fragment)
+
+        parent.waitForTransition()
+        val childView = activityRule.activity.findViewById<TextView>(R.id.text1)
+        parent.enterTransition.verifyAndClearTransition {
+            enteringViews += childView
+        }
+        verifyNoOtherTransitions(parent)
+
+        assertThat(parent.isResumed).isTrue()
+        assertThat(parent.child.isResumed).isTrue()
     }
 
     // Test removing a Fragment with a Transition and adding it back before the Transition
@@ -233,6 +287,48 @@ class FragmentTransitionTest(
         val fragment2 = SharedElementOnlyTransitionFragment()
 
         verifyTransition(fragment1, fragment2, "blueSquare")
+
+        // Now pop the back stack
+        verifyPopTransition(1, fragment2, fragment1)
+
+        assertThat(fragment2.destroyViewCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+    }
+
+    @Test
+    fun noSharedElementReturnSharedElement() {
+        val fragment1 = setupInitialFragment()
+
+        fragment1.sharedElementEnterTransition = null
+        fragment1.sharedElementReturnTransition = null
+        fragment1.setEnterSharedElementCallback(null)
+        fragment1.setExitSharedElementCallback(null)
+
+        // Now do a transition to scene2
+        val fragment2 = SharedElementOnlyTransitionFragment()
+
+        fragment2.sharedElementEnterTransition = null
+        fragment2.setEnterSharedElementCallback(null)
+
+        val startOnBackStackChanged = onBackStackChangedTimes
+        val startBlue = activityRule.findBlue()
+        val startGreen = activityRule.findGreen()
+
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .addSharedElement(startBlue, "blueSquare")
+            .replace(R.id.fragmentContainer, fragment2)
+            .addToBackStack(null)
+            .commit()
+
+        activityRule.waitForExecution()
+        assertThat(onBackStackChangedTimes).isEqualTo(startOnBackStackChanged + 1)
+
+        verifyNoOtherTransitions(fragment2)
+
+        fragment1.exitTransition.verifyAndClearTransition {
+            exitingViews += listOfNotNull(startBlue, startGreen)
+        }
+        verifyNoOtherTransitions(fragment1)
 
         // Now pop the back stack
         verifyPopTransition(1, fragment2, fragment1)
@@ -1561,6 +1657,24 @@ class FragmentTransitionTest(
             fragment.startTransitionCountDownLatch.countDown()
             transition.removeListener(this)
             transition.addListener(this)
+        }
+    }
+
+    class ParentTransitionFragment(
+        @LayoutRes contentLayoutId: Int = R.layout.fragment_container_view
+    ) : TransitionFragment(contentLayoutId) {
+        val child = TransitionFragment()
+        init {
+            lifecycle.addObserver(object : LifecycleEventObserver {
+                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                    if (event == Lifecycle.Event.ON_START) {
+                        childFragmentManager.beginTransaction()
+                            .add(R.id.fragment_container_view, child)
+                            .setReorderingAllowed(true)
+                            .commit()
+                    }
+                }
+            })
         }
     }
 

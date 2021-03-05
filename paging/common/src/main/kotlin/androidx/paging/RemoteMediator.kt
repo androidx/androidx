@@ -40,7 +40,7 @@ import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
  * @sample androidx.paging.samples.remoteMediatorPageKeyedSample
  */
 @ExperimentalPagingApi
-abstract class RemoteMediator<Key : Any, Value : Any> {
+public abstract class RemoteMediator<Key : Any, Value : Any> {
     /**
      * Callback triggered when Paging needs to request more data from a remote source due to any of
      * the following events:
@@ -85,7 +85,10 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
      * @return [MediatorResult] signifying what [LoadState] to be passed to the UI, and whether
      * there's more data available.
      */
-    abstract suspend fun load(loadType: LoadType, state: PagingState<Key, Value>): MediatorResult
+    public abstract suspend fun load(
+        loadType: LoadType,
+        state: PagingState<Key, Value>
+    ): MediatorResult
 
     /**
      * Callback fired during initialization of a [PagingData] stream, before initial load.
@@ -101,16 +104,16 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
      *  * [SKIP_INITIAL_REFRESH] to wait for a refresh request from the UI before dispatching [load]
      *  asynchronously with load type [REFRESH].
      */
-    open suspend fun initialize(): InitializeAction = LAUNCH_INITIAL_REFRESH
+    public open suspend fun initialize(): InitializeAction = LAUNCH_INITIAL_REFRESH
 
     /**
      * Return type of [load], which determines [LoadState].
      */
-    sealed class MediatorResult {
+    public sealed class MediatorResult {
         /**
          * Recoverable error that can be retried, sets the [LoadState] to [LoadState.Error].
          */
-        class Error(val throwable: Throwable) : MediatorResult()
+        public class Error(public val throwable: Throwable) : MediatorResult()
 
         /**
          * Success signaling that [LoadState] should be set to [LoadState.NotLoading] if
@@ -121,15 +124,15 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
          * [PagingSource.invalidate] to allow [androidx.paging.PagingDataAdapter] to pick up new
          * items found by [load].
          */
-        class Success(
-            @get:JvmName("endOfPaginationReached") val endOfPaginationReached: Boolean
+        public class Success(
+            @get:JvmName("endOfPaginationReached") public val endOfPaginationReached: Boolean
         ) : MediatorResult()
     }
 
     /**
      * Return type of [initialize], which signals the action to take after [initialize] completes.
      */
-    enum class InitializeAction {
+    public enum class InitializeAction {
         /**
          * Immediately dispatch a [load] asynchronously with load type [REFRESH], to update
          * paginated content when the stream is initialized.

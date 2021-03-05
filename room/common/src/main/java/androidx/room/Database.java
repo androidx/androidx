@@ -16,6 +16,8 @@
 
 package androidx.room;
 
+import androidx.annotation.RestrictTo;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -101,4 +103,14 @@ public @interface Database {
      * {@code room.schemaLocation} argument is set. Defaults to {@code true}.
      */
     boolean exportSchema() default true;
+
+
+    /**
+     * List of AutoMigrations that can be performed on this Database.
+     *
+     * @return List of AutoMigrations.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    Class<?>[] autoMigrations() default {};
 }

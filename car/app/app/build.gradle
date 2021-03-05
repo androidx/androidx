@@ -26,11 +26,15 @@ plugins {
 }
 
 dependencies {
-    implementation "androidx.activity:activity:1.1.0"
-    implementation "androidx.annotation:annotation:1.2.0-beta01"
-    implementation "androidx.core:core:1.3.0"
-    implementation "androidx.lifecycle:lifecycle-viewmodel:2.2.0"
-    implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
+    implementation("androidx.activity:activity:1.1.0")
+    implementation("androidx.annotation:annotation:1.2.0-beta01")
+    implementation("androidx.core:core:1.3.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
+    implementation("androidx.lifecycle:lifecycle-common-java8:2.2.0")
+    implementation("androidx.annotation:annotation-experimental:1.1.0-beta01")
+    compileOnly KOTLIN_STDLIB // Due to :annotation-experimental
+
+    annotationProcessor(NULLAWAY)
 
     // TODO(shiufai): We need this for assertThrows. Point back to the AndroidX shared version if
     // it is ever upgraded.
@@ -58,7 +62,7 @@ android {
         aidl = true
     }
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 
     testOptions.unitTests.includeAndroidResources = true

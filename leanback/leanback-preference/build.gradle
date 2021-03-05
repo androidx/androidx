@@ -23,7 +23,7 @@ android {
 
     sourceSets {
         main.java.srcDirs += [
-                'api21'
+                "api21"
         ]
     }
 }

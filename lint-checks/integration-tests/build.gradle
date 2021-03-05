@@ -15,6 +15,7 @@
  */
 
 import androidx.build.BuildOnServerKt
+import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.uptodatedness.EnableCachingKt
 import org.apache.tools.ant.filters.ReplaceTokens
 
@@ -92,6 +93,7 @@ def validateLint = tasks.register("validateLint", CompareFilesTask) { task ->
     task.expectedFile = project.file("expected-lint-results.xml")
     EnableCachingKt.cacheEvenIfNoOutputs(task)
     dependsOn(normalizeLintOutput)
+    AffectedModuleDetector.configureTaskGuard(task)
 }
 
 BuildOnServerKt.addToBuildOnServer(project, validateLint)

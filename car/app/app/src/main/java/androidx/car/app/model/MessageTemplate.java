@@ -18,6 +18,7 @@ package androidx.car.app.model;
 
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 
+import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
 
 import android.util.Log;
@@ -87,10 +88,11 @@ public final class MessageTemplate implements Template {
      *
      * @see Builder#Builder(CharSequence)
      */
-    @Nullable
+    @NonNull
     public CarText getMessage() {
-        return mMessage;
+        return requireNonNull(mMessage);
     }
+
 
     /**
      * Returns a debug message to display in the template or {@code null} if not set.
@@ -131,7 +133,7 @@ public final class MessageTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mTitle, mMessage, mDebugMessage, mHeaderAction, mActionList, mIcon);
+        return hash(mTitle, mMessage, mDebugMessage, mHeaderAction, mActionList, mIcon);
     }
 
     @Override
@@ -196,8 +198,7 @@ public final class MessageTemplate implements Template {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code title} is {@code null}
-         *
-         * @see CarText for details on text handling and span support.
+         * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -338,7 +339,6 @@ public final class MessageTemplate implements Template {
          * Returns a {@link Builder} instance.
          *
          * @param message the text message to display in the template
-         *
          * @throws NullPointerException if the {@code message} is {@code null}
          */
         public Builder(@NonNull CharSequence message) {

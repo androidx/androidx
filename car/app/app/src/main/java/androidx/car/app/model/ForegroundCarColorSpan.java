@@ -50,12 +50,6 @@ public final class ForegroundCarColorSpan extends CarSpan {
     @Keep
     private final CarColor mCarColor;
 
-    /** Returns the {@link CarColor} associated with this span or {@code null} if not set. */
-    @Nullable
-    public CarColor getColor() {
-        return mCarColor;
-    }
-
     /**
      * Creates a {@link ForegroundColorSpan} from a {@link CarColor}.
      *
@@ -68,6 +62,12 @@ public final class ForegroundCarColorSpan extends CarSpan {
     public static ForegroundCarColorSpan create(@NonNull CarColor carColor) {
         CarColorConstraints.STANDARD_ONLY.validateOrThrow(carColor);
         return new ForegroundCarColorSpan(requireNonNull(carColor));
+    }
+
+    /** Returns the {@link CarColor} associated with this span. */
+    @NonNull
+    public CarColor getColor() {
+        return mCarColor;
     }
 
     @Override

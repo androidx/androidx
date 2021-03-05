@@ -4630,7 +4630,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             final int width = getWidth();
             final int padding = mClipToPadding ? getPaddingTop() : 0;
             c.rotate(90);
-            c.translate(-padding, -width);
+            c.translate(padding, -width);
             needsInvalidate |= mRightGlow != null && mRightGlow.draw(c);
             c.restoreToCount(restore);
         }
@@ -5618,7 +5618,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
             // Handle cases where parameter values aren't defined.
             if (duration == UNDEFINED_DURATION) {
-                duration = computeScrollDuration(dx, dy, 0, 0);
+                duration = computeScrollDuration(dx, dy);
             }
             if (interpolator == null) {
                 interpolator = sQuinticInterpolator;
@@ -5648,31 +5648,21 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             postOnAnimation();
         }
 
-        private float distanceInfluenceForSnapDuration(float f) {
-            f -= 0.5f; // center the values about 0.
-            f *= 0.3f * (float) Math.PI / 2.0f;
-            return (float) Math.sin(f);
-        }
-
-        private int computeScrollDuration(int dx, int dy, int vx, int vy) {
+        /**
+         * Computes of an animated scroll in milliseconds.
+         * @param dx           x distance in pixels.
+         * @param dy           y distance in pixels.
+         * @return The duration of the animated scroll in milliseconds.
+         */
+        private int computeScrollDuration(int dx, int dy) {
             final int absDx = Math.abs(dx);
             final int absDy = Math.abs(dy);
             final boolean horizontal = absDx > absDy;
-            final int velocity = (int) Math.sqrt(vx * vx + vy * vy);
-            final int delta = (int) Math.sqrt(dx * dx + dy * dy);
             final int containerSize = horizontal ? getWidth() : getHeight();
-            final int halfContainerSize = containerSize / 2;
-            final float distanceRatio = Math.min(1.f, 1.f * delta / containerSize);
-            final float distance = halfContainerSize + halfContainerSize
-                    * distanceInfluenceForSnapDuration(distanceRatio);
 
-            final int duration;
-            if (velocity > 0) {
-                duration = 4 * Math.round(1000 * Math.abs(distance / velocity));
-            } else {
-                float absDelta = (float) (horizontal ? absDx : absDy);
-                duration = (int) (((absDelta / containerSize) + 1) * 300);
-            }
+            float absDelta = (float) (horizontal ? absDx : absDy);
+            final int duration = (int) (((absDelta / containerSize) + 1) * 300);
+
             return Math.min(duration, MAX_SCROLL_DURATION);
         }
 
@@ -7273,6 +7263,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param adapter    The adapter which is a sub adapter of this adapter or itself.
          * @param viewHolder The ViewHolder whose local position in the given adapter will be
          *                   returned.
+         * @param localPosition The position of the given {@link ViewHolder} in this
+         * {@link Adapter}.
+         *
          * @return The local position of the given {@link ViewHolder} in this {@link Adapter}
          * or {@link RecyclerView#NO_POSITION} if the {@link ViewHolder} is not bound to an item
          * or the given {@link Adapter} is not part of this Adapter (if this Adapter merges other

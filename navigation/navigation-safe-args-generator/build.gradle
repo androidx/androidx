@@ -32,22 +32,22 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 
     implementation(JAVAPOET)
-    implementation "com.squareup:kotlinpoet:1.7.2"
+    implementation("com.squareup:kotlinpoet:1.7.2")
 
     testImplementation(JUNIT)
     testImplementation(GOOGLE_COMPILE_TESTING)
-    testImplementation fileTree(
+    testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"
-    )
-    testImplementation fileTree(
+    ))
+    testImplementation(fileTree(
             dir: "${new File(project(":navigation:navigation-common").buildDir, "libJar")}",
             include : "*.jar"
-    )
-    testImplementation fileTree(
+    ))
+    testImplementation(fileTree(
             dir: "${new File(project(":lifecycle:lifecycle-viewmodel-savedstate").buildDir, "libJar")}",
             include : "*.jar"
-    )
+    ))
 }
 
 tasks.findByName("test").doFirst {
@@ -62,9 +62,9 @@ tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarDe
 tasks.findByName("compileKotlin").dependsOn(":lifecycle:lifecycle-viewmodel-savedstate:jarDebug")
 
 androidx {
-    name = 'Android Navigation TypeSafe Arguments Generator'
+    name = "Android Navigation TypeSafe Arguments Generator"
     type = LibraryType.OTHER_CODE_PROCESSOR
     mavenGroup = LibraryGroups.NAVIGATION
-    inceptionYear = '2017'
+    inceptionYear = "2017"
     description = "Android Navigation TypeSafe Arguments Generator"
 }

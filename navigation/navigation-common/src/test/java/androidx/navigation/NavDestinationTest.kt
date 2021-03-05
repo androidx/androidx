@@ -41,7 +41,7 @@ class NavDestinationTest {
     @Test
     fun parseClassFromNameAbsolute() {
         val context = mock(Context::class.java)
-        val clazz = NavDestination.parseClassFromName(
+        val clazz = NavDestination.parseClassFromNameInternal(
             context,
             "java.lang.String", Any::class.java
         )
@@ -53,7 +53,7 @@ class NavDestinationTest {
     fun parseClassFromNameAbsoluteInvalid() {
         val context = mock(Context::class.java)
         try {
-            NavDestination.parseClassFromName(
+            NavDestination.parseClassFromNameInternal(
                 context,
                 "definitely.not.found", Any::class.java
             )
@@ -66,7 +66,7 @@ class NavDestinationTest {
     @Test
     fun parseClassFromNameAbsoluteWithType() {
         val context = mock(Context::class.java)
-        val clazz = NavDestination.parseClassFromName(
+        val clazz = NavDestination.parseClassFromNameInternal(
             context,
             "java.lang.String", String::class.java
         )
@@ -78,7 +78,7 @@ class NavDestinationTest {
     fun parseClassFromNameAbsoluteWithIncorrectType() {
         val context = mock(Context::class.java)
         try {
-            NavDestination.parseClassFromName(
+            NavDestination.parseClassFromNameInternal(
                 context,
                 "java.lang.String", List::class.java
             )
@@ -92,7 +92,7 @@ class NavDestinationTest {
     fun parseClassFromNameRelative() {
         val context = mock(Context::class.java)
         `when`(context.packageName).thenReturn("java.lang")
-        val clazz = NavDestination.parseClassFromName(
+        val clazz = NavDestination.parseClassFromNameInternal(
             context,
             ".String", Any::class.java
         )
@@ -105,7 +105,7 @@ class NavDestinationTest {
         val context = mock(Context::class.java)
         `when`(context.packageName).thenReturn("java.lang")
         try {
-            NavDestination.parseClassFromName(
+            NavDestination.parseClassFromNameInternal(
                 context,
                 ".definitely.not.found", Any::class.java
             )
@@ -119,7 +119,7 @@ class NavDestinationTest {
     fun parseClassFromNameRelativeWithType() {
         val context = mock(Context::class.java)
         `when`(context.packageName).thenReturn("java.lang")
-        val clazz = NavDestination.parseClassFromName(
+        val clazz = NavDestination.parseClassFromNameInternal(
             context,
             ".String", String::class.java
         )
@@ -132,7 +132,7 @@ class NavDestinationTest {
         val context = mock(Context::class.java)
         `when`(context.packageName).thenReturn("java.lang")
         try {
-            NavDestination.parseClassFromName(
+            NavDestination.parseClassFromNameInternal(
                 context,
                 ".String", List::class.java
             )

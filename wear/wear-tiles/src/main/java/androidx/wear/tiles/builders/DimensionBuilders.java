@@ -43,8 +43,14 @@ public final class DimensionBuilders {
 
     /** Shortcut for building a {@link SpProp} using a measurement in SP. */
     @NonNull
-    public static SpProp sp(@Dimension(unit = SP) int valueSp) {
+    public static SpProp sp(@Dimension(unit = SP) float valueSp) {
         return SpProp.builder().setValue(valueSp).build();
+    }
+
+    /** Shortcut for building a {@link EmProp} using a measurement in EM. */
+    @NonNull
+    public static EmProp em(int valueEm) {
+        return EmProp.builder().setValue(valueEm).build();
     }
 
     /** Shortcut for building an {@link DegreesProp} using a measurement in degrees. */
@@ -73,10 +79,10 @@ public final class DimensionBuilders {
 
     /** A type for linear dimensions, measured in dp. */
     public static final class DpProp
-            implements LinearOrAngularDimension, ContainerDimension, ImageDimension {
+            implements ContainerDimension, ImageDimension, SpacerDimension {
         private final DimensionProto.DpProp mImpl;
 
-        DpProp(DimensionProto.DpProp impl) {
+        private DpProp(DimensionProto.DpProp impl) {
             this.mImpl = impl;
         }
 
@@ -87,7 +93,14 @@ public final class DimensionBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static DpProp fromProto(@NonNull DimensionProto.DpProp proto) {
+            return new DpProp(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.DpProp toProto() {
             return mImpl;
@@ -95,17 +108,7 @@ public final class DimensionBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        public DimensionProto.LinearOrAngularDimension toLinearOrAngularDimensionProto() {
-            return DimensionProto.LinearOrAngularDimension.newBuilder()
-                    .setLinearDimension(mImpl)
-                    .build();
-        }
-
-        /** @hide */
-        @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public DimensionProto.ContainerDimension toContainerDimensionProto() {
             return DimensionProto.ContainerDimension.newBuilder().setLinearDimension(mImpl).build();
@@ -113,17 +116,25 @@ public final class DimensionBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public DimensionProto.ImageDimension toImageDimensionProto() {
             return DimensionProto.ImageDimension.newBuilder().setLinearDimension(mImpl).build();
         }
 
+        /** @hide */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DimensionProto.SpacerDimension toSpacerDimensionProto() {
+            return DimensionProto.SpacerDimension.newBuilder().setLinearDimension(mImpl).build();
+        }
+
         /** Builder for {@link DpProp}. */
         public static final class Builder
-                implements LinearOrAngularDimension.Builder,
-                        ContainerDimension.Builder,
-                        ImageDimension.Builder {
+                implements ContainerDimension.Builder,
+                        ImageDimension.Builder,
+                        SpacerDimension.Builder {
             private final DimensionProto.DpProp.Builder mImpl = DimensionProto.DpProp.newBuilder();
 
             Builder() {}
@@ -139,7 +150,7 @@ public final class DimensionBuilders {
             @Override
             @NonNull
             public DpProp build() {
-                return new DpProp(mImpl.build());
+                return DpProp.fromProto(mImpl.build());
             }
         }
     }
@@ -148,7 +159,7 @@ public final class DimensionBuilders {
     public static final class SpProp {
         private final DimensionProto.SpProp mImpl;
 
-        SpProp(DimensionProto.SpProp impl) {
+        private SpProp(DimensionProto.SpProp impl) {
             this.mImpl = impl;
         }
 
@@ -158,12 +169,15 @@ public final class DimensionBuilders {
             return new Builder();
         }
 
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static SpProp fromProto(@NonNull DimensionProto.SpProp proto) {
+            return new SpProp(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public DimensionProto.SpProp toProto() {
             return mImpl;
@@ -178,7 +192,7 @@ public final class DimensionBuilders {
             /** Sets the value, in sp. */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setValue(@Dimension(unit = SP) int value) {
+            public Builder setValue(@Dimension(unit = SP) float value) {
                 mImpl.setValue(value);
                 return this;
             }
@@ -186,16 +200,16 @@ public final class DimensionBuilders {
             /** Builds an instance from accumulated values. */
             @NonNull
             public SpProp build() {
-                return new SpProp(mImpl.build());
+                return SpProp.fromProto(mImpl.build());
             }
         }
     }
 
-    /** A type for angular dimensions, measured in degrees. */
-    public static final class DegreesProp implements LinearOrAngularDimension {
-        private final DimensionProto.DegreesProp mImpl;
+    /** A type for font spacing, measured in em. */
+    public static final class EmProp {
+        private final DimensionProto.EmProp mImpl;
 
-        DegreesProp(DimensionProto.DegreesProp impl) {
+        private EmProp(DimensionProto.EmProp impl) {
             this.mImpl = impl;
         }
 
@@ -206,24 +220,71 @@ public final class DimensionBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        DimensionProto.DegreesProp toProto() {
-            return mImpl;
+        public static EmProp fromProto(@NonNull DimensionProto.EmProp proto) {
+            return new EmProp(proto);
         }
 
         /** @hide */
-        @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public DimensionProto.LinearOrAngularDimension toLinearOrAngularDimensionProto() {
-            return DimensionProto.LinearOrAngularDimension.newBuilder()
-                    .setAngularDimension(mImpl)
-                    .build();
+        public DimensionProto.EmProp toProto() {
+            return mImpl;
         }
 
-        /** Builder for {@link DegreesProp}. */
-        public static final class Builder implements LinearOrAngularDimension.Builder {
+        /** Builder for {@link EmProp} */
+        public static final class Builder {
+            private final DimensionProto.EmProp.Builder mImpl = DimensionProto.EmProp.newBuilder();
+
+            Builder() {}
+
+            /** Sets the value, in em. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setValue(float value) {
+                mImpl.setValue(value);
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public EmProp build() {
+                return EmProp.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /** A type for angular dimensions, measured in degrees. */
+    public static final class DegreesProp {
+        private final DimensionProto.DegreesProp mImpl;
+
+        private DegreesProp(DimensionProto.DegreesProp impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static DegreesProp fromProto(@NonNull DimensionProto.DegreesProp proto) {
+            return new DegreesProp(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DimensionProto.DegreesProp toProto() {
+            return mImpl;
+        }
+
+        /** Builder for {@link DegreesProp} */
+        public static final class Builder {
             private final DimensionProto.DegreesProp.Builder mImpl =
                     DimensionProto.DegreesProp.newBuilder();
 
@@ -237,10 +298,10 @@ public final class DimensionBuilders {
                 return this;
             }
 
-            @Override
+            /** Builds an instance from accumulated values. */
             @NonNull
             public DegreesProp build() {
-                return new DegreesProp(mImpl.build());
+                return DegreesProp.fromProto(mImpl.build());
             }
         }
     }
@@ -252,7 +313,7 @@ public final class DimensionBuilders {
     public static final class ExpandedDimensionProp implements ContainerDimension, ImageDimension {
         private final DimensionProto.ExpandedDimensionProp mImpl;
 
-        ExpandedDimensionProp(DimensionProto.ExpandedDimensionProp impl) {
+        private ExpandedDimensionProp(DimensionProto.ExpandedDimensionProp impl) {
             this.mImpl = impl;
         }
 
@@ -263,7 +324,15 @@ public final class DimensionBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ExpandedDimensionProp fromProto(
+                @NonNull DimensionProto.ExpandedDimensionProp proto) {
+            return new ExpandedDimensionProp(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.ExpandedDimensionProp toProto() {
             return mImpl;
@@ -271,7 +340,7 @@ public final class DimensionBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public DimensionProto.ContainerDimension toContainerDimensionProto() {
             return DimensionProto.ContainerDimension.newBuilder()
@@ -281,7 +350,7 @@ public final class DimensionBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public DimensionProto.ImageDimension toImageDimensionProto() {
             return DimensionProto.ImageDimension.newBuilder().setExpandedDimension(mImpl).build();
@@ -298,7 +367,7 @@ public final class DimensionBuilders {
             @Override
             @NonNull
             public ExpandedDimensionProp build() {
-                return new ExpandedDimensionProp(mImpl.build());
+                return ExpandedDimensionProp.fromProto(mImpl.build());
             }
         }
     }
@@ -310,7 +379,7 @@ public final class DimensionBuilders {
     public static final class WrappedDimensionProp implements ContainerDimension {
         private final DimensionProto.WrappedDimensionProp mImpl;
 
-        WrappedDimensionProp(DimensionProto.WrappedDimensionProp impl) {
+        private WrappedDimensionProp(DimensionProto.WrappedDimensionProp impl) {
             this.mImpl = impl;
         }
 
@@ -321,7 +390,15 @@ public final class DimensionBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static WrappedDimensionProp fromProto(
+                @NonNull DimensionProto.WrappedDimensionProp proto) {
+            return new WrappedDimensionProp(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.WrappedDimensionProp toProto() {
             return mImpl;
@@ -329,7 +406,7 @@ public final class DimensionBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public DimensionProto.ContainerDimension toContainerDimensionProto() {
             return DimensionProto.ContainerDimension.newBuilder()
@@ -347,7 +424,7 @@ public final class DimensionBuilders {
             @Override
             @NonNull
             public WrappedDimensionProp build() {
-                return new WrappedDimensionProp(mImpl.build());
+                return WrappedDimensionProp.fromProto(mImpl.build());
             }
         }
     }
@@ -364,7 +441,7 @@ public final class DimensionBuilders {
     public static final class ProportionalDimensionProp implements ImageDimension {
         private final DimensionProto.ProportionalDimensionProp mImpl;
 
-        ProportionalDimensionProp(DimensionProto.ProportionalDimensionProp impl) {
+        private ProportionalDimensionProp(DimensionProto.ProportionalDimensionProp impl) {
             this.mImpl = impl;
         }
 
@@ -375,7 +452,15 @@ public final class DimensionBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ProportionalDimensionProp fromProto(
+                @NonNull DimensionProto.ProportionalDimensionProp proto) {
+            return new ProportionalDimensionProp(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.ProportionalDimensionProp toProto() {
             return mImpl;
@@ -383,7 +468,7 @@ public final class DimensionBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public DimensionProto.ImageDimension toImageDimensionProto() {
             return DimensionProto.ImageDimension.newBuilder()
@@ -417,29 +502,8 @@ public final class DimensionBuilders {
             @Override
             @NonNull
             public ProportionalDimensionProp build() {
-                return new ProportionalDimensionProp(mImpl.build());
+                return ProportionalDimensionProp.fromProto(mImpl.build());
             }
-        }
-    }
-
-    /** Interface defining a dimension that can be linear or angular. */
-    public interface LinearOrAngularDimension {
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        DimensionProto.LinearOrAngularDimension toLinearOrAngularDimensionProto();
-
-        /** Builder to create {@link LinearOrAngularDimension} objects. */
-        @SuppressLint("StaticFinalBuilder")
-        interface Builder {
-
-            /** Builds an instance with values accumulated in this Builder. */
-            @NonNull
-            LinearOrAngularDimension build();
         }
     }
 
@@ -450,7 +514,7 @@ public final class DimensionBuilders {
          *
          * @hide
          */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.ContainerDimension toContainerDimensionProto();
 
@@ -471,7 +535,7 @@ public final class DimensionBuilders {
          *
          * @hide
          */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.ImageDimension toImageDimensionProto();
 
@@ -482,6 +546,27 @@ public final class DimensionBuilders {
             /** Builds an instance with values accumulated in this Builder. */
             @NonNull
             ImageDimension build();
+        }
+    }
+
+    /** Interface defining a dimension that can be applied to a spacer. */
+    public interface SpacerDimension {
+        /**
+         * Get the protocol buffer representation of this object.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        DimensionProto.SpacerDimension toSpacerDimensionProto();
+
+        /** Builder to create {@link SpacerDimension} objects. */
+        @SuppressLint("StaticFinalBuilder")
+        interface Builder {
+
+            /** Builds an instance with values accumulated in this Builder. */
+            @NonNull
+            SpacerDimension build();
         }
     }
 }

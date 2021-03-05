@@ -37,10 +37,10 @@ android {
 dependencies {
     api(project(":preference:preference"))
     api("androidx.core:core-ktx:1.1.0") {
-        because 'Mirror preference dependency graph for -ktx artifacts'
+        because "Mirror preference dependency graph for -ktx artifacts"
     }
     api("androidx.fragment:fragment-ktx:1.2.4") {
-        because 'Mirror preference dependency graph for -ktx artifacts'
+        because "Mirror preference dependency graph for -ktx artifacts"
     }
     api(KOTLIN_STDLIB)
 

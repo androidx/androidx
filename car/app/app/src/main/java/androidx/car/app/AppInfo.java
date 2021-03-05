@@ -16,7 +16,7 @@
 
 package androidx.car.app;
 
-import static androidx.car.app.utils.CommonUtils.TAG;
+import static androidx.car.app.utils.LogTags.TAG;
 
 import static java.util.Objects.requireNonNull;
 
@@ -48,7 +48,7 @@ import androidx.car.app.versioning.CarAppApiLevels;
  *   <application ...>
  *     <meta-data
  *         android:name="androidx.car.app.min-api-level"
- *         android:value="2" />
+ *         android:value="1" />
  *     ...
  *   </application>
  * </manifest>
@@ -58,7 +58,7 @@ import androidx.car.app.versioning.CarAppApiLevels;
  */
 public final class AppInfo {
     // TODO(b/174803562): Automatically update the this version using Gradle
-    private static final String LIBRARY_VERSION = "1.0.0-beta01";
+    private static final String LIBRARY_VERSION = "1.0.0-beta02";
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY)

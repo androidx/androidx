@@ -73,7 +73,7 @@ public class DynamicFragmentNavigatorDestinationBuilder(
 
     override fun build(): DynamicFragmentNavigator.Destination =
         (super.build() as DynamicFragmentNavigator.Destination).also { destination ->
-            destination.className = fragmentClassName
+            destination.setClassName(fragmentClassName)
             destination.moduleName = moduleName
         }
 }

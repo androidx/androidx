@@ -18,6 +18,7 @@ package androidx.mediarouter.media;
 
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -25,6 +26,7 @@ import android.content.Context;
 import android.media.MediaRoute2ProviderService;
 import android.media.RoutingSessionInfo;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Messenger;
 import android.support.mediacompat.testlib.util.PollingCheck;
 import android.text.TextUtils;
@@ -33,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -125,6 +128,7 @@ public class MediaRouter2Test {
     }
 
     @Test
+    @FlakyTest
     @MediumTest
     public void selectFromMr1AndStopFromSystem_unselect() throws Exception {
         CountDownLatch onRouteSelectedLatch = new CountDownLatch(1);
@@ -218,6 +222,33 @@ public class MediaRouter2Test {
                         MediaRouter.sGlobal.mRegisteredProviderWatcher.start();
                     });
         }
+    }
+
+    @SmallTest
+    @Test
+    public void setRouterParams_onRouteParamsChangedCalled() throws Exception {
+        CountDownLatch onRouterParmasChangedLatch = new CountDownLatch(1);
+        final MediaRouterParams[] routerParams = {null};
+
+        addCallback(new MediaRouter.Callback() {
+            @Override
+            public void onRouterParamsChanged(MediaRouter router, MediaRouterParams params) {
+                onRouterParmasChangedLatch.countDown();
+                routerParams[0] = params;
+            }
+        });
+
+        Bundle extras = new Bundle();
+        extras.putString("test-key", "test-value");
+        MediaRouterParams params = new MediaRouterParams.Builder().setExtras(extras).build();
+        getInstrumentation().runOnMainSync(() -> {
+            mRouter.setRouterParams(params);
+        });
+
+        assertTrue(onRouterParmasChangedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        Bundle actualExtras = routerParams[0].getExtras();
+        assertNotNull(actualExtras);
+        assertEquals("test-value", actualExtras.getString("test-key"));
     }
 
     void addCallback(MediaRouter.Callback callback) {

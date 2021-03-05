@@ -32,7 +32,7 @@ plugins {
 
 def antlrOut = "$buildDir/generated/antlr/grammar-gen/"
 sourceSets {
-    main.java.srcDirs += 'src/main/grammar-gen'
+    main.java.srcDirs += "src/main/grammar-gen"
     main.java.srcDirs += antlrOut
 }
 
@@ -62,13 +62,13 @@ configurations {
 
 shadowJar {
     // set classifier to empty string so that it doesn't append anything to the jar.
-    archiveClassifier = ''
+    archiveClassifier = ""
     configurations = [project.configurations.shadowed]
     dependencies {
         // antlr has dependencies on unrelated projects for its gui stuff, do not include them
-        exclude(dependency('org.abego.treelayout:.*'))
-        exclude(dependency('org.glassfish:.*'))
-        exclude(dependency('com.ibm.icu:.*'))
+        exclude(dependency("org.abego.treelayout:.*"))
+        exclude(dependency("org.glassfish:.*"))
+        exclude(dependency("com.ibm.icu:.*"))
     }
 }
 
@@ -76,7 +76,7 @@ jar {
     // set a classifier on this one so that the output does not clash with the output from
     // shadowJar task. We should never use this directly as it won't have the shadowed classes that
     // are necessary to run.
-    archiveClassifier = 'before-jarjar'
+    archiveClassifier = "before-jarjar"
 }
 
 // relocate all shadow dependencies
@@ -85,7 +85,7 @@ task relocateShadowJar(type: ConfigureShadowRelocation) {
     prefix = "androidx.room.jarjarred"
 }
 
-tasks.shadowJar.dependsOn tasks.relocateShadowJar
+tasks.shadowJar.dependsOn(tasks.relocateShadowJar)
 
 configurations {
     // replace the standard jar with the one built by 'shadowJar' in both api and runtime variants
@@ -114,26 +114,26 @@ dependencies {
     implementation(APACHE_COMMONS_CODEC)
     implementation(INTELLIJ_ANNOTATIONS)
     testImplementation(GOOGLE_COMPILE_TESTING)
-    testImplementation projectOrArtifact(":paging:paging-common")
+    testImplementation(projectOrArtifact(":paging:paging-common"))
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(JUNIT)
     testImplementation(JSR250)
     testImplementation(MOCKITO_CORE)
-    testImplementation fileTree(
+    testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"
-    )
-    testImplementation fileTree(
+    ))
+    testImplementation(fileTree(
             dir: "${new File(project(":room:room-runtime").buildDir, "libJar")}",
             include : "*.jar"
-    )
-    testImplementation fileTree(
+    ))
+    testImplementation(fileTree(
             dir: "${new File(project(":sqlite:sqlite").buildDir, "libJar")}",
             include : "*.jar"
-    )
+    ))
 }
 
-def generateAntlrTask = task('generateAntlrGrammar', type: JavaExec) {
+def generateAntlrTask = task("generateAntlrGrammar", type: JavaExec) {
     def outFolder = file(antlrOut)
     outputs.dir(outFolder)
     inputs.file("$projectDir/SQLite.g4")
@@ -246,7 +246,8 @@ tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarDebug")
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn",
-                             "-Xopt-in=kotlin.contracts.ExperimentalContracts"]
+                             "-Xopt-in=kotlin.contracts.ExperimentalContracts",
+                             "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"]
     }
 }
 

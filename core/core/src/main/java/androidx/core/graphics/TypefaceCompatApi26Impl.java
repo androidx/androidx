@@ -247,7 +247,7 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
                 return null;
             }
         }
-        Map<Uri, ByteBuffer> uriBuffer = FontsContractCompat.prepareFontData(
+        Map<Uri, ByteBuffer> uriBuffer = TypefaceCompatUtil.readFontInfoIntoByteBuffer(
                 context, fonts, cancellationSignal);
         final Object fontFamily = newFamily();
         if (fontFamily == null) {

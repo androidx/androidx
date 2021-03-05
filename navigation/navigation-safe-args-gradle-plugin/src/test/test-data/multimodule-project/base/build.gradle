@@ -15,8 +15,8 @@
  */
 
 plugins {
-    id('com.android.application')
-    id('androidx.navigation.safeargs')
+    id("com.android.application")
+    id("androidx.navigation.safeargs")
 }
 android {
     buildToolsVersion buildTools
@@ -43,6 +43,6 @@ android {
 }
 
 dependencies {
-    implementation project(":library")
-    implementation "$navigationCommonDep"
+    implementation(project(":library"))
+    implementation("$navigationCommonDep")
 }

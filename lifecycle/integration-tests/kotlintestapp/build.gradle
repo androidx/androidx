@@ -28,8 +28,8 @@ plugins {
 
 dependencies {
     implementation(project(":lifecycle:lifecycle-runtime-ktx"))
-    implementation(projectOrArtifact(":activity:activity")) {
-        exclude group: 'androidx.lifecycle'
+    implementation("androidx.activity:activity:1.2.0") {
+        exclude group: "androidx.lifecycle"
     }
     implementation(project(":lifecycle:lifecycle-viewmodel-savedstate")) {
         because "Used by :activity:activity"
@@ -52,12 +52,12 @@ dependencies {
 
 android {
     kotlinOptions {
-        // Allow usage of Kotlin's @OptIn.
+        // Allow usage of Kotlin"s @OptIn.
         freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-        jvmTarget = '1.8' // necessary to use espresso kotlin extensions
+        jvmTarget = "1.8" // necessary to use espresso kotlin extensions
     }
     sourceSets {
-        test.java.srcDirs += 'src/test-common/java'
-        androidTest.java.srcDirs += 'src/test-common/java'
+        test.java.srcDirs += "src/test-common/java"
+        androidTest.java.srcDirs += "src/test-common/java"
     }
 }

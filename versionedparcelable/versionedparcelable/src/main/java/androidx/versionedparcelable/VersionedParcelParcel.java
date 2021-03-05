@@ -25,6 +25,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SimpleArrayMap;
 
@@ -36,27 +38,35 @@ import java.lang.reflect.Method;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class VersionedParcelParcel extends VersionedParcel {
     private static final boolean DEBUG = false;
+    @NonNull
     private static final String TAG = "VersionedParcelParcel";
 
+    @NonNull
     private final SparseIntArray mPositionLookup = new SparseIntArray();
+    @NonNull
     private final Parcel mParcel;
     private final int mOffset;
     private final int mEnd;
+    @NonNull
     private final String mPrefix;
     private int mCurrentField = -1;
     private int mNextRead = 0;
     private int mFieldId = -1;
 
-    VersionedParcelParcel(Parcel p) {
+    VersionedParcelParcel(@NonNull Parcel p) {
         this(p, p.dataPosition(), p.dataSize(), "", new SimpleArrayMap<String, Method>(),
                 new SimpleArrayMap<String, Method>(),
                 new SimpleArrayMap<String, Class<?>>());
     }
 
-    private VersionedParcelParcel(Parcel p, int offset, int end, String prefix,
-            SimpleArrayMap<String, Method> readCache,
-            SimpleArrayMap<String, Method> writeCache,
-            SimpleArrayMap<String, Class<?>> parcelizerCache) {
+    private VersionedParcelParcel(
+            @NonNull Parcel p,
+            int offset,
+            int end,
+            @NonNull String prefix,
+            @NonNull SimpleArrayMap<String, Method> readCache,
+            @NonNull SimpleArrayMap<String, Method> writeCache,
+            @NonNull SimpleArrayMap<String, Class<?>> parcelizerCache) {
         super(readCache, writeCache, parcelizerCache);
         mParcel = p;
         mOffset = offset;
@@ -111,7 +121,7 @@ class VersionedParcelParcel extends VersionedParcel {
     }
 
     @Override
-    protected VersionedParcel createSubParcel() {
+    protected @NonNull VersionedParcel createSubParcel() {
         if (DEBUG) {
             Log.d(TAG, mPrefix + "Creating subparcel " + mCurrentField + " : "
                     + mParcel.dataPosition() + " - " + (mNextRead == mOffset ? mEnd : mNextRead));
@@ -197,6 +207,7 @@ class VersionedParcelParcel extends VersionedParcel {
     }
 
     @Override
+    @Nullable
     protected CharSequence readCharSequence() {
         return TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(mParcel);
     }
@@ -222,16 +233,19 @@ class VersionedParcelParcel extends VersionedParcel {
     }
 
     @Override
+    @Nullable
     public String readString() {
         return mParcel.readString();
     }
 
     @Override
+    @Nullable
     public IBinder readStrongBinder() {
         return mParcel.readStrongBinder();
     }
 
     @Override
+    @Nullable
     public byte[] readByteArray() {
         int len = mParcel.readInt();
         if (len < 0) {
@@ -244,11 +258,13 @@ class VersionedParcelParcel extends VersionedParcel {
 
     @Override
     @SuppressWarnings("TypeParameterUnusedInFormals")
+    @Nullable
     public <T extends Parcelable> T readParcelable() {
         return mParcel.readParcelable(getClass().getClassLoader());
     }
 
     @Override
+    @Nullable
     public Bundle readBundle() {
         return mParcel.readBundle(getClass().getClassLoader());
     }

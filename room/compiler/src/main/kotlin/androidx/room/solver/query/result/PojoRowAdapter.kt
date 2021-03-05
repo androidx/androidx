@@ -92,7 +92,7 @@ class PojoRowAdapter(
                 )
             }
             if (matchedFields.isEmpty()) {
-                context.logger.e(ProcessorErrors.cannotFindQueryResultAdapter(out.toString()))
+                context.logger.e(ProcessorErrors.cannotFindQueryResultAdapter(out.typeName))
             }
         } else {
             matchedFields = remainingFields.map { it }

@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+NullableCollection: androidx.wear.input.RemoteInputIntentHelper#getRemoteInputsExtra(android.content.Intent):
+    Return type of method androidx.wear.input.RemoteInputIntentHelper.getRemoteInputsExtra(android.content.Intent) is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.wear.input.RemoteInputIntentHelper#getSmartReplyContextExtra(android.content.Intent):
+    Return type of method androidx.wear.input.RemoteInputIntentHelper.getSmartReplyContextExtra(android.content.Intent) is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.wear.input.RemoteInputIntentHelper.Companion#getRemoteInputsExtra(android.content.Intent):
+    Return type of method androidx.wear.input.RemoteInputIntentHelper.Companion.getRemoteInputsExtra(android.content.Intent) is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.wear.input.RemoteInputIntentHelper.Companion#getSmartReplyContextExtra(android.content.Intent):
+    Return type of method androidx.wear.input.RemoteInputIntentHelper.Companion.getSmartReplyContextExtra(android.content.Intent) is a nullable collection (`java.util.List`); must be non-null

@@ -95,6 +95,14 @@ public open class ObservableWatchData<T : Any> internal constructor(internal var
             observers.remove(observer)
         }
     }
+
+    override fun toString(): String {
+        return if (hasValue()) {
+            value.toString()
+        } else {
+            "<unset>"
+        }
+    }
 }
 
 /**

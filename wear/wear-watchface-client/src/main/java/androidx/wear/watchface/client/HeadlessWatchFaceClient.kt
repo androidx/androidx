@@ -19,9 +19,9 @@ package androidx.wear.watchface.client
 import android.graphics.Bitmap
 import android.os.IBinder
 import android.support.wearable.watchface.SharedMemoryImage
-import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.data.ComplicationScreenshotParams
@@ -58,47 +58,41 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
     }
 
     /**
-     * Requests for a WebP compressed shared memory backed [Bitmap] containing a screenshot of
-     * the watch face with the given settings.
+     * Requests a shared memory backed [Bitmap] containing a screenshot of the watch face with the
+     * given settings.
      *
      * @param renderParameters The [RenderParameters] to draw with.
-     * @param compressionQuality The WebP compression quality, 100 = loss less.
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with.
      * @param userStyle Optional [UserStyle] to render with, if null the default style is used.
      * @param idToComplicationData Map of complication ids to [ComplicationData] to render with, or
      *     if null complications are not rendered.
-     * @return A WebP compressed shared memory backed [Bitmap] containing a screenshot of the watch
-     *     face with the given settings.
+     * @return A shared memory backed [Bitmap] containing a screenshot of the watch face with the
+     *     given settings.
      */
     @RequiresApi(27)
     public fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
-        @IntRange(from = 0, to = 100)
-        compressionQuality: Int,
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap
 
     /**
-     * Requests for a WebP compressed shared memory backed [Bitmap] containing a screenshot of
-     * the complication with the given settings.
+     * Requests a shared memory backed [Bitmap] containing a screenshot of the complication with the
+     * given settings.
      *
      * @param complicationId The id of the complication to render
      * @param renderParameters The [RenderParameters] to draw with
-     * @param compressionQuality The WebP compression quality, 100 = loss less
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with
      * @param complicationData the [ComplicationData] to render with
      * @param userStyle Optional [UserStyle] to render with, if null the default style is used
-     * @return A WebP compressed shared memory backed [Bitmap] containing a screenshot of the watch
-     *     face with the given settings, or `null` if [complicationId] is unrecognized.
+     * @return A shared memory backed [Bitmap] containing a screenshot of the watch face with the
+     *     given settings, or `null` if [complicationId] is unrecognized.
      */
     @RequiresApi(27)
     public fun takeComplicationScreenshot(
         complicationId: Int,
         renderParameters: RenderParameters,
-        @IntRange(from = 0, to = 100)
-        compressionQuality: Int,
         calendarTimeMillis: Long,
         complicationData: ComplicationData,
         userStyle: UserStyle?,
@@ -129,51 +123,49 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
     @RequiresApi(27)
     override fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
-        @IntRange(from = 0, to = 100)
-        compressionQuality: Int,
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idToComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
-        iHeadlessWatchFace.takeWatchFaceScreenshot(
-            WatchfaceScreenshotParams(
-                renderParameters.toWireFormat(),
-                compressionQuality,
-                calendarTimeMillis,
-                userStyle?.toWireFormat(),
-                idToComplicationData?.map {
-                    IdAndComplicationDataWireFormat(
-                        it.key,
-                        it.value.asWireComplicationData()
-                    )
-                }
+    ): Bitmap = TraceEvent("HeadlessWatchFaceClientImpl.takeWatchFaceScreenshot").use {
+        SharedMemoryImage.ashmemReadImageBundle(
+            iHeadlessWatchFace.takeWatchFaceScreenshot(
+                WatchfaceScreenshotParams(
+                    renderParameters.toWireFormat(),
+                    calendarTimeMillis,
+                    userStyle?.toWireFormat(),
+                    idToComplicationData?.map {
+                        IdAndComplicationDataWireFormat(
+                            it.key,
+                            it.value.asWireComplicationData()
+                        )
+                    }
+                )
             )
         )
-    )
+    }
 
     @RequiresApi(27)
     override fun takeComplicationScreenshot(
         complicationId: Int,
         renderParameters: RenderParameters,
-        @IntRange(from = 0, to = 100)
-        compressionQuality: Int,
         calendarTimeMillis: Long,
         complicationData: ComplicationData,
         userStyle: UserStyle?,
-    ): Bitmap? = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+    ): Bitmap? = TraceEvent("HeadlessWatchFaceClientImpl.takeComplicationScreenshot").use {
         iHeadlessWatchFace.takeComplicationScreenshot(
             ComplicationScreenshotParams(
                 complicationId,
                 renderParameters.toWireFormat(),
-                compressionQuality,
                 calendarTimeMillis,
                 complicationData.asWireComplicationData(),
                 userStyle?.toWireFormat(),
             )
-        )
-    )
+        )?.let {
+            SharedMemoryImage.ashmemReadImageBundle(it)
+        }
+    }
 
-    override fun close() {
+    override fun close() = TraceEvent("HeadlessWatchFaceClientImpl.close").use {
         iHeadlessWatchFace.release()
     }
 

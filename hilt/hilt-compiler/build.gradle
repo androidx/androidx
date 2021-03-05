@@ -41,20 +41,16 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     testImplementation(GOOGLE_COMPILE_TESTING)
-    testImplementation(HILT_ANDROID)
-    testImplementation fileTree(
-            dir: "${new File(project(":hilt:hilt-lifecycle-viewmodel").buildDir, "libJar")}",
-            include : "*.jar")
-    testImplementation fileTree(
+    testImplementation(HILT_CORE)
+    testImplementation(fileTree(
             dir: "${new File(project(":hilt:hilt-work").buildDir, "libJar")}",
-            include : "*.jar")
-    testImplementation fileTree(
+            include : "*.jar"))
+    testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include : "android.jar")
+            include : "android.jar"))
 }
 
 tasks.named("compileKotlin").configure {
-    dependsOn(":hilt:hilt-lifecycle-viewmodel:jarDebug")
     dependsOn(":hilt:hilt-work:jarDebug")
 }
 

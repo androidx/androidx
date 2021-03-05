@@ -123,7 +123,7 @@ object ProcessorErrors {
     val QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE = "Query/Insert method parameters cannot " +
         "start with underscore (_)."
 
-    fun cannotFindQueryResultAdapter(returnTypeName: String) = "Not sure how to convert a " +
+    fun cannotFindQueryResultAdapter(returnTypeName: TypeName) = "Not sure how to convert a " +
         "Cursor to this method's return type ($returnTypeName)."
 
     val INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT = "Method annotated with" +
@@ -788,6 +788,11 @@ object ProcessorErrors {
             "interface."
     }
 
+    fun invalidAutoMigrationTypeInDatabaseAnnotation(typeName: TypeName): String {
+        return "Invalid AutoMigration type: $typeName. An automigration in the database must be a" +
+            " class."
+    }
+
     val EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE = "The type of an Embedded field must be a " +
         "class or an interface."
     val RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE = "Entity type in a Relation must be a class " +
@@ -798,4 +803,53 @@ object ProcessorErrors {
     ): String {
         return "Invalid query argument: $typeName. It must be a class or an interface."
     }
+
+    val AUTOMIGRATION_ANNOTATED_TYPE_ELEMENT_MUST_BE_INTERFACE = "The @AutoMigration annotated " +
+        "type must be an interface."
+    val AUTOMIGRATION_ANNOTATION_MISSING = "The @AutoMigration annotation has not been found. " +
+        "Cannot generate auto migrations."
+    val AUTOMIGRATION_ELEMENT_MUST_IMPLEMENT_AUTOMIGRATION_CALLBACK = "AutoMigration element must" +
+        " implement the AutoMigrationCallback interface."
+
+    // TODO: (b/180389433) If the files don't exist the getSchemaFile() method should return
+    //  null and before calling process
+    fun autoMigrationToVersionMustBeGreaterThanFrom(to: Int, from: Int) =
+        if (from > to) {
+            "Downgrades are not supported in AutoMigration."
+        } else {
+            "The versions provided (to: $to, from: $from) are invalid. The To version must" +
+                " be greater than the From version."
+        }
+
+    fun autoMigrationSchemasNotFound(schemaOutFolderPath: String, versionFile: String): String {
+        return "Schemas required for migration are not found at path: " +
+            "$schemaOutFolderPath$versionFile. Cannot generate auto migrations."
+    }
+
+    fun newNotNullColumnMustHaveDefaultValue(columnName: String): String {
+        return "New NOT NULL " +
+            "column'$columnName' " +
+            "added with no default value specified. Please specify the default value using " +
+            "@ColumnInfo."
+    }
+
+    fun nullabilityOfColumnChangedNotNullColumnMustHaveDefaultValue(columnName: String): String {
+        return "The nullability of the " +
+            "column '$columnName' " +
+            "has been changed from NULL to NOT NULL with no default value specified. Please " +
+            "specify the default value using @ColumnInfo."
+    }
+
+    fun columnWithChangedSchemaFound(columnName: String): String {
+        return "Encountered column '$columnName' with a changed FieldBundle schema. This change " +
+            "is not currently supported by AutoMigration."
+    }
+
+    fun removedOrRenamedColumnFound(columnName: String): String {
+        return "Column '$columnName' has been either removed or " +
+            "renamed. This change is not currently supported by AutoMigration."
+    }
+
+    val AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF = "Cannot create auto-migrations when export " +
+        "schema is OFF."
 }

@@ -172,7 +172,7 @@ class ActivityNavigatorTest {
     fun navigateAction() {
         val targetDestination = activityNavigator.createDestination().apply {
             id = TARGET_ID
-            action = TARGET_ACTION
+            setAction(TARGET_ACTION)
             setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
         }
         activityNavigator.navigate(targetDestination, null, null, null)
@@ -190,7 +190,7 @@ class ActivityNavigatorTest {
     fun navigateData() {
         val targetDestination = activityNavigator.createDestination().apply {
             id = TARGET_ID
-            data = TARGET_DATA
+            setData(TARGET_DATA)
             setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
         }
         activityNavigator.navigate(targetDestination, null, null, null)
@@ -208,7 +208,7 @@ class ActivityNavigatorTest {
     fun navigateDataPattern() {
         val targetDestination = activityNavigator.createDestination().apply {
             id = TARGET_ID
-            dataPattern = TARGET_DATA_PATTERN
+            setDataPattern(TARGET_DATA_PATTERN)
             setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
         }
         val args = Bundle().apply {
@@ -234,7 +234,7 @@ class ActivityNavigatorTest {
     fun navigateDataPatternInt() {
         val targetDestination = activityNavigator.createDestination().apply {
             id = TARGET_ID
-            dataPattern = TARGET_DATA_PATTERN
+            setDataPattern(TARGET_DATA_PATTERN)
             setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
         }
         val args = Bundle().apply {
@@ -263,7 +263,7 @@ class ActivityNavigatorTest {
     fun navigateDataPatternMissingArgument() {
         val targetDestination = activityNavigator.createDestination().apply {
             id = TARGET_ID
-            dataPattern = TARGET_DATA_PATTERN
+            setDataPattern(TARGET_DATA_PATTERN)
             setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
         }
         try {
@@ -325,7 +325,7 @@ class ActivityNavigatorTest {
         val targetDestination = activityNavigator.createDestination().apply {
             id = TARGET_ID
             label = TARGET_LABEL
-            action = TARGET_ACTION
+            setAction(TARGET_ACTION)
         }
         val expected = "Destination(0x${TARGET_ID.toString(16)}) label=$TARGET_LABEL " +
             "action=$TARGET_ACTION"

@@ -234,14 +234,14 @@ class SingleProcessDataStoreStressTest {
         Serializer<Long> {
         override val defaultValue = 0L
 
-        override fun readFrom(input: InputStream): Long {
+        override suspend fun readFrom(input: InputStream): Long {
             if (failReads) {
                 throw IOException("failing read")
             }
             return DataInputStream(input).readLong()
         }
 
-        override fun writeTo(t: Long, output: OutputStream) {
+        override suspend fun writeTo(t: Long, output: OutputStream) {
             if (failWrites) {
                 throw IOException("failing write")
             }

@@ -53,16 +53,16 @@ dependencies {
 
 android {
     aaptOptions {
-        noCompress 'ttf'
+        noCompress "ttf"
     }
 
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility(JavaVersion.VERSION_1_7)
+        targetCompatibility(JavaVersion.VERSION_1_7)
     }
 
     testOptions.unitTests.includeAndroidResources = true

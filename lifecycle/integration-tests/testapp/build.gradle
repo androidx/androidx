@@ -24,7 +24,7 @@ plugins {
 
 dependencies {
     implementation(KOTLIN_STDLIB)
-    implementation(projectOrArtifact(":fragment:fragment")) {
+    implementation("androidx.fragment:fragment:1.3.0") {
         exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
     }
     implementation(project(":lifecycle:lifecycle-process"))

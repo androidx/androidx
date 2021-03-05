@@ -53,12 +53,12 @@ import kotlin.coroutines.resume
         "androidx.paging.PagingSource"
     )
 )
-abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
+public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
 
     /**
      * Holder object for inputs to [loadInitial].
      */
-    open class LoadInitialParams(
+    public open class LoadInitialParams(
         /**
          * Initial load position requested.
          *
@@ -66,47 +66,59 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
          * before you execute your load.
          */
         @JvmField
-        val requestedStartPosition: Int,
+        public val requestedStartPosition: Int,
         /**
          * Requested number of items to load.
          *
          * Note that this may be larger than available data.
          */
         @JvmField
-        val requestedLoadSize: Int,
+        public val requestedLoadSize: Int,
         /**
          * Defines page size acceptable for return values.
          *
          * List of items passed to the callback must be an integer multiple of page size.
          */
         @JvmField
-        val pageSize: Int,
+        public val pageSize: Int,
         /**
          * Defines whether placeholders are enabled, and whether the loaded total count will be
          * ignored.
          */
         @JvmField
-        val placeholdersEnabled: Boolean
-    )
+        public val placeholdersEnabled: Boolean
+    ) {
+        init {
+            check(requestedStartPosition >= 0) {
+                "invalid start position: $requestedStartPosition"
+            }
+            check(requestedLoadSize >= 0) {
+                "invalid load size: $requestedLoadSize"
+            }
+            check(pageSize >= 0) {
+                "invalid page size: $pageSize"
+            }
+        }
+    }
 
     /**
      * Holder object for inputs to [loadRange].
      */
-    open class LoadRangeParams(
+    public open class LoadRangeParams(
         /**
          * START position of data to load.
          *
          * Returned data must start at this position.
          */
         @JvmField
-        val startPosition: Int,
+        public val startPosition: Int,
         /**
          * Number of items to load.
          *
          * Returned data must be of this size, unless at end of the list.
          */
         @JvmField
-        val loadSize: Int
+        public val loadSize: Int
     )
 
     /**
@@ -120,7 +132,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
      *
      * @param T Type of items being loaded.
      */
-    abstract class LoadInitialCallback<T> {
+    public abstract class LoadInitialCallback<T> {
         /**
          * Called to pass initial load state from a DataSource.
          *
@@ -138,7 +150,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
          * Includes the number in the initial [data] parameter as well as any items that can be
          * loaded in front or behind of [data].
          */
-        abstract fun onResult(data: List<T>, position: Int, totalCount: Int)
+        public abstract fun onResult(data: List<T>, position: Int, totalCount: Int)
 
         /**
          * Called to pass initial load state from a DataSource without total count, when
@@ -156,7 +168,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
          * @param position Position of the item at the front of the list. If there are N items
          * before the items in data that can be provided by this [DataSource], pass N.
          */
-        abstract fun onResult(data: List<T>, position: Int)
+        public abstract fun onResult(data: List<T>, position: Int)
     }
 
     /**
@@ -170,21 +182,21 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
      *
      * @param T Type of items being loaded.
      */
-    abstract class LoadRangeCallback<T> {
+    public abstract class LoadRangeCallback<T> {
         /**
          * Called to pass loaded data from [loadRange].
          *
          * @param data List of items loaded from the [DataSource]. Must be same size as requested,
          * unless at end of list.
          */
-        abstract fun onResult(data: List<T>)
+        public abstract fun onResult(data: List<T>)
     }
 
     /**
      * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    companion object {
+    public companion object {
         /**
          * Helper for computing an initial position in [loadInitial] when total data set size can be
          * computed ahead of loading.
@@ -228,7 +240,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
          * @see [computeInitialLoadSize]
          */
         @JvmStatic
-        fun computeInitialLoadPosition(params: LoadInitialParams, totalCount: Int): Int {
+        public fun computeInitialLoadPosition(params: LoadInitialParams, totalCount: Int): Int {
             val position = params.requestedStartPosition
             val initialLoadSize = params.requestedLoadSize
             val pageSize = params.pageSize
@@ -290,11 +302,11 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
          * @see [computeInitialLoadPosition]
          */
         @JvmStatic
-        fun computeInitialLoadSize(
+        public fun computeInitialLoadSize(
             params: LoadInitialParams,
             initialLoadPosition: Int,
             totalCount: Int
-        ) = minOf(totalCount - initialLoadPosition, params.requestedLoadSize)
+        ): Int = minOf(totalCount - initialLoadPosition, params.requestedLoadSize)
     }
 
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
@@ -315,7 +327,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                     initialPosition = maxOf(0, idealStart / params.pageSize * params.pageSize)
                 } else {
                     // not tiled, so don't try to snap or force multiple of a page size
-                    initialPosition -= initialLoadSize / 2
+                    initialPosition = maxOf(0, initialPosition - initialLoadSize / 2)
                 }
             }
             val initParams = LoadInitialParams(
@@ -450,7 +462,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
      * set size.
      */
     @WorkerThread
-    abstract fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>)
+    public abstract fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>)
 
     /**
      * Called to load a range of data from the DataSource.
@@ -465,7 +477,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
      * @param callback Callback that receives loaded data.
      */
     @WorkerThread
-    abstract fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>)
+    public abstract fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>)
 
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
     internal override val isContiguous = false

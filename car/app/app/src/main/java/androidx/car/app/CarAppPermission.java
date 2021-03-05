@@ -16,7 +16,7 @@
 
 package androidx.car.app;
 
-import static androidx.car.app.utils.CommonUtils.TAG;
+import static androidx.car.app.utils.LogTags.TAG;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -26,7 +26,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringDef;
-import androidx.car.app.utils.CommonUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -104,15 +103,16 @@ public final class CarAppPermission {
      */
     public static void checkHasLibraryPermission(
             @NonNull Context context, @NonNull @LibraryPermission String permission) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG,
+                    "Checking to see if the car app requested the required library permission: "
+                            + permission);
+        }
+
         try {
             checkHasPermission(context, permission);
             return;
         } catch (SecurityException e) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG,
-                        "Checking to see if the car app requested the required library permission: "
-                                + permission);
-            }
             // Do nothing, we use a fallback for library permissions.
         }
 
@@ -129,8 +129,7 @@ public final class CarAppPermission {
                 }
             }
         } catch (NameNotFoundException e) {
-            Log.e(CommonUtils.TAG,
-                    "Package name not found on the system: " + context.getPackageName(), e);
+            Log.e(TAG, "Package name not found on the system: " + context.getPackageName(), e);
         }
         throw new SecurityException(
                 "The car app does not have a required permission: " + permission);

@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
 import com.google.common.truth.Truth
@@ -24,6 +25,7 @@ import kotlin.reflect.KClass
 /**
  * Data holder for XProcessing tests to access the processing environment.
  */
+@ExperimentalProcessingApi
 class XTestInvocation(
     processingEnv: XProcessingEnv,
     roundEnv: XRoundEnv
@@ -52,8 +54,7 @@ class XTestInvocation(
 
     private val postCompilationAssertions = mutableListOf<CompilationResultSubject.() -> Unit>()
 
-    val isKsp: Boolean
-        get() = processingEnv.backend == XProcessingEnv.Backend.KSP
+    val isKsp: Boolean = processingEnv.backend == XProcessingEnv.Backend.KSP
 
     /**
      * Registers a block that will be called with a [CompilationResultSubject] when compilation

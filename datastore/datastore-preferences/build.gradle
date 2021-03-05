@@ -33,7 +33,7 @@ plugins {
 
 android{
     buildTypes.all{
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 

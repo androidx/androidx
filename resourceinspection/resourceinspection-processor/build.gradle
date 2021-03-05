@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,45 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
+import androidx.build.SupportConfig
 
+import static androidx.build.SdkHelperKt.getSdkPath
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
+    id("kotlin-kapt")
 }
 
 dependencies {
     implementation(project(":resourceinspection:resourceinspection-annotation"))
+    implementation(project(":annotation:annotation"))
 
+    implementation(AUTO_COMMON)
+    implementation(AUTO_SERVICE_ANNOTATIONS)
+    implementation(GRADLE_INCAP_HELPER)
+    implementation(GUAVA)
+    implementation(JAVAPOET)
     implementation(KOTLIN_STDLIB)
+
+    kapt(GRADLE_INCAP_HELPER_PROCESSOR)
+    kapt(AUTO_SERVICE_PROCESSOR)
+
+    testImplementation(INTELLIJ_ANNOTATIONS)
+    testImplementation(JUNIT)
+    testImplementation(JSR250)
+    testImplementation(GOOGLE_COMPILE_TESTING)
+    testImplementation(TRUTH)
+    testImplementation fileTree(
+            dir: "${getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
+            include : "android.jar")
 }
 
 androidx {
     name = "Android Resource Inspection - Annotation Processor"
     type = LibraryType.ANNOTATION_PROCESSOR
     mavenGroup = LibraryGroups.RESOURCEINSPECTION
-    inceptionYear = "2020"
+    inceptionYear = "2021"
     description = "Annotation processors for Android resource and layout inspection"
 }

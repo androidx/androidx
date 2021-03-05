@@ -99,6 +99,10 @@ private fun Iterable<File>.extractPackageNames(): Set<String> = map(::JarFile)
 
 /**
  * Transformer that renames services included in META-INF.
+ *
+ * kotlin-reflect has two META-INF/services in it. Interfaces of these services and theirs
+ * implementations live in the kotlin-reflect itself. This transformer renames files that
+ * live in meta-inf directory and their contents respecting the rules supplied into shadowJar.
  */
 class RenameServicesTransformer : Transformer {
     val renamed = mutableMapOf<String, String>()

@@ -44,9 +44,9 @@ dependencies {
     testImplementation(TRUTH)
     testImplementation(ROBOLECTRIC)
     testImplementation(MOCKITO_CORE)
-    testImplementation project(":camera:camera-testing"), {
+    testImplementation(project(":camera:camera-testing"), {
         exclude group: "androidx.camera", module: "camera-core"
-    }
+    })
     testImplementation("androidx.exifinterface:exifinterface:1.0.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -72,7 +72,7 @@ android {
     testOptions.unitTests.includeAndroidResources = true
 
     packagingOptions {
-        pickFirst 'META-INF/support.camera_camera-core.version'
+        pickFirst "META-INF/support.camera_camera-core.version"
     }
 }
 

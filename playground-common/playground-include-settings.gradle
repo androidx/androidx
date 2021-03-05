@@ -106,7 +106,7 @@ ext.setupPlayground = this.&setupPlayground
 def jvmVersion = System.getProperty("java.vm.specification.version")
 if (jvmVersion != "11") {
     def guidance;
-    if (startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
+    if (startParameter.projectProperties.containsKey("android.injected.invoked.from.ide")) {
         guidance = "Make sure to set the gradle JDK to JDK 11 in the project settings." +
                    "(File -> Other Settings -> Default Project Structure)"
     } else {

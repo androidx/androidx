@@ -34,12 +34,12 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly LINT_API_LATEST
-    compileOnly KOTLIN_STDLIB
+    compileOnly(LINT_API_LATEST)
+    compileOnly(KOTLIN_STDLIB)
 
-    testImplementation KOTLIN_STDLIB
-    testImplementation LINT_CORE
-    testImplementation LINT_TESTS
+    testImplementation(KOTLIN_STDLIB)
+    testImplementation(LINT_CORE)
+    testImplementation(LINT_TESTS)
 }
 
 androidx {

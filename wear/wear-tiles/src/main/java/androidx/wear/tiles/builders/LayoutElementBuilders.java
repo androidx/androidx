@@ -23,14 +23,17 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.builders.ActionBuilders.Action;
 import androidx.wear.tiles.builders.ColorBuilders.ColorProp;
 import androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.builders.DimensionBuilders.DegreesProp;
 import androidx.wear.tiles.builders.DimensionBuilders.DpProp;
+import androidx.wear.tiles.builders.DimensionBuilders.EmProp;
 import androidx.wear.tiles.builders.DimensionBuilders.ImageDimension;
-import androidx.wear.tiles.builders.DimensionBuilders.LinearOrAngularDimension;
 import androidx.wear.tiles.builders.DimensionBuilders.SpProp;
+import androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension;
+import androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers;
+import androidx.wear.tiles.builders.ModifiersBuilders.Modifiers;
+import androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers;
 import androidx.wear.tiles.proto.LayoutElementProto;
 import androidx.wear.tiles.proto.TypesProto;
 import androidx.wear.tiles.readers.DeviceParametersReaders.DeviceParameters;
@@ -262,7 +265,7 @@ public final class LayoutElementBuilders {
     public static final class FontStyle {
         private final LayoutElementProto.FontStyle mImpl;
 
-        FontStyle(LayoutElementProto.FontStyle impl) {
+        private FontStyle(LayoutElementProto.FontStyle impl) {
             this.mImpl = impl;
         }
 
@@ -272,12 +275,15 @@ public final class LayoutElementBuilders {
             return new Builder();
         }
 
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FontStyle fromProto(@NonNull LayoutElementProto.FontStyle proto) {
+            return new FontStyle(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.FontStyle toProto() {
             return mImpl;
@@ -309,20 +315,6 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setSize(@NonNull SpProp.Builder sizeBuilder) {
                 mImpl.setSize(sizeBuilder.build().toProto());
-                return this;
-            }
-
-            /**
-             * Sets whether the text should be rendered in a bold typeface. If not specified,
-             * defaults to "false".
-             *
-             * @deprecated Use weight instead.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @Deprecated
-            @NonNull
-            public Builder setBold(boolean bold) {
-                mImpl.setBold(TypesProto.BoolProp.newBuilder().setValue(bold));
                 return this;
             }
 
@@ -378,659 +370,41 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
-            @NonNull
-            public FontStyle build() {
-                return new FontStyle(mImpl.build());
-            }
-        }
-    }
-
-    /** The padding around a {@link Box} element. */
-    public static final class Padding {
-        private final LayoutElementProto.Padding mImpl;
-
-        Padding(LayoutElementProto.Padding impl) {
-            this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        public LayoutElementProto.Padding toProto() {
-            return mImpl;
-        }
-
-        /** Builder for {@link Padding} */
-        public static final class Builder {
-            private final LayoutElementProto.Padding.Builder mImpl =
-                    LayoutElementProto.Padding.newBuilder();
-
-            Builder() {}
-
             /**
-             * Sets the padding on the end of the content, depending on the layout direction, in DP
-             * and the value of "rtl_aware".
+             * Sets the text letter-spacing. Positive numbers increase the space between letters
+             * while negative numbers tighten the space. If not specified, defaults to 0.
              */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setEnd(@NonNull DpProp end) {
-                mImpl.setEnd(end.toProto());
+            public Builder setLetterSpacing(@NonNull EmProp letterSpacing) {
+                mImpl.setLetterSpacing(letterSpacing.toProto());
                 return this;
             }
 
             /**
-             * Sets the padding on the end of the content, depending on the layout direction, in DP
-             * and the value of "rtl_aware".
+             * Sets the text letter-spacing. Positive numbers increase the space between letters
+             * while negative numbers tighten the space. If not specified, defaults to 0.
              */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setEnd(@NonNull DpProp.Builder endBuilder) {
-                mImpl.setEnd(endBuilder.build().toProto());
-                return this;
-            }
-
-            /**
-             * Sets the padding on the start of the content, depending on the layout direction, in
-             * DP and the value of "rtl_aware".
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setStart(@NonNull DpProp start) {
-                mImpl.setStart(start.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the padding on the start of the content, depending on the layout direction, in
-             * DP and the value of "rtl_aware".
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setStart(@NonNull DpProp.Builder startBuilder) {
-                mImpl.setStart(startBuilder.build().toProto());
-                return this;
-            }
-
-            /** Sets the padding at the top, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setTop(@NonNull DpProp top) {
-                mImpl.setTop(top.toProto());
-                return this;
-            }
-
-            /** Sets the padding at the top, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setTop(@NonNull DpProp.Builder topBuilder) {
-                mImpl.setTop(topBuilder.build().toProto());
-                return this;
-            }
-
-            /** Sets the padding at the bottom, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setBottom(@NonNull DpProp bottom) {
-                mImpl.setBottom(bottom.toProto());
-                return this;
-            }
-
-            /** Sets the padding at the bottom, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setBottom(@NonNull DpProp.Builder bottomBuilder) {
-                mImpl.setBottom(bottomBuilder.build().toProto());
-                return this;
-            }
-
-            /**
-             * Sets whether the start/end padding is aware of RTL support. If true, the values for
-             * start/end will follow the layout direction (i.e. start will refer to the right hand
-             * side of the container if the device is using an RTL locale). If false, start/end will
-             * always map to left/right, accordingly.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setRtlAware(boolean rtlAware) {
-                mImpl.setRtlAware(TypesProto.BoolProp.newBuilder().setValue(rtlAware));
+            public Builder setLetterSpacing(@NonNull EmProp.Builder letterSpacingBuilder) {
+                mImpl.setLetterSpacing(letterSpacingBuilder.build().toProto());
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
-            public Padding build() {
-                return new Padding(mImpl.build());
-            }
-        }
-    }
-
-    /** The border around a {@link Box} element. */
-    public static final class Border {
-        private final LayoutElementProto.Border mImpl;
-
-        Border(LayoutElementProto.Border impl) {
-            this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        public LayoutElementProto.Border toProto() {
-            return mImpl;
-        }
-
-        /** Builder for {@link Border} */
-        public static final class Builder {
-            private final LayoutElementProto.Border.Builder mImpl =
-                    LayoutElementProto.Border.newBuilder();
-
-            Builder() {}
-
-            /** Sets the width of the border, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setWidth(@NonNull DpProp width) {
-                mImpl.setWidth(width.toProto());
-                return this;
-            }
-
-            /** Sets the width of the border, in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setWidth(@NonNull DpProp.Builder widthBuilder) {
-                mImpl.setWidth(widthBuilder.build().toProto());
-                return this;
-            }
-
-            /** Sets the color of the border. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setColor(@NonNull ColorProp color) {
-                mImpl.setColor(color.toProto());
-                return this;
-            }
-
-            /** Sets the color of the border. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setColor(@NonNull ColorProp.Builder colorBuilder) {
-                mImpl.setColor(colorBuilder.build().toProto());
-                return this;
-            }
-
-            /** Builds an instance from accumulated values. */
-            @NonNull
-            public Border build() {
-                return new Border(mImpl.build());
-            }
-        }
-    }
-
-    /** The corner of a {@link Box} element. */
-    public static final class Corner {
-        private final LayoutElementProto.Corner mImpl;
-
-        Corner(LayoutElementProto.Corner impl) {
-            this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        public LayoutElementProto.Corner toProto() {
-            return mImpl;
-        }
-
-        /** Builder for {@link Corner} */
-        public static final class Builder {
-            private final LayoutElementProto.Corner.Builder mImpl =
-                    LayoutElementProto.Corner.newBuilder();
-
-            Builder() {}
-
-            /** Sets the radius of the corner in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setRadius(@NonNull DpProp radius) {
-                mImpl.setRadius(radius.toProto());
-                return this;
-            }
-
-            /** Sets the radius of the corner in DP. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setRadius(@NonNull DpProp.Builder radiusBuilder) {
-                mImpl.setRadius(radiusBuilder.build().toProto());
-                return this;
-            }
-
-            /** Builds an instance from accumulated values. */
-            @NonNull
-            public Corner build() {
-                return new Corner(mImpl.build());
-            }
-        }
-    }
-
-    /** The style of a {@link Text} element. */
-    public static final class TextStyle {
-        private final LayoutElementProto.TextStyle mImpl;
-
-        TextStyle(LayoutElementProto.TextStyle impl) {
-            this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        public LayoutElementProto.TextStyle toProto() {
-            return mImpl;
-        }
-
-        /** Builder for {@link TextStyle} */
-        public static final class Builder {
-            private final LayoutElementProto.TextStyle.Builder mImpl =
-                    LayoutElementProto.TextStyle.newBuilder();
-
-            Builder() {}
-
-            /**
-             * Sets the text color. If not defined, defaults to white.
-             *
-             * @deprecated Use color property of {@link FontStyle} instead.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @Deprecated
-            @NonNull
-            public Builder setColor(@NonNull ColorProp color) {
-                mImpl.setColor(color.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the text color. If not defined, defaults to white.
-             *
-             * @deprecated Use color property of {@link FontStyle} instead.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @Deprecated
-            @NonNull
-            public Builder setColor(@NonNull ColorProp.Builder colorBuilder) {
-                mImpl.setColor(colorBuilder.build().toProto());
-                return this;
-            }
-
-            /**
-             * Sets the maximum number of lines that can be represented by the {@link Text} element.
-             * If not defined, the {@link Text} element will be treated as a single-line element.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setMaxLines(@IntRange(from = 0) int maxLines) {
-                mImpl.setMaxLines(TypesProto.Int32Prop.newBuilder().setValue(maxLines));
-                return this;
-            }
-
-            /**
-             * Sets alignment of the text within its bounds. Note that a {@link Text} element will
-             * size itself to wrap its contents, so this option is meaningless for single-line text
-             * (for that, use alignment of the outer container). For multi-line text, however, this
-             * will set the alignment of lines relative to the {@link Text} element bounds. If not
-             * defined, defaults to TEXT_ALIGN_CENTER.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setMultilineAlignment(@TextAlignment int multilineAlignment) {
-                mImpl.setMultilineAlignment(
-                        LayoutElementProto.TextAlignmentProp.newBuilder()
-                                .setValue(
-                                        LayoutElementProto.TextAlignment.forNumber(
-                                                multilineAlignment)));
-                return this;
-            }
-
-            /**
-             * Sets specifies how to handle text which overflows the bound of the {@link Text}
-             * element. A {@link Text} element will grow as large as possible inside its parent
-             * container (while still respecting max_lines); if it cannot grow large enough to
-             * render all of its text, the text which cannot fit inside its container will be
-             * truncated. If not defined, defaults to TEXT_OVERFLOW_TRUNCATE.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setOverflow(@TextOverflow int overflow) {
-                mImpl.setOverflow(
-                        LayoutElementProto.TextOverflowProp.newBuilder()
-                                .setValue(LayoutElementProto.TextOverflow.forNumber(overflow)));
-                return this;
-            }
-
-            /** Builds an instance from accumulated values. */
-            @NonNull
-            public TextStyle build() {
-                return new TextStyle(mImpl.build());
-            }
-        }
-    }
-
-    /** The style of a {@link Spannable} element. */
-    public static final class SpannableStyle {
-        private final LayoutElementProto.SpannableStyle mImpl;
-
-        SpannableStyle(LayoutElementProto.SpannableStyle impl) {
-            this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        public LayoutElementProto.SpannableStyle toProto() {
-            return mImpl;
-        }
-
-        /** Builder for {@link SpannableStyle} */
-        public static final class Builder {
-            private final LayoutElementProto.SpannableStyle.Builder mImpl =
-                    LayoutElementProto.SpannableStyle.newBuilder();
-
-            Builder() {}
-
-            /**
-             * Sets the maximum number of lines that can be represented by the {@link Spannable}
-             * element. If not defined, the {@link Text} element will be treated as a single-line
-             * element.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setMaxLines(@IntRange(from = 0) int maxLines) {
-                mImpl.setMaxLines(TypesProto.Int32Prop.newBuilder().setValue(maxLines));
-                return this;
-            }
-
-            /**
-             * Sets alignment of the {@link Spannable} content within its bounds. Note that a {@link
-             * Spannable} element will size itself to wrap its contents, so this option is
-             * meaningless for single-line content (for that, use alignment of the outer container).
-             * For multi-line content, however, this will set the alignment of lines relative to the
-             * {@link Spannable} element bounds. If not defined, defaults to TEXT_ALIGN_CENTER.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setMultilineAlignment(@HorizontalAlignment int multilineAlignment) {
-                mImpl.setMultilineAlignment(
-                        LayoutElementProto.HorizontalAlignmentProp.newBuilder()
-                                .setValue(
-                                        LayoutElementProto.HorizontalAlignment.forNumber(
-                                                multilineAlignment)));
-                return this;
-            }
-
-            /**
-             * Sets specifies how to handle content which overflows the bound of the {@link
-             * Spannable} element. A {@link Spannable} element will grow as large as possible inside
-             * its parent container (while still respecting max_lines); if it cannot grow large
-             * enough to render all of its content, the content which cannot fit inside its
-             * container will be truncated. If not defined, defaults to TEXT_OVERFLOW_TRUNCATE.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setOverflow(@TextOverflow int overflow) {
-                mImpl.setOverflow(
-                        LayoutElementProto.TextOverflowProp.newBuilder()
-                                .setValue(LayoutElementProto.TextOverflow.forNumber(overflow)));
-                return this;
-            }
-
-            /** Builds an instance from accumulated values. */
-            @NonNull
-            public SpannableStyle build() {
-                return new SpannableStyle(mImpl.build());
-            }
-        }
-    }
-
-    /** The style of a {@link Box}. */
-    public static final class BoxStyle {
-        private final LayoutElementProto.BoxStyle mImpl;
-
-        BoxStyle(LayoutElementProto.BoxStyle impl) {
-            this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        public LayoutElementProto.BoxStyle toProto() {
-            return mImpl;
-        }
-
-        /** Builder for {@link BoxStyle} */
-        public static final class Builder {
-            private final LayoutElementProto.BoxStyle.Builder mImpl =
-                    LayoutElementProto.BoxStyle.newBuilder();
-
-            Builder() {}
-
-            /**
-             * Sets the background color for this {@link Box}. If not defined, defaults to being
-             * transparent.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setBackgroundColor(@NonNull ColorProp backgroundColor) {
-                mImpl.setBackgroundColor(backgroundColor.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the background color for this {@link Box}. If not defined, defaults to being
-             * transparent.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setBackgroundColor(@NonNull ColorProp.Builder backgroundColorBuilder) {
-                mImpl.setBackgroundColor(backgroundColorBuilder.build().toProto());
-                return this;
-            }
-
-            /**
-             * Sets an optional padding inside of this {@link Box}. If not defined, {@link Box} will
-             * not have any padding.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setPadding(@NonNull Padding padding) {
-                mImpl.setPadding(padding.toProto());
-                return this;
-            }
-
-            /**
-             * Sets an optional padding inside of this {@link Box}. If not defined, {@link Box} will
-             * not have any padding.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setPadding(@NonNull Padding.Builder paddingBuilder) {
-                mImpl.setPadding(paddingBuilder.build().toProto());
-                return this;
-            }
-
-            /**
-             * Sets an optional border for this {@link Box}. If not defined, {@link Box} will not
-             * have a border.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setBorder(@NonNull Border border) {
-                mImpl.setBorder(border.toProto());
-                return this;
-            }
-
-            /**
-             * Sets an optional border for this {@link Box}. If not defined, {@link Box} will not
-             * have a border.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setBorder(@NonNull Border.Builder borderBuilder) {
-                mImpl.setBorder(borderBuilder.build().toProto());
-                return this;
-            }
-
-            /**
-             * Sets the corner properties of this {@link Box}. This only affects the drawing of this
-             * {@link Box} if either "color" or "border" are also set. If not defined, defaults to
-             * having a square corner.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setCorner(@NonNull Corner corner) {
-                mImpl.setCorner(corner.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the corner properties of this {@link Box}. This only affects the drawing of this
-             * {@link Box} if either "color" or "border" are also set. If not defined, defaults to
-             * having a square corner.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setCorner(@NonNull Corner.Builder cornerBuilder) {
-                mImpl.setCorner(cornerBuilder.build().toProto());
-                return this;
-            }
-
-            /** Builds an instance from accumulated values. */
-            @NonNull
-            public BoxStyle build() {
-                return new BoxStyle(mImpl.build());
-            }
-        }
-    }
-
-    /** The style of a line. */
-    public static final class LineStyle {
-        private final LayoutElementProto.LineStyle mImpl;
-
-        LineStyle(LayoutElementProto.LineStyle impl) {
-            this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        public LayoutElementProto.LineStyle toProto() {
-            return mImpl;
-        }
-
-        /** Builder for {@link LineStyle} */
-        public static final class Builder {
-            private final LayoutElementProto.LineStyle.Builder mImpl =
-                    LayoutElementProto.LineStyle.newBuilder();
-
-            Builder() {}
-
-            /** Sets color of this line. If not defined, defaults to white. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setColor(@NonNull ColorProp color) {
-                mImpl.setColor(color.toProto());
-                return this;
-            }
-
-            /** Sets color of this line. If not defined, defaults to white. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setColor(@NonNull ColorProp.Builder colorBuilder) {
-                mImpl.setColor(colorBuilder.build().toProto());
-                return this;
-            }
-
-            /** Builds an instance from accumulated values. */
-            @NonNull
-            public LineStyle build() {
-                return new LineStyle(mImpl.build());
+            public FontStyle build() {
+                return FontStyle.fromProto(mImpl.build());
             }
         }
     }
 
     /** A text string. */
-    public static final class Text implements Span, LayoutElement {
+    public static final class Text implements LayoutElement {
         private final LayoutElementProto.Text mImpl;
 
-        Text(LayoutElementProto.Text impl) {
+        private Text(LayoutElementProto.Text impl) {
             this.mImpl = impl;
         }
 
@@ -1041,7 +415,14 @@ public final class LayoutElementBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Text fromProto(@NonNull LayoutElementProto.Text proto) {
+            return new Text(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Text toProto() {
             return mImpl;
@@ -1049,22 +430,14 @@ public final class LayoutElementBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        public LayoutElementProto.Span toSpanProto() {
-            return LayoutElementProto.Span.newBuilder().setText(mImpl).build();
-        }
-
-        /** @hide */
-        @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
             return LayoutElementProto.LayoutElement.newBuilder().setText(mImpl).build();
         }
 
         /** Builder for {@link Text}. */
-        public static final class Builder implements Span.Builder, LayoutElement.Builder {
+        public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Text.Builder mImpl =
                     LayoutElementProto.Text.newBuilder();
 
@@ -1075,32 +448,6 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setText(@NonNull String text) {
                 mImpl.setText(TypesProto.StringProp.newBuilder().setValue(text));
-                return this;
-            }
-
-            /**
-             * Sets an optional style for this text string.
-             *
-             * @deprecated Use {@link Spannable} with {@link SpannableStyle} instead.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @Deprecated
-            @NonNull
-            public Builder setStyle(@NonNull TextStyle style) {
-                mImpl.setStyle(style.toProto());
-                return this;
-            }
-
-            /**
-             * Sets an optional style for this text string.
-             *
-             * @deprecated Use {@link Spannable} with {@link SpannableStyle} instead.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @Deprecated
-            @NonNull
-            public Builder setStyle(@NonNull TextStyle.Builder styleBuilder) {
-                mImpl.setStyle(styleBuilder.build().toProto());
                 return this;
             }
 
@@ -1126,98 +473,101 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull Modifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
+            /**
+             * Sets the maximum number of lines that can be represented by the {@link Text} element.
+             * If not defined, the {@link Text} element will be treated as a single-line element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setMaxLines(@IntRange(from = 1) int maxLines) {
+                mImpl.setMaxLines(TypesProto.Int32Prop.newBuilder().setValue(maxLines));
+                return this;
+            }
+
+            /**
+             * Sets alignment of the text within its bounds. Note that a {@link Text} element will
+             * size itself to wrap its contents, so this option is meaningless for single-line text
+             * (for that, use alignment of the outer container). For multi-line text, however, this
+             * will set the alignment of lines relative to the {@link Text} element bounds. If not
+             * defined, defaults to TEXT_ALIGN_CENTER.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setMultilineAlignment(@TextAlignment int multilineAlignment) {
+                mImpl.setMultilineAlignment(
+                        LayoutElementProto.TextAlignmentProp.newBuilder()
+                                .setValue(
+                                        LayoutElementProto.TextAlignment.forNumber(
+                                                multilineAlignment)));
+                return this;
+            }
+
+            /**
+             * Sets how to handle text which overflows the bound of the {@link Text} element. A
+             * {@link Text} element will grow as large as possible inside its parent container
+             * (while still respecting max_lines); if it cannot grow large enough to render all of
+             * its text, the text which cannot fit inside its container will be truncated. If not
+             * defined, defaults to TEXT_OVERFLOW_TRUNCATE.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setOverflow(@TextOverflow int overflow) {
+                mImpl.setOverflow(
+                        LayoutElementProto.TextOverflowProp.newBuilder()
+                                .setValue(LayoutElementProto.TextOverflow.forNumber(overflow)));
+                return this;
+            }
+
+            /**
+             * Sets the explicit height between lines of text. This is equivalent to the vertical
+             * distance between subsequent baselines. If not specified, defaults the font's
+             * recommended interline spacing.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setLineHeight(@NonNull SpProp lineHeight) {
+                mImpl.setLineHeight(lineHeight.toProto());
+                return this;
+            }
+
+            /**
+             * Sets the explicit height between lines of text. This is equivalent to the vertical
+             * distance between subsequent baselines. If not specified, defaults the font's
+             * recommended interline spacing.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setLineHeight(@NonNull SpProp.Builder lineHeightBuilder) {
+                mImpl.setLineHeight(lineHeightBuilder.build().toProto());
+                return this;
+            }
+
             @Override
             @NonNull
             public Text build() {
-                return new Text(mImpl.build());
-            }
-        }
-    }
-
-    /**
-     * A holder for an element which can have associated {@link
-     * androidx.wear.tiles.builders.ActionBuilders.Action} items for click events. When an element
-     * wrapped in a {@link Clickable} is clicked, it will fire the associated action.
-     */
-    public static final class Clickable implements LayoutElement {
-        private final LayoutElementProto.Clickable mImpl;
-
-        Clickable(LayoutElementProto.Clickable impl) {
-            this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        LayoutElementProto.Clickable toProto() {
-            return mImpl;
-        }
-
-        /** @hide */
-        @Override
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        public LayoutElementProto.LayoutElement toLayoutElementProto() {
-            return LayoutElementProto.LayoutElement.newBuilder().setClickable(mImpl).build();
-        }
-
-        /** Builder for {@link Clickable}. */
-        public static final class Builder implements LayoutElement.Builder {
-            private final LayoutElementProto.Clickable.Builder mImpl =
-                    LayoutElementProto.Clickable.newBuilder();
-
-            Builder() {}
-
-            /** Sets the ID associated with this action. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setId(@NonNull String id) {
-                mImpl.setId(id);
-                return this;
-            }
-
-            /** Sets the layout element to attach the action to. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setContent(@NonNull LayoutElement content) {
-                mImpl.setContent(content.toLayoutElementProto());
-                return this;
-            }
-
-            /** Sets the layout element to attach the action to. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setContent(@NonNull LayoutElement.Builder contentBuilder) {
-                mImpl.setContent(contentBuilder.build().toLayoutElementProto());
-                return this;
-            }
-
-            /** Sets the action to perform when "content" is clicked. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setOnClick(@NonNull Action onClick) {
-                mImpl.setOnClick(onClick.toActionProto());
-                return this;
-            }
-
-            /** Sets the action to perform when "content" is clicked. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setOnClick(@NonNull Action.Builder onClickBuilder) {
-                mImpl.setOnClick(onClickBuilder.build().toActionProto());
-                return this;
-            }
-
-            @Override
-            @NonNull
-            public Clickable build() {
-                return new Clickable(mImpl.build());
+                return Text.fromProto(mImpl.build());
             }
         }
     }
@@ -1232,7 +582,7 @@ public final class LayoutElementBuilders {
     public static final class Image implements LayoutElement {
         private final LayoutElementProto.Image mImpl;
 
-        Image(LayoutElementProto.Image impl) {
+        private Image(LayoutElementProto.Image impl) {
             this.mImpl = impl;
         }
 
@@ -1243,7 +593,14 @@ public final class LayoutElementBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Image fromProto(@NonNull LayoutElementProto.Image proto) {
+            return new Image(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Image toProto() {
             return mImpl;
@@ -1251,7 +608,7 @@ public final class LayoutElementBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
             return LayoutElementProto.LayoutElement.newBuilder().setImage(mImpl).build();
@@ -1322,10 +679,32 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull Modifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
             @Override
             @NonNull
             public Image build() {
-                return new Image(mImpl.build());
+                return Image.fromProto(mImpl.build());
             }
         }
     }
@@ -1334,7 +713,7 @@ public final class LayoutElementBuilders {
     public static final class Spacer implements LayoutElement {
         private final LayoutElementProto.Spacer mImpl;
 
-        Spacer(LayoutElementProto.Spacer impl) {
+        private Spacer(LayoutElementProto.Spacer impl) {
             this.mImpl = impl;
         }
 
@@ -1345,7 +724,14 @@ public final class LayoutElementBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Spacer fromProto(@NonNull LayoutElementProto.Spacer proto) {
+            return new Spacer(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Spacer toProto() {
             return mImpl;
@@ -1353,7 +739,7 @@ public final class LayoutElementBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
             return LayoutElementProto.LayoutElement.newBuilder().setSpacer(mImpl).build();
@@ -1373,8 +759,8 @@ public final class LayoutElementBuilders {
              */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setWidth(@NonNull LinearOrAngularDimension width) {
-                mImpl.setWidth(width.toLinearOrAngularDimensionProto());
+            public Builder setWidth(@NonNull SpacerDimension width) {
+                mImpl.setWidth(width.toSpacerDimensionProto());
                 return this;
             }
 
@@ -1385,31 +771,53 @@ public final class LayoutElementBuilders {
              */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setWidth(@NonNull LinearOrAngularDimension.Builder widthBuilder) {
-                mImpl.setWidth(widthBuilder.build().toLinearOrAngularDimensionProto());
+            public Builder setWidth(@NonNull SpacerDimension.Builder widthBuilder) {
+                mImpl.setWidth(widthBuilder.build().toSpacerDimensionProto());
                 return this;
             }
 
             /** Sets the height of this spacer. If not defined, defaults to 0. */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setHeight(@NonNull DpProp height) {
-                mImpl.setHeight(height.toProto());
+            public Builder setHeight(@NonNull SpacerDimension height) {
+                mImpl.setHeight(height.toSpacerDimensionProto());
                 return this;
             }
 
             /** Sets the height of this spacer. If not defined, defaults to 0. */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setHeight(@NonNull DpProp.Builder heightBuilder) {
-                mImpl.setHeight(heightBuilder.build().toProto());
+            public Builder setHeight(@NonNull SpacerDimension.Builder heightBuilder) {
+                mImpl.setHeight(heightBuilder.build().toSpacerDimensionProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull Modifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
             @Override
             @NonNull
             public Spacer build() {
-                return new Spacer(mImpl.build());
+                return Spacer.fromProto(mImpl.build());
             }
         }
     }
@@ -1421,7 +829,7 @@ public final class LayoutElementBuilders {
     public static final class Box implements LayoutElement {
         private final LayoutElementProto.Box mImpl;
 
-        Box(LayoutElementProto.Box impl) {
+        private Box(LayoutElementProto.Box impl) {
             this.mImpl = impl;
         }
 
@@ -1432,7 +840,14 @@ public final class LayoutElementBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Box fromProto(@NonNull LayoutElementProto.Box proto) {
+            return new Box(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Box toProto() {
             return mImpl;
@@ -1440,7 +855,7 @@ public final class LayoutElementBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
             return LayoutElementProto.LayoutElement.newBuilder().setBox(mImpl).build();
@@ -1466,22 +881,6 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder addContent(@NonNull LayoutElement.Builder contentBuilder) {
                 mImpl.addContents(contentBuilder.build().toLayoutElementProto());
-                return this;
-            }
-
-            /** Sets the style of the {@link Box} (padding, background color, border etc). */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setStyle(@NonNull BoxStyle style) {
-                mImpl.setStyle(style.toProto());
-                return this;
-            }
-
-            /** Sets the style of the {@link Box} (padding, background color, border etc). */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setStyle(@NonNull BoxStyle.Builder styleBuilder) {
-                mImpl.setStyle(styleBuilder.build().toProto());
                 return this;
             }
 
@@ -1559,10 +958,255 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull Modifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
             @Override
             @NonNull
             public Box build() {
-                return new Box(mImpl.build());
+                return Box.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /**
+     * A portion of text which can be added to a {@link Span}. Two different {@link SpanText}
+     * elements on the same line will be aligned to the same baseline, regardless of the size of
+     * each {@link SpanText}.
+     */
+    public static final class SpanText implements Span {
+        private final LayoutElementProto.SpanText mImpl;
+
+        private SpanText(LayoutElementProto.SpanText impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static SpanText fromProto(@NonNull LayoutElementProto.SpanText proto) {
+            return new SpanText(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        LayoutElementProto.SpanText toProto() {
+            return mImpl;
+        }
+
+        /** @hide */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.Span toSpanProto() {
+            return LayoutElementProto.Span.newBuilder().setText(mImpl).build();
+        }
+
+        /** Builder for {@link SpanText}. */
+        public static final class Builder implements Span.Builder {
+            private final LayoutElementProto.SpanText.Builder mImpl =
+                    LayoutElementProto.SpanText.newBuilder();
+
+            Builder() {}
+
+            /** Sets the text to render. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setText(@NonNull String text) {
+                mImpl.setText(TypesProto.StringProp.newBuilder().setValue(text));
+                return this;
+            }
+
+            /**
+             * Sets the style of font to use (size, bold etc). If not specified, defaults to the
+             * platform's default body font.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setFontStyle(@NonNull FontStyle fontStyle) {
+                mImpl.setFontStyle(fontStyle.toProto());
+                return this;
+            }
+
+            /**
+             * Sets the style of font to use (size, bold etc). If not specified, defaults to the
+             * platform's default body font.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setFontStyle(@NonNull FontStyle.Builder fontStyleBuilder) {
+                mImpl.setFontStyle(fontStyleBuilder.build().toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull SpanModifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull SpanModifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public SpanText build() {
+                return SpanText.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /** An image which can be added to a {@link Span}. */
+    public static final class SpanImage implements Span {
+        private final LayoutElementProto.SpanImage mImpl;
+
+        private SpanImage(LayoutElementProto.SpanImage impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static SpanImage fromProto(@NonNull LayoutElementProto.SpanImage proto) {
+            return new SpanImage(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        LayoutElementProto.SpanImage toProto() {
+            return mImpl;
+        }
+
+        /** @hide */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.Span toSpanProto() {
+            return LayoutElementProto.Span.newBuilder().setImage(mImpl).build();
+        }
+
+        /** Builder for {@link SpanImage}. */
+        public static final class Builder implements Span.Builder {
+            private final LayoutElementProto.SpanImage.Builder mImpl =
+                    LayoutElementProto.SpanImage.newBuilder();
+
+            Builder() {}
+
+            /**
+             * Sets the resource_id of the image to render. This must exist in the supplied resource
+             * bundle.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setResourceId(@NonNull String resourceId) {
+                mImpl.setResourceId(TypesProto.StringProp.newBuilder().setValue(resourceId));
+                return this;
+            }
+
+            /** Sets the width of this image. If not defined, the image will not be rendered. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setWidth(@NonNull DpProp width) {
+                mImpl.setWidth(width.toProto());
+                return this;
+            }
+
+            /** Sets the width of this image. If not defined, the image will not be rendered. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setWidth(@NonNull DpProp.Builder widthBuilder) {
+                mImpl.setWidth(widthBuilder.build().toProto());
+                return this;
+            }
+
+            /** Sets the height of this image. If not defined, the image will not be rendered. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setHeight(@NonNull DpProp height) {
+                mImpl.setHeight(height.toProto());
+                return this;
+            }
+
+            /** Sets the height of this image. If not defined, the image will not be rendered. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setHeight(@NonNull DpProp.Builder heightBuilder) {
+                mImpl.setHeight(heightBuilder.build().toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull SpanModifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull SpanModifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public SpanImage build() {
+                return SpanImage.fromProto(mImpl.build());
             }
         }
     }
@@ -1570,7 +1214,7 @@ public final class LayoutElementBuilders {
     /**
      * Interface defining a single {@link Span}. Each {@link Span} forms part of a larger {@link
      * Spannable} widget. At the moment, the only widgets which can be added to {@link Spannable}
-     * containers are {@link Text} elements.
+     * containers are {@link SpanText} and {@link SpanImage} elements.
      */
     public interface Span {
         /**
@@ -1578,7 +1222,7 @@ public final class LayoutElementBuilders {
          *
          * @hide
          */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Span toSpanProto();
 
@@ -1601,7 +1245,7 @@ public final class LayoutElementBuilders {
     public static final class Spannable implements LayoutElement {
         private final LayoutElementProto.Spannable mImpl;
 
-        Spannable(LayoutElementProto.Spannable impl) {
+        private Spannable(LayoutElementProto.Spannable impl) {
             this.mImpl = impl;
         }
 
@@ -1612,7 +1256,14 @@ public final class LayoutElementBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Spannable fromProto(@NonNull LayoutElementProto.Spannable proto) {
+            return new Spannable(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Spannable toProto() {
             return mImpl;
@@ -1620,7 +1271,7 @@ public final class LayoutElementBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
             return LayoutElementProto.LayoutElement.newBuilder().setSpannable(mImpl).build();
@@ -1649,26 +1300,104 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the style of this {@link Spannable}. */
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setStyle(@NonNull SpannableStyle style) {
-                mImpl.setStyle(style.toProto());
+            public Builder setModifiers(@NonNull Modifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
-            /** Sets the style of this {@link Spannable}. */
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setStyle(@NonNull SpannableStyle.Builder styleBuilder) {
-                mImpl.setStyle(styleBuilder.build().toProto());
+            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
+            /**
+             * Sets the maximum number of lines that can be represented by the {@link Spannable}
+             * element. If not defined, the {@link Spannable} element will be treated as a
+             * single-line element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setMaxLines(@IntRange(from = 1) int maxLines) {
+                mImpl.setMaxLines(TypesProto.Int32Prop.newBuilder().setValue(maxLines));
+                return this;
+            }
+
+            /**
+             * Sets alignment of the {@link Spannable} content within its bounds. Note that a {@link
+             * Spannable} element will size itself to wrap its contents, so this option is
+             * meaningless for single-line content (for that, use alignment of the outer container).
+             * For multi-line content, however, this will set the alignment of lines relative to the
+             * {@link Spannable} element bounds. If not defined, defaults to TEXT_ALIGN_CENTER.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setMultilineAlignment(@HorizontalAlignment int multilineAlignment) {
+                mImpl.setMultilineAlignment(
+                        LayoutElementProto.HorizontalAlignmentProp.newBuilder()
+                                .setValue(
+                                        LayoutElementProto.HorizontalAlignment.forNumber(
+                                                multilineAlignment)));
+                return this;
+            }
+
+            /**
+             * Sets how to handle content which overflows the bound of the {@link Spannable}
+             * element. A {@link Spannable} element will grow as large as possible inside its parent
+             * container (while still respecting max_lines); if it cannot grow large enough to
+             * render all of its content, the content which cannot fit inside its container will be
+             * truncated. If not defined, defaults to TEXT_OVERFLOW_TRUNCATE.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setOverflow(@TextOverflow int overflow) {
+                mImpl.setOverflow(
+                        LayoutElementProto.TextOverflowProp.newBuilder()
+                                .setValue(LayoutElementProto.TextOverflow.forNumber(overflow)));
+                return this;
+            }
+
+            /**
+             * Sets extra spacing to add between each line. This will apply to all spans regardless
+             * of their font size. This is in addition to original line heights. Note that this
+             * won't add any additional space before the first line or after the last line. The
+             * default value is zero and negative values will decrease the interline spacing.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setLineSpacing(@NonNull SpProp lineSpacing) {
+                mImpl.setLineSpacing(lineSpacing.toProto());
+                return this;
+            }
+
+            /**
+             * Sets extra spacing to add between each line. This will apply to all spans regardless
+             * of their font size. This is in addition to original line heights. Note that this
+             * won't add any additional space before the first line or after the last line. The
+             * default value is zero and negative values will decrease the interline spacing.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setLineSpacing(@NonNull SpProp.Builder lineSpacingBuilder) {
+                mImpl.setLineSpacing(lineSpacingBuilder.build().toProto());
                 return this;
             }
 
             @Override
             @NonNull
             public Spannable build() {
-                return new Spannable(mImpl.build());
+                return Spannable.fromProto(mImpl.build());
             }
         }
     }
@@ -1686,7 +1415,7 @@ public final class LayoutElementBuilders {
     public static final class Column implements LayoutElement {
         private final LayoutElementProto.Column mImpl;
 
-        Column(LayoutElementProto.Column impl) {
+        private Column(LayoutElementProto.Column impl) {
             this.mImpl = impl;
         }
 
@@ -1697,7 +1426,14 @@ public final class LayoutElementBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Column fromProto(@NonNull LayoutElementProto.Column proto) {
+            return new Column(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Column toProto() {
             return mImpl;
@@ -1705,7 +1441,7 @@ public final class LayoutElementBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
             return LayoutElementProto.LayoutElement.newBuilder().setColumn(mImpl).build();
@@ -1793,10 +1529,32 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull Modifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
             @Override
             @NonNull
             public Column build() {
-                return new Column(mImpl.build());
+                return Column.fromProto(mImpl.build());
             }
         }
     }
@@ -1814,7 +1572,7 @@ public final class LayoutElementBuilders {
     public static final class Row implements LayoutElement {
         private final LayoutElementProto.Row mImpl;
 
-        Row(LayoutElementProto.Row impl) {
+        private Row(LayoutElementProto.Row impl) {
             this.mImpl = impl;
         }
 
@@ -1825,7 +1583,14 @@ public final class LayoutElementBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Row fromProto(@NonNull LayoutElementProto.Row proto) {
+            return new Row(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Row toProto() {
             return mImpl;
@@ -1833,7 +1598,7 @@ public final class LayoutElementBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
             return LayoutElementProto.LayoutElement.newBuilder().setRow(mImpl).build();
@@ -1921,189 +1686,32 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            @Override
-            @NonNull
-            public Row build() {
-                return new Row(mImpl.build());
-            }
-        }
-    }
-
-    /**
-     * A wrapper for an element which has a screen reader description associated with it. This
-     * should generally be used sparingly, and in most cases should only be applied to the top-level
-     * layout element or to Clickables.
-     */
-    public static final class Audible implements LayoutElement {
-        private final LayoutElementProto.Audible mImpl;
-
-        Audible(LayoutElementProto.Audible impl) {
-            this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        LayoutElementProto.Audible toProto() {
-            return mImpl;
-        }
-
-        /** @hide */
-        @Override
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        public LayoutElementProto.LayoutElement toLayoutElementProto() {
-            return LayoutElementProto.LayoutElement.newBuilder().setAudible(mImpl).build();
-        }
-
-        /** Builder for {@link Audible}. */
-        public static final class Builder implements LayoutElement.Builder {
-            private final LayoutElementProto.Audible.Builder mImpl =
-                    LayoutElementProto.Audible.newBuilder();
-
-            Builder() {}
-
-            /** Sets the element to wrap with the screen reader description. */
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setContent(@NonNull LayoutElement content) {
-                mImpl.setContent(content.toLayoutElementProto());
-                return this;
-            }
-
-            /** Sets the element to wrap with the screen reader description. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setContent(@NonNull LayoutElement.Builder contentBuilder) {
-                mImpl.setContent(contentBuilder.build().toLayoutElementProto());
+            public Builder setModifiers(@NonNull Modifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
                 return this;
             }
 
             /**
-             * Sets the accessibility label associated with this element. This will be dictated when
-             * the element is focused by the screen reader.
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
              */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setAccessibilityLabel(@NonNull String accessibilityLabel) {
-                mImpl.setAccessibilityLabel(accessibilityLabel);
+            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
             @Override
             @NonNull
-            public Audible build() {
-                return new Audible(mImpl.build());
-            }
-        }
-    }
-
-    /**
-     * A line. When added to a normal container, this renders as a horizontal line which can be used
-     * to provide a visual break between elements. When added to an arc, it will render as a round
-     * progress bar.
-     */
-    public static final class Line implements LayoutElement {
-        private final LayoutElementProto.Line mImpl;
-
-        Line(LayoutElementProto.Line impl) {
-            this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        LayoutElementProto.Line toProto() {
-            return mImpl;
-        }
-
-        /** @hide */
-        @Override
-        @RestrictTo(Scope.LIBRARY)
-        @NonNull
-        public LayoutElementProto.LayoutElement toLayoutElementProto() {
-            return LayoutElementProto.LayoutElement.newBuilder().setLine(mImpl).build();
-        }
-
-        /** Builder for {@link Line}. */
-        public static final class Builder implements LayoutElement.Builder {
-            private final LayoutElementProto.Line.Builder mImpl =
-                    LayoutElementProto.Line.newBuilder();
-
-            Builder() {}
-
-            /**
-             * Sets the length of this {@link Line}. When this is added as the direct child of an
-             * {@link Arc}, this must be specified as an AngularDimension, otherwise a
-             * LinearDimension must be used. If not defined, defaults to 0.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setLength(@NonNull LinearOrAngularDimension length) {
-                mImpl.setLength(length.toLinearOrAngularDimensionProto());
-                return this;
-            }
-
-            /**
-             * Sets the length of this {@link Line}. When this is added as the direct child of an
-             * {@link Arc}, this must be specified as an AngularDimension, otherwise a
-             * LinearDimension must be used. If not defined, defaults to 0.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setLength(@NonNull LinearOrAngularDimension.Builder lengthBuilder) {
-                mImpl.setLength(lengthBuilder.build().toLinearOrAngularDimensionProto());
-                return this;
-            }
-
-            /** Sets the thickness of this line. If not defined, defaults to 0. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setThickness(@NonNull DpProp thickness) {
-                mImpl.setThickness(thickness.toProto());
-                return this;
-            }
-
-            /** Sets the thickness of this line. If not defined, defaults to 0. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setThickness(@NonNull DpProp.Builder thicknessBuilder) {
-                mImpl.setThickness(thicknessBuilder.build().toProto());
-                return this;
-            }
-
-            /** Sets the style of this line. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setStyle(@NonNull LineStyle style) {
-                mImpl.setStyle(style.toProto());
-                return this;
-            }
-
-            /** Sets the style of this line. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setStyle(@NonNull LineStyle.Builder styleBuilder) {
-                mImpl.setStyle(styleBuilder.build().toProto());
-                return this;
-            }
-
-            @Override
-            @NonNull
-            public Line build() {
-                return new Line(mImpl.build());
+            public Row build() {
+                return Row.fromProto(mImpl.build());
             }
         }
     }
@@ -2112,15 +1720,11 @@ public final class LayoutElementBuilders {
      * An arc container. This container will fill itself to a circle, which fits inside its parent
      * container, and all of its children will be placed on that circle. The fields anchor_angle and
      * anchor_type can be used to specify where to draw children within this circle.
-     *
-     * <p>Note that there are two special cases. {@link Text} and {@link Line} elements which are
-     * added as direct descendants to an arc will be drawn as a curved widget around the arc, rather
-     * than just placed on the arc and drawn normally.
      */
     public static final class Arc implements LayoutElement {
         private final LayoutElementProto.Arc mImpl;
 
-        Arc(LayoutElementProto.Arc impl) {
+        private Arc(LayoutElementProto.Arc impl) {
             this.mImpl = impl;
         }
 
@@ -2131,7 +1735,14 @@ public final class LayoutElementBuilders {
         }
 
         /** @hide */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Arc fromProto(@NonNull LayoutElementProto.Arc proto) {
+            return new Arc(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Arc toProto() {
             return mImpl;
@@ -2139,7 +1750,7 @@ public final class LayoutElementBuilders {
 
         /** @hide */
         @Override
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
             return LayoutElementProto.LayoutElement.newBuilder().setArc(mImpl).build();
@@ -2155,75 +1766,16 @@ public final class LayoutElementBuilders {
             /** Adds one item to contents of this container. */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder addContent(@NonNull LayoutElement content) {
-                mImpl.addContents(content.toLayoutElementProto());
+            public Builder addContent(@NonNull ArcLayoutElement content) {
+                mImpl.addContents(content.toArcLayoutElementProto());
                 return this;
             }
 
             /** Adds one item to contents of this container. */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder addContent(@NonNull LayoutElement.Builder contentBuilder) {
-                mImpl.addContents(contentBuilder.build().toLayoutElementProto());
-                return this;
-            }
-
-            /**
-             * Sets the length of this {@link Arc} as an angle. If not defined, this will size
-             * itself to fit all of its children. If defined, this should be a value > 0 degrees.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setLength(@NonNull DegreesProp length) {
-                mImpl.setLength(length.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the length of this {@link Arc} as an angle. If not defined, this will size
-             * itself to fit all of its children. If defined, this should be a value > 0 degrees.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setLength(@NonNull DegreesProp.Builder lengthBuilder) {
-                mImpl.setLength(lengthBuilder.build().toProto());
-                return this;
-            }
-
-            /**
-             * Sets the thickness of this {@link Arc}. If not defined, this will size itself to fit
-             * all of its children.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setThickness(@NonNull DpProp thickness) {
-                mImpl.setThickness(thickness.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the thickness of this {@link Arc}. If not defined, this will size itself to fit
-             * all of its children.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setThickness(@NonNull DpProp.Builder thicknessBuilder) {
-                mImpl.setThickness(thicknessBuilder.build().toProto());
-                return this;
-            }
-
-            /**
-             * Sets whether this {@link Arc}'s children should be rotated, according to its position
-             * in the arc or not. As an example, assume that an {@link Image} has been added to the
-             * arc, and ends up at the 3 o clock position. If rotate_contents = true, the image will
-             * be placed at the 3 o clock position, and will be rotated clockwise through 90
-             * degrees. If rotate_contents = false, the image will be placed at the 3 o clock
-             * position, but itself will not be rotated. If not defined, defaults to true.
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setRotateContents(boolean rotateContents) {
-                mImpl.setRotateContents(TypesProto.BoolProp.newBuilder().setValue(rotateContents));
+            public Builder addContent(@NonNull ArcLayoutElement.Builder contentBuilder) {
+                mImpl.addContents(contentBuilder.build().toArcLayoutElementProto());
                 return this;
             }
 
@@ -2290,10 +1842,443 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull Modifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
             @Override
             @NonNull
             public Arc build() {
-                return new Arc(mImpl.build());
+                return Arc.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /** A text element that can be used in an {@link Arc}. */
+    public static final class ArcText implements ArcLayoutElement {
+        private final LayoutElementProto.ArcText mImpl;
+
+        private ArcText(LayoutElementProto.ArcText impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ArcText fromProto(@NonNull LayoutElementProto.ArcText proto) {
+            return new ArcText(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        LayoutElementProto.ArcText toProto() {
+            return mImpl;
+        }
+
+        /** @hide */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.ArcLayoutElement toArcLayoutElementProto() {
+            return LayoutElementProto.ArcLayoutElement.newBuilder().setText(mImpl).build();
+        }
+
+        /** Builder for {@link ArcText}. */
+        public static final class Builder implements ArcLayoutElement.Builder {
+            private final LayoutElementProto.ArcText.Builder mImpl =
+                    LayoutElementProto.ArcText.newBuilder();
+
+            Builder() {}
+
+            /** Sets the text to render. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setText(@NonNull String text) {
+                mImpl.setText(TypesProto.StringProp.newBuilder().setValue(text));
+                return this;
+            }
+
+            /**
+             * Sets the style of font to use (size, bold etc). If not specified, defaults to the
+             * platform's default body font.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setFontStyle(@NonNull FontStyle fontStyle) {
+                mImpl.setFontStyle(fontStyle.toProto());
+                return this;
+            }
+
+            /**
+             * Sets the style of font to use (size, bold etc). If not specified, defaults to the
+             * platform's default body font.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setFontStyle(@NonNull FontStyle.Builder fontStyleBuilder) {
+                mImpl.setFontStyle(fontStyleBuilder.build().toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull ArcModifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull ArcModifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public ArcText build() {
+                return ArcText.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /** A line that can be used in an {@link Arc} and renders as a round progress bar. */
+    public static final class ArcLine implements ArcLayoutElement {
+        private final LayoutElementProto.ArcLine mImpl;
+
+        private ArcLine(LayoutElementProto.ArcLine impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ArcLine fromProto(@NonNull LayoutElementProto.ArcLine proto) {
+            return new ArcLine(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        LayoutElementProto.ArcLine toProto() {
+            return mImpl;
+        }
+
+        /** @hide */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.ArcLayoutElement toArcLayoutElementProto() {
+            return LayoutElementProto.ArcLayoutElement.newBuilder().setLine(mImpl).build();
+        }
+
+        /** Builder for {@link ArcLine}. */
+        public static final class Builder implements ArcLayoutElement.Builder {
+            private final LayoutElementProto.ArcLine.Builder mImpl =
+                    LayoutElementProto.ArcLine.newBuilder();
+
+            Builder() {}
+
+            /** Sets the length of this line, in degrees. If not defined, defaults to 0. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setLength(@NonNull DegreesProp length) {
+                mImpl.setLength(length.toProto());
+                return this;
+            }
+
+            /** Sets the length of this line, in degrees. If not defined, defaults to 0. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setLength(@NonNull DegreesProp.Builder lengthBuilder) {
+                mImpl.setLength(lengthBuilder.build().toProto());
+                return this;
+            }
+
+            /** Sets the thickness of this line. If not defined, defaults to 0. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setThickness(@NonNull DpProp thickness) {
+                mImpl.setThickness(thickness.toProto());
+                return this;
+            }
+
+            /** Sets the thickness of this line. If not defined, defaults to 0. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setThickness(@NonNull DpProp.Builder thicknessBuilder) {
+                mImpl.setThickness(thicknessBuilder.build().toProto());
+                return this;
+            }
+
+            /** Sets the color of this line. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setColor(@NonNull ColorProp color) {
+                mImpl.setColor(color.toProto());
+                return this;
+            }
+
+            /** Sets the color of this line. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setColor(@NonNull ColorProp.Builder colorBuilder) {
+                mImpl.setColor(colorBuilder.build().toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull ArcModifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull ArcModifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public ArcLine build() {
+                return ArcLine.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /** A simple spacer used to provide padding between adjacent elements in an {@link Arc}. */
+    public static final class ArcSpacer implements ArcLayoutElement {
+        private final LayoutElementProto.ArcSpacer mImpl;
+
+        private ArcSpacer(LayoutElementProto.ArcSpacer impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ArcSpacer fromProto(@NonNull LayoutElementProto.ArcSpacer proto) {
+            return new ArcSpacer(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        LayoutElementProto.ArcSpacer toProto() {
+            return mImpl;
+        }
+
+        /** @hide */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.ArcLayoutElement toArcLayoutElementProto() {
+            return LayoutElementProto.ArcLayoutElement.newBuilder().setSpacer(mImpl).build();
+        }
+
+        /** Builder for {@link ArcSpacer}. */
+        public static final class Builder implements ArcLayoutElement.Builder {
+            private final LayoutElementProto.ArcSpacer.Builder mImpl =
+                    LayoutElementProto.ArcSpacer.newBuilder();
+
+            Builder() {}
+
+            /** Sets the length of this spacer, in degrees. If not defined, defaults to 0. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setLength(@NonNull DegreesProp length) {
+                mImpl.setLength(length.toProto());
+                return this;
+            }
+
+            /** Sets the length of this spacer, in degrees. If not defined, defaults to 0. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setLength(@NonNull DegreesProp.Builder lengthBuilder) {
+                mImpl.setLength(lengthBuilder.build().toProto());
+                return this;
+            }
+
+            /** Sets the thickness of this spacer, in DP. If not defined, defaults to 0. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setThickness(@NonNull DpProp thickness) {
+                mImpl.setThickness(thickness.toProto());
+                return this;
+            }
+
+            /** Sets the thickness of this spacer, in DP. If not defined, defaults to 0. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setThickness(@NonNull DpProp.Builder thicknessBuilder) {
+                mImpl.setThickness(thicknessBuilder.build().toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull ArcModifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.tiles.builders.ModifiersBuilders.Modifiers} for this
+             * element.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setModifiers(@NonNull ArcModifiers.Builder modifiersBuilder) {
+                mImpl.setModifiers(modifiersBuilder.build().toProto());
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public ArcSpacer build() {
+                return ArcSpacer.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /** A container that allows a standard {@link LayoutElement} to be added to an {@link Arc}. */
+    public static final class ArcAdapter implements ArcLayoutElement {
+        private final LayoutElementProto.ArcAdapter mImpl;
+
+        private ArcAdapter(LayoutElementProto.ArcAdapter impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ArcAdapter fromProto(@NonNull LayoutElementProto.ArcAdapter proto) {
+            return new ArcAdapter(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        LayoutElementProto.ArcAdapter toProto() {
+            return mImpl;
+        }
+
+        /** @hide */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.ArcLayoutElement toArcLayoutElementProto() {
+            return LayoutElementProto.ArcLayoutElement.newBuilder().setAdapter(mImpl).build();
+        }
+
+        /** Builder for {@link ArcAdapter}. */
+        public static final class Builder implements ArcLayoutElement.Builder {
+            private final LayoutElementProto.ArcAdapter.Builder mImpl =
+                    LayoutElementProto.ArcAdapter.newBuilder();
+
+            Builder() {}
+
+            /** Sets the element to adapt to an {@link Arc}. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setContent(@NonNull LayoutElement content) {
+                mImpl.setContent(content.toLayoutElementProto());
+                return this;
+            }
+
+            /** Sets the element to adapt to an {@link Arc}. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setContent(@NonNull LayoutElement.Builder contentBuilder) {
+                mImpl.setContent(contentBuilder.build().toLayoutElementProto());
+                return this;
+            }
+
+            /**
+             * Sets whether this adapter's contents should be rotated, according to its position in
+             * the arc or not. As an example, assume that an {@link Image} has been added to the
+             * arc, and ends up at the 3 o clock position. If rotate_contents = true, the image will
+             * be placed at the 3 o clock position, and will be rotated clockwise through 90
+             * degrees. If rotate_contents = false, the image will be placed at the 3 o clock
+             * position, but itself will not be rotated. If not defined, defaults to false.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setRotateContents(boolean rotateContents) {
+                mImpl.setRotateContents(TypesProto.BoolProp.newBuilder().setValue(rotateContents));
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public ArcAdapter build() {
+                return ArcAdapter.fromProto(mImpl.build());
             }
         }
     }
@@ -2308,7 +2293,7 @@ public final class LayoutElementBuilders {
          *
          * @hide
          */
-        @RestrictTo(Scope.LIBRARY)
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.LayoutElement toLayoutElementProto();
 
@@ -2319,6 +2304,89 @@ public final class LayoutElementBuilders {
             /** Builds an instance with values accumulated in this Builder. */
             @NonNull
             LayoutElement build();
+        }
+    }
+
+    /**
+     * Interface defining the root of all elements that can be used in an {@link Arc}. This exists
+     * to act as a holder for all of the actual arc layout elements above.
+     */
+    public interface ArcLayoutElement {
+        /**
+         * Get the protocol buffer representation of this object.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        LayoutElementProto.ArcLayoutElement toArcLayoutElementProto();
+
+        /** Builder to create {@link ArcLayoutElement} objects. */
+        @SuppressLint("StaticFinalBuilder")
+        interface Builder {
+
+            /** Builds an instance with values accumulated in this Builder. */
+            @NonNull
+            ArcLayoutElement build();
+        }
+    }
+
+    /** A complete layout. */
+    public static final class Layout {
+        private final LayoutElementProto.Layout mImpl;
+
+        private Layout(LayoutElementProto.Layout impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Layout fromProto(@NonNull LayoutElementProto.Layout proto) {
+            return new Layout(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.Layout toProto() {
+            return mImpl;
+        }
+
+        /** Builder for {@link Layout} */
+        public static final class Builder {
+            private final LayoutElementProto.Layout.Builder mImpl =
+                    LayoutElementProto.Layout.newBuilder();
+
+            Builder() {}
+
+            /** Sets the root element in the layout. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setRoot(@NonNull LayoutElement root) {
+                mImpl.setRoot(root.toLayoutElementProto());
+                return this;
+            }
+
+            /** Sets the root element in the layout. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setRoot(@NonNull LayoutElement.Builder rootBuilder) {
+                mImpl.setRoot(rootBuilder.build().toLayoutElementProto());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public Layout build() {
+                return Layout.fromProto(mImpl.build());
+            }
         }
     }
 
@@ -2346,97 +2414,82 @@ public final class LayoutElementBuilders {
 
         /** Font style for large display text. */
         @NonNull
-        public FontStyle display1() {
+        public FontStyle.Builder display1() {
             return FontStyle.builder()
-                    .setBold(true)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 54 : 50))
-                    .build();
+                    .setWeight(FONT_WEIGHT_BOLD)
+                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 54 : 50));
         }
 
         /** Font style for medium display text. */
         @NonNull
-        public FontStyle display2() {
+        public FontStyle.Builder display2() {
             return FontStyle.builder()
-                    .setBold(true)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 44 : 40))
-                    .build();
+                    .setWeight(FONT_WEIGHT_BOLD)
+                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 44 : 40));
         }
 
         /** Font style for small display text. */
         @NonNull
-        public FontStyle display3() {
+        public FontStyle.Builder display3() {
             return FontStyle.builder()
-                    .setBold(true)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 34 : 30))
-                    .build();
+                    .setWeight(FONT_WEIGHT_BOLD)
+                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 34 : 30));
         }
 
         /** Font style for large title text. */
         @NonNull
-        public FontStyle title1() {
+        public FontStyle.Builder title1() {
             return FontStyle.builder()
-                    .setBold(true)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 26 : 24))
-                    .build();
+                    .setWeight(FONT_WEIGHT_BOLD)
+                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 26 : 24));
         }
 
         /** Font style for medium title text. */
         @NonNull
-        public FontStyle title2() {
+        public FontStyle.Builder title2() {
             return FontStyle.builder()
-                    .setBold(true)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 22 : 20))
-                    .build();
+                    .setWeight(FONT_WEIGHT_BOLD)
+                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 22 : 20));
         }
 
         /** Font style for small title text. */
         @NonNull
-        public FontStyle title3() {
+        public FontStyle.Builder title3() {
             return FontStyle.builder()
-                    .setBold(true)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 18 : 16))
-                    .build();
+                    .setWeight(FONT_WEIGHT_BOLD)
+                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 18 : 16));
         }
 
         /** Font style for large body text. */
         @NonNull
-        public FontStyle body1() {
-            return FontStyle.builder()
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 18 : 16))
-                    .build();
+        public FontStyle.Builder body1() {
+            return FontStyle.builder().setSize(DimensionBuilders.sp(isLargeScreen() ? 18 : 16));
         }
 
         /** Font style for medium body text. */
         @NonNull
-        public FontStyle body2() {
-            return FontStyle.builder()
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 16 : 14))
-                    .build();
+        public FontStyle.Builder body2() {
+            return FontStyle.builder().setSize(DimensionBuilders.sp(isLargeScreen() ? 16 : 14));
         }
 
         /** Font style for button text. */
         @NonNull
-        public FontStyle button() {
+        public FontStyle.Builder button() {
             return FontStyle.builder()
-                    .setBold(true)
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 16 : 14))
-                    .build();
+                    .setWeight(FONT_WEIGHT_BOLD)
+                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 16 : 14));
         }
 
         /** Font style for large caption text. */
         @NonNull
-        public FontStyle caption1() {
-            return FontStyle.builder()
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 16 : 14))
-                    .build();
+        public FontStyle.Builder caption1() {
+            return FontStyle.builder().setSize(DimensionBuilders.sp(isLargeScreen() ? 16 : 14));
         }
 
         /** Font style for medium caption text. */
         @NonNull
-        public FontStyle caption2() {
-            return FontStyle.builder()
-                    .setSize(DimensionBuilders.sp(isLargeScreen() ? 14 : 12))
-                    .build();
+        public FontStyle.Builder caption2() {
+            return FontStyle.builder().setSize(DimensionBuilders.sp(isLargeScreen() ? 14 : 12));
         }
     }
 }

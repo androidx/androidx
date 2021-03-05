@@ -19,8 +19,6 @@ package com.example.androidx.webkit;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -83,13 +81,9 @@ public class MenuListView extends ListView {
      */
     public void setItems(MenuItem[] items) {
         ArrayAdapter<MenuItem> featureArrayAdapter =
-                new ArrayAdapter<MenuItem>(mContext, android.R.layout.simple_list_item_1, items);
+                new ArrayAdapter<>(mContext, android.R.layout.simple_list_item_1, items);
         setAdapter(featureArrayAdapter);
-        setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                featureArrayAdapter.getItem(position).start(mContext);
-            }
-        });
+        setOnItemClickListener((parent, view, position, id) ->
+                featureArrayAdapter.getItem(position).start(mContext));
     }
 }

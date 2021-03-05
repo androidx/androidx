@@ -86,9 +86,8 @@ public class TracingControllerTest {
     @Test
     public void testTracingControllerCallbacksOnUI() throws Throwable {
         final TracingReceiver tracingReceiver = new TracingReceiver();
-        WebkitUtils.onMainThreadSync(() -> {
-            runTracingTestWithCallbacks(tracingReceiver, mSingleThreadExecutor);
-        });
+        WebkitUtils.onMainThreadSync(
+                () -> runTracingTestWithCallbacks(tracingReceiver, mSingleThreadExecutor));
         PollingCheck.check("Tracing did not complete", POLLING_TIMEOUT,
                 tracingReceiver.getCompleteCallable());
         assertThat(tracingReceiver.getNbChunks(), greaterThan(0));
@@ -223,12 +222,7 @@ public class TracingControllerTest {
     private void ensureTracingStopped() throws Exception {
         if (mTracingController == null) return;
         mTracingController.stop(null, mSingleThreadExecutor);
-        Callable<Boolean> tracingStopped = new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                return !mTracingController.isTracing();
-            }
-        };
+        Callable<Boolean> tracingStopped = () -> !mTracingController.isTracing();
         PollingCheck.check("Tracing did not stop", POLLING_TIMEOUT, tracingStopped);
     }
 
@@ -304,12 +298,7 @@ public class TracingControllerTest {
         }
 
         Callable<Boolean> getCompleteCallable() {
-            return new Callable<Boolean>() {
-                @Override
-                public Boolean call() {
-                    return getComplete();
-                }
-            };
+            return this::getComplete;
         }
 
         ByteArrayOutputStream getOutputStream() {

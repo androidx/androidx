@@ -15,7 +15,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_7
     }
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 
@@ -36,10 +36,10 @@ dependencies {
 }
 
 androidx {
-    name 'Android Lifecycle Runtime'
+    name "Android Lifecycle Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup LibraryGroups.LIFECYCLE
-    inceptionYear '2017'
+    inceptionYear "2017"
     description "Android Lifecycle Runtime"
 }

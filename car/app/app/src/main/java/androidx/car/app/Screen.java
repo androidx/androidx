@@ -17,7 +17,7 @@
 package androidx.car.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.car.app.utils.CommonUtils.TAG;
+import static androidx.car.app.utils.LogTags.TAG;
 
 import static java.util.Objects.requireNonNull;
 
@@ -352,7 +352,9 @@ public abstract class Screen implements LifecycleOwner {
 
         mTemplateWrapper = wrapper;
 
-        Log.d(TAG, "Returning " + template + " from screen " + this);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Returning " + template + " from screen " + this);
+        }
         return wrapper;
     }
 

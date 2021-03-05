@@ -37,10 +37,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":activity:activity"))
-    implementation(project(":fragment:fragment-ktx"))
-    implementation(project(":hilt:hilt-lifecycle-viewmodel"))
-    kapt(project(":hilt:hilt-compiler"))
+    implementation("androidx.activity:activity:1.2.0")
+    implementation("androidx.fragment:fragment-ktx:1.3.0")
     implementation(KOTLIN_STDLIB)
     implementation(HILT_ANDROID)
     kapt(HILT_COMPILER)

@@ -25,7 +25,7 @@ import androidx.core.content.withStyledAttributes
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavInflater
-import androidx.navigation.NavInflater.APPLICATION_ID_PLACEHOLDER
+import androidx.navigation.NavInflater.Companion.APPLICATION_ID_PLACEHOLDER
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider

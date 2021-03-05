@@ -63,7 +63,7 @@ internal class KspProcessingEnv(
 
     private val arrayTypeFactory = KspArrayType.Factory(this)
 
-    override val filer: XFiler = KspFiler(codeGenerator)
+    override val filer: XFiler = KspFiler(codeGenerator, messager)
 
     val commonTypes = CommonTypes(resolver)
 

@@ -17,25 +17,19 @@
 package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-import static androidx.core.view.ContentInfoCompat.Builder;
-import static androidx.core.view.ContentInfoCompat.FLAG_CONVERT_TO_PLAIN_TEXT;
-import static androidx.core.view.ContentInfoCompat.SOURCE_CLIPBOARD;
-import static androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD;
+import static androidx.appcompat.widget.AppCompatReceiveContentHelper.createOnCommitContentListener;
+import static androidx.appcompat.widget.AppCompatReceiveContentHelper.maybeHandleDragEventViaPerformReceiveContent;
+import static androidx.appcompat.widget.AppCompatReceiveContentHelper.maybeHandleMenuActionViaPerformReceiveContent;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Bundle;
 import android.text.Editable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.DragEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.textclassifier.TextClassifier;
@@ -56,7 +50,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener;
-import androidx.core.view.inputmethod.InputContentInfoCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.core.widget.TextViewOnReceiveContentListener;
 
@@ -81,13 +74,11 @@ import androidx.core.widget.TextViewOnReceiveContentListener;
  */
 public class AppCompatEditText extends EditText implements TintableBackgroundView,
         OnReceiveContentViewBehavior {
-    private static final String LOG_TAG = "AppCompatEditText";
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
     private final AppCompatTextClassifierHelper mTextClassifierHelper;
     private final TextViewOnReceiveContentListener mDefaultOnReceiveContentListener;
-    private final AppCompatEditor mEditor;
 
     public AppCompatEditText(@NonNull Context context) {
         this(context, null);
@@ -113,8 +104,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         mTextClassifierHelper = new AppCompatTextClassifierHelper(this);
 
         mDefaultOnReceiveContentListener = new TextViewOnReceiveContentListener();
-
-        mEditor = new AppCompatEditor(this);
     }
 
     /**
@@ -238,44 +227,10 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         String[] mimeTypes = ViewCompat.getOnReceiveContentMimeTypes(this);
         if (ic != null && mimeTypes != null) {
             EditorInfoCompat.setContentMimeTypes(outAttrs, mimeTypes);
-            OnCommitContentListener onCommitContentListener = buildOnCommitContentListener(this);
+            OnCommitContentListener onCommitContentListener = createOnCommitContentListener(this);
             ic = InputConnectionCompat.createWrapper(ic, outAttrs, onCommitContentListener);
         }
         return ic;
-    }
-
-    /**
-     * Creates an {@link InputConnectionCompat.OnCommitContentListener} that uses
-     * {@link ViewCompat#performReceiveContent} to insert content. The listener returned by this
-     * function should be passed to {@link InputConnectionCompat#createWrapper} when creating the
-     * {@link InputConnection} in {@link View#onCreateInputConnection}.
-     */
-    // TODO(b/150318135): Generalize/extract this so it can be reused for other widgets
-    @NonNull
-    private static InputConnectionCompat.OnCommitContentListener buildOnCommitContentListener(
-            @NonNull final View view) {
-        return new InputConnectionCompat.OnCommitContentListener() {
-            @Override
-            public boolean onCommitContent(InputContentInfoCompat inputContentInfo, int flags,
-                    Bundle opts) {
-                if ((flags & InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
-                    try {
-                        inputContentInfo.requestPermission();
-                    } catch (Exception e) {
-                        Log.w(LOG_TAG,
-                                "Can't insert content from IME; requestPermission() failed", e);
-                        return false;
-                    }
-                }
-                ClipData clip = new ClipData(inputContentInfo.getDescription(),
-                        new ClipData.Item(inputContentInfo.getContentUri()));
-                ContentInfoCompat payload = new ContentInfoCompat.Builder(clip, SOURCE_INPUT_METHOD)
-                        .setLinkUri(inputContentInfo.getLinkUri())
-                        .setExtras(opts)
-                        .build();
-                return ViewCompat.performReceiveContent(view, payload) == null;
-            }
-        };
     }
 
     /**
@@ -320,7 +275,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
 
     @Override
     public boolean onDragEvent(@SuppressWarnings("MissingNullability") DragEvent event) {
-        if (mEditor.onDragEvent(event)) {
+        if (maybeHandleDragEventViaPerformReceiveContent(this, event)) {
             return true;
         }
         return super.onDragEvent(event);
@@ -334,17 +289,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      */
     @Override
     public boolean onTextContextMenuItem(int id) {
-        if (ViewCompat.getOnReceiveContentMimeTypes(this) != null
-                && (id == android.R.id.paste || id == android.R.id.pasteAsPlainText)) {
-            ClipboardManager cm = (ClipboardManager) getContext().getSystemService(
-                    Context.CLIPBOARD_SERVICE);
-            ClipData clip = (cm == null) ? null : cm.getPrimaryClip();
-            if (clip != null) {
-                ContentInfoCompat payload =  new Builder(clip, SOURCE_CLIPBOARD)
-                        .setFlags((id == android.R.id.paste) ? 0 : FLAG_CONVERT_TO_PLAIN_TEXT)
-                        .build();
-                ViewCompat.performReceiveContent(this, payload);
-            }
+        if (maybeHandleMenuActionViaPerformReceiveContent(this, id)) {
             return true;
         }
         return super.onTextContextMenuItem(id);
@@ -354,11 +299,12 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * Implements the default behavior for receiving content, which coerces all content to text
      * and inserts into the view.
      *
-     * <p>Subclasses of this widget can override this method to customize the default behavior
-     * for receiving content. Apps wishing to provide custom behavior for receiving content
-     * should set a listener via {@link ViewCompat#setOnReceiveContentListener}.
-     *
-     * <p>See {@link ViewCompat#performReceiveContent} for more info.
+     * <p>IMPORTANT: This method is provided to enable custom widgets that extend this class
+     * to customize the default behavior for receiving content. Apps wishing to provide custom
+     * behavior for receiving content should not override this method, but rather should set
+     * a listener via {@link ViewCompat#setOnReceiveContentListener}. App code wishing to inject
+     * content into this view should not call this method directly, but rather should invoke
+     * {@link ViewCompat#performReceiveContent}.
      *
      * @param payload The content to insert and related metadata.
      *

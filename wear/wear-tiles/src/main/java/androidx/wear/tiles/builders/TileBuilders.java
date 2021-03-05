@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.builders.TimelineBuilders.Timeline;
 import androidx.wear.tiles.proto.TileProto;
+import androidx.wear.tiles.proto.VersionProto.VersionInfo;
 
 /** Builders for the components of a tile that can be rendered by a tile renderer. */
 public final class TileBuilders {
@@ -35,7 +36,7 @@ public final class TileBuilders {
     public static final class Tile {
         private final TileProto.Tile mImpl;
 
-        Tile(TileProto.Tile impl) {
+        private Tile(TileProto.Tile impl) {
             this.mImpl = impl;
         }
 
@@ -45,12 +46,15 @@ public final class TileBuilders {
             return new Builder();
         }
 
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Tile fromProto(@NonNull TileProto.Tile proto) {
+            return new Tile(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TileProto.Tile toProto() {
             return mImpl;
@@ -86,11 +90,39 @@ public final class TileBuilders {
                 return this;
             }
 
+            /**
+             * Sets how many milliseconds of elapsed time (**not** wall clock time) this tile can be
+             * considered to be "fresh". The platform will attempt to refresh your tile at some
+             * point in the future after this interval has lapsed. A value of 0 here signifies that
+             * auto-refreshes should not be used (i.e. you will manually request updates via
+             * TileProviderService#getRequester).
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setFreshnessIntervalMillis(long freshnessIntervalMillis) {
+                mImpl.setFreshnessIntervalMillis(freshnessIntervalMillis);
+                return this;
+            }
+
             /** Builds an instance from accumulated values. */
             @NonNull
             public Tile build() {
-                return new Tile(mImpl.build());
+                return Tile.fromProto(mImpl.build());
             }
         }
+    }
+
+    /**
+     * Utility class with the current version of the Tile schema in use.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public static final class Version {
+        private Version() {}
+
+        /** The current version of the Tiles schema in use. */
+        public static final VersionInfo CURRENT =
+                VersionInfo.newBuilder().setMajor(0).setMinor(1).build();
     }
 }

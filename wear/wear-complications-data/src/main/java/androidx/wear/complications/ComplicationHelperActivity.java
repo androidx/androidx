@@ -54,8 +54,10 @@ import java.util.Objects;
  * <p>Or, to request the permission, for instance if {@link ComplicationData} of {@link
  * ComplicationData#TYPE_NO_PERMISSION TYPE_NO_PERMISSION} has been received and tapped on, use
  * {@link #createPermissionRequestHelperIntent}.
+ * @hide
  */
 @TargetApi(Build.VERSION_CODES.N)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings("ForbiddenSuperClass")
 public final class ComplicationHelperActivity extends Activity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
@@ -200,6 +202,8 @@ public final class ComplicationHelperActivity extends Activity
      * <p>The package of the calling app must match the package of the watch face, or this will not
      * work.
      *
+     * <p>From android R onwards this API can only be called during an editing session.
+     *
      * @param context context for the current app, that must contain a ComplicationHelperActivity
      * @param watchFace the ComponentName of the WatchFaceService being configured.
      * @param watchFaceComplicationId the watch face's id for the complication being configured.
@@ -208,17 +212,22 @@ public final class ComplicationHelperActivity extends Activity
      * @param supportedTypes the types supported by the complication, in decreasing order of
      *     preference. If a provider can supply data for more than one of these types, the type
      *     chosen will be whichever was specified first.
+     * @param watchFaceInstanceId The ID of the watchface being edited.
      */
     @NonNull
     public static Intent createProviderChooserHelperIntent(
             @NonNull Context context,
             @NonNull ComponentName watchFace,
             int watchFaceComplicationId,
-            @NonNull Collection<ComplicationType> supportedTypes) {
+            @NonNull Collection<ComplicationType> supportedTypes,
+            @Nullable String watchFaceInstanceId) {
         Intent intent = new Intent(context, ComplicationHelperActivity.class);
         intent.setAction(ACTION_START_PROVIDER_CHOOSER);
         intent.putExtra(ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME, watchFace);
         intent.putExtra(ProviderChooserIntent.EXTRA_COMPLICATION_ID, watchFaceComplicationId);
+        if (watchFaceInstanceId != null) {
+            intent.putExtra(ProviderChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID, watchFaceInstanceId);
+        }
         int[] wireSupportedTypes = new int[supportedTypes.size()];
         int i = 0;
         for (ComplicationType supportedType : supportedTypes) {

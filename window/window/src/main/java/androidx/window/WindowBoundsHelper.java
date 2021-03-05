@@ -16,7 +16,7 @@
 
 package androidx.window;
 
-import static android.os.Build.VERSION_CODES.JELLY_BEAN;
+import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
 import static android.os.Build.VERSION_CODES.N;
 import static android.os.Build.VERSION_CODES.P;
@@ -118,7 +118,7 @@ class WindowBoundsHelper {
         } else if (Build.VERSION.SDK_INT >= N) {
             return computeWindowBoundsN(activity);
         } else {
-            return computeWindowBoundsJellyBean(activity);
+            return computeWindowBoundsIceCreamSandwich(activity);
         }
     }
 
@@ -296,14 +296,18 @@ class WindowBoundsHelper {
      * size which should match the window size of a full-screen app.
      */
     @NonNull
-    @RequiresApi(JELLY_BEAN)
-    private static Rect computeWindowBoundsJellyBean(Activity activity) {
+    @RequiresApi(ICE_CREAM_SANDWICH)
+    private static Rect computeWindowBoundsIceCreamSandwich(Activity activity) {
         Display defaultDisplay = activity.getWindowManager().getDefaultDisplay();
         Point realDisplaySize = getRealSizeForDisplay(defaultDisplay);
 
         Rect bounds = new Rect();
-        bounds.right = realDisplaySize.x;
-        bounds.bottom = realDisplaySize.y;
+        if (realDisplaySize.x == 0 || realDisplaySize.y == 0) {
+            defaultDisplay.getRectSize(bounds);
+        } else {
+            bounds.right = realDisplaySize.x;
+            bounds.bottom = realDisplaySize.y;
+        }
         return bounds;
     }
 
@@ -319,7 +323,7 @@ class WindowBoundsHelper {
      */
     @NonNull
     @VisibleForTesting
-    @RequiresApi(JELLY_BEAN)
+    @RequiresApi(ICE_CREAM_SANDWICH)
     static Point getRealSizeForDisplay(Display display) {
         Point size = new Point();
         if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR1) {

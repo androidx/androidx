@@ -99,5 +99,9 @@ NoByteOrShort: androidx.work.Data.Builder#putByte(String, byte) parameter #1:
     Should avoid odd sized primitives; use `int` instead of `byte` in parameter value in androidx.work.Data.Builder.putByte(String key, byte value)
 
 
+NullableCollection: androidx.work.Data#getStringArray(String):
+    Return type of method androidx.work.Data.getStringArray(String) is a nullable collection (`java.lang.String[]`); must be non-null
+
+
 StaticFinalBuilder: androidx.work.WorkRequest.Builder:
     Builder must be final: androidx.work.WorkRequest.Builder

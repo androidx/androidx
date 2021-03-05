@@ -26,11 +26,11 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation project(":fragment:fragment")
+    androidTestImplementation(project(":fragment:fragment"))
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
-    androidTestImplementation project(':internal-testutils-runtime'), {
-        exclude group: 'androidx.fragment', module: 'fragment'
-    }
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.fragment", module: "fragment"
+    })
 }
 
 android {
@@ -39,7 +39,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_7
     }
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 
     aaptOptions {

@@ -40,8 +40,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":activity:activity"))
-    implementation project(":work:work-runtime-ktx")
+    implementation("androidx.activity:activity:1.2.0")
+    implementation(project(":work:work-runtime-ktx"))
     implementation(project(":hilt:hilt-work"))
     kapt(project(":hilt:hilt-compiler"))
     implementation(KOTLIN_STDLIB)

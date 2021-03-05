@@ -18,45 +18,92 @@ package androidx.benchmark.macro.perfetto
 
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.benchmark.Arguments
 import androidx.benchmark.InstrumentationResults
-import androidx.benchmark.macro.TAG
+import androidx.benchmark.macro.device
+import androidx.test.platform.app.InstrumentationRegistry
 
 /**
  * Wrapper for PerfettoCapture, which does nothing on API < Q
  */
 class PerfettoCaptureWrapper {
     private var capture: PerfettoCapture? = null
+    private val TRACE_ENABLE_PROP = "persist.traced.enable"
+
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             capture = PerfettoCapture()
         }
     }
 
-    fun start(): Boolean {
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun start(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Log.d(TAG, "Recording perfetto trace")
+            Log.d(PerfettoHelper.LOG_TAG, "Recording perfetto trace")
             capture?.start()
         }
         return true
     }
 
-    fun stop(benchmarkName: String, iteration: Int): String? {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val iterString = iteration.toString().padStart(3, '0')
-            // NOTE: macrobench still using legacy .trace name until
-            // Studio supports .perfetto-trace extension (b/171251272)
-            val traceName = "${benchmarkName}_iter$iterString.trace".replace(
-                oldValue = " ",
-                newValue = ""
-            )
-            val destination = capture!!.destinationPath(traceName)
-            capture!!.stop(destination)
-            InstrumentationResults.reportAdditionalFileToCopy(
-                key = "perfetto_trace_$iterString",
-                absoluteFilePath = destination
-            )
-            return destination
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun stop(benchmarkName: String, iteration: Int): String {
+        val iterString = iteration.toString().padStart(3, '0')
+        // NOTE: macrobench still using legacy .trace name until
+        // Studio supports .perfetto-trace extension (b/171251272)
+        val traceName = "${benchmarkName}_iter$iterString.trace".replace(
+            oldValue = " ",
+            newValue = ""
+        )
+        val destination = Arguments.testOutputFile(traceName).absolutePath
+        capture!!.stop(destination)
+        InstrumentationResults.reportAdditionalFileToCopy(
+            key = "perfetto_trace_$iterString",
+            absoluteFilePath = destination
+        )
+        return destination
+    }
+
+    fun record(
+        benchmarkName: String,
+        iteration: Int,
+        block: () -> Unit
+    ): String? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return null // tracing currently not supported on this version
         }
-        return null
+
+        val device = InstrumentationRegistry.getInstrumentation().device()
+
+        var resetTracedEnabledString: String? = null
+        try {
+            // Prior to Android 11 (R), a shell property must be set to enable perfetto tracing, see
+            // https://perfetto.dev/docs/quickstart/android-tracing#starting-the-tracing-services
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+                val currentPropVal = device.executeShellCommand("getprop $TRACE_ENABLE_PROP")
+                if (currentPropVal != "1") {
+                    Log.d(
+                        PerfettoHelper.LOG_TAG,
+                        "set $TRACE_ENABLE_PROP to 1 (was $currentPropVal"
+                    )
+                    device.executeShellCommand("setprop $TRACE_ENABLE_PROP 1")
+                    resetTracedEnabledString = currentPropVal
+                }
+            }
+
+            start()
+            block()
+            return stop(benchmarkName, iteration)
+        } finally {
+            if (resetTracedEnabledString != null) {
+                Log.d(
+                    PerfettoHelper.LOG_TAG,
+                    "resetting $TRACE_ENABLE_PROP to $resetTracedEnabledString"
+                )
+                device.executeShellCommand(
+                    "setprop persist.traced.enable $resetTracedEnabledString"
+                )
+            }
+        }
     }
 }

@@ -62,12 +62,13 @@ interface IInteractiveWatchFaceWCS {
     oneway void updateComplicationData(in List<IdAndComplicationDataWireFormat> complicationData) = 4;
 
     /**
-     * Sets the current user style ({@link UserStyleWireFormat}) which contains a map of style
-     * setting id to option id.
+     * Renames this instance to newInstanceId, sets the current user style
+     * ({@link UserStyleWireFormat}) which contains a map of style setting id to option id, and
+     * clears complication data.
      *
      * @since API version 1.
      */
-    oneway void setCurrentUserStyle(in UserStyleWireFormat userStyle) = 5;
+    oneway void updateInstance(in String newInstanceId, in UserStyleWireFormat userStyle) = 5;
 
     /**
      * Returns the reference preview time for this watch face in milliseconds since the epoch.

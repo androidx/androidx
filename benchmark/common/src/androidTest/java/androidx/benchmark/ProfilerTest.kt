@@ -71,13 +71,13 @@ class ProfilerTest {
     @Test
     fun methodSampling() = verifyProfiler(
         profiler = MethodSampling,
-        file = File(Arguments.testOutputDir, "test-methodSampling.trace")
+        file = Arguments.testOutputFile("test-methodSampling.trace")
     )
 
     @Test
     fun methodTracing() = verifyProfiler(
         profiler = MethodTracing,
-        file = File(Arguments.testOutputDir, "test-methodTracing.trace")
+        file = Arguments.testOutputFile("test-methodTracing.trace")
     )
 
     @Ignore(

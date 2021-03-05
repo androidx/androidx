@@ -270,7 +270,7 @@ def create_directories(group_id, artifact_id):
     # Java-only produces a jar, whereas an android library produces an aar.
     if (get_library_type(artifact_id) == "LINT" or
         ask_yes_or_no("Is this a java-only library? Java-only libraries produce"
-                      " JARs, whereas Android produce AARs.")):
+                      " JARs, whereas Android libraries produce AARs.")):
         sed("com.android.library", "java-library",
             full_artifact_path + "/build.gradle")
         sed("org.jetbrains.kotlin.android", "kotlin",
@@ -552,6 +552,40 @@ def is_group_id_atomic(group_id):
     # The group id does not exist yet, so just default to false.
     return False
 
+def print_todo_list(group_id, artifact_id):
+    """Prints to the todo list once the script has finished.
+
+    There are some pieces that can not be automated or require human eyes.
+    List out the appropriate todos so that the users knows what needs
+    to be done prior to uploading.
+
+    Args:
+        group_id: group_id of the new library
+        artifact_id: group_id of the new library
+    """
+    build_gradle_path = get_full_artifact_path(group_id, artifact_id) + \
+                        "/build.gradle"
+    owners_file_path = get_group_id_path(group_id) + "/OWNERS"
+    package_info_path = get_package_info_file_dir(group_id, artifact_id) + \
+                        "/package-info.java"
+    print("---\n")
+    print("Created the project.  The following TODOs need to be completed by "
+          "you:\n")
+    print("\t1. Check that the OWNERS file is in the correct place. It is "
+          "currently at:"
+          "\n\t\t" + owners_file_path)
+    print("\t2. Add your name (and others) to the OWNERS file:" + \
+          "\n\t\t" + owners_file_path)
+    print("\t3. Check that the correct library version is assigned in the "
+          "build.gradle:"
+          "\n\t\t" + build_gradle_path)
+    print("\t4. Fill out the project/module name in the build.gradle:"
+          "\n\t\t" + build_gradle_path)
+    print("\t5. Fill out the project/module description in the build.gradle:"
+          "\n\t\t" + build_gradle_path)
+    print("\t6. Update the project/module package-info.java file:"
+          "\n\t\t" + package_info_path)
+
 def main(args):
     # Parse arguments and check for existence of build ID or file
     args = parser.parse_args()
@@ -572,6 +606,7 @@ def main(args):
         print("done.")
     else:
         print("failed.  Please investigate manually.")
+    print_todo_list(args.group_id, args.artifact_id)
 
 if __name__ == '__main__':
     main(sys.argv)

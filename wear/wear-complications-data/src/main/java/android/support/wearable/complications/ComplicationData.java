@@ -30,7 +30,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.wear.complications.ComplicationHelperActivity;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -198,8 +197,7 @@ public final class ComplicationData implements Parcelable {
      * render this as they see fit.
      *
      * <p>It is recommended that, where possible, tapping on the complication when in this state
-     * should trigger a permission request. A {@link ComplicationHelperActivity} may be used to make
-     * this request and update all complications if permission is granted.
+     * should trigger a permission request.
      */
     public static final int TYPE_NO_PERMISSION = 9;
 

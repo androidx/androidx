@@ -87,26 +87,22 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                                 .setTitle("Search")
                                 .setBackgroundColor(CarColor.BLUE)
                                 .setOnClickListener(
-                                        () -> {
-                                            CarToast.makeText(
-                                                    getCarContext(),
-                                                    "Search button pressed",
-                                                    LENGTH_SHORT)
-                                                    .show();
-                                        })
+                                        () -> CarToast.makeText(
+                                                getCarContext(),
+                                                "Search button pressed",
+                                                LENGTH_SHORT)
+                                                .show())
                                 .build())
                 .addAction(
                         new Action.Builder()
                                 .setTitle("Options")
                                 .setBackgroundColor(CarColor.YELLOW)
                                 .setOnClickListener(
-                                        () -> {
-                                            CarToast.makeText(
-                                                    getCarContext(),
-                                                    "Options button pressed",
-                                                    LENGTH_SHORT)
-                                                    .show();
-                                        })
+                                        () -> CarToast.makeText(
+                                                getCarContext(),
+                                                "Options button pressed",
+                                                LENGTH_SHORT)
+                                                .show())
                                 .build());
 
         return new PaneTemplate.Builder(paneBuilder.build())
@@ -117,14 +113,12 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                                         new Action.Builder()
                                                 .setTitle("Settings")
                                                 .setOnClickListener(
-                                                        () -> {
-                                                            CarToast.makeText(
-                                                                    getCarContext(),
-                                                                    "Settings button"
-                                                                            + " pressed",
-                                                                    LENGTH_SHORT)
-                                                                    .show();
-                                                        })
+                                                        () -> CarToast.makeText(
+                                                                getCarContext(),
+                                                                "Settings button"
+                                                                        + " pressed",
+                                                                LENGTH_SHORT)
+                                                                .show())
                                                 .build())
                                 .build())
                 .setTitle("Pane Template Demo")

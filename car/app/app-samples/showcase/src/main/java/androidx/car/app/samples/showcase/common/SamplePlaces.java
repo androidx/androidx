@@ -55,7 +55,7 @@ public class SamplePlaces {
         return new SamplePlaces(demoScreen);
     }
 
-    /** Retusn the {@link ItemList} of the sample places. */
+    /** Return the {@link ItemList} of the sample places. */
     @NonNull
     public ItemList getPlaceList() {
         ItemList.Builder listBuilder = new ItemList.Builder();

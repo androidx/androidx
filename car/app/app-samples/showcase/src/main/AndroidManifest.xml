@@ -66,6 +66,8 @@
         android:excludeFromRecents="true"
         android:noHistory="true"
         android:launchMode="singleTask"
+        android:showWhenLocked="true"
+        android:turnScreenOn="true"
         android:exported="false"/>
 
     <receiver

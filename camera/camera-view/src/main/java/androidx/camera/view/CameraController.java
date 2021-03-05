@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Display;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -763,7 +764,9 @@ public abstract class CameraController {
      * Sets the {@link CameraSelector}.
      *
      * <p> Calling this method with a {@link CameraSelector} that resolves to a different camera
-     * will change the camera being used by the controller.
+     * will change the camera being used by the controller. If camera initialization is complete,
+     * the controller will immediately rebind use cases with the new {@link CameraSelector};
+     * otherwise, the new {@link CameraSelector} will be used when the camera becomes ready.
      *
      * <p>The default value is {@link CameraSelector#DEFAULT_BACK_CAMERA}.
      *
@@ -778,13 +781,13 @@ public abstract class CameraController {
             return;
         }
 
+        CameraSelector oldCameraSelector = mCameraSelector;
+        mCameraSelector = cameraSelector;
+
         if (mCameraProvider == null) {
             return;
         }
         mCameraProvider.unbindAll();
-
-        CameraSelector oldCameraSelector = mCameraSelector;
-        mCameraSelector = cameraSelector;
         startCameraAndTrackStates(() -> mCameraSelector = oldCameraSelector);
     }
 
@@ -1030,7 +1033,7 @@ public abstract class CameraController {
      */
     @NonNull
     @MainThread
-    public ListenableFuture<Void> setLinearZoom(float linearZoom) {
+    public ListenableFuture<Void> setLinearZoom(@FloatRange(from = 0f, to = 1f) float linearZoom) {
         Threads.checkMainThread();
         if (!isCameraAttached()) {
             Logger.w(TAG, CAMERA_NOT_ATTACHED);

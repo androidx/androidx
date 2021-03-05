@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-RemovedInterface: androidx.media2.session.MediaController:
-    Class androidx.media2.session.MediaController no longer implements java.lang.AutoCloseable
-RemovedInterface: androidx.media2.session.MediaSession:
-    Class androidx.media2.session.MediaSession no longer implements java.lang.AutoCloseable

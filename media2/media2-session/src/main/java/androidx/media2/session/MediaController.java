@@ -32,6 +32,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -310,9 +311,15 @@ public class MediaController implements Closeable {
      * want to have finer grained control of the playback start, call {@link #prepare} manually
      * before this. Calling {@link #prepare} in advance would help this method to start playback
      * faster and also help to take audio focus at the last moment.
+     * <p>
+     * Interoperability: When connected to
+     * {@link android.support.v4.media.session.MediaSessionCompat}, then this will be grouped
+     * together with previously called {@link #setMediaUri}. See {@link #setMediaUri} for
+     * details.
      *
      * @return a {@link ListenableFuture} representing the pending completion of the command
      * @see #prepare
+     * @see #setMediaUri
      */
     @NonNull
     public ListenableFuture<SessionResult> play() {
@@ -356,9 +363,15 @@ public class MediaController implements Closeable {
      * <p>
      * Playback can be started without this. But this provides finer grained control of playback
      * start. See {@link #play} for details.
+     * <p>
+     * Interoperability: When connected to
+     * {@link android.support.v4.media.session.MediaSessionCompat}, then this call may be grouped
+     * together with previously called {@link #setMediaUri}. See {@link #setMediaUri} for
+     * details.
      *
      * @return a {@link ListenableFuture} representing the pending completion of the command
      * @see #play
+     * @see #setMediaUri
      */
     @NonNull
     public ListenableFuture<SessionResult> prepare() {
@@ -823,6 +836,48 @@ public class MediaController implements Closeable {
      * {@link ControllerCallback#onCurrentMediaItemChanged} would be called when it's completed.
      * <p>
      * On success, a {@link SessionResult} would be returned with {@code item} set.
+     * <p>
+     * Interoperability: When connected to
+     * {@link android.support.v4.media.session.MediaSessionCompat}, this call will be grouped
+     * together with later {@link #prepare} or {@link #play}, depending on the Uri pattern as
+     * follows:
+     * <table>
+     * <tr>
+     * <th align="left">Uri patterns</th><th>Following API calls</th><th>Method</th>
+     * </tr><tr>
+     * <td rowspan="2">{@code androidx://media2-session/setMediaUri?uri=[uri]}</td>
+     * <td>{@link #prepare}</td>
+     * <td>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}
+     * </tr><tr>
+     * <td>{@link #play}</td>
+     * <td>{@link MediaControllerCompat.TransportControls#playFromUri playFromUri}
+     * </tr><tr>
+     * <td rowspan="2">{@code androidx://media2-session/setMediaUri?id=[mediaId]}</td>
+     * <td>{@link #prepare}</td>
+     * <td>{@link MediaControllerCompat.TransportControls#prepareFromMediaId prepareFromMediaId}
+     * </tr><tr>
+     * <td>{@link #play}</td>
+     * <td>{@link MediaControllerCompat.TransportControls#playFromMediaId playFromMediaId}
+     * </tr><tr>
+     * <td rowspan="2">{@code androidx://media2-session/setMediaUri?query=[query]}</td>
+     * <td>{@link #prepare}</td>
+     * <td>{@link MediaControllerCompat.TransportControls#prepareFromSearch prepareFromSearch}
+     * </tr><tr>
+     * <td>{@link #play}</td>
+     * <td>{@link MediaControllerCompat.TransportControls#playFromSearch playFromSearch}
+     * </tr><tr>
+     * <td rowspan="2">Does not match with any pattern above</td>
+     * <td>{@link #prepare}</td>
+     * <td>{@link MediaControllerCompat.TransportControls#prepareFromUri prepareFromUri}
+     * </tr><tr>
+     * <td>{@link #play}</td>
+     * <td>{@link MediaControllerCompat.TransportControls#playFromUri playFromUri}
+     * </tr></table>
+     * <p>
+     * Returned {@link ListenableFuture} will return {@link SessionResult#RESULT_SUCCESS} when it's
+     * handled together with {@link #prepare} or {@link #play}. If this API is called multiple times
+     * without prepare or play, then {@link SessionResult#RESULT_INFO_SKIPPED} will be returned
+     * for previous calls.
      *
      * @param uri the Uri of the item to play
      * @see #setMediaItem

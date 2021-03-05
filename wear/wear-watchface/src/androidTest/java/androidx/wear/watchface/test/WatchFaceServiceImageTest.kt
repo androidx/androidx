@@ -34,7 +34,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
-import androidx.wear.complications.data.ComplicationText
+import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
@@ -78,17 +78,20 @@ class WatchFaceServiceImageTest {
     @Mock
     private lateinit var surfaceHolder: SurfaceHolder
 
+    @Mock
+    private lateinit var surface: Surface
+
     private val handler = Handler(Looper.getMainLooper())
 
     private val complicationProviders = mapOf(
         SystemProviders.DAY_OF_WEEK to
-            ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
-                .setTitle(ComplicationText.plain("23rd"))
+            ShortTextComplicationData.Builder(PlainComplicationText.Builder("Mon").build())
+                .setTitle(PlainComplicationText.Builder("23rd").build())
                 .build()
                 .asWireComplicationData(),
         SystemProviders.STEP_COUNT to
-            ShortTextComplicationData.Builder(ComplicationText.plain("100"))
-                .setTitle(ComplicationText.plain("Steps"))
+            ShortTextComplicationData.Builder(PlainComplicationText.Builder("100").build())
+                .setTitle(PlainComplicationText.Builder("Steps").build())
                 .build()
                 .asWireComplicationData()
     )
@@ -136,6 +139,8 @@ class WatchFaceServiceImageTest {
         Mockito.`when`(surfaceHolder.unlockCanvasAndPost(canvas)).then {
             renderDoneLatch.countDown()
         }
+        Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
+        Mockito.`when`(surface.isValid).thenReturn(false)
 
         setPendingWallpaperInteractiveWatchFaceInstance()
 
@@ -188,10 +193,13 @@ class WatchFaceServiceImageTest {
                         ) {
                             interactiveWatchFaceInstanceWCS = iInteractiveWatchFaceWcs
                             sendComplications()
-                            // Set the timezone so it doesn't matter where the bots are running.
-                            engineWrapper.watchFaceImpl.calendar.timeZone =
-                                TimeZone.getTimeZone("UTC")
-                            initLatch.countDown()
+                            // engineWrapper won't be initialized yet, so defer execution.
+                            handler.post {
+                                // Set the timezone so it doesn't matter where the bots are running.
+                                engineWrapper.watchFaceImpl.calendar.timeZone =
+                                    TimeZone.getTimeZone("UTC")
+                                initLatch.countDown()
+                            }
                         }
                     }
                 )
@@ -259,7 +267,7 @@ class WatchFaceServiceImageTest {
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
                     WatchfaceScreenshotParams(
                         RenderParameters(
@@ -268,7 +276,6 @@ class WatchFaceServiceImageTest {
                             null,
                             Color.RED
                         ).toWireFormat(),
-                        100,
                         123456789,
                         null,
                         null
@@ -293,7 +300,7 @@ class WatchFaceServiceImageTest {
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
                     WatchfaceScreenshotParams(
                         RenderParameters(
@@ -302,7 +309,6 @@ class WatchFaceServiceImageTest {
                             null,
                             Color.RED
                         ).toWireFormat(),
-                        100,
                         123456789,
                         null,
                         null
@@ -324,9 +330,11 @@ class WatchFaceServiceImageTest {
         handler.post(this::initCanvasWatchFace)
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         handler.post {
-            interactiveWatchFaceInstanceWCS.setCurrentUserStyle(
+            interactiveWatchFaceInstanceWCS.updateInstance(
+                "newId",
                 UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE))
             )
+            sendComplications()
             engineWrapper.draw()
         }
 
@@ -342,7 +350,7 @@ class WatchFaceServiceImageTest {
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
                     WatchfaceScreenshotParams(
                         RenderParameters(
@@ -355,7 +363,6 @@ class WatchFaceServiceImageTest {
                             null,
                             Color.RED
                         ).toWireFormat(),
-                        100,
                         123456789,
                         null,
                         null
@@ -380,7 +387,7 @@ class WatchFaceServiceImageTest {
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
                     WatchfaceScreenshotParams(
                         RenderParameters(
@@ -393,7 +400,6 @@ class WatchFaceServiceImageTest {
                             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
                             Color.RED
                         ).toWireFormat(),
-                        100,
                         123456789,
                         null,
                         null
@@ -416,15 +422,15 @@ class WatchFaceServiceImageTest {
         val previewComplicationData = listOf(
             IdAndComplicationDataWireFormat(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                ShortTextComplicationData.Builder(ComplicationText.plain("A"))
-                    .setTitle(ComplicationText.plain("Preview"))
+                ShortTextComplicationData.Builder(PlainComplicationText.Builder("A").build())
+                    .setTitle(PlainComplicationText.Builder("Preview").build())
                     .build()
                     .asWireComplicationData()
             ),
             IdAndComplicationDataWireFormat(
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                ShortTextComplicationData.Builder(ComplicationText.plain("B"))
-                    .setTitle(ComplicationText.plain("Preview"))
+                ShortTextComplicationData.Builder(PlainComplicationText.Builder("B").build())
+                    .setTitle(PlainComplicationText.Builder("Preview").build())
                     .build()
                     .asWireComplicationData()
             )
@@ -436,7 +442,7 @@ class WatchFaceServiceImageTest {
         waitForPendingTaskToRunOnHandler()
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
                     WatchfaceScreenshotParams(
                         RenderParameters(
@@ -445,7 +451,6 @@ class WatchFaceServiceImageTest {
                             null,
                             Color.RED
                         ).toWireFormat(),
-                        100,
                         123456789,
                         null,
                         previewComplicationData
@@ -470,6 +475,8 @@ class WatchFaceServiceImageTest {
         Mockito.`when`(surfaceHolder.unlockCanvasAndPost(canvas)).then {
             renderDoneLatch.countDown()
         }
+        Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
+        Mockito.`when`(surface.isValid).thenReturn(false)
 
         lateinit var engineWrapper: WatchFaceService.EngineWrapper
 

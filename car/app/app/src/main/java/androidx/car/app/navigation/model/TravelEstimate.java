@@ -57,6 +57,12 @@ public final class TravelEstimate {
     @Keep
     private final CarColor mRemainingDistanceColor;
 
+    /**
+     * Returns the remaining {@link Distance} until arriving at the destination,  or {@code null}
+     * if not set.
+     *
+     * @see Builder#Builder(Distance, DateTimeWithZone)
+     */
     @Nullable
     public Distance getRemainingDistance() {
         return mRemainingDistance;
@@ -171,7 +177,6 @@ public final class TravelEstimate {
          *                                 arriving at the destination
          * @param arrivalTimeAtDestination The arrival time with the time zone information
          *                                 provided for the destination
-         *
          * @throws NullPointerException if {@code remainingDistance} or
          *                              {@code arrivalTimeAtDestination} are {@code null}
          */
@@ -189,7 +194,6 @@ public final class TravelEstimate {
          *                                 arriving at the destination
          * @param arrivalTimeAtDestination The arrival time with the time zone information
          *                                 provided for the destination
-         *
          * @throws NullPointerException if {@code remainingDistance} or
          *                              {@code arrivalTimeAtDestination} are {@code null}
          */

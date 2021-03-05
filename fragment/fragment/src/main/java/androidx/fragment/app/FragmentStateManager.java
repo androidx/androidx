@@ -31,7 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.R;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 class FragmentStateManager {
@@ -82,30 +81,7 @@ class FragmentStateManager {
             @NonNull FragmentState fs) {
         mDispatcher = dispatcher;
         mFragmentStore = fragmentStore;
-        mFragment = fragmentFactory.instantiate(classLoader, fs.mClassName);
-        if (fs.mArguments != null) {
-            fs.mArguments.setClassLoader(classLoader);
-        }
-        mFragment.setArguments(fs.mArguments);
-        mFragment.mWho = fs.mWho;
-        mFragment.mFromLayout = fs.mFromLayout;
-        mFragment.mRestored = true;
-        mFragment.mFragmentId = fs.mFragmentId;
-        mFragment.mContainerId = fs.mContainerId;
-        mFragment.mTag = fs.mTag;
-        mFragment.mRetainInstance = fs.mRetainInstance;
-        mFragment.mRemoving = fs.mRemoving;
-        mFragment.mDetached = fs.mDetached;
-        mFragment.mHidden = fs.mHidden;
-        mFragment.mMaxState = Lifecycle.State.values()[fs.mMaxLifecycleState];
-        if (fs.mSavedFragmentState != null) {
-            mFragment.mSavedFragmentState = fs.mSavedFragmentState;
-        } else {
-            // When restoring a Fragment, always ensure we have a
-            // non-null Bundle so that developers have a signal for
-            // when the Fragment is being restored
-            mFragment.mSavedFragmentState = new Bundle();
-        }
+        mFragment = fs.instantiate(fragmentFactory, classLoader);
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(TAG, "Instantiated fragment " + mFragment);
         }
@@ -366,6 +342,9 @@ class FragmentStateManager {
                     } else {
                         controller.enqueueShow(this);
                     }
+                }
+                if (mFragment.mFragmentManager != null) {
+                    mFragment.mFragmentManager.invalidateMenuForFragment(mFragment);
                 }
                 mFragment.mHiddenChanged = false;
                 mFragment.onHiddenChanged(mFragment.mHidden);

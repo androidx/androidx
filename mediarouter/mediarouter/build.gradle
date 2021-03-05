@@ -37,21 +37,21 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation project(':media:version-compat-tests:lib')
+    androidTestImplementation(project(":media:version-compat-tests:lib"))
 }
 
 android {
     sourceSets {
         main.java.srcDirs += [
-                'jellybean',
-                'jellybean-mr1',
-                'jellybean-mr2',
-                'api24'
+                "jellybean",
+                "jellybean-mr1",
+                "jellybean-mr2",
+                "api24"
         ]
     }
 
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 

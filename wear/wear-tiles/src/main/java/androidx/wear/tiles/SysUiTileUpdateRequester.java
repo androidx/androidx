@@ -26,12 +26,14 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,18 +43,15 @@ import java.util.Set;
 public class SysUiTileUpdateRequester implements TileUpdateRequester {
     private static final String TAG = "HTUpdateRequester";
 
-    // TODO(b/174002885): Stop hardcoding Home package name.
-    private static final String TARGET_SYSUI = "com.google.android.wearable.app";
+    private static final String DEFAULT_TARGET_SYSUI = "com.google.android.wearable.app";
+    private static final String SYSUI_SETTINGS_KEY = "clockwork_sysui_package";
 
     public static final String ACTION_BIND_UPDATE_REQUESTER =
             "androidx.wear.tiles.action.BIND_UPDATE_REQUESTER";
 
-    private final Context mAppContext;
+    final Context mAppContext;
 
     final Object mLock = new Object();
-
-    @GuardedBy("mLock")
-    TileUpdateRequesterService mUpdateRequestService;
 
     @GuardedBy("mLock")
     boolean mBindInProgress = false;
@@ -67,21 +66,16 @@ public class SysUiTileUpdateRequester implements TileUpdateRequester {
     @Override
     public void requestUpdate(@NonNull Class<? extends Service> tileProvider) {
         synchronized (mLock) {
-            if (mUpdateRequestService != null && mUpdateRequestService.asBinder().isBinderAlive()) {
-                sendTileUpdateRequest(tileProvider);
-                return;
-            } else if (mBindInProgress) {
-                // Update scheduled anyway, skip.
-                mPendingServices.add(tileProvider);
+            mPendingServices.add(tileProvider);
+
+            if (mBindInProgress) {
+                // Something else kicked off the bind; let that carry on binding.
                 return;
             } else {
-                // Can release the lock after this
-                mPendingServices.add(tileProvider);
                 mBindInProgress = true;
             }
         }
 
-        // Something was wrong with the binder, trigger a request.
         Intent bindIntent = buildUpdateBindIntent();
 
         if (bindIntent == null) {
@@ -95,10 +89,21 @@ public class SysUiTileUpdateRequester implements TileUpdateRequester {
         bindAndUpdate(bindIntent);
     }
 
+    private String getSysUiPackageName() {
+        String sysUiPackageName =
+                Settings.Global.getString(mAppContext.getContentResolver(), SYSUI_SETTINGS_KEY);
+
+        if (sysUiPackageName == null || sysUiPackageName.isEmpty()) {
+            return DEFAULT_TARGET_SYSUI;
+        } else {
+            return sysUiPackageName;
+        }
+    }
+
     @Nullable
     private Intent buildUpdateBindIntent() {
         Intent bindIntent = new Intent(ACTION_BIND_UPDATE_REQUESTER);
-        bindIntent.setPackage(TARGET_SYSUI);
+        bindIntent.setPackage(getSysUiPackageName());
 
         // Find the concrete ComponentName of the service that implements what we need.
         PackageManager pm = mAppContext.getPackageManager();
@@ -114,47 +119,55 @@ public class SysUiTileUpdateRequester implements TileUpdateRequester {
         }
 
         ServiceInfo serviceInfo = services.get(0).serviceInfo;
-
         bindIntent.setClassName(serviceInfo.packageName, serviceInfo.name);
 
         return bindIntent;
     }
 
-    // TODO(b/174002003): Make this unbind from the service.
     private void bindAndUpdate(Intent i) {
         mAppContext.bindService(
                 i,
                 new ServiceConnection() {
                     @Override
                     public void onServiceConnected(ComponentName name, IBinder service) {
+                        // Copy so we can shorten the lock duration.
+                        List<Class<? extends Service>> pendingServicesCopy;
+
                         synchronized (mLock) {
-                            mUpdateRequestService =
-                                    TileUpdateRequesterService.Stub.asInterface(service);
-                            mBindInProgress = false;
-
-                            for (Class<? extends Service> tileProvider : mPendingServices) {
-                                sendTileUpdateRequest(tileProvider);
-                            }
-
+                            pendingServicesCopy = new ArrayList<>(mPendingServices);
                             mPendingServices.clear();
+                            mBindInProgress = false;
                         }
+
+                        // This is a little suboptimal, as if an update is requested in this lock,
+                        // we'll
+                        // unbind, then immediately rebind. That said, this class should be used
+                        // pretty rarely
+                        // (and it'll be rare to have two in-flight update requests at once
+                        // regardless), so
+                        // it's probably fine.
+                        TileUpdateRequesterService updateRequesterService =
+                                TileUpdateRequesterService.Stub.asInterface(service);
+
+                        for (Class<? extends Service> tileProvider : pendingServicesCopy) {
+                            sendTileUpdateRequest(tileProvider, updateRequesterService);
+                        }
+
+                        mAppContext.unbindService(this);
                     }
 
                     @Override
-                    public void onServiceDisconnected(ComponentName name) {
-                        synchronized (mLock) {
-                            mUpdateRequestService = null;
-                        }
-                    }
+                    public void onServiceDisconnected(ComponentName name) {}
                 },
                 Context.BIND_AUTO_CREATE);
     }
 
-    @GuardedBy("mLock")
-    void sendTileUpdateRequest(Class<? extends Service> tileProvider) {
+    void sendTileUpdateRequest(
+            Class<? extends Service> tileProvider,
+            TileUpdateRequesterService updateRequesterService) {
         try {
             ComponentName cn = new ComponentName(mAppContext, tileProvider);
-            mUpdateRequestService.requestUpdate(cn, new TileUpdateRequestData());
+            updateRequesterService.requestUpdate(cn, new TileUpdateRequestData());
         } catch (RemoteException ex) {
             Log.w(TAG, "RemoteException while requesting tile update");
         }

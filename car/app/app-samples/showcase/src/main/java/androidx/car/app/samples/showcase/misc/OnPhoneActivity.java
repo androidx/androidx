@@ -33,11 +33,7 @@ public class OnPhoneActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         // Show Activity over lock screen and turn on device screen.
-        getWindow()
-                .addFlags(
-                        LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                                | LayoutParams.FLAG_TURN_SCREEN_ON
-                                | LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.phone_activity);
 

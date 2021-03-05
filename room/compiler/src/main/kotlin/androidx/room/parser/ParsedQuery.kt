@@ -55,8 +55,7 @@ data class ParsedQuery(
     val type: QueryType,
     val inputs: List<BindParameterNode>,
     val tables: Set<Table>, // pairs of table name and alias
-    val syntaxErrors: List<String>,
-    val runtimeQueryPlaceholder: Boolean
+    val syntaxErrors: List<String>
 ) {
     companion object {
         val STARTS_WITH_NUMBER = "^\\?[0-9]".toRegex()
@@ -65,8 +64,7 @@ data class ParsedQuery(
             type = QueryType.UNKNOWN,
             inputs = emptyList(),
             tables = emptySet(),
-            syntaxErrors = emptyList(),
-            runtimeQueryPlaceholder = false
+            syntaxErrors = emptyList()
         )
     }
 

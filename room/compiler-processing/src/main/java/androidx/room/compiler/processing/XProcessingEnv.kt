@@ -29,9 +29,10 @@ import kotlin.reflect.KClass
 /**
  * API for a Processor that is either backed by Java's Annotation Processing API or KSP.
  */
+@ExperimentalProcessingApi
 interface XProcessingEnv {
 
-    val backend: XProcessingEnv.Backend
+    val backend: Backend
     /**
      * The logger interface to log messages
      */

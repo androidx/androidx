@@ -69,12 +69,11 @@ public final class DistanceSpan extends CarSpan {
     }
 
     /**
-     * Returns the {@link Distance} instance associated with this span or {@code null} if not
-     * set.
+     * Returns the {@link Distance} instance associated with this span.
      */
-    @Nullable
+    @NonNull
     public Distance getDistance() {
-        return mDistance;
+        return requireNonNull(mDistance);
     }
 
     @NonNull

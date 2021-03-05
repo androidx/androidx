@@ -49,6 +49,7 @@ import java.util.List;
 public class TestAppManager extends AppManager {
     private final List<CharSequence> mToastsShown = new ArrayList<>();
     private final List<Pair<Screen, Template>> mTemplatesReturned = new ArrayList<>();
+    @Nullable
     private SurfaceCallback mSurfaceCallback;
 
     /**

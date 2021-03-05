@@ -26,9 +26,9 @@ plugins {
 }
 
 dependencies {
-    api "androidx.annotation:annotation:1.1.0"
+    api("androidx.annotation:annotation:1.1.0")
     implementation(project(":appcompat:appcompat"))
-    implementation "androidx.collection:collection:1.1.0"
+    implementation("androidx.collection:collection:1.1.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -36,7 +36,7 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
 
-    annotationProcessor project(":versionedparcelable:versionedparcelable-compiler")
+    annotationProcessor (project(":versionedparcelable:versionedparcelable-compiler"))
 }
 
 androidx {

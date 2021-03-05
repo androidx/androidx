@@ -47,10 +47,6 @@ public class WatchfaceScreenshotParams implements VersionedParcelable, Parcelabl
     @NonNull
     RenderParametersWireFormat mRenderParametersWireFormats;
 
-    /** The WebP compression quality, 100 = lossless. */
-    @ParcelField(2)
-    int mCompressionQuality;
-
     /** The UTC time in milliseconds since the epoch to render with. */
     @ParcelField(3)
     long mCalendarTimeMillis;
@@ -76,12 +72,10 @@ public class WatchfaceScreenshotParams implements VersionedParcelable, Parcelabl
 
     public WatchfaceScreenshotParams(
             @NonNull RenderParametersWireFormat renderParametersWireFormats,
-            int compressionQuality,
             long calendarTimeMillis,
             @Nullable UserStyleWireFormat userStyle,
             @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDatumWireFormats) {
         mRenderParametersWireFormats = renderParametersWireFormats;
-        mCompressionQuality = compressionQuality;
         mCalendarTimeMillis = calendarTimeMillis;
         mUserStyle = userStyle;
         mIdAndComplicationDatumWireFormats = idAndComplicationDatumWireFormats;
@@ -90,10 +84,6 @@ public class WatchfaceScreenshotParams implements VersionedParcelable, Parcelabl
     @NonNull
     public RenderParametersWireFormat getRenderParametersWireFormat() {
         return mRenderParametersWireFormats;
-    }
-
-    public int getCompressionQuality() {
-        return mCompressionQuality;
     }
 
     /** The UTC time in milliseconds since the epoch. */

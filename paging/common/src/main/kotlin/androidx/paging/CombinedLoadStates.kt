@@ -19,7 +19,7 @@ package androidx.paging
 /**
  * Collection of pagination [LoadState]s for both a [PagingSource], and [RemoteMediator].
  */
-class CombinedLoadStates(
+public class CombinedLoadStates(
     /**
      * Convenience for combined behavior of [REFRESH][LoadType.REFRESH] [LoadState], which
      * generally defers to [mediator] if it exists, but if previously was [LoadState.Loading],
@@ -30,7 +30,7 @@ class CombinedLoadStates(
      * specifically, e.g., showing cached data when network loads via [mediator] fail,
      * [LoadStates] exposed via [source] and [mediator] should be used directly.
      */
-    val refresh: LoadState,
+    public val refresh: LoadState,
     /**
      * Convenience for combined behavior of [PREPEND][LoadType.REFRESH] [LoadState], which
      * generally defers to [mediator] if it exists, but if previously was [LoadState.Loading],
@@ -41,7 +41,7 @@ class CombinedLoadStates(
      * specifically, e.g., showing cached data when network loads via [mediator] fail,
      * [LoadStates] exposed via [source] and [mediator] should be used directly.
      */
-    val prepend: LoadState,
+    public val prepend: LoadState,
     /**
      * Convenience for combined behavior of [APPEND][LoadType.REFRESH] [LoadState], which
      * generally defers to [mediator] if it exists, but if previously was [LoadState.Loading],
@@ -52,17 +52,17 @@ class CombinedLoadStates(
      * specifically, e.g., showing cached data when network loads via [mediator] fail,
      * [LoadStates] exposed via [source] and [mediator] should be used directly.
      */
-    val append: LoadState,
+    public val append: LoadState,
     /**
      * [LoadStates] corresponding to loads from a [PagingSource].
      */
-    val source: LoadStates,
+    public val source: LoadStates,
 
     /**
      * [LoadStates] corresponding to loads from a [RemoteMediator], or `null` if [RemoteMediator]
      * not present.
      */
-    val mediator: LoadStates? = null,
+    public val mediator: LoadStates? = null,
 ) {
 
     override fun equals(other: Any?): Boolean {

@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.benchmark.macro.DeviceInfo;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.UiDevice;
 
@@ -40,7 +41,7 @@ import java.nio.file.Paths;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(28)
 public class PerfettoHelper {
-    private static final String LOG_TAG = PerfettoHelper.class.getSimpleName();
+    static final String LOG_TAG = "PerfettoCapture";
     // Command to start the perfetto tracing in the background.
     // perfetto -b -c /data/misc/perfetto-traces/trace_config.pb -o
     // /data/misc/perfetto-traces/trace_output.pb
@@ -60,6 +61,14 @@ public class PerfettoHelper {
     private final UiDevice mUIDevice =
             UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
 
+    private IllegalStateException perfettoStartupException(String label, Exception cause) {
+        return new IllegalStateException(label + "\n\n"
+                + "Please report a bug, and include a logcat capture of the test run and failure."
+                + DeviceInfo.INSTANCE.getDeviceSummaryString(),
+                cause
+        );
+    }
+
     /**
      * Start the perfetto tracing in background using the given config file.
      *
@@ -69,12 +78,10 @@ public class PerfettoHelper {
      *
      * @param configFilePath used for collecting the perfetto trace.
      * @param isTextProtoConfig true if the config file is textproto format otherwise false.
-     * @return true if trace collection started successfully otherwise return false.
      */
-    public boolean startCollecting(@Nullable String configFilePath, boolean isTextProtoConfig) {
+    public void startCollecting(@Nullable String configFilePath, boolean isTextProtoConfig) {
         if (configFilePath == null || configFilePath.isEmpty()) {
-            Log.e(LOG_TAG, "Perfetto config file name is null or empty.");
-            return false;
+            throw new IllegalArgumentException("Perfetto config file name is null or empty.");
         }
         try {
             // Cleanup already existing perfetto process.
@@ -82,7 +89,7 @@ public class PerfettoHelper {
             if (isPerfettoRunning()) {
                 Log.i(LOG_TAG, "Perfetto tracing is already running. Stopping perfetto.");
                 if (!stopPerfetto()) {
-                    return false;
+                    throw perfettoStartupException("Unable to stop Perfetto trace capture", null);
                 }
             }
 
@@ -103,15 +110,13 @@ public class PerfettoHelper {
             Log.i(LOG_TAG, String.format("Perfetto start command output - %s", startOutput));
             // TODO : Once the output status is available use that for additional validation.
             if (!isPerfettoRunning()) {
-                Log.e(LOG_TAG, "Perfetto tracing failed to start.");
-                return false;
+                throw perfettoStartupException(
+                        "Perfetto tracing failed to start. Command output = " + startOutput, null);
             }
         } catch (IOException ioe) {
-            Log.e(LOG_TAG, "Unable to start the perfetto tracing due to :" + ioe.getMessage());
-            return false;
+            throw perfettoStartupException("Unable to start perfetto tracing", ioe);
         }
         Log.i(LOG_TAG, "Perfetto tracing started successfully.");
-        return true;
     }
 
     /**

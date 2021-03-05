@@ -2,54 +2,66 @@
 package androidx.navigation.fragment {
 
   @androidx.navigation.Navigator.Name("dialog") public final class DialogFragmentNavigator extends androidx.navigation.Navigator<androidx.navigation.fragment.DialogFragmentNavigator.Destination> {
-    ctor public DialogFragmentNavigator(android.content.Context, androidx.fragment.app.FragmentManager);
+    ctor public DialogFragmentNavigator(android.content.Context context, androidx.fragment.app.FragmentManager fragmentManager);
     method public androidx.navigation.fragment.DialogFragmentNavigator.Destination createDestination();
-    method public androidx.navigation.NavDestination? navigate(androidx.navigation.fragment.DialogFragmentNavigator.Destination, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
+    method public androidx.navigation.NavDestination? navigate(androidx.navigation.fragment.DialogFragmentNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onAttachFragment(androidx.fragment.app.Fragment childFragment);
     method public boolean popBackStack();
   }
 
-  @androidx.navigation.NavDestination.ClassType(DialogFragment.class) public static class DialogFragmentNavigator.Destination extends androidx.navigation.NavDestination implements androidx.navigation.FloatingWindow {
-    ctor public DialogFragmentNavigator.Destination(androidx.navigation.NavigatorProvider);
-    ctor public DialogFragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.DialogFragmentNavigator.Destination>);
+  @androidx.navigation.NavDestination.ClassType(DialogFragment::class) public static class DialogFragmentNavigator.Destination extends androidx.navigation.NavDestination implements androidx.navigation.FloatingWindow {
+    ctor public DialogFragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.DialogFragmentNavigator.Destination> fragmentNavigator);
+    ctor public DialogFragmentNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
     method public final String getClassName();
-    method public final androidx.navigation.fragment.DialogFragmentNavigator.Destination setClassName(String);
+    method public final androidx.navigation.fragment.DialogFragmentNavigator.Destination setClassName(String className);
+    property public final String className;
   }
 
   @androidx.navigation.Navigator.Name("fragment") public class FragmentNavigator extends androidx.navigation.Navigator<androidx.navigation.fragment.FragmentNavigator.Destination> {
-    ctor public FragmentNavigator(android.content.Context, androidx.fragment.app.FragmentManager, int);
+    ctor public FragmentNavigator(android.content.Context context, androidx.fragment.app.FragmentManager fragmentManager, int containerId);
     method public androidx.navigation.fragment.FragmentNavigator.Destination createDestination();
-    method @Deprecated public androidx.fragment.app.Fragment instantiateFragment(android.content.Context, androidx.fragment.app.FragmentManager, String, android.os.Bundle?);
-    method public androidx.navigation.NavDestination? navigate(androidx.navigation.fragment.FragmentNavigator.Destination, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
+    method @Deprecated public androidx.fragment.app.Fragment instantiateFragment(android.content.Context context, androidx.fragment.app.FragmentManager fragmentManager, String className, android.os.Bundle? args);
+    method public androidx.navigation.NavDestination? navigate(androidx.navigation.fragment.FragmentNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
     method public boolean popBackStack();
   }
 
-  @androidx.navigation.NavDestination.ClassType(Fragment.class) public static class FragmentNavigator.Destination extends androidx.navigation.NavDestination {
-    ctor public FragmentNavigator.Destination(androidx.navigation.NavigatorProvider);
-    ctor public FragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination>);
+  @androidx.navigation.NavDestination.ClassType(Fragment::class) public static class FragmentNavigator.Destination extends androidx.navigation.NavDestination {
+    ctor public FragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> fragmentNavigator);
+    ctor public FragmentNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
     method public final String getClassName();
-    method public final androidx.navigation.fragment.FragmentNavigator.Destination setClassName(String);
+    method public final androidx.navigation.fragment.FragmentNavigator.Destination setClassName(String className);
+    property public final String className;
   }
 
   public static final class FragmentNavigator.Extras implements androidx.navigation.Navigator.Extras {
-    method public java.util.Map<android.view.View!,java.lang.String!> getSharedElements();
+    method public java.util.Map<android.view.View,java.lang.String> getSharedElements();
+    property public final java.util.Map<android.view.View,java.lang.String> sharedElements;
   }
 
   public static final class FragmentNavigator.Extras.Builder {
     ctor public FragmentNavigator.Extras.Builder();
-    method public androidx.navigation.fragment.FragmentNavigator.Extras.Builder addSharedElement(android.view.View, String);
-    method public androidx.navigation.fragment.FragmentNavigator.Extras.Builder addSharedElements(java.util.Map<android.view.View!,java.lang.String!>);
+    method public androidx.navigation.fragment.FragmentNavigator.Extras.Builder addSharedElement(android.view.View sharedElement, String name);
+    method public androidx.navigation.fragment.FragmentNavigator.Extras.Builder addSharedElements(java.util.Map<android.view.View,java.lang.String> sharedElements);
     method public androidx.navigation.fragment.FragmentNavigator.Extras build();
   }
 
   public class NavHostFragment extends androidx.fragment.app.Fragment implements androidx.navigation.NavHost {
     ctor public NavHostFragment();
-    method public static androidx.navigation.fragment.NavHostFragment create(@NavigationRes int);
-    method public static androidx.navigation.fragment.NavHostFragment create(@NavigationRes int, android.os.Bundle?);
+    method public static final androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+    method public static final androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId);
     method @Deprecated protected androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> createFragmentNavigator();
-    method public static androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment);
+    method public static final androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment fragment);
     method public final androidx.navigation.NavController getNavController();
-    method @Deprecated @CallSuper protected void onCreateNavController(androidx.navigation.NavController);
-    method @CallSuper protected void onCreateNavHostController(androidx.navigation.NavHostController);
+    method @Deprecated @CallSuper protected void onCreateNavController(androidx.navigation.NavController navController);
+    method @CallSuper protected void onCreateNavHostController(androidx.navigation.NavHostController navHostController);
+    property public final androidx.navigation.NavController navController;
+    field public static final androidx.navigation.fragment.NavHostFragment.Companion Companion;
+  }
+
+  public static final class NavHostFragment.Companion {
+    method public androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+    method public androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId);
+    method public androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment fragment);
   }
 
 }

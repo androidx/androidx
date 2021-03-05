@@ -286,8 +286,7 @@ public final class Action {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code title} is {@code null}
-         *
-         * @see CarText for details on text handling and span support.
+         * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -393,24 +392,6 @@ public final class Action {
 
         /** Creates an empty {@link Builder} instance. */
         public Builder() {
-        }
-
-        /**
-         * Returns a {@link Builder} instance configured with the same data as the given
-         * {@link Action} instance.
-         *
-         * @throws NullPointerException if {@code icon} is {@code null}
-         */
-        Builder(@NonNull Action action) {
-            // Note: at the moment, the only standard actions that exist (APP_ICON and BACK) can't
-            // be customized with a title or a listener. For that reason, this constructor is not
-            // public since the main reason for that would be to make a copy of a standard action
-            // and customize it.
-            mTitle = action.getTitle();
-            mIcon = action.getIcon();
-            mBackgroundColor = action.getBackgroundColor();
-            mOnClickDelegate = action.getOnClickDelegate();
-            mType = action.getType();
         }
     }
 }

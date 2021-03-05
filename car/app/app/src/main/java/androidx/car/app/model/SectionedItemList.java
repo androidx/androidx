@@ -46,16 +46,16 @@ public final class SectionedItemList {
                 CarText.create(requireNonNull(sectionHeader)));
     }
 
-    /** Returns the {@link ItemList} for the section or {@code null} if not set. */
-    @Nullable
+    /** Returns the {@link ItemList} for the section. */
+    @NonNull
     public ItemList getItemList() {
-        return mItemList;
+        return requireNonNull(mItemList);
     }
 
-    /** Returns the title of the section or {@code null} if not set */
-    @Nullable
+    /** Returns the title of the section. */
+    @NonNull
     public CarText getHeader() {
-        return mHeader;
+        return requireNonNull(mHeader);
     }
 
     @Override

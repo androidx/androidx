@@ -121,7 +121,7 @@ public class WebViewDocumentStartJavaScriptTest {
         TestWebMessageListener.Data data = mListener.waitForOnPostMessage();
         Assert.assertEquals("hello", data.mMessage.getData());
 
-        WebkitUtils.onMainThread(() -> scriptReference.remove());
+        WebkitUtils.onMainThread(scriptReference::remove);
         loadHtmlSync(BASIC_USAGE);
 
         Assert.assertTrue("No more message at this point.", mListener.hasNoMoreOnPostMessage());

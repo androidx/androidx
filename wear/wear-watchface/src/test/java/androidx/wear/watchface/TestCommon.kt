@@ -46,10 +46,12 @@ internal class TestWatchFaceService(
     private val userStyleRepository: UserStyleRepository,
     private val watchState: MutableWatchState,
     private val handler: Handler,
-    private val tapListener: WatchFace.TapListener?
+    private val tapListener: WatchFace.TapListener?,
+    private val preAndroidR: Boolean,
+    private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
 ) : WatchFaceService() {
+    var singleTapCount = 0
     var complicationSingleTapped: Int? = null
-    var complicationDoubleTapped: Int? = null
     var complicationSelected: Int? = null
     var mockSystemTimeMillis = 0L
     var lastUserStyle: UserStyle? = null
@@ -67,10 +69,7 @@ internal class TestWatchFaceService(
             object : ComplicationsManager.TapCallback {
                 override fun onComplicationSingleTapped(complicationId: Int) {
                     complicationSingleTapped = complicationId
-                }
-
-                override fun onComplicationDoubleTapped(complicationId: Int) {
-                    complicationDoubleTapped = complicationId
+                    singleTapCount++
                 }
             })
     }
@@ -84,7 +83,6 @@ internal class TestWatchFaceService(
 
     fun clearTappedState() {
         complicationSingleTapped = null
-        complicationDoubleTapped = null
     }
 
     init {
@@ -116,13 +114,15 @@ internal class TestWatchFaceService(
     override fun readDirectBootPrefs(
         context: Context,
         fileName: String
-    ) = null
+    ) = directBootParams
 
     override fun writeDirectBootPrefs(
         context: Context,
         fileName: String,
         prefs: WallpaperInteractiveWatchFaceInstanceParams
     ) {}
+
+    override fun expectPreRInitFlow() = preAndroidR
 }
 
 /**
@@ -227,6 +227,7 @@ class WatchFaceTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass
         InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
             .doNotInstrumentPackage("android.support.wearable.watchface")
             .doNotInstrumentPackage("androidx.wear.complications")
+            .doNotInstrumentPackage("androidx.wear.utility")
             .doNotInstrumentPackage("androidx.wear.watchface")
             .doNotInstrumentPackage("androidx.wear.watchface.ui")
             .doNotInstrumentPackage("androidx.wear.watchfacestyle")

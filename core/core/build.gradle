@@ -34,12 +34,12 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO_INLINE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0") {
-        exclude group: 'androidx.core', module: 'core'
+        exclude group: "androidx.core", module: "core"
     }
-    androidTestImplementation project(':internal-testutils-runtime'), {
-        exclude group: 'androidx.core', module: 'core'
-    }
-    androidTestImplementation project(':internal-testutils-mockito')
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.core", module: "core"
+    })
+    androidTestImplementation(project(":internal-testutils-mockito"))
 
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
@@ -57,10 +57,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_7
     }
     aaptOptions {
-        noCompress 'ttf'
+        noCompress "ttf"
     }
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 
     packagingOptions {

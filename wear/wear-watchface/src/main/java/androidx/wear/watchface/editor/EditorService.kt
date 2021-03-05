@@ -16,7 +16,9 @@
 
 package androidx.wear.watchface.editor
 
+import android.os.IBinder
 import androidx.annotation.RestrictTo
+import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 
 /**
@@ -29,6 +31,8 @@ public class EditorService : IEditorService.Stub() {
     private val lock = Any()
     private var nextId: Int = 0
     private val observers = HashMap<Int, IEditorObserver>()
+    private val deathObservers = HashMap<Int, IBinder.DeathRecipient>()
+    private val closeEditorCallbacks = HashSet<CloseCallback>()
 
     public companion object {
         /** [EditorService] singleton. */
@@ -41,13 +45,54 @@ public class EditorService : IEditorService.Stub() {
         synchronized(lock) {
             val id = nextId++
             observers[id] = observer
+            val deathObserver = IBinder.DeathRecipient { unregisterObserver(id) }
+            observer.asBinder().linkToDeath(deathObserver, 0)
+            deathObservers[id] = deathObserver
             return id
         }
     }
 
     override fun unregisterObserver(observerId: Int) {
         synchronized(lock) {
+            deathObservers[observerId]?.let {
+                observers[observerId]?.asBinder()?.unlinkToDeath(it, 0)
+            }
             observers.remove(observerId)
+            deathObservers.remove(observerId)
+        }
+    }
+
+    public abstract class CloseCallback {
+        /** Called when [closeEditor] is called. */
+        public abstract fun onClose()
+    }
+
+    override fun closeEditor() {
+        val callbackCopy = synchronized(lock) {
+            HashSet<CloseCallback>(closeEditorCallbacks)
+        }
+        // We iterate on a copy of closeEditorCallbacks to avoid calls to removeCloseCallback
+        // mutating a set we're iterating.
+        for (observer in callbackCopy) {
+            observer.onClose()
+        }
+    }
+
+    /**
+     * Adds [closeCallback] to the set of observers to be called if the client calls [closeEditor].
+     */
+    public fun addCloseCallback(closeCallback: CloseCallback) {
+        synchronized(lock) {
+            closeEditorCallbacks.add(closeCallback)
+        }
+    }
+
+    /**
+     * Removes [closeCallback] from set of observers to be called if the client calls [closeEditor].
+     */
+    public fun removeCloseCallback(closeCallback: CloseCallback) {
+        synchronized(lock) {
+            closeEditorCallbacks.remove(closeCallback)
         }
     }
 
@@ -57,8 +102,24 @@ public class EditorService : IEditorService.Stub() {
     public fun broadcastEditorState(editorState: EditorStateWireFormat) {
         synchronized(lock) {
             for ((_, observer) in observers) {
-                observer.onEditorStateChange(editorState)
+                if (observer.asBinder().isBinderAlive) {
+                    observer.onEditorStateChange(editorState)
+                }
             }
         }
+    }
+
+    internal fun dump(writer: IndentingPrintWriter) {
+        writer.println("EditorService:")
+        writer.increaseIndent()
+        synchronized(lock) {
+            for ((id, observer) in observers) {
+                writer.println("id = $id, alive = ${observer.asBinder().isBinderAlive}")
+                if (observer.asBinder().isBinderAlive) {
+                    writer.println("$apiVersion = {observer.apiVersion}")
+                }
+            }
+        }
+        writer.decreaseIndent()
     }
 }

@@ -252,6 +252,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Dispatch configuration change to all fragments.
      */
     @Override
@@ -262,6 +264,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Perform initialization of all fragments.
      */
     @Override
@@ -273,6 +277,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Dispatch to Fragment.onCreateOptionsMenu().
      */
     @Override
@@ -314,6 +320,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Destroy all fragments.
      */
     @Override
@@ -324,6 +332,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Dispatch onLowMemory() to all fragments.
      */
     @Override
@@ -333,6 +343,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Dispatch context and options menu to fragments.
      */
     @Override
@@ -354,6 +366,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Call onOptionsMenuClosed() on fragments.
      */
     @Override
@@ -365,6 +379,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Dispatch onPause() to fragments.
      */
     @Override
@@ -376,6 +392,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Handle onNewIntent() to inform the fragment manager that the
      * state is not saved.  If you are handling new intents and may be
      * making changes to the fragment state, you want to be sure to call
@@ -393,6 +411,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Hook in to note that fragment state is no longer saved.
      */
     @SuppressWarnings("deprecation")
@@ -402,6 +422,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Dispatch onResume() to fragments.  Note that for better inter-operation
      * with older versions of the platform, at the point of this call the
      * fragments attached to the activity are <em>not</em> resumed.
@@ -415,6 +437,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Dispatch onResume() to fragments.
      */
     @Override
@@ -435,6 +459,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Dispatch onPrepareOptionsMenu() to fragments.
      */
     @SuppressWarnings("deprecation")
@@ -460,6 +486,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Dispatch onStart() to all fragments.
      */
     @Override
@@ -483,6 +511,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Dispatch onStop() to all fragments.
      */
     @Override
@@ -589,6 +619,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
+     * {@inheritDoc}
+     *
      * @deprecated there are no longer any restrictions on permissions requestCodes.
      */
     @Override

@@ -27,14 +27,14 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
     implementation(KOTLIN_STDLIB)
 
-    implementation projectOrArtifact(":compose:integration-tests:demos:common")
-    implementation projectOrArtifact(":compose:foundation:foundation")
-    implementation projectOrArtifact(":compose:material:material")
-    implementation projectOrArtifact(":navigation:navigation-compose")
-    implementation projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples")
+    implementation(projectOrArtifact(":compose:integration-tests:demos:common"))
+    implementation(projectOrArtifact(":compose:foundation:foundation"))
+    implementation(projectOrArtifact(":compose:material:material"))
+    implementation(projectOrArtifact(":navigation:navigation-compose"))
+    implementation(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
 }
 
 androidx {

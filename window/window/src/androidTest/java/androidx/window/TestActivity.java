@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 public class TestActivity extends Activity implements View.OnLayoutChangeListener {
 
-    private int mRootViewId;
     private CountDownLatch mLayoutLatch = new CountDownLatch(1);
     private static CountDownLatch sResumeLatch = new CountDownLatch(1);
 
@@ -35,8 +34,6 @@ public class TestActivity extends Activity implements View.OnLayoutChangeListene
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final View contentView = new View(this);
-        mRootViewId = View.generateViewId();
-        contentView.setId(mRootViewId);
         setContentView(contentView);
 
         getWindow().getDecorView().addOnLayoutChangeListener(this);

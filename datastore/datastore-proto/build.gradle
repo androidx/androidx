@@ -32,10 +32,12 @@ plugins {
 dependencies {
     api(project(":datastore:datastore-core"))
     api(PROTOBUF_LITE)
+    implementation(KOTLIN_COROUTINES_CORE)
 
     testImplementation(TRUTH)
     testImplementation(JUNIT)
     testImplementation(project(":internal-testutils-truth"))
+    testImplementation(KOTLIN_COROUTINES_TEST)
 }
 
 protobuf {
@@ -49,7 +51,7 @@ protobuf {
         all().each { task ->
             task.builtins {
                 java {
-                    option 'lite'
+                    option "lite"
                 }
             }
         }

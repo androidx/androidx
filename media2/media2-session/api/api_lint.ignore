@@ -45,3 +45,25 @@ MissingNullability: androidx.media2.session.MediaLibraryService#onBind(android.c
     Missing nullability on method `onBind` return
 MissingNullability: androidx.media2.session.MediaSessionService#onStartCommand(android.content.Intent, int, int) parameter #0:
     Missing nullability on parameter `intent` in method `onStartCommand`
+
+
+NullableCollection: androidx.media2.session.LibraryResult#getMediaItems():
+    Return type of method androidx.media2.session.LibraryResult.getMediaItems() is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.media2.session.MediaController#getPlaylist():
+    Return type of method androidx.media2.session.MediaController.getPlaylist() is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.media2.session.MediaController.ControllerCallback#onCustomCommand(androidx.media2.session.MediaController, androidx.media2.session.SessionCommand, android.os.Bundle) parameter #2:
+    Type of parameter args in androidx.media2.session.MediaController.ControllerCallback.onCustomCommand(androidx.media2.session.MediaController controller, androidx.media2.session.SessionCommand command, android.os.Bundle args) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.session.MediaController.ControllerCallback#onPlaylistChanged(androidx.media2.session.MediaController, java.util.List<androidx.media2.common.MediaItem>, androidx.media2.common.MediaMetadata) parameter #1:
+    Type of parameter list in androidx.media2.session.MediaController.ControllerCallback.onPlaylistChanged(androidx.media2.session.MediaController controller, java.util.List<androidx.media2.common.MediaItem> list, androidx.media2.common.MediaMetadata metadata) is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.media2.session.MediaLibraryService.LibraryParams#getExtras():
+    Return type of method androidx.media2.session.MediaLibraryService.LibraryParams.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.session.MediaSession.CommandButton#getExtras():
+    Return type of method androidx.media2.session.MediaSession.CommandButton.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.session.MediaSession.SessionCallback#onCustomCommand(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, androidx.media2.session.SessionCommand, android.os.Bundle) parameter #3:
+    Type of parameter args in androidx.media2.session.MediaSession.SessionCallback.onCustomCommand(androidx.media2.session.MediaSession session, androidx.media2.session.MediaSession.ControllerInfo controller, androidx.media2.session.SessionCommand customCommand, android.os.Bundle args) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.session.MediaSession.SessionCallback#onSetMediaUri(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, android.net.Uri, android.os.Bundle) parameter #3:
+    Type of parameter extras in androidx.media2.session.MediaSession.SessionCallback.onSetMediaUri(androidx.media2.session.MediaSession session, androidx.media2.session.MediaSession.ControllerInfo controller, android.net.Uri uri, android.os.Bundle extras) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.session.SessionCommand#getCustomExtras():
+    Return type of method androidx.media2.session.SessionCommand.getCustomExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.session.SessionResult#getCustomCommandResult():
+    Return type of method androidx.media2.session.SessionResult.getCustomCommandResult() is a nullable collection (`android.os.Bundle`); must be non-null

@@ -29,7 +29,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(GUAVA_LISTENABLE_FUTURE)
     implementation(PROTOBUF_LITE)
-    implementation 'androidx.annotation:annotation:1.2.0-alpha01'
+    implementation("androidx.annotation:annotation:1.2.0-alpha01")
 
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
     testImplementation(ANDROIDX_TEST_CORE)

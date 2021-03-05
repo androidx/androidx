@@ -20,7 +20,7 @@ plugins {
 }
 
 ext {
-    fontDir = project(':noto-emoji-compat').projectDir
+    fontDir = project(":noto-emoji-compat").projectDir
 }
 
 dependencies {

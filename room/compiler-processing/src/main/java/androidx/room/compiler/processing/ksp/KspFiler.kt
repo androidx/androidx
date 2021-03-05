@@ -17,17 +17,43 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XFiler
-import com.squareup.javapoet.JavaFile
+import androidx.room.compiler.processing.XMessager
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
+import com.squareup.javapoet.JavaFile
+import javax.tools.Diagnostic
 
 internal class KspFiler(
-    private val delegate: CodeGenerator
+    private val delegate: CodeGenerator,
+    private val messager: XMessager,
 ) : XFiler {
     override fun write(javaFile: JavaFile) {
+        val originatingFiles = javaFile.typeSpec.originatingElements
+            .map {
+                check(it is KSFileAsOriginatingElement) {
+                    "Unexpected element type in originating elements. $it"
+                }
+                it.ksFile
+            }
+        val dependencies = if (originatingFiles.isEmpty()) {
+            messager.printMessage(
+                Diagnostic.Kind.WARNING,
+                """
+                    No dependencies are reported for ${javaFile.typeSpec.name} which will prevent
+                    incremental compilation. Please file a bug at:
+                    https://issuetracker.google.com/issues/new?component=413107
+                """.trimIndent()
+            )
+            Dependencies.ALL_FILES
+        } else {
+            Dependencies(
+                aggregating = false,
+                sources = originatingFiles.distinct().toTypedArray()
+            )
+        }
+
         delegate.createNewFile(
-            // TODO: track originating files: b/176453350
-            dependencies = Dependencies.ALL_FILES,
+            dependencies = dependencies,
             packageName = javaFile.packageName,
             fileName = javaFile.typeSpec.name,
             extensionName = "java"

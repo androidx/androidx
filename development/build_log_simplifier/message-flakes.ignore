@@ -28,3 +28,11 @@ Remote build cache is disabled when running with \-\-offline\.
 # Some messages that encode the number of a certain type of other error
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warning filtered by baseline lint\-baseline\.xml\)
+# > Task :webkit:integration-tests:testapp:compileReleaseJavaWithJavac
+\[ant\:jacocoReport\] Note\: Some input files use or override a deprecated API\.
+\[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:deprecation for details\.
+\[ant\:jacocoReport\] Note\: Some input files use unchecked or unsafe operations\.
+\[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:unchecked for details\.
+# > Task :jetifier-core:compileKotlin
+Could not perform incremental compilation\: Could not connect to Kotlin compile daemon
+Could not connect to kotlin daemon\. Using fallback strategy\.

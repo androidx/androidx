@@ -26,6 +26,7 @@ import static androidx.camera.view.PreviewView.ScaleType.FIT_END;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_START;
 import static androidx.camera.view.TransformUtils.createRotatedVertices;
 import static androidx.camera.view.TransformUtils.is90or270;
+import static androidx.camera.view.TransformUtils.isAspectRatioMatchingWithRoundingError;
 import static androidx.camera.view.TransformUtils.rectToVertices;
 import static androidx.camera.view.TransformUtils.sizeToVertices;
 import static androidx.camera.view.TransformUtils.surfaceRotationToRotationDegrees;
@@ -39,7 +40,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.LayoutDirection;
 import android.util.Size;
-import android.util.SizeF;
 import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -285,7 +285,7 @@ final class PreviewTransformation {
             int layoutDirection) {
         RectF previewViewRect = new RectF(0, 0, previewViewSize.getWidth(),
                 previewViewSize.getHeight());
-        SizeF rotatedCropRectSize = getRotatedCropRectSize();
+        Size rotatedCropRectSize = getRotatedCropRectSize();
         RectF rotatedSurfaceCropRect = new RectF(0, 0, rotatedCropRectSize.getWidth(),
                 rotatedCropRectSize.getHeight());
         Matrix matrix = new Matrix();
@@ -352,12 +352,12 @@ final class PreviewTransformation {
     /**
      * Returns crop rect size with target rotation applied.
      */
-    private SizeF getRotatedCropRectSize() {
+    private Size getRotatedCropRectSize() {
         Preconditions.checkNotNull(mSurfaceCropRect);
         if (is90or270(mPreviewRotationDegrees)) {
-            return new SizeF(mSurfaceCropRect.height(), mSurfaceCropRect.width());
+            return new Size(mSurfaceCropRect.height(), mSurfaceCropRect.width());
         }
-        return new SizeF(mSurfaceCropRect.width(), mSurfaceCropRect.height());
+        return new Size(mSurfaceCropRect.width(), mSurfaceCropRect.height());
     }
 
     /**
@@ -369,14 +369,10 @@ final class PreviewTransformation {
      */
     @VisibleForTesting
     boolean isCropRectAspectRatioMatchPreviewView(Size previewViewSize) {
-        float previewViewRatio = (float) previewViewSize.getWidth() / previewViewSize.getHeight();
-        // In camera-core, when viewport's aspect ratio doesn't match PreviewView's aspect ratio,
-        // the result crop rect is rounded to the nearest integer. Allow 0.5px rounding error for
-        // each x and y axes.
-        SizeF rotatedSize = getRotatedCropRectSize();
-        float upperBound = (rotatedSize.getWidth() + .5F) / (rotatedSize.getHeight() - .5F);
-        float lowerBound = (rotatedSize.getWidth() - .5F) / (rotatedSize.getHeight() + .5F);
-        return previewViewRatio >= lowerBound && previewViewRatio <= upperBound;
+        Size rotatedSize = getRotatedCropRectSize();
+        return isAspectRatioMatchingWithRoundingError(
+                previewViewSize, /* isAccurate1= */ true,
+                rotatedSize,  /* isAccurate2= */ false);
     }
 
     /**

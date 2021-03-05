@@ -38,7 +38,7 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(TRUTH)
 
-    lintPublish(project(':lifecycle:lifecycle-livedata-core-ktx-lint'))
+    lintPublish(project(":lifecycle:lifecycle-livedata-core-ktx-lint"))
 }
 
 androidx {

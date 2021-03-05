@@ -20,7 +20,7 @@ buildscript {
     // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
     // vectordrawable and vectordrawable-animated were accidentally using the same package name
     // which is no longer valid in namespaced resource world.
-    project.ext['android.uniquePackageNames'] = false
+    project.ext["android.uniquePackageNames"] = false
 }
 
 plugins {
@@ -55,7 +55,7 @@ android {
 dependencies {
     // Using -Pandroidx.useMaxDepVersions does not use the right version of the annotation processor
     // Remove this workaround after b/127495641 is fixed
-    if (project.hasProperty('androidx.useMaxDepVersions')) {
+    if (project.hasProperty("androidx.useMaxDepVersions")) {
         annotationProcessor(projectOrArtifact(":room:room-compiler"))
         implementation(projectOrArtifact(":room:room-runtime"))
     } else {
@@ -65,9 +65,9 @@ dependencies {
 
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation("androidx.lifecycle:lifecycle-service:2.2.0")
-    implementation (project(':work:work-runtime-ktx'))
-    implementation (project(':work:work-multiprocess'))
-    implementation (project(':work:work-gcm'))
+    implementation(project(":work:work-runtime-ktx"))
+    implementation(project(":work:work-multiprocess"))
+    implementation(project(":work:work-gcm"))
     implementation("androidx.arch.core:core-runtime:2.1.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation(MATERIAL)
