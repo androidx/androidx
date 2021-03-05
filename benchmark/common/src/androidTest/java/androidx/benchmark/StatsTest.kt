@@ -25,39 +25,48 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class StatsTest {
+public class StatsTest {
     @Test
-    fun repeat() {
+    public fun repeat() {
         val stats = Stats(longArrayOf(10, 10, 10, 10), "test")
-        assertEquals(10.0, stats.mean, 0.0)
-        assertEquals(10, stats.median)
-        assertEquals(10, stats.max)
         assertEquals(10, stats.min)
+        assertEquals(10, stats.max)
+        assertEquals(10, stats.median)
         assertEquals(0.0, stats.standardDeviation, 0.0)
+
+        assertEquals(0, stats.minIndex)
+        assertEquals(0, stats.maxIndex)
+        assertEquals(2, stats.medianIndex)
     }
 
     @Test
-    fun one() {
+    public fun one() {
         val stats = Stats(longArrayOf(10), "test")
-        assertEquals(10.0, stats.mean, 0.0)
-        assertEquals(10, stats.median)
-        assertEquals(10, stats.max)
         assertEquals(10, stats.min)
-        assertEquals(Double.NaN, stats.standardDeviation, 0.0)
+        assertEquals(10, stats.max)
+        assertEquals(10, stats.median)
+        assertEquals(0.0, stats.standardDeviation, 0.0)
+
+        assertEquals(0, stats.minIndex)
+        assertEquals(0, stats.maxIndex)
+        assertEquals(0, stats.medianIndex)
     }
 
     @Test
-    fun simple() {
+    public fun simple() {
         val stats = Stats((1L..100L).toList().toLongArray(), "test")
-        assertEquals(50.5, stats.mean, 0.0)
         assertTrue(stats.median == 50L || stats.median == 51L)
         assertEquals(100, stats.max)
         assertEquals(1, stats.min)
         assertEquals(29.01, stats.standardDeviation, 0.05)
+
+        assertEquals(0, stats.minIndex)
+        assertEquals(99, stats.maxIndex)
+        assertEquals(50, stats.medianIndex)
     }
 
     @Test
-    fun lerp() {
+    public fun lerp() {
         assertEquals(Stats.lerp(0, 1000, 0.5), 500)
         assertEquals(Stats.lerp(0, 1000, 0.75), 750)
         assertEquals(Stats.lerp(0, 1000, 0.25), 250)
@@ -65,7 +74,7 @@ class StatsTest {
     }
 
     @Test
-    fun getPercentile() {
+    public fun getPercentile() {
         (0..100).forEach {
             assertEquals(it.toLong(), Stats.getPercentile(listOf(0L, 25L, 50L, 75L, 100L), it))
         }

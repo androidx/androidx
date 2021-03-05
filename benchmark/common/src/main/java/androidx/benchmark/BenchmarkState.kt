@@ -471,7 +471,7 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
             stats.forEach { it.putInBundle(status, PREFIX) }
         }
         InstrumentationResultScope(status).ideSummaryRecord(
-            ideSummaryLineWrapped(
+            summaryV1 = ideSummaryLineWrapped(
                 key,
                 getMinTimeNanos(),
                 stats.firstOrNull { it.name == "allocationCount" }?.median
@@ -611,7 +611,7 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
 
             instrumentationReport {
                 ideSummaryRecord(
-                    ideSummaryLineWrapped(
+                    summaryV1 = ideSummaryLineWrapped(
                         key = fullTestName,
                         nanos = report.getStats("timeNs").min,
                         allocations = null
