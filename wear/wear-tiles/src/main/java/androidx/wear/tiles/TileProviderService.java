@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.wear.tiles.builders.ResourceBuilders.Resources;
 import androidx.wear.tiles.builders.TileBuilders.Tile;
+import androidx.wear.tiles.builders.TileBuilders.Version;
+import androidx.wear.tiles.proto.TileProto;
+import androidx.wear.tiles.readers.EventReaders.TileAddEvent;
+import androidx.wear.tiles.readers.EventReaders.TileEnterEvent;
+import androidx.wear.tiles.readers.EventReaders.TileLeaveEvent;
+import androidx.wear.tiles.readers.EventReaders.TileRemoveEvent;
 import androidx.wear.tiles.readers.RequestReaders.ResourcesRequest;
 import androidx.wear.tiles.readers.RequestReaders.TileRequest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -93,6 +101,46 @@ public abstract class TileProviderService extends Service {
             @NonNull ResourcesRequest requestParams);
 
     /**
+     * Called when a tile provided by this Tile Provider is added to the carousel. Note that this
+     * may be called from a background thread.
+     *
+     * @param requestParams Parameters about the request. See {@link TileAddEventData} for more
+     *     info.
+     */
+    @MainThread
+    protected void onTileAddEvent(@NonNull TileAddEvent requestParams) {}
+
+    /**
+     * Called when a tile provided by this Tile Provider is removed from the carousel. Note that
+     * this may be called from a background thread.
+     *
+     * @param requestParams Parameters about the request. See {@link TileRemoveEventData} for more
+     *     info.
+     */
+    @MainThread
+    protected void onTileRemoveEvent(@NonNull TileRemoveEvent requestParams) {}
+
+    /**
+     * Called when a tile provided by this Tile Provider becomes into view, on screen. Note that
+     * this may be called from a background thread.
+     *
+     * @param requestParams Parameters about the request. See {@link TileEnterEventData} for more
+     *     info.
+     */
+    @MainThread
+    protected void onTileEnterEvent(@NonNull TileEnterEvent requestParams) {}
+
+    /**
+     * Called when a tile provided by this Tile Provider goes out of view, on screen. Note that this
+     * may be called from a background thread.
+     *
+     * @param requestParams Parameters about the request. See {@link TileLeaveEventData} for more
+     *     info.
+     */
+    @MainThread
+    protected void onTileLeaveEvent(@NonNull TileLeaveEvent requestParams) {}
+
+    /**
      * Gets an instance of {@link TileUpdateRequester} to allow a Tile Provider to notify the tile's
      * renderer that it should request a new Timeline from this {@link TileProviderService}.
      *
@@ -100,7 +148,13 @@ public abstract class TileProviderService extends Service {
      */
     @NonNull
     public static TileUpdateRequester getUpdater(@NonNull Context context) {
-        return new SysUiTileUpdateRequester(context);
+        // TODO(b/181747932): Detect which UpdateRequester to use rather than dispatching using
+        // both.
+        List<TileUpdateRequester> requesters = new ArrayList<>();
+        requesters.add(new SysUiTileUpdateRequester(context));
+        requesters.add(new ViewerTileUpdateRequester(context));
+
+        return new CompositeTileUpdateRequester(requesters);
     }
 
     private TileProvider.Stub mBinder;
@@ -151,17 +205,20 @@ public abstract class TileProviderService extends Service {
                             // TODO(b/166074385): Add tileId to TileRequest
                             ListenableFuture<Tile> tileFuture =
                                     tileProviderService.onTileRequest(
-                                            TileRequest.fromParcelable(requestParams));
+                                            TileRequest.fromParcelable(requestParams, tileId));
 
                             tileFuture.addListener(
                                     () -> {
                                         try {
+                                            // Inject the current schema version.
+                                            TileProto.Tile tile =
+                                                    tileFuture.get().toProto().toBuilder()
+                                                            .setSchemaVersion(Version.CURRENT)
+                                                            .build();
+
                                             callback.updateTileData(
                                                     new TileData(
-                                                            tileFuture
-                                                                    .get()
-                                                                    .toProto()
-                                                                    .toByteArray(),
+                                                            tile.toByteArray(),
                                                             TileData.VERSION_PROTOBUF));
                                         } catch (ExecutionException | InterruptedException ex) {
                                             Log.e(TAG, "onTileRequest Future failed", ex);
@@ -196,7 +253,7 @@ public abstract class TileProviderService extends Service {
                             // TODO(b/166074385): Add tileId to ResourcesRequest
                             ListenableFuture<Resources> resourcesFuture =
                                     tileProviderService.onResourcesRequest(
-                                            ResourcesRequest.fromParcelable(requestParams));
+                                            ResourcesRequest.fromParcelable(requestParams, tileId));
 
                             resourcesFuture.addListener(
                                     () -> {
@@ -214,7 +271,7 @@ public abstract class TileProviderService extends Service {
                                             Log.e(
                                                     TAG,
                                                     "RemoteException while returning resources"
-                                                        + " payload",
+                                                            + " payload",
                                                     ex);
                                         }
                                     },
@@ -224,9 +281,86 @@ public abstract class TileProviderService extends Service {
         }
 
         @Override
-        public void onTileAdd(int id) {}
+        public void onTileAddEvent(TileAddEventData data) {
+            mHandler.post(
+                    () -> {
+                        TileProviderService tileProviderService = mServiceRef.get();
+
+                        if (tileProviderService != null) {
+                            if (data.getVersion() != TileAddEventData.VERSION_PROTOBUF) {
+                                Log.e(
+                                        TAG,
+                                        "TileAddEventData had unexpected version: "
+                                                + data.getVersion());
+                                return;
+                            }
+
+                            tileProviderService.onTileAddEvent(TileAddEvent.fromParcelable(data));
+                        }
+                    });
+        }
 
         @Override
-        public void onTileRemove(int id) {}
+        public void onTileRemoveEvent(TileRemoveEventData data) {
+            mHandler.post(
+                    () -> {
+                        TileProviderService tileProviderService = mServiceRef.get();
+
+                        if (tileProviderService != null) {
+                            if (data.getVersion() != TileRemoveEventData.VERSION_PROTOBUF) {
+                                Log.e(
+                                        TAG,
+                                        "TileRemoveEventData had unexpected version: "
+                                                + data.getVersion());
+                                return;
+                            }
+
+                            tileProviderService.onTileRemoveEvent(
+                                    TileRemoveEvent.fromParcelable(data));
+                        }
+                    });
+        }
+
+        @Override
+        public void onTileEnterEvent(TileEnterEventData data) {
+            mHandler.post(
+                    () -> {
+                        TileProviderService tileProviderService = mServiceRef.get();
+
+                        if (tileProviderService != null) {
+                            if (data.getVersion() != TileEnterEventData.VERSION_PROTOBUF) {
+                                Log.e(
+                                        TAG,
+                                        "TileEnterEventData had unexpected version: "
+                                                + data.getVersion());
+                                return;
+                            }
+
+                            tileProviderService.onTileEnterEvent(
+                                    TileEnterEvent.fromParcelable(data));
+                        }
+                    });
+        }
+
+        @Override
+        public void onTileLeaveEvent(TileLeaveEventData data) {
+            mHandler.post(
+                    () -> {
+                        TileProviderService tileProviderService = mServiceRef.get();
+
+                        if (tileProviderService != null) {
+                            if (data.getVersion() != TileLeaveEventData.VERSION_PROTOBUF) {
+                                Log.e(
+                                        TAG,
+                                        "TileLeaveEventData had unexpected version: "
+                                                + data.getVersion());
+                                return;
+                            }
+
+                            tileProviderService.onTileLeaveEvent(
+                                    TileLeaveEvent.fromParcelable(data));
+                        }
+                    });
+        }
     }
 }

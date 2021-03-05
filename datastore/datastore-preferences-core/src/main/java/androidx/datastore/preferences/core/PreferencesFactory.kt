@@ -30,9 +30,10 @@ public fun emptyPreferences(): Preferences = MutablePreferences(startFrozen = tr
  * Construct a Preferences object with a list of Preferences.Pair<T>. Comparable to mapOf().
  *
  * Example usage:
- *
+ * ```
  * val counterKey = intPreferencesKey("counter")
  * val preferences = preferencesOf(counterKey to 100)
+ * ```
  *
  * @param pairs the key value pairs with which to construct the preferences
  */
@@ -44,10 +45,10 @@ public fun preferencesOf(vararg pairs: Preferences.Pair<*>): Preferences =
  * Construct a MutablePreferences object with a list of Preferences.Pair<T>. Comparable to mapOf().
  *
  * Example usage:
- *
+ * ```
  * val counterKey = intPreferencesKey("counter")
- * val preferences = preferencesOf(counterKey to 100)
- *
+ * val preferences = mutablePreferencesOf(counterKey to 100)
+ * ```
  * @param pairs the key value pairs with which to construct the preferences
  */
 @JvmName("createMutable")

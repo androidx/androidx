@@ -25,10 +25,11 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Binder;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.RemoteException;
 
 import androidx.annotation.Nullable;
 import androidx.car.app.OnDoneCallback;
@@ -158,7 +159,15 @@ public class BundlerTest {
     }
 
     @Test
-    public void binderSerialization() throws BundlerException, RemoteException {
+    public void iBinderSerialization() throws BundlerException {
+        IBinder binder = new Binder();
+        Bundle bundle = Bundler.toBundle(binder);
+
+        assertThat(Bundler.fromBundle(bundle)).isEqualTo(binder);
+    }
+
+    @Test
+    public void iInterfaceSerialization() throws BundlerException {
         OnClickListener clickListener = mock(OnClickListener.class);
 
         ItemList itemList =

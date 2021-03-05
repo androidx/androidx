@@ -222,7 +222,7 @@ class AudioEncoderTest {
         // Make the pause duration = wait data timeout, then even the worst case, the difference
         // between 2 data should be always smaller than pause duration if the pause duration is
         // not included.
-        val timeoutWaitDataMs = 300L
+        val timeoutWaitDataMs = 1500L
         val pauseDurationMs = timeoutWaitDataMs
 
         val presentationTimeUs = AtomicLong()

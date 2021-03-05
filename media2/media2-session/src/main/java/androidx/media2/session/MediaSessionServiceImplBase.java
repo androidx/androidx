@@ -220,10 +220,8 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
             implements Closeable {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         final WeakReference<MediaSessionServiceImplBase> mServiceImpl;
-        @SuppressWarnings("WeakerAccess") /* synthetic access */
-        final Handler mHandler;
-        @SuppressWarnings("WeakerAccess") /* synthetic access */
-        final MediaSessionManager mMediaSessionManager;
+        private final Handler mHandler;
+        private final MediaSessionManager mMediaSessionManager;
 
         MediaSessionServiceStub(final MediaSessionServiceImplBase serviceImpl) {
             mServiceImpl = new WeakReference<>(serviceImpl);
@@ -248,6 +246,8 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
             final String packageName = connectionRequest == null ? null : request.getPackageName();
             final Bundle connectionHints = connectionRequest == null ? null :
                     request.getConnectionHints();
+            final RemoteUserInfo remoteUserInfo = new RemoteUserInfo(packageName, pid, uid);
+            final boolean isTrusted = mMediaSessionManager.isTrustedForMediaControl(remoteUserInfo);
             try {
                 mHandler.post(new Runnable() {
                     @Override
@@ -269,14 +269,9 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                                 return;
                             }
 
-                            RemoteUserInfo remoteUserInfo = new RemoteUserInfo(
-                                    packageName, pid, uid);
-                            boolean isTrusted = mMediaSessionManager.isTrustedForMediaControl(
-                                    remoteUserInfo);
                             ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
                                     request.getVersion(), isTrusted, null /* controllerCb */,
                                     connectionHints);
-
                             if (DEBUG) {
                                 Log.d(TAG, "Handling incoming connection request from the"
                                         + " controller=" + controllerInfo);

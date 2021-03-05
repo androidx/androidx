@@ -16,6 +16,8 @@
 
 package androidx.datastore.rxjava2;
 
+import static androidx.testutils.AssertionsKt.assertThrows;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Rule;
@@ -121,6 +123,22 @@ public class RxDataStoreTest {
         assertThat(incrementByte2.blockingGet()).isEqualTo((byte) 1);
 
         testSubscriber.awaitCount(2).assertValues((byte) 0, (byte) 1);
+    }
+
+    @Test
+    public void openingSameDataStoreTwice_throwsException() throws IOException {
+        File newFile = tempFolder.newFile();
+        TestingSerializer testingSerializer = new TestingSerializer();
+
+        RxDataStore<Byte> byteRxDataStore = new RxDataStoreBuilder<Byte>(() -> newFile,
+                testingSerializer).build();
+
+        assertThat(byteRxDataStore.data().blockingFirst()).isEqualTo((byte) 0);
+
+        RxDataStore<Byte> byteRxDataStore2 = new RxDataStoreBuilder<Byte>(() -> newFile,
+                testingSerializer).build();
+
+        assertThrows(IllegalStateException.class, () -> byteRxDataStore2.data().blockingFirst());
     }
 
     @Test

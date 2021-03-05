@@ -17,7 +17,7 @@
 package androidx.car.app.utils;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.car.app.utils.CommonUtils.TAG;
+import static androidx.car.app.utils.LogTags.TAG;
 
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
@@ -70,7 +70,9 @@ public final class RemoteUtils {
     public static <ReturnT> ReturnT call(@NonNull RemoteCall<ReturnT> remoteCall,
             @NonNull String callName) {
         try {
-            Log.d(TAG, "Dispatching call " + callName + " to host");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Dispatching call " + callName + " to host");
+            }
             return remoteCall.call();
         } catch (SecurityException e) {
             // SecurityException is treated specially where we allow it to flow through since
@@ -124,6 +126,11 @@ public final class RemoteUtils {
                 });
     }
 
+    /**
+     * Invoke onSuccess on the given {@code callback} instance with the given {@code response}.
+     */
+    // TODO(b/178748627): the nullable annotation from the AIDL file is not being considered.
+    @SuppressWarnings("NullAway")
     public static void sendSuccessResponse(
             @NonNull IOnDoneCallback callback, @NonNull String callName,
             @Nullable Object response) {
@@ -138,6 +145,9 @@ public final class RemoteUtils {
         }, callName + " onSuccess");
     }
 
+    /**
+     * Invoke onFailure on the given {@code callback} instance with the given {@link Throwable}.
+     */
     public static void sendFailureResponse(@NonNull IOnDoneCallback callback,
             @NonNull String callName,
             @NonNull Throwable e) {

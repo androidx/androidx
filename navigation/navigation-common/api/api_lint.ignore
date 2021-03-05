@@ -1,28 +1,4 @@
 // Baseline format: 1.0
-AllUpper: androidx.navigation.NavType#BoolArrayType:
-    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#BoolArrayType`, should be `BOOL_ARRAY_TYPE`?
-AllUpper: androidx.navigation.NavType#BoolType:
-    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#BoolType`, should be `BOOL_TYPE`?
-AllUpper: androidx.navigation.NavType#FloatArrayType:
-    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#FloatArrayType`, should be `FLOAT_ARRAY_TYPE`?
-AllUpper: androidx.navigation.NavType#FloatType:
-    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#FloatType`, should be `FLOAT_TYPE`?
-AllUpper: androidx.navigation.NavType#IntArrayType:
-    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#IntArrayType`, should be `INT_ARRAY_TYPE`?
-AllUpper: androidx.navigation.NavType#IntType:
-    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#IntType`, should be `INT_TYPE`?
-AllUpper: androidx.navigation.NavType#LongArrayType:
-    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#LongArrayType`, should be `LONG_ARRAY_TYPE`?
-AllUpper: androidx.navigation.NavType#LongType:
-    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#LongType`, should be `LONG_TYPE`?
-AllUpper: androidx.navigation.NavType#ReferenceType:
-    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#ReferenceType`, should be `REFERENCE_TYPE`?
-AllUpper: androidx.navigation.NavType#StringArrayType:
-    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#StringArrayType`, should be `STRING_ARRAY_TYPE`?
-AllUpper: androidx.navigation.NavType#StringType:
-    Constant field names must be named with only upper case characters: `androidx.navigation.NavType#StringType`, should be `STRING_TYPE`?
-
-
 ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#get(android.os.Bundle, String):
     Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
 ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#parseValue(String):
@@ -51,11 +27,13 @@ BuilderSetStyle: androidx.navigation.NavDeepLinkRequest.Builder#fromUri(android.
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDeepLinkRequest.Builder.fromUri(android.net.Uri)
 
 
-KotlinOperator: androidx.navigation.NavType#get(android.os.Bundle, String):
-    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
-
-
 MissingGetterMatchingBuilder: androidx.navigation.NavArgument.Builder#setIsNullable(boolean):
     androidx.navigation.NavArgument does not declare a `isIsNullable()` method matching method androidx.navigation.NavArgument.Builder.setIsNullable(boolean)
 MissingGetterMatchingBuilder: androidx.navigation.NavOptions.Builder#setLaunchSingleTop(boolean):
     androidx.navigation.NavOptions does not declare a `isLaunchSingleTop()` method matching method androidx.navigation.NavOptions.Builder.setLaunchSingleTop(boolean)
+
+
+NullableCollection: androidx.navigation.NavAction#getDefaultArguments():
+    Return type of method androidx.navigation.NavAction.getDefaultArguments() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.navigation.Navigator#onSaveState():
+    Return type of method androidx.navigation.Navigator.onSaveState() is a nullable collection (`android.os.Bundle`); must be non-null

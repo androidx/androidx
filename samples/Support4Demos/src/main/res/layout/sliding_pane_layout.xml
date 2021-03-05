@@ -40,8 +40,9 @@
          android:layout_width. -->
     <ScrollView
         android:layout_width="300dp"
-        android:layout_height="match_parent"
+        android:minWidth="600dp"
         android:layout_weight="1"
+        android:layout_height="match_parent"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:scrollbarStyle="outsideOverlay"

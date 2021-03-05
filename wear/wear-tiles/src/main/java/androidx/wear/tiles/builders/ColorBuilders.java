@@ -38,7 +38,7 @@ public final class ColorBuilders {
     public static final class ColorProp {
         private final ColorProto.ColorProp mImpl;
 
-        ColorProp(ColorProto.ColorProp impl) {
+        private ColorProp(ColorProto.ColorProp impl) {
             this.mImpl = impl;
         }
 
@@ -48,12 +48,15 @@ public final class ColorBuilders {
             return new Builder();
         }
 
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY)
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ColorProp fromProto(@NonNull ColorProto.ColorProp proto) {
+            return new ColorProp(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ColorProto.ColorProp toProto() {
             return mImpl;
@@ -76,7 +79,7 @@ public final class ColorBuilders {
             /** Builds an instance from accumulated values. */
             @NonNull
             public ColorProp build() {
-                return new ColorProp(mImpl.build());
+                return ColorProp.fromProto(mImpl.build());
             }
         }
     }

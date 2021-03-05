@@ -57,6 +57,21 @@ internal data class ConfigurationError(
             }
         }
     }
+
+    /**
+     * Representation of suppressed errors during a running benchmark.
+     */
+    class SuppressionState(
+        /**
+         * Prefix for output data to mark as potentially invalid.
+         */
+        val prefix: String,
+
+        /**
+         * Warning message to present to the user.
+         */
+        val warningMessage: String
+    )
 }
 
 internal fun conditionalError(
@@ -72,26 +87,52 @@ internal fun conditionalError(
     } else null
 }
 
-/**
- * Throw if the list is non-empty, with a formatted message.
- *
- * Format the error to look like the following:
- *
- * java.lang.AssertionError: ERRORS: FOO, BAR
- * ERROR: Running with Foo
- *     Foo line 1...
- *     Foo line 2.
- *
- * ERROR: Running with Bar
- *     Foo line 1...
- *     Foo line 2.
- */
-internal fun List<ConfigurationError>.throwErrorIfNotEmpty() {
-    if (isNotEmpty()) {
-        val errorIdList = "ERRORS: " + this.joinToString(", ") { it.id }
-        val errorFullMessage = this.joinToString("\n") {
-            "ERROR: " + it.summary + "\n" + it.message.prependIndent() + "\n"
-        }
-        throw AssertionError(errorIdList + "\n" + errorFullMessage)
+internal fun List<ConfigurationError>.prettyPrint(prefix: String): String {
+    return joinToString("\n") {
+        prefix + it.summary + "\n" + it.message.prependIndent() + "\n"
     }
+}
+
+/**
+ * Throw an AssertionError if the list contains an unsuppressed error, and return either a
+ * SuppressionState if errors are suppressed, or null otherwise.
+ */
+internal fun List<ConfigurationError>.checkAndGetSuppressionState(
+    suppressedErrorIds: Set<String>,
+): ConfigurationError.SuppressionState? {
+    val (suppressed, unsuppressed) = partition {
+        suppressedErrorIds.contains(it.id)
+    }
+
+    val prefix = suppressed.joinToString("_") { it.id } + "_"
+
+    val unsuppressedString = unsuppressed.joinToString(" ") { it.id }
+    val suppressedString = suppressed.joinToString(" ") { it.id }
+    val howToSuppressString = this.joinToString(",") { it.id }
+
+    if (unsuppressed.isNotEmpty()) {
+        throw AssertionError(
+            """
+                |ERRORS (not suppressed): $unsuppressedString
+                |WARNINGS (suppressed): $suppressedString
+                |
+                |${unsuppressed.prettyPrint("ERROR: ")}
+                |While you can suppress these errors (turning them into warnings)
+                |PLEASE NOTE THAT EACH SUPPRESSED ERROR COMPROMISES ACCURACY
+                |
+                |// Sample suppression, in a benchmark module's build.gradle:
+                |android {
+                |    defaultConfig {
+                |        testInstrumentationRunnerArgument 'androidx.benchmark.suppressErrors', '$howToSuppressString'
+                |    }
+                |}
+            """.trimMargin()
+        )
+    }
+
+    if (suppressed.isEmpty()) {
+        return null
+    }
+
+    return ConfigurationError.SuppressionState(prefix, suppressed.prettyPrint("WARNING: "))
 }

@@ -9,15 +9,15 @@ package androidx.slidingpanelayout.widget {
     method @Deprecated public boolean canSlide();
     method public void close();
     method public boolean closePane();
-    method @ColorInt public int getCoveredFadeColor();
+    method @Deprecated @ColorInt public int getCoveredFadeColor();
     method public final int getLockMode();
     method @Px public int getParallaxDistance();
-    method @ColorInt public int getSliderFadeColor();
+    method @Deprecated @ColorInt public int getSliderFadeColor();
     method public boolean isOpen();
     method public boolean isSlideable();
     method public void open();
     method public boolean openPane();
-    method public void setCoveredFadeColor(@ColorInt int);
+    method @Deprecated public void setCoveredFadeColor(@ColorInt int);
     method public final void setLockMode(int);
     method public void setPanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener?);
     method public void setParallaxDistance(@Px int);
@@ -27,12 +27,12 @@ package androidx.slidingpanelayout.widget {
     method @Deprecated public void setShadowResource(@DrawableRes int);
     method public void setShadowResourceLeft(int);
     method public void setShadowResourceRight(int);
-    method public void setSliderFadeColor(@ColorInt int);
+    method @Deprecated public void setSliderFadeColor(@ColorInt int);
     method @Deprecated public void smoothSlideClosed();
     method @Deprecated public void smoothSlideOpen();
+    field public static final int LOCK_MODE_LOCKED = 3; // 0x3
     field public static final int LOCK_MODE_LOCKED_CLOSED = 2; // 0x2
     field public static final int LOCK_MODE_LOCKED_OPEN = 1; // 0x1
-    field public static final int LOCK_MODE_OPEN_ONLY = 3; // 0x3
     field public static final int LOCK_MODE_UNLOCKED = 0; // 0x0
   }
 

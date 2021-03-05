@@ -27,12 +27,13 @@ plugins {
 
 android {
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 
 dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
+    api("androidx.startup:startup-runtime:1.0.0")
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)

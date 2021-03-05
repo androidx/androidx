@@ -38,7 +38,7 @@ public class DynamicFragmentNavigatorDestinationBuilderTest {
     public val rule: ActivityScenarioRule<TestActivity> = ActivityScenarioRule(
         TestActivity::class.java
     )
-    private val fragmentManager get() = rule.scenario.withActivity { supportFragmentManager }
+    private val fragmentManager get() = rule.withActivity { supportFragmentManager }
 
     @UiThreadTest
     @Test

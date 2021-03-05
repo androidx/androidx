@@ -23,23 +23,23 @@ import androidx.annotation.IntRange
  * [AsyncPagingDataDiffer][androidx.pagingAsyncPagingDataDiffer] or a
  * [PagingDataAdapter][androidx.paging.PagingDataAdapter].
  */
-class ItemSnapshotList<T>(
+public class ItemSnapshotList<T>(
     /**
      * Number of placeholders before the presented [items], 0 if
      * [enablePlaceholders][androidx.paging.PagingConfig.enablePlaceholders] is `false`.
      */
     @IntRange(from = 0)
-    val placeholdersBefore: Int,
+    public val placeholdersBefore: Int,
     /**
      * Number of placeholders after the presented [items], 0 if
      * [enablePlaceholders][androidx.paging.PagingConfig.enablePlaceholders] is `false`.
      */
     @IntRange(from = 0)
-    val placeholdersAfter: Int,
+    public val placeholdersAfter: Int,
     /**
      * The presented data, excluding placeholders.
      */
-    val items: List<T>
+    public val items: List<T>
 ) : AbstractList<T?>() {
 
     /**
@@ -49,7 +49,7 @@ class ItemSnapshotList<T>(
      *
      * @see items
      */
-    override val size: Int
+    public override val size: Int
         get() = placeholdersBefore + items.size + placeholdersAfter
 
     /**

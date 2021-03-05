@@ -18,13 +18,14 @@ package androidx.wear.complications
 
 import android.content.ComponentName
 import android.content.Context
+import android.os.IBinder
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.complications.data.ComplicationText.Companion.plain
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
+import androidx.wear.complications.data.PlainComplicationText
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -53,6 +54,7 @@ import org.mockito.Mockito.doAnswer
 @RunWith(SharedRobolectricTestRunner::class)
 public class ProviderInfoRetrieverTest {
     private val mockService = Mockito.mock(IProviderInfoService::class.java)
+    private val mockBinder = Mockito.mock(IBinder::class.java)
     private val providerInfoRetriever = ProviderInfoRetriever(mockService)
 
     @Test
@@ -61,9 +63,10 @@ public class ProviderInfoRetrieverTest {
             val component = ComponentName("provider.package", "provider.class")
             val type = ComplicationType.LONG_TEXT
             Mockito.`when`(mockService.apiVersion).thenReturn(1)
+            Mockito.`when`(mockService.asBinder()).thenReturn(mockBinder)
 
             val testData: ComplicationData = LongTextComplicationData.Builder(
-                plain("Test Text")
+                PlainComplicationText.Builder("Test Text").build()
             ).build()
 
             doAnswer {
@@ -93,6 +96,7 @@ public class ProviderInfoRetrieverTest {
             val component = ComponentName("provider.package", "provider.class")
             val type = ComplicationType.LONG_TEXT
             Mockito.`when`(mockService.apiVersion).thenReturn(1)
+            Mockito.`when`(mockService.asBinder()).thenReturn(mockBinder)
 
             doAnswer {
                 val callback = it.arguments[2] as IPreviewComplicationDataCallback
@@ -115,6 +119,7 @@ public class ProviderInfoRetrieverTest {
             val component = ComponentName("provider.package", "provider.class")
             val type = ComplicationType.LONG_TEXT
             Mockito.`when`(mockService.apiVersion).thenReturn(0)
+            Mockito.`when`(mockService.asBinder()).thenReturn(mockBinder)
 
             assertThat(providerInfoRetriever.requestPreviewComplicationData(component, type))
                 .isNull()
@@ -127,6 +132,7 @@ public class ProviderInfoRetrieverTest {
             val component = ComponentName("provider.package", "provider.class")
             val type = ComplicationType.LONG_TEXT
             Mockito.`when`(mockService.apiVersion).thenReturn(1)
+            Mockito.`when`(mockService.asBinder()).thenReturn(mockBinder)
             doAnswer {
                 false
             }.`when`(mockService).requestPreviewComplicationData(

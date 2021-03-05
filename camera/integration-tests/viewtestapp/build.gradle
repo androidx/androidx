@@ -32,11 +32,11 @@ android {
     }
 
     sourceSets {
-        main.manifest.srcFile 'src/main/AndroidManifest.xml'
-        main.java.srcDirs = ['src/main/java']
-        main.java.excludes = ['**/build/**']
-        main.java.includes = ['**/*.java']
-        main.res.srcDirs = ['src/main/res']
+        main.manifest.srcFile "src/main/AndroidManifest.xml"
+        main.java.srcDirs = ["src/main/java"]
+        main.java.excludes = ["**/build/**"]
+        main.java.includes = ["**/*.java"]
+        main.res.srcDirs = ["src/main/res"]
     }
 
     buildTypes {
@@ -44,7 +44,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
-                    'proguard-rules.pro')
+                    "proguard-rules.pro")
         }
     }
 }

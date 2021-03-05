@@ -60,9 +60,12 @@ open class StrictViewFragment(
         checkGetActivity()
         checkActivityNotDestroyed()
         checkState("onViewStateRestored", State.ACTIVITY_CREATED)
-        assertWithMessage("Fragment should have a view parent")
-            .that(requireView().parent)
-            .isNotNull()
+        // Restored fragments can get to this point without being attached b/149024125
+        if (!mRestored) {
+            assertWithMessage("Fragment should have a view parent")
+                .that(requireView().parent)
+                .isNotNull()
+        }
     }
 
     override fun onDestroyView() {

@@ -33,7 +33,7 @@ import androidx.car.app.model.Template;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
-import androidx.car.app.testing.CarAppServiceController;
+import androidx.car.app.testing.SessionController;
 import androidx.car.app.testing.TestCarContext;
 import androidx.car.app.validation.HostValidator;
 import androidx.car.app.versioning.CarAppApiLevels;
@@ -54,7 +54,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import java.util.Deque;
 import java.util.Locale;
 
-/** Tests for {@link CarAppService}. */
+
+/** Tests for {@link CarAppService} and related classes for establishing a host connection. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public final class CarAppServiceTest {
@@ -71,7 +72,6 @@ public final class CarAppServiceTest {
                     .build();
 
     private CarAppService mCarAppService;
-    private CarAppServiceController mCarAppServiceController;
     private Intent mIntentSet;
     @Captor
     ArgumentCaptor<Bundleable> mBundleableArgumentCaptor;
@@ -79,16 +79,8 @@ public final class CarAppServiceTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        mCarContext = TestCarContext.createCarContext(
-                ApplicationProvider.getApplicationContext());
         mCarAppService =
                 new CarAppService() {
-                    @Override
-                    public void onCreate() {
-                        attachBaseContext(mCarContext);
-                        super.onCreate();
-                    }
-
                     @Override
                     @NonNull
                     public HostValidator createHostValidator() {
@@ -98,17 +90,21 @@ public final class CarAppServiceTest {
                     @Override
                     @NonNull
                     public Session onCreateSession() {
-                        Session testSession = createTestSession();
+                        // Recreate a new CarContext, because the previous one would have been
+                        // destroyed in an unbind-rebind scenario.
                         mCarContext = TestCarContext.createCarContext(
                                 ApplicationProvider.getApplicationContext());
-                        CarAppServiceController.of(mCarContext, testSession, mCarAppService);
-                        return testSession;
+                        Session session = createTestSession();
+                        SessionController.of(session, mCarContext);
+                        return session;
                     }
                 };
 
-        mCarAppService.onCreate();
-        mCarAppServiceController = CarAppServiceController.of(mCarContext, createTestSession(),
-                mCarAppService);
+        // Sets a default handshake info. OnAppCreate depends on this being non-null.
+        String hostPackageName = "com.google.projection.gearhead";
+        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName,
+                CarAppApiLevels.getLatest());
+        mCarAppService.setHandshakeInfo(handshakeInfo);
     }
 
     private Session createTestSession() {
@@ -245,7 +241,7 @@ public final class CarAppServiceTest {
     @Test
     public void getAppInfo() throws RemoteException, BundlerException {
         AppInfo appInfo = new AppInfo(3, 4, "foo");
-        mCarAppServiceController.setAppInfo(appInfo);
+        mCarAppService.setAppInfo(appInfo);
         ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
         IOnDoneCallback callback = mock(IOnDoneCallback.class);
 
@@ -278,7 +274,6 @@ public final class CarAppServiceTest {
             BundlerException {
         String hostPackageName = "com.google.projection.gearhead";
         ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        assertThat(mCarAppService.getHandshakeInfo()).isNull();
 
         HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, CarAppApiLevels.LEVEL_1);
         carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mock(IOnDoneCallback.class));
@@ -293,7 +288,7 @@ public final class CarAppServiceTest {
     public void onHandshakeCompleted_lowerThanMinApiLevel_throws() throws BundlerException,
             RemoteException {
         AppInfo appInfo = new AppInfo(3, 4, "foo");
-        mCarAppServiceController.setAppInfo(appInfo);
+        mCarAppService.setAppInfo(appInfo);
         ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
 
         HandshakeInfo handshakeInfo = new HandshakeInfo("bar",
@@ -308,7 +303,7 @@ public final class CarAppServiceTest {
     public void onHandshakeCompleted_higherThanCurrentApiLevel_throws() throws BundlerException,
             RemoteException {
         AppInfo appInfo = new AppInfo(3, 4, "foo");
-        mCarAppServiceController.setAppInfo(appInfo);
+        mCarAppService.setAppInfo(appInfo);
         ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
 
         HandshakeInfo handshakeInfo = new HandshakeInfo("bar",
@@ -343,10 +338,11 @@ public final class CarAppServiceTest {
         currentSession.getLifecycle().addObserver(mLifecycleObserver);
         assertThat(mCarAppService.onUnbind(null)).isTrue();
 
-        verify(mLifecycleObserver).onStop(any());
+        verify(mLifecycleObserver).onDestroy(any());
 
         assertThat(currentSession.getCarContext().getCarService(
                 ScreenManager.class).getScreenStack()).isEmpty();
+        assertThat(mCarAppService.getCurrentSession()).isNull();
 
         String hostPackageName = "com.google.projection.gearhead";
         int hostApiLevel = CarAppApiLevels.LEVEL_1;
@@ -391,10 +387,13 @@ public final class CarAppServiceTest {
     @Test
     public void onNewIntent_callsSessionIntent() throws
             RemoteException {
+        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
+
+        // onAppCreate must be called first to create the Session before onNewIntent.
+        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
         assertThat(mIntentSet).isNull();
 
         IOnDoneCallback callback = mock(IOnDoneCallback.class);
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
         Intent intent = new Intent("Foo");
         carApp.onNewIntent(intent, callback);
 

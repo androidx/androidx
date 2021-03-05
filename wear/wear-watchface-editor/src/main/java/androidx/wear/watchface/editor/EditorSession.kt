@@ -33,11 +33,14 @@ import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.MonochromaticImage
+import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.utility.AsyncTraceEvent
+import androidx.wear.utility.TraceEvent
+import androidx.wear.utility.launchWithTracing
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.ComplicationState
@@ -171,9 +174,11 @@ public abstract class EditorSession : AutoCloseable {
             activity: ComponentActivity,
             editIntent: Intent,
             providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
-        ): Deferred<EditorSession?> {
+        ): Deferred<EditorSession?> = TraceEvent(
+            "EditorSession.createOnWatchEditingSessionAsyncImpl"
+        ).use {
             val coroutineScope =
-                CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher())
+                CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate)
             return EditorRequest.createFromIntent(editIntent)?.let { editorRequest ->
                 // We need to respect the lifecycle and register the ActivityResultListener now.
                 val session = OnWatchFaceEditorSessionImpl(
@@ -212,7 +217,7 @@ public abstract class EditorSession : AutoCloseable {
             editIntent: Intent,
 
             headlessWatchFaceClient: HeadlessWatchFaceClient
-        ): EditorSession? =
+        ): EditorSession? = TraceEvent("EditorSession.createHeadlessEditingSession").use {
             EditorRequest.createFromIntent(editIntent)?.let {
                 HeadlessEditorSession(
                     activity,
@@ -223,9 +228,12 @@ public abstract class EditorSession : AutoCloseable {
                     object : ProviderInfoRetrieverProvider {
                         override fun getProviderInfoRetriever() = ProviderInfoRetriever(activity)
                     },
-                    CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher())
+                    CoroutineScope(
+                        Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate
+                    )
                 )
             }
+        }
     }
 }
 
@@ -239,11 +247,23 @@ internal interface ProviderInfoRetrieverProvider {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class BaseEditorSession internal constructor(
-    activity: ComponentActivity,
+    private val activity: ComponentActivity,
     private val providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
     public val coroutineScope: CoroutineScope
 ) : EditorSession() {
     protected var closed: Boolean = false
+    protected var forceClosed: Boolean = false
+
+    private val editorSessionTraceEvent = AsyncTraceEvent("EditorSession")
+    private val closeCallback = object : EditorService.CloseCallback() {
+        override fun onClose() {
+            forceClose()
+        }
+    }
+
+    init {
+        EditorService.globalEditorService.addCloseCallback(closeCallback)
+    }
 
     // This is completed when [fetchComplicationPreviewData] has called [getPreviewData] for
     // each complication and each of those have been completed.
@@ -284,7 +304,11 @@ public abstract class BaseEditorSession internal constructor(
             }
         }
 
-    override suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean {
+    override suspend fun launchComplicationProviderChooser(
+        complicationId: Int
+    ): Boolean = TraceEvent(
+        "BaseEditorSession.launchComplicationProviderChooser $complicationId"
+    ).use {
         requireNotClosed()
         require(!complicationState[complicationId]!!.fixedComplicationProvider) {
             "Can't configure fixed complication ID $complicationId"
@@ -292,7 +316,7 @@ public abstract class BaseEditorSession internal constructor(
         pendingComplicationProviderChooserResult = CompletableDeferred<Boolean>()
         pendingComplicationProviderId = complicationId
         chooseComplicationProvider.launch(
-            ComplicationProviderChooserRequest(this, complicationId)
+            ComplicationProviderChooserRequest(this, complicationId, instanceId)
         )
         return pendingComplicationProviderChooserResult!!.await()
     }
@@ -328,16 +352,21 @@ public abstract class BaseEditorSession internal constructor(
     internal suspend fun getPreviewData(
         providerInfoRetriever: ProviderInfoRetriever,
         providerInfo: ComplicationProviderInfo?
-    ): ComplicationData? {
+    ): ComplicationData? = TraceEvent("BaseEditorSession.getPreviewData").use {
         if (providerInfo == null) {
             return null
         }
         // Fetch preview ComplicationData if possible.
         return providerInfo.providerComponentName?.let {
-            providerInfoRetriever.requestPreviewComplicationData(
-                it,
-                ComplicationType.fromWireType(providerInfo.complicationType)
-            )
+            try {
+                providerInfoRetriever.requestPreviewComplicationData(
+                    it,
+                    ComplicationType.fromWireType(providerInfo.complicationType)
+                )
+            } catch (e: Exception) {
+                // Something went wrong, so use fallback preview data.
+                makeFallbackPreviewData(providerInfo)
+            }
         } ?: makeFallbackPreviewData(providerInfo)
     }
 
@@ -348,20 +377,23 @@ public abstract class BaseEditorSession internal constructor(
 
         providerInfo.providerIcon == null ->
             LongTextComplicationData.Builder(
-                ComplicationText.plain(providerInfo.providerName!!)
+                PlainComplicationText.Builder(providerInfo.providerName!!).build()
             ).build()
 
         else ->
             ShortTextComplicationData.Builder(
-                ComplicationText.plain(providerInfo.providerName!!)
+                PlainComplicationText.Builder(providerInfo.providerName!!).build()
             ).setMonochromaticImage(
                 MonochromaticImage.Builder(providerInfo.providerIcon!!).build()
             ).build()
     }
 
     protected fun fetchComplicationPreviewData() {
-        coroutineScope.launch {
+        coroutineScope.launchWithTracing("BaseEditorSession.fetchComplicationPreviewData") {
             val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
+            // Unlikely but WCS could conceivably crash during this call. We could retry but it's
+            // not obvious if that'd succeed or if WCS session state is recoverable, it's probably
+            // better to crash and start over.
             val providerInfoArray = providerInfoRetriever.retrieveProviderInfo(
                 watchFaceComponentName,
                 complicationState.keys.toIntArray()
@@ -384,8 +416,13 @@ public abstract class BaseEditorSession internal constructor(
     }
 
     override fun close() {
+        // Silently do nothing if we've been force closed, this simplifies the editor activity.
+        if (forceClosed) {
+            return
+        }
         requireNotClosed()
-        coroutineScope.launch {
+        EditorService.globalEditorService.removeCloseCallback(closeCallback)
+        coroutineScope.launchWithTracing("BaseEditorSession.close") {
             val editorState = EditorStateWireFormat(
                 instanceId,
                 userStyle.toWireFormat(),
@@ -400,11 +437,22 @@ public abstract class BaseEditorSession internal constructor(
             releaseResources()
             closed = true
             EditorService.globalEditorService.broadcastEditorState(editorState)
+            editorSessionTraceEvent.close()
         }
     }
 
+    internal fun forceClose() {
+        commitChangesOnClose = false
+        closed = true
+        forceClosed = true
+        releaseResources()
+        activity.finish()
+        EditorService.globalEditorService.removeCloseCallback(closeCallback)
+        editorSessionTraceEvent.close()
+    }
+
     protected fun requireNotClosed() {
-        require(!closed) {
+        require(!closed or forceClosed) {
             "EditorSession method called after close()"
         }
     }
@@ -424,7 +472,7 @@ internal class OnWatchFaceEditorSessionImpl(
 
     override val userStyleSchema by lazy {
         requireNotClosed()
-        editorDelegate.userStyleRepository.schema
+        editorDelegate.userStyleSchema
     }
 
     override val previewReferenceTimeMillis by lazy { editorDelegate.previewReferenceTimeMillis }
@@ -439,6 +487,7 @@ internal class OnWatchFaceEditorSessionImpl(
                 it.value.defaultProviderPolicy,
                 it.value.defaultProviderType,
                 it.value.enabled,
+                it.value.initiallyEnabled,
                 it.value.renderer.getIdAndData()?.complicationData?.type
                     ?: ComplicationType.NO_DATA,
                 it.value.fixedComplicationProvider
@@ -453,14 +502,14 @@ internal class OnWatchFaceEditorSessionImpl(
         get() {
             requireNotClosed()
             if (_userStyle == null) {
-                _userStyle = UserStyle(editorDelegate.userStyleRepository.userStyle)
+                _userStyle = UserStyle(editorDelegate.userStyle)
             }
             return _userStyle!!
         }
         set(value) {
             requireNotClosed()
             _userStyle = value
-            editorDelegate.userStyleRepository.userStyle = UserStyle(value)
+            editorDelegate.userStyle = UserStyle(value)
         }
 
     private lateinit var previousWatchFaceUserStyle: UserStyle
@@ -489,13 +538,13 @@ internal class OnWatchFaceEditorSessionImpl(
     fun setEditorDelegate(editorDelegate: WatchFace.EditorDelegate) {
         this.editorDelegate = editorDelegate
 
-        previousWatchFaceUserStyle = UserStyle(editorDelegate.userStyleRepository.userStyle)
+        previousWatchFaceUserStyle = UserStyle(editorDelegate.userStyle)
 
         // Apply any initial style from the intent.  Note we don't restore the previous style at
         // the end since we assume we're editing the current active watchface.
         if (initialEditorUserStyle != null) {
-            editorDelegate.userStyleRepository.userStyle =
-                UserStyle(initialEditorUserStyle, editorDelegate.userStyleRepository.schema)
+            editorDelegate.userStyle =
+                UserStyle(initialEditorUserStyle, editorDelegate.userStyleSchema)
         }
 
         fetchComplicationPreviewData()
@@ -528,7 +577,6 @@ internal class HeadlessEditorSession(
         requireNotClosed()
         return headlessWatchFaceClient.takeWatchFaceScreenshot(
             renderParameters,
-            100,
             calendarTimeMillis,
             userStyle,
             idToComplicationData
@@ -546,7 +594,8 @@ internal class HeadlessEditorSession(
 
 internal class ComplicationProviderChooserRequest(
     internal val editorSession: EditorSession,
-    internal val complicationId: Int
+    internal val complicationId: Int,
+    internal val instanceId: String?
 )
 
 internal class ComplicationProviderChooserResult(
@@ -568,7 +617,8 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
             context,
             input.editorSession.watchFaceComponentName,
             input.complicationId,
-            input.editorSession.complicationState[input.complicationId]!!.supportedTypes
+            input.editorSession.complicationState[input.complicationId]!!.supportedTypes,
+            input.instanceId
         )
         if (useTestComplicationHelperActivity) {
             intent.component = ComponentName(

@@ -16,6 +16,7 @@
 
 package androidx.core.provider;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.util.Base64;
@@ -59,8 +60,7 @@ public final class FontRequest {
         mQuery = Preconditions.checkNotNull(query);
         mCertificates = Preconditions.checkNotNull(certificates);
         mCertificatesArray = 0;
-        mIdentifier = new StringBuilder(mProviderAuthority).append("-").append(mProviderPackage)
-                .append("-").append(mQuery).toString();
+        mIdentifier = createIdentifier(providerAuthority, providerPackage, query);
     }
 
     /**
@@ -82,8 +82,16 @@ public final class FontRequest {
         mCertificates = null;
         Preconditions.checkArgument(certificates != 0);
         mCertificatesArray = certificates;
-        mIdentifier = new StringBuilder(mProviderAuthority).append("-").append(mProviderPackage)
-                .append("-").append(mQuery).toString();
+        mIdentifier = createIdentifier(providerAuthority, providerPackage, query);
+    }
+
+    private String createIdentifier(
+            @NonNull String providerAuthority,
+            @NonNull String providerPackage,
+            @NonNull String query
+    ) {
+        return new StringBuilder(providerAuthority).append("-").append(providerPackage)
+                .append("-").append(query).toString();
     }
 
     /**
@@ -137,9 +145,22 @@ public final class FontRequest {
         return mCertificatesArray;
     }
 
-    /** @hide */
+    /**
+     * @deprecated Not being used by any cross library, and should not be used, internal
+     * implementation detail.
+     *
+     * @hide
+     */
+    @Deprecated
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public String getIdentifier() {
+        return mIdentifier;
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    @NonNull
+    String getId() {
         return mIdentifier;
     }
 

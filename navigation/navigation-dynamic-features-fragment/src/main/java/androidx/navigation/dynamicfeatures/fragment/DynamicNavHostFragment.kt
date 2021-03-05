@@ -34,11 +34,11 @@ import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
  */
 public open class DynamicNavHostFragment : NavHostFragment() {
 
-    override fun onCreateNavHostController(navController: NavHostController) {
-        super.onCreateNavHostController(navController)
+    override fun onCreateNavHostController(navHostController: NavHostController) {
+        super.onCreateNavHostController(navHostController)
 
         val installManager = DynamicInstallManager(requireContext(), createSplitInstallManager())
-        val navigatorProvider = navController.navigatorProvider
+        val navigatorProvider = navHostController.navigatorProvider
 
         navigatorProvider += DynamicActivityNavigator(requireActivity(), installManager)
 
@@ -54,7 +54,7 @@ public open class DynamicNavHostFragment : NavHostFragment() {
         )
         graphNavigator.installDefaultProgressDestination {
             fragmentNavigator.createDestination().apply {
-                className = DefaultProgressFragment::class.java.name
+                setClassName(DefaultProgressFragment::class.java.name)
                 id = R.id.dfn_progress_fragment
             }
         }
@@ -62,7 +62,7 @@ public open class DynamicNavHostFragment : NavHostFragment() {
 
         navigatorProvider += DynamicIncludeGraphNavigator(
             requireContext(),
-            navigatorProvider, navController.navInflater, installManager
+            navigatorProvider, navHostController.navInflater, installManager
         )
     }
 

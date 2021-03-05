@@ -16,12 +16,17 @@
 
 package androidx.benchmark.macro.junit4
 
+import android.Manifest
+import android.annotation.SuppressLint
 import androidx.annotation.IntRange
+import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.macrobenchmarkWithStartupMode
+import androidx.test.rule.GrantPermissionRule
+import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -29,6 +34,7 @@ import org.junit.runners.model.Statement
 /**
  * JUnit rule for benchmarking large app operations like startup.
  */
+@RequiresApi(29)
 class MacrobenchmarkRule : TestRule {
     private lateinit var currentDescription: Description
 
@@ -71,7 +77,16 @@ class MacrobenchmarkRule : TestRule {
         )
     }
 
-    override fun apply(base: Statement, description: Description) = object : Statement() {
+    override fun apply(base: Statement, description: Description): Statement {
+        // Grant external storage, as it may be needed for test output directory.
+        return RuleChain
+            .outerRule(GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE))
+            .around(::applyInternal)
+            .apply(base, description)
+    }
+
+    private fun applyInternal(base: Statement, description: Description) = object : Statement() {
+        @SuppressLint("UnsafeNewApiCall")
         override fun evaluate() {
             currentDescription = description
             base.evaluate()

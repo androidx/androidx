@@ -40,10 +40,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.core.graphics.Insets;
 import androidx.core.test.R;
 import androidx.test.annotation.UiThreadTest;
@@ -312,6 +314,27 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         verify(view).performAccessibilityAction(eq(actionCompat.getId()), bundleCaptor.capture());
         assertEquals(100,
                 bundleCaptor.getValue().getInt(ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT));
+    }
+
+    @Test
+    public void testGetWindowInsetsController_UnwrapsContextWrappers()
+            throws Throwable {
+        final ContextThemeWrapper wrapper = new ContextThemeWrapper(mActivityTestRule.getActivity(),
+                0);
+
+
+        final LayoutInflater inflater = LayoutInflater.from(wrapper);
+        final View view = inflater.createView(View.class.getName(), null, null);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivityTestRule.getActivity().setContentView(view);
+            }
+        });
+
+        final WindowInsetsControllerCompat controller = ViewCompat.getWindowInsetsController(view);
+
+        assertNotNull(controller);
     }
 
     private static boolean isViewIdGenerated(int id) {

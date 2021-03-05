@@ -43,6 +43,9 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewTreeLifecycleOwner;
+import androidx.lifecycle.ViewTreeViewModelStoreOwner;
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -686,6 +689,11 @@ public class DialogFragment extends Fragment
         if (mDialog != null) {
             mViewDestroyed = false;
             mDialog.show();
+            // Only after we show does the dialog window actually return a decor view.
+            View decorView = mDialog.getWindow().getDecorView();
+            ViewTreeLifecycleOwner.set(decorView, this);
+            ViewTreeViewModelStoreOwner.set(decorView, this);
+            ViewTreeSavedStateRegistryOwner.set(decorView, this);
         }
     }
 

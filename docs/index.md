@@ -1,12 +1,12 @@
 # What is Jetpack?
 
-## Jetpack Ethos
+## Ethos
 
 To create recommended components, tools, and guidance that makes it quick and
 easy to build great Android apps, including pieces both from Google and from
 trusted OSS sources.
 
-## Team Mission
+## Team mission
 
 To improve the Android developer experience by providing architectural guidance,
 addressing common pain points, and simplifying the app development process

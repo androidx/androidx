@@ -2,24 +2,13 @@
 <issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
 
     <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        @Override"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="7952"
-            column="9"/>
-    </issue>
-
-    <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
         errorLine1="                fileDescriptor = Os.dup(fileDescriptor);"
         errorLine2="                                    ~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="3980"
+            line="3983"
             column="37"/>
     </issue>
 
@@ -30,7 +19,7 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4659"
+            line="4642"
             column="20"/>
     </issue>
 
@@ -41,7 +30,7 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4729"
+            line="4712"
             column="24"/>
     </issue>
 
@@ -52,7 +41,7 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4756"
+            line="4739"
             column="24"/>
     </issue>
 
@@ -63,7 +52,7 @@
         errorLine2="                           ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4779"
+            line="4762"
             column="28"/>
     </issue>
 
@@ -74,7 +63,7 @@
         errorLine2="                                           ~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4866"
+            line="4849"
             column="44"/>
     </issue>
 
@@ -85,7 +74,7 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4867"
+            line="4850"
             column="24"/>
     </issue>
 
@@ -96,18 +85,18 @@
         errorLine2="                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5848"
+            line="5819"
             column="27"/>
     </issue>
 
     <issue
         id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterfaceUtils is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
         errorLine1="                Os.close(fd);"
         errorLine2="                   ~~~~~">
         <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="8089"
+            file="src/main/java/androidx/exifinterface/media/ExifInterfaceUtils.java"
+            line="147"
             column="20"/>
     </issue>
 
@@ -118,7 +107,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5032"
+            line="5015"
             column="31"/>
     </issue>
 
@@ -129,7 +118,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5077"
+            line="5060"
             column="28"/>
     </issue>
 

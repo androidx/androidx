@@ -1,6 +1,13 @@
 // Signature format: 4.0
 package androidx.benchmark {
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class Arguments {
+    method public java.util.Set<java.lang.String> getSuppressedErrors();
+    method public java.io.File testOutputFile(String filename);
+    property public final java.util.Set<java.lang.String> suppressedErrors;
+    field public static final androidx.benchmark.Arguments INSTANCE;
+  }
+
   public final class ArgumentsKt {
   }
 
@@ -50,8 +57,7 @@ package androidx.benchmark {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class InstrumentationResultScope {
-    ctor public InstrumentationResultScope(android.os.Bundle bundle);
-    ctor public InstrumentationResultScope();
+    ctor public InstrumentationResultScope(optional android.os.Bundle bundle);
     method public void fileRecord(String key, String path);
     method public android.os.Bundle getBundle();
     method public void ideSummaryRecord(String value);

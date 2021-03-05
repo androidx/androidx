@@ -37,14 +37,14 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(TRUTH)
 
-    androidTestImplementation project(':lifecycle:lifecycle-runtime')
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime"))
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(KOTLIN_COROUTINES_TEST)
 
-    lintPublish(project(':lifecycle:lifecycle-runtime-ktx-lint'))
+    lintPublish(project(":lifecycle:lifecycle-runtime-ktx-lint"))
 }
 
 androidx {

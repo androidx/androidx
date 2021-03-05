@@ -1,20 +1,6 @@
 // Signature format: 4.0
 package androidx.car.app.testing {
 
-  public class CarAppServiceController {
-    method public androidx.car.app.testing.CarAppServiceController create(android.content.Intent?);
-    method public androidx.car.app.testing.CarAppServiceController destroy();
-    method public androidx.car.app.CarAppService get();
-    method public androidx.car.app.testing.CarAppServiceController newIntent(android.content.Intent);
-    method public static androidx.car.app.testing.CarAppServiceController of(androidx.car.app.testing.TestCarContext, androidx.car.app.Session, androidx.car.app.CarAppService);
-    method public androidx.car.app.testing.CarAppServiceController pause();
-    method public androidx.car.app.testing.CarAppServiceController resume();
-    method public void setAppInfo(androidx.car.app.AppInfo);
-    method public void setHostInfo(androidx.car.app.HostInfo);
-    method public androidx.car.app.testing.CarAppServiceController start();
-    method public androidx.car.app.testing.CarAppServiceController stop();
-  }
-
   public class FakeHost {
     method public void performNotificationActionClick(android.app.PendingIntent);
   }
@@ -30,6 +16,16 @@ package androidx.car.app.testing {
     method public androidx.car.app.testing.ScreenController resume();
     method public androidx.car.app.testing.ScreenController start();
     method public androidx.car.app.testing.ScreenController stop();
+  }
+
+  public class SessionController {
+    method public androidx.car.app.testing.SessionController create();
+    method public androidx.car.app.testing.SessionController destroy();
+    method public androidx.car.app.Session get();
+    method public static androidx.car.app.testing.SessionController of(androidx.car.app.Session, androidx.car.app.testing.TestCarContext);
+    method public androidx.car.app.testing.SessionController pause();
+    method public androidx.car.app.testing.SessionController resume();
+    method public androidx.car.app.testing.SessionController stop();
   }
 
   public class TestAppManager extends androidx.car.app.AppManager {

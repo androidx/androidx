@@ -270,7 +270,6 @@ public final class GridItem implements Item {
          * Sets an image to show in the grid item with the default size {@link #IMAGE_TYPE_LARGE}.
          *
          * @throws NullPointerException if {@code image} is {@code null}
-         *
          * @see #setImage(CarIcon, int)
          */
         @NonNull
@@ -297,7 +296,6 @@ public final class GridItem implements Item {
          *
          * @param image     the {@link CarIcon} to display
          * @param imageType one of {@link #IMAGE_TYPE_ICON} or {@link #IMAGE_TYPE_LARGE}
-         *
          * @throws NullPointerException if {@code image} is {@code null}
          */
         @NonNull

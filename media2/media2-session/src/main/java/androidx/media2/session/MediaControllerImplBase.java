@@ -178,7 +178,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
         }
         mContext = context;
         mSequencedFutureManager = new SequencedFutureManager();
-        mControllerStub = new MediaControllerStub(this, mSequencedFutureManager);
+        mControllerStub = new MediaControllerStub(this);
         mToken = token;
         mDeathRecipient = new IBinder.DeathRecipient() {
             @Override
@@ -1170,6 +1170,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 callback.onSubtitleData(mInstance, item, track, data);
             }
         });
+    }
+
+    <T> void setFutureResult(int seq, T futureResult) {
+        if (futureResult == null) {
+            return;
+        }
+        mSequencedFutureManager.setFutureResult(seq, futureResult);
     }
 
     // Should be used without a lock to prevent potential deadlock.

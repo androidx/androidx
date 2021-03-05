@@ -27,9 +27,15 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.wear.tiles.builders.ResourceBuilders;
 import androidx.wear.tiles.builders.TileBuilders;
+import androidx.wear.tiles.builders.TileBuilders.Version;
+import androidx.wear.tiles.proto.EventProto;
 import androidx.wear.tiles.proto.RequestProto;
 import androidx.wear.tiles.proto.ResourceProto.Resources;
 import androidx.wear.tiles.proto.TileProto.Tile;
+import androidx.wear.tiles.readers.EventReaders.TileAddEvent;
+import androidx.wear.tiles.readers.EventReaders.TileEnterEvent;
+import androidx.wear.tiles.readers.EventReaders.TileLeaveEvent;
+import androidx.wear.tiles.readers.EventReaders.TileRemoveEvent;
 import androidx.wear.tiles.readers.RequestReaders.ResourcesRequest;
 import androidx.wear.tiles.readers.RequestReaders.TileRequest;
 
@@ -38,6 +44,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,11 +58,20 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class TileProviderServiceTest {
+    private static final int TILE_ID = 42;
+
     @Rule public final Expect expect = Expect.create();
 
-    private static final TileBuilders.Tile DUMMY_TILE =
+    // This is a little nasty, but we need to ensure that the version is injected by
+    // TileProviderService. For that, we need the builder form (for DummyTileProviderService to
+    // return), and the protobuf form (to compare against, which also includes the version).
+    private static final TileBuilders.Tile DUMMY_TILE_TO_RETURN =
             TileBuilders.Tile.builder().setResourcesVersion("5").build();
-    private TileProvider mTileProviderService;
+    private static final Tile DUMMY_TILE_PROTOBUF =
+            Tile.newBuilder().setResourcesVersion("5").setSchemaVersion(Version.CURRENT).build();
+
+    private TileProvider mTileProviderServiceStub;
+    private ServiceController<DummyTileProviderService> mDummyTileProviderServiceServiceController;
 
     @Mock private TileCallback mMockTileCallback;
     @Mock private ResourcesCallback mMockResourcesCallback;
@@ -65,18 +81,17 @@ public class TileProviderServiceTest {
         mMockTileCallback = mock(TileCallback.class);
         mMockResourcesCallback = mock(ResourcesCallback.class);
 
-        ServiceController<DummyTileProviderService> dummyTileProviderServiceController =
-                Robolectric.buildService(
-                        DummyTileProviderService.class);
+        mDummyTileProviderServiceServiceController =
+                Robolectric.buildService(DummyTileProviderService.class);
 
         Intent i = new Intent(TileProviderService.ACTION_BIND_TILE_PROVIDER);
-        IBinder binder = dummyTileProviderServiceController.get().onBind(i);
-        mTileProviderService = TileProvider.Stub.asInterface(binder);
+        IBinder binder = mDummyTileProviderServiceServiceController.get().onBind(i);
+        mTileProviderServiceStub = TileProvider.Stub.asInterface(binder);
     }
 
     @Test
     public void tileProvider_tileRequest() throws Exception {
-        mTileProviderService.onTileRequest(
+        mTileProviderServiceStub.onTileRequest(
                 5,
                 new TileRequestData(
                         RequestProto.TileRequest.getDefaultInstance().toByteArray(),
@@ -89,13 +104,12 @@ public class TileProviderServiceTest {
 
         verify(mMockTileCallback).updateTileData(tileCaptor.capture());
 
-        Tile tile =
-                Tile.parseFrom(
-                        tileCaptor.getValue().getContents());
+        Tile tile = Tile.parseFrom(tileCaptor.getValue().getContents());
 
-        expect.that(tile).isEqualTo(DUMMY_TILE.toProto());
+        expect.that(tile).isEqualTo(DUMMY_TILE_PROTOBUF);
     }
 
+    @Ignore("Disabled due to b/179074319")
     @Test
     public void tileProvider_resourcesRequest() throws Exception {
         final String resourcesVersion = "HELLO WORLD";
@@ -108,27 +122,102 @@ public class TileProviderServiceTest {
                                 .toByteArray(),
                         ResourcesRequestData.VERSION_PROTOBUF);
 
-        mTileProviderService.onResourcesRequest(5, resourcesRequestData, mMockResourcesCallback);
+        mTileProviderServiceStub.onResourcesRequest(
+                5, resourcesRequestData, mMockResourcesCallback);
 
         shadowOf(Looper.getMainLooper()).idle();
 
-        ArgumentCaptor<ResourcesData> resourcesCaptor = ArgumentCaptor.forClass(
-                ResourcesData.class);
+        ArgumentCaptor<ResourcesData> resourcesCaptor =
+                ArgumentCaptor.forClass(ResourcesData.class);
         verify(mMockResourcesCallback).updateResources(resourcesCaptor.capture());
 
-        Resources resources =
-                Resources.parseFrom(
-                        resourcesCaptor.getValue().getContents());
+        Resources resources = Resources.parseFrom(resourcesCaptor.getValue().getContents());
 
         expect.that(resources.getVersion()).isEqualTo(resourcesVersion);
     }
 
+    @Test
+    public void tileProvider_onTileAdd() throws Exception {
+        EventProto.TileAddEvent addRequest =
+                EventProto.TileAddEvent.newBuilder().setTileId(TILE_ID).build();
+        mTileProviderServiceStub.onTileAddEvent(
+                new TileAddEventData(addRequest.toByteArray(), TileAddEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+
+        expect.that(mDummyTileProviderServiceServiceController.get().mLastOnTileAddId)
+                .isEqualTo(TILE_ID);
+    }
+
+    @Test
+    public void tileProvider_onTileRemove() throws Exception {
+        EventProto.TileRemoveEvent removeRequest =
+                EventProto.TileRemoveEvent.newBuilder().setTileId(TILE_ID).build();
+        mTileProviderServiceStub.onTileRemoveEvent(
+                new TileRemoveEventData(
+                        removeRequest.toByteArray(), TileRemoveEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+
+        expect.that(mDummyTileProviderServiceServiceController.get().mLastOnTileRemoveId)
+                .isEqualTo(TILE_ID);
+    }
+
+    @Test
+    public void tileProvider_onTileEnter() throws Exception {
+        EventProto.TileEnterEvent enterRequest =
+                EventProto.TileEnterEvent.newBuilder().setTileId(TILE_ID).build();
+        mTileProviderServiceStub.onTileEnterEvent(
+                new TileEnterEventData(
+                        enterRequest.toByteArray(), TileEnterEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+
+        expect.that(mDummyTileProviderServiceServiceController.get().mLastOnTileEnterId)
+                .isEqualTo(TILE_ID);
+    }
+
+    @Test
+    public void tileProvider_onTileLeave() throws Exception {
+        EventProto.TileLeaveEvent leaveRequest =
+                EventProto.TileLeaveEvent.newBuilder().setTileId(TILE_ID).build();
+        mTileProviderServiceStub.onTileLeaveEvent(
+                new TileLeaveEventData(
+                        leaveRequest.toByteArray(), TileLeaveEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+
+        expect.that(mDummyTileProviderServiceServiceController.get().mLastOnTileLeaveId)
+                .isEqualTo(TILE_ID);
+    }
+
     public static class DummyTileProviderService extends TileProviderService {
+        int mLastOnTileAddId = -1;
+        int mLastOnTileRemoveId = -1;
+        int mLastOnTileEnterId = -1;
+        int mLastOnTileLeaveId = -1;
+
+        @Override
+        protected void onTileAddEvent(@NonNull TileAddEvent requestParams) {
+            this.mLastOnTileAddId = requestParams.getTileId();
+        }
+
+        @Override
+        protected void onTileRemoveEvent(@NonNull TileRemoveEvent requestParams) {
+            this.mLastOnTileRemoveId = requestParams.getTileId();
+        }
+
+        @Override
+        protected void onTileEnterEvent(@NonNull TileEnterEvent requestParams) {
+            this.mLastOnTileEnterId = requestParams.getTileId();
+        }
+
+        @Override
+        protected void onTileLeaveEvent(@NonNull TileLeaveEvent requestParams) {
+            this.mLastOnTileLeaveId = requestParams.getTileId();
+        }
+
         @Override
         @NonNull
         protected ListenableFuture<TileBuilders.Tile> onTileRequest(
                 @NonNull TileRequest requestParams) {
-            return Futures.immediateFuture(DUMMY_TILE);
+            return Futures.immediateFuture(DUMMY_TILE_TO_RETURN);
         }
 
         @Override
@@ -136,8 +225,9 @@ public class TileProviderServiceTest {
         protected ListenableFuture<ResourceBuilders.Resources> onResourcesRequest(
                 @NonNull ResourcesRequest requestParams) {
             ResourceBuilders.Resources resources =
-                    ResourceBuilders.Resources.builder().setVersion(
-                            requestParams.getVersion()).build();
+                    ResourceBuilders.Resources.builder()
+                            .setVersion(requestParams.getVersion())
+                            .build();
 
             return Futures.immediateFuture(resources);
         }

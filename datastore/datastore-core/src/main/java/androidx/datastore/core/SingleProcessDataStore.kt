@@ -15,6 +15,7 @@
  */
 package androidx.datastore.core
 
+import androidx.annotation.GuardedBy
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -159,7 +160,23 @@ internal class SingleProcessDataStore<T>(
 
     private val SCRATCH_SUFFIX = ".tmp"
 
-    private val file: File by lazy { produceFile() }
+    private val file: File by lazy {
+        val file = produceFile()
+
+        file.absolutePath.let {
+            synchronized(activeFilesLock) {
+                check(!activeFiles.contains(it)) {
+                    "There are multiple DataStores active for the same file: $file. You should " +
+                        "either maintain your DataStore as a singleton or confirm that there is " +
+                        "no two DataStore's active on the same file (by confirming that the scope" +
+                        " is cancelled)."
+                }
+                activeFiles.add(it)
+            }
+        }
+
+        file
+    }
 
     @Suppress("UNCHECKED_CAST")
     private val downstreamFlow = MutableStateFlow(UnInitialized as State<T>)
@@ -199,6 +216,10 @@ internal class SingleProcessDataStore<T>(
             }
             // We expect it to always be non-null but we will leave the alternative as a no-op
             // just in case.
+
+            synchronized(activeFilesLock) {
+                activeFiles.remove(file.absolutePath)
+            }
         },
         onUndeliveredElement = { msg, ex ->
             if (msg is Message.Update) {
@@ -396,7 +417,7 @@ internal class SingleProcessDataStore<T>(
      * Internal only to prevent creation of synthetic accessor function. Do not call this from
      * outside this class.
      */
-    internal fun writeData(newData: T) {
+    internal suspend fun writeData(newData: T) {
         file.createParentDirectories()
 
         val scratchFile = File(file.absolutePath + SCRATCH_SUFFIX)
@@ -458,5 +479,18 @@ internal class SingleProcessDataStore<T>(
         override fun flush() {
             fileOutputStream.flush()
         }
+    }
+
+    internal companion object {
+        /**
+         * Active files should contain the absolute path for which there are currently active
+         * DataStores. A DataStore is active until the scope it was created with has been
+         * cancelled. Files aren't added to this list until the first read/write because the file
+         * path is computed asynchronously.
+         */
+        @GuardedBy("activeFilesLock")
+        internal val activeFiles = mutableSetOf<String>()
+
+        internal val activeFilesLock = Any()
     }
 }

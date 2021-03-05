@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.util.runner.CompilationTestRunner
 import androidx.room.compiler.processing.util.runner.JavacCompilationTestRunner
 import androidx.room.compiler.processing.util.runner.KaptCompilationTestRunner
@@ -27,6 +28,7 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import java.io.ByteArrayOutputStream
 import java.io.File
 
+@ExperimentalProcessingApi
 private fun runTests(
     params: TestCompilationParameters,
     vararg runners: CompilationTestRunner
@@ -68,6 +70,7 @@ private fun runTests(
     assertThat(runCount).isAtLeast(minTestCount)
 }
 
+@ExperimentalProcessingApi
 fun runProcessorTestWithoutKsp(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
@@ -85,8 +88,8 @@ fun runProcessorTestWithoutKsp(
 }
 
 /**
- * Runs the compilation test with all 3 backends (javac, kapt, ksp) if possible (e.g. javac
- * cannot test kotlin sources).
+ * Runs the compilation test with ksp and one of javac or kapt, depending on whether input has
+ * kotlin sources.
  *
  * The [handler] will be invoked only for the first round. If you need to test multi round
  * processing, use `handlers = listOf(..., ...)`.
@@ -99,6 +102,7 @@ fun runProcessorTestWithoutKsp(
  * assertion on [XTestInvocation.assertCompilationResult] which expects a failure (e.g. checking
  * errors).
  */
+@ExperimentalProcessingApi
 fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
@@ -108,19 +112,24 @@ fun runProcessorTest(
 /**
  * @see runProcessorTest
  */
+@ExperimentalProcessingApi
 fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
+    val javaApRunner = if (sources.any { it is Source.KotlinSource }) {
+        KaptCompilationTestRunner
+    } else {
+        JavacCompilationTestRunner
+    }
     runTests(
         params = TestCompilationParameters(
             sources = sources,
             classpath = classpath,
             handlers = handlers
         ),
-        JavacCompilationTestRunner,
-        KaptCompilationTestRunner,
+        javaApRunner,
         KspCompilationTestRunner
     )
 }
@@ -130,6 +139,7 @@ fun runProcessorTest(
  *
  * @see runProcessorTest
  */
+@ExperimentalProcessingApi
 fun runJavaProcessorTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
@@ -143,6 +153,7 @@ fun runJavaProcessorTest(
 /**
  * @see runJavaProcessorTest
  */
+@ExperimentalProcessingApi
 fun runJavaProcessorTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
@@ -161,6 +172,7 @@ fun runJavaProcessorTest(
 /**
  * Runs the test only with kapt compilation backend
  */
+@ExperimentalProcessingApi
 fun runKaptTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
@@ -174,6 +186,7 @@ fun runKaptTest(
 /**
  * @see runKaptTest
  */
+@ExperimentalProcessingApi
 fun runKaptTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
@@ -192,6 +205,7 @@ fun runKaptTest(
 /**
  * Runs the test only with ksp compilation backend
  */
+@ExperimentalProcessingApi
 fun runKspTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
@@ -205,6 +219,7 @@ fun runKspTest(
 /**
  * @see runKspTest
  */
+@ExperimentalProcessingApi
 fun runKspTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),

@@ -50,10 +50,6 @@ public class ComplicationScreenshotParams implements VersionedParcelable, Parcel
     @NonNull
     RenderParametersWireFormat mRenderParametersWireFormats;
 
-    /** The WebP compression quality, 100 = lossless. */
-    @ParcelField(3)
-    int mCompressionQuality;
-
     /** The UTC time in milliseconds since the epoch to render with. */
     @ParcelField(4)
     long mCalendarTimeMillis;
@@ -81,13 +77,11 @@ public class ComplicationScreenshotParams implements VersionedParcelable, Parcel
     public ComplicationScreenshotParams(
             int complicationId,
             @NonNull RenderParametersWireFormat renderParametersWireFormats,
-            int compressionQuality,
             long calendarTimeMillis,
             @Nullable ComplicationData complicationData,
             @Nullable UserStyleWireFormat userStyle) {
         mComplicationId = complicationId;
         mRenderParametersWireFormats = renderParametersWireFormats;
-        mCompressionQuality = compressionQuality;
         mCalendarTimeMillis = calendarTimeMillis;
         mComplicationData = complicationData;
         mUserStyle = userStyle;
@@ -100,10 +94,6 @@ public class ComplicationScreenshotParams implements VersionedParcelable, Parcel
     @NonNull
     public RenderParametersWireFormat getRenderParametersWireFormat() {
         return mRenderParametersWireFormats;
-    }
-
-    public int getCompressionQuality() {
-        return mCompressionQuality;
     }
 
     /** The UTC time in milliseconds since the epoch. */

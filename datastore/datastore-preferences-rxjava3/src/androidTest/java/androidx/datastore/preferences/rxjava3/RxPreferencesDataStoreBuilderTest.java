@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.datastore.core.DataStore;
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler;
 import androidx.datastore.preferences.core.MutablePreferences;
 import androidx.datastore.preferences.core.Preferences;
@@ -41,7 +40,6 @@ import java.io.FileOutputStream;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 
-
 public class RxPreferencesDataStoreBuilderTest {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -60,17 +58,19 @@ public class RxPreferencesDataStoreBuilderTest {
     public void testConstructWithProduceFile() throws Exception {
         File file = tempFolder.newFile("temp.preferences_pb");
 
-        DataStore<Preferences> dataStore =
+        RxDataStore<Preferences> dataStore =
                 new RxPreferenceDataStoreBuilder(() -> file).build();
 
-        Single<Preferences> incrementInt = RxDataStore.updateDataAsync(dataStore,
+        Single<Preferences> incrementInt = dataStore.updateDataAsync(
                 RxPreferencesDataStoreBuilderTest::incrementInteger);
         assertThat(incrementInt.blockingGet().get(INTEGER_KEY)).isEqualTo(1);
+        dataStore.dispose();
+        dataStore.shutdownComplete().blockingAwait();
 
         // Construct it again and confirm that the data is still there:
         dataStore = new RxPreferenceDataStoreBuilder(() -> file).build();
 
-        assertThat(RxDataStore.data(dataStore).blockingFirst().get(INTEGER_KEY))
+        assertThat(dataStore.data().blockingFirst().get(INTEGER_KEY))
                 .isEqualTo(1);
     }
 
@@ -87,16 +87,21 @@ public class RxPreferencesDataStoreBuilderTest {
             prefsFile.delete();
         }
 
-        DataStore<Preferences> dataStore =
+        RxDataStore<Preferences> dataStore =
                 new RxPreferenceDataStoreBuilder(context, name).build();
 
-        Single<Preferences> set1 = RxDataStore.updateDataAsync(dataStore,
+        Single<Preferences> set1 = dataStore.updateDataAsync(
                 RxPreferencesDataStoreBuilderTest::incrementInteger);
         assertThat(set1.blockingGet().get(INTEGER_KEY)).isEqualTo(1);
+        dataStore.dispose();
+        dataStore.shutdownComplete().blockingAwait();
 
         // Construct it again and confirm that the data is still there:
         dataStore = new RxPreferenceDataStoreBuilder(context, name).build();
-        assertThat(RxDataStore.data(dataStore).blockingFirst().get(INTEGER_KEY)).isEqualTo(1);
+        assertThat(dataStore.data().blockingFirst().get(INTEGER_KEY)).isEqualTo(1);
+        dataStore.dispose();
+        dataStore.shutdownComplete().blockingAwait();
+
 
         // Construct it again with the expected file path and confirm that the data is there:
         dataStore =
@@ -106,7 +111,7 @@ public class RxPreferencesDataStoreBuilderTest {
                                         + "/datastore/" + name + ".preferences_pb")
                 ).build();
 
-        assertThat(RxDataStore.data(dataStore).blockingFirst().get(INTEGER_KEY)).isEqualTo(1);
+        assertThat(dataStore.data().blockingFirst().get(INTEGER_KEY)).isEqualTo(1);
     }
 
     @Test
@@ -131,19 +136,19 @@ public class RxPreferencesDataStoreBuilderTest {
             }
         };
 
-        DataStore<Preferences> dataStore =
+        RxDataStore<Preferences> dataStore =
                 new RxPreferenceDataStoreBuilder(() ->
                         tempFolder.newFile("temp.preferences_pb"))
                         .addRxDataMigration(plusOneMigration)
                         .build();
 
-        assertThat(RxDataStore.data(dataStore).blockingFirst().get(INTEGER_KEY))
+        assertThat(dataStore.data().blockingFirst().get(INTEGER_KEY))
                 .isEqualTo(1);
     }
 
 
     @Test
-    public void testCorruptionHandlerIsUser() throws Exception {
+    public void testCorruptionHandlerIsUsed() throws Exception {
 
         File file = tempFolder.newFile("temp.preferences_pb");
 
@@ -160,12 +165,12 @@ public class RxPreferencesDataStoreBuilderTest {
                 });
 
 
-        DataStore<Preferences> dataStore =
+        RxDataStore<Preferences> dataStore =
                 new RxPreferenceDataStoreBuilder(() -> file)
                         .setCorruptionHandler(replaceFileCorruptionHandler)
                         .build();
 
-        assertThat(RxDataStore.data(dataStore).blockingFirst().get(INTEGER_KEY))
+        assertThat(dataStore.data().blockingFirst().get(INTEGER_KEY))
                 .isEqualTo(99);
     }
 }

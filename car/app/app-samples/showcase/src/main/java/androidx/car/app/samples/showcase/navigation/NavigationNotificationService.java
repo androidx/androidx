@@ -118,7 +118,7 @@ public final class NavigationNotificationService extends Service {
     static Notification getNavigationNotification(
             Context context, int notificationCount) {
         NotificationCompat.Builder builder =
-                getNotificationBuilder(context, NAV_NOTIFICATION_CHANNEL_ID);
+                new NotificationCompat.Builder(context, NAV_NOTIFICATION_CHANNEL_ID);
         DirectionInfo directionInfo = getDirectionInfo(notificationCount);
         return builder
                 // This title, text, and icon will be shown in both phone and car screen. These
@@ -165,13 +165,6 @@ public final class NavigationNotificationService extends Service {
                                                 0))
                                 .build())
                 .build();
-    }
-
-    private static NotificationCompat.Builder getNotificationBuilder(
-            Context context, String channelId) {
-        return VERSION.SDK_INT >= VERSION_CODES.O
-                ? new NotificationCompat.Builder(context, channelId)
-                : new NotificationCompat.Builder(context);
     }
 
     /**

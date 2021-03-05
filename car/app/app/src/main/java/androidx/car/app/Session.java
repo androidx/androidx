@@ -16,6 +16,7 @@
 
 package androidx.car.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 
@@ -64,7 +65,6 @@ public abstract class Session implements LifecycleOwner {
      * @param intent the intent that was used to start this app. If the app was started with a
      *               call to {@link CarContext#startCarApp}, this intent will be equal to the
      *               intent passed to that method
-     *
      * @see CarContext#startCarApp
      */
     public void onNewIntent(@NonNull Intent intent) {
@@ -146,5 +146,28 @@ public abstract class Session implements LifecycleOwner {
     @NonNull
     public final CarContext getCarContext() {
         return mCarContext;
+    }
+
+    /**
+     * Updates the {@link Session} with the given parameters.
+     *
+     * <p>This should be invoked during onAppCreate to initialize the {@link Session} and its
+     * underlying {@link Context} properly.
+     */
+    void configure(@NonNull Context baseContext, @NonNull HandshakeInfo handshakeInfo,
+            @NonNull ICarHost carHost,
+            @NonNull Configuration configuration) {
+        mCarContext.updateHandshakeInfo(handshakeInfo);
+        mCarContext.attachBaseContext(baseContext, configuration);
+        mCarContext.setCarHost(carHost);
+    }
+
+    /**
+     * Updates the {@link CarContext}'s configuration with the new one and notifies the
+     * app that it has changed.
+     */
+    void onCarConfigurationChangedInternal(@NonNull Configuration newConfiguration) {
+        mCarContext.onCarConfigurationChanged(newConfiguration);
+        onCarConfigurationChanged(mCarContext.getResources().getConfiguration());
     }
 }

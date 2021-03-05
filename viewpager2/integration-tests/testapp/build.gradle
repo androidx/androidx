@@ -24,7 +24,7 @@ buildscript {
     // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
     // vectordrawable and vectordrawable-animated were accidentally using the same package name
     // which is no longer valid in namespaced resource world.
-    project.ext['android.uniquePackageNames'] = false
+    project.ext["android.uniquePackageNames"] = false
 }
 
 plugins {
@@ -38,7 +38,7 @@ dependencies {
     implementation(project(":viewpager2:viewpager2"))
     implementation("androidx.activity:activity-ktx:1.1.0")
     implementation(MATERIAL) {
-        exclude group: 'androidx.viewpager2', module: 'viewpager2'
+        exclude group: "androidx.viewpager2", module: "viewpager2"
     }
 
     androidTestImplementation(ANDROIDX_TEST_RULES)

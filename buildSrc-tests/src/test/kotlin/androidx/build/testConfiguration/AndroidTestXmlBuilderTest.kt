@@ -100,8 +100,8 @@ class AndroidTestXmlBuilderTest {
     }
 
     @Test
-    fun testValidTestConfigXml_runFullTests() {
-        builder.runFullTests(false)
+    fun testValidTestConfigXml_runAllTests() {
+        builder.runAllTests(false)
         validate(builder.build())
     }
 
@@ -162,7 +162,7 @@ private val goldenDefaultConfig = """
     See the License for the specific language governing permissions
     and limitations under the License.-->
     <configuration description="Runs tests for the module">
-    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MinApiLevelModuleController">
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.ShippingApiLevelModuleController">
     <option name="min-api-level" value="15" />
     </object>
     <option name="test-suite-tag" value="placeholder_tag" />
@@ -170,7 +170,7 @@ private val goldenDefaultConfig = """
     <option name="wifi:disable" value="true" />
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
-    <option name="cleanup-apks" value="true" />
+    <option name="cleanup-apks" value="false" />
     <option name="test-file-name" value="placeholder.apk" />
     </target_preparer>
     <test class="com.android.tradefed.testtype.AndroidJUnitTest">
@@ -193,7 +193,7 @@ private val goldenMediaDefaultConfig = """
     See the License for the specific language governing permissions
     and limitations under the License.-->
     <configuration description="Runs tests for the module">
-    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MinApiLevelModuleController">
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.ShippingApiLevelModuleController">
     <option name="min-api-level" value="15" />
     </object>
     <option name="test-suite-tag" value="placeholder_tag" />
@@ -202,7 +202,6 @@ private val goldenMediaDefaultConfig = """
     <option name="wifi:disable" value="true" />
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
-    <option name="cleanup-apks" value="true" />
     <option name="test-file-name" value="clientPlaceholder.apk" />
     <option name="test-file-name" value="servicePlaceholder.apk" />
     </target_preparer>

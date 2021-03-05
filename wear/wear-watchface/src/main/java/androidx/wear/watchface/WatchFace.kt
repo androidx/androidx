@@ -41,6 +41,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
+import androidx.wear.utility.TraceEvent
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.IdAndComplicationData
@@ -48,6 +49,7 @@ import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
 import java.io.FileNotFoundException
@@ -202,8 +204,11 @@ public class WatchFace @JvmOverloads constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface EditorDelegate {
-        /** The [WatchFace]'s [UserStyleRepository]. */
-        public val userStyleRepository: UserStyleRepository
+        /** The [WatchFace]'s [UserStyleSchema]. */
+        public val userStyleSchema: UserStyleSchema
+
+        /** The watch face's  [UserStyle]. */
+        public var userStyle: UserStyle
 
         /** The [WatchFace]'s [ComplicationsManager]. */
         public val complicationsManager: ComplicationsManager
@@ -426,8 +431,6 @@ internal class WatchFaceImpl(
         CancellableUniqueTask(watchFaceHostApi.getHandler())
     private val pendingUpdateTime: CancellableUniqueTask =
         CancellableUniqueTask(watchFaceHostApi.getHandler())
-    private val pendingPostDoubleTap: CancellableUniqueTask =
-        CancellableUniqueTask(watchFaceHostApi.getHandler())
 
     internal val componentName =
         ComponentName(
@@ -638,8 +641,15 @@ internal class WatchFaceImpl(
     internal fun createWFEditorDelegate() = WFEditorDelegate() as WatchFace.EditorDelegate
 
     internal inner class WFEditorDelegate : WatchFace.EditorDelegate {
-        override val userStyleRepository: UserStyleRepository
-            get() = this@WatchFaceImpl.userStyleRepository
+        override val userStyleSchema: UserStyleSchema
+            get() = userStyleRepository.schema
+
+        override var userStyle: UserStyle
+            get() = userStyleRepository.userStyle
+            set(value) {
+                userStyleRepository.userStyle = value
+                watchFaceHostApi.onUserStyleChanged()
+            }
 
         override val complicationsManager: ComplicationsManager
             get() = this@WatchFaceImpl.complicationsManager
@@ -654,7 +664,7 @@ internal class WatchFaceImpl(
             renderParameters: RenderParameters,
             calendarTimeMillis: Long,
             idToComplicationData: Map<Int, ComplicationData>?
-        ): Bitmap {
+        ): Bitmap = TraceEvent("WFEditorDelegate.takeScreenshot").use {
             val oldComplicationData =
                 complicationsManager.complications.values.map {
                     it.renderer.getIdAndData() ?: IdAndComplicationData(
@@ -686,7 +696,7 @@ internal class WatchFaceImpl(
             return screenShot
         }
 
-        override fun onDestroy() {
+        override fun onDestroy(): Unit = TraceEvent("WFEditorDelegate.onDestroy").use {
             if (watchState.isHeadless) {
                 this@WatchFaceImpl.onDestroy()
             }
@@ -721,7 +731,6 @@ internal class WatchFaceImpl(
     internal fun onDestroy() {
         pendingSingleTap.cancel()
         pendingUpdateTime.cancel()
-        pendingPostDoubleTap.cancel()
         renderer.onDestroy()
         watchState.isAmbient.removeObserver(ambientObserver)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !watchState.isHeadless) {
@@ -876,6 +885,13 @@ internal class WatchFaceImpl(
         watchFaceHostApi.invalidate()
     }
 
+    /** Clears all [ComplicationData]. */
+    @UiThread
+    internal fun clearComplicationData() {
+        complicationsManager.clearComplicationData()
+        watchFaceHostApi.invalidate()
+    }
+
     /**
      * Called when a tap or touch related event occurs. Detects double and single taps on
      * complications and triggers the associated action.
@@ -923,22 +939,7 @@ internal class WatchFaceImpl(
                     clearGesture()
                     return
                 }
-                if (pendingPostDoubleTap.isPending()) {
-                    return
-                }
-                if (pendingSingleTap.isPending()) {
-                    // The user tapped twice rapidly on the same complication so treat this as
-                    // a double tap.
-                    complicationsManager.onComplicationDoubleTapped(tappedComplication.id)
-                    clearGesture()
-
-                    // Block subsequent taps for a short time, to prevent accidental triple taps.
-                    pendingPostDoubleTap.postDelayedUnique(
-                        ViewConfiguration.getDoubleTapTimeout().toLong()
-                    ) {
-                        // NOP.
-                    }
-                } else {
+                if (!pendingSingleTap.isPending()) {
                     // Give the user immediate visual feedback, the UI feels sluggish if we defer
                     // this.
                     complicationsManager.bringAttentionToComplication(tappedComplication.id)
@@ -972,5 +973,27 @@ internal class WatchFaceImpl(
     private fun clearGesture() {
         lastTappedComplicationId = null
         pendingSingleTap.cancel()
+    }
+
+    @UiThread
+    fun dump(writer: IndentingPrintWriter) {
+        writer.println("WatchFaceImpl ($componentName): ")
+        writer.increaseIndent()
+        writer.println("calendar=$calendar")
+        writer.println("mockTime.maxTime=${mockTime.maxTime}")
+        writer.println("mockTime.minTime=${mockTime.minTime}")
+        writer.println("mockTime.speed=${mockTime.speed}")
+        writer.println("nextDrawTimeMillis=$nextDrawTimeMillis")
+        writer.println("muteMode=$muteMode")
+        writer.println("pendingSingleTap=${pendingSingleTap.isPending()}")
+        writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
+        writer.println("lastTappedComplicationId=$lastTappedComplicationId")
+        writer.println("lastTappedPosition=$lastTappedPosition")
+        writer.println("userStyleRepository.userStyle=${userStyleRepository.userStyle}")
+        writer.println("userStyleRepository.schema=${userStyleRepository.schema}")
+        watchState.dump(writer)
+        complicationsManager.dump(writer)
+        renderer.dump(writer)
+        writer.decreaseIndent()
     }
 }

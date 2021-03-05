@@ -1797,6 +1797,30 @@ public class WorkManagerImplTest {
 
     @Test
     @MediumTest
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    public void testEnqueueApi23To25_withConstraintTrackingWorker_expectsOriginalWorker()
+            throws ExecutionException, InterruptedException {
+        Data data = new Data.Builder()
+                .put(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, TestWorker.class.getName())
+                .build();
+
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
+                .setInputData(data)
+                .setConstraints(new Constraints.Builder()
+                        .setRequiresBatteryNotLow(true)
+                        .build())
+                .build();
+        mWorkManagerImpl.beginWith(work).enqueue().getResult().get();
+
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
+        assertThat(workSpec.workerClassName, is(ConstraintTrackingWorker.class.getName()));
+        assertThat(workSpec.input.getString(
+                ConstraintTrackingWorker.ARGUMENT_CLASS_NAME),
+                is(TestWorker.class.getName()));
+    }
+
+    @Test
+    @MediumTest
     @SdkSuppress(minSdkVersion = 26)
     public void testEnqueueApi26OrHigher_withBatteryNotLowConstraint_expectsOriginalWorker()
             throws ExecutionException, InterruptedException {

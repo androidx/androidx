@@ -21,7 +21,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.icu.util.Calendar
-import android.os.Bundle
 import android.support.wearable.watchface.accessibility.AccessibilityUtils
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.UiThread
@@ -31,6 +30,7 @@ import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.data.IdAndComplicationData
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.UserStyle
@@ -68,14 +68,6 @@ public class ComplicationsManager(
          * @param complicationId The watch face's id for the complication single tapped
          */
         public fun onComplicationSingleTapped(complicationId: Int) {}
-
-        /**
-         * Called when the user double taps on a complication, launches the complication
-         * configuration activity.
-         *
-         * @param complicationId The watch face's id for the complication double tapped
-         */
-        public fun onComplicationDoubleTapped(complicationId: Int) {}
     }
 
     private lateinit var watchFaceHostApi: WatchFaceHostApi
@@ -295,6 +287,15 @@ public class ComplicationsManager(
             data
     }
 
+    @UiThread
+    internal fun clearComplicationData() {
+        for ((_, complication) in complications) {
+            complication.renderer.clearIdAndData()
+            (complication.complicationData as MutableObservableWatchData).value =
+                EmptyComplicationData()
+        }
+    }
+
     /**
      * Brings attention to the complication by briefly highlighting it to provide visual feedback
      * when the user has tapped on it.
@@ -371,48 +372,6 @@ public class ComplicationsManager(
     }
 
     /**
-     * Called when the user double taps on a complication, launches the complication
-     * configuration activity unless the complication is fixed in which case it does
-     * nothing.
-     *
-     * @param complicationId The watch face's id for the complication double tapped
-     */
-    @SuppressWarnings("SyntheticAccessor")
-    @UiThread
-    internal fun onComplicationDoubleTapped(complicationId: Int) {
-        // Check if the complication is missing permissions.
-        val complication = complications[complicationId] ?: return
-        if (complication.fixedComplicationProvider) {
-            return
-        }
-        val data = complication.renderer.getIdAndData() ?: return
-        if (data.complicationData.type == ComplicationType.NO_PERMISSION) {
-            watchFaceHostApi.getContext().startActivity(
-                ComplicationHelperActivity.createPermissionRequestHelperIntent(
-                    watchFaceHostApi.getContext(),
-                    getComponentName(watchFaceHostApi.getContext())
-                )
-            )
-            return
-        }
-        watchFaceHostApi.getContext().startActivity(
-            ComplicationHelperActivity.createProviderChooserHelperIntent(
-                watchFaceHostApi.getContext(),
-                getComponentName(watchFaceHostApi.getContext()),
-                complicationId,
-                complication.supportedTypes
-            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).apply {
-                complication.complicationConfigExtras?.let {
-                    replaceExtras(Bundle(it).apply { putAll(extras!!) })
-                }
-            }
-        )
-        for (complicationListener in complicationListeners) {
-            complicationListener.onComplicationDoubleTapped(complicationId)
-        }
-    }
-
-    /**
      * Adds a [TapCallback] which is called whenever the user interacts with a complication.
      */
     @UiThread
@@ -427,5 +386,15 @@ public class ComplicationsManager(
     @UiThread
     public fun removeTapListener(tapCallback: TapCallback) {
         complicationListeners.remove(tapCallback)
+    }
+
+    @UiThread
+    internal fun dump(writer: IndentingPrintWriter) {
+        writer.println("ComplicationsManager:")
+        writer.increaseIndent()
+        for ((_, complication) in complications) {
+            complication.dump(writer)
+        }
+        writer.decreaseIndent()
     }
 }

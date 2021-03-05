@@ -504,7 +504,6 @@ class PageFetcherTest {
         }
     }
 
-    @ExperimentalStdlibApi
     @Test
     fun pagingSourceInvalidBeforeCallbackAdded() = testScope.runBlockingTest {
         var invalidatesFromAdapter = 0
@@ -523,11 +522,11 @@ class PageFetcherTest {
             }
         }
 
+        @OptIn(ExperimentalStdlibApi::class)
         val job = launch {
             pager.flow.collectLatest { pagingData ->
-                TestPagingDataDiffer<Int>(
-                    testScope.coroutineContext[CoroutineDispatcher.Key]!!
-                ).collectFrom(pagingData)
+                TestPagingDataDiffer<Int>(testScope.coroutineContext[CoroutineDispatcher]!!)
+                    .collectFrom(pagingData)
             }
         }
 
@@ -536,6 +535,208 @@ class PageFetcherTest {
         advanceUntilIdle()
 
         assertEquals(1, invalidatesFromAdapter)
+        job.cancel()
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    @Test
+    fun cachesPreviousPagingStateOnEmptyPages() = testScope.runBlockingTest {
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 1,
+            enablePlaceholders = true,
+            initialLoadSize = 3,
+        )
+
+        val remoteMediator = RemoteMediatorMock().apply {
+            initializeResult = LAUNCH_INITIAL_REFRESH
+        }
+        val pageFetcher = PageFetcher(
+            pagingSourceFactory = suspend {
+                TestPagingSource(loadDelay = 1000)
+            },
+            initialKey = 50,
+            config = config,
+            remoteMediator = remoteMediator,
+        )
+
+        var receiver: UiReceiver? = null
+        val job = launch() {
+            pageFetcher.flow.collectLatest {
+                receiver = it.receiver
+                it.flow.collect { }
+            }
+        }
+
+        // Allow initial load to finish, so PagingState has non-zero pages.
+        advanceUntilIdle()
+
+        // Verify remote refresh is called with initial empty case.
+        assertThat(remoteMediator.newLoadEvents).containsExactly(
+            RemoteMediatorMock.LoadEvent(
+                loadType = REFRESH,
+                state = PagingState(
+                    pages = listOf(),
+                    anchorPosition = null,
+                    config = config,
+                    leadingPlaceholderCount = 0,
+                ),
+            )
+        )
+
+        // Trigger refresh, instantiating second generation.
+        pageFetcher.refresh()
+
+        // Allow remote refresh to get triggered, but do not let paging source complete initial load
+        // for second generation.
+        advanceTimeBy(500)
+
+        // Verify remote refresh is called with PagingState from first generation.
+        val pagingState = PagingState(
+            pages = listOf(
+                PagingSource.LoadResult.Page(
+                    data = listOf(50, 51, 52),
+                    prevKey = 49,
+                    nextKey = 53,
+                    itemsBefore = 50,
+                    itemsAfter = 47,
+                )
+            ),
+            anchorPosition = null,
+            config = config,
+            leadingPlaceholderCount = 50,
+        )
+        assertThat(remoteMediator.newLoadEvents).containsExactly(
+            RemoteMediatorMock.LoadEvent(loadType = REFRESH, state = pagingState)
+        )
+
+        // Trigger a hint, which would normally populate anchorPosition. In real world scenario,
+        // this would happen as a result of UI still presenting first generation since second
+        // generation never finished loading yet.
+        receiver?.accessHint(
+            ViewportHint.Access(
+                pageOffset = 0,
+                indexInPage = 0,
+                presentedItemsBefore = 0,
+                presentedItemsAfter = 2,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0,
+            )
+        )
+
+        // Trigger refresh instantiating third generation before second has a chance to complete
+        // initial load.
+        pageFetcher.refresh()
+
+        // Wait for all non-canceled loads to complete.
+        advanceUntilIdle()
+
+        // Verify remote refresh is called with PagingState from first generation, since second
+        // generation never loaded any pages.
+        assertThat(remoteMediator.newLoadEvents).containsExactly(
+            RemoteMediatorMock.LoadEvent(loadType = REFRESH, state = pagingState)
+        )
+
+        job.cancel()
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    @Test
+    fun cachesPreviousPagingStateOnNullHint() = testScope.runBlockingTest {
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 1,
+            enablePlaceholders = true,
+            initialLoadSize = 3,
+        )
+
+        val remoteMediator = RemoteMediatorMock().apply {
+            initializeResult = LAUNCH_INITIAL_REFRESH
+        }
+        val pageFetcher = PageFetcher(
+            pagingSourceFactory = suspend {
+                TestPagingSource(loadDelay = 1000)
+            },
+            initialKey = 50,
+            config = config,
+            remoteMediator = remoteMediator,
+        )
+
+        var receiver: UiReceiver? = null
+        val job = launch() {
+            pageFetcher.flow.collectLatest {
+                receiver = it.receiver
+                it.flow.collect { }
+            }
+        }
+
+        // Allow initial load to finish, so PagingState has non-zero pages.
+        advanceUntilIdle()
+
+        // Trigger a hint to populate anchorPosition, this should cause PageFetcher to cache this
+        // PagingState and use it in next remoteRefresh
+        receiver?.accessHint(
+            ViewportHint.Access(
+                pageOffset = 0,
+                indexInPage = 0,
+                presentedItemsBefore = 0,
+                presentedItemsAfter = 2,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0,
+            )
+        )
+
+        // Verify remote refresh is called with initial empty case.
+        assertThat(remoteMediator.newLoadEvents).containsExactly(
+            RemoteMediatorMock.LoadEvent(
+                loadType = REFRESH,
+                state = PagingState(
+                    pages = listOf(),
+                    anchorPosition = null,
+                    config = config,
+                    leadingPlaceholderCount = 0,
+                ),
+            )
+        )
+
+        // Trigger refresh, instantiating second generation.
+        pageFetcher.refresh()
+
+        // Allow remote refresh to get triggered, and let paging source load finish.
+        advanceUntilIdle()
+
+        // Verify remote refresh is called with PagingState from first generation.
+        val pagingState = PagingState(
+            pages = listOf(
+                PagingSource.LoadResult.Page(
+                    data = listOf(50, 51, 52),
+                    prevKey = 49,
+                    nextKey = 53,
+                    itemsBefore = 50,
+                    itemsAfter = 47,
+                )
+            ),
+            anchorPosition = 50,
+            config = config,
+            leadingPlaceholderCount = 50,
+        )
+        assertThat(remoteMediator.newLoadEvents).containsExactly(
+            RemoteMediatorMock.LoadEvent(loadType = REFRESH, state = pagingState)
+        )
+
+        // Trigger refresh instantiating third generation before second has a chance to complete
+        // initial load.
+        pageFetcher.refresh()
+
+        // Wait for all non-canceled loads to complete.
+        advanceUntilIdle()
+
+        // Verify remote refresh is called with PagingState from first generation, since second
+        // generation never loaded any pages.
+        assertThat(remoteMediator.newLoadEvents).containsExactly(
+            RemoteMediatorMock.LoadEvent(loadType = REFRESH, state = pagingState)
+        )
+
         job.cancel()
     }
 

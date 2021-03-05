@@ -233,6 +233,7 @@ final class Camera2CameraImpl implements CameraInternal {
     private void openInternal() {
         switch (mState) {
             case INITIALIZED:
+            case PENDING_OPEN:
                 tryForceOpenCameraDevice();
                 break;
             case CLOSING:
@@ -875,6 +876,12 @@ final class Camera2CameraImpl implements CameraInternal {
         return mCameraInfoInternal;
     }
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public CameraAvailability getCameraAvailability() {
+        return mCameraAvailability;
+    }
+
     /**
      * Attempts to force open the camera device, which may result in stealing it from a lower
      * priority client. This should only happen if another client doesn't close the camera when
@@ -1260,6 +1267,20 @@ final class Camera2CameraImpl implements CameraInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mExecutor")
     void setState(@NonNull InternalState state) {
+        setState(state, /*notifyImmediately=*/true);
+    }
+
+    /**
+     * Moves the camera to a new state.
+     *
+     * @param state             New camera state
+     * @param notifyImmediately {@code true} if {@link CameraStateRegistry} should immediately
+     *                          notify this camera while updating its state if a camera slot
+     *                          becomes available for opening, {@code false} otherwise.
+     */
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mExecutor")
+    void setState(@NonNull InternalState state, boolean notifyImmediately) {
         debugLog("Transitioning camera internal state: " + mState + " --> " + state);
         mState = state;
         // Convert the internal state to the publicly visible state
@@ -1290,7 +1311,7 @@ final class Camera2CameraImpl implements CameraInternal {
             default:
                 throw new IllegalStateException("Unknown state: " + state);
         }
-        mCameraStateRegistry.markCameraState(this, publicState);
+        mCameraStateRegistry.markCameraState(this, publicState, notifyImmediately);
         mObservableState.postValue(publicState);
     }
 
@@ -1493,7 +1514,11 @@ final class Camera2CameraImpl implements CameraInternal {
                         "Camera reopening attempted for "
                                 + CameraReopenMonitor.REOPEN_LIMIT_MS
                                 + "ms without success.");
-                setState(InternalState.INITIALIZED);
+
+                // Set the state to PENDING_OPEN, so that an attempt to reopen the camera is made if
+                // it later becomes available to open, but ignore immediate reopen attempt from
+                // CameraStateRegistry.OnOpenAvailableListener.
+                setState(InternalState.PENDING_OPEN, /*notifyImmediately=*/false);
             }
         }
 

@@ -36,8 +36,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     implementation 'com.google.guava:guava:28.1-jre'
 
-    def version = '1.0.0-SNAPSHOT'
-    implementation("androidx.car.app:app:$version")
+    implementation "androidx.car.app:app:1.0.0-beta01"
 
     // TODO transitive dependencies for the library. Remove once they can be fetched from the pom file.
     implementation "androidx.activity:activity:1.1.0"

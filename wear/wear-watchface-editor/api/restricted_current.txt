@@ -9,13 +9,16 @@ package androidx.wear.watchface.editor {
     method public Integer? getComplicationIdAt(@Px int x, @Px int y);
     method public suspend Object? getComplicationPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> $completion);
     method public final kotlinx.coroutines.CoroutineScope getCoroutineScope();
+    method protected final boolean getForceClosed();
     method public suspend Object? launchComplicationProviderChooser(int p, kotlin.coroutines.Continuation<? super java.lang.Boolean> $completion);
     method protected abstract void releaseResources();
     method protected final void requireNotClosed();
     method protected final void setClosed(boolean p);
+    method protected final void setForceClosed(boolean p);
     property public Integer? backgroundComplicationId;
     property protected final boolean closed;
     property public final kotlinx.coroutines.CoroutineScope coroutineScope;
+    property protected final boolean forceClosed;
   }
 
   public final class EditorRequest {

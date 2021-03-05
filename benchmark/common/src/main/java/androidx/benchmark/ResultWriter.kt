@@ -40,7 +40,7 @@ public object ResultWriter {
             val packageName =
                 InstrumentationRegistry.getInstrumentation().targetContext!!.packageName
 
-            val file = File(Arguments.testOutputDir, "$packageName-benchmarkData.json")
+            val file = Arguments.testOutputFile("$packageName-benchmarkData.json")
             Log.d(
                 BenchmarkState.TAG,
                 "writing results to ${file.absolutePath}"
@@ -112,6 +112,7 @@ public object ResultWriter {
 
     private fun JsonWriter.buildInfoObject(): JsonWriter {
         beginObject()
+            .name("brand").value(Build.BRAND)
             .name("device").value(Build.DEVICE)
             .name("fingerprint").value(Build.FINGERPRINT)
             .name("model").value(Build.MODEL)

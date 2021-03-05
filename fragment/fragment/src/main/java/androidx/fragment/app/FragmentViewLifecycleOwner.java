@@ -22,13 +22,28 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.ViewModelStore;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
 
-class FragmentViewLifecycleOwner implements SavedStateRegistryOwner {
+class FragmentViewLifecycleOwner implements SavedStateRegistryOwner, ViewModelStoreOwner {
+    private final ViewModelStore mViewModelStore;
+
     private LifecycleRegistry mLifecycleRegistry = null;
     private SavedStateRegistryController mSavedStateRegistryController = null;
+
+    FragmentViewLifecycleOwner(@NonNull ViewModelStore viewModelStore) {
+        mViewModelStore = viewModelStore;
+    }
+
+    @NonNull
+    @Override
+    public ViewModelStore getViewModelStore() {
+        initialize();
+        return mViewModelStore;
+    }
 
     /**
      * Initializes the underlying Lifecycle if it hasn't already been created.
@@ -65,6 +80,7 @@ class FragmentViewLifecycleOwner implements SavedStateRegistryOwner {
     @NonNull
     @Override
     public SavedStateRegistry getSavedStateRegistry() {
+        initialize();
         return mSavedStateRegistryController.getSavedStateRegistry();
     }
 

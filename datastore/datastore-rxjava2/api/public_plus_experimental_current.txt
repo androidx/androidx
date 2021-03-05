@@ -25,6 +25,13 @@ package androidx.datastore.rxjava2 {
     method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setIoScheduler(io.reactivex.Scheduler ioScheduler);
   }
 
+  public final class RxDataStoreDelegateKt {
+    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<T>> rxDataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<T>>> produceMigrations, optional io.reactivex.Scheduler scheduler);
+    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<T>> rxDataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<T>>> produceMigrations);
+    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<T>> rxDataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler);
+    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<T>> rxDataStore(String fileName, androidx.datastore.core.Serializer<T> serializer);
+  }
+
   public interface RxSharedPreferencesMigration<T> {
     method public io.reactivex.Single<T> migrate(androidx.datastore.migrations.SharedPreferencesView sharedPreferencesView, T? currentData);
     method public default io.reactivex.Single<java.lang.Boolean> shouldMigrate(T? currentData);
@@ -33,7 +40,6 @@ package androidx.datastore.rxjava2 {
   public final class RxSharedPreferencesMigrationBuilder<T> {
     ctor public RxSharedPreferencesMigrationBuilder(android.content.Context context, String sharedPreferencesName, androidx.datastore.rxjava2.RxSharedPreferencesMigration<T> rxSharedPreferencesMigration);
     method public androidx.datastore.core.DataMigration<T> build();
-    method public androidx.datastore.rxjava2.RxSharedPreferencesMigrationBuilder<T> setDeleteEmptyPreferences(boolean deleteEmptyPreferences);
     method public androidx.datastore.rxjava2.RxSharedPreferencesMigrationBuilder<T> setKeysToMigrate(java.lang.String... keys);
   }
 

@@ -117,7 +117,6 @@ public final class Distance {
      * @param displayUnit     the unit of distance to use when displaying the value in {@code
      *                        displayUnit}. This should be one of the {@code UNIT_*} static
      *                        constants defined in this class. See {@link #getDisplayUnit()}
-     *
      * @throws IllegalArgumentException if {@code displayDistance} is negative
      */
     @NonNull

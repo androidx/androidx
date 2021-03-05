@@ -19,6 +19,7 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -26,7 +27,6 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
-import androidx.room.compiler.processing.XType
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
@@ -57,7 +57,6 @@ import org.hamcrest.CoreMatchers.hasItem
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
-import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.AssumptionViolatedException
@@ -735,6 +734,30 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     }
 
     @Test
+    fun skipVerificationPojo() {
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SkipQueryVerification
+                @Query("SELECT bookId, uid  FROM User")
+                abstract NotAnEntity getPojo();
+                """
+        ) { parsedQuery, _ ->
+            assertThat(parsedQuery.name, `is`("getPojo"))
+            assertThat(parsedQuery.parameters.size, `is`(0))
+            assertThat(
+                parsedQuery.returnType.typeName,
+                `is`(COMMON.NOT_AN_ENTITY_TYPE_NAME as TypeName)
+            )
+            val adapter = parsedQuery.queryResultBinder.adapter
+            assertThat(checkNotNull(adapter))
+            assertThat(adapter::class, `is`(SingleEntityQueryResultAdapter::class))
+            val rowAdapter = adapter.rowAdapter
+            assertThat(checkNotNull(rowAdapter))
+            assertThat(rowAdapter::class, `is`(PojoRowAdapter::class))
+        }.compilesWithoutError()
+    }
+
+    @Test
     fun suppressWarnings() {
         singleQueryMethod<ReadQueryMethod>(
             """
@@ -910,7 +933,11 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(adapter?.mapping?.unusedColumns, `is`(listOf("name", "lastName")))
             assertThat(adapter?.mapping?.unusedFields, `is`(adapter?.pojo?.fields as List<Field>))
         }?.failsToCompile()
-            ?.withErrorContaining(cannotFindQueryResultAdapter("foo.bar.MyClass.Pojo"))
+            ?.withErrorContaining(
+                cannotFindQueryResultAdapter(
+                    ClassName.get("foo.bar", "MyClass", "Pojo")
+                )
+            )
             ?.and()
             ?.withWarningContaining(
                 ProcessorErrors.cursorPojoMismatch(
@@ -942,7 +969,11 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         ) { _, _, _ ->
         }?.failsToCompile()
             ?.withErrorContaining("no such column: age")
-            ?.and()?.withErrorContaining(cannotFindQueryResultAdapter("foo.bar.MyClass.Pojo"))
+            ?.and()?.withErrorContaining(
+                cannotFindQueryResultAdapter(
+                    ClassName.get("foo.bar", "MyClass", "Pojo")
+                )
+            )
             ?.and()?.withErrorCount(2)
             ?.withWarningCount(0)
     }
@@ -1098,15 +1129,14 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                     handler(null, parsedQuery, invocation)
                 }
             } else {
-                assertThat(adapter, nullValue())
+                assertThat(adapter, notNullValue())
             }
         }
-        if (enableVerification) {
-            return assertion
+        return if (enableVerification) {
+            assertion
         } else {
-            assertion.failsToCompile()
-                .withErrorContaining(cannotFindQueryResultAdapter("foo.bar.MyClass.Pojo"))
-            return null
+            assertion.compilesWithoutError()
+            null
         }
     }
 
@@ -1123,7 +1153,8 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         "foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
                     ),
-                    COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK
+                    COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK,
+                    COMMON.NOT_AN_ENTITY
                 ) + jfos
             )
             .withCompilerOptions(options)

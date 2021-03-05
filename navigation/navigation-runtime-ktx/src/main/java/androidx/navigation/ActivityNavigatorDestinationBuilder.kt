@@ -59,12 +59,12 @@ public class ActivityNavigatorDestinationBuilder(
 
     override fun build(): ActivityNavigator.Destination =
         super.build().also { destination ->
-            destination.targetPackage = targetPackage
+            destination.setTargetPackage(targetPackage)
             activityClass?.let { clazz ->
                 destination.setComponentName(ComponentName(context, clazz.java))
             }
-            destination.action = action
-            destination.data = data
-            destination.dataPattern = dataPattern
+            destination.setAction(action)
+            destination.setData(data)
+            destination.setDataPattern(dataPattern)
         }
 }

@@ -18,11 +18,14 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
@@ -39,13 +42,14 @@ public class OnItemVisibilityChangedDelegateImpl implements
         OnItemVisibilityChangedDelegate {
 
     @Keep
+    @Nullable
     private final IOnItemVisibilityChangedListener mStub;
 
     @Override
     public void sendItemVisibilityChanged(int startIndex, int rightIndex,
             @NonNull OnDoneCallback callback) {
         try {
-            mStub.onItemVisibilityChanged(startIndex, rightIndex,
+            requireNonNull(mStub).onItemVisibilityChanged(startIndex, rightIndex,
                     RemoteUtils.createOnDoneCallbackStub(callback));
         } catch (RemoteException e) {
             throw new RuntimeException(e);

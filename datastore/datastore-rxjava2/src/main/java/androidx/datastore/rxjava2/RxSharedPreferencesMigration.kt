@@ -71,8 +71,6 @@ constructor(
     private val rxSharedPreferencesMigration: RxSharedPreferencesMigration<T>
 ) {
 
-    /** Optional */
-    private var deleteEmptyPreference: Boolean = true
     private var keysToMigrate: Set<String>? = null
 
     /**
@@ -88,42 +86,40 @@ constructor(
      * @return this
      */
     @Suppress("MissingGetterMatchingBuilder")
-    public fun setKeysToMigrate(vararg keys: String):
-        RxSharedPreferencesMigrationBuilder<T> = apply {
+    public fun setKeysToMigrate(vararg keys: String): RxSharedPreferencesMigrationBuilder<T> =
+        apply {
             keysToMigrate = setOf(*keys)
         }
 
     /**
-     * If enabled and the SharedPreferences are empty (i.e. no remaining
-     * keys) after this migration runs, the leftover SharedPreferences file is deleted. Note that
-     * this cleanup runs only if the migration itself runs, i.e., if the keys were never in
-     * SharedPreferences to begin with then the (potentially) empty SharedPreferences
-     * won't be cleaned up by this option. This functionality is best effort - if there
-     * is an issue deleting the SharedPreferences file it will be silently ignored.
+     * Build and return the DataMigration instance.
      *
-     * This method is optional and defaults to true.
-     *
-     * @param deleteEmptyPreferences whether or not to delete the empty shared preferences file
-     * @return this
+     * @return the DataMigration.
      */
-    @Suppress("MissingGetterMatchingBuilder")
-    public fun setDeleteEmptyPreferences(deleteEmptyPreferences: Boolean):
-        RxSharedPreferencesMigrationBuilder<T> = apply {
-            this.deleteEmptyPreference = deleteEmptyPreferences
-        }
-
     public fun build(): DataMigration<T> {
-        return SharedPreferencesMigration(
-            context = context,
-            sharedPreferencesName = sharedPreferencesName,
-            migrate = { spView, curData ->
-                rxSharedPreferencesMigration.migrate(spView, curData).await()
-            },
-            keysToMigrate = keysToMigrate,
-            deleteEmptyPreferences = deleteEmptyPreference,
-            shouldRunMigration = { curData ->
-                rxSharedPreferencesMigration.shouldMigrate(curData).await()
-            }
-        )
+        return if (keysToMigrate == null) {
+            SharedPreferencesMigration(
+                context = context,
+                sharedPreferencesName = sharedPreferencesName,
+                migrate = { spView, curData ->
+                    rxSharedPreferencesMigration.migrate(spView, curData).await()
+                },
+                shouldRunMigration = { curData ->
+                    rxSharedPreferencesMigration.shouldMigrate(curData).await()
+                }
+            )
+        } else {
+            SharedPreferencesMigration(
+                context = context,
+                sharedPreferencesName = sharedPreferencesName,
+                migrate = { spView, curData ->
+                    rxSharedPreferencesMigration.migrate(spView, curData).await()
+                },
+                keysToMigrate = keysToMigrate!!,
+                shouldRunMigration = { curData ->
+                    rxSharedPreferencesMigration.shouldMigrate(curData).await()
+                }
+            )
+        }
     }
 }

@@ -567,6 +567,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     private void initLifecycle() {
         mLifecycleRegistry = new LifecycleRegistry(this);
         mSavedStateRegistryController = SavedStateRegistryController.create(this);
+        // The default factory depends on the SavedStateRegistry so it
+        // needs to be reset when the SavedStateRegistry is reset
+        mDefaultFactory = null;
     }
 
     /**
@@ -680,16 +683,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         sb.append("}");
         sb.append(" (");
         sb.append(mWho);
-        sb.append(")");
         if (mFragmentId != 0) {
             sb.append(" id=0x");
             sb.append(Integer.toHexString(mFragmentId));
         }
         if (mTag != null) {
-            sb.append(" ");
+            sb.append(" tag=");
             sb.append(mTag);
         }
-        sb.append('}');
+        sb.append(")");
         return sb.toString();
     }
 
@@ -2946,7 +2948,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @Nullable Bundle savedInstanceState) {
         mChildFragmentManager.noteStateNotSaved();
         mPerformedCreateView = true;
-        mViewLifecycleOwner = new FragmentViewLifecycleOwner();
+        mViewLifecycleOwner = new FragmentViewLifecycleOwner(getViewModelStore());
         mView = onCreateView(inflater, container, savedInstanceState);
         if (mView != null) {
             // Initialize the view lifecycle
@@ -2955,7 +2957,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             // to mViewLifecycleOwnerLiveData and before onViewCreated, so that calls to
             // ViewTree get() methods return something meaningful
             ViewTreeLifecycleOwner.set(mView, mViewLifecycleOwner);
-            ViewTreeViewModelStoreOwner.set(mView, this);
+            ViewTreeViewModelStoreOwner.set(mView, mViewLifecycleOwner);
             ViewTreeSavedStateRegistryOwner.set(mView, mViewLifecycleOwner);
             // Then inform any Observers of the new LifecycleOwner
             mViewLifecycleOwnerLiveData.setValue(mViewLifecycleOwner);

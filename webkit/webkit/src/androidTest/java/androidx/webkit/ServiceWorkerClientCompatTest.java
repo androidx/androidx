@@ -158,21 +158,13 @@ public class ServiceWorkerClientCompatTest {
 
         mOnUiThread.loadUrlAndWaitForCompletion(INDEX_URL);
 
-        Callable<Boolean> registrationSuccess = new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                return mJavascriptStatusReceiver.mRegistrationSuccess;
-            }
-        };
+        Callable<Boolean> registrationSuccess =
+                () -> mJavascriptStatusReceiver.mRegistrationSuccess;
         PollingCheck.check("JS could not register Service Worker", POLLING_TIMEOUT,
                 registrationSuccess);
 
-        Callable<Boolean> receivedRequest = new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                return mInterceptServiceWorkerClient.getInterceptedRequests().size() >= 2;
-            }
-        };
+        Callable<Boolean> receivedRequest =
+                () -> mInterceptServiceWorkerClient.getInterceptedRequests().size() >= 2;
         PollingCheck.check("Service Worker intercept callbacks not invoked", POLLING_TIMEOUT,
                 receivedRequest);
 
@@ -183,12 +175,7 @@ public class ServiceWorkerClientCompatTest {
 
         // Clean-up, make sure to unregister the Service Worker.
         mOnUiThread.evaluateJavascript(SW_UNREGISTER_RAW_JS, null);
-        Callable<Boolean> unregisterSuccess = new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                return mJavascriptStatusReceiver.mUnregisterSuccess;
-            }
-        };
+        Callable<Boolean> unregisterSuccess = () -> mJavascriptStatusReceiver.mUnregisterSuccess;
         PollingCheck.check("JS could not unregister Service Worker", POLLING_TIMEOUT,
                 unregisterSuccess);
     }

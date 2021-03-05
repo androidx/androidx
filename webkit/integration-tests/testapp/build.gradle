@@ -49,7 +49,7 @@ android {
         targetSdkVersion 29
     }
     lintOptions {
-        disable 'UnusedResources'
+        disable "UnusedResources"
     }
     buildTypes {
         release {

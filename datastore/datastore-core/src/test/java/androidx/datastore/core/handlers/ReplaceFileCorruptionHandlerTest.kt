@@ -21,6 +21,7 @@ import androidx.datastore.core.TestingSerializer
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -101,6 +102,7 @@ class ReplaceFileCorruptionHandlerTest {
 
     @Test
     fun testFailingWritePropagates() = runBlockingTest {
+
         preSeedData(testFile, 1)
 
         val store = SingleProcessDataStore<Byte>(
@@ -117,10 +119,12 @@ class ReplaceFileCorruptionHandlerTest {
     }
 
     private suspend fun preSeedData(file: File, byte: Byte) {
-        SingleProcessDataStore(
-            { file },
-            TestingSerializer(),
-            scope = TestCoroutineScope()
-        ).updateData { byte }
+        coroutineScope {
+            SingleProcessDataStore(
+                { file },
+                TestingSerializer(),
+                scope = this
+            ).updateData { byte }
+        }
     }
 }

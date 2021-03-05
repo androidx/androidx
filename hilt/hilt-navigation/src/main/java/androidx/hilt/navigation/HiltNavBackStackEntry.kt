@@ -23,26 +23,12 @@ import android.content.Context
 import android.content.ContextWrapper
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavBackStackEntry
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.android.components.ActivityComponent
-import dagger.hilt.android.internal.builders.ViewModelComponentBuilder
 import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory
-import dagger.hilt.android.internal.lifecycle.HiltViewModelMap
-
-@EntryPoint
-@InstallIn(ActivityComponent::class)
-internal interface NavBackStackEntryViewModelFactoryEntryPoint {
-    @HiltViewModelMap.KeySet
-    fun getViewModelKeys(): Set<String>
-    fun getViewModelComponentBuilder(): ViewModelComponentBuilder
-}
 
 /**
  * Creates a [ViewModelProvider.Factory] to get
- * [dagger.hilt.android.lifecycle.HiltViewModel] annotated `ViewModel` from a
- * [NavBackStackEntry].
+ * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
+ * -annotated `ViewModel` from a [NavBackStackEntry].
  *
  * @param context the activity context.
  * @param navBackStackEntry the navigation back stack entry.
@@ -67,15 +53,10 @@ public fun HiltViewModelFactory(
                 "NavBackStackEntry but instead found: $ctx"
         )
     }
-    val entryPoint = EntryPointAccessors.fromActivity(
+    return HiltViewModelFactory.createInternal(
         activity,
-        NavBackStackEntryViewModelFactoryEntryPoint::class.java
-    )
-    return HiltViewModelFactory(
         navBackStackEntry,
         navBackStackEntry.arguments,
-        entryPoint.getViewModelKeys(),
         navBackStackEntry.defaultViewModelProviderFactory,
-        entryPoint.getViewModelComponentBuilder()
     )
 }

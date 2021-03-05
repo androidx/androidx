@@ -28,7 +28,7 @@ plugins {
 
 android {
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles("proguard-rules.pro")
     }
 }
 
@@ -40,17 +40,17 @@ dependencies {
 
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-runtime")
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-livedata-core")
-    androidTestImplementation projectOrArtifact(":fragment:fragment"), {
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-runtime'
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-livedata-core'
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-savedstate'
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
+    androidTestImplementation ("androidx.fragment:fragment:1.3.0") {
+        exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
+        exclude group: "androidx.lifecycle", module: "lifecycle-livedata-core"
+        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel-savedstate"
+        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel"
     }
     androidTestImplementation project(":internal-testutils-runtime"), {
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-runtime'
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-livedata-core'
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-savedstate'
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
+        exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
+        exclude group: "androidx.lifecycle", module: "lifecycle-livedata-core"
+        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel-savedstate"
+        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel"
     }
     androidTestImplementation(TRUTH)
     androidTestImplementation(KOTLIN_STDLIB)

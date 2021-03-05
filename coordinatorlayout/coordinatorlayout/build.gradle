@@ -22,9 +22,9 @@ dependencies {
     androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation project(':internal-testutils-runtime'), {
-        exclude group: 'androidx.coordinatorlayout', module: 'coordinatorlayout'
-    }
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.coordinatorlayout", module: "coordinatorlayout"
+    })
 }
 
 android {
@@ -34,12 +34,12 @@ android {
     }
     sourceSets {
         main.res.srcDirs = [
-                'src/main/res',
-                'src/main/res-public'
+                "src/main/res",
+                "src/main/res-public"
         ]
     }
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 

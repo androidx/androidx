@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-ChangedType: androidx.annotation.experimental.UseExperimental#markerClass():
-    Method androidx.annotation.experimental.UseExperimental.markerClass has changed return type from Class<?> to Class<? extends java.lang.annotation.Annotation>[]

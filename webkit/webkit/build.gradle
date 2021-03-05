@@ -55,8 +55,8 @@ android {
 
     buildTypes.all {
         consumerProguardFiles(
-                new File(webviewBoundaryInterfacesDir, 'proguard.flags'),
-                'proguard-rules.pro'
+                new File(webviewBoundaryInterfacesDir, "proguard.flags"),
+                "proguard-rules.pro"
         )
     }
 }

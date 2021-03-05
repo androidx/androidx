@@ -31,6 +31,7 @@ import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.IdAndComplicationData
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.Layer
@@ -94,6 +95,9 @@ public interface CanvasComplication {
         idAndComplicationData: IdAndComplicationData?,
         loadDrawablesAsynchronous: Boolean
     )
+
+    /** The [IdAndComplicationData] should be cleared. */
+    public fun clearIdAndData()
 }
 
 /**
@@ -227,12 +231,17 @@ public open class CanvasComplicationDrawable(
     override fun setIdAndData(
         idAndComplicationData: IdAndComplicationData?,
         loadDrawablesAsynchronous: Boolean
-    ) {
+    ): Unit = TraceEvent("CanvasComplicationDrawable.setIdAndData").use {
         _idAndData = idAndComplicationData
         drawable.setComplicationData(
             idAndComplicationData?.complicationData?.asWireComplicationData(),
             loadDrawablesAsynchronous
         )
+    }
+
+    override fun clearIdAndData() {
+        _idAndData = null
+        drawable.setComplicationData(null, false)
     }
 }
 
@@ -253,7 +262,8 @@ public class Complication internal constructor(
      * The initial state of the complication. Note complications can be enabled / disabled by
      * [UserStyleSetting.ComplicationsUserStyleSetting].
      */
-    initiallyEnabled: Boolean,
+    @get:JvmName("isInitiallyEnabled")
+    public val initiallyEnabled: Boolean,
 
     /** Extras to be merged into the Intent sent when invoking the provider chooser activity. */
     public val complicationConfigExtras: Bundle?,
@@ -654,5 +664,34 @@ public class Complication internal constructor(
             (unitSquareBounds.right * screen.width()).toInt(),
             (unitSquareBounds.bottom * screen.height()).toInt()
         )
+    }
+
+    @UiThread
+    internal fun dump(writer: IndentingPrintWriter) {
+        writer.println("Complication $id:")
+        writer.increaseIndent()
+        writer.println("fixedComplicationProvider=$fixedComplicationProvider")
+        writer.println("enabled=$enabled")
+        writer.println("renderer.isHighlighted=${renderer.isHighlighted}")
+        writer.println("boundsType=$boundsType")
+        writer.println("complicationConfigExtras=$complicationConfigExtras")
+        writer.println("supportedTypes=${supportedTypes.joinToString { it.toString() }}")
+        writer.println("complicationConfigExtras=$complicationConfigExtras")
+        writer.println(
+            "defaultProviderPolicy.primaryProvider=${defaultProviderPolicy.primaryProvider}"
+        )
+        writer.println(
+            "defaultProviderPolicy.secondaryProvider=${defaultProviderPolicy.secondaryProvider}"
+        )
+        writer.println(
+            "defaultProviderPolicy.systemProviderFallback=" +
+                "${defaultProviderPolicy.systemProviderFallback}"
+        )
+        writer.println("data=${renderer.getIdAndData()?.complicationData}")
+        val bounds = complicationBounds.perComplicationTypeBounds.map {
+            "${it.key} -> ${it.value}"
+        }
+        writer.println("bounds=[$bounds]")
+        writer.decreaseIndent()
     }
 }

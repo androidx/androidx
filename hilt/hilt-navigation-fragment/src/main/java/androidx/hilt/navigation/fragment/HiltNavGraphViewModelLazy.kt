@@ -26,8 +26,9 @@ import androidx.lifecycle.ViewModelStore
 import androidx.navigation.fragment.findNavController
 
 /**
- * Returns a property delegate to access a [HiltViewModel]-annotated [ViewModel] scoped to a
- * navigation graph present on the {@link NavController} back stack:
+ * Returns a property delegate to access a
+ * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
+ * -annotated [ViewModel] scoped to a navigation graph present on the [NavController] back stack:
  * ```
  * class MyFragment : Fragment() {
  *     val viewmodel: MainViewModel by androidx.hilt.navigation.fragment.hiltNavGraphViewModels(R.navigation.main)
@@ -37,9 +38,10 @@ import androidx.navigation.fragment.findNavController
  * This property can be accessed only after this NavGraph is on the NavController back stack,
  * and an attempt access prior to that will result in an IllegalArgumentException.
  *
- * @param navGraphId ID of a NavGraph that exists on the {@link NavController} back stack
+ * @param navGraphId ID of a NavGraph that exists on the [NavController] back stack
  */
 @MainThread
+@Suppress("MissingNullability") // Due to https://youtrack.jetbrains.com/issue/KT-39209
 public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
     @IdRes navGraphId: Int
 ): Lazy<VM> {

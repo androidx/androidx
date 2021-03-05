@@ -20,6 +20,7 @@ import static android.database.DatabaseUtils.getSqlStatementType;
 
 import static androidx.sqlite.inspection.DatabaseExtensions.isAttemptAtUsingClosedDatabase;
 import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_DB_CLOSED_DURING_OPERATION;
+import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_ISSUE_WITH_LOCKING_DATABASE;
 import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_ISSUE_WITH_PROCESSING_NEW_DATABASE_CONNECTION;
 import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_ISSUE_WITH_PROCESSING_QUERY;
 import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID;
@@ -49,6 +50,8 @@ import androidx.inspection.ArtTooling.ExitHook;
 import androidx.inspection.Connection;
 import androidx.inspection.Inspector;
 import androidx.inspection.InspectorEnvironment;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.AcquireDatabaseLockCommand;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.AcquireDatabaseLockResponse;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Column;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command;
@@ -68,6 +71,8 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.KeepDatabasesOpenRespo
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryCommand;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryParameterValue;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryResponse;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.ReleaseDatabaseLockCommand;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.ReleaseDatabaseLockResponse;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Row;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Table;
@@ -168,6 +173,7 @@ final class SqliteInspector extends Inspector {
             "android_metadata", "sqlite_sequence"));
 
     private final DatabaseRegistry mDatabaseRegistry;
+    private final DatabaseLockRegistry mDatabaseLockRegistry;
     private final InspectorEnvironment mEnvironment;
     private final Executor mIOExecutor;
 
@@ -199,6 +205,8 @@ final class SqliteInspector extends Inspector {
                         dispatchDatabaseClosedEvent(databaseId, path);
                     }
                 });
+
+        mDatabaseLockRegistry = new DatabaseLockRegistry();
     }
 
     @Override
@@ -218,6 +226,12 @@ final class SqliteInspector extends Inspector {
                 case KEEP_DATABASES_OPEN:
                     handleKeepDatabasesOpen(command.getKeepDatabasesOpen(), callback);
                     break;
+                case ACQUIRE_DATABASE_LOCK:
+                    handleAcquireDatabaseLock(command.getAcquireDatabaseLock(), callback);
+                    break;
+                case RELEASE_DATABASE_LOCK:
+                    handleReleaseDatabaseLock(command.getReleaseDatabaseLock(), callback);
+                    break;
                 default:
                     callback.reply(
                         createErrorOccurredResponse(
@@ -236,6 +250,12 @@ final class SqliteInspector extends Inspector {
                             ERROR_UNKNOWN).toByteArray()
             );
         }
+    }
+
+    @Override
+    public void onDispose() {
+        super.onDispose();
+        // TODO(161081452): release database locks and keep-open references
     }
 
     private void handleTrackDatabases(CommandCallback callback) {
@@ -273,6 +293,82 @@ final class SqliteInspector extends Inspector {
                 }
             }
         }
+    }
+
+    /**
+     * Secures a lock (transaction) on the database. Note that while the lock is in place, no
+     * changes to the database are possible:
+     * - the lock prevents other threads from modifying the database,
+     * - lock thread, on releasing the lock, rolls-back all changes (transaction is rolled-back).
+     */
+    @SuppressWarnings("FutureReturnValueIgnored") // code inside the future is exception-proofed
+    private void handleAcquireDatabaseLock(
+            AcquireDatabaseLockCommand command,
+            final CommandCallback callback) {
+        final int databaseId = command.getDatabaseId();
+        final DatabaseConnection connection = acquireConnection(databaseId, callback);
+        if (connection == null) return;
+
+        // Timeout is covered by mDatabaseLockRegistry
+        SqliteInspectionExecutors.submit(mIOExecutor, new Runnable() {
+            @Override
+            public void run() {
+                int lockId;
+                try {
+                    lockId = mDatabaseLockRegistry.acquireLock(databaseId, connection.mDatabase);
+                } catch (Exception e) {
+                    processLockingException(callback, e, true);
+                    return;
+                }
+
+                callback.reply(Response.newBuilder().setAcquireDatabaseLock(
+                        AcquireDatabaseLockResponse.newBuilder().setLockId(lockId)
+                ).build().toByteArray());
+            }
+        });
+    }
+
+    @SuppressWarnings("FutureReturnValueIgnored") // code inside the future is exception-proofed
+    private void handleReleaseDatabaseLock(
+            final ReleaseDatabaseLockCommand command,
+            final CommandCallback callback) {
+        // Timeout is covered by mDatabaseLockRegistry
+        SqliteInspectionExecutors.submit(mIOExecutor, new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mDatabaseLockRegistry.releaseLock(command.getLockId());
+                } catch (Exception e) {
+                    processLockingException(callback, e, false);
+                    return;
+                }
+                callback.reply(Response.newBuilder().setReleaseDatabaseLock(
+                        ReleaseDatabaseLockResponse.getDefaultInstance()
+                ).build().toByteArray());
+            }
+        });
+    }
+
+    /**
+     * @param isLockingStage provide true for acquiring a lock; false for releasing a lock
+     */
+    private void processLockingException(CommandCallback callback, Exception exception,
+            boolean isLockingStage) {
+        ErrorCode errorCode = ((exception instanceof IllegalStateException)
+                && isAttemptAtUsingClosedDatabase((IllegalStateException) exception))
+                ? ERROR_DB_CLOSED_DURING_OPERATION
+                : ERROR_ISSUE_WITH_LOCKING_DATABASE;
+
+        String message = isLockingStage
+                ? "Issue while trying to lock the database for the export operation: "
+                : "Issue while trying to unlock the database after the export operation: ";
+
+        Boolean isRecoverable = isLockingStage
+                ? true // failure to lock the db should be recoverable
+                : null; // not sure if we can recover from a failure to unlock the db, so UNKNOWN
+
+        callback.reply(createErrorOccurredResponse(message, isRecoverable, exception,
+                errorCode).toByteArray());
     }
 
     /**
@@ -500,25 +596,34 @@ final class SqliteInspector extends Inspector {
         ).build().toByteArray());
     }
 
-    private void handleGetSchema(GetSchemaCommand command, CommandCallback callback) {
-        SQLiteDatabase reference = acquireReference(command.getDatabaseId(), callback);
-        if (reference == null) return;
+    @SuppressWarnings("FutureReturnValueIgnored") // code inside the future is exception-proofed
+    private void handleGetSchema(GetSchemaCommand command, final CommandCallback callback) {
+        final DatabaseConnection connection = acquireConnection(command.getDatabaseId(), callback);
+        if (connection == null) return;
 
-        callback.reply(querySchema(reference).toByteArray());
+        // TODO: consider a timeout
+        SqliteInspectionExecutors.submit(connection.mExecutor, new Runnable() {
+            @Override
+            public void run() {
+                callback.reply(querySchema(connection.mDatabase).toByteArray());
+            }
+        });
     }
 
     private void handleQuery(final QueryCommand command, final CommandCallback callback) {
-        final SQLiteDatabase reference = acquireReference(command.getDatabaseId(), callback);
-        if (reference == null) return;
+        final DatabaseConnection connection = acquireConnection(command.getDatabaseId(), callback);
+        if (connection == null) return;
 
         final CancellationSignal cancellationSignal = new CancellationSignal();
-        final Future<?> future = SqliteInspectionExecutors.submit(mIOExecutor, new Runnable() {
+        final Executor executor = connection.mExecutor;
+        // TODO: consider a timeout
+        final Future<?> future = SqliteInspectionExecutors.submit(executor, new Runnable() {
             @Override
             public void run() {
                 String[] params = parseQueryParameterValues(command);
                 Cursor cursor = null;
                 try {
-                    cursor = rawQuery(reference, command.getQuery(), params,
+                    cursor = rawQuery(connection.mDatabase, command.getQuery(), params,
                             cancellationSignal);
                     List<String> columnNames = Arrays.asList(cursor.getColumnNames());
                     callback.reply(Response.newBuilder()
@@ -625,18 +730,36 @@ final class SqliteInspector extends Inspector {
      * Tries to find a database for an id. If no such database is found, it replies with an
      * {@link ErrorOccurredResponse} via the {@code callback} provided.
      *
-     * Consumer of this method must release the reference when done using it.
+     * TODO: remove race condition (affects WAL=off)
+     * - lock request is received and in the process of being secured
+     * - query request is received and since no lock in place, receives an IO Executor
+     * - lock request completes and holds a lock on the database
+     * - query cannot run because there is a lock in place
+     *
+     * The race condition can be mitigated by clients by securing a lock synchronously with no
+     * other queries in place.
      *
      * @return null if no database found for the provided id. A database reference otherwise.
      */
     @Nullable
-    private SQLiteDatabase acquireReference(int databaseId, CommandCallback callback) {
-        SQLiteDatabase database = mDatabaseRegistry.acquireReference(databaseId);
+    private DatabaseConnection acquireConnection(int databaseId, CommandCallback callback) {
+        DatabaseConnection connection = mDatabaseLockRegistry.getConnection(databaseId);
+        if (connection != null) {
+            // With WAL enabled, we prefer to use the IO executor. With WAL off we don't have a
+            // choice and must use the executor that has a lock (transaction) on the database.
+            return connection.mDatabase.isWriteAheadLoggingEnabled()
+                    ? new DatabaseConnection(connection.mDatabase, mIOExecutor)
+                    : connection;
+        }
+
+        SQLiteDatabase database = mDatabaseRegistry.getConnection(databaseId);
         if (database == null) {
             replyNoDatabaseWithId(callback, databaseId);
             return null;
         }
-        return database;
+
+        // Given no lock, IO executor is appropriate.
+        return new DatabaseConnection(database, mIOExecutor);
     }
 
     private static List<Row> convert(Cursor cursor) {
@@ -794,7 +917,14 @@ final class SqliteInspector extends Inspector {
 
     private static Response createErrorOccurredResponse(@NonNull Exception exception,
             Boolean isRecoverable, ErrorCode errorCode) {
-        return createErrorOccurredResponse(exception.getMessage(),
+        return createErrorOccurredResponse("", isRecoverable, exception, errorCode);
+    }
+
+    private static Response createErrorOccurredResponse(@NonNull String messagePrefix,
+            Boolean isRecoverable, @NonNull Exception exception, ErrorCode errorCode) {
+        String message = exception.getMessage();
+        if (message == null) message = exception.toString();
+        return createErrorOccurredResponse(messagePrefix + message,
                 stackTraceFromException(exception), isRecoverable, errorCode);
     }
 
@@ -818,5 +948,21 @@ final class SqliteInspector extends Inspector {
     private static boolean isHelperSqliteFile(File file) {
         String path = file.getPath();
         return path.endsWith("-journal") || path.endsWith("-shm") || path.endsWith("-wal");
+    }
+
+    /**
+     * Provides a reference to the database and an executor to access the database.
+     *
+     * Executor is relevant in the context of locking, where a locked database with WAL disabled
+     * needs to run queries on the thread that locked it.
+     */
+    static final class DatabaseConnection {
+        @NonNull final SQLiteDatabase mDatabase;
+        @NonNull final Executor mExecutor;
+
+        DatabaseConnection(@NonNull SQLiteDatabase database, @NonNull Executor executor) {
+            mDatabase = database;
+            mExecutor = executor;
+        }
     }
 }

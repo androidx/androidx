@@ -38,7 +38,7 @@ private inline fun <T : Any, R : Any> PagingData<T>.transform(
  */
 @CheckResult
 @JvmSynthetic
-fun <T : Any, R : Any> PagingData<T>.map(
+public fun <T : Any, R : Any> PagingData<T>.map(
     transform: suspend (T) -> R
 ): PagingData<R> = transform { it.map(transform) }
 
@@ -49,7 +49,7 @@ fun <T : Any, R : Any> PagingData<T>.map(
  * @see PagingData.map
  */
 @CheckResult
-fun <T : Any, R : Any> PagingData<T>.map(
+public fun <T : Any, R : Any> PagingData<T>.map(
     executor: Executor,
     transform: (T) -> R,
 ): PagingData<R> = transform { event ->
@@ -64,7 +64,7 @@ fun <T : Any, R : Any> PagingData<T>.map(
  */
 @CheckResult
 @JvmSynthetic
-fun <T : Any, R : Any> PagingData<T>.flatMap(
+public fun <T : Any, R : Any> PagingData<T>.flatMap(
     transform: suspend (T) -> Iterable<R>
 ): PagingData<R> = transform { it.flatMap(transform) }
 
@@ -75,7 +75,7 @@ fun <T : Any, R : Any> PagingData<T>.flatMap(
  * @see flatMap
  */
 @CheckResult
-fun <T : Any, R : Any> PagingData<T>.flatMap(
+public fun <T : Any, R : Any> PagingData<T>.flatMap(
     executor: Executor,
     transform: (T) -> Iterable<R>
 ): PagingData<R> = transform { event ->
@@ -89,7 +89,7 @@ fun <T : Any, R : Any> PagingData<T>.flatMap(
  */
 @CheckResult
 @JvmSynthetic
-fun <T : Any> PagingData<T>.filter(
+public fun <T : Any> PagingData<T>.filter(
     predicate: suspend (T) -> Boolean
 ): PagingData<T> = transform { it.filter(predicate) }
 
@@ -100,7 +100,7 @@ fun <T : Any> PagingData<T>.filter(
  */
 @CheckResult
 @JvmName("filter")
-fun <T : Any> PagingData<T>.filter(
+public fun <T : Any> PagingData<T>.filter(
     executor: Executor,
     predicate: (T) -> Boolean
 ): PagingData<T> = transform { event ->
@@ -130,7 +130,7 @@ fun <T : Any> PagingData<T>.filter(
  */
 @CheckResult
 @JvmSynthetic
-fun <T : R, R : Any> PagingData<T>.insertSeparators(
+public fun <T : R, R : Any> PagingData<T>.insertSeparators(
     terminalSeparatorType: TerminalSeparatorType = FULLY_COMPLETE,
     generator: suspend (T?, T?) -> R?,
 ): PagingData<R> {
@@ -252,7 +252,7 @@ fun <T : R, R : Any> PagingData<T>.insertSeparators(
  */
 @CheckResult
 @JvmOverloads
-fun <R : Any, T : R> PagingData<T>.insertSeparators(
+public fun <R : Any, T : R> PagingData<T>.insertSeparators(
     terminalSeparatorType: TerminalSeparatorType = FULLY_COMPLETE,
     executor: Executor,
     generator: (T?, T?) -> R?,
@@ -287,10 +287,10 @@ fun <R : Any, T : R> PagingData<T>.insertSeparators(
  */
 @CheckResult
 @JvmOverloads
-fun <T : Any> PagingData<T>.insertHeaderItem(
+public fun <T : Any> PagingData<T>.insertHeaderItem(
     terminalSeparatorType: TerminalSeparatorType = FULLY_COMPLETE,
     item: T,
-) = insertSeparators(terminalSeparatorType) { before, _ ->
+): PagingData<T> = insertSeparators(terminalSeparatorType) { before, _ ->
     if (before == null) item else null
 }
 
@@ -317,9 +317,9 @@ fun <T : Any> PagingData<T>.insertHeaderItem(
  */
 @CheckResult
 @JvmOverloads
-fun <T : Any> PagingData<T>.insertFooterItem(
+public fun <T : Any> PagingData<T>.insertFooterItem(
     terminalSeparatorType: TerminalSeparatorType = FULLY_COMPLETE,
     item: T,
-) = insertSeparators(terminalSeparatorType) { _, after ->
+): PagingData<T> = insertSeparators(terminalSeparatorType) { _, after ->
     if (after == null) item else null
 }

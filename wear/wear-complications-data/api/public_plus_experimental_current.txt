@@ -147,12 +147,6 @@ package androidx.wear.complications {
     property public final java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
   }
 
-  public final class ComplicationHelperActivity extends android.app.Activity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback {
-    ctor public ComplicationHelperActivity();
-    method public static android.content.Intent createPermissionRequestHelperIntent(android.content.Context, android.content.ComponentName);
-    method public static android.content.Intent createProviderChooserHelperIntent(android.content.Context, android.content.ComponentName, int, java.util.Collection<androidx.wear.complications.data.ComplicationType!>);
-  }
-
   public final class DefaultComplicationProviderPolicy {
     ctor public DefaultComplicationProviderPolicy();
     ctor public DefaultComplicationProviderPolicy(int systemProvider);
@@ -170,8 +164,8 @@ package androidx.wear.complications {
   public final class ProviderInfoRetriever implements java.lang.AutoCloseable {
     ctor public ProviderInfoRetriever(android.content.Context context);
     method public void close();
-    method @RequiresApi(android.os.Build.VERSION_CODES.R) public suspend Object? requestPreviewComplicationData(android.content.ComponentName providerComponent, androidx.wear.complications.data.ComplicationType complicationType, kotlin.coroutines.Continuation<? super androidx.wear.complications.data.ComplicationData> p);
-    method public suspend Object? retrieveProviderInfo(android.content.ComponentName watchFaceComponent, int[] watchFaceComplicationIds, kotlin.coroutines.Continuation<? super androidx.wear.complications.ProviderInfoRetriever.ProviderInfo[]> p);
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) @kotlin.jvm.Throws(exceptionClasses=ServiceDisconnectedException::class) public suspend Object? requestPreviewComplicationData(android.content.ComponentName providerComponent, androidx.wear.complications.data.ComplicationType complicationType, kotlin.coroutines.Continuation<? super androidx.wear.complications.data.ComplicationData> p) throws androidx.wear.complications.ProviderInfoRetriever.ServiceDisconnectedException;
+    method @kotlin.jvm.Throws(exceptionClasses=ServiceDisconnectedException::class) public suspend Object? retrieveProviderInfo(android.content.ComponentName watchFaceComponent, int[] watchFaceComplicationIds, kotlin.coroutines.Continuation<? super androidx.wear.complications.ProviderInfoRetriever.ProviderInfo[]> p) throws androidx.wear.complications.ProviderInfoRetriever.ServiceDisconnectedException;
   }
 
   public static final class ProviderInfoRetriever.ProviderInfo {
@@ -179,6 +173,10 @@ package androidx.wear.complications {
     method public int getWatchFaceComplicationId();
     property public final android.support.wearable.complications.ComplicationProviderInfo? info;
     property public final int watchFaceComplicationId;
+  }
+
+  public static final class ProviderInfoRetriever.ServiceDisconnectedException extends java.lang.Exception {
+    ctor public ProviderInfoRetriever.ServiceDisconnectedException();
   }
 
   public class SystemProviders {
@@ -217,17 +215,7 @@ package androidx.wear.complications.data {
     method public long getNextChangeTime(long fromDateTimeMillis);
     method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);
     method public boolean isAlwaysEmpty();
-    method public default static androidx.wear.complications.data.ComplicationText plain(CharSequence text);
     method public boolean returnsSameText(long firstDateTimeMillis, long secondDateTimeMillis);
-    method public default static androidx.wear.complications.data.TimeDifferenceComplicationText.Builder timeDifferenceBuilder(androidx.wear.complications.data.TimeDifferenceStyle style, androidx.wear.complications.data.TimeReference reference);
-    method public default static androidx.wear.complications.data.TimeFormatComplicationText.Builder timeFormatBuilder(String format);
-    field public static final androidx.wear.complications.data.ComplicationText.Companion Companion;
-  }
-
-  public static final class ComplicationText.Companion {
-    method public androidx.wear.complications.data.ComplicationText plain(CharSequence text);
-    method public androidx.wear.complications.data.TimeDifferenceComplicationText.Builder timeDifferenceBuilder(androidx.wear.complications.data.TimeDifferenceStyle style, androidx.wear.complications.data.TimeReference reference);
-    method public androidx.wear.complications.data.TimeFormatComplicationText.Builder timeFormatBuilder(String format);
   }
 
   public enum ComplicationType {
@@ -377,6 +365,14 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
+  }
+
+  public final class PlainComplicationText implements androidx.wear.complications.data.ComplicationText {
+  }
+
+  public static final class PlainComplicationText.Builder {
+    ctor public PlainComplicationText.Builder(CharSequence text);
+    method public androidx.wear.complications.data.PlainComplicationText build();
   }
 
   public final class RangedValueComplicationData extends androidx.wear.complications.data.ComplicationData {
@@ -556,6 +552,13 @@ package androidx.wear.complications.data {
   }
 
   public final class TypeKt {
+  }
+
+}
+
+package androidx.wear.utility {
+
+  public final class TraceEventKt {
   }
 
 }

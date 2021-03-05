@@ -86,7 +86,6 @@ package androidx.room {
     method public androidx.room.RoomDatabase.Builder<T!> fallbackToDestructiveMigrationFrom(int...);
     method public androidx.room.RoomDatabase.Builder<T!> fallbackToDestructiveMigrationOnDowngrade();
     method public androidx.room.RoomDatabase.Builder<T!> openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory?);
-    method public androidx.room.RoomDatabase.Builder<T!> setAutoCloseTimeout(@IntRange(from=0) long, java.util.concurrent.TimeUnit);
     method public androidx.room.RoomDatabase.Builder<T!> setJournalMode(androidx.room.RoomDatabase.JournalMode);
     method public androidx.room.RoomDatabase.Builder<T!> setQueryCallback(androidx.room.RoomDatabase.QueryCallback, java.util.concurrent.Executor);
     method public androidx.room.RoomDatabase.Builder<T!> setQueryExecutor(java.util.concurrent.Executor);

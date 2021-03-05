@@ -196,7 +196,6 @@ public final class PlaceMarker {
          *
          * @param icon     the {@link CarIcon} to display inside the marker
          * @param iconType one of {@link #TYPE_ICON} or {@link #TYPE_IMAGE}
-         *
          * @throws NullPointerException if the {@code icon} is {@code null}
          */
         @NonNull
@@ -219,10 +218,8 @@ public final class PlaceMarker {
          * @param label the text to display inside of the marker. The string must have a maximum
          *              size of 3 characters. Set to {@code null} to let the host choose a
          *              labelling scheme (for example, using a sequence of numbers)
-         *
          * @throws NullPointerException if the {@code label} is {@code null}
-         *
-         * @see CarText for details on text handling and span support.
+         * @see CarText
          */
         @NonNull
         public Builder setLabel(@NonNull CharSequence label) {

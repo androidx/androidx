@@ -83,6 +83,12 @@ repositories {
     val allowBintray: String? = findProperty("allowBintray") as String?
     if (allowBintray != null) {
         maven {
+            url = uri("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/")
+            metadataSources {
+                artifact()
+            }
+        }
+        maven {
             url = uri("https://dl.bintray.com/kotlin/kotlin-dev/")
             metadataSources {
                 artifact()

@@ -523,7 +523,8 @@ public class NavigationService extends Service {
 
                         // Set the notification's background color on the car screen.
                         .setColor(
-                                getResources().getColor(R.color.nav_notification_background_color))
+                                getResources().getColor(R.color.nav_notification_background_color,
+                                        null))
                         .setColorized(true)
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setLargeIcon(

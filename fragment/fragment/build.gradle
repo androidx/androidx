@@ -27,7 +27,7 @@ android {
     }
 
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 
@@ -37,7 +37,7 @@ dependencies {
     api("androidx.collection:collection:1.1.0")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
-    api(projectOrArtifact(":activity:activity"))
+    api("androidx.activity:activity:1.2.0")
     api("androidx.lifecycle:lifecycle-livedata-core:2.3.0")
     api("androidx.lifecycle:lifecycle-viewmodel:2.3.0")
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.0")
@@ -45,8 +45,8 @@ dependencies {
     api("androidx.annotation:annotation-experimental:1.0.0")
 
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0", {
-        exclude group: 'androidx.fragment', module: 'fragment'
-        exclude group: 'androidx.activity', module: 'activity'
+        exclude group: "androidx.fragment", module: "fragment"
+        exclude group: "androidx.activity", module: "activity"
     })
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -57,9 +57,9 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation project(':internal-testutils-runtime'), {
-        exclude group: 'androidx.fragment', module: 'fragment'
-    }
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.fragment", module: "fragment"
+    })
 
     testImplementation(project(":fragment:fragment"))
     testImplementation(KOTLIN_STDLIB)
@@ -69,7 +69,7 @@ dependencies {
     testImplementation(TRUTH)
     testImplementation(ROBOLECTRIC)
 
-    lintPublish(project(':fragment:fragment-lint'))
+    lintPublish(project(":fragment:fragment-lint"))
 }
 
 androidx {

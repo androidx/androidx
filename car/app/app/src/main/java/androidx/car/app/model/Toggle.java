@@ -16,6 +16,8 @@
 
 package androidx.car.app.model;
 
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
@@ -46,11 +48,11 @@ public final class Toggle {
 
     /**
      * Returns the {@link OnCheckedChangeDelegate} that is called when the checked state of
-     * the {@link Toggle} is changed or {@code null} if not set.
+     * the {@link Toggle} is changed.
      */
-    @Nullable
+    @NonNull
     public OnCheckedChangeDelegate getOnCheckedChangeDelegate() {
-        return mOnCheckedChangeDelegate;
+        return requireNonNull(mOnCheckedChangeDelegate);
     }
 
     @Override

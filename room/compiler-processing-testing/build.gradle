@@ -17,6 +17,8 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
@@ -68,12 +70,18 @@ java {
 tasks.named("compileKotlin").configure {
     dependsOn(writeTestPropsTask)
 }
+// enable opt in only for tests so that we don't create non experimental APIs by mistake
+// in the source.
+tasks.named("compileTestKotlin", KotlinCompile.class).configure {
+    it.kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"]
+    }
+}
 
 androidx {
     name = "AndroidX Room XProcessor Testing"
-    type = LibraryType.ANNOTATION_PROCESSOR
+    type = LibraryType.ANNOTATION_PROCESSOR_UTILS
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2020"
-    publish = Publish.NONE
     description = "Testing helpers for Room XProcessing APIs"
 }

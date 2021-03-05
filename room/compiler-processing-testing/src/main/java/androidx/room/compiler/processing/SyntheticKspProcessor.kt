@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -23,6 +22,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
 
+@ExperimentalProcessingApi
 class SyntheticKspProcessor private constructor(
     private val impl: SyntheticProcessorImpl
 ) : SymbolProcessor, SyntheticProcessor by impl {

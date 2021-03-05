@@ -34,8 +34,8 @@ open class TransitionFragment(
     val reenterTransition = TrackingVisibility()
     var exitTransition = TrackingVisibility()
     val returnTransition = TrackingVisibility()
-    val sharedElementEnter = TrackingTransition()
-    val sharedElementReturn = TrackingTransition()
+    var sharedElementEnter = TrackingTransition()
+    var sharedElementReturn = TrackingTransition()
     var startTransitionCountDownLatch = CountDownLatch(1)
     var endTransitionCountDownLatch = CountDownLatch(1)
 

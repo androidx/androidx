@@ -43,6 +43,9 @@ public interface EditorServiceClient {
 
     /** Unregisters an [EditorObserverCallback] previously registered via [registerObserver].  */
     public fun unregisterObserver(editorObserverCallback: EditorObserverCallback)
+
+    /** Instructs any open editor to close. */
+    public fun closeEditor()
 }
 
 /** Observes state changes in [androidx.wear.watchface.editor.EditorSession]. */
@@ -97,5 +100,9 @@ public class EditorServiceClientImpl(
                 editorMap.remove(editorObserverCallback)
             }
         }
+    }
+
+    override fun closeEditor() {
+        iEditorService.closeEditor()
     }
 }

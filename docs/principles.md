@@ -53,11 +53,13 @@ _formatted as “Jetpack libraries are…” with sub-points “Libraries should
 ### 5. Developed as open-source and compatible with AOSP Android
 
 -   Expose a unified developer-facing API surface across the Android ecosystem
--   Avoid proprietary services or closed-source libraries for core
-    functionality, and instead provide integration points that allow a developer
-    to choose a proprietary service as the backing implementation
 -   Develop in AOSP to provide visibility into new features and bug fixes and
     encourage external participation
+-   Avoid proprietary services or closed-source libraries for core
+    functionality, and instead provide integration points that allow a developer
+    to choose between a variety of services as the backing implementation
+-   See [Integrating proprietary components] for guidance on using closed-source
+    and proprietary libraries and services
 
 ### 6. Written using language-idiomatic APIs
 

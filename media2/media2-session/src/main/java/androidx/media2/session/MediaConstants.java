@@ -16,6 +16,9 @@
 
 package androidx.media2.session;
 
+import android.net.Uri;
+import android.os.Bundle;
+
 /**
  * Media constants for sharing constants between media provider and consumer apps
  */
@@ -67,24 +70,42 @@ public class MediaConstants {
     public static final String MEDIA_URI_PATH_PREPARE_FROM_SEARCH = "prepareFromSearch";
 
     /**
-     * A {@link android.net.Uri} query used by {@link android.support.v4.media.session
-     * .MediaControllerCompat.TransportControls#prepareFromMediaId}, and
-     * {@link android.support.v4.media.session.MediaControllerCompat
-     * .TransportControls#playFromMediaId}
+     * A {@link android.net.Uri} path used by {@link MediaController#setMediaUri(Uri, Bundle)} to
+     * indicate that the Uri will be specially handled for interoperability.
      *
-     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     * @see MediaController#setMediaUri
+     */
+    public static final String MEDIA_URI_PATH_SET_MEDIA_URI = "setMediaUri";
+
+    // From scheme to path, plus path delimiter
+    static final String MEDIA_URI_SET_MEDIA_URI_PREFIX =
+            new Uri.Builder()
+                    .scheme(MEDIA_URI_SCHEME)
+                    .authority(MEDIA_URI_AUTHORITY)
+                    .path(MEDIA_URI_PATH_SET_MEDIA_URI).build().toString() + "?";
+
+    /**
+     * A {@link android.net.Uri} query for media ID.
+     *
+     * @see MediaSession.SessionCallback#onSetMediaUri
+     * @see MediaController#setMediaUri
      */
     public static final String MEDIA_URI_QUERY_ID = "id";
 
     /**
-     * A {@link android.net.Uri} query used by {@link android.support.v4.media.session
-     * .MediaControllerCompat.TransportControls#prepareFromSearch}, and
-     * {@link android.support.v4.media.session.MediaControllerCompat
-     * .TransportControls#playFromSearch}
+     * A {@link android.net.Uri} query for search query.
      *
-     * See {@link MediaSession.SessionCallback#onSetMediaUri} for more details.
+     * @see MediaSession.SessionCallback#onSetMediaUri
+     * @see MediaController#setMediaUri
      */
     public static final String MEDIA_URI_QUERY_QUERY = "query";
+
+    /**
+     * A {@link android.net.Uri} query for media Uri.
+     *
+     * @see MediaController#setMediaUri
+     */
+    public static final String MEDIA_URI_QUERY_URI = "uri";
 
     static final String ARGUMENT_CAPTIONING_ENABLED = "androidx.media2.argument.CAPTIONING_ENABLED";
 

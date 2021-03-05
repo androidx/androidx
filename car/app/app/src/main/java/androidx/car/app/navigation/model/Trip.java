@@ -234,8 +234,7 @@ public final class Trip {
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code currentRoad} is {@code null}
-         *
-         * @see CarText for details on text handling and span support.
+         * @see CarText
          */
         @NonNull
         public Builder setCurrentRoad(@NonNull CharSequence currentRoad) {

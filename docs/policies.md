@@ -1,4 +1,4 @@
-## AndroidX policies and processes
+# Policies and processes
 
 This document is intended to describe release policies that affect the workflow
 of an engineer developing within the AndroidX libraries. It also describes the

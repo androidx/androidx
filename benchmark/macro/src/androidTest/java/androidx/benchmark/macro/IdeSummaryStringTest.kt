@@ -22,6 +22,7 @@ import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertFailsWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -35,7 +36,7 @@ class IdeSummaryStringTest {
                 |  Metric   min 0,   median 1,   max 2
                 |
             """.trimMargin(),
-            ideSummaryString("foo", listOf(stats))
+            ideSummaryString("", "foo", listOf(stats))
         )
     }
 
@@ -50,7 +51,29 @@ class IdeSummaryStringTest {
                 |  Metric2   min   0,   median 111,   max 222
                 |
             """.trimMargin(),
-            ideSummaryString("foo", listOf(metric1, metric2))
+            ideSummaryString("", "foo", listOf(metric1, metric2))
         )
+    }
+
+    @Test
+    fun warningSample() {
+        val stats = Stats(longArrayOf(0, 1, 2), "Metric")
+        assertEquals(
+            """
+                |warning
+                |string
+                |foo
+                |  Metric   min 0,   median 1,   max 2
+                |
+            """.trimMargin(),
+            ideSummaryString("warning\nstring\n", "foo", listOf(stats))
+        )
+    }
+
+    @Test
+    fun requireNotEmpty() {
+        assertFailsWith<IllegalArgumentException> {
+            ideSummaryString(warningLines = "", benchmarkName = "foo", statsList = emptyList())
+        }
     }
 }

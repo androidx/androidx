@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraFilter;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -51,10 +52,12 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -493,6 +496,18 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         }
 
         return true;
+    }
+
+    /** {@inheritDoc} */
+    @NonNull
+    @Override
+    public List<CameraInfo> getAvailableCameraInfos() {
+        final List<CameraInfo> availableCameraInfos = new ArrayList<>();
+        final Set<CameraInternal> cameras = mCameraX.getCameraRepository().getCameras();
+        for (final CameraInternal camera : cameras) {
+            availableCameraInfos.add(camera.getCameraInfo());
+        }
+        return availableCameraInfos;
     }
 
     private ProcessCameraProvider() {

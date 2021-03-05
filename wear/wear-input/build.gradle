@@ -37,7 +37,7 @@ dependencies {
     testImplementation(MOCKITO_CORE)
     testImplementation(project(":wear:wear-input-testing"))
 
-    compileOnly fileTree(dir: '../wear_stubs', include: ['com.google.android.wearable-stubs.jar'])
+    compileOnly(fileTree(dir: "../wear_stubs", include: ["com.google.android.wearable-stubs.jar"]))
 }
 
 android {

@@ -19,12 +19,12 @@ apply from: "$supportRootFolder/buildSrc/repos.gradle"
 repos.addMavenRepositories(repositories)
 
 ext.runningInBuildServer = System.env.DIST_DIR != null && System.env.OUT_DIR != null
-ext.repoDir = runningInBuildServer ? new File(System.env.OUT_DIR + '/gradle/frameworks/support/build') :
+ext.repoDir = runningInBuildServer ? new File(System.env.OUT_DIR + "/gradle/frameworks/support/build") :
         new File("$supportRootFolder/../../out/frameworks/support/build")
 
 task createArchive(type: Exec) {
     inputs.files(fileTree(dir: "$supportRootFolder/navigation",
-            includes: ['**/*.java', '**/*.kt'], exclude: 'integration-tests/*'))
+            includes: ["**/*.java", "**/*.kt"], exclude: "integration-tests/*"))
     outputs.dir(repoDir)
     workingDir supportRootFolder
     commandLine "./gradlew", "createArchive"
@@ -35,7 +35,7 @@ task unzip(type: Copy, dependsOn: createArchive) {
     into "../build/localMaven/"
 }
 
-apply plugin: 'java'
+apply plugin: "java"
 dependencies {
     compile project(":moar-buildSrc")
 }

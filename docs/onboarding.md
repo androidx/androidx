@@ -135,7 +135,7 @@ git config --global diff.renameLimit 999999
 `androidx-main` has a publicly-accessible
 [code search](https://cs.android.com/androidx/platform/frameworks/support) that
 allows you to explore all of the source code in the repository. Links to this
-URL may be shared on public Buganizer and other external sites.
+URL may be shared on the public issue tracked and other external sites.
 
 We recommend setting up a custom search engine in Chrome as a faster (and
 publicly-accessible) alternative to `cs/`.
@@ -159,17 +159,12 @@ query to search for, e.g. `AppCompatButton file:appcompat`, and press the
 Library development uses a curated version of Android Studio to ensure
 compatibility between various components of the development workflow.
 
-From the `frameworks/support` directory, you can use `ANDROIDX_PROJECTS=MAIN
-./gradlew studio` to automatically download and run the correct version of
-Studio to work on main set of androidx projects. `ANDROIDX_PROJECTS` has several
-other options like `ANDROIDX_PROJECTS=ALL` to open other subsets of the
+From the `frameworks/support` directory, you can use `./studiow m` (short for
+`ANDROIDX_PROJECTS=main ./gradlew studio`) to automatically download and run the
+correct version of Studio to work on the `main` set of androidx projects.
+[studiow](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:studiow)
+also supports several other arguments like `all` for other subsets of the
 projects.
-[settings.gradle](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:settings.gradle)
-file in the repository has these options listed.
-
-```shell
-ANDROIDX_PROJECTS=MAIN ./gradlew studio
-```
 
 Next, open the `framework/support` project root from your checkout. If Studio
 asks you which SDK you would like to use, select `Use project SDK`. Importing
@@ -195,6 +190,11 @@ build completes.
 > -Dsun.java2d.uiScale.enabled=false
 > ```
 
+If in the future you encounter unexpected errors in Studio and you want to check
+for the possibility it is due to some incorrect settings or other generated
+files, you can run `./studiow --clean main <project subset>` or `./studiow
+--reinstall <project subset>` to clean generated files or reinstall Studio.
+
 ## Making changes {#changes}
 
 Similar to Android framework development, library development should occur in
@@ -211,6 +211,11 @@ repo upload --cbr -t .
 
 The `--cbr` switch automatically picks the current repo branch for upload. The
 `-t` switch sets the Gerrit topic to the branch name, e.g. `my-branch-name`.
+
+NOTE If you encounter issues with `repo upload`, consider running upload with
+trace enabled, e.g. `GIT_DAPPER_TRACE=1 repo --trace upload . --cbr -y`. These
+logs can be helpful for reporting issues to the team that manages our git
+servers.
 
 ## Building {#building}
 
@@ -257,7 +262,7 @@ Note that debugging will not be available until Gradle sync has completed.
 ## From the command line
 
 Tasks may also be debugged from the command line, which may be useful if
-`./gradlew studio` cannot run due to a Gradle task configuration issue.
+`./studiow` cannot run due to a Gradle task configuration issue.
 
 1.  From the configurations dropdown in Studio, select "Edit Configurations".
 1.  Click the plus in the top left to create a new "Remote" configuration. Give
@@ -564,15 +569,14 @@ monitoring tests.
 
 ### AVD Manager
 
-The Android Studio instance started by `./gradlew studio` uses a custom SDK
-directory, which means any virtual devices created by a "standard" non-AndroidX
-instance of Android Studio will be _visible_ from the `./gradlew studio`
-instance but will be unable to locate the SDK artifacts -- they will display a
-`Download` button.
+The Android Studio instance started by `./studiow` uses a custom SDK directory,
+which means any virtual devices created by a "standard" non-AndroidX instance of
+Android Studio will be _visible_ from the `./studiow` instance but will be
+unable to locate the SDK artifacts -- they will display a `Download` button.
 
 You can either use the `Download` button to download an extra copy of the SDK
 artifacts _or_ you can set up a symlink to your "standard" non-AndroidX SDK
-directory to expose your existing artifacts to the `./gradlew studio` instance:
+directory to expose your existing artifacts to the `./studiow` instance:
 
 ```shell
 # Using the default MacOS Android SDK directory...

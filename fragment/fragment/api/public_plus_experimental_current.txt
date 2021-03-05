@@ -287,6 +287,7 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentFactory getFragmentFactory();
     method public java.util.List<androidx.fragment.app.Fragment!> getFragments();
     method public androidx.fragment.app.Fragment? getPrimaryNavigationFragment();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public androidx.fragment.app.strictmode.FragmentStrictMode.Policy? getStrictModePolicy();
     method public boolean isDestroyed();
     method public boolean isStateSaved();
     method public void popBackStack();
@@ -304,6 +305,7 @@ package androidx.fragment.app {
     method public void setFragmentFactory(androidx.fragment.app.FragmentFactory);
     method public final void setFragmentResult(String, android.os.Bundle);
     method public final void setFragmentResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void setStrictModePolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy?);
     method public void unregisterFragmentLifecycleCallbacks(androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks);
     field public static final int POP_BACK_STACK_INCLUSIVE = 1; // 0x1
   }
@@ -449,6 +451,35 @@ package androidx.fragment.app {
     method public void setListShown(boolean);
     method public void setListShownNoAnimation(boolean);
     method public void setSelection(int);
+  }
+
+}
+
+package androidx.fragment.app.strictmode {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public final class FragmentStrictMode {
+    method public static androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
+    method public static void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static interface FragmentStrictMode.OnViolationListener {
+    method public void onViolation(androidx.fragment.app.strictmode.Violation);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static final class FragmentStrictMode.Policy {
+    field public static final androidx.fragment.app.strictmode.FragmentStrictMode.Policy LAX;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static final class FragmentStrictMode.Policy.Builder {
+    ctor public FragmentStrictMode.Policy.Builder();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy build();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyDeath();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyListener(androidx.fragment.app.strictmode.FragmentStrictMode.OnViolationListener);
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyLog();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public abstract class Violation extends java.lang.RuntimeException {
+    ctor public Violation();
   }
 
 }

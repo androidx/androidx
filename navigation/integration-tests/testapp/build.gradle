@@ -20,7 +20,7 @@ buildscript {
     // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
     // vectordrawable and vectordrawable-animated were accidentally using the same package name
     // which is no longer valid in namespaced resource world.
-    project.ext['android.uniquePackageNames'] = false
+    project.ext["android.uniquePackageNames"] = false
 }
 
 plugins {
@@ -35,8 +35,8 @@ dependencies {
     implementation(project(":navigation:navigation-fragment-ktx"))
     implementation(project(":navigation:navigation-ui-ktx"))
     implementation(project(":internal-testutils-navigation"), {
-        exclude group: 'androidx.navigation', module: 'navigation-common-ktx'
+        exclude group: "androidx.navigation", module: "navigation-common-ktx"
     })
 }
 
-tasks['check'].dependsOn(tasks['connectedCheck'])
+tasks["check"].dependsOn(tasks["connectedCheck"])

@@ -14,4 +14,17 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest package="androidx.benchmark.macro"/>
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    package="androidx.benchmark.macro"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- QUERY_ALL_PACKAGES is used to enable macrobenchmarks to read package information from
+    potential target packages, e.g. for querying debuggable, profileable, or default launch intent.
+
+    This could also be done by making each macrobenchmark specify a <queries/> tag, with the
+    target package, but this removes the need for documenting that setup step, and detecting
+    misconfiguration.
+    -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+</manifest>

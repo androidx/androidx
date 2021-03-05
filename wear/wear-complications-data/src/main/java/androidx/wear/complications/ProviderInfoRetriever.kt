@@ -31,6 +31,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.asApiComplicationData
+import androidx.wear.utility.TraceEvent
 import kotlinx.coroutines.CompletableDeferred
 
 /**
@@ -65,6 +66,7 @@ public class ProviderInfoRetriever : AutoCloseable {
 
         @SuppressLint("SyntheticAccessor")
         override fun onServiceDisconnected(name: ComponentName) {
+            deferredService.completeExceptionally(ServiceDisconnectedException())
         }
     }
 
@@ -80,6 +82,9 @@ public class ProviderInfoRetriever : AutoCloseable {
         intent.setPackage(PROVIDER_INFO_SERVICE_PACKAGE)
         context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
+
+    /** Exception thrown if the service disconnects. */
+    public class ServiceDisconnectedException : Exception()
 
     /**
      * @hide
@@ -103,15 +108,19 @@ public class ProviderInfoRetriever : AutoCloseable {
      * being requested
      * @param watchFaceComplicationIds ids of the complications that info is being requested for
      * @return The requested provider info. If the look up fails null will be returned
+     * @throws [ServiceDisconnectedException] if the service disconnected during the call.
      */
+    @Throws(ServiceDisconnectedException::class)
     public suspend fun retrieveProviderInfo(
         watchFaceComponent: ComponentName,
         watchFaceComplicationIds: IntArray
-    ): Array<ProviderInfo>? = deferredService.await().getProviderInfos(
-        watchFaceComponent, watchFaceComplicationIds
-    )?.mapIndexed { index, info ->
-        ProviderInfo(watchFaceComplicationIds[index], info)
-    }?.toTypedArray()
+    ): Array<ProviderInfo>? = TraceEvent("ProviderInfoRetriever.retrieveProviderInfo").use {
+        awaitDeferredService().getProviderInfos(
+            watchFaceComponent, watchFaceComplicationIds
+        )?.mapIndexed { index, info ->
+            ProviderInfo(watchFaceComplicationIds[index], info)
+        }?.toTypedArray()
+    }
 
     /**
      * Requests preview [ComplicationData] for a provider [ComponentName] and
@@ -122,17 +131,25 @@ public class ProviderInfoRetriever : AutoCloseable {
      * @param complicationType The requested [ComplicationType] for the preview data.
      * @return The preview [ComplicationData] or `null` if the provider component doesn't exist, or
      * if it doesn't support complicationType, or if the remote service doesn't support this API.
+     * @throws [ServiceDisconnectedException] if the service disconnected during the call.
      */
+    @Throws(ServiceDisconnectedException::class)
     @RequiresApi(Build.VERSION_CODES.R)
     public suspend fun requestPreviewComplicationData(
         providerComponent: ComponentName,
         complicationType: ComplicationType
-    ): ComplicationData? {
-        val service = deferredService.await()
+    ): ComplicationData? = TraceEvent(
+        "ProviderInfoRetriever.requestPreviewComplicationData"
+    ).use {
+        val service = awaitDeferredService()
         if (service.apiVersion < 1) {
             return null
         }
         val result = CompletableDeferred<ComplicationData?>()
+        val deathObserver = IBinder.DeathRecipient {
+            result.completeExceptionally(ServiceDisconnectedException())
+        }
+        service.asBinder().linkToDeath(deathObserver, 0)
         if (!service.requestPreviewComplicationData(
                 providerComponent,
                 complicationType.asWireComplicationType(),
@@ -140,15 +157,22 @@ public class ProviderInfoRetriever : AutoCloseable {
                     override fun updateComplicationData(
                         data: android.support.wearable.complications.ComplicationData?
                     ) {
+                        service.asBinder().unlinkToDeath(deathObserver, 0)
                         result.complete(data?.asApiComplicationData())
                     }
                 }
             )
         ) {
+            service.asBinder().unlinkToDeath(deathObserver, 0)
             return null
         }
         return result.await()
     }
+
+    private suspend fun awaitDeferredService(): IProviderInfoService =
+        TraceEvent("ProviderInfoRetriever.awaitDeferredService").use {
+            deferredService.await()
+        }
 
     /**
      * Releases the connection to the complication system used by this class. This must

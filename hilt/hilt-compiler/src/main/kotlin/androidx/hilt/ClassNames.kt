@@ -19,8 +19,6 @@ package androidx.hilt
 import com.squareup.javapoet.ClassName
 
 internal object ClassNames {
-    val ACTIVITY_RETAINED_COMPONENT =
-        ClassName.get("dagger.hilt.android.components", "ActivityRetainedComponent")
     val ANDROIDX_ASSISTED = ClassName.get("androidx.hilt", "Assisted")
     val ASSISTED = ClassName.get("dagger.assisted", "Assisted")
     val ASSISTED_FACTORY = ClassName.get("dagger.assisted", "AssistedFactory")
@@ -40,9 +38,6 @@ internal object ClassNames {
         ClassName.get("dagger.hilt.components", "SingletonComponent")
     val VIEW_MODEL_ASSISTED_FACTORY =
         ClassName.get("androidx.hilt.lifecycle", "ViewModelAssistedFactory")
-    val VIEW_MODEL = ClassName.get("androidx.lifecycle", "ViewModel")
-    val VIEW_MODEL_INJECT = ClassName.get("androidx.hilt.lifecycle", "ViewModelInject")
-    val SAVED_STATE_HANDLE = ClassName.get("androidx.lifecycle", "SavedStateHandle")
     val STRING_KEY = ClassName.get("dagger.multibindings", "StringKey")
     val WORKER = ClassName.get("androidx.work", "Worker")
     val WORKER_ASSISTED_FACTORY = ClassName.get("androidx.hilt.work", "WorkerAssistedFactory")

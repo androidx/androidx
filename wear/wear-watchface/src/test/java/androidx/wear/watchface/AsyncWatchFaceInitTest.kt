@@ -183,7 +183,7 @@ public class AsyncWatchFaceInitTest {
         engineWrapper.coroutineScope.launch {
             try {
                 // This should fail because the direct boot instance is being constructed.
-                engineWrapper.createInteractiveInstance(initParams)
+                engineWrapper.createInteractiveInstance(initParams, "test")
             } catch (e: Exception) {
                 pendingException = e
             }

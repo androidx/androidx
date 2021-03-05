@@ -35,8 +35,8 @@ dependencies {
     // NOTE: API and IMPLEMENTATION dependencies are defined in dependencies.gradle to export for
     // other modules depending on the jarjar variant of CameraPipe. All dependencies should be
     // added there rather than directly here.
-    api CAMERA_PIPE_DEPS.API
-    implementation CAMERA_PIPE_DEPS.IMPLEMENTATION
+    api(CAMERA_PIPE_DEPS.API)
+    implementation(CAMERA_PIPE_DEPS.IMPLEMENTATION)
 
     kapt(DAGGER_COMPILER)
 
@@ -84,10 +84,10 @@ android.libraryVariants.all { variant ->
     def exportJarTask = tasks.register("exportJar${suffix}", Jar) {
         archiveBaseName.set("camera-camera2-pipe-${variantName}-export")
         def kotlinCompileTask = tasks.findByName("compile${suffix}Kotlin")
-        from kotlinCompileTask.outputs.files
-        from files(variant.javaCompileProvider.get().destinationDir)
-        dependsOn kotlinCompileTask
-        dependsOn variant.javaCompileProvider.get()
+        from(kotlinCompileTask.outputs.files)
+        from(files(variant.javaCompileProvider.get().destinationDir))
+        dependsOn(kotlinCompileTask)
+        dependsOn(variant.javaCompileProvider.get())
     }
     def exportConfiguration = configurations.register("export${suffix}")
     artifacts.add(exportConfiguration.name, exportJarTask.flatMap{ it.archiveFile })

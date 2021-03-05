@@ -30,12 +30,28 @@ enum BuildType {
     WEAR,
 }
 
-private static Set<BuildType> createRequestedFilter() {
+private String getRequestedProjectSubsetName() {
+    if (startParameter.projectProperties.containsKey("androidx.projects")) {
+        return startParameter.projectProperties["androidx.projects"].toUpperCase()
+    }
+    if (System.getenv().containsKey("ANDROIDX_PROJECTS")) {
+        return System.getenv()["ANDROIDX_PROJECTS"].toUpperCase()
+    }
+    return null
+}
+
+boolean isAllProjects() {
+    String projectSubsetName = getRequestedProjectSubsetName()
+    return requestedProjectSubsetName == null || requestedProjectSubsetName == "ALL"
+}
+
+private Set<BuildType> createRequestedFilter() {
     Set<BuildType> filter = new HashSet<>()
-    if (!System.getenv().containsKey("ANDROIDX_PROJECTS")) return null
-    String[] requestedFilter = System.getenv("ANDROIDX_PROJECTS").split(",")
+    String projectSubsetName = getRequestedProjectSubsetName()
+    if (projectSubsetName == null) return null
+    String[] requestedFilter = projectSubsetName.split(",")
     for (String requestedType : requestedFilter) {
-        switch (requestedType.toUpperCase()) {
+        switch (requestedType) {
             case "MAIN":
                 filter.add(BuildType.MAIN)
                 break
@@ -74,7 +90,8 @@ private static Set<BuildType> createRequestedFilter() {
  * Note that null value means all the projects should be included
  */
 @Field
-Set<BuildType> requestedFilter = createRequestedFilter()
+Set<BuildType> requestedFilter
+requestedFilter = createRequestedFilter()
 
 boolean shouldIncludeForFilter(List<BuildType> includeList) {
     if (includeList.empty) return true
@@ -174,10 +191,11 @@ includeProject(":biometric:integration-tests:testapp", "biometric/integration-te
 includeProject(":browser:browser", "browser/browser", [BuildType.MAIN])
 includeProject(":buildSrc-tests", "buildSrc-tests", [BuildType.MAIN])
 // these projects intentionally fail to compile unless androidx.useMaxDepVersions is enabled
-if (startParameter.projectProperties.containsKey('androidx.useMaxDepVersions')) {
+if (startParameter.projectProperties.containsKey("androidx.useMaxDepVersions")) {
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-dep", [BuildType.MAIN])
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-main", [BuildType.MAIN])
 }
+includeProject(":buildSrc-tests:project-subsets", "buildSrc-tests/project-subsets", [BuildType.MAIN])
 includeProject(":camera:camera-camera2", "camera/camera-camera2", [BuildType.MAIN])
 includeProject(":camera:camera-camera2-pipe", "camera/camera-camera2-pipe", [BuildType.MAIN])
 includeProject(":camera:camera-camera2-pipe-integration", "camera/camera-camera2-pipe-integration", [BuildType.MAIN])
@@ -197,7 +215,7 @@ includeProject(":camera:integration-tests:camera-testapp-uiwidgets", "camera/int
 includeProject(":camera:integration-tests:camera-testapp-view", "camera/integration-tests/viewtestapp", [BuildType.MAIN])
 includeProject(":camera:integration-tests:camera-testlib-extensions", "camera/integration-tests/extensionstestlib", [BuildType.MAIN])
 includeProject(":car:app:app", "car/app/app", [BuildType.MAIN])
-includeProject(":car:app:app-aaos", "car/app/app-aaos", [BuildType.MAIN])
+includeProject(":car:app:app-activity", "car/app/app-activity", [BuildType.MAIN])
 includeProject(":car:app:app-samples:helloworld", "car/app/app-samples/helloworld", [BuildType.MAIN])
 includeProject(":car:app:app-samples:navigation", "car/app/app-samples/navigation", [BuildType.MAIN])
 includeProject(":car:app:app-samples:places", "car/app/app-samples/places", [BuildType.MAIN])
@@ -228,7 +246,9 @@ if (isMultiplatformEnabled()) {
 }
 includeProject(":compose:foundation", "compose/foundation", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation", "compose/foundation/foundation", [BuildType.COMPOSE])
+includeProject(":compose:foundation:foundation-benchmark", "compose/foundation/foundation/benchmark", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation-layout", "compose/foundation/foundation-layout", [BuildType.COMPOSE])
+includeProject(":compose:foundation:foundation-layout:foundation-layout-benchmark", "compose/foundation/foundation-layout/benchmark", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation-layout:integration-tests:foundation-layout-demos", "compose/foundation/foundation-layout/integration-tests/layout-demos", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation-layout:foundation-layout-samples", "compose/foundation/foundation-layout/samples", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation:integration-tests:foundation-demos", "compose/foundation/foundation/integration-tests/foundation-demos", [BuildType.COMPOSE])
@@ -243,12 +263,14 @@ includeProject(":compose:integration-tests:macrobenchmark-target", "compose/inte
 includeProject(":compose:internal-lint-checks", "compose/internal-lint-checks", [BuildType.COMPOSE])
 includeProject(":compose:material", "compose/material", [BuildType.COMPOSE])
 includeProject(":compose:material:material", "compose/material/material", [BuildType.COMPOSE])
+includeProject(":compose:material:material-benchmark", "compose/material/material/benchmark", [BuildType.COMPOSE])
 includeProject(":compose:material:material-icons-core", "compose/material/material-icons-core", [BuildType.COMPOSE])
 includeProject(":compose:material:material-icons-core:material-icons-core-samples", "compose/material/material-icons-core/samples", [BuildType.COMPOSE])
 includeProject(":compose:material:material-icons-extended", "compose/material/material-icons-extended", [BuildType.COMPOSE])
 includeProject(":compose:material:material-ripple", "compose/material/material-ripple", [BuildType.COMPOSE])
 includeProject(":compose:material:material:icons:generator", "compose/material/material/icons/generator", [BuildType.COMPOSE])
 includeProject(":compose:material:material:integration-tests:material-demos", "compose/material/material/integration-tests/material-demos", [BuildType.COMPOSE])
+includeProject(":compose:material:material:integration-tests:material-catalog", "compose/material/material/integration-tests/material-catalog", [BuildType.COMPOSE])
 includeProject(":compose:material:material:integration-tests:material-studies", "compose/material/material/integration-tests/material-studies", [BuildType.COMPOSE])
 includeProject(":compose:material:material:material-samples", "compose/material/material/samples", [BuildType.COMPOSE])
 includeProject(":compose:runtime", "compose/runtime", [BuildType.COMPOSE])
@@ -278,6 +300,7 @@ includeProject(":compose:ui:ui-test", "compose/ui/ui-test", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-test-font", "compose/ui/ui-test-font", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-test-junit4", "compose/ui/ui-test-junit4", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-text", "compose/ui/ui-text", [BuildType.COMPOSE])
+includeProject(":compose:ui:ui-text:ui-text-benchmark", "compose/ui/ui-text/benchmark", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-text:ui-text-samples", "compose/ui/ui-text/samples", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-tooling", "compose/ui/ui-tooling", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-tooling-data", "compose/ui/ui-tooling-data", [BuildType.COMPOSE])
@@ -298,6 +321,7 @@ includeProject(":core:core-animation", "core/core-animation", [BuildType.MAIN])
 includeProject(":core:core-animation-integration-tests:testapp", "core/core-animation-integration-tests/testapp", [BuildType.MAIN])
 includeProject(":core:core-animation-testing", "core/core-animation-testing", [BuildType.MAIN])
 includeProject(":core:core-appdigest", "core/core-appdigest", [BuildType.MAIN])
+includeProject(":core:core-google-shortcuts", "core/core-google-shortcuts", [BuildType.MAIN])
 includeProject(":core:core-ktx", "core/core-ktx", [BuildType.MAIN])
 includeProject(":cursoradapter:cursoradapter", "cursoradapter/cursoradapter", [BuildType.MAIN])
 includeProject(":customview:customview", "customview/customview", [BuildType.MAIN])
@@ -324,6 +348,8 @@ includeProject(":dynamicanimation:dynamicanimation-ktx", "dynamic-animation/dyna
 includeProject(":emoji", "emoji/core", [BuildType.MAIN])
 includeProject(":emoji-appcompat", "emoji/appcompat", [BuildType.MAIN])
 includeProject(":emoji-bundled", "emoji/bundled", [BuildType.MAIN])
+includeProject(":emoji2:emoji2", "emoji2/emoji2", [BuildType.MAIN])
+includeProject(":emoji2:emoji2-bundled", "emoji2/emoji2-bundled", [BuildType.MAIN])
 includeProject(":enterprise-feedback", "enterprise/feedback", [BuildType.MAIN])
 includeProject(":enterprise-feedback-testing", "enterprise/feedback/testing", [BuildType.MAIN])
 includeProject(":exifinterface:exifinterface", "exifinterface/exifinterface", [BuildType.MAIN])
@@ -339,7 +365,6 @@ includeProject(":gridlayout:gridlayout", "gridlayout/gridlayout", [BuildType.MAI
 includeProject(":heifwriter:heifwriter", "heifwriter/heifwriter", [BuildType.MAIN])
 includeProject(":hilt:hilt-common", "hilt/hilt-common", [BuildType.MAIN])
 includeProject(":hilt:hilt-compiler", "hilt/hilt-compiler", [BuildType.MAIN])
-includeProject(":hilt:hilt-lifecycle-viewmodel", "hilt/hilt-lifecycle-viewmodel", [BuildType.MAIN])
 includeProject(":hilt:hilt-navigation", "hilt/hilt-navigation", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":hilt:hilt-navigation-compose", "hilt/hilt-navigation-compose", [BuildType.COMPOSE])
 includeProject(":hilt:hilt-navigation-fragment", "hilt/hilt-navigation-fragment", [BuildType.MAIN])
@@ -535,8 +560,8 @@ includeProject(":wear:wear-ongoing", "wear/wear-ongoing", [BuildType.MAIN, Build
 includeProject(":wear:wear-phone-interactions", "wear/wear-phone-interactions", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-remote-interactions", "wear/wear-remote-interactions", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-tiles", "wear/wear-tiles", [BuildType.MAIN, BuildType.WEAR])
-includeProject(":wear:wear-tiles:wear-tiles-proto", "wear/wear-tiles/wear-tiles-proto", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-tiles-data", "wear/wear-tiles-data", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-tiles-proto", "wear/wear-tiles-proto", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-tiles-renderer", "wear/wear-tiles-renderer", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-watchface", "wear/wear-watchface", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-watchface-complications-rendering", "wear/wear-watchface-complications-rendering", [BuildType.MAIN, BuildType.WEAR])
@@ -654,11 +679,6 @@ includeProject(":icing", new File(externalRoot, "icing"), [BuildType.MAIN])
 includeProject(":icing:nativeLib", new File(externalRoot, "icing/nativeLib"), [BuildType.MAIN])
 includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"), [BuildType.MAIN])
 
-static boolean isAllProjects() {
-    if (!System.getenv().containsKey("ANDROIDX_PROJECTS")) return true
-    return System.getenv("ANDROIDX_PROJECTS") == "ALL"
-}
-
 if (isAllProjects()) {
     includeProject(":docs-tip-of-tree", "docs-tip-of-tree")
     includeProject(":docs-public", "docs-public")
@@ -676,4 +696,4 @@ includeProject(":fakeannotations", "fakeannotations")
 //
 /////////////////////////////
 
-apply from: new File('buildSrc/remoteBuildCache.gradle')
+apply from: new File("buildSrc/remoteBuildCache.gradle")

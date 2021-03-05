@@ -32,6 +32,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -43,6 +44,7 @@ import androidx.test.filters.LargeTest;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +52,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /** Tests for {@link ExtensionWindowBackend} class. */
 @SuppressWarnings({"deprecation", "unchecked"}) // TODO(b/173739071) remove DeviceState
@@ -191,22 +194,6 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
     }
 
     @Test
-    public void testRegisterLayoutChangeCallback_relayLastEmittedValue() {
-        WindowLayoutInfo expectedWindowLayoutInfo = newTestWindowLayoutInfo();
-        ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
-        Consumer<WindowLayoutInfo> consumer = mock(WindowLayoutInfoConsumer.class);
-        TestActivity activity = mActivityTestRule.launchActivity(new Intent());
-        backend.registerLayoutChangeCallback(activity, Runnable::run,
-                mock(WindowLayoutInfoConsumer.class));
-        backend.mWindowExtension = mock(ExtensionInterfaceCompat.class);
-        backend.mLastReportedWindowLayouts.put(activity, expectedWindowLayoutInfo);
-
-        backend.registerLayoutChangeCallback(activity, Runnable::run, consumer);
-
-        verify(consumer).accept(expectedWindowLayoutInfo);
-    }
-
-    @Test
     public void testLayoutChangeCallback_emitNewValue() {
         ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
         backend.mWindowExtension = mock(ExtensionInterfaceCompat.class);
@@ -223,12 +210,26 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
         backendListener.onWindowLayoutChanged(activity, windowLayoutInfo);
 
         verify(consumer).accept(eq(windowLayoutInfo));
-        assertEquals(windowLayoutInfo, backend.mLastReportedWindowLayouts.get(activity));
+    }
 
-        // Test that the same value wouldn't be reported again
-        reset(consumer);
-        backendListener.onWindowLayoutChanged(activity, windowLayoutInfo);
-        verify(consumer, never()).accept(any());
+    @Test
+    public void testWindowLayoutInfo_updatesOnSubsequentRegistration() {
+        SwitchOnUnregisterExtensionInterfaceCompat interfaceCompat =
+                new SwitchOnUnregisterExtensionInterfaceCompat();
+        ExtensionWindowBackend backend = new ExtensionWindowBackend(interfaceCompat);
+        Activity activity = mock(Activity.class);
+        SimpleConsumer<WindowLayoutInfo> consumer = new SimpleConsumer<>();
+        Executor executor = MoreExecutors.directExecutor();
+        List<WindowLayoutInfo> expected = new ArrayList<>();
+
+        backend.registerLayoutChangeCallback(activity, executor, consumer);
+        expected.add(interfaceCompat.currentWindowLayoutInfo());
+        backend.unregisterLayoutChangeCallback(consumer);
+        backend.registerLayoutChangeCallback(activity, executor, consumer);
+        expected.add(interfaceCompat.currentWindowLayoutInfo());
+        backend.unregisterLayoutChangeCallback(consumer);
+
+        assertEquals(expected, consumer.mValues);
     }
 
     @Test
@@ -382,6 +383,10 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
         @Override
         public void accept(T t) {
             mValues.add(t);
+        }
+
+        List<T> allValues() {
+            return mValues;
         }
 
         T lastValue() {

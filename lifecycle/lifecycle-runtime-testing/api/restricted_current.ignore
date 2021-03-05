@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.lifecycle.testing.TestLifecycleOwner#TestLifecycleOwner():
+    Removed constructor androidx.lifecycle.testing.TestLifecycleOwner()

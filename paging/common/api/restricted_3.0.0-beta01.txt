@@ -9,7 +9,7 @@ package androidx.paging {
   }
 
   public final class CombinedLoadStates {
-    ctor public CombinedLoadStates(androidx.paging.LoadState refresh, androidx.paging.LoadState prepend, androidx.paging.LoadState append, androidx.paging.LoadStates source, androidx.paging.LoadStates? mediator);
+    ctor public CombinedLoadStates(androidx.paging.LoadState refresh, androidx.paging.LoadState prepend, androidx.paging.LoadState append, androidx.paging.LoadStates source, optional androidx.paging.LoadStates? mediator);
     method public androidx.paging.LoadState getAppend();
     method public androidx.paging.LoadStates? getMediator();
     method public androidx.paging.LoadState getPrepend();
@@ -43,9 +43,6 @@ package androidx.paging {
 
   public static fun interface DataSource.InvalidatedCallback {
     method @AnyThread public void onInvalidated();
-  }
-
-  @kotlin.RequiresOptIn public @interface ExperimentalPagingApi {
   }
 
   public final class FlowExtKt {
@@ -265,19 +262,18 @@ package androidx.paging {
   }
 
   public final class Pager<Key, Value> {
-    ctor @androidx.paging.ExperimentalPagingApi public Pager(androidx.paging.PagingConfig config, Key? initialKey, androidx.paging.RemoteMediator<Key,Value>? remoteMediator, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
-    ctor public Pager(androidx.paging.PagingConfig config, Key? initialKey, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
+    ctor public Pager(androidx.paging.PagingConfig config, optional Key? initialKey, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
     ctor public Pager(androidx.paging.PagingConfig config, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
     method public kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>> getFlow();
     property public final kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>> flow;
   }
 
   public final class PagingConfig {
-    ctor public PagingConfig(int pageSize, @IntRange(from=0) int prefetchDistance, boolean enablePlaceholders, @IntRange(from=1) int initialLoadSize, @IntRange(from=2) int maxSize, int jumpThreshold);
-    ctor public PagingConfig(int pageSize, @IntRange(from=0) int prefetchDistance, boolean enablePlaceholders, @IntRange(from=1) int initialLoadSize, @IntRange(from=2) int maxSize);
-    ctor public PagingConfig(int pageSize, @IntRange(from=0) int prefetchDistance, boolean enablePlaceholders, @IntRange(from=1) int initialLoadSize);
-    ctor public PagingConfig(int pageSize, @IntRange(from=0) int prefetchDistance, boolean enablePlaceholders);
-    ctor public PagingConfig(int pageSize, @IntRange(from=0) int prefetchDistance);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1) int initialLoadSize, optional @IntRange(from=2) int maxSize, optional int jumpThreshold);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1) int initialLoadSize, optional @IntRange(from=2) int maxSize);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1) int initialLoadSize);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance, optional boolean enablePlaceholders);
+    ctor public PagingConfig(int pageSize, optional @IntRange(from=0) int prefetchDistance);
     ctor public PagingConfig(int pageSize);
     field public static final androidx.paging.PagingConfig.Companion Companion;
     field public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
@@ -369,7 +365,7 @@ package androidx.paging {
   }
 
   public static final class PagingSource.LoadResult.Page<Key, Value> extends androidx.paging.PagingSource.LoadResult<Key,Value> {
-    ctor public PagingSource.LoadResult.Page(java.util.List<? extends Value> data, Key? prevKey, Key? nextKey, @IntRange(from=COUNT_UNDEFINED.toLong()) int itemsBefore, @IntRange(from=COUNT_UNDEFINED.toLong()) int itemsAfter);
+    ctor public PagingSource.LoadResult.Page(java.util.List<? extends Value> data, Key? prevKey, Key? nextKey, optional @IntRange(from=COUNT_UNDEFINED.toLong()) int itemsBefore, optional @IntRange(from=COUNT_UNDEFINED.toLong()) int itemsAfter);
     ctor public PagingSource.LoadResult.Page(java.util.List<? extends Value> data, Key? prevKey, Key? nextKey);
     method public java.util.List<Value> component1();
     method public Key? component2();
@@ -447,32 +443,6 @@ package androidx.paging {
     ctor @Deprecated public PositionalDataSource.LoadRangeParams(int startPosition, int loadSize);
     field @Deprecated public final int loadSize;
     field @Deprecated public final int startPosition;
-  }
-
-  @androidx.paging.ExperimentalPagingApi public abstract class RemoteMediator<Key, Value> {
-    ctor public RemoteMediator();
-    method public suspend Object? initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction> $completion);
-    method public abstract suspend Object? load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> p);
-  }
-
-  public enum RemoteMediator.InitializeAction {
-    enum_constant public static final androidx.paging.RemoteMediator.InitializeAction LAUNCH_INITIAL_REFRESH;
-    enum_constant public static final androidx.paging.RemoteMediator.InitializeAction SKIP_INITIAL_REFRESH;
-  }
-
-  public abstract static sealed class RemoteMediator.MediatorResult {
-  }
-
-  public static final class RemoteMediator.MediatorResult.Error extends androidx.paging.RemoteMediator.MediatorResult {
-    ctor public RemoteMediator.MediatorResult.Error(Throwable throwable);
-    method public Throwable getThrowable();
-    property public final Throwable throwable;
-  }
-
-  public static final class RemoteMediator.MediatorResult.Success extends androidx.paging.RemoteMediator.MediatorResult {
-    ctor public RemoteMediator.MediatorResult.Success(boolean endOfPaginationReached);
-    method public boolean endOfPaginationReached();
-    property public final boolean endOfPaginationReached;
   }
 
   public final class RemoteMediatorAccessorKt {

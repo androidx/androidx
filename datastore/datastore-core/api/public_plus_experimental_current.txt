@@ -2,7 +2,7 @@
 package androidx.datastore.core {
 
   public final class CorruptionException extends java.io.IOException {
-    ctor public CorruptionException(String message, Throwable? cause);
+    ctor public CorruptionException(String message, optional Throwable? cause);
   }
 
   public interface DataMigration<T> {
@@ -27,8 +27,8 @@ package androidx.datastore.core {
 
   public interface Serializer<T> {
     method public T! getDefaultValue();
-    method public T! readFrom(java.io.InputStream input);
-    method public void writeTo(T? t, java.io.OutputStream output);
+    method public suspend Object? readFrom(java.io.InputStream input, kotlin.coroutines.Continuation<? super T> p);
+    method public suspend Object? writeTo(T? t, java.io.OutputStream output, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     property public abstract T! defaultValue;
   }
 

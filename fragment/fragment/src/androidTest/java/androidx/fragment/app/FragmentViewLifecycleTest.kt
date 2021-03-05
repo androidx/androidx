@@ -298,14 +298,17 @@ class FragmentViewLifecycleTest {
         assertWithMessage("ViewTreeLifecycleOwner should match viewLifecycleOwner after commitNow")
             .that(ViewTreeLifecycleOwner.get(fragment.view ?: error("no fragment view created")))
             .isSameInstanceAs(fragment.viewLifecycleOwner)
-        assertWithMessage("ViewTreeViewModelStoreOwner should match fragment after commitNow")
+        assertWithMessage(
+            "ViewTreeViewModelStoreOwner should match viewLifecycleOwner" +
+                " after commitNow"
+        )
             .that(
                 ViewTreeViewModelStoreOwner.get(
                     fragment.view
                         ?: error("no fragment view created")
                 )
             )
-            .isSameInstanceAs(fragment)
+            .isSameInstanceAs(fragment.viewLifecycleOwner)
         assertWithMessage(
             "ViewTreeSavedStateRegistryOwner should match viewLifecycleOwner" +
                 " after commitNow"
@@ -325,11 +328,11 @@ class FragmentViewLifecycleTest {
             .that(observedTreeLifecycleOwner)
             .isSameInstanceAs(fragment.viewLifecycleOwner)
         assertWithMessage(
-            "ViewTreeViewModelStoreOwner should match fragment in " +
+            "ViewTreeViewModelStoreOwner should match viewLifecycleOwner in " +
                 "viewLifecycleOwnerLiveData observer"
         )
             .that(observedTreeViewModelStoreOwner)
-            .isSameInstanceAs(fragment)
+            .isSameInstanceAs(fragment.viewLifecycleOwner)
         assertWithMessage(
             "ViewTreeSavedStateRegistryOwner should match viewLifecycleOwner in " +
                 "viewLifecycleOwnerLiveData observer"
@@ -351,11 +354,11 @@ class FragmentViewLifecycleTest {
             .that(fragment.onViewCreatedLifecycleOwner)
             .isSameInstanceAs(fragment.viewLifecycleOwner)
         assertWithMessage(
-            "ViewTreeViewModelStoreOwner should match fragment in " +
+            "ViewTreeViewModelStoreOwner should match viewLifecycleOwner in " +
                 "onViewCreated"
         )
             .that(fragment.onViewCreatedViewModelStoreOwner)
-            .isSameInstanceAs(fragment)
+            .isSameInstanceAs(fragment.viewLifecycleOwner)
         assertWithMessage(
             "ViewTreeSavedStateRegistryOwner should match viewLifecycleOwner in " +
                 "onViewCreated"

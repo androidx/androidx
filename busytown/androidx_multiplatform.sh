@@ -6,8 +6,7 @@ echo "Starting $0 at $(date)"
 cd "$(dirname $0)"
 
 # Run Gradle
-impl/build.sh listTaskOutputs -Pandroidx.validateNoUnrecognizedMessages "$@"
-impl/build.sh buildOnServer checkExternalLicenses validateAllProperties \
+impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs validateAllProperties \
     -Pandroidx.compose.multiplatformEnabled=true \
     --profile "$@"
 

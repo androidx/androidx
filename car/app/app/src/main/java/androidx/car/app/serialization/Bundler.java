@@ -17,6 +17,7 @@
 package androidx.car.app.serialization;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.utils.LogTags.TAG_BUNDLER;
 
 import static java.util.Objects.requireNonNull;
 
@@ -64,6 +65,7 @@ import java.util.Set;
  * <li>{@link String}
  * <li>{@link Parcelable} - parcelables will serialize using {@link Parcelable} logic.
  * <li>{@link IInterface}
+ * <li>{@link IBinder}
  * <li>{@link Map} - maps will be deserialize into {@link HashMap}s, and need to hold objects that
  * are also serializable as per this list.
  * <li>{@link List} - lists will deserialize into {@link ArrayList}s, and need to hold objects that
@@ -87,7 +89,6 @@ public final class Bundler {
 
     private static final int MAX_VALUE_LOG_LENGTH = 32;
 
-    private static final String TAG = "car.bundler";
     private static final Map<Class<?>, String> UNOBFUSCATED_TYPE_NAMES =
             initUnobfuscatedTypeNames();
     private static final Map<Integer, String> BUNDLED_TYPE_NAMES = initBundledTypeNames();
@@ -99,7 +100,7 @@ public final class Bundler {
     private static final String TAG_2 = "tag_2";
 
     private static final int PRIMITIVE = 0;
-    private static final int BINDER = 1;
+    private static final int IINTERFACE = 1;
     private static final int MAP = 2;
     private static final int SET = 3;
     private static final int LIST = 4;
@@ -107,6 +108,7 @@ public final class Bundler {
     private static final int IMAGE = 6;
     private static final int ENUM = 7;
     private static final int CLASS = 8;
+    private static final int IBINDER = 9;
 
     /**
      * Serializes an object into a {@link Bundle} for sending over IPC.
@@ -121,7 +123,9 @@ public final class Bundler {
     @NonNull
     public static Bundle toBundle(@NonNull Object obj) throws BundlerException {
         String className = getUnobfuscatedClassName(obj.getClass());
-        Log.d(TAG, "Bundling " + className);
+        if (Log.isLoggable(TAG_BUNDLER, Log.DEBUG)) {
+            Log.d(TAG_BUNDLER, "Bundling " + className);
+        }
         return toBundle(obj, className, Trace.create());
     }
 
@@ -142,7 +146,9 @@ public final class Bundler {
             } else if (isPrimitiveType(obj) || obj instanceof Parcelable) {
                 return serializePrimitive(obj, trace);
             } else if (obj instanceof IInterface) {
-                return serializeBinder((IInterface) obj);
+                return serializeIInterface((IInterface) obj);
+            } else if (obj instanceof IBinder) {
+                return serializeIBinder((IBinder) obj);
             } else if (obj instanceof Map) {
                 return serializeMap((Map<Object, Object>) obj, trace);
             } else if (obj instanceof List) {
@@ -181,7 +187,9 @@ public final class Bundler {
      */
     @NonNull
     public static Object fromBundle(@NonNull Bundle bundle) throws BundlerException {
-        Log.d(TAG, "Unbundling " + getBundledTypeName(bundle.getInt(TAG_CLASS_TYPE)));
+        if (Log.isLoggable(TAG_BUNDLER, Log.DEBUG)) {
+            Log.d(TAG_BUNDLER, "Unbundling " + getBundledTypeName(bundle.getInt(TAG_CLASS_TYPE)));
+        }
         return fromBundle(bundle, Trace.create());
     }
 
@@ -196,8 +204,10 @@ public final class Bundler {
             switch (classType) {
                 case PRIMITIVE:
                     return deserializePrimitive(bundle, trace);
-                case BINDER:
-                    return deserializeBinder(bundle, trace);
+                case IINTERFACE:
+                    return deserializeIInterface(bundle, trace);
+                case IBINDER:
+                    return deserializeIBinder(bundle, trace);
                 case MAP:
                     return deserializeMap(bundle, trace);
                 case SET:
@@ -252,14 +262,23 @@ public final class Bundler {
         return bundle;
     }
 
-    private static Bundle serializeBinder(IInterface iInterface) {
+    private static Bundle serializeIInterface(IInterface iInterface) {
         Bundle bundle = new Bundle(3);
 
         String className = iInterface.getClass().getName();
 
-        bundle.putInt(TAG_CLASS_TYPE, BINDER);
+        bundle.putInt(TAG_CLASS_TYPE, IINTERFACE);
         bundle.putBinder(TAG_VALUE, iInterface.asBinder());
         bundle.putString(TAG_CLASS_NAME, className);
+
+        return bundle;
+    }
+
+    private static Bundle serializeIBinder(IBinder binder) {
+        Bundle bundle = new Bundle(2);
+
+        bundle.putInt(TAG_CLASS_TYPE, IBINDER);
+        bundle.putBinder(TAG_VALUE, binder);
 
         return bundle;
     }
@@ -388,7 +407,8 @@ public final class Bundler {
     }
 
     @SuppressWarnings("argument.type.incompatible") // so that we can invoke static asInterface
-    private static Object deserializeBinder(Bundle bundle, Trace trace) throws BundlerException {
+    private static Object deserializeIInterface(Bundle bundle, Trace trace)
+            throws BundlerException {
         IBinder binder = bundle.getBinder(TAG_VALUE);
         if (binder == null) {
             throw new TracedBundlerException("Bundle is missing the binder", trace);
@@ -420,6 +440,15 @@ public final class Bundler {
                     trace,
                     e);
         }
+    }
+
+    private static Object deserializeIBinder(Bundle bundle, Trace trace) throws BundlerException {
+        IBinder binder = bundle.getBinder(TAG_VALUE);
+        if (binder == null) {
+            throw new TracedBundlerException("Bundle is missing the binder", trace);
+        }
+
+        return binder;
     }
 
     @SuppressWarnings("argument.type.incompatible") // so that we can put null values in the map
@@ -550,7 +579,9 @@ public final class Bundler {
                 if (value instanceof Bundle) {
                     field.set(obj, fromBundle((Bundle) value, trace));
                 } else if (value == null) {
-                    Log.d(TAG, "Value is null for field: " + field);
+                    if (Log.isLoggable(TAG_BUNDLER, Log.DEBUG)) {
+                        Log.d(TAG_BUNDLER, "Value is null for field: " + field);
+                    }
                 }
             }
             return obj;
@@ -635,7 +666,8 @@ public final class Bundler {
     private static Map<Integer, String> initBundledTypeNames() {
         ArrayMap<Integer, String> map = new ArrayMap<>();
         map.put(PRIMITIVE, "primitive");
-        map.put(BINDER, "binder");
+        map.put(IINTERFACE, "iInterface");
+        map.put(IBINDER, "iBinder");
         map.put(MAP, "map");
         map.put(SET, "set");
         map.put(LIST, "list");
@@ -727,6 +759,7 @@ public final class Bundler {
         private static final int MAX_LOG_INDENT = 12;
         private static final int MAX_FLAT_FRAMES = 8;
 
+        @Nullable
         private String[] mIndents; // memoized blank lines used for indentation
         private final ArrayDeque<Frame> mFrames;
 
@@ -804,7 +837,9 @@ public final class Bundler {
             if (obj != null) { // not the root
                 Frame frame = new Frame(obj, display);
                 frames.addFirst(frame);
-                Log.v(TAG, getIndent(frames.size()) + frame.toTraceString());
+                if (Log.isLoggable(TAG_BUNDLER, Log.VERBOSE)) {
+                    Log.v(TAG_BUNDLER, getIndent(frames.size()) + frame.toTraceString());
+                }
             }
         }
     }

@@ -33,7 +33,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-abstract class PagingDataDiffer<T : Any>(
+public abstract class PagingDataDiffer<T : Any>(
     private val differCallback: DifferCallback,
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
 ) {
@@ -112,7 +112,7 @@ abstract class PagingDataDiffer<T : Any>(
      * result between [previousList] and [newList]. Null if [newList] or [previousList] lists are
      * empty, where it does not make sense to transform [lastAccessedIndex].
      */
-    abstract suspend fun presentNewList(
+    public abstract suspend fun presentNewList(
         previousList: NullPaddedList<T>,
         newList: NullPaddedList<T>,
         newCombinedLoadStates: CombinedLoadStates,
@@ -120,98 +120,112 @@ abstract class PagingDataDiffer<T : Any>(
         onListPresentable: () -> Unit,
     ): Int?
 
-    open fun postEvents(): Boolean = false
+    public open fun postEvents(): Boolean = false
 
-    suspend fun collectFrom(pagingData: PagingData<T>) = collectFromRunner.runInIsolation {
-        receiver = pagingData.receiver
+    public suspend fun collectFrom(pagingData: PagingData<T>) {
+        collectFromRunner.runInIsolation {
+            receiver = pagingData.receiver
 
-        // TODO: Validate only empty pages between separator pages and its dependent pages.
-        pagingData.flow.collect { event ->
-            withContext<Unit>(mainDispatcher) {
-                if (event is PageEvent.Insert && event.loadType == REFRESH) {
-                    lastAccessedIndexUnfulfilled = false
-
-                    val newPresenter = PagePresenter(event)
-                    var onListPresentableCalled = false
-                    val transformedLastAccessedIndex = presentNewList(
-                        previousList = presenter,
-                        newList = newPresenter,
-                        newCombinedLoadStates = event.combinedLoadStates,
-                        lastAccessedIndex = lastAccessedIndex,
-                        onListPresentable = {
-                            presenter = newPresenter
-                            onListPresentableCalled = true
-                        }
-                    )
-                    check(onListPresentableCalled) {
-                        "Missing call to onListPresentable after new list was presented. If you " +
-                            "are seeing this exception, it is generally an indication of an " +
-                            "issue with Paging. Please file a bug so we can fix it at: " +
-                            "https://issuetracker.google.com/issues/new?component=413106"
-                    }
-
-                    // Dispatch LoadState updates as soon as we are done diffing, but after setting
-                    // presenter.
-                    dispatchLoadStates(event.combinedLoadStates)
-
-                    if (transformedLastAccessedIndex == null) {
-                        // Send an initialize hint in case the new list is empty, which would
-                        // prevent a ViewportHint.Access from ever getting sent since there are
-                        // no items to bind from initial load.
-                        receiver?.accessHint(newPresenter.initializeHint())
-                    } else {
-                        // Transform the last loadAround index from the old list to the new list
-                        // by passing it through the DiffResult, and pass it forward as a
-                        // ViewportHint within the new list to the next generation of Pager.
-                        // This ensures prefetch distance for the last ViewportHint from the old
-                        // list is respected in the new list, even if invalidation interrupts
-                        // the prepend / append load that would have fulfilled it in the old
-                        // list.
-                        lastAccessedIndex = transformedLastAccessedIndex
-                        receiver?.accessHint(
-                            newPresenter.accessHintForPresenterIndex(transformedLastAccessedIndex)
-                        )
-                    }
-                } else {
-                    if (postEvents()) {
-                        yield()
-                    }
-
-                    // Send event to presenter to be shown to the UI.
-                    presenter.processEvent(event, processPageEventCallback)
-
-                    // Reset lastAccessedIndexUnfulfilled if a page is dropped, to avoid infinite
-                    // loops when maxSize is insufficiently large.
-                    if (event is PageEvent.Drop) {
+            // TODO: Validate only empty pages between separator pages and its dependent pages.
+            pagingData.flow.collect { event ->
+                withContext<Unit>(mainDispatcher) {
+                    if (event is PageEvent.Insert && event.loadType == REFRESH) {
                         lastAccessedIndexUnfulfilled = false
-                    }
 
-                    // If index points to a placeholder after transformations, resend it unless
-                    // there are no more items to load.
-                    if (event is PageEvent.Insert) {
-                        val prependDone =
-                            event.combinedLoadStates.prepend.endOfPaginationReached
-                        val appendDone = event.combinedLoadStates.append.endOfPaginationReached
-                        val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
-                            !(event.loadType == APPEND && appendDone)
+                        val newPresenter = PagePresenter(event)
+                        var onListPresentableCalled = false
+                        val transformedLastAccessedIndex = presentNewList(
+                            previousList = presenter,
+                            newList = newPresenter,
+                            newCombinedLoadStates = event.combinedLoadStates,
+                            lastAccessedIndex = lastAccessedIndex,
+                            onListPresentable = {
+                                presenter = newPresenter
+                                onListPresentableCalled = true
+                            }
+                        )
+                        check(onListPresentableCalled) {
+                            "Missing call to onListPresentable after new list was presented. If " +
+                                "you are seeing this exception, it is generally an indication of " +
+                                "an issue with Paging. Please file a bug so we can fix it at: " +
+                                "https://issuetracker.google.com/issues/new?component=413106"
+                        }
 
-                        if (!canContinueLoading) {
-                            // Reset lastAccessedIndexUnfulfilled since endOfPaginationReached
-                            // means there are no more pages to load that could fulfill this index.
+                        // Dispatch LoadState updates as soon as we are done diffing, but after
+                        // setting presenter.
+                        dispatchLoadStates(event.combinedLoadStates)
+
+                        if (transformedLastAccessedIndex == null) {
+                            // Send an initialize hint in case the new list is empty, which would
+                            // prevent a ViewportHint.Access from ever getting sent since there are
+                            // no items to bind from initial load.
+                            receiver?.accessHint(newPresenter.initializeHint())
+                        } else {
+                            // Transform the last loadAround index from the old list to the new list
+                            // by passing it through the DiffResult, and pass it forward as a
+                            // ViewportHint within the new list to the next generation of Pager.
+                            // This ensures prefetch distance for the last ViewportHint from the old
+                            // list is respected in the new list, even if invalidation interrupts
+                            // the prepend / append load that would have fulfilled it in the old
+                            // list.
+                            lastAccessedIndex = transformedLastAccessedIndex
+                            receiver?.accessHint(
+                                newPresenter.accessHintForPresenterIndex(
+                                    transformedLastAccessedIndex
+                                )
+                            )
+                        }
+                    } else {
+                        if (postEvents()) {
+                            yield()
+                        }
+
+                        // Send event to presenter to be shown to the UI.
+                        presenter.processEvent(event, processPageEventCallback)
+
+                        // Reset lastAccessedIndexUnfulfilled if a page is dropped, to avoid
+                        // infinite loops when maxSize is insufficiently large.
+                        if (event is PageEvent.Drop) {
                             lastAccessedIndexUnfulfilled = false
-                        } else if (lastAccessedIndexUnfulfilled) {
-                            val shouldResendHint =
-                                lastAccessedIndex < presenter.placeholdersBefore ||
+                        }
+
+                        // If index points to a placeholder after transformations, resend it unless
+                        // there are no more items to load.
+                        if (event is PageEvent.Insert) {
+                            val prependDone =
+                                event.combinedLoadStates.prepend.endOfPaginationReached
+                            val appendDone = event.combinedLoadStates.append.endOfPaginationReached
+                            val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
+                                !(event.loadType == APPEND && appendDone)
+
+                            /**
+                             *  If the insert is empty due to aggressive filtering, another hint
+                             *  must be sent to fetcher-side to notify that PagingDataDiffer
+                             *  received the page, since fetcher estimates prefetchDistance based on
+                             *  page indices presented by PagingDataDiffer and we cannot rely on a
+                             *  new item being bound to trigger another hint since the presented
+                             *  page is empty.
+                             */
+                            val emptyInsert = event.pages.all { it.data.isEmpty() }
+                            if (!canContinueLoading) {
+                                // Reset lastAccessedIndexUnfulfilled since endOfPaginationReached
+                                // means there are no more pages to load that could fulfill this
+                                // index.
+                                lastAccessedIndexUnfulfilled = false
+                            } else if (lastAccessedIndexUnfulfilled || emptyInsert) {
+                                val shouldResendHint = emptyInsert ||
+                                    lastAccessedIndex < presenter.placeholdersBefore ||
                                     lastAccessedIndex > presenter.placeholdersBefore +
                                     presenter.storageCount
 
-                            if (shouldResendHint) {
-                                receiver?.accessHint(
-                                    presenter.accessHintForPresenterIndex(lastAccessedIndex)
-                                )
-                            } else {
-                                // lastIndex fulfilled, so reset lastAccessedIndexUnfulfilled.
-                                lastAccessedIndexUnfulfilled = false
+                                if (shouldResendHint) {
+                                    receiver?.accessHint(
+                                        presenter.accessHintForPresenterIndex(lastAccessedIndex)
+                                    )
+                                } else {
+                                    // lastIndex fulfilled, so reset lastAccessedIndexUnfulfilled.
+                                    lastAccessedIndexUnfulfilled = false
+                                }
                             }
                         }
                     }
@@ -227,7 +241,7 @@ abstract class PagingDataDiffer<T : Any>(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder.
      */
-    operator fun get(@IntRange(from = 0) index: Int): T? {
+    public operator fun get(@IntRange(from = 0) index: Int): T? {
         lastAccessedIndexUnfulfilled = true
         lastAccessedIndex = index
 
@@ -242,7 +256,7 @@ abstract class PagingDataDiffer<T : Any>(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder
      */
-    fun peek(@IntRange(from = 0) index: Int): T? {
+    public fun peek(@IntRange(from = 0) index: Int): T? {
         return presenter.get(index)
     }
 
@@ -250,7 +264,7 @@ abstract class PagingDataDiffer<T : Any>(
      * Returns a new [ItemSnapshotList] representing the currently presented items, including any
      * placeholders if they are enabled.
      */
-    fun snapshot(): ItemSnapshotList<T> = presenter.snapshot()
+    public fun snapshot(): ItemSnapshotList<T> = presenter.snapshot()
 
     /**
      * Retry any failed load requests that would result in a [LoadState.Error] update to this
@@ -263,7 +277,7 @@ abstract class PagingDataDiffer<T : Any>(
      *  * [PagingSource.load] returning [PagingSource.LoadResult.Error]
      *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
      */
-    fun retry() {
+    public fun retry() {
         receiver?.retry()
     }
 
@@ -283,14 +297,14 @@ abstract class PagingDataDiffer<T : Any>(
      *
      * @sample androidx.paging.samples.refreshSample
      */
-    fun refresh() {
+    public fun refresh() {
         receiver?.refresh()
     }
 
     /**
      * @return Total number of presented items, including placeholders.
      */
-    val size: Int
+    public val size: Int
         get() = presenter.size
 
     private val _combinedLoadState = MutableStateFlow(combinedLoadStates.snapshot())
@@ -304,7 +318,7 @@ abstract class PagingDataDiffer<T : Any>(
      *
      * @sample androidx.paging.samples.loadStateFlowSample
      */
-    val loadStateFlow: Flow<CombinedLoadStates>
+    public val loadStateFlow: Flow<CombinedLoadStates>
         get() = _combinedLoadState
 
     init {
@@ -325,7 +339,7 @@ abstract class PagingDataDiffer<T : Any>(
      *
      * @sample androidx.paging.samples.addLoadStateListenerSample
      */
-    fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
+    public fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         // Note: Important to add the listener first before sending off events, in case the
         // callback triggers removal, which could lead to a leak if the listener is added
         // afterwards.
@@ -339,7 +353,7 @@ abstract class PagingDataDiffer<T : Any>(
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
+    public fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         loadStateListeners.remove(listener)
     }
 }
@@ -354,8 +368,8 @@ abstract class PagingDataDiffer<T : Any>(
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface DifferCallback {
-    fun onChanged(position: Int, count: Int)
-    fun onInserted(position: Int, count: Int)
-    fun onRemoved(position: Int, count: Int)
+public interface DifferCallback {
+    public fun onChanged(position: Int, count: Int)
+    public fun onInserted(position: Int, count: Int)
+    public fun onRemoved(position: Int, count: Int)
 }

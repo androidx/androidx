@@ -11,13 +11,13 @@ dependencies {
     api(KOTLIN_STDLIB)
     implementation(project(":appcompat:appcompat"))
     implementation(project(":cardview:cardview"))
-    implementation project(":drawerlayout:drawerlayout")
+    implementation(project(":drawerlayout:drawerlayout"))
     implementation(project(":gridlayout:gridlayout"))
     implementation(project(":mediarouter:mediarouter"))
     implementation(project(":palette:palette"))
     implementation(project(":recyclerview:recyclerview"))
-    implementation project(":recyclerview:recyclerview-selection")
-    implementation 'androidx.concurrent:concurrent-futures:1.1.0'
+    implementation(project(":recyclerview:recyclerview-selection"))
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
     api(MATERIAL)
 }
 
@@ -25,7 +25,7 @@ android {
     buildTypes {
         release {
             minifyEnabled = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
         }
     }
     defaultConfig {

@@ -112,6 +112,9 @@ public class MediaRouteButton extends View {
 
     private int mVisibility = VISIBLE;
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mIsFixedIcon;
+
     static final SparseArray<Drawable.ConstantState> sRemoteIndicatorCache =
             new SparseArray<>(2);
     RemoteIndicatorLoader mRemoteIndicatorLoader;
@@ -471,13 +474,7 @@ public class MediaRouteButton extends View {
         if (mRouter == null) {
             return drawableState;
         }
-        MediaRouterParams params = mRouter.getRouterParams();
-        boolean fixedIcon = false;
-        if (params != null) {
-            fixedIcon = params.getExtras()
-                    .getBoolean(MediaRouterParams.EXTRAS_KEY_FIXED_CAST_ICON);
-        }
-        if (fixedIcon) {
+        if (mIsFixedIcon) {
             return drawableState;
         }
 
@@ -811,6 +808,19 @@ public class MediaRouteButton extends View {
         @Override
         public void onProviderChanged(MediaRouter router, MediaRouter.ProviderInfo provider) {
             refreshRoute();
+        }
+
+        @Override
+        public void onRouterParamsChanged(MediaRouter router, MediaRouterParams params) {
+            boolean fixedIcon = false;
+            if (params != null) {
+                fixedIcon = params.getExtras()
+                        .getBoolean(MediaRouterParams.EXTRAS_KEY_FIXED_CAST_ICON);
+            }
+            if (MediaRouteButton.this.mIsFixedIcon != fixedIcon) {
+                MediaRouteButton.this.mIsFixedIcon = fixedIcon;
+                refreshDrawableState();
+            }
         }
     }
 

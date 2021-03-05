@@ -16,21 +16,17 @@
 
 package androidx.room.writer
 
-import androidx.annotation.NonNull
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.DatabaseProcessor
-import androidx.room.testing.TestInvocation
-import androidx.room.testing.TestProcessor
+import androidx.room.testing.context
 import androidx.room.vo.Database
-import com.google.common.truth.Truth
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class SQLiteOpenHelperWriterTest {
@@ -43,7 +39,7 @@ class SQLiteOpenHelperWriterTest {
         private const val ENTITY_PREFIX = DATABASE_PREFIX + """
             @Entity%s
             public class MyEntity {
-            """
+        """
         private const val ENTITY_SUFFIX = "}"
     }
 
@@ -68,7 +64,7 @@ class SQLiteOpenHelperWriterTest {
                         " PRIMARY KEY(`uuid`))"
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -93,7 +89,7 @@ class SQLiteOpenHelperWriterTest {
                         "`age` INTEGER NOT NULL, PRIMARY KEY(`uuid`, `name`))"
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -117,7 +113,7 @@ class SQLiteOpenHelperWriterTest {
                             " `name` TEXT, `age` INTEGER NOT NULL)"
                     )
                 )
-            }.compilesWithoutError()
+            }
         }
     }
 
@@ -142,7 +138,7 @@ class SQLiteOpenHelperWriterTest {
                             " `name` TEXT, `age` INTEGER NOT NULL)"
                     )
                 )
-            }.compilesWithoutError()
+            }
         }
     }
 
@@ -151,31 +147,31 @@ class SQLiteOpenHelperWriterTest {
         singleView("SELECT uuid, name FROM MyEntity") { database, _ ->
             val query = SQLiteOpenHelperWriter(database).createViewQuery(database.views.first())
             assertThat(query, `is`("CREATE VIEW `MyView` AS SELECT uuid, name FROM MyEntity"))
-        }.compilesWithoutError()
+        }
     }
 
     private fun singleEntity(
         input: String,
         attributes: Map<String, String> = mapOf(),
-        handler: (Database, TestInvocation) -> Unit
-    ): CompileTester {
+        handler: (Database, XTestInvocation) -> Unit
+    ) {
         val attributesReplacement = if (attributes.isEmpty()) {
             ""
         } else {
             "(" + attributes.entries.joinToString(",") { "${it.key} = ${it.value}" } + ")"
         }
-        val entity = JavaFileObjects.forSourceString(
+        val entity = Source.java(
             "foo.bar.MyEntity",
             ENTITY_PREFIX.format(attributesReplacement) + input + ENTITY_SUFFIX
         )
-        return verify(listOf(entity), "", handler)
+        verify(listOf(entity), "", handler)
     }
 
     private fun singleView(
         query: String,
-        handler: (Database, TestInvocation) -> Unit
-    ): CompileTester {
-        val entity = JavaFileObjects.forSourceString(
+        handler: (Database, XTestInvocation) -> Unit
+    ) {
+        val entity = Source.java(
             "foo.bar.MyEntity",
             ENTITY_PREFIX.format("") + """
                     @PrimaryKey
@@ -184,9 +180,9 @@ class SQLiteOpenHelperWriterTest {
                     @NonNull
                     String name;
                     int age;
-                """ + ENTITY_SUFFIX
+            """ + ENTITY_SUFFIX
         )
-        val view = JavaFileObjects.forSourceString(
+        val view = Source.java(
             "foo.bar.MyView",
             DATABASE_PREFIX + """
                     @DatabaseView("$query")
@@ -194,39 +190,33 @@ class SQLiteOpenHelperWriterTest {
                         public String uuid;
                         public String name;
                     }
-                """
+            """
         )
         return verify(listOf(entity, view), "views = {MyView.class},", handler)
     }
 
     private fun verify(
-        jfos: List<JavaFileObject> = emptyList(),
+        sources: List<Source> = emptyList(),
         databaseAttribute: String,
-        handler: (Database, TestInvocation) -> Unit
-    ): CompileTester {
-        val databaseCode = """
+        handler: (Database, XTestInvocation) -> Unit
+    ) {
+        val databaseCode = Source.java(
+            "foo.bar.MyDatabase",
+            """
             package foo.bar;
             import androidx.room.*;
             @Database(entities = {MyEntity.class}, $databaseAttribute version = 3)
             abstract public class MyDatabase extends RoomDatabase {
             }
-        """
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(jfos + JavaFileObjects.forSourceString("foo.bar.MyDatabase", databaseCode))
-            .processedWith(
-                TestProcessor.builder()
-                    .forAnnotations(
-                        androidx.room.Database::class,
-                        NonNull::class
-                    )
-                    .nextRunHandler { invocation ->
-                        val db = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(androidx.room.Database::class.java)
-                            .first()
-                        handler(DatabaseProcessor(invocation.context, db).process(), invocation)
-                        true
-                    }
-                    .build()
-            )
+            """
+        )
+        runProcessorTest(
+            sources = sources + databaseCode
+        ) { invocation ->
+            val db = invocation.roundEnv
+                .getTypeElementsAnnotatedWith(androidx.room.Database::class.java)
+                .first()
+            handler(DatabaseProcessor(invocation.context, db).process(), invocation)
+        }
     }
 }

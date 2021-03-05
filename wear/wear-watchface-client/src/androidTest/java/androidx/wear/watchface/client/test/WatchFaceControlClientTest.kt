@@ -31,9 +31,9 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
-import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
+import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
@@ -129,12 +129,12 @@ class WatchFaceControlClientTest {
 
     private val complications = mapOf(
         EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-            ShortTextComplicationData.Builder(ComplicationText.plain("ID"))
-                .setTitle(ComplicationText.plain("Left"))
+            ShortTextComplicationData.Builder(PlainComplicationText.Builder("ID").build())
+                .setTitle(PlainComplicationText.Builder("Left").build())
                 .build(),
         EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
-            ShortTextComplicationData.Builder(ComplicationText.plain("ID"))
-                .setTitle(ComplicationText.plain("Right"))
+            ShortTextComplicationData.Builder(PlainComplicationText.Builder("ID").build())
+                .setTitle(PlainComplicationText.Builder("Right").build())
                 .build()
     )
 
@@ -169,7 +169,6 @@ class WatchFaceControlClientTest {
                 null,
                 Color.RED
             ),
-            100,
             1234567,
             null,
             complications
@@ -207,7 +206,6 @@ class WatchFaceControlClientTest {
                 null,
                 Color.YELLOW
             ),
-            100,
             1234567,
             null,
             complications
@@ -326,7 +324,6 @@ class WatchFaceControlClientTest {
                 null,
                 Color.RED
             ),
-            100,
             1234567,
             null,
             complications
@@ -372,7 +369,6 @@ class WatchFaceControlClientTest {
                 null,
                 Color.RED
             ),
-            100,
             1234567,
             null,
             complications
@@ -409,9 +405,13 @@ class WatchFaceControlClientTest {
         interactiveInstance.updateComplicationData(
             mapOf(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-                    ShortTextComplicationData.Builder(ComplicationText.plain("Test")).build(),
+                    ShortTextComplicationData.Builder(
+                        PlainComplicationText.Builder("Test").build()
+                    ).build(),
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
-                    LongTextComplicationData.Builder(ComplicationText.plain("Test")).build()
+                    LongTextComplicationData.Builder(
+                        PlainComplicationText.Builder("Test").build()
+                    ).build()
             )
         )
 
@@ -585,10 +585,12 @@ class WatchFaceControlClientTest {
         assertThat(contentDescriptionLabels[2].bounds).isEqualTo(Rect(240, 160, 320, 240))
         assertThat(contentDescriptionLabels[2].getTextAt(context.resources, 0))
             .isEqualTo("ID Right")
+
+        sysUiInterface.close()
     }
 
     @Test
-    fun setUserStyle() {
+    fun updateInstance() {
         val deferredInteractiveInstance =
             service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(
                 "testId",
@@ -613,15 +615,35 @@ class WatchFaceControlClientTest {
             }
         }
 
+        assertThat(interactiveInstance.instanceId).isEqualTo("testId")
+
         // Note this map doesn't include all the categories, which is fine the others will be set
         // to their defaults.
-        interactiveInstance.setUserStyle(
+        interactiveInstance.updateInstance(
+            "testId2",
             mapOf(
                 COLOR_STYLE_SETTING to BLUE_STYLE,
                 WATCH_HAND_LENGTH_STYLE_SETTING to "0.9",
             )
         )
 
+        assertThat(interactiveInstance.instanceId).isEqualTo("testId2")
+
+        // The complications should have been cleared.
+        val leftComplication =
+            interactiveInstance.complicationState[EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID]!!
+        val rightComplication =
+            interactiveInstance.complicationState[EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID]!!
+        assertThat(leftComplication.currentType).isEqualTo(ComplicationType.NO_DATA)
+        assertThat(rightComplication.currentType).isEqualTo(ComplicationType.NO_DATA)
+
+        // It should be possible to create a SysUI instance with the updated id.
+        val sysUiInterface =
+            service.getInteractiveWatchFaceSysUiClientInstance("testId2")
+        assertThat(sysUiInterface).isNotNull()
+        sysUiInterface?.close()
+
+        interactiveInstance.updateComplicationData(complications)
         val bitmap = interactiveInstance.takeWatchFaceScreenshot(
             RenderParameters(
                 DrawMode.INTERACTIVE,
@@ -629,7 +651,6 @@ class WatchFaceControlClientTest {
                 null,
                 Color.RED
             ),
-            100,
             1234567,
             null,
             complications

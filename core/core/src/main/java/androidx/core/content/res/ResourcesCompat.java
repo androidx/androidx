@@ -18,6 +18,7 @@ package androidx.core.content.res;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
@@ -304,10 +305,7 @@ public final class ResourcesCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public final void callbackSuccessAsync(final Typeface typeface, @Nullable Handler handler) {
-            if (handler == null) {
-                handler = new Handler(Looper.getMainLooper());
-            }
-            handler.post(new Runnable() {
+            getHandler(handler).post(new Runnable() {
                 @Override
                 public void run() {
                     onFontRetrieved(typeface);
@@ -323,15 +321,19 @@ public final class ResourcesCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public final void callbackFailAsync(
                 @FontRequestFailReason final int reason, @Nullable Handler handler) {
-            if (handler == null) {
-                handler = new Handler(Looper.getMainLooper());
-            }
-            handler.post(new Runnable() {
+            getHandler(handler).post(new Runnable() {
                 @Override
                 public void run() {
                     onFontRetrievalFailed(reason);
                 }
             });
+        }
+
+        /** @hide */
+        @RestrictTo(LIBRARY)
+        @NonNull
+        public static Handler getHandler(@Nullable Handler handler) {
+            return handler == null ? new Handler(Looper.getMainLooper()) : handler;
         }
     }
 
@@ -411,6 +413,16 @@ public final class ResourcesCompat {
      * Load the given font. This method will always return null for asynchronous requests, which
      * provide a fontCallback, as there is no immediate result. When the callback is not provided,
      * the request is treated as synchronous and fails if async loading is required.
+     *
+     * @param context The Context to get Resources from
+     * @param id The Resource id to load
+     * @param value A TypedValue to use in the fetching
+     * @param style The font style to load
+     * @param fontCallback A callback to trigger when the font is fetched or an error occurs
+     * @param handler A handler to the thread the callback should be called on
+     * @param isRequestFromLayoutInflator Whether this request originated from XML. This is used to
+     *                     determine if we use or ignore the fontProviderFetchStrategy attribute in
+     *                     font provider XML fonts.
      */
     private static Typeface loadFont(
             @NonNull Context context, Resources wrapper, TypedValue value, int id, int style,

@@ -463,11 +463,12 @@ class ConcatAdapterController implements NestedAdapterWrapper.Callback {
         // local position is globalPosition - itemsBefore
         int localPosition = globalPosition - itemsBefore;
         // Early error detection:
-        if (localPosition < 0 || localPosition >= wrapper.adapter.getItemCount()) {
+        int itemCount = wrapper.adapter.getItemCount();
+        if (localPosition < 0 || localPosition >= itemCount) {
             throw new IllegalStateException("Detected inconsistent adapter updates. The"
                     + " local position of the view holder maps to " + localPosition + " which"
                     + " is out of bounds for the adapter with size "
-                    + wrapper.getCachedItemCount() + "."
+                    + itemCount + "."
                     + "Make sure to immediately call notify methods in your adapter when you "
                     + "change the backing data"
                     + "viewHolder:" + viewHolder

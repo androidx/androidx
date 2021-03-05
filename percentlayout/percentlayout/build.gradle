@@ -21,7 +21,7 @@ dependencies {
 
 android {
     sourceSets {
-        main.res.srcDir 'res'
+        main.res.srcDir "res"
     }
 }
 

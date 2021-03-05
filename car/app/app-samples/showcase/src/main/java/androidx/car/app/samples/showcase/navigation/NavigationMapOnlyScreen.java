@@ -39,7 +39,7 @@ public final class NavigationMapOnlyScreen extends Screen {
                         .addAction(
                                 new Action.Builder()
                                         .setTitle("BACK")
-                                        .setOnClickListener(() -> finish())
+                                        .setOnClickListener(this::finish)
                                         .build())
                         .build();
 

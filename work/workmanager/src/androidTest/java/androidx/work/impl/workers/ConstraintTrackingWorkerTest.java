@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.testutils.RepeatRule;
@@ -215,6 +216,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    @FlakyTest(bugId = 180654418, detail = "Passes locally all the time.")
     public void testConstraintTrackingWorker_onConstraintsChangedTwice()
             throws InterruptedException {
         when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
@@ -242,9 +244,9 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         }, DELAY_IN_MS);
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
-        executorService.shutdown();
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(workSpec.state, is(WorkInfo.State.ENQUEUED));
+        executorService.shutdown();
     }
 
     @Test

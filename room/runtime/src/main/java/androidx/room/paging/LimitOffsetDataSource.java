@@ -28,6 +28,7 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A simple data source implementation that uses Limit & Offset to page the query.
@@ -37,6 +38,11 @@ import java.util.Set;
  * ORDER BY statement but that requires a more complex API. This solution is technically equal to
  * receiving a {@link Cursor} from a large query but avoids the need to manually manage it, and
  * never returns inconsistent data if it is invalidated.
+ *
+ * This class is used for both Paging2 and Pagin3 (via its compat API). When used with Paging3,
+ * it does lazy registration for observers to be suitable for initialization on the main thread
+ * whereas in Paging2, it will register observer eagerly to obey Paging2's strict Data Source
+ * rules. (Paging2 does not let data source to possibly return invalidated data).
  *
  * @param <T> Data type returned by the data source.
  *
@@ -52,14 +58,40 @@ public abstract class LimitOffsetDataSource<T> extends androidx.paging.Positiona
     @SuppressWarnings("FieldCanBeLocal")
     private final InvalidationTracker.Observer mObserver;
     private final boolean mInTransaction;
+    private final AtomicBoolean mRegisteredObserver = new AtomicBoolean(false);
 
-    protected LimitOffsetDataSource(RoomDatabase db, SupportSQLiteQuery query,
-            boolean inTransaction, String... tables) {
+    protected LimitOffsetDataSource(@NonNull RoomDatabase db,
+            @NonNull SupportSQLiteQuery query,
+            boolean inTransaction,
+            @NonNull
+                    String... tables) {
         this(db, RoomSQLiteQuery.copyFrom(query), inTransaction, tables);
     }
 
-    protected LimitOffsetDataSource(RoomDatabase db, RoomSQLiteQuery query,
-            boolean inTransaction, String... tables) {
+    protected LimitOffsetDataSource(
+            @NonNull RoomDatabase db,
+            @NonNull SupportSQLiteQuery query,
+            boolean inTransaction,
+            boolean registerObserverImmediately,
+            @NonNull String... tables) {
+        this(db, RoomSQLiteQuery.copyFrom(query), inTransaction, registerObserverImmediately,
+                tables);
+    }
+
+    protected LimitOffsetDataSource(
+            @NonNull RoomDatabase db,
+            @NonNull RoomSQLiteQuery query,
+            boolean inTransaction,
+            @NonNull String... tables) {
+        this(db, query, inTransaction, true /*register registerObserverImmediately*/, tables);
+    }
+
+    protected LimitOffsetDataSource(
+            @NonNull RoomDatabase db,
+            @NonNull RoomSQLiteQuery query,
+            boolean inTransaction,
+            boolean registerObserverImmediately,
+            @NonNull String... tables) {
         mDb = db;
         mSourceQuery = query;
         mInTransaction = inTransaction;
@@ -71,7 +103,15 @@ public abstract class LimitOffsetDataSource<T> extends androidx.paging.Positiona
                 invalidate();
             }
         };
-        db.getInvalidationTracker().addWeakObserver(mObserver);
+        if (registerObserverImmediately) {
+            registerObserverIfNecessary();
+        }
+    }
+
+    private void registerObserverIfNecessary() {
+        if (mRegisteredObserver.compareAndSet(false, true)) {
+            mDb.getInvalidationTracker().addWeakObserver(mObserver);
+        }
     }
 
     /**
@@ -81,6 +121,7 @@ public abstract class LimitOffsetDataSource<T> extends androidx.paging.Positiona
      */
     @SuppressWarnings("WeakerAccess")
     public int countItems() {
+        registerObserverIfNecessary();
         final RoomSQLiteQuery sqLiteQuery = RoomSQLiteQuery.acquire(mCountQuery,
                 mSourceQuery.getArgCount());
         sqLiteQuery.copyArgumentsFrom(mSourceQuery);
@@ -98,19 +139,22 @@ public abstract class LimitOffsetDataSource<T> extends androidx.paging.Positiona
 
     @Override
     public boolean isInvalid() {
+        registerObserverIfNecessary();
         mDb.getInvalidationTracker().refreshVersionsSync();
         return super.isInvalid();
     }
 
+    @NonNull
     @SuppressWarnings("WeakerAccess")
-    protected abstract List<T> convertRows(Cursor cursor);
+    protected abstract List<T> convertRows(@NonNull Cursor cursor);
 
     @SuppressWarnings("deprecation")
     @Override
     public void loadInitial(@NonNull LoadInitialParams params,
             @NonNull LoadInitialCallback<T> callback) {
+        registerObserverIfNecessary();
         List<T> list = Collections.emptyList();
-        int totalCount = 0;
+        int totalCount;
         int firstLoadPosition = 0;
         RoomSQLiteQuery sqLiteQuery = null;
         Cursor cursor = null;

@@ -74,10 +74,13 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }}
+          arguments: -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} --stacktrace
           build-root-directory: activity
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
           gradle-executable: activity/gradlew
           wrapper-directory: activity/gradle/wrapper
+          wrapper-cache-enabled: true
 
       - name: "Report job status"
         id: output-status
@@ -120,10 +123,13 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer
+          arguments: buildOnServer --stacktrace
           build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
           gradle-executable: ${{ env.project-root }}/gradlew
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          wrapper-cache-enabled: true
 
       - name: "Upload build artifacts"
         continue-on-error: true
@@ -174,10 +180,13 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer
+          arguments: buildOnServer --stacktrace
           build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
           gradle-executable: ${{ env.project-root }}/gradlew
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          wrapper-cache-enabled: true
 
       - name: "Upload build artifacts"
         continue-on-error: true
@@ -228,10 +237,13 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer
+          arguments: buildOnServer --stacktrace
           build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
           gradle-executable: ${{ env.project-root }}/gradlew
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          wrapper-cache-enabled: true
 
       - name: "Upload build artifacts"
         continue-on-error: true
@@ -282,10 +294,13 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer
+          arguments: buildOnServer --stacktrace
           build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
           gradle-executable: ${{ env.project-root }}/gradlew
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          wrapper-cache-enabled: true
 
       - name: "Upload build artifacts"
         continue-on-error: true
@@ -336,10 +351,13 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer
+          arguments: buildOnServer --stacktrace
           build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
           gradle-executable: ${{ env.project-root }}/gradlew
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          wrapper-cache-enabled: true
 
       - name: "Upload build artifacts"
         continue-on-error: true
@@ -390,10 +408,13 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer
+          arguments: buildOnServer --stacktrace
           build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
           gradle-executable: ${{ env.project-root }}/gradlew
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          wrapper-cache-enabled: true
 
       - name: "Upload build artifacts"
         continue-on-error: true
@@ -444,10 +465,13 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer
+          arguments: buildOnServer --stacktrace
           build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
           gradle-executable: ${{ env.project-root }}/gradlew
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          wrapper-cache-enabled: true
 
       - name: "Upload build artifacts"
         continue-on-error: true
@@ -498,10 +522,13 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer
+          arguments: buildOnServer --stacktrace
           build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
           gradle-executable: ${{ env.project-root }}/gradlew
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          wrapper-cache-enabled: true
 
 
       - name: "upload build artifacts"
@@ -553,10 +580,13 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer
+          arguments: buildOnServer --stacktrace
           build-root-directory: ${{ env.project-root }}
+          configuration-cache-enabled: true
+          dependencies-cache-enabled: true
           gradle-executable: ${{ env.project-root }}/gradlew
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+          wrapper-cache-enabled: true
 
       - name: "Upload build artifacts"
         continue-on-error: true

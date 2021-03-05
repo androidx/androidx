@@ -205,6 +205,7 @@ public class ShortTextComplicationData internal constructor(
             setContentDescription(contentDescription?.asWireComplicationText())
             monochromaticImage?.addToWireComplicationData(this)
             setTapAction(tapAction)
+            setValidTimeRange(validTimeRange, this)
         }.build()
 
     /** @hide */
@@ -304,6 +305,7 @@ public class LongTextComplicationData internal constructor(
             smallImage?.addToWireComplicationData(this)
             setTapAction(tapAction)
             setContentDescription(contentDescription?.asWireComplicationText())
+            setValidTimeRange(validTimeRange, this)
         }.build()
 
     /** @hide */
@@ -413,6 +415,7 @@ public class RangedValueComplicationData internal constructor(
             setShortTitle(title?.asWireComplicationText())
             setTapAction(tapAction)
             setContentDescription(contentDescription?.asWireComplicationText())
+            setValidTimeRange(validTimeRange, this)
         }.build()
 
     /** @hide */
@@ -484,6 +487,7 @@ public class MonochromaticImageComplicationData internal constructor(
             monochromaticImage.addToWireComplicationData(this)
             setContentDescription(contentDescription?.asWireComplicationText())
             setTapAction(tapAction)
+            setValidTimeRange(validTimeRange, this)
         }.build()
 
     /** @hide */
@@ -550,6 +554,7 @@ public class SmallImageComplicationData internal constructor(
             smallImage.addToWireComplicationData(this)
             setContentDescription(contentDescription?.asWireComplicationText())
             setTapAction(tapAction)
+            setValidTimeRange(validTimeRange, this)
         }.build()
 
     /** @hide */
@@ -621,6 +626,7 @@ public class PhotoImageComplicationData internal constructor(
         WireComplicationDataBuilder(TYPE.asWireComplicationType()).apply {
             setLargeImage(photoImage)
             setContentDescription(contentDescription?.asWireComplicationText())
+            setValidTimeRange(validTimeRange, this)
         }.build()
 
     /** @hide */
@@ -655,7 +661,6 @@ public class NoPermissionComplicationData internal constructor(
      * You must at a minimum set the [tapAction].
      */
     public class Builder {
-        private var tapAction: PendingIntent? = null
         private var text: ComplicationText? = null
         private var title: ComplicationText? = null
         private var monochromaticImage: MonochromaticImage? = null
@@ -798,3 +803,14 @@ private fun WireComplicationData.parseSmallImage() =
 /** Some of the types, do not have any fields. This method provides a shorthard for that case. */
 internal fun asPlainWireComplicationData(type: ComplicationType) =
     WireComplicationDataBuilder(type.asWireComplicationType()).build()
+
+internal fun setValidTimeRange(validTimeRange: TimeRange?, data: WireComplicationDataBuilder) {
+    validTimeRange?.let {
+        if (it.startDateTimeMillis > 0) {
+            data.setStartDateTimeMillis(it.startDateTimeMillis)
+        }
+        if (it.endDateTimeMillis != Long.MAX_VALUE) {
+            data.setEndDateTimeMillis(it.endDateTimeMillis)
+        }
+    }
+}

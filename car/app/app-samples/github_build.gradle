@@ -38,11 +38,6 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
-
-        // replace this with the actual build ID that should be used.
-        // TODO(b/179424475): replace with a stable maven url before publishing to Github
-        def build_id = SNAPSHOT_BUILD_ID
-        maven { url "https://androidx.dev/snapshots/builds/$build_id/artifacts/repository" }
     }
 }
 

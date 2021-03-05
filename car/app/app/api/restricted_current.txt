@@ -28,7 +28,7 @@ package androidx.car.app {
     method @CallSuper public final void dump(java.io.FileDescriptor, java.io.PrintWriter, String![]?);
     method public final androidx.car.app.Session? getCurrentSession();
     method public final androidx.car.app.HostInfo? getHostInfo();
-    method @CallSuper public final android.os.IBinder? onBind(android.content.Intent);
+    method @CallSuper public final android.os.IBinder onBind(android.content.Intent);
     method public abstract androidx.car.app.Session onCreateSession();
     method public final boolean onUnbind(android.content.Intent);
     field public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
@@ -248,7 +248,7 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.CarIconSpan create(androidx.car.app.model.CarIcon);
     method public static androidx.car.app.model.CarIconSpan create(androidx.car.app.model.CarIcon, int);
     method public int getAlignment();
-    method public androidx.car.app.model.CarIcon? getIcon();
+    method public androidx.car.app.model.CarIcon getIcon();
     field public static final int ALIGN_BASELINE = 1; // 0x1
     field public static final int ALIGN_BOTTOM = 0; // 0x0
     field public static final int ALIGN_CENTER = 2; // 0x2
@@ -297,7 +297,7 @@ package androidx.car.app.model {
 
   public final class DistanceSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.DistanceSpan create(androidx.car.app.model.Distance);
-    method public androidx.car.app.model.Distance? getDistance();
+    method public androidx.car.app.model.Distance getDistance();
   }
 
   public final class DurationSpan extends androidx.car.app.model.CarSpan {
@@ -308,7 +308,7 @@ package androidx.car.app.model {
 
   public final class ForegroundCarColorSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.ForegroundCarColorSpan create(androidx.car.app.model.CarColor);
-    method public androidx.car.app.model.CarColor? getColor();
+    method public androidx.car.app.model.CarColor getColor();
   }
 
   public final class GridItem implements androidx.car.app.model.Item {
@@ -405,7 +405,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarText? getDebugMessage();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.CarIcon? getIcon();
-    method public androidx.car.app.model.CarText? getMessage();
+    method public androidx.car.app.model.CarText getMessage();
     method public androidx.car.app.model.CarText? getTitle();
   }
 
@@ -470,7 +470,7 @@ package androidx.car.app.model {
   public final class PaneTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
-    method public androidx.car.app.model.Pane? getPane();
+    method public androidx.car.app.model.Pane getPane();
     method public androidx.car.app.model.CarText? getTitle();
   }
 
@@ -488,7 +488,7 @@ package androidx.car.app.model {
   }
 
   public final class Place {
-    method public androidx.car.app.model.CarLocation? getLocation();
+    method public androidx.car.app.model.CarLocation getLocation();
     method public androidx.car.app.model.PlaceMarker? getMarker();
   }
 
@@ -577,7 +577,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Action? getHeaderAction();
     method public String? getInitialSearchText();
     method public androidx.car.app.model.ItemList? getItemList();
-    method public androidx.car.app.model.SearchCallbackDelegate? getSearchCallbackDelegate();
+    method public androidx.car.app.model.SearchCallbackDelegate getSearchCallbackDelegate();
     method public String? getSearchHint();
     method public boolean isLoading();
     method public boolean isShowKeyboardByDefault();
@@ -602,8 +602,8 @@ package androidx.car.app.model {
 
   public final class SectionedItemList {
     method public static androidx.car.app.model.SectionedItemList create(androidx.car.app.model.ItemList, CharSequence);
-    method public androidx.car.app.model.CarText? getHeader();
-    method public androidx.car.app.model.ItemList? getItemList();
+    method public androidx.car.app.model.CarText getHeader();
+    method public androidx.car.app.model.ItemList getItemList();
   }
 
   public interface Template {
@@ -631,7 +631,7 @@ package androidx.car.app.model {
   }
 
   public final class Toggle {
-    method public androidx.car.app.model.OnCheckedChangeDelegate? getOnCheckedChangeDelegate();
+    method public androidx.car.app.model.OnCheckedChangeDelegate getOnCheckedChangeDelegate();
     method public boolean isChecked();
   }
 

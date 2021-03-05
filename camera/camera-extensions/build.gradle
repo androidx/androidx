@@ -41,7 +41,7 @@ dependencies {
     testImplementation(MOCKITO_CORE)
     testImplementation(ROBOLECTRIC)
     testImplementation(TRUTH)
-    testImplementation project(":camera:camera-testing")
+    testImplementation(project(":camera:camera-testing"))
     testImplementation(project(":camera:camera-extensions-stub"))
     // To use the extensions-stub for testing directly.
 

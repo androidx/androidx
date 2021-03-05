@@ -24,7 +24,7 @@ import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
  * An object used to configure loading behavior within a [Pager], as it loads content from a
  * [PagingSource].
  */
-class PagingConfig @JvmOverloads constructor(
+public class PagingConfig @JvmOverloads public constructor(
     /**
      * Defines the number of items loaded at once from the [PagingSource].
      *
@@ -45,7 +45,7 @@ class PagingConfig @JvmOverloads constructor(
      * [Page][PagingSource.LoadResult.Page].
      */
     @JvmField
-    val pageSize: Int,
+    public val pageSize: Int,
 
     /**
      * Prefetch distance which defines how far from the edge of loaded content an access must be to
@@ -61,7 +61,7 @@ class PagingConfig @JvmOverloads constructor(
      */
     @JvmField
     @IntRange(from = 0)
-    val prefetchDistance: Int = pageSize,
+    public val prefetchDistance: Int = pageSize,
 
     /**
      * Defines whether [PagingData] may display `null` placeholders, if the [PagingSource]
@@ -76,7 +76,7 @@ class PagingConfig @JvmOverloads constructor(
      * 2) [enablePlaceholders] is set to `true`
      */
     @JvmField
-    val enablePlaceholders: Boolean = true,
+    public val enablePlaceholders: Boolean = true,
 
     /**
      * Defines requested load size for initial load from [PagingSource], typically larger than
@@ -89,7 +89,7 @@ class PagingConfig @JvmOverloads constructor(
      */
     @JvmField
     @IntRange(from = 1)
-    val initialLoadSize: Int = pageSize * DEFAULT_INITIAL_PAGE_MULTIPLIER,
+    public val initialLoadSize: Int = pageSize * DEFAULT_INITIAL_PAGE_MULTIPLIER,
     /**
      * Defines the maximum number of items that may be loaded into [PagingData] before pages should
      * be dropped.
@@ -115,7 +115,7 @@ class PagingConfig @JvmOverloads constructor(
      */
     @JvmField
     @IntRange(from = 2)
-    val maxSize: Int = MAX_SIZE_UNBOUNDED,
+    public val maxSize: Int = MAX_SIZE_UNBOUNDED,
 
     /**
      * Defines a threshold for the number of items scrolled outside the bounds of loaded items
@@ -131,7 +131,7 @@ class PagingConfig @JvmOverloads constructor(
      * @see PagingSource.jumpingSupported
      */
     @JvmField
-    val jumpThreshold: Int = COUNT_UNDEFINED
+    public val jumpThreshold: Int = COUNT_UNDEFINED
 ) {
     init {
         if (!enablePlaceholders && prefetchDistance == 0) {
@@ -154,13 +154,13 @@ class PagingConfig @JvmOverloads constructor(
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * When [maxSize] is set to [MAX_SIZE_UNBOUNDED], the maximum number of items loaded is
          * unbounded, and pages will never be dropped.
          */
         @Suppress("MinMaxConstant")
-        const val MAX_SIZE_UNBOUNDED = Int.MAX_VALUE
+        public const val MAX_SIZE_UNBOUNDED: Int = Int.MAX_VALUE
         internal const val DEFAULT_INITIAL_PAGE_MULTIPLIER = 3
     }
 }

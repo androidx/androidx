@@ -279,6 +279,6 @@ class NavInflaterTest {
         val defaultArguments = startDestination?.arguments
 
         assertThat(defaultArguments).isNotNull()
-        return defaultArguments!!
+        return defaultArguments as Map<String, NavArgument>
     }
 }

@@ -17,11 +17,11 @@
 package androidx.wear.tiles.readers;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.ResourcesRequestData;
 import androidx.wear.tiles.TileRequestData;
+import androidx.wear.tiles.builders.StateBuilders.State;
 import androidx.wear.tiles.proto.RequestProto;
 import androidx.wear.tiles.protobuf.ExtensionRegistryLite;
 import androidx.wear.tiles.protobuf.InvalidProtocolBufferException;
@@ -36,36 +36,38 @@ public class RequestReaders {
     /** Reader for a {@link TileRequestData} instance. */
     public static class TileRequest {
         private final RequestProto.TileRequest mProto;
+        private final int mTileId;
 
-        private TileRequest(RequestProto.TileRequest proto) {
+        private TileRequest(RequestProto.TileRequest proto, int tileId) {
             this.mProto = proto;
+            this.mTileId = tileId;
         }
 
-        /** Get the Clickable ID which triggered this Tile request. */
+        /** Get the {@link State} that the tile should be built with. */
         @NonNull
-        public String getClickableId() {
-            return mProto.getClickableId();
+        public State getState() {
+            return State.fromProto(mProto.getState());
         }
 
         /** Get parameters describing the device requesting this tile. */
-        @Nullable
+        @NonNull
         public DeviceParameters getDeviceParameters() {
-            if (!mProto.hasDeviceParameters()) {
-                return null;
-            }
-
             return new DeviceParameters(mProto.getDeviceParameters());
+        }
+
+        public int getTileId() {
+            return mTileId;
         }
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY)
         @NonNull
-        public static TileRequest fromParcelable(@NonNull TileRequestData parcelable) {
+        public static TileRequest fromParcelable(@NonNull TileRequestData parcelable, int tileId) {
             try {
                 return new TileRequest(
                         RequestProto.TileRequest.parseFrom(
-                                parcelable.getContents(),
-                                ExtensionRegistryLite.getEmptyRegistry()));
+                                parcelable.getContents(), ExtensionRegistryLite.getEmptyRegistry()),
+                        tileId);
             } catch (InvalidProtocolBufferException ex) {
                 throw new IllegalArgumentException(
                         "Passed TileRequestData did not contain a valid proto payload", ex);
@@ -76,24 +78,31 @@ public class RequestReaders {
     /** Reader for a {@link ResourcesRequestData} instance. */
     public static class ResourcesRequest {
         private final RequestProto.ResourcesRequest mProto;
+        private final int mTileId;
 
-        private ResourcesRequest(@NonNull RequestProto.ResourcesRequest proto) {
+        private ResourcesRequest(@NonNull RequestProto.ResourcesRequest proto, int tileId) {
             this.mProto = proto;
+            this.mTileId = tileId;
         }
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY)
         @NonNull
-        public static ResourcesRequest fromParcelable(@NonNull ResourcesRequestData parcelable) {
+        public static ResourcesRequest fromParcelable(
+                @NonNull ResourcesRequestData parcelable, int tileId) {
             try {
                 return new ResourcesRequest(
                         RequestProto.ResourcesRequest.parseFrom(
-                                parcelable.getContents(),
-                                ExtensionRegistryLite.getEmptyRegistry()));
+                                parcelable.getContents(), ExtensionRegistryLite.getEmptyRegistry()),
+                        tileId);
             } catch (InvalidProtocolBufferException ex) {
                 throw new IllegalArgumentException(
                         "Passed ResourcesRequestData did not contain a valid proto payload", ex);
             }
+        }
+
+        public int getTileId() {
+            return mTileId;
         }
 
         /** Get the resource version requested by this {@link ResourcesRequestData}. */
@@ -109,6 +118,12 @@ public class RequestReaders {
         @NonNull
         public List<String> getResourceIds() {
             return mProto.getResourceIdsList();
+        }
+
+        /** Get parameters describing the device requesting these resources. */
+        @NonNull
+        public DeviceParameters getDeviceParameters() {
+            return new DeviceParameters(mProto.getDeviceParameters());
         }
     }
 }
