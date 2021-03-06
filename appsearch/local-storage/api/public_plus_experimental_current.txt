@@ -10,9 +10,8 @@ package androidx.appsearch.localstorage {
   }
 
   public static final class LocalStorage.SearchContext.Builder {
-    ctor public LocalStorage.SearchContext.Builder(android.content.Context);
+    ctor public LocalStorage.SearchContext.Builder(android.content.Context, String);
     method public androidx.appsearch.localstorage.LocalStorage.SearchContext build();
-    method public androidx.appsearch.localstorage.LocalStorage.SearchContext.Builder setDatabaseName(String);
   }
 
 }
