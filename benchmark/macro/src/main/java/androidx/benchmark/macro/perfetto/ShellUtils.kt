@@ -16,7 +16,7 @@
 
 package androidx.benchmark.macro.perfetto
 
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.benchmark.Outputs
 import androidx.test.uiautomator.UiDevice
 import java.io.File
 import java.io.InputStream
@@ -36,11 +36,9 @@ import java.io.InputStream
  * @param stdin String to pass in as stdin to first command in script
  */
 fun UiDevice.executeShellScript(script: String, stdin: String? = null): String {
-    // externalFilesDir is writable, but we can't execute there (as of Q),
+    // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
     // so we copy to /data/local/tmp
-    val context = InstrumentationRegistry.getInstrumentation().context
-    val externalDir = context.getExternalFilesDir(null)!!
-
+    val externalDir = Outputs.dirUsableByAppAndShell
     val stdinFile = File.createTempFile("temporaryStdin", null, externalDir)
     val writableScriptFile = File.createTempFile("temporaryScript", "sh", externalDir)
     val runnableScriptPath = "/data/local/tmp/" + writableScriptFile.name
@@ -70,11 +68,9 @@ fun UiDevice.executeShellScript(script: String, stdin: String? = null): String {
  * Writes the inputStream to an executable file with the given name in `/data/local/tmp`
  */
 fun UiDevice.createRunnableExecutable(name: String, inputStream: InputStream): String {
-    // externalFilesDir is writable, but we can't execute there (as of Q),
+    // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
     // so we copy to /data/local/tmp
-    val context = InstrumentationRegistry.getInstrumentation().context
-    val externalDir = context.getExternalFilesDir(null)!!
-
+    val externalDir = Outputs.dirUsableByAppAndShell
     val writableExecutableFile = File.createTempFile(
         /* prefix */ "temporary_$name",
         /* suffix */ null,

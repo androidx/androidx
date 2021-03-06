@@ -1,15 +1,6 @@
 // Signature format: 4.0
 package androidx.benchmark {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class Arguments {
-    method public String getOutputDirectoryPath();
-    method public java.util.Set<java.lang.String> getSuppressedErrors();
-    method public java.io.File testOutputFile(String filename);
-    property public final String outputDirectoryPath;
-    property public final java.util.Set<java.lang.String> suppressedErrors;
-    field public static final androidx.benchmark.Arguments INSTANCE;
-  }
-
   public final class ArgumentsKt {
   }
 

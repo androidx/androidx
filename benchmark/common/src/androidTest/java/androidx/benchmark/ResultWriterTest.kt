@@ -30,7 +30,7 @@ import kotlin.test.assertTrue
 @RunWith(AndroidJUnit4::class)
 public class ResultWriterTest {
     @get:Rule
-    val tempFolder = TemporaryFolder()
+    public val tempFolder: TemporaryFolder = TemporaryFolder()
 
     private val metricResults = listOf(
         MetricResult(
@@ -59,7 +59,7 @@ public class ResultWriterTest {
     )
 
     @Test
-    fun shouldClearExistingContent() {
+    public fun shouldClearExistingContent() {
         val tempFile = tempFolder.newFile()
 
         val fakeText = "This text should not be in the final output"
@@ -70,7 +70,7 @@ public class ResultWriterTest {
     }
 
     @Test
-    fun validateJson() {
+    public fun validateJson() {
         val tempFile = tempFolder.newFile()
 
         val sustainedPerformanceModeInUse = IsolationActivity.sustainedPerformanceModeInUse
@@ -146,7 +146,7 @@ public class ResultWriterTest {
     }
 
     @Test
-    fun validateJsonWithParams() {
+    public fun validateJsonWithParams() {
         val reportWithParams = BenchmarkResult(
             testName = "MethodWithParams[number=2,primeNumber=true]",
             className = "package.Class",
@@ -175,7 +175,7 @@ public class ResultWriterTest {
     }
 
     @Test
-    fun validateJsonWithInvalidParams() {
+    public fun validateJsonWithInvalidParams() {
         val reportWithInvalidParams = BenchmarkResult(
             testName = "MethodWithParams[number=2,=true,]",
             className = "package.Class",

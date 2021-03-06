@@ -16,7 +16,7 @@
 
 package androidx.benchmark.macro
 
-import androidx.benchmark.Arguments
+import androidx.benchmark.Outputs
 import androidx.benchmark.Stats
 import java.util.Collections
 import kotlin.math.max
@@ -61,11 +61,8 @@ internal fun ideSummaryStrings(
         } + "\n"
     }
     val relativeTracePaths = absoluteTracePaths.map { absolutePath ->
-        val relativePath = absolutePath.removePrefix(Arguments.outputDirectoryPath + "/")
-        check(relativePath != absolutePath)
-        relativePath
+        Outputs.relativePathFor(absolutePath)
     }
-
     return Pair(
         first = ideSummaryString { name, min, median, max, _ ->
             "  $name   min $min,   median $median,   max $max"
