@@ -39,7 +39,9 @@ public class InstrumentationResultScope(public val bundle: Bundle = Bundle()) {
         summaryV2: String = summaryV1
     ) {
         bundle.putString(IDE_V1_SUMMARY_KEY, summaryV1)
-        bundle.putString(IDE_V2_OUTPUT_DIR_PATH_KEY, Arguments.outputDirectoryPath)
+        // Outputs.outputDirectory is safe to use in the context of Studio currently.
+        // This is because AGP does not populate the `additionalTestOutputDir` argument.
+        bundle.putString(IDE_V2_OUTPUT_DIR_PATH_KEY, Outputs.outputDirectory.absolutePath)
         bundle.putString(IDE_V2_SUMMARY_KEY, summaryV2)
     }
 

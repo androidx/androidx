@@ -37,22 +37,21 @@ public object ResultWriter {
         if (Arguments.outputEnable) {
             // Currently, we just overwrite the whole file
             // Ideally, append for efficiency
-            val packageName =
-                InstrumentationRegistry.getInstrumentation().targetContext!!.packageName
+            val packageName = InstrumentationRegistry.getInstrumentation()
+                .targetContext!!
+                .packageName
 
-            val file = Arguments.testOutputFile("$packageName-benchmarkData.json")
-            Log.d(
-                BenchmarkState.TAG,
-                "writing results to ${file.absolutePath}"
-            )
-            writeReport(file, reports)
-            InstrumentationResults.reportAdditionalFileToCopy(
-                "results_json",
-                file.absolutePath,
-                // since we keep appending the same file, defer reporting path until end of suite
-                // note: this requires using InstrumentationResultsRunListener
+            Outputs.writeFile(
+                fileName = "$packageName-benchmarkData.json",
+                reportKey = "results_json",
                 reportOnRunEndOnly = true
-            )
+            ) {
+                Log.d(
+                    BenchmarkState.TAG,
+                    "writing results to ${it.absolutePath}"
+                )
+                writeReport(it, reports)
+            }
         } else {
             Log.d(
                 BenchmarkState.TAG,

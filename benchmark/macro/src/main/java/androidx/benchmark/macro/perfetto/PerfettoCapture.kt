@@ -18,6 +18,7 @@ package androidx.benchmark.macro.perfetto
 
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.benchmark.Outputs
 import androidx.benchmark.macro.R
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
@@ -55,7 +56,7 @@ class PerfettoCapture {
         // Write textproto asset to external files dir, so it can be read by shell
         // TODO: use binary proto (which will also give us rooted 28 support)
         val configBytes = context.resources.openRawResource(R.raw.trace_config).readBytes()
-        val textProtoFile = File(context.getExternalFilesDir(null), "trace_config.textproto")
+        val textProtoFile = File(Outputs.dirUsableByAppAndShell, "trace_config.textproto")
         try {
             textProtoFile.writeBytes(configBytes)
             helper.startCollecting(textProtoFile.absolutePath, true)
