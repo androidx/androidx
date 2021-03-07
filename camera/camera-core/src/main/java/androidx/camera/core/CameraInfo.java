@@ -22,7 +22,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
-import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
@@ -164,13 +163,4 @@ public interface CameraInfo {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @interface ImplementationType {
     }
-
-    /**
-     * Returns the {@link CamcorderProfileProvider} associated with this camera.
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    CamcorderProfileProvider getCamcorderProfileProvider();
 }
