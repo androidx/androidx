@@ -52,7 +52,14 @@ import java.util.Set;
 public class GenericDocument {
     private static final String TAG = "AppSearchGenericDocumen";
 
-    /** The default empty namespace. */
+    /**
+     * The default empty namespace.
+     *
+     * TODO(b/181887768): This exists only for dogfooder transition and must be removed.
+     *
+     * @deprecated This exists only for dogfooder transition and must be removed.
+     */
+    @Deprecated
     public static final String DEFAULT_NAMESPACE = "";
 
     /** The maximum number of elements in a repeatable field. */
@@ -177,7 +184,7 @@ public class GenericDocument {
     /** Returns the namespace of the {@link GenericDocument}. */
     @NonNull
     public String getNamespace() {
-        return mBundle.getString(NAMESPACE_FIELD, DEFAULT_NAMESPACE);
+        return mBundle.getString(NAMESPACE_FIELD, /*defaultValue=*/ "");
     }
 
     /** Returns the {@link AppSearchSchema} type of the {@link GenericDocument}. */
@@ -499,6 +506,7 @@ public class GenericDocument {
     }
 
 // @exportToFramework:startStrip()
+
     /**
      * Converts this GenericDocument into an instance of the provided document class.
      *
@@ -511,10 +519,10 @@ public class GenericDocument {
      * supplying the wrong document class would be an empty or partially populated result.
      *
      * @param documentClass a class annotated with {@link Document}
-     * @throws AppSearchException if no factory for this document class could be found on the
-     *       classpath.
      * @return an instance of the document class after being converted from a
-     *       {@link GenericDocument}
+     * {@link GenericDocument}
+     * @throws AppSearchException if no factory for this document class could be found on the
+     *                            classpath.
      * @see GenericDocument#fromDocumentClass
      */
     @NonNull
@@ -629,6 +637,9 @@ public class GenericDocument {
          *
          * <p>Once {@link #build} is called, the instance can no longer be used.
          *
+         * TODO(b/181887768): This method exists only for dogfooder transition and must be
+         * removed.
+         *
          * @param uri        the URI to set for the {@link GenericDocument}.
          * @param schemaType the {@link AppSearchSchema} type of the {@link GenericDocument}. The
          *                   provided {@code schemaType} must be defined using
@@ -639,7 +650,10 @@ public class GenericDocument {
          *                   Otherwise, the document will be rejected by
          *                   {@link AppSearchSession#put} with result code
          *                   {@link AppSearchResult#RESULT_NOT_FOUND}.
+         * @deprecated Please supply the namespace in {@link #Builder(String, String, String)}
+         * instead. This method exists only for dogfooder transition and must be removed.
          */
+        @Deprecated
         @SuppressWarnings("unchecked")
         public Builder(@NonNull String uri, @NonNull String schemaType) {
             Preconditions.checkNotNull(uri);
@@ -657,6 +671,45 @@ public class GenericDocument {
         }
 
         /**
+         * Creates a new {@link GenericDocument.Builder}.
+         *
+         * <p>Once {@link #build} is called, the instance can no longer be used.
+         *
+         * <p>URIs are unique within a namespace.
+         *
+         * <p>The number of namespaces per app should be kept small for efficiency reasons.
+         *
+         * @param namespace  the namespace to set for the {@link GenericDocument}.
+         * @param uri        the URI to set for the {@link GenericDocument}.
+         * @param schemaType the {@link AppSearchSchema} type of the {@link GenericDocument}. The
+         *                   provided {@code schemaType} must be defined using
+         *                   {@link AppSearchSession#setSchema} prior
+         *                   to inserting a document of this {@code schemaType} into the
+         *                   AppSearch index using
+         *                   {@link AppSearchSession#put}.
+         *                   Otherwise, the document will be rejected by
+         *                   {@link AppSearchSession#put} with result code
+         *                   {@link AppSearchResult#RESULT_NOT_FOUND}.
+         */
+        @SuppressWarnings("unchecked")
+        public Builder(@NonNull String namespace, @NonNull String uri,
+                @NonNull String schemaType) {
+            Preconditions.checkNotNull(namespace);
+            Preconditions.checkNotNull(uri);
+            Preconditions.checkNotNull(schemaType);
+            mBuilderTypeInstance = (BuilderType) this;
+            mBundle.putString(GenericDocument.NAMESPACE_FIELD, namespace);
+            mBundle.putString(GenericDocument.URI_FIELD, uri);
+            mBundle.putString(GenericDocument.SCHEMA_TYPE_FIELD, schemaType);
+            // Set current timestamp for creation timestamp by default.
+            mBundle.putLong(GenericDocument.CREATION_TIMESTAMP_MILLIS_FIELD,
+                    System.currentTimeMillis());
+            mBundle.putLong(GenericDocument.TTL_MILLIS_FIELD, DEFAULT_TTL_MILLIS);
+            mBundle.putInt(GenericDocument.SCORE_FIELD, DEFAULT_SCORE);
+            mBundle.putBundle(PROPERTIES_FIELD, mProperties);
+        }
+
+        /**
          * Sets the app-defined namespace this document resides in. No special values are
          * reserved or understood by the infrastructure.
          *
@@ -664,8 +717,14 @@ public class GenericDocument {
          *
          * <p>The number of namespaces per app should be kept small for efficiency reasons.
          *
+         * TODO(b/181887768): This method exists only for dogfooder transition and must be
+         * removed.
+         *
          * @throws IllegalStateException if the builder has already been used.
+         * @deprecated Please supply the namespace in {@link #Builder(String, String, String)}
+         * instead. This method exists only for dogfooder transition and must be removed.
          */
+        @Deprecated
         @NonNull
         public BuilderType setNamespace(@NonNull String namespace) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
@@ -745,8 +804,9 @@ public class GenericDocument {
          * @param key    the key associated with the {@code values}.
          * @param values the {@code String} values of the property.
          * @throws IllegalArgumentException if no values are provided, if provided values exceed
-         *      maximum repeated property length, or if a passed in {@code String} is {@code null}.
-         * @throws IllegalStateException if the builder has already been used.
+         *                                  maximum repeated property length, or if a passed in
+         *                                  {@code String} is {@code null}.
+         * @throws IllegalStateException    if the builder has already been used.
          */
         @NonNull
         public BuilderType setPropertyString(@NonNull String key, @NonNull String... values) {
@@ -764,8 +824,8 @@ public class GenericDocument {
          * @param key    the key associated with the {@code values}.
          * @param values the {@code boolean} values of the property.
          * @throws IllegalArgumentException if no values are provided or if values exceed maximum
-         *       repeated property length.
-         * @throws IllegalStateException if the builder has already been used.
+         *                                  repeated property length.
+         * @throws IllegalStateException    if the builder has already been used.
          */
         @NonNull
         public BuilderType setPropertyBoolean(@NonNull String key, @NonNull boolean... values) {
@@ -783,8 +843,8 @@ public class GenericDocument {
          * @param key    the key associated with the {@code values}.
          * @param values the {@code long} values of the property.
          * @throws IllegalArgumentException if no values are provided or if values exceed maximum
-         *       repeated property length.
-         * @throws IllegalStateException if the builder has already been used.
+         *                                  repeated property length.
+         * @throws IllegalStateException    if the builder has already been used.
          */
         @NonNull
         public BuilderType setPropertyLong(@NonNull String key, @NonNull long... values) {
@@ -802,8 +862,8 @@ public class GenericDocument {
          * @param key    the key associated with the {@code values}.
          * @param values the {@code double} values of the property.
          * @throws IllegalArgumentException if no values are provided or if values exceed maximum
-         *       repeated property length.
-         * @throws IllegalStateException if the builder has already been used.
+         *                                  repeated property length.
+         * @throws IllegalStateException    if the builder has already been used.
          */
         @NonNull
         public BuilderType setPropertyDouble(@NonNull String key, @NonNull double... values) {
@@ -820,9 +880,10 @@ public class GenericDocument {
          * @param key    the key associated with the {@code values}.
          * @param values the {@code byte[]} of the property.
          * @throws IllegalArgumentException if no values are provided, if provided values exceed
-         *          maximum repeated property length, or if a passed in {@code byte[]} is
-         *          {@code null}.
-         * @throws IllegalStateException if the builder has already been used.
+         *                                  maximum repeated property length, or if a passed in
+         *                                  {@code byte[]} is
+         *                                  {@code null}.
+         * @throws IllegalStateException    if the builder has already been used.
          */
         @NonNull
         public BuilderType setPropertyBytes(@NonNull String key, @NonNull byte[]... values) {
@@ -840,9 +901,10 @@ public class GenericDocument {
          * @param key    the key associated with the {@code values}.
          * @param values the {@link GenericDocument} values of the property.
          * @throws IllegalArgumentException if no values are provided, if provided values exceed
-         *       if provided values exceed maximum repeated property length, or if a passed in
-         *       {@link GenericDocument} is {@code null}.
-         * @throws IllegalStateException if the builder has already been used.
+         *                                  if provided values exceed maximum repeated property
+         *                                  length, or if a passed in
+         *                                  {@link GenericDocument} is {@code null}.
+         * @throws IllegalStateException    if the builder has already been used.
          */
         @NonNull
         public BuilderType setPropertyDocument(

@@ -21,6 +21,9 @@ import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 
 @Document
 public final class EmailDocument {
+    @Document.Namespace
+    public String namespace;
+
     @Document.Uri
     public String uri;
 

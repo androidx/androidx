@@ -40,6 +40,9 @@ public class SetSchemaRequestTest {
 // @exportToFramework:startStrip()
     @Document
     static class Card {
+        @Document.Namespace
+        String mNamespace;
+
         @Document.Uri
         String mUri;
 
@@ -56,6 +59,7 @@ public class SetSchemaRequestTest {
                 return false;
             }
             AnnotationProcessorTestBase.Card otherCard = (AnnotationProcessorTestBase.Card) other;
+            assertThat(otherCard.mNamespace).isEqualTo(this.mNamespace);
             assertThat(otherCard.mUri).isEqualTo(this.mUri);
             return true;
         }
@@ -68,6 +72,9 @@ public class SetSchemaRequestTest {
         @Document.Uri
         String mUri;
 
+        @Document.Namespace
+        String mNamespace;
+
         @Document.Property
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;
@@ -75,6 +82,9 @@ public class SetSchemaRequestTest {
 
     @Document
     static class Queen extends Spade {
+        @Document.Namespace
+        String mNamespace;
+
         @Document.Uri
         String mUri;
 

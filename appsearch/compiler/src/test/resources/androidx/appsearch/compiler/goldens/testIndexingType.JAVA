@@ -39,7 +39,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
+        new GenericDocument.Builder<>(document.namespace, document.uri, SCHEMA_NAME);
     String indexNoneCopy = document.indexNone;
     if (indexNoneCopy != null) {
       builder.setPropertyString("indexNone", indexNoneCopy);
@@ -58,6 +58,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String uriConv = genericDoc.getUri();
+    String namespaceConv = genericDoc.getNamespace();
     String[] indexNoneCopy = genericDoc.getPropertyStringArray("indexNone");
     String indexNoneConv = null;
     if (indexNoneCopy != null && indexNoneCopy.length != 0) {
@@ -74,6 +75,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
       indexPrefixConv = indexPrefixCopy[0];
     }
     Gift document = new Gift();
+    document.namespace = namespaceConv;
     document.uri = uriConv;
     document.indexNone = indexNoneConv;
     document.indexExact = indexExactConv;
