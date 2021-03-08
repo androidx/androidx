@@ -1,0 +1,44 @@
+image {
+  resource_id {
+    value: "android"
+  }
+  width {
+    linear_dimension {
+      value: 52
+    }
+  }
+  height {
+    linear_dimension {
+      value: 52
+    }
+  }
+  content_scale_mode {
+    value: CONTENT_SCALE_MODE_FILL_BOUNDS
+  }
+  modifiers {
+    background {
+      color {
+        argb: 0xFFFF0000
+      }
+      corner {
+        radius {
+          value: 100
+        }
+      }
+    }
+    padding {
+      start {
+        value: 16
+      }
+      end {
+        value: 16
+      }
+      top {
+        value: 16
+      }
+      bottom {
+        value: 16
+      }
+    }
+  }
+}

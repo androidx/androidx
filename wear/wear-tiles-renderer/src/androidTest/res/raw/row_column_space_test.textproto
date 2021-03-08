@@ -1,0 +1,230 @@
+row {
+  contents {
+    column {
+      contents {
+        image {
+          modifiers {
+            background {
+              color {
+                argb: 0xFFFF0000
+              }
+            }
+          }
+          resource_id {
+            value: "android"
+          }
+          width {
+            linear_dimension {
+              value: 20
+            }
+          }
+          height {
+            linear_dimension {
+              value: 15
+            }
+          }
+        }
+      }
+      contents {
+        image {
+          modifiers {
+            background {
+              color {
+                argb: 0xFF00FF00
+              }
+            }
+          }
+          resource_id {
+            value: "android"
+          }
+          width {
+            linear_dimension {
+              value: 20
+            }
+          }
+          height {
+            linear_dimension {
+              value: 15
+            }
+          }
+        }
+      }
+      contents {
+        image {
+          modifiers {
+            background {
+              color {
+                argb: 0xFF0000FF
+              }
+            }
+          }
+          resource_id {
+            value: "android"
+          }
+          width {
+            linear_dimension {
+              value: 20
+            }
+          }
+          height {
+            linear_dimension {
+              value: 15
+            }
+          }
+        }
+      }
+    }
+  }
+  contents {
+    column {
+      contents {
+        image {
+          modifiers {
+            background {
+              color {
+                argb: 0xFF00FF00
+              }
+            }
+          }
+          resource_id {
+            value: "android"
+          }
+          width {
+            linear_dimension {
+              value: 20
+            }
+          }
+          height {
+            linear_dimension {
+              value: 15
+            }
+          }
+        }
+      }
+      contents {
+        image {
+          modifiers {
+            background {
+              color {
+                argb: 0xFF0000FF
+              }
+            }
+          }
+          resource_id {
+            value: "android"
+          }
+          width {
+            linear_dimension {
+              value: 20
+            }
+          }
+          height {
+            linear_dimension {
+              value: 15
+            }
+          }
+        }
+      }
+      contents {
+        image {
+          modifiers {
+            background {
+              color {
+                argb: 0xFFFF0000
+              }
+            }
+          }
+          resource_id {
+            value: "android"
+          }
+          width {
+            linear_dimension {
+              value: 20
+            }
+          }
+          height {
+            linear_dimension {
+              value: 15
+            }
+          }
+        }
+      }
+    }
+  }
+  contents {
+    column {
+      contents {
+        image {
+          modifiers {
+            background {
+              color {
+                argb: 0xFF0000FF
+              }
+            }
+          }
+          resource_id {
+            value: "android"
+          }
+          width {
+            linear_dimension {
+              value: 20
+            }
+          }
+          height {
+            linear_dimension {
+              value: 15
+            }
+          }
+        }
+      }
+      contents {
+        image {
+          modifiers {
+            background {
+              color {
+                argb: 0xFFFF0000
+              }
+            }
+          }
+          resource_id {
+            value: "android"
+          }
+          width {
+            linear_dimension {
+              value: 20
+            }
+          }
+          height {
+            linear_dimension {
+              value: 15
+            }
+          }
+        }
+      }
+      contents {
+        image {
+          modifiers {
+            background {
+              color {
+                argb: 0xFF00FF00
+              }
+            }
+          }
+          resource_id {
+            value: "android"
+          }
+          width {
+            linear_dimension {
+              value: 20
+            }
+          }
+          height {
+            linear_dimension {
+              value: 15
+            }
+          }
+        }
+      }
+    }
+  }
+}

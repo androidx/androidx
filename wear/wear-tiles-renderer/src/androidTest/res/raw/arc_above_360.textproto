@@ -1,0 +1,76 @@
+box {
+  modifiers {
+    background {
+      color {
+        argb: 0xFF000000
+      }
+    }
+  }
+  width {
+    expanded_dimension {}
+  }
+  height {
+    expanded_dimension {}
+  }
+
+  contents {
+    arc {
+      contents {
+        line {
+          length {
+            value: 360
+          }
+          color {
+            argb: 0xFFFF0000
+          }
+          thickness {
+            value: 11
+          }
+        }
+      }
+    }
+  }
+  contents {
+    box {
+      width {
+        expanded_dimension {}
+      }
+      height {
+        expanded_dimension {}
+      }
+      modifiers {
+        padding {
+          top {
+            value: 15
+          }
+          end {
+            value: 15
+          }
+          bottom {
+            value: 15
+          }
+          start {
+            value: 15
+          }
+        }
+      }
+      contents {
+        arc {
+          contents {
+            line {
+              length {
+                value: 750
+              }
+              color {
+                argb: 0xFF00FF00
+              }
+              thickness {
+                value: 11
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
