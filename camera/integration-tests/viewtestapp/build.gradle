@@ -23,6 +23,8 @@ plugins {
     id("kotlin-android")
 }
 
+apply(from: "../../camera-view/dependencies.gradle")
+
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.view"
@@ -51,8 +53,8 @@ android {
 
 dependencies {
     // Internal library
-    implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-lifecycle"))
+    implementation("androidx.camera:camera-camera2:${VIEW_ATOMIC_GROUP_PINNED_VER}")
+    implementation("androidx.camera:camera-lifecycle:${VIEW_ATOMIC_GROUP_PINNED_VER}")
     implementation(project(":lifecycle:lifecycle-runtime"))
     implementation(project(":camera:camera-view"))
     implementation(GUAVA_ANDROID)
