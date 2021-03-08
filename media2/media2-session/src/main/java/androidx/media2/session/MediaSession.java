@@ -1182,6 +1182,9 @@ public class MediaSession implements Closeable {
         abstract void onPlayerResult(int seq, PlayerResult result) throws RemoteException;
         abstract void onSessionResult(int seq, SessionResult result) throws RemoteException;
         abstract void onLibraryResult(int seq, LibraryResult result) throws RemoteException;
+        abstract void onPlayerChanged(int seq, @Nullable SessionPlayer oldPlayer,
+                @Nullable PlaybackInfo oldPlaybackInfo, @NonNull SessionPlayer player,
+                @NonNull PlaybackInfo playbackInfo) throws RemoteException;
 
         // Mostly matched with the methods in MediaController.ControllerCallback
         abstract void setCustomLayout(int seq, @NonNull List<CommandButton> layout)
@@ -1233,8 +1236,6 @@ public class MediaSession implements Closeable {
     }
 
     interface MediaSessionImpl extends MediaInterface.SessionPlayer, Closeable {
-        void updatePlayer(@NonNull SessionPlayer player,
-                @Nullable SessionPlayer playlistAgent);
         void updatePlayer(@NonNull SessionPlayer player);
         @NonNull
         SessionPlayer getPlayer();
@@ -1258,7 +1259,7 @@ public class MediaSession implements Closeable {
 
         // Internally used methods
         MediaSession getInstance();
-        MediaSessionCompat getSessionCompat();
+        @NonNull MediaSessionCompat getSessionCompat();
         void setLegacyControllerConnectionTimeoutMs(long timeoutMs);
         Context getContext();
         Executor getCallbackExecutor();

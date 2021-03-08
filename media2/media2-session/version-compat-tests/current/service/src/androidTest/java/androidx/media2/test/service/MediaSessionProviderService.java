@@ -30,6 +30,8 @@ import static androidx.media2.test.common.CommonConstants.KEY_PLAYBACK_SPEED;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST_METADATA;
+import static androidx.media2.test.common.CommonConstants.KEY_REPEAT_MODE;
+import static androidx.media2.test.common.CommonConstants.KEY_SHUFFLE_MODE;
 import static androidx.media2.test.common.CommonConstants.KEY_TRACK_INFO;
 import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
@@ -221,6 +223,8 @@ public class MediaSessionProviderService extends Service {
                 localPlayer.mCurrentPosition = config.getLong(KEY_CURRENT_POSITION);
                 localPlayer.mBufferedPosition = config.getLong(KEY_BUFFERED_POSITION);
                 localPlayer.mPlaybackSpeed = config.getFloat(KEY_PLAYBACK_SPEED);
+                localPlayer.mShuffleMode = config.getInt(KEY_SHUFFLE_MODE);
+                localPlayer.mRepeatMode = config.getInt(KEY_REPEAT_MODE);
 
                 ParcelImplListSlice listSlice = config.getParcelable(KEY_PLAYLIST);
                 if (listSlice != null) {
