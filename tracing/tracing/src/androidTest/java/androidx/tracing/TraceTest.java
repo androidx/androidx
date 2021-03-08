@@ -77,6 +77,7 @@ public final class TraceTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 29) // SELinux
     public void beginAndEndSectionAsync() throws IOException {
         startTrace();
         Trace.beginAsyncSection("beginAndEndSectionAsync", /*cookie=*/5099);
@@ -88,6 +89,7 @@ public final class TraceTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 29) // SELinux
     public void setCounter() throws IOException {
         startTrace();
         Trace.setCounter("counterName", 42);
