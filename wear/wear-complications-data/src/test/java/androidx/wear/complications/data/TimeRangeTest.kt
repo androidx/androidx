@@ -71,22 +71,3 @@ public class TimeRangeTest {
         assertThat(range.contains(Long.MAX_VALUE)).isTrue()
     }
 }
-
-@RunWith(SharedRobolectricTestRunner::class)
-public class TimeReferenceTest {
-    @Test
-    public fun startingAtTime() {
-        val reference = TimeReference.starting(1000L)
-        assertThat(reference.hasStartDateTimeMillis()).isTrue()
-        assertThat(reference.startDateTimeMillis).isEqualTo(1000L)
-        assertThat(reference.hasEndDateTimeMillis()).isFalse()
-    }
-
-    @Test
-    public fun endingAtTime() {
-        val reference = TimeReference.ending(1000L)
-        assertThat(reference.hasStartDateTimeMillis()).isFalse()
-        assertThat(reference.hasEndDateTimeMillis()).isTrue()
-        assertThat(reference.endDateTimeMillis).isEqualTo(1000L)
-    }
-}
