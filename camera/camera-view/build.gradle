@@ -25,11 +25,13 @@ plugins {
     id("kotlin-android")
 }
 
+apply(from: "dependencies.gradle")
+
 dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
     api("androidx.lifecycle:lifecycle-common:2.0.0")
-    api(project(":camera:camera-core"))
-    implementation(project(path: ":camera:camera-lifecycle"))
+    api("androidx.camera:camera-core:${VIEW_ATOMIC_GROUP_PINNED_VER}")
+    implementation("androidx.camera:camera-lifecycle:${VIEW_ATOMIC_GROUP_PINNED_VER}")
     api("androidx.annotation:annotation:1.0.0")
     implementation(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.core:core:1.1.0")
@@ -44,9 +46,17 @@ dependencies {
     testImplementation(TRUTH)
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(project(":camera:camera-testing"))
+    testImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in camera-core project dependency which will
+        // override pinned dependency.
+        exclude(group:"androidx.camera", module:"camera-core")
+    }
 
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing"))  {
+        // Ensure camera-testing does not pull in camera-core project dependency which will
+        // override pinned dependency.
+        exclude(group:"androidx.camera", module:"camera-core")
+    }
     androidTestImplementation(MOCKITO_CORE)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -56,7 +66,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(TRUTH)
-    androidTestImplementation(project(":camera:camera-camera2"))
+    androidTestImplementation("androidx.camera:camera-camera2:${VIEW_ATOMIC_GROUP_PINNED_VER}")
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
 }
