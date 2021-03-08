@@ -281,6 +281,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     private Rect mTempRect2;
 
     private AppCompatViewInflater mAppCompatViewInflater;
+    private LayoutIncludeDetector mLayoutIncludeDetector;
 
     AppCompatDelegateImpl(Activity activity, AppCompatCallback callback) {
         this(activity, null, callback, activity);
@@ -1543,11 +1544,20 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         boolean inheritContext = false;
         if (IS_PRE_LOLLIPOP) {
-            inheritContext = (attrs instanceof XmlPullParser)
-                    // If we have a XmlPullParser, we can detect where we are in the layout
-                    ? ((XmlPullParser) attrs).getDepth() > 1
-                    // Otherwise we have to use the old heuristic
-                    : shouldInheritContext((ViewParent) parent);
+            if (mLayoutIncludeDetector == null) {
+                mLayoutIncludeDetector = new LayoutIncludeDetector();
+            }
+            if (mLayoutIncludeDetector.detect(attrs)) {
+                // The view being inflated is the root of an <include>d view, so make sure
+                // we carry over any themed context.
+                inheritContext = true;
+            } else {
+                inheritContext = (attrs instanceof XmlPullParser)
+                        // If we have a XmlPullParser, we can detect where we are in the layout
+                        ? ((XmlPullParser) attrs).getDepth() > 1
+                        // Otherwise we have to use the old heuristic
+                        : shouldInheritContext((ViewParent) parent);
+            }
         }
 
         return mAppCompatViewInflater.createView(parent, name, context, attrs, inheritContext,
