@@ -19,7 +19,6 @@ package androidx.paging
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
@@ -42,6 +41,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
+@Suppress("DEPRECATION")
 @RunWith(AndroidJUnit4::class)
 class LivePagedListBuilderTest {
     private val backgroundExecutor = TestExecutor()
@@ -78,7 +78,7 @@ class LivePagedListBuilderTest {
         ArchTaskExecutor.getInstance().setDelegate(null)
     }
 
-    class MockDataSourceFactory {
+    class MockPagingSourceFactory {
         fun create(): PagingSource<Int, String> {
             return MockPagingSource()
         }
@@ -136,8 +136,7 @@ class LivePagedListBuilderTest {
         // represent the common case when writing tests.
         ArchTaskExecutor.getInstance().setDelegate(null)
 
-        @Suppress("DEPRECATION")
-        LivePagedListBuilder(MockDataSourceFactory()::create, 2)
+        LivePagedListBuilder(MockPagingSourceFactory()::create, 2)
             .build()
     }
 
@@ -145,21 +144,15 @@ class LivePagedListBuilderTest {
     fun executorBehavior() {
         // specify a background dispatcher via builder, and verify it gets used for all loads,
         // overriding default IO dispatcher
-        @Suppress("DEPRECATION")
-        val livePagedList = LivePagedListBuilder(MockDataSourceFactory()::create, 2)
+        val livePagedList = LivePagedListBuilder(MockPagingSourceFactory()::create, 2)
             .setFetchExecutor(backgroundExecutor)
             .build()
 
-        @Suppress("DEPRECATION")
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
-        @Suppress("DEPRECATION")
-        livePagedList.observe(
-            lifecycleOwner,
-            Observer<PagedList<String>> { newList ->
-                pagedListHolder[0] = newList
-            }
-        )
+        livePagedList.observe(lifecycleOwner) { newList ->
+            pagedListHolder[0] = newList
+        }
 
         // initially, immediately get passed empty initial list
         assertNotNull(pagedListHolder[0])
@@ -181,24 +174,18 @@ class LivePagedListBuilderTest {
 
     @Test
     fun failedLoad() {
-        val factory = MockDataSourceFactory()
+        val factory = MockPagingSourceFactory()
         factory.enqueueError()
 
-        @Suppress("DEPRECATION")
         val livePagedList = LivePagedListBuilder(factory::create, 2)
             .setFetchExecutor(backgroundExecutor)
             .build()
 
-        @Suppress("DEPRECATION")
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
-        @Suppress("DEPRECATION")
-        livePagedList.observe(
-            lifecycleOwner,
-            Observer<PagedList<String>> { newList ->
-                pagedListHolder[0] = newList
-            }
-        )
+        livePagedList.observe(lifecycleOwner) { newList ->
+            pagedListHolder[0] = newList
+        }
 
         val loadStates = mutableListOf<LoadStateEvent>()
 
