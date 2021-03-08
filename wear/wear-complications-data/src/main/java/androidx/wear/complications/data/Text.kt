@@ -191,13 +191,24 @@ public class TimeDifferenceComplicationText internal constructor(
      *
      * Requires setting a [TimeDifferenceStyle].
      */
-    public class Builder(
+    public class Builder private constructor(
         private val style: TimeDifferenceStyle,
-        private val reference: TimeReference
+        private val startDateTimeMillis: Long?,
+        private val endDateTimeMillis: Long?
     ) {
         private var text: CharSequence? = null
         private var displayAsNow: Boolean? = null
         private var minimumUnit: TimeUnit? = null
+
+        public constructor(
+            style: TimeDifferenceStyle,
+            countUpTimeReference: CountUpTimeReference
+        ) : this(style, countUpTimeReference.dateTimeMillis, null)
+
+        public constructor(
+            style: TimeDifferenceStyle,
+            countDownTimeReference: CountDownTimeReference
+        ) : this(style, null, countDownTimeReference.dateTimeMillis)
 
         /**
          * Sets the text within which the time difference will be displayed.
@@ -247,11 +258,11 @@ public class TimeDifferenceComplicationText internal constructor(
             WireComplicationTextTimeDifferenceBuilder().apply {
                 setStyle(style.wireStyle)
                 setSurroundingText(text)
-                if (reference.hasStartDateTimeMillis()) {
-                    setReferencePeriodStartMillis(reference.startDateTimeMillis)
+                startDateTimeMillis?.let {
+                    setReferencePeriodStartMillis(it)
                 }
-                if (reference.hasEndDateTimeMillis()) {
-                    setReferencePeriodEndMillis(reference.endDateTimeMillis)
+                endDateTimeMillis?.let {
+                    setReferencePeriodEndMillis(it)
                 }
                 displayAsNow?.let { setShowNowText(it) }
                 setMinimumUnit(minimumUnit)

@@ -48,40 +48,8 @@ public class TimeRange internal constructor(
     }
 }
 
-/**
- * Expresses a reference point or range for a time difference.
- *
- * It defines [endDateTimeMillis] and/or [startDateTimeMillis] to express the corresponding
- * time differences relative to before, between or after the given point(s) in time.
- */
-public class TimeReference internal constructor(
-    public val endDateTimeMillis: Long,
-    public val startDateTimeMillis: Long
-) {
-    public fun hasStartDateTimeMillis(): Boolean = startDateTimeMillis != NONE
-    public fun hasEndDateTimeMillis(): Boolean = endDateTimeMillis != NONE
+/** Defines a point in time the complication is counting down until. */
+public class CountDownTimeReference(public val dateTimeMillis: Long)
 
-    public companion object {
-        private const val NONE = -1L
-
-        /**
-         * Creates a [TimeReference] for the time difference ending at the given [dateTimeMillis].
-         */
-        @JvmStatic
-        public fun ending(dateTimeMillis: Long): TimeReference = TimeReference(dateTimeMillis, NONE)
-
-        /**
-         * Creates a [TimeReference] for the time difference starting at the given [dateTimeMillis].
-         */
-        @JvmStatic
-        public fun starting(dateTimeMillis: Long): TimeReference =
-            TimeReference(NONE, dateTimeMillis)
-
-        /**
-         * Creates a [TimeReference] for the time difference between [startDateTimeMillis] and [endDateTimeMillis].
-         */
-        @JvmStatic
-        public fun between(startDateTimeMillis: Long, endDateTimeMillis: Long): TimeReference =
-            TimeReference(endDateTimeMillis, startDateTimeMillis)
-    }
-}
+/** Defines a point in time the complication is counting up from. */
+public class CountUpTimeReference(public val dateTimeMillis: Long)
