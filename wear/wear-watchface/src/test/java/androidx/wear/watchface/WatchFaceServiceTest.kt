@@ -2337,4 +2337,43 @@ public class WatchFaceServiceTest {
         val instance = InteractiveInstanceManager.getAndRetainInstance(instanceId)
         assertThat(instance).isNull()
     }
+
+    public fun firstOnVisibilityChangedIgnoredPostRFlow() {
+        val instanceId = "interactiveInstanceId"
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                instanceId,
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                SystemState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                listOf(
+                    IdAndComplicationDataWireFormat(
+                        LEFT_COMPLICATION_ID,
+                        ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                            .setShortText(ComplicationText.plainText("INITIAL_VALUE"))
+                            .build()
+                    )
+                )
+            )
+        )
+
+        val observer = mock<Observer<Boolean>>()
+
+        // This should be ignored.
+        engineWrapper.onVisibilityChanged(true)
+        watchState.isVisible.addObserver(observer)
+        verify(observer, times(0)).onChanged(false)
+
+        // This should trigger the observer.
+        engineWrapper.onVisibilityChanged(false)
+        verify(observer).onChanged(true)
+    }
 }
