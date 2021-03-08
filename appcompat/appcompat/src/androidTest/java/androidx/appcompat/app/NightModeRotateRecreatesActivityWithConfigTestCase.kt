@@ -28,6 +28,7 @@ import androidx.appcompat.testutils.TestUtilsActions.rotateScreenOrientation
 import androidx.lifecycle.Lifecycle
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.testutils.LifecycleOwnerUtils
 import org.junit.After
@@ -59,6 +60,7 @@ public class NightModeRotateRecreatesActivityWithConfigTestCase(private val setM
         }
     }
 
+    @FlakyTest // b/182209264
     @Test
     public fun testRotateRecreatesActivityWithConfig() {
         // Don't run this test on SDK 26 because it has issues with setRequestedOrientation. Also
