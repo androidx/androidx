@@ -534,6 +534,7 @@ class StyleParcelableTest {
             )
         )
 
-        assertThat(style.toString()).isEqualTo("[id1 -> 2, id2 -> 3]")
+        assertThat(style.toString()).contains("id1 -> 2")
+        assertThat(style.toString()).contains("id2 -> 3")
     }
 }
