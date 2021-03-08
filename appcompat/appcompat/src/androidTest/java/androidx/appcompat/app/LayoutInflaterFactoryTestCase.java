@@ -92,6 +92,16 @@ public class LayoutInflaterFactoryTestCase {
     @UiThreadTest
     @Test
     @SmallTest
+    public void testAndroidThemeWithIncludeInflation() {
+        LayoutInflater inflater = LayoutInflater.from(mActivityTestRule.getActivity());
+        final ViewGroup root = (ViewGroup) inflater.inflate(
+                R.layout.layout_android_theme_with_include, null);
+        assertThemedContext(root.findViewById(R.id.included_view));
+    }
+
+    @UiThreadTest
+    @Test
+    @SmallTest
     public void testThemedInflationWithUnattachedParent() {
         final Context activity = mActivityTestRule.getActivity();
 
