@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core.internal.compat.quirk;
+package androidx.camera.view.internal.compat.quirk;
 
 import android.os.Build;
 
