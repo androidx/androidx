@@ -48,6 +48,7 @@ class InvalidationTest {
     val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
 
     @Test
+    @FlakyTest(bugId = 159202455)
     fun test_exec_hook_methods() = test_simple_hook_methods(
         listOf(
             "execute()V",
