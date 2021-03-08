@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core.internal.compat.quirk;
+package androidx.camera.view.internal.compat.quirk;
 
 import static com.google.common.truth.Truth.assertThat;
 

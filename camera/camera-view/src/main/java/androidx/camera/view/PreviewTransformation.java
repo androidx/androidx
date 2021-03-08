@@ -54,8 +54,8 @@ import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.ViewPort;
-import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.core.internal.compat.quirk.PreviewStretchedQuirk;
+import androidx.camera.view.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.view.internal.compat.quirk.PreviewStretchedQuirk;
 import androidx.core.util.Preconditions;
 
 /**

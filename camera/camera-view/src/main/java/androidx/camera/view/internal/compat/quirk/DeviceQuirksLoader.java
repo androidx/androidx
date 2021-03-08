@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core.internal.compat.quirk;
+package androidx.camera.view.internal.compat.quirk;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.Quirk;
@@ -39,12 +39,8 @@ public class DeviceQuirksLoader {
         final List<Quirk> quirks = new ArrayList<>();
 
         // Load all device specific quirks
-        if (IncompleteCameraListQuirk.load()) {
-            quirks.add(new IncompleteCameraListQuirk());
-        }
-
-        if (ImageCaptureRotationOptionQuirk.load()) {
-            quirks.add(new ImageCaptureRotationOptionQuirk());
+        if (PreviewStretchedQuirk.load()) {
+            quirks.add(new PreviewStretchedQuirk());
         }
 
         return quirks;
