@@ -224,6 +224,7 @@ public class MediaRouter2Test {
         }
     }
 
+    @FlakyTest // b/182205261
     @SmallTest
     @Test
     public void setRouterParams_onRouteParamsChangedCalled() throws Exception {
