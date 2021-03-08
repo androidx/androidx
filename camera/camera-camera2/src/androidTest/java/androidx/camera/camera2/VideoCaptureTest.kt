@@ -32,6 +32,7 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -173,6 +174,7 @@ class VideoCaptureTest {
         parcelFileDescriptor.close()
     }
 
+    @FlakyTest // b/182165222
     @Test
     fun unbind_shouldStopRecording() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
