@@ -35,6 +35,7 @@ public class AsWireComplicationDataTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA).build()
             )
+        testRoundTripConversions(data)
     }
 
     @Test
@@ -44,6 +45,7 @@ public class AsWireComplicationDataTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_EMPTY).build()
             )
+        testRoundTripConversions(data)
     }
 
     @Test
@@ -53,6 +55,7 @@ public class AsWireComplicationDataTest {
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NOT_CONFIGURED).build()
             )
+        testRoundTripConversions(data)
     }
 
     @Test
@@ -69,6 +72,7 @@ public class AsWireComplicationDataTest {
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .build()
             )
+        testRoundTripConversions(data)
     }
 
     @Test
@@ -85,6 +89,7 @@ public class AsWireComplicationDataTest {
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .build()
             )
+        testRoundTripConversions(data)
     }
 
     @Test
@@ -103,6 +108,7 @@ public class AsWireComplicationDataTest {
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .build()
             )
+        testRoundTripConversions(data)
     }
 
     @Test
@@ -118,6 +124,7 @@ public class AsWireComplicationDataTest {
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .build()
             )
+        testRoundTripConversions(data)
     }
 
     @Test
@@ -134,6 +141,7 @@ public class AsWireComplicationDataTest {
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .build()
             )
+        testRoundTripConversions(data)
     }
 
     @Test
@@ -149,6 +157,7 @@ public class AsWireComplicationDataTest {
                     .setContentDescription(WireComplicationText.plainText("content description"))
                     .build()
             )
+        testRoundTripConversions(data)
     }
 
     @Test
@@ -161,6 +170,14 @@ public class AsWireComplicationDataTest {
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_PERMISSION)
                     .setShortText(WireComplicationText.plainText("needs location"))
                     .build()
+            )
+        testRoundTripConversions(data)
+    }
+
+    private fun testRoundTripConversions(data: ComplicationData) {
+        ParcelableSubject.assertThat(data.asWireComplicationData())
+            .hasSameSerializationAs(
+                data.asWireComplicationData().asApiComplicationData().asWireComplicationData()
             )
     }
 }
