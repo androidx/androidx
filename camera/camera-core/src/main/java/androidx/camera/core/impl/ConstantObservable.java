@@ -62,7 +62,7 @@ public final class ConstantObservable<T> implements Observable<T> {
     }
 
     @Override
-    public void addObserver(@NonNull Executor executor, @NonNull Observable.Observer<T> observer) {
+    public void addObserver(@NonNull Executor executor, @NonNull Observer<? super T> observer) {
         // Since the Observable has a constant value, we only will have a one-shot call to the
         // observer, so we don't need to store the observer.
         // ImmediateFuture does not actually store listeners since it is already complete, so it
@@ -79,7 +79,7 @@ public final class ConstantObservable<T> implements Observable<T> {
     }
 
     @Override
-    public void removeObserver(@NonNull Observable.Observer<T> observer) {
+    public void removeObserver(@NonNull Observer<? super T> observer) {
         // no-op. addObserver() does not need to store observers.
     }
 }
