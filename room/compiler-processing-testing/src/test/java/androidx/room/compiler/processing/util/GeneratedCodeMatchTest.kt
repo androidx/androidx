@@ -20,6 +20,9 @@ import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import com.squareup.kotlinpoet.BOOLEAN
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.TypeSpec as KTypeSpec
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -107,6 +110,72 @@ class GeneratedCodeMatchTest internal constructor(
             actual = Line(
                 pos = 4,
                 content = "boolean bar;"
+            )
+        )
+        assertThat(result.exceptionOrNull()).hasMessageThat().contains(mismatch.toString())
+    }
+
+    @Test
+    fun successfulGeneratedKotlinCodeMatch() {
+        // java environment will not generate kotlin files
+        if (runTest.toString() == "java") return
+
+        val file = FileSpec.builder("foo.bar", "Baz")
+            .addType(KTypeSpec.classBuilder("Baz").build())
+            .build()
+        runTest { invocation ->
+            if (invocation.processingEnv.findTypeElement("foo.bar.Baz") == null) {
+                invocation.processingEnv.filer.write(file)
+            }
+            invocation.assertCompilationResult {
+                generatedSource(
+                    Source.kotlin("foo/bar/Baz.kt", file.toString())
+                )
+            }
+        }
+    }
+
+    @Test
+    fun missingGeneratedKotlinCode_mismatch() {
+        // java environment will not generate kotlin files
+        if (runTest.toString() == "java") return
+
+        val generated = FileSpec.builder("foo.bar", "Baz")
+            .addType(
+                KTypeSpec.classBuilder("Baz")
+                    .addProperty("bar", BOOLEAN)
+                    .build()
+            )
+            .build()
+        val expected = FileSpec.builder("foo.bar", "Baz")
+            .addType(
+                KTypeSpec.classBuilder("Baz")
+                    .addProperty("foo", BOOLEAN)
+                    .build()
+            )
+            .build()
+
+        val result = runCatching {
+            runTest { invocation ->
+                if (invocation.processingEnv.findTypeElement("foo.bar.Baz") == null) {
+                    invocation.processingEnv.filer.write(generated)
+                }
+                invocation.assertCompilationResult {
+                    generatedSource(
+                        Source.kotlin("foo/bar/Baz.kt", expected.toString())
+                    )
+                }
+            }
+        }
+
+        val mismatch = SourceFileMismatch(
+            expected = Line(
+                pos = 6,
+                content = "val foo: Boolean"
+            ),
+            actual = Line(
+                pos = 6,
+                content = "val bar: Boolean"
             )
         )
         assertThat(result.exceptionOrNull()).hasMessageThat().contains(mismatch.toString())
