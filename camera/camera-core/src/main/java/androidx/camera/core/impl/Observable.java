@@ -55,11 +55,10 @@ public interface Observable<T> {
      *
      * <p>If the same observer is added twice, it will only be called on the last executor it was
      * registered with.
-     *
      * @param executor The executor which will be used to notify the observer of new data.
      * @param observer The observer which will receive new data.
      */
-    void addObserver(@NonNull Executor executor, @NonNull Observer<T> observer);
+    void addObserver(@NonNull Executor executor, @NonNull Observer<? super T> observer);
 
     /**
      * Removes a previously added observer.
@@ -70,7 +69,7 @@ public interface Observable<T> {
      *
      * @param observer The observer to remove.
      */
-    void removeObserver(@NonNull Observer<T> observer);
+    void removeObserver(@NonNull Observer<? super T> observer);
 
     /**
      * A callback that can receive new values and errors from an {@link Observable}.

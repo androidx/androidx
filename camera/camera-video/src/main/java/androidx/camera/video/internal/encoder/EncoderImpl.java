@@ -786,12 +786,14 @@ public class EncoderImpl implements Encoder {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     class InternalStateObservable implements Observable<InternalState> {
 
-        private final Map<Observer<InternalState>, Executor> mObservers = new LinkedHashMap<>();
+        private final Map<Observer<? super InternalState>, Executor> mObservers =
+                new LinkedHashMap<>();
 
         @ExecutedBy("mEncoderExecutor")
         void notifyState() {
             final InternalState state = mState;
-            for (Map.Entry<Observer<InternalState>, Executor> entry : mObservers.entrySet()) {
+            for (Map.Entry<Observer<? super InternalState>, Executor> entry :
+                    mObservers.entrySet()) {
                 entry.getValue().execute(() -> entry.getKey().onNewData(state));
             }
         }
@@ -806,7 +808,7 @@ public class EncoderImpl implements Encoder {
         @ExecutedBy("mEncoderExecutor")
         @Override
         public void addObserver(@NonNull Executor executor,
-                @NonNull Observer<InternalState> observer) {
+                @NonNull Observer<? super InternalState> observer) {
             final InternalState state = mState;
             mObservers.put(observer, executor);
             executor.execute(() -> observer.onNewData(state));
@@ -814,7 +816,7 @@ public class EncoderImpl implements Encoder {
 
         @ExecutedBy("mEncoderExecutor")
         @Override
-        public void removeObserver(@NonNull Observer<InternalState> observer) {
+        public void removeObserver(@NonNull Observer<? super InternalState> observer) {
             mObservers.remove(observer);
         }
     }
@@ -1114,7 +1116,8 @@ public class EncoderImpl implements Encoder {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     class ByteBufferInput implements Encoder.ByteBufferInput {
 
-        private final Map<Observer<State>, Executor> mStateObservers = new LinkedHashMap<>();
+        private final Map<Observer<? super State>, Executor> mStateObservers =
+                new LinkedHashMap<>();
 
         private State mBufferProviderState = State.INACTIVE;
 
@@ -1163,7 +1166,8 @@ public class EncoderImpl implements Encoder {
 
         /** {@inheritDoc} */
         @Override
-        public void addObserver(@NonNull Executor executor, @NonNull Observer<State> observer) {
+        public void addObserver(@NonNull Executor executor,
+                @NonNull Observer<? super State> observer) {
             mEncoderExecutor.execute(() -> {
                 mStateObservers.put(Preconditions.checkNotNull(observer),
                         Preconditions.checkNotNull(executor));
@@ -1174,7 +1178,7 @@ public class EncoderImpl implements Encoder {
 
         /** {@inheritDoc} */
         @Override
-        public void removeObserver(@NonNull Observer<State> observer) {
+        public void removeObserver(@NonNull Observer<? super State> observer) {
             mEncoderExecutor.execute(
                     () -> mStateObservers.remove(Preconditions.checkNotNull(observer)));
         }
@@ -1194,7 +1198,7 @@ public class EncoderImpl implements Encoder {
                 mAcquisitionList.clear();
             }
 
-            for (Map.Entry<Observer<State>, Executor> entry : mStateObservers.entrySet()) {
+            for (Map.Entry<Observer<? super State>, Executor> entry : mStateObservers.entrySet()) {
                 try {
                     entry.getValue().execute(() -> entry.getKey().onNewData(newState));
                 } catch (RejectedExecutionException e) {
