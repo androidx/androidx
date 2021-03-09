@@ -17,12 +17,14 @@ package androidx.emoji2.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.text.TextPaint;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
@@ -38,19 +40,20 @@ public final class TypefaceEmojiSpan extends EmojiSpan {
     /**
      * Paint object used to draw a background in debug mode.
      */
-    private static Paint sDebugPaint;
+    private static @Nullable Paint sDebugPaint;
 
     /**
      * Default constructor.
      *
      * @param metadata metadata representing the emoji that this span will draw
      */
-    public TypefaceEmojiSpan(final EmojiMetadata metadata) {
+    public TypefaceEmojiSpan(final @NonNull EmojiMetadata metadata) {
         super(metadata);
     }
 
     @Override
-    public void draw(@NonNull final Canvas canvas, final CharSequence text,
+    public void draw(@NonNull final Canvas canvas,
+            @SuppressLint("UnknownNullness") final CharSequence text,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end, final float x,
             final int top, final int y, final int bottom, @NonNull final Paint paint) {
         if (EmojiCompat.get().isEmojiSpanIndicatorEnabled()) {
@@ -59,6 +62,7 @@ public final class TypefaceEmojiSpan extends EmojiSpan {
         getMetadata().draw(canvas, x, y, paint);
     }
 
+    @NonNull
     private static Paint getDebugPaint() {
         if (sDebugPaint == null) {
             sDebugPaint = new TextPaint();

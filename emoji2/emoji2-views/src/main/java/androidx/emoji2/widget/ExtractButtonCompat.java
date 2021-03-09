@@ -18,12 +18,15 @@ package androidx.emoji2.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.widget.TextViewCompat;
@@ -35,21 +38,23 @@ import androidx.core.widget.TextViewCompat;
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ExtractButtonCompat extends Button {
-    public ExtractButtonCompat(Context context) {
+    public ExtractButtonCompat(@NonNull Context context) {
         super(context, null);
     }
 
-    public ExtractButtonCompat(Context context, AttributeSet attrs) {
+    public ExtractButtonCompat(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public ExtractButtonCompat(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ExtractButtonCompat(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
+    @SuppressLint("UnsafeNewApiCall")
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public ExtractButtonCompat(Context context, AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
+    public ExtractButtonCompat(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
@@ -59,7 +64,7 @@ public class ExtractButtonCompat extends Button {
      */
     @Override
     public boolean hasWindowFocus() {
-        return isEnabled() && getVisibility() == VISIBLE ? true : false;
+        return isEnabled() && getVisibility() == VISIBLE;
     }
 
     /**
@@ -67,7 +72,9 @@ public class ExtractButtonCompat extends Button {
      * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
      */
     @Override
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+    public void setCustomSelectionActionModeCallback(
+            @NonNull ActionMode.Callback actionModeCallback
+    ) {
         super.setCustomSelectionActionModeCallback(TextViewCompat
                 .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }

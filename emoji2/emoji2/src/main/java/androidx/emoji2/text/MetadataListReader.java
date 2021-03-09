@@ -21,6 +21,7 @@ import android.content.res.AssetManager;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.text.emoji.flatbuffer.MetadataList;
@@ -236,9 +237,9 @@ class MetadataListReader {
      */
     private static class InputStreamOpenTypeReader implements OpenTypeReader {
 
-        private final byte[] mByteArray;
-        private final ByteBuffer mByteBuffer;
-        private final InputStream mInputStream;
+        private final @NonNull byte[] mByteArray;
+        private final @NonNull ByteBuffer mByteBuffer;
+        private final @NonNull InputStream mInputStream;
         private long mPosition = 0;
 
         /**
@@ -247,7 +248,7 @@ class MetadataListReader {
          *
          * @param inputStream InputStream to read from
          */
-        InputStreamOpenTypeReader(final InputStream inputStream) {
+        InputStreamOpenTypeReader(@NonNull final InputStream inputStream) {
             mInputStream = inputStream;
             mByteArray = new byte[UINT32_BYTE_COUNT];
             mByteBuffer = ByteBuffer.wrap(mByteArray);
@@ -306,14 +307,14 @@ class MetadataListReader {
      */
     private static class ByteBufferReader implements OpenTypeReader {
 
-        private final ByteBuffer mByteBuffer;
+        private final @NonNull ByteBuffer mByteBuffer;
 
         /**
          * Constructs the reader with the given ByteBuffer.
          *
          * @param byteBuffer ByteBuffer to read from
          */
-        ByteBufferReader(final ByteBuffer byteBuffer) {
+        ByteBufferReader(@NonNull final ByteBuffer byteBuffer) {
             mByteBuffer = byteBuffer;
             mByteBuffer.order(ByteOrder.BIG_ENDIAN);
         }

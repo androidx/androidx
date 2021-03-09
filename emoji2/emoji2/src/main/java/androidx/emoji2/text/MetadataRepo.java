@@ -47,36 +47,23 @@ public final class MetadataRepo {
     /**
      * MetadataList that contains the emoji metadata.
      */
-    private final MetadataList mMetadataList;
+    private final @NonNull MetadataList mMetadataList;
 
     /**
      * char presentation of all EmojiMetadata's in a single array. All emojis we have are mapped to
      * Private Use Area A, in the range U+F0000..U+FFFFD. Therefore each emoji takes 2 chars.
      */
-    private final char[] mEmojiCharArray;
+    private final @NonNull char[] mEmojiCharArray;
 
     /**
      * Empty root node of the trie.
      */
-    private final Node mRootNode;
+    private final @NonNull Node mRootNode;
 
     /**
      * Typeface to be used to render emojis.
      */
-    private final Typeface mTypeface;
-
-    /**
-     * Constructor used for tests.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    MetadataRepo() {
-        mTypeface = null;
-        mMetadataList = null;
-        mRootNode = new Node(DEFAULT_ROOT_SIZE);
-        mEmojiCharArray = new char[0];
-    }
+    private final @NonNull Typeface mTypeface;
 
     /**
      * Private constructor that is called by one of {@code create} methods.
@@ -94,12 +81,22 @@ public final class MetadataRepo {
     }
 
     /**
+     * Construct MetadataRepo from a preloaded MetadatList.
+     */
+    @NonNull
+    static MetadataRepo create(@NonNull final Typeface typeface,
+            @NonNull final MetadataList metadataList) {
+        return new MetadataRepo(typeface, metadataList);
+    }
+
+    /**
      * Construct MetadataRepo from an input stream. The library does not close the given
      * InputStream, therefore it is caller's responsibility to properly close the stream.
      *
      * @param typeface Typeface to be used to render emojis
      * @param inputStream InputStream to read emoji metadata from
      */
+    @NonNull
     public static MetadataRepo create(@NonNull final Typeface typeface,
             @NonNull final InputStream inputStream) throws IOException {
         return new MetadataRepo(typeface, MetadataListReader.read(inputStream));
@@ -112,6 +109,7 @@ public final class MetadataRepo {
      * @param typeface Typeface to be used to render emojis
      * @param byteBuffer ByteBuffer to read emoji metadata from
      */
+    @NonNull
     public static MetadataRepo create(@NonNull final Typeface typeface,
             @NonNull final ByteBuffer byteBuffer) throws IOException {
         return new MetadataRepo(typeface, MetadataListReader.read(byteBuffer));
@@ -124,8 +122,9 @@ public final class MetadataRepo {
      * @param assetPath asset manager path of the file that the Typeface and metadata will be
      *                  created from
      */
+    @NonNull
     public static MetadataRepo create(@NonNull final AssetManager assetManager,
-            final String assetPath) throws IOException {
+            @NonNull final String assetPath) throws IOException {
         final Typeface typeface = Typeface.createFromAsset(assetManager, assetPath);
         return new MetadataRepo(typeface, MetadataListReader.read(assetManager, assetPath));
     }
@@ -148,6 +147,7 @@ public final class MetadataRepo {
     /**
      * @hide
      */
+    @NonNull
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     Typeface getTypeface() {
         return mTypeface;
@@ -164,6 +164,7 @@ public final class MetadataRepo {
     /**
      * @hide
      */
+    @NonNull
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     Node getRootNode() {
         return mRootNode;
@@ -172,6 +173,7 @@ public final class MetadataRepo {
     /**
      * @hide
      */
+    @NonNull
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public char[] getEmojiCharArray() {
         return mEmojiCharArray;
@@ -180,6 +182,7 @@ public final class MetadataRepo {
     /**
      * @hide
      */
+    @NonNull
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public MetadataList getMetadataList() {
         return mMetadataList;

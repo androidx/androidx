@@ -15,6 +15,7 @@
  */
 package androidx.emoji2.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.text.method.KeyListener;
@@ -25,6 +26,7 @@ import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
 import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.widget.TextViewCompat;
@@ -46,23 +48,25 @@ public class EmojiEditText extends EditText {
      */
     private boolean mInitialized;
 
-    public EmojiEditText(Context context) {
+    public EmojiEditText(@NonNull Context context) {
         super(context);
         init(null /*attrs*/, 0 /*defStyleAttr*/, 0 /*defStyleRes*/);
     }
 
-    public EmojiEditText(Context context, AttributeSet attrs) {
+    public EmojiEditText(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(attrs, android.R.attr.editTextStyle, 0 /*defStyleRes*/);
     }
 
-    public EmojiEditText(Context context, AttributeSet attrs, int defStyleAttr) {
+    public EmojiEditText(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(attrs, defStyleAttr, 0 /*defStyleRes*/);
     }
 
+    @SuppressLint("UnsafeNewApiCall")
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    public EmojiEditText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public EmojiEditText(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(attrs, defStyleAttr, defStyleRes);
     }
@@ -85,8 +89,9 @@ public class EmojiEditText extends EditText {
         super.setKeyListener(keyListener);
     }
 
+    @Nullable
     @Override
-    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+    public InputConnection onCreateInputConnection(@NonNull EditorInfo outAttrs) {
         final InputConnection inputConnection = super.onCreateInputConnection(outAttrs);
         return getEmojiEditTextHelper().onCreateInputConnection(inputConnection, outAttrs);
     }
@@ -131,7 +136,9 @@ public class EmojiEditText extends EditText {
      * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
      */
     @Override
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+    public void setCustomSelectionActionModeCallback(
+            @NonNull ActionMode.Callback actionModeCallback
+    ) {
         super.setCustomSelectionActionModeCallback(TextViewCompat
                 .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }

@@ -17,6 +17,7 @@ package androidx.emoji2.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.text.Editable;
 import android.text.SpanWatcher;
 import android.text.Spannable;
@@ -51,12 +52,12 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     /**
      * DynamicLayout$ChangeWatcher class.
      */
-    private final Class<?> mWatcherClass;
+    private final @NonNull Class<?> mWatcherClass;
 
     /**
      * All WatcherWrappers.
      */
-    private final List<WatcherWrapper> mWatchers = new ArrayList<>();
+    private final @NonNull List<WatcherWrapper> mWatchers = new ArrayList<>();
 
     /**
      * @hide
@@ -91,6 +92,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     /**
      * @hide
      */
+    @NonNull
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static SpannableBuilder create(@NonNull Class<?> clazz, @NonNull CharSequence text) {
         return new SpannableBuilder(clazz, text);
@@ -118,6 +120,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
         return mWatcherClass == clazz;
     }
 
+    @SuppressLint("UnknownNullness")
     @Override
     public CharSequence subSequence(int start, int end) {
         return new SpannableBuilder(mWatcherClass, this, start, end);
@@ -129,7 +132,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
      * this new mObject as the span.
      */
     @Override
-    public void setSpan(Object what, int start, int end, int flags) {
+    public void setSpan(@Nullable Object what, int start, int end, int flags) {
         if (isWatcher(what)) {
             final WatcherWrapper span = new WatcherWrapper(what);
             mWatchers.add(span);
@@ -142,9 +145,10 @@ public final class SpannableBuilder extends SpannableStringBuilder {
      * If previously a DynamicLayout$ChangeWatcher was wrapped in a WatcherWrapper, return the
      * correct Object that the client has set.
      */
+    @SuppressLint("UnknownNullness")
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T[] getSpans(int queryStart, int queryEnd, Class<T> kind) {
+    public <T> T[] getSpans(int queryStart, int queryEnd, @NonNull Class<T> kind) {
         if (isWatcher(kind)) {
             final WatcherWrapper[] spans = super.getSpans(queryStart, queryEnd,
                     WatcherWrapper.class);
@@ -162,7 +166,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
      * instead.
      */
     @Override
-    public void removeSpan(Object what) {
+    public void removeSpan(@Nullable Object what) {
         final WatcherWrapper watcher;
         if (isWatcher(what)) {
             watcher = getWatcherFor(what);
@@ -184,7 +188,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
      * Return the correct start for the DynamicLayout$ChangeWatcher span.
      */
     @Override
-    public int getSpanStart(Object tag) {
+    public int getSpanStart(@Nullable Object tag) {
         if (isWatcher(tag)) {
             final WatcherWrapper watcher = getWatcherFor(tag);
             if (watcher != null) {
@@ -198,7 +202,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
      * Return the correct end for the DynamicLayout$ChangeWatcher span.
      */
     @Override
-    public int getSpanEnd(Object tag) {
+    public int getSpanEnd(@Nullable Object tag) {
         if (isWatcher(tag)) {
             final WatcherWrapper watcher = getWatcherFor(tag);
             if (watcher != null) {
@@ -212,7 +216,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
      * Return the correct flags for the DynamicLayout$ChangeWatcher span.
      */
     @Override
-    public int getSpanFlags(Object tag) {
+    public int getSpanFlags(@Nullable Object tag) {
         if (isWatcher(tag)) {
             final WatcherWrapper watcher = getWatcherFor(tag);
             if (watcher != null) {
@@ -226,8 +230,8 @@ public final class SpannableBuilder extends SpannableStringBuilder {
      * Return the correct transition for the DynamicLayout$ChangeWatcher span.
      */
     @Override
-    public int nextSpanTransition(int start, int limit, Class type) {
-        if (isWatcher(type)) {
+    public int nextSpanTransition(int start, int limit, @Nullable Class type) {
+        if (type == null || isWatcher(type)) {
             type = WatcherWrapper.class;
         }
         return super.nextSpanTransition(start, limit, type);
@@ -295,6 +299,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
         }
     }
 
+    @SuppressLint("UnknownNullness")
     @Override
     public SpannableStringBuilder replace(int start, int end, CharSequence tb) {
         blockWatchers();
@@ -303,6 +308,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
         return this;
     }
 
+    @SuppressLint("UnknownNullness")
     @Override
     public SpannableStringBuilder replace(int start, int end, CharSequence tb, int tbstart,
             int tbend) {
@@ -312,42 +318,51 @@ public final class SpannableBuilder extends SpannableStringBuilder {
         return this;
     }
 
+    @SuppressLint("UnknownNullness")
     @Override
     public SpannableStringBuilder insert(int where, CharSequence tb) {
         super.insert(where, tb);
         return this;
     }
 
+    @SuppressLint("UnknownNullness")
     @Override
     public SpannableStringBuilder insert(int where, CharSequence tb, int start, int end) {
         super.insert(where, tb, start, end);
         return this;
     }
 
+    @SuppressLint("UnknownNullness")
     @Override
     public SpannableStringBuilder delete(int start, int end) {
         super.delete(start, end);
         return this;
     }
 
+    @NonNull
     @Override
-    public SpannableStringBuilder append(CharSequence text) {
+    public SpannableStringBuilder append(@SuppressLint("UnknownNullness") CharSequence text) {
         super.append(text);
         return this;
     }
 
+    @NonNull
     @Override
     public SpannableStringBuilder append(char text) {
         super.append(text);
         return this;
     }
 
+    @NonNull
     @Override
-    public SpannableStringBuilder append(CharSequence text, int start, int end) {
+    public SpannableStringBuilder append(@SuppressLint("UnknownNullness") CharSequence text,
+            int start,
+            int end) {
         super.append(text, start, end);
         return this;
     }
 
+    @SuppressLint("UnknownNullness")
     @Override
     public SpannableStringBuilder append(CharSequence text, Object what, int flags) {
         super.append(text, what, flags);
