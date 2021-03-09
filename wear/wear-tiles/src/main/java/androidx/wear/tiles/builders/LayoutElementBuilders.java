@@ -1812,8 +1812,7 @@ public final class LayoutElementBuilders {
             }
 
             /**
-             * Sets how to align the contents of this container relative to anchor_angle. See the
-             * descriptions of options in {@link ArcAnchorType} for more information. If not
+             * Sets how to align the contents of this container relative to anchor_angle. If not
              * defined, defaults to ARC_ANCHOR_CENTER.
              */
             @SuppressLint("MissingGetterMatchingBuilder")
