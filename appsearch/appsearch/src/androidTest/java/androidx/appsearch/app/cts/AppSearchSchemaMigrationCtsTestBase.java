@@ -630,4 +630,29 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                         .setMigrator("testSchema", migrator).build()).get());
         assertThat(exception).hasMessageThat().contains("Schema is incompatible.");
     }
+
+
+    @Test
+    public void testSchemaMigration_nonexistent() throws Exception {
+        // set first version of the schema to AppSearch
+        AppSearchSchema schema = new AppSearchSchema.Builder("testSchema")
+                .build();
+        mDb.setSchema(new SetSchemaRequest.Builder()
+                .addSchemas(schema).setForceOverride(true).build()).get();
+
+        // SetSchema with migrator and forceOverride=false but new schema.
+        ExecutionException exception = assertThrows(ExecutionException.class,
+                () -> mDb.setSchema(new SetSchemaRequest.Builder()
+                        .setMigrator("testSchema", NO_OP_MIGRATOR).build()).get());
+        assertThat(exception).hasMessageThat().contains("Schema is incompatible.");
+
+        // SetSchema with migrator and forceOverride=true but new schema.
+        exception = assertThrows(ExecutionException.class,
+                () -> mDb.setSchema(new SetSchemaRequest.Builder()
+                        .setMigrator("testSchema", NO_OP_MIGRATOR)
+                        .setForceOverride(true).build()).get());
+        assertThat(exception).hasMessageThat().contains(
+                "Receive a migrator for schema type : testSchema, "
+                        + "but the schema doesn't exist in the request.");
+    }
 }

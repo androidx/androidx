@@ -98,7 +98,7 @@ public final class SchemaMigrationUtil {
         if (finalVersion == null) {
             throw new AppSearchException(AppSearchResult.RESULT_INVALID_ARGUMENT,
                     "Receive a migrator for schema type : " + schemaType
-                            + ", but the schema is not present in the request.");
+                            + ", but the schema doesn't exist in the request.");
         }
         return migrator.shouldMigrateToFinalVersion(currentVersion, finalVersion);
     }
