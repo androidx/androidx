@@ -49,7 +49,7 @@ public class AsWireComplicationTextTest {
         val referenceMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
         val text = TimeDifferenceComplicationText.Builder(
             TimeDifferenceStyle.STOPWATCH,
-            CountDownTimeReference(referenceMillis)
+            CountUpTimeReference(referenceMillis)
         )
             .setText("^1 after lunch")
             .setDisplayAsNow(false)
@@ -78,7 +78,7 @@ public class AsWireComplicationTextTest {
         val referenceMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
         val text = TimeDifferenceComplicationText.Builder(
             TimeDifferenceStyle.STOPWATCH,
-            CountUpTimeReference(referenceMillis)
+            CountDownTimeReference(referenceMillis)
         )
             .setText("^1 before lunch")
             .setDisplayAsNow(false)
