@@ -122,7 +122,7 @@ public class ResourceAccessors {
             this.mProtoResources = protoResources;
         }
 
-        /** Set the resource loader for {@link AndroidImageResourceByResId} resources. */
+        /** Set the resource loader for {@link AndroidImageResourceByResIdAccessor} resources. */
         @NonNull
         @SuppressLint("MissingGetterMatchingBuilder")
         public Builder setAndroidImageResourceByResIdAccessor(

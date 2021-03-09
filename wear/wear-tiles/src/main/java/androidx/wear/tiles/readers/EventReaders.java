@@ -31,7 +31,7 @@ import androidx.wear.tiles.protobuf.InvalidProtocolBufferException;
 public class EventReaders {
     private EventReaders() {}
 
-    /** Reader for a {@link TileAddEventData} instance. */
+    /** Reader for Tile add event parameters. */
     public static class TileAddEvent {
         private final EventProto.TileAddEvent mProto;
 
@@ -64,7 +64,7 @@ public class EventReaders {
         }
     }
 
-    /** Reader for a {@link TileRemoveEventData} instance. */
+    /** Reader for Tile remove event parameters. */
     public static class TileRemoveEvent {
         private final EventProto.TileRemoveEvent mProto;
 
@@ -97,7 +97,7 @@ public class EventReaders {
         }
     }
 
-    /** Reader for a {@link TileEnterEventData} instance. */
+    /** Reader for Tile enter event parameters. */
     public static class TileEnterEvent {
         private final EventProto.TileEnterEvent mProto;
 
@@ -130,7 +130,7 @@ public class EventReaders {
         }
     }
 
-    /** Reader for a {@link TileLeaveEventData} instance. */
+    /** Reader for a Tile leave event parameters. */
     public static class TileLeaveEvent {
         private final EventProto.TileLeaveEvent mProto;
 
