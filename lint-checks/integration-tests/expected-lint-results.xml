@@ -2,54 +2,6 @@
 <issues format="5" by="lint 4.2.0-beta04">
 
     <issue
-        id="UnknownIssueId"
-        severity="Ignore"
-        message="Unknown issue id &quot;ComposableLambdaParameterNaming&quot;"
-        category="Lint"
-        priority="1"
-        summary="Unknown Lint Issue Id"
-        explanation="Lint will report this issue if it is configured with an issue id it does not recognize in for example Gradle files or `lint.xml` configuration files.">
-        <location
-            file="$SUPPORT/lint-checks/integration-tests/build.gradle"/>
-    </issue>
-
-    <issue
-        id="UnknownIssueId"
-        severity="Ignore"
-        message="Unknown issue id &quot;ComposableLambdaParameterPosition&quot;"
-        category="Lint"
-        priority="1"
-        summary="Unknown Lint Issue Id"
-        explanation="Lint will report this issue if it is configured with an issue id it does not recognize in for example Gradle files or `lint.xml` configuration files.">
-        <location
-            file="$SUPPORT/lint-checks/integration-tests/build.gradle"/>
-    </issue>
-
-    <issue
-        id="UnknownIssueId"
-        severity="Ignore"
-        message="Unknown issue id &quot;ComposableNaming&quot;"
-        category="Lint"
-        priority="1"
-        summary="Unknown Lint Issue Id"
-        explanation="Lint will report this issue if it is configured with an issue id it does not recognize in for example Gradle files or `lint.xml` configuration files.">
-        <location
-            file="$SUPPORT/lint-checks/integration-tests/build.gradle"/>
-    </issue>
-
-    <issue
-        id="UnknownIssueId"
-        severity="Ignore"
-        message="Unknown issue id &quot;CompositionLocalNaming&quot;"
-        category="Lint"
-        priority="1"
-        summary="Unknown Lint Issue Id"
-        explanation="Lint will report this issue if it is configured with an issue id it does not recognize in for example Gradle files or `lint.xml` configuration files.">
-        <location
-            file="$SUPPORT/lint-checks/integration-tests/build.gradle"/>
-    </issue>
-
-    <issue
         id="BanConcurrentHashMap"
         severity="Error"
         message="Detected ConcurrentHashMap usage."
@@ -60,25 +12,9 @@
         errorLine1="import java.util.concurrent.ConcurrentHashMap;"
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/Sample.java"
+            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/Sample.java"
             line="19"
             column="1"/>
-    </issue>
-
-    <issue
-        id="UnnecessaryLambdaCreation"
-        severity="Error"
-        message="Creating an unnecessary lambda to emit a captured lambda"
-        category="Performance"
-        priority="5"
-        summary="Creating an unnecessary lambda to emit a captured lambda"
-        explanation="Creating this extra lambda instead of just passing the already captured lambda means that during code generation the Compose compiler will insert code around this lambda to track invalidations. This adds some extra runtime cost so you should instead just directly pass the lambda as a parameter to the function."
-        errorLine1="        lambda()"
-        errorLine2="        ~~~~~~">
-        <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/ComposeSample.kt"
-            line="29"
-            column="9"/>
     </issue>
 
     <issue
@@ -94,8 +30,8 @@
         errorLine1="    public static Sample confirmIntrinisicLintChecksRun() {"
         errorLine2="                  ~~~~~~">
         <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/Sample.java"
-            line="28"
+            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/Sample.java"
+            line="32"
             column="19"/>
     </issue>
 
@@ -112,8 +48,8 @@
         errorLine1="    public static void confirmCustomAndroidXChecksRun(ConcurrentHashMap m) {"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~">
         <location
-            file="$SUPPORT/lint-checks/integration-tests/src/main/java/Sample.java"
-            line="37"
+            file="$SUPPORT/lint-checks/integration-tests/src/main/java/androidx/Sample.java"
+            line="41"
             column="55"/>
     </issue>
 

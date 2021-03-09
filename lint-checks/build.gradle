@@ -23,6 +23,14 @@ plugins {
     id("kotlin")
 }
 
+sourceSets {
+    // Pull integration test source code in for use by lint testing framework.
+    test.resources.srcDirs(
+            project(":lint-checks:integration-tests")
+                    .projectDir.absolutePath + "/src/main"
+    )
+}
+
 dependencies {
     compileOnly(LINT_API_LATEST)
     compileOnly(LINT_CHECKS_LATEST)
