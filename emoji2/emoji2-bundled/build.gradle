@@ -19,7 +19,7 @@ android {
 }
 
 dependencies {
-    api(project(":emoji"))
+    api(project(":emoji2:emoji2"))
 }
 
 androidx {

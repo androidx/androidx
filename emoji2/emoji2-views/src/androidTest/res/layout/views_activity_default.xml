@@ -13,8 +13,21 @@
         android:layout_height="wrap_content"
         android:textSize="8sp"/>
 
-    <EditText
+    <androidx.emoji2.widget.EmojiTextView
+        android:id="@+id/emojiTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="8sp" />
+
+    <androidx.emoji2.widget.EmojiEditText
         android:id="@+id/editText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <androidx.emoji2.widget.EmojiEditText
+        android:id="@+id/editTextWithMaxCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:maxEmojiCount="5"/>
+
 </LinearLayout>

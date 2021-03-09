@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-beta04" client="gradle" variant="debug" version="4.2.0-beta04">
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.emoji2.helpers.EmojiInputFilter.InitCallbackImpl is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="            if (textView != null &amp;&amp; textView.isAttachedToWindow()) {"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/helpers/EmojiInputFilter.java"
+            line="110"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.emoji2.helpers.EmojiTextWatcher.InitCallbackImpl is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="            if (editText != null &amp;&amp; editText.isAttachedToWindow()) {"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/helpers/EmojiTextWatcher.java"
+            line="122"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="                final KeyEvent event) {"
+        errorLine2="                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/helpers/EmojiKeyListener.java"
+            line="80"
+            column="23"/>
+    </issue>
+
+</issues>
