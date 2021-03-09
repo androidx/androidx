@@ -16,6 +16,12 @@
 
 package androidx.window;
 
+import static androidx.window.FoldingFeature.STATE_FLAT;
+import static androidx.window.FoldingFeature.STATE_FLIPPED;
+import static androidx.window.FoldingFeature.STATE_HALF_OPENED;
+import static androidx.window.FoldingFeature.TYPE_FOLD;
+import static androidx.window.FoldingFeature.TYPE_HINGE;
+
 import android.graphics.Rect;
 
 import java.util.ArrayList;
@@ -25,15 +31,16 @@ import java.util.List;
  * A class containing static methods for creating different window bound types. Test methods are
  * shared between the unit tests and the instrumentation tests.
  */
-final class TestBoundsUtil {
+final class TestFoldingFeatureUtil {
 
-    private TestBoundsUtil() { }
+    private TestFoldingFeatureUtil() {
+    }
 
     /**
-     * @param windowBounds the bounds for a window contain a valid fold.
+     * @param windowBounds the bounds of the window.
      * @return {@link Rect} that is a valid fold bound within the given window.
      */
-    public static Rect validFoldBound(Rect windowBounds) {
+    static Rect validFoldBound(Rect windowBounds) {
         int verticalMid = windowBounds.height() / 2;
         return new Rect(0, verticalMid, windowBounds.width(), verticalMid);
     }
@@ -46,7 +53,7 @@ final class TestBoundsUtil {
     }
 
     /**
-     * @param windowBounds the bounds for a window contain an invalid fold.
+     * @param windowBounds the bounds of the window.
      * @return {@link Rect} for bounds where the width is shorter than the window width.
      */
     static Rect invalidBoundShortWidth(Rect windowBounds) {
@@ -54,7 +61,7 @@ final class TestBoundsUtil {
     }
 
     /**
-     * @param windowBounds the bounds for a window contain an invalid fold.
+     * @param windowBounds the bounds of the window.
      * @return {@link Rect} for bounds where the height is shorter than the window height.
      */
     static Rect invalidBoundShortHeight(Rect windowBounds) {
@@ -62,21 +69,10 @@ final class TestBoundsUtil {
     }
 
     /**
-     * @param windowBounds the bounds for a window contain an invalid fold.
-     * @return a {@link List} of {@link Rect} of invalid bounds for fold features
+     * @param windowBounds the bounds of the window.
+     * @return a {@link List} of {@link Rect} of invalid bounds for folding features
      */
     static List<Rect> invalidFoldBounds(Rect windowBounds) {
-        List<Rect> badBounds = invalidHingeBounds(windowBounds);
-        Rect nonEmptySmallRect = new Rect(0, 0, 1, 1);
-        badBounds.add(nonEmptySmallRect);
-        return badBounds;
-    }
-
-    /**
-     * @param windowBounds the bounds for a window contain an invalid fold.
-     * @return a {@link List} of {@link Rect} of invalid bounds for hinge features
-     */
-    static List<Rect> invalidHingeBounds(Rect windowBounds) {
         List<Rect> badBounds = new ArrayList<>();
 
         badBounds.add(invalidZeroBound());
@@ -84,5 +80,33 @@ final class TestBoundsUtil {
         badBounds.add(invalidBoundShortHeight(windowBounds));
 
         return badBounds;
+    }
+
+    /**
+     * @param bounds for the test {@link FoldingFeature}
+     * @param type   of the {@link FoldingFeature}
+     * @return {@link List} of {@link FoldingFeature} containing all the possible states for the
+     * given type.
+     */
+    static List<FoldingFeature> allFoldStates(Rect bounds, @FoldingFeature.Type int type) {
+        List<FoldingFeature> states = new ArrayList<>();
+
+        states.add(new FoldingFeature(bounds, type, STATE_FLAT));
+        states.add(new FoldingFeature(bounds, type, STATE_HALF_OPENED));
+        states.add(new FoldingFeature(bounds, type, STATE_FLIPPED));
+
+        return states;
+    }
+
+    /**
+     * @param bounds for the test {@link FoldingFeature}
+     * @return {@link List} of {@link FoldingFeature} containing all the possible states and
+     * types.
+     */
+    static List<FoldingFeature> allFoldingFeatureTypeAndStates(Rect bounds) {
+        List<FoldingFeature> features = new ArrayList<>();
+        features.addAll(allFoldStates(bounds, TYPE_HINGE));
+        features.addAll(allFoldStates(bounds, TYPE_FOLD));
+        return features;
     }
 }

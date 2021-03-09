@@ -299,10 +299,6 @@ public final class ExtensionTest extends WindowTestBase {
             return false;
         }
         FoldingFeature feature = (FoldingFeature) displayFeature;
-        int featureType = feature.getType();
-        if (featureType != FoldingFeature.TYPE_FOLD && featureType != FoldingFeature.TYPE_HINGE) {
-            return false;
-        }
 
         Rect featureRect = feature.getBounds();
         WindowMetrics windowMetrics = new WindowManager(activity).getCurrentWindowMetrics();

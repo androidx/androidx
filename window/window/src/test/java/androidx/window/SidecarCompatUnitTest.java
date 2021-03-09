@@ -17,9 +17,8 @@
 package androidx.window;
 
 import static androidx.window.ActivityUtil.getActivityWindowToken;
-import static androidx.window.TestBoundsUtil.invalidFoldBounds;
-import static androidx.window.TestBoundsUtil.invalidHingeBounds;
-import static androidx.window.TestBoundsUtil.validFoldBound;
+import static androidx.window.TestFoldingFeatureUtil.invalidFoldBounds;
+import static androidx.window.TestFoldingFeatureUtil.validFoldBound;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -373,7 +372,7 @@ public final class SidecarCompatUnitTest {
                         SidecarDisplayFeature.TYPE_FOLD));
             }
 
-            for (Rect malformedBound : invalidHingeBounds(WINDOW_BOUNDS)) {
+            for (Rect malformedBound : invalidFoldBounds(WINDOW_BOUNDS)) {
                 malformedFeatures.add(newDisplayFeature(malformedBound,
                         SidecarDisplayFeature.TYPE_HINGE));
             }

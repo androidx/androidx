@@ -22,7 +22,6 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.util.Consumer
-import androidx.window.FoldingFeature
 import androidx.window.WindowLayoutInfo
 import androidx.window.WindowManager
 import java.text.SimpleDateFormat
@@ -94,12 +93,7 @@ class DisplayFeaturesActivity : BaseSampleActivity() {
                 }
 
                 val featureView = View(this)
-                val foldFeature = displayFeature as? FoldingFeature
-                val color = when (foldFeature?.type) {
-                    FoldingFeature.TYPE_FOLD -> getColor(R.color.colorFeatureFold)
-                    FoldingFeature.TYPE_HINGE -> getColor(R.color.colorFeatureHinge)
-                    else -> getColor(R.color.colorFeatureUnknown)
-                }
+                val color = getColor(R.color.colorFeatureFold)
                 featureView.foreground = ColorDrawable(color)
 
                 rootLayout.addView(featureView, lp)
