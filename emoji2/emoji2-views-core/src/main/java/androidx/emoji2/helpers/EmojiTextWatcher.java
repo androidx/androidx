@@ -108,6 +108,7 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         return mInitCallback;
     }
 
+    @RequiresApi(19)
     private static class InitCallbackImpl extends InitCallback {
         private final Reference<EditText> mViewRef;
 

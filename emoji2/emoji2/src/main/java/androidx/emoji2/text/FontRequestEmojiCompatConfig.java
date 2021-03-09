@@ -140,7 +140,8 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
      *               of {@code null}, the metadata loader creates own {@link HandlerThread} for
      *               initialization.
      */
-    public FontRequestEmojiCompatConfig setHandler(Handler handler) {
+    @NonNull
+    public FontRequestEmojiCompatConfig setHandler(@Nullable Handler handler) {
         ((FontRequestMetadataLoader) getMetadataRepoLoader()).setHandler(handler);
         return this;
     }
@@ -153,7 +154,8 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
      *              file. Can be {@code null}. In case of {@code null}, the metadata loader never
      *              retries.
      */
-    public FontRequestEmojiCompatConfig setRetryPolicy(RetryPolicy policy) {
+    @NonNull
+    public FontRequestEmojiCompatConfig setRetryPolicy(@Nullable RetryPolicy policy) {
         ((FontRequestMetadataLoader) getMetadataRepoLoader()).setRetryPolicy(policy);
         return this;
     }
@@ -163,23 +165,23 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
      * given FontRequest.
      */
     private static class FontRequestMetadataLoader implements EmojiCompat.MetadataRepoLoader {
-        private final Context mContext;
-        private final FontRequest mRequest;
-        private final FontProviderHelper mFontProviderHelper;
+        private final @NonNull Context mContext;
+        private final @NonNull FontRequest mRequest;
+        private final @NonNull FontProviderHelper mFontProviderHelper;
 
-        private final Object mLock = new Object();
+        private final @NonNull Object mLock = new Object();
         @GuardedBy("mLock")
-        private Handler mHandler;
+        private @Nullable Handler mHandler;
         @GuardedBy("mLock")
-        private HandlerThread mThread;
+        private @Nullable HandlerThread mThread;
         @GuardedBy("mLock")
         private @Nullable RetryPolicy mRetryPolicy;
 
         // Following three variables must be touched only on the thread associated with mHandler.
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         EmojiCompat.MetadataRepoLoaderCallback mCallback;
-        private ContentObserver mObserver;
-        private Runnable mHandleMetadataCreationRunner;
+        private @Nullable ContentObserver mObserver;
+        private @Nullable Runnable mHandleMetadataCreationRunner;
 
         FontRequestMetadataLoader(@NonNull Context context, @NonNull FontRequest request,
                 @NonNull FontProviderHelper fontProviderHelper) {
@@ -190,13 +192,13 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
             mFontProviderHelper = fontProviderHelper;
         }
 
-        public void setHandler(Handler handler) {
+        public void setHandler(@Nullable Handler handler) {
             synchronized (mLock) {
                 mHandler = handler;
             }
         }
 
-        public void setRetryPolicy(RetryPolicy policy) {
+        public void setRetryPolicy(@Nullable RetryPolicy policy) {
             synchronized (mLock) {
                 mRetryPolicy = policy;
             }
@@ -332,12 +334,14 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static class FontProviderHelper {
         /** Calls FontsContractCompat.fetchFonts. */
+        @NonNull
         public FontFamilyResult fetchFonts(@NonNull Context context,
                 @NonNull FontRequest request) throws NameNotFoundException {
             return FontsContractCompat.fetchFonts(context, null /* cancellation signal */, request);
         }
 
         /** Calls FontsContractCompat.buildTypeface. */
+        @Nullable
         public Typeface buildTypeface(@NonNull Context context,
                 @NonNull FontsContractCompat.FontInfo font) throws NameNotFoundException {
             return FontsContractCompat.buildTypeface(context, null /* cancellation signal */,

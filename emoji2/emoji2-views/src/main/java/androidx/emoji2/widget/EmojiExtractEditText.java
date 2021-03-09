@@ -18,6 +18,7 @@ package androidx.emoji2.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.inputmethodservice.ExtractEditText;
 import android.os.Build;
@@ -29,6 +30,7 @@ import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
 
 import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -54,24 +56,26 @@ public class EmojiExtractEditText extends ExtractEditText {
      */
     private boolean mInitialized;
 
-    public EmojiExtractEditText(Context context) {
+    public EmojiExtractEditText(@NonNull Context context) {
         super(context);
         init(null /*attrs*/, 0 /*defStyleAttr*/, 0 /*defStyleRes*/);
     }
 
-    public EmojiExtractEditText(Context context, AttributeSet attrs) {
+    public EmojiExtractEditText(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(attrs, android.R.attr.editTextStyle, 0 /*defStyleRes*/);
     }
 
-    public EmojiExtractEditText(Context context, AttributeSet attrs, int defStyleAttr) {
+    public EmojiExtractEditText(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(attrs, defStyleAttr, 0 /*defStyleRes*/);
     }
 
+    @SuppressLint("UnsafeNewApiCall")
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    public EmojiExtractEditText(Context context, AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
+    public EmojiExtractEditText(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(attrs, defStyleAttr, defStyleRes);
     }
@@ -94,8 +98,9 @@ public class EmojiExtractEditText extends ExtractEditText {
         super.setKeyListener(keyListener);
     }
 
+    @Nullable
     @Override
-    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+    public InputConnection onCreateInputConnection(@NonNull EditorInfo outAttrs) {
         final InputConnection inputConnection = super.onCreateInputConnection(outAttrs);
         return getEmojiEditTextHelper().onCreateInputConnection(inputConnection, outAttrs);
     }
@@ -159,7 +164,9 @@ public class EmojiExtractEditText extends ExtractEditText {
      * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
      */
     @Override
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+    public void setCustomSelectionActionModeCallback(
+            @NonNull ActionMode.Callback actionModeCallback
+    ) {
         super.setCustomSelectionActionModeCallback(TextViewCompat
                 .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }

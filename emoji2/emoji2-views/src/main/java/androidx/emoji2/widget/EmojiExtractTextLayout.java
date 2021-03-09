@@ -16,6 +16,7 @@
 
 package androidx.emoji2.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.inputmethodservice.InputMethodService;
@@ -75,25 +76,26 @@ public class EmojiExtractTextLayout extends LinearLayout {
      */
     private boolean mInitialized;
 
-    public EmojiExtractTextLayout(Context context) {
+    public EmojiExtractTextLayout(@NonNull Context context) {
         super(context);
         init(context, null /*attrs*/, 0 /*defStyleAttr*/, 0 /*defStyleRes*/);
     }
 
-    public EmojiExtractTextLayout(Context context,
+    public EmojiExtractTextLayout(@NonNull Context context,
             @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs, 0 /*defStyleAttr*/, 0 /*defStyleRes*/);
     }
 
-    public EmojiExtractTextLayout(Context context,
+    public EmojiExtractTextLayout(@NonNull Context context,
             @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr, 0 /*defStyleRes*/);
     }
 
+    @SuppressLint("UnsafeNewApiCall")
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public EmojiExtractTextLayout(Context context, AttributeSet attrs,
+    public EmojiExtractTextLayout(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs, defStyleAttr, defStyleRes);
@@ -159,7 +161,8 @@ public class EmojiExtractTextLayout extends LinearLayout {
      * {@link InputMethodService#onUpdateExtractingViews(EditorInfo)
      * InputMethodService#onUpdateExtractingViews(EditorInfo)}.
      */
-    public void onUpdateExtractingViews(InputMethodService inputMethodService, EditorInfo ei) {
+    public void onUpdateExtractingViews(@NonNull InputMethodService inputMethodService,
+            @NonNull EditorInfo ei) {
         // the following code is ported as it is from InputMethodService.onUpdateExtractingViews
         if (!inputMethodService.isExtractViewShown()) {
             return;

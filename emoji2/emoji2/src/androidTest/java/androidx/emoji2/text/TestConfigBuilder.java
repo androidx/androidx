@@ -16,13 +16,16 @@
 package androidx.emoji2.text;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.graphics.Typeface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.text.emoji.flatbuffer.MetadataList;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -85,7 +88,8 @@ public class TestConfigBuilder {
                     try {
                         mLoaderLatch.await();
                         if (mSuccess) {
-                            loaderCallback.onLoaded(new MetadataRepo());
+                            loaderCallback.onLoaded(MetadataRepo.create(mock(Typeface.class),
+                                    new MetadataList()));
                         } else {
                             loaderCallback.onFailed(null);
                         }

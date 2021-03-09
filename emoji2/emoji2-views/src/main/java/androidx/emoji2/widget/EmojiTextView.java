@@ -15,6 +15,7 @@
  */
 package androidx.emoji2.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.text.InputFilter;
@@ -22,6 +23,8 @@ import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.widget.TextViewCompat;
 import androidx.emoji2.helpers.EmojiTextViewHelper;
@@ -39,23 +42,25 @@ public class EmojiTextView extends TextView {
      */
     private boolean mInitialized;
 
-    public EmojiTextView(Context context) {
+    public EmojiTextView(@NonNull Context context) {
         super(context);
         init();
     }
 
-    public EmojiTextView(Context context, AttributeSet attrs) {
+    public EmojiTextView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public EmojiTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public EmojiTextView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
+    @SuppressLint("UnsafeNewApiCall")
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public EmojiTextView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public EmojiTextView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
@@ -68,7 +73,7 @@ public class EmojiTextView extends TextView {
     }
 
     @Override
-    public void setFilters(InputFilter[] filters) {
+    public void setFilters(@NonNull InputFilter[] filters) {
         super.setFilters(getEmojiTextViewHelper().getFilters(filters));
     }
 
@@ -90,7 +95,9 @@ public class EmojiTextView extends TextView {
      * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
      */
     @Override
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+    public void setCustomSelectionActionModeCallback(
+            @NonNull ActionMode.Callback actionModeCallback
+    ) {
         super.setCustomSelectionActionModeCallback(TextViewCompat
                 .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }

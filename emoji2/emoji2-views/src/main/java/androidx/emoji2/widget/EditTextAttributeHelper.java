@@ -24,6 +24,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.EmojiDefaults;
 
@@ -36,8 +37,8 @@ import androidx.emoji2.text.EmojiDefaults;
 public class EditTextAttributeHelper {
     private int mMaxEmojiCount;
 
-    public EditTextAttributeHelper(@NonNull View view, AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
+    public EditTextAttributeHelper(@NonNull View view, @Nullable AttributeSet attrs,
+            int defStyleAttr, int defStyleRes) {
         if (attrs != null) {
             final Context context = view.getContext();
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.EmojiEditText,
