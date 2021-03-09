@@ -227,8 +227,7 @@ final class PreviewTransformation {
      *
      * <p> The calculation is based on making the crop rect to fill or fit the {@link PreviewView}.
      */
-    private Matrix getSurfaceToPreviewViewMatrix(Size previewViewSize,
-            int layoutDirection) {
+    Matrix getSurfaceToPreviewViewMatrix(Size previewViewSize, int layoutDirection) {
         Preconditions.checkState(isTransformationInfoReady());
         Matrix matrix = new Matrix();
 
@@ -394,6 +393,14 @@ final class PreviewTransformation {
         return isAspectRatioMatchingWithRoundingError(
                 previewViewSize, /* isAccurate1= */ true,
                 rotatedSize,  /* isAccurate2= */ false);
+    }
+
+    /**
+     * Return the crop rect of the preview surface.
+     */
+    @Nullable
+    Rect getSurfaceCropRect() {
+        return mSurfaceCropRect;
     }
 
     /**

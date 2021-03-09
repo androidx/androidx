@@ -122,6 +122,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.camera_controller:
                 mMode = Mode.CAMERA_CONTROLLER;
                 break;
+            case R.id.transform:
+                mMode = Mode.TRANSFORM;
+                break;
         }
         startFragment();
         return true;
@@ -148,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
             case CAMERA_CONTROLLER:
                 startFragment(R.string.camera_controller, new CameraControllerFragment());
                 break;
+            case TRANSFORM:
+                startFragment(R.string.transform, new TransformFragment());
         }
     }
 
@@ -165,6 +170,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private enum Mode {
-        CAMERA_VIEW, PREVIEW_VIEW, CAMERA_CONTROLLER
+        CAMERA_VIEW, PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM
     }
 }
