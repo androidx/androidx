@@ -32,7 +32,6 @@ import androidx.core.util.Consumer;
 import androidx.window.extensions.ExtensionInterface;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
@@ -94,56 +93,6 @@ final class ExtensionWindowBackend implements WindowBackend {
             }
         }
         return sInstance;
-    }
-
-    /**
-     * @deprecated will be removed in the next alpha.
-     * @return {@link DeviceState} when Sidecar is present and an unknown {@link DeviceState}
-     * otherwise.
-     */
-    @Override
-    @NonNull
-    @Deprecated
-    public DeviceState getDeviceState() {
-        synchronized (sLock) {
-            if (mWindowExtension instanceof SidecarCompat) {
-                SidecarCompat sidecarCompat = (SidecarCompat) mWindowExtension;
-                return sidecarCompat.getDeviceState();
-            }
-            return new DeviceState(DeviceState.POSTURE_UNKNOWN);
-        }
-    }
-
-    /**
-     * @deprecated will be removed in the next alpha.
-     * @param activity that is running.
-     * @return {@link WindowLayoutInfo} for the window containing the {@link Activity} when
-     * Sidecar is present and an empty info otherwise
-     */
-    @NonNull
-    @Override
-    @Deprecated
-    public WindowLayoutInfo getWindowLayoutInfo(@NonNull Activity activity) {
-        synchronized (sLock) {
-            if (mWindowExtension instanceof SidecarCompat) {
-                SidecarCompat sidecarCompat = (SidecarCompat) mWindowExtension;
-                return sidecarCompat.getWindowLayoutInfo(activity);
-            }
-            return new WindowLayoutInfo(Collections.emptyList());
-        }
-    }
-
-    /**
-     *
-     * @param context with an associated {@link Activity}
-     * @return the {@link WindowLayoutInfo}
-     * @deprecated use an {@link Activity} instead of {@link Context}
-     */
-    @NonNull
-    @Override
-    @Deprecated
-    public WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context) {
-        return getWindowLayoutInfo(assertActivityContext(context));
     }
 
     @Override

@@ -86,21 +86,6 @@ public final class WindowManagerTest extends WindowTestBase {
     }
 
     @Test
-    public void testRegisterDeviceStateChangeCallback() {
-        WindowBackend backend = mock(WindowBackend.class);
-        Activity activity = mock(Activity.class);
-        WindowManager wm = new WindowManager(activity, backend);
-
-        Executor executor = MoreExecutors.directExecutor();
-        Consumer<DeviceState> consumer = mock(Consumer.class);
-        wm.registerDeviceStateChangeCallback(executor, consumer);
-        verify(backend).registerDeviceStateChangeCallback(executor, consumer);
-
-        wm.unregisterDeviceStateChangeCallback(consumer);
-        verify(backend).unregisterDeviceStateChangeCallback(eq(consumer));
-    }
-
-    @Test
     public void testGetCurrentWindowMetrics() {
         WindowBackend backend = mock(WindowBackend.class);
         Activity activity = mock(Activity.class);
