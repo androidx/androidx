@@ -50,10 +50,6 @@ android {
         minSdkVersion 21
     }
 
-    sourceSets {
-        test.java.srcDirs += 'src/robolectric/java'
-    }
-
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 }

@@ -61,11 +61,6 @@ android {
         minSdkVersion 21
     }
 
-    // Include additional robolectric utilities in tests
-    sourceSets {
-        test.java.srcDirs += ['../camera-camera2-pipe-testing/src/robolectric/java']
-    }
-
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 }
