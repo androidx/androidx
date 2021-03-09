@@ -21,6 +21,7 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -60,6 +61,7 @@ class FragmentAnim {
         if (fragment.mContainer != null && fragment.mContainer.getLayoutTransition() != null) {
             return null;
         }
+
         Animation animation = fragment.onCreateAnimation(transit, enter, nextAnim);
         if (animation != null) {
             return new AnimationOrAnimator(animation);
@@ -71,9 +73,8 @@ class FragmentAnim {
         }
 
         if (nextAnim == 0 && transit != 0) {
-            nextAnim = transitToAnimResourceId(transit, enter);
+            nextAnim = transitToAnimResourceId(context, transit, enter);
         }
-
 
         if (nextAnim != 0) {
             String dir = context.getResources().getResourceTypeName(nextAnim);
@@ -195,7 +196,8 @@ class FragmentAnim {
     }
 
     @AnimRes
-    private static int transitToAnimResourceId(int transit, boolean enter) {
+    private static int transitToAnimResourceId(@NonNull Context context, int transit,
+            boolean enter) {
         int animAttr = -1;
         switch (transit) {
             case FragmentTransaction.TRANSIT_FRAGMENT_OPEN:
@@ -207,8 +209,30 @@ class FragmentAnim {
             case FragmentTransaction.TRANSIT_FRAGMENT_FADE:
                 animAttr = enter ? R.animator.fragment_fade_enter : R.animator.fragment_fade_exit;
                 break;
+            case FragmentTransaction.TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN:
+                animAttr = enter
+                        ? toActivityTransitResId(context, android.R.attr.activityOpenEnterAnimation)
+                        : toActivityTransitResId(context, android.R.attr.activityOpenExitAnimation);
+                break;
+            case FragmentTransaction.TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE:
+                animAttr = enter
+                        ? toActivityTransitResId(context,
+                        android.R.attr.activityCloseEnterAnimation)
+                        : toActivityTransitResId(context,
+                                android.R.attr.activityCloseExitAnimation);
+                break;
         }
         return animAttr;
+    }
+
+    @AnimRes
+    private static int toActivityTransitResId(@NonNull Context context, int attrInt) {
+        int resId;
+        TypedArray typedArray = context.obtainStyledAttributes(
+                android.R.style.Animation_Activity, new int[]{attrInt});
+        resId = typedArray.getResourceId(0, View.NO_ID);
+        typedArray.recycle();
+        return resId;
     }
 
     /**
