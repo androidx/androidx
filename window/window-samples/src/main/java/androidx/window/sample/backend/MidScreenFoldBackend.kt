@@ -57,22 +57,11 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
     }
 
     /**
-     * @return {@link DeviceState} with an unknown posture.
-     * @deprecated Will be removed when method is removed from {@link WindowBackend}
-     */
-    @Deprecated("Added for compatibility with WindowBackend in sample")
-    override fun getDeviceState(): DeviceState {
-        return DeviceState.Builder().setPosture(DeviceState.POSTURE_OPENED).build()
-    }
-
-    /**
      * @param activity Currently running {@link Activity}.
      * @return A fake {@link WindowLayoutInfo} with a fold in the middle matching the {@link
      * FoldAxis}.
-     * @deprecated Visibility will be reduced when method is removed from {@link WindowBackend}.
      */
-    @Deprecated("Exposed for compatibility with WindowBackend in sample")
-    override fun getWindowLayoutInfo(activity: Activity): WindowLayoutInfo {
+    private fun getWindowLayoutInfo(activity: Activity): WindowLayoutInfo {
         val windowSize = activity.calculateWindowSizeExt()
         val featureRect = foldRect(windowSize)
 
@@ -85,11 +74,6 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
         val featureList = ArrayList<DisplayFeature>()
         featureList.add(displayFeature)
         return WindowLayoutInfo.Builder().setDisplayFeatures(featureList).build()
-    }
-
-    @Deprecated("Added for compatibility with WindowBackend in sample")
-    override fun getWindowLayoutInfo(context: Context): WindowLayoutInfo {
-        return WindowLayoutInfo.Builder().setDisplayFeatures(emptyList()).build()
     }
 
     @Deprecated("Added for compatibility with WindowBackend in sample")

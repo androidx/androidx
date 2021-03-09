@@ -40,11 +40,11 @@ public final class WindowManager {
      * from the {@link androidx.window.sidecar.SidecarInterface} or is passed directly to the
      * {@link ExtensionInterface}.
      */
-    private Activity mActivity;
+    private final Activity mActivity;
     /**
      * The backend that supplies the information through this class.
      */
-    private WindowBackend mWindowBackend;
+    private final WindowBackend mWindowBackend;
 
     /**
      * Gets an instance of the class initialized with and connected to the provided {@link Context}.
@@ -68,10 +68,8 @@ public final class WindowManager {
      *                      around one, to use for initialization.
      * @param windowBackend Backing server class that will provide information for this instance.
      *                      Pass a custom {@link WindowBackend} implementation for testing.
-     * @deprecated WindowBackend will be a required argument in the next implementation.
      */
-    @Deprecated
-    public WindowManager(@NonNull Context context, @Nullable WindowBackend windowBackend) {
+    public WindowManager(@NonNull Context context, @NonNull WindowBackend windowBackend) {
         Activity activity = getActivityFromContext(context);
         if (activity == null) {
             throw new IllegalArgumentException("Used non-visual Context to obtain an instance of "
@@ -99,46 +97,6 @@ public final class WindowManager {
      */
     public void unregisterLayoutChangeCallback(@NonNull Consumer<WindowLayoutInfo> callback) {
         mWindowBackend.unregisterLayoutChangeCallback(callback);
-    }
-
-    /**
-     * @deprecated will be removed in the next alpha
-     * @return the current {@link DeviceState} if Sidecar is present and an empty info otherwise
-     */
-    @Deprecated
-    @NonNull
-    public DeviceState getDeviceState() {
-        return mWindowBackend.getDeviceState();
-    }
-
-    /**
-     * @deprecated will be removed in the next alpha
-     * @return the current {@link WindowLayoutInfo} when Sidecar is present and an empty info
-     * otherwise
-     */
-    @Deprecated
-    @NonNull
-    public WindowLayoutInfo getWindowLayoutInfo() {
-        return mWindowBackend.getWindowLayoutInfo(mActivity);
-    }
-
-    /**
-     * @deprecated {@link DeviceState} information has been merged into {@link WindowLayoutInfo}
-     * Registers a callback for device state changes.
-     */
-    @Deprecated
-    public void registerDeviceStateChangeCallback(@NonNull Executor executor,
-            @NonNull Consumer<DeviceState> callback) {
-        mWindowBackend.registerDeviceStateChangeCallback(executor, callback);
-    }
-
-    /**
-     * @deprecated {@link DeviceState} information has been merged into {@link WindowLayoutInfo}
-     * Unregisters a callback for device state changes.
-     */
-    @Deprecated
-    public void unregisterDeviceStateChangeCallback(@NonNull Consumer<DeviceState> callback) {
-        mWindowBackend.unregisterDeviceStateChangeCallback(callback);
     }
 
     /**
