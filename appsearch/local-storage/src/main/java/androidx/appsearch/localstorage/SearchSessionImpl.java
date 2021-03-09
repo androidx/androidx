@@ -39,6 +39,7 @@ import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
+import androidx.appsearch.util.SchemaMigrationUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -46,7 +47,6 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,16 +111,11 @@ class SearchSessionImpl implements AppSearchSession {
 
             // Migration process
             // 1. Generate the current and the final version map.
-            List<AppSearchSchema> schemas = mAppSearchImpl.getSchema(mPackageName, mDatabaseName);
-            Map<String, Integer> currentVersionMap = new ArrayMap<>(schemas.size());
-            for (int i = 0; i < schemas.size(); i++) {
-                currentVersionMap.put(schemas.get(i).getSchemaType(),
-                        schemas.get(i).getVersion());
-            }
-            Map<String, Integer> finalVersionMap = new ArrayMap<>(request.getSchemas().size());
-            for (AppSearchSchema newSchema : request.getSchemas()) {
-                finalVersionMap.put(newSchema.getSchemaType(), newSchema.getVersion());
-            }
+            Map<String, Integer> currentVersionMap =
+                    SchemaMigrationUtil.buildVersionMap(
+                            mAppSearchImpl.getSchema(mPackageName, mDatabaseName));
+            Map<String, Integer> finalVersionMap =
+                    SchemaMigrationUtil.buildVersionMap(request.getSchemas());
 
             // 2. SetSchema with forceOverride=false, to retrieve the list of incompatible/deleted
             // types.
@@ -136,7 +131,7 @@ class SearchSessionImpl implements AppSearchSession {
             // If some aren't we must throw an error, rather than proceeding and deleting those
             // types.
             if (!request.isForceOverride()) {
-                Set<String> unmigratedTypes = getUnmigratedIncompatibleTypes(
+                Set<String> unmigratedTypes = SchemaMigrationUtil.getUnmigratedIncompatibleTypes(
                         setSchemaResponse.getIncompatibleTypes(),
                         migratorMap,
                         currentVersionMap,
@@ -156,10 +151,12 @@ class SearchSessionImpl implements AppSearchSession {
                 // 4. Trigger migration for all migrators.
                 List<String> migratedTypes = new ArrayList<>();
                 for (Map.Entry<String, Migrator> entry : migratorMap.entrySet()) {
-                    if (triggerMigration(/*schemaType=*/entry.getKey(),
-                            /*migrator=*/entry.getValue(), currentVersionMap, finalVersionMap,
-                            migrationHelper)) {
-                        migratedTypes.add(/*migratedType=*/entry.getKey());
+                    String schemaType = entry.getKey();
+                    Migrator migrator = entry.getValue();
+                    if (SchemaMigrationUtil.shouldTriggerMigration(
+                            schemaType, migrator, currentVersionMap, finalVersionMap)) {
+                        migrationHelper.queryAndTransform(schemaType, migrator);
+                        migratedTypes.add(schemaType);
                     }
                 }
 
@@ -393,70 +390,6 @@ class SearchSessionImpl implements AppSearchSession {
         }
         mIsMutated = true;
         return setSchemaResponse;
-    }
-
-    /**
-     * Finds out which incompatible schema type won't be migrated by comparing its current and
-     * final version number.
-     */
-    private Set<String> getUnmigratedIncompatibleTypes(
-            @NonNull Set<String> incompatibleSchemaTypes,
-            @NonNull Map<String, Migrator> migrators,
-            @NonNull Map<String, Integer> currentVersionMap,
-            @NonNull Map<String, Integer> finalVersionMap)
-            throws AppSearchException {
-        Set<String> unmigratedSchemaTypes = new ArraySet<>();
-        for (String unmigratedSchemaType : incompatibleSchemaTypes) {
-            Integer currentVersion = currentVersionMap.get(unmigratedSchemaType);
-            Integer finalVersion = finalVersionMap.get(unmigratedSchemaType);
-            if (currentVersion == null) {
-                // impossible, we have done something wrong.
-                throw new AppSearchException(AppSearchResult.RESULT_UNKNOWN_ERROR,
-                        "Cannot find the current version number for schema type: "
-                                + unmigratedSchemaType);
-            }
-            if (finalVersion == null) {
-                // The schema doesn't exist in the SetSchemaRequest.
-                unmigratedSchemaTypes.add(unmigratedSchemaType);
-                continue;
-            }
-            // we don't have migrator or won't trigger migration for this schema type.
-            Migrator migrator = migrators.get(unmigratedSchemaType);
-            if (migrator == null || !migrator.shouldMigrateToFinalVersion(currentVersion,
-                    finalVersion)) {
-                unmigratedSchemaTypes.add(unmigratedSchemaType);
-            }
-        }
-        return Collections.unmodifiableSet(unmigratedSchemaTypes);
-    }
-
-    /**
-     * Triggers upgrade or downgrade migration for the given schema type if its version stored in
-     * AppSearch is different with the version in the request.
-     * @return {@code True} if the migration has been triggered.
-     */
-    private boolean triggerMigration(@NonNull String schemaType,
-            @NonNull Migrator migrator,
-            @NonNull Map<String, Integer> currentVersionMap,
-            @NonNull Map<String, Integer> finalVersionMap,
-            @NonNull AppSearchMigrationHelper migrationHelper)
-            throws Exception {
-        Integer currentVersion = currentVersionMap.get(schemaType);
-        Integer finalVersion = finalVersionMap.get(schemaType);
-        if (currentVersion == null) {
-            Log.d(TAG, "The SchemaType: " + schemaType + " not present in AppSearch.");
-            return false;
-        }
-        if (!migrator.shouldMigrateToFinalVersion(currentVersion, finalVersion)) {
-            return false;
-        }
-        if (finalVersion == null) {
-            throw new AppSearchException(AppSearchResult.RESULT_INVALID_ARGUMENT,
-                    "Receive a migrator for schema type : " + schemaType
-                            + ", but the schema is not present in the request.");
-        }
-        migrationHelper.queryAndTransform(schemaType, migrator);
-        return true;
     }
 
     private void checkForOptimize(int mutateBatchSize) {
