@@ -1,0 +1,65 @@
+column {
+  contents {
+    text {
+      text {
+        value: "Hello World"
+      }
+      font_style {
+        color {
+          argb: 0xFFFF0000
+        }
+      }
+      max_lines: {
+        value: 1000
+      }
+    }
+  }
+  contents {
+    spacer {
+      height {
+        linear_dimension {
+          value: 10
+        }
+      }
+    }
+  }
+  contents {
+    text {
+      text {
+        value: "More text"
+      }
+      font_style {
+        color {
+          argb: 0xFF00FF00
+        }
+      }
+      max_lines: {
+        value: 1000
+      }
+    }
+  }
+  contents {
+    spacer {
+      height {
+        linear_dimension {
+          value: 30
+        }
+      }
+    }
+  }
+  contents {
+    text {
+      text {
+        value: "Yet more text"
+      }
+      font_style {
+        color {
+          argb: 0xFF0000FF
+        }
+      }
+      max_lines: {
+        value: 1000
+      }
+    }
+  }
+}

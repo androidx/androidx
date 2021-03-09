@@ -1,0 +1,34 @@
+# Expect the default text size to be the same regardless of whether or not it
+# has a color style. See b/165807784
+box {
+  modifiers {
+    background {
+      color {
+        argb: 0xFF000000
+      }
+    }
+  }
+  contents {
+    column {
+      contents {
+        text {
+          text {
+            value: "Default Size (No Style)"
+          }
+        }
+      }
+      contents {
+        text {
+          text {
+            value: "Default Size (With Style)"
+          }
+          font_style {
+            color {
+              argb: 0xFFFFBE00
+            }
+          }
+        }
+      }
+    }
+  }
+}
