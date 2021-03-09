@@ -40,6 +40,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.SpannableStringBuilder;
 import android.view.DragEvent;
 import android.view.inputmethod.EditorInfo;
@@ -525,7 +526,9 @@ public class AppCompatEditTextReceiveContentTest {
         }
         EditorInfo editorInfo = new EditorInfo();
         InputConnection ic = mEditText.onCreateInputConnection(editorInfo);
-        return InputConnectionCompat.commitContent(ic, editorInfo, contentInfo, 0, opts);
+        int flags = (Build.VERSION.SDK_INT >= 25)
+                ? InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION : 0;
+        return InputConnectionCompat.commitContent(ic, editorInfo, contentInfo, flags, opts);
     }
 
     private boolean triggerImeCommitContentDirect(String mimeType) {
@@ -535,7 +538,9 @@ public class AppCompatEditTextReceiveContentTest {
                 null);
         EditorInfo editorInfo = new EditorInfo();
         InputConnection ic = mEditText.onCreateInputConnection(editorInfo);
-        return ic.commitContent(contentInfo, 0, null);
+        int flags = (Build.VERSION.SDK_INT >= 25)
+                ? InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION : 0;
+        return ic.commitContent(contentInfo, flags, null);
     }
 
     private boolean triggerDropEvent(ClipData clip) {
@@ -594,15 +599,15 @@ public class AppCompatEditTextReceiveContentTest {
         @Nullable
         private final Uri mLinkUri;
         @Nullable
-        private final String mExtra;
+        private final String mExtraValue;
 
         private PayloadArgumentMatcher(@NonNull ClipData clip, int source, int flags,
-                @Nullable Uri linkUri, @Nullable String extra) {
+                @Nullable Uri linkUri, @Nullable String extraValue) {
             mClip = clip;
             mSource = source;
             mFlags = flags;
             mLinkUri = linkUri;
-            mExtra = extra;
+            mExtraValue = extraValue;
         }
 
         @Override
@@ -618,11 +623,16 @@ public class AppCompatEditTextReceiveContentTest {
         }
 
         private boolean extrasMatch(Bundle actualExtras) {
-            if (mExtra == null) {
+            if (mSource == SOURCE_INPUT_METHOD && Build.VERSION.SDK_INT >= 25) {
+                assertThat(actualExtras).isNotNull();
+                Parcelable actualInputContentInfoExtra = actualExtras.getParcelable(
+                        "androidx.core.view.extra.INPUT_CONTENT_INFO");
+                assertThat(actualInputContentInfoExtra).isInstanceOf(InputContentInfo.class);
+            } else if (mExtraValue == null) {
                 return actualExtras == null;
             }
             String actualExtraValue = actualExtras.getString(EXTRA_KEY);
-            return ObjectsCompat.equals(mExtra, actualExtraValue);
+            return ObjectsCompat.equals(mExtraValue, actualExtraValue);
         }
     }
 }
