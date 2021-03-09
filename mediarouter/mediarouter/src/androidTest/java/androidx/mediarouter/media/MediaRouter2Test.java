@@ -234,8 +234,8 @@ public class MediaRouter2Test {
         addCallback(new MediaRouter.Callback() {
             @Override
             public void onRouterParamsChanged(MediaRouter router, MediaRouterParams params) {
-                onRouterParmasChangedLatch.countDown();
                 routerParams[0] = params;
+                onRouterParmasChangedLatch.countDown();
             }
         });
 
