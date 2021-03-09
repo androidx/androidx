@@ -15,8 +15,6 @@
  */
 package androidx.emoji2.helpers;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.graphics.Rect;
 import android.text.method.TransformationMethod;
 import android.view.View;
@@ -32,7 +30,7 @@ import androidx.emoji2.text.EmojiCompat;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 class EmojiTransformationMethod implements TransformationMethod {
     private final TransformationMethod mTransformationMethod;

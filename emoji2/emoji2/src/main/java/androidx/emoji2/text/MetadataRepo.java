@@ -15,8 +15,6 @@
  */
 package androidx.emoji2.text;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.util.SparseArray;
@@ -148,7 +146,7 @@ public final class MetadataRepo {
      * @hide
      */
     @NonNull
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     Typeface getTypeface() {
         return mTypeface;
     }
@@ -156,7 +154,7 @@ public final class MetadataRepo {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     int getMetadataVersion() {
         return mMetadataList.version();
     }
@@ -165,7 +163,7 @@ public final class MetadataRepo {
      * @hide
      */
     @NonNull
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     Node getRootNode() {
         return mRootNode;
     }
@@ -174,7 +172,7 @@ public final class MetadataRepo {
      * @hide
      */
     @NonNull
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public char[] getEmojiCharArray() {
         return mEmojiCharArray;
     }
@@ -183,7 +181,7 @@ public final class MetadataRepo {
      * @hide
      */
     @NonNull
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public MetadataList getMetadataList() {
         return mMetadataList;
     }
@@ -193,7 +191,7 @@ public final class MetadataRepo {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @VisibleForTesting
     void put(@NonNull final EmojiMetadata data) {
         Preconditions.checkNotNull(data, "emoji metadata cannot be null");
@@ -209,7 +207,7 @@ public final class MetadataRepo {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     static class Node {
         private final SparseArray<Node> mChildren;
         private EmojiMetadata mData;

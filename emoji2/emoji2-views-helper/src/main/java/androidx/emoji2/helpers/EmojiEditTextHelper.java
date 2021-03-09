@@ -15,8 +15,6 @@
  */
 package androidx.emoji2.helpers;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.os.Build;
 import android.text.method.KeyListener;
 import android.view.inputmethod.EditorInfo;
@@ -159,7 +157,7 @@ public final class EmojiEditTextHelper {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
         mEmojiReplaceStrategy = replaceStrategy;
         mHelper.setEmojiReplaceStrategy(replaceStrategy);
@@ -174,7 +172,7 @@ public final class EmojiEditTextHelper {
      *                        {@link EmojiCompat#REPLACE_STRATEGY_ALL}
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public int getEmojiReplaceStrategy() {
         return mEmojiReplaceStrategy;
     }

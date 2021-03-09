@@ -16,8 +16,6 @@
 
 package androidx.emoji2.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.inputmethodservice.ExtractEditText;
@@ -46,7 +44,7 @@ import androidx.emoji2.text.EmojiSpan;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EmojiExtractEditText extends ExtractEditText {
     private EmojiEditTextHelper mEmojiEditTextHelper;
 

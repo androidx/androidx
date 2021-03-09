@@ -15,8 +15,6 @@
  */
 package androidx.emoji2.text;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.content.res.AssetManager;
 
 import androidx.annotation.AnyThread;
@@ -36,7 +34,7 @@ import java.nio.ByteOrder;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @AnyThread
 @RequiresApi(19)
 class MetadataListReader {
