@@ -48,6 +48,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
@@ -64,6 +65,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link MediaControllerCompat} methods.
  */
 @RunWith(AndroidJUnit4.class)
+@FlakyTest(bugId = 182271958)
 @LargeTest
 public class RemoteUserInfoWithMediaControllerCompatTest {
     private static final String TAG = "RemoteUserInfoCompat";
