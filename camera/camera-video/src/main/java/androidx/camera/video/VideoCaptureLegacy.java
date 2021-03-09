@@ -827,6 +827,7 @@ public final class VideoCaptureLegacy extends UseCase {
         // Audio encoding loop. Exits on end of stream.
         boolean audioEos = false;
         int outIndex;
+        long lastAudioTimestamp = 0;
         while (!audioEos && mIsRecording) {
             // Check for end of stream from main thread
             if (mEndOfAudioStreamSignal.get()) {
@@ -867,7 +868,20 @@ public final class VideoCaptureLegacy extends UseCase {
                         case MediaCodec.INFO_TRY_AGAIN_LATER:
                             break;
                         default:
-                            audioEos = writeAudioEncodedBuffer(outIndex);
+                            // Drops out of order audio frame if the frame's earlier than last
+                            // frame.
+                            if (mAudioBufferInfo.presentationTimeUs >= lastAudioTimestamp) {
+                                audioEos = writeAudioEncodedBuffer(outIndex);
+                                lastAudioTimestamp = mAudioBufferInfo.presentationTimeUs;
+                            } else {
+                                Logger.w(TAG,
+                                        "Drops frame, current frame's timestamp "
+                                                + mAudioBufferInfo.presentationTimeUs
+                                                + " is earlier that last frame "
+                                                + lastAudioTimestamp);
+                                // Releases this frame from output buffer
+                                mAudioEncoder.releaseOutputBuffer(outIndex, false);
+                            }
                     }
                 } while (outIndex >= 0 && !audioEos); // end of dequeue output buffer
             }
