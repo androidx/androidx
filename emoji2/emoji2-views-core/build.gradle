@@ -2,7 +2,6 @@ import androidx.build.BundleInsideHelper
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -12,18 +11,8 @@ plugins {
     id("com.github.johnrengelman.shadow")
 }
 
-ext {
-    fontDir = project(':noto-emoji-compat').projectDir
-}
-
-BundleInsideHelper.forInsideAar(
-    project,
-    /* from = */ "com.google.flatbuffers",
-    /* to =   */ "androidx.text.emoji.flatbuffer"
-)
-
 dependencies {
-    bundleInside(project(":noto-emoji-compat"))
+    implementation(project(":emoji2:emoji2"))
 
     api("androidx.core:core:1.3.0-rc01")
     implementation("androidx.collection:collection:1.1.0")
@@ -43,36 +32,15 @@ android {
         main {
             // We use a non-standard manifest path.
             manifest.srcFile 'AndroidManifest.xml'
-            resources {
-                srcDirs += [fontDir.getAbsolutePath()]
-                includes += ["LICENSE_UNICODE", "LICENSE_OFL"]
-            }
-        }
-
-        androidTest {
-            assets {
-                srcDirs = [new File(fontDir, "font").getAbsolutePath(),
-                           new File(fontDir, "supported-emojis").getAbsolutePath()]
-            }
         }
     }
 }
 
 androidx {
-    name = "Android Emoji2 Compat"
+    name = "Android Emoji2 Compat view helpers"
     publish = Publish.NONE
     mavenVersion = LibraryVersions.EMOJI2
     mavenGroup = LibraryGroups.EMOJI2
     inceptionYear = "2017"
-    description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
-
-    license {
-        name = "SIL Open Font License, Version 1.1"
-        url = "http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web"
-    }
-
-    license {
-        name = "Unicode, Inc. License"
-        url = "http://www.unicode.org/copyright.html#License"
-    }
+    description = "View helpers for Emoji2"
 }
