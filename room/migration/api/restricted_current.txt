@@ -78,10 +78,11 @@ package androidx.room.migration.bundle {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class IndexBundle {
     ctor public IndexBundle(String!, boolean, java.util.List<java.lang.String!>!, String!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String! create(String!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String! create(String);
     method public java.util.List<java.lang.String!>! getColumnNames();
+    method public String! getCreateSql(String!);
     method public String! getName();
-    method public boolean isSchemaEqual(androidx.room.migration.bundle.IndexBundle!);
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.IndexBundle);
     method public boolean isUnique();
     field public static final String DEFAULT_PREFIX = "index_";
   }
