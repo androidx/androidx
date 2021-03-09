@@ -26,6 +26,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    id("com.google.protobuf")
 }
 
 dependencies {
@@ -38,6 +39,14 @@ dependencies {
     implementation(project(path: ":wear:wear-tiles-proto", configuration: "shadow"))
     implementation(KOTLIN_COROUTINES_CORE)
     implementation(KOTLIN_COROUTINES_ANDROID)
+
+    androidTestImplementation(project(path: ":wear:wear-tiles-proto", configuration: "shadow"))
+    androidTestImplementation(project(":test-screenshot"))
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation("com.google.protobuf:protobuf-java:3.10.0")
 
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
     testImplementation(ANDROIDX_TEST_EXT_TRUTH)
@@ -52,17 +61,38 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 25
+        minSdkVersion 26
     }
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+
+    sourceSets {
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-tiles-renderer"
+    }
 }
 
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.10.0"
+    }
+
+    // Generates the java proto-lite code for the protos in this project. See
+    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
+    // for more information.
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {}
+            }
+        }
     }
 }
 

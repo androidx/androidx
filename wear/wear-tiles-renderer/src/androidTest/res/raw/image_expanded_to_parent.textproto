@@ -1,0 +1,28 @@
+box {
+  width {
+    expanded_dimension {}
+  }
+  height {
+    expanded_dimension {}
+  }
+  modifiers {
+    padding {
+      top {
+        value: 50
+      }
+    }
+  }
+  contents {
+    image {
+      resource_id {
+        value: "android_withbg_120dp"
+      }
+      width {
+        expanded_dimension {}
+      }
+      height {
+        expanded_dimension {}
+      }
+    }
+  }
+}
