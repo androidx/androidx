@@ -1704,7 +1704,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      * @return A pair of rects define the position of the split, or {@null} if there is no split
      */
     private ArrayList<Rect> splitViewPositions() {
-        if (mFoldingFeature == null || !isValidFoldStateForSplit(mFoldingFeature)) {
+        if (mFoldingFeature == null || !mFoldingFeature.isSeparating()) {
             return null;
         }
 
@@ -1746,24 +1746,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         }
         foldRectInView.offset(-viewLocationInWindow[0], -viewLocationInWindow[1]);
         return foldRectInView;
-    }
-
-    private static boolean isValidFoldStateForSplit(@NonNull FoldingFeature foldingFeature) {
-        // Only a fold or a hinge can split the view
-        if (foldingFeature.getType() != FoldingFeature.TYPE_FOLD
-                && foldingFeature.getType() != FoldingFeature.TYPE_HINGE) {
-            return false;
-        }
-        // A foldable device with hinge is always separating
-        if (foldingFeature.getType() == FoldingFeature.TYPE_HINGE) {
-            return true;
-        }
-        // Split the view when a foldable device is in half opened state or flipped state
-        if (foldingFeature.getState() != FoldingFeature.STATE_HALF_OPENED
-                && foldingFeature.getState() != FoldingFeature.STATE_FLIPPED) {
-            return false;
-        }
-        return true;
     }
 
     /**

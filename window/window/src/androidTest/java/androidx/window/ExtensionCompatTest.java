@@ -17,9 +17,8 @@
 package androidx.window;
 
 import static androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface;
-import static androidx.window.TestBoundsUtil.invalidFoldBounds;
-import static androidx.window.TestBoundsUtil.invalidHingeBounds;
-import static androidx.window.TestBoundsUtil.validFoldBound;
+import static androidx.window.TestFoldingFeatureUtil.invalidFoldBounds;
+import static androidx.window.TestFoldingFeatureUtil.validFoldBound;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -160,7 +159,6 @@ public final class ExtensionCompatTest extends WindowTestBase
 
         FoldingFeature foldingFeature = (FoldingFeature) capturedDisplayFeature;
         assertNotNull(foldingFeature);
-        assertEquals(FoldingFeature.TYPE_HINGE, foldingFeature.getType());
         assertEquals(bounds, capturedDisplayFeature.getBounds());
     }
 
@@ -272,7 +270,7 @@ public final class ExtensionCompatTest extends WindowTestBase
                         ExtensionFoldingFeature.STATE_FLAT));
             }
 
-            for (Rect malformedBound : invalidHingeBounds(WINDOW_BOUNDS)) {
+            for (Rect malformedBound : invalidFoldBounds(WINDOW_BOUNDS)) {
                 malformedFeatures.add(new ExtensionFoldingFeature(malformedBound,
                         ExtensionFoldingFeature.TYPE_HINGE,
                         ExtensionFoldingFeature.STATE_FLAT));
