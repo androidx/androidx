@@ -18,10 +18,15 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XFiler
 import com.squareup.javapoet.JavaFile
+import com.squareup.kotlinpoet.FileSpec
 import javax.annotation.processing.Filer
 
 internal class JavacFiler(val filer: Filer) : XFiler {
     override fun write(javaFile: JavaFile) {
         javaFile.writeTo(filer)
+    }
+
+    override fun write(fileSpec: FileSpec) {
+        fileSpec.writeTo(filer)
     }
 }

@@ -28,6 +28,7 @@ plugins {
 dependencies {
     api(KOTLIN_STDLIB)
     api(JAVAPOET)
+    api(KOTLINPOET)
     implementation("androidx.annotation:annotation:1.1.0")
     implementation(GUAVA)
     implementation(AUTO_COMMON)
