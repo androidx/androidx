@@ -33,7 +33,7 @@ import java.util.List;
 public class RequestReaders {
     private RequestReaders() {}
 
-    /** Reader for a {@link TileRequestData} instance. */
+    /** Reader for Tile request parameters. */
     public static class TileRequest {
         private final RequestProto.TileRequest mProto;
         private final int mTileId;
@@ -75,7 +75,7 @@ public class RequestReaders {
         }
     }
 
-    /** Reader for a {@link ResourcesRequestData} instance. */
+    /** Reader for resource request parameters. */
     public static class ResourcesRequest {
         private final RequestProto.ResourcesRequest mProto;
         private final int mTileId;
@@ -105,15 +105,15 @@ public class RequestReaders {
             return mTileId;
         }
 
-        /** Get the resource version requested by this {@link ResourcesRequestData}. */
+        /** Get the requested resource version. */
         @NonNull
         public String getVersion() {
             return mProto.getVersion();
         }
 
         /**
-         * Get the resource IDs requested by this {@link ResourcesRequestData}. May be empty, in
-         * which case all resources should be returned.
+         * Get the requested resource IDs. May be empty, in which case all resources should be
+         * returned.
          */
         @NonNull
         public List<String> getResourceIds() {
