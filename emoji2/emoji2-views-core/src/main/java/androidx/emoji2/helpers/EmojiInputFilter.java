@@ -96,6 +96,7 @@ final class EmojiInputFilter implements android.text.InputFilter {
         return mInitCallback;
     }
 
+    @RequiresApi(19)
     private static class InitCallbackImpl extends InitCallback {
         private final Reference<TextView> mViewRef;
 

@@ -17,10 +17,12 @@ package androidx.emoji2.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.graphics.Paint;
 import android.text.style.ReplacementSpan;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -43,6 +45,7 @@ public abstract class EmojiSpan extends ReplacementSpan {
      * representing same emoji to be in memory. When unparcelled, EmojiSpan tries to set it back
      * using the singleton EmojiCompat instance.
      */
+    @NonNull
     private final EmojiMetadata mMetadata;
 
     /**
@@ -74,8 +77,11 @@ public abstract class EmojiSpan extends ReplacementSpan {
     }
 
     @Override
-    public int getSize(@NonNull final Paint paint, final CharSequence text, final int start,
-            final int end, final Paint.FontMetricsInt fm) {
+    public int getSize(@NonNull final Paint paint,
+            @SuppressLint("UnknownNullness") final CharSequence text,
+            final int start,
+            final int end,
+            @Nullable final Paint.FontMetricsInt fm) {
         paint.getFontMetricsInt(mTmpFontMetrics);
         final int fontHeight = Math.abs(mTmpFontMetrics.descent - mTmpFontMetrics.ascent);
 

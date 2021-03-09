@@ -77,7 +77,7 @@ final class EmojiKeyListener implements android.text.method.KeyListener {
 
     public static class EmojiCompatHandleKeyDownHelper {
         public boolean handleKeyDown(@NonNull final Editable editable, final int keyCode,
-                final KeyEvent event) {
+                @NonNull final KeyEvent event) {
             return EmojiCompat.handleOnKeyDown(editable, keyCode, event);
         }
     }
