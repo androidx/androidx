@@ -115,4 +115,4 @@ public class LiveDataObservableTest {
     }
 }
 
-private class TestError(message: String) : Exception(message)
+internal class TestError(message: String) : Exception(message)
