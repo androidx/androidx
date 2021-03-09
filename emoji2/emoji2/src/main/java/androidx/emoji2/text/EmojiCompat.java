@@ -633,7 +633,7 @@ public class EmojiCompat {
      */
     @Nullable
     @CheckResult
-    public CharSequence process(@NonNull final CharSequence charSequence) {
+    public CharSequence process(@Nullable final CharSequence charSequence) {
         // since charSequence might be null here we have to check it. Passing through here to the
         // main function so that it can do all the checks including isInitialized. It will also
         // be the main point that decides what to return.
@@ -672,7 +672,7 @@ public class EmojiCompat {
      */
     @Nullable
     @CheckResult
-    public CharSequence process(@NonNull final CharSequence charSequence,
+    public CharSequence process(@Nullable final CharSequence charSequence,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end) {
         return process(charSequence, start, end, EMOJI_COUNT_UNLIMITED);
     }
@@ -709,7 +709,7 @@ public class EmojiCompat {
      */
     @Nullable
     @CheckResult
-    public CharSequence process(@NonNull final CharSequence charSequence,
+    public CharSequence process(@Nullable final CharSequence charSequence,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end,
             @IntRange(from = 0) final int maxEmojiCount) {
         return process(charSequence, start, end, maxEmojiCount, REPLACE_STRATEGY_DEFAULT);
@@ -751,7 +751,7 @@ public class EmojiCompat {
      */
     @Nullable
     @CheckResult
-    public CharSequence process(@NonNull final CharSequence charSequence,
+    public CharSequence process(@Nullable final CharSequence charSequence,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end,
             @IntRange(from = 0) final int maxEmojiCount, @ReplaceStrategy int replaceStrategy) {
         Preconditions.checkState(isInitialized(), "Not initialized yet");
