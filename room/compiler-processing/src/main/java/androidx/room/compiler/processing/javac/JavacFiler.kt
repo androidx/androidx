@@ -20,13 +20,19 @@ import androidx.room.compiler.processing.XFiler
 import com.squareup.javapoet.JavaFile
 import com.squareup.kotlinpoet.FileSpec
 import javax.annotation.processing.Filer
+import javax.annotation.processing.ProcessingEnvironment
 
-internal class JavacFiler(val filer: Filer) : XFiler {
+internal class JavacFiler(val processingEnv: ProcessingEnvironment) : XFiler {
     override fun write(javaFile: JavaFile) {
-        javaFile.writeTo(filer)
+        javaFile.writeTo(processingEnv.filer)
     }
 
     override fun write(fileSpec: FileSpec) {
-        fileSpec.writeTo(filer)
+        require(processingEnv.options.containsKey("kapt.kotlin.generated")) {
+            val filePath = fileSpec.packageName.replace('.', '/')
+            "Could not generate kotlin file $filePath/${fileSpec.name}.kt. The " +
+                "annotation processing environment is not set to generate Kotlin files."
+        }
+        fileSpec.writeTo(processingEnv.filer)
     }
 }

@@ -24,6 +24,7 @@ import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec as KTypeSpec
 import org.junit.Test
+import org.junit.AssumptionViolatedException
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -118,7 +119,9 @@ class GeneratedCodeMatchTest internal constructor(
     @Test
     fun successfulGeneratedKotlinCodeMatch() {
         // java environment will not generate kotlin files
-        if (runTest.toString() == "java") return
+        if (runTest.toString() == "java") {
+            throw AssumptionViolatedException("javaAP won't generate kotlin code.")
+        }
 
         val file = FileSpec.builder("foo.bar", "Baz")
             .addType(KTypeSpec.classBuilder("Baz").build())
@@ -138,7 +141,9 @@ class GeneratedCodeMatchTest internal constructor(
     @Test
     fun missingGeneratedKotlinCode_mismatch() {
         // java environment will not generate kotlin files
-        if (runTest.toString() == "java") return
+        if (runTest.toString() == "java") {
+            throw AssumptionViolatedException("javaAP won't generate kotlin code.")
+        }
 
         val generated = FileSpec.builder("foo.bar", "Baz")
             .addType(
@@ -179,5 +184,37 @@ class GeneratedCodeMatchTest internal constructor(
             )
         )
         assertThat(result.exceptionOrNull()).hasMessageThat().contains(mismatch.toString())
+    }
+
+    @Test
+    fun missingGeneratedKotlinCode_javaAP() {
+        if (runTest.toString() != "java") {
+            throw AssumptionViolatedException("Testing scenario for javaAP only.")
+        }
+
+        val file = FileSpec.builder("foo.bar", "Baz")
+            .addType(KTypeSpec.classBuilder("Baz").build())
+            .build()
+
+        val result = runCatching {
+            runTest { invocation ->
+                if (invocation.processingEnv.findTypeElement("foo.bar.Baz") == null) {
+                    invocation.processingEnv.filer.write(file)
+                }
+                invocation.assertCompilationResult {
+                    generatedSource(
+                        Source.kotlin("foo/bar/Baz.kt", file.toString())
+                    )
+                }
+            }
+        }
+
+        assertThat(result.exceptionOrNull())
+            .hasCauseThat()
+            .hasMessageThat()
+            .contains(
+                "Could not generate kotlin file foo/bar/Baz.kt. The annotation processing " +
+                    "environment is not set to generate Kotlin files."
+            )
     }
 }
