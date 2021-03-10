@@ -352,6 +352,7 @@ public abstract class WatchFaceService : WallpaperService() {
         private var pendingVisibilityChanged: Boolean? = null
         private var pendingComplicationDataUpdates = ArrayList<PendingComplicationData>()
         private var complicationsActivated = false
+        private var watchFaceInitStarted = false
 
         // Only valid after onSetBinder has been called.
         private var systemApiVersion = -1
@@ -363,7 +364,7 @@ public abstract class WatchFaceService : WallpaperService() {
         internal var lastActiveComplications: IntArray? = null
         internal var lastA11yLabels: Array<ContentDescriptionLabel>? = null
 
-        private var watchFaceInitStarted = false
+        private var firstOnSurfaceChangedReceived = false
         private var asyncWatchFaceConstructionPending = false
 
         private var initialUserStyle: UserStyleWireFormat? = null
@@ -371,17 +372,14 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private var createdBy = "?"
 
-        init {
-            TraceEvent("EngineWrapper.init").use {
-                // If this is a headless instance then we don't want to create a WCS instance.
-                if (!mutableWatchState.isHeadless) {
-                    maybeCreateWCSApi()
-                }
-            }
-        }
-
+        /** Note this function should only be called once. */
         @SuppressWarnings("NewApi")
-        private fun maybeCreateWCSApi() {
+        private fun maybeCreateWCSApi(): Unit = TraceEvent("EngineWrapper.maybeCreateWCSApi").use {
+            // If this is a headless instance then we don't want to create a WCS instance.
+            if (mutableWatchState.isHeadless) {
+                return
+            }
+
             val pendingWallpaperInstance =
                 InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
 
@@ -752,6 +750,23 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 }
             )
+        }
+
+        override fun onSurfaceChanged(
+            holder: SurfaceHolder?,
+            format: Int,
+            width: Int,
+            height: Int
+        ): Unit = TraceEvent("EngineWrapper.onSurfaceChanged").use {
+            super.onSurfaceChanged(holder, format, width, height)
+
+            // We can only call maybeCreateWCSApi once. For OpenGL watch faces we need to wait for
+            // onSurfaceChanged before bootstrapping because the surface isn't valid for creating
+            // an EGL context until then.
+            if (!firstOnSurfaceChangedReceived) {
+                maybeCreateWCSApi()
+                firstOnSurfaceChangedReceived = true
+            }
         }
 
         override fun onDestroy(): Unit = TraceEvent("EngineWrapper.onDestroy").use {
@@ -1292,6 +1307,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             }
             writer.println("createdBy=$createdBy")
+            writer.println("firstOnSurfaceChanged=$firstOnSurfaceChangedReceived")
             writer.println("watchFaceInitStarted=$watchFaceInitStarted")
             writer.println("asyncWatchFaceConstructionPending=$asyncWatchFaceConstructionPending")
             writer.println("ignoreNextOnVisibilityChanged=$ignoreNextOnVisibilityChanged")

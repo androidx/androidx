@@ -91,6 +91,7 @@ internal class TestAsyncWatchFaceService(
 @RunWith(WatchFaceTestRunner::class)
 public class AsyncWatchFaceInitTest {
     private val handler = mock<Handler>()
+    private val surfaceHolder = mock<SurfaceHolder>()
     private var looperTimeMillis = 0L
     private val pendingTasks = PriorityQueue<Task>()
     private val userStyleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
@@ -176,6 +177,7 @@ public class AsyncWatchFaceInitTest {
         )
 
         val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         runPostedTasksFor(0)
 
@@ -215,7 +217,8 @@ public class AsyncWatchFaceInitTest {
             initParams
         )
 
-        service.onCreateEngine() as WatchFaceService.EngineWrapper
+        val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         runPostedTasksFor(0)
 
         var pendingInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS? = null

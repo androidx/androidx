@@ -2279,7 +2279,7 @@ public class WatchFaceServiceTest {
             )
         )
 
-        service.onCreateEngine()
+        service.onCreateEngine().onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         runPendingPostedDispatchedContinuationTasks()
 
