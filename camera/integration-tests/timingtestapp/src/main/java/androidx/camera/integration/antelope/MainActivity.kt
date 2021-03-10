@@ -32,7 +32,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.activity.result.launch
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.integration.antelope.cameracontrollers.camera2Abort
