@@ -23,7 +23,6 @@ import static org.mockito.Mockito.mock;
 import android.app.Activity;
 import android.graphics.Rect;
 
-import androidx.window.extensions.ExtensionDeviceState;
 import androidx.window.extensions.ExtensionDisplayFeature;
 import androidx.window.extensions.ExtensionFoldingFeature;
 import androidx.window.extensions.ExtensionWindowLayoutInfo;
@@ -155,23 +154,5 @@ public class ExtensionAdapterTest implements TranslatorTestInterface {
 
         assertTrue("Remove fold feature not spanning full dimension",
                 actual.getDisplayFeatures().isEmpty());
-    }
-
-    @Test
-    @Override
-    public void testTranslateDeviceState() {
-        ExtensionAdapter extensionCallbackAdapter = new ExtensionAdapter();
-        List<DeviceState> values = new ArrayList<>();
-
-        values.add(extensionCallbackAdapter.translate(new ExtensionDeviceState(
-                ExtensionDeviceState.POSTURE_HALF_OPENED)));
-        values.add(extensionCallbackAdapter.translate(new ExtensionDeviceState(
-                ExtensionDeviceState.POSTURE_OPENED)));
-        values.add(extensionCallbackAdapter.translate(new ExtensionDeviceState(
-                ExtensionDeviceState.POSTURE_FLIPPED)));
-
-        assertEquals(DeviceState.POSTURE_HALF_OPENED, values.get(0).getPosture());
-        assertEquals(DeviceState.POSTURE_OPENED, values.get(1).getPosture());
-        assertEquals(DeviceState.POSTURE_FLIPPED, values.get(2).getPosture());
     }
 }

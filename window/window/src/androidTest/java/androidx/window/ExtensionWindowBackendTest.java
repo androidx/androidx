@@ -216,14 +216,6 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
         return builder.build();
     }
 
-    private static DeviceState newTestDeviceState() {
-        DeviceState.Builder builder = new DeviceState.Builder();
-        builder.setPosture(DeviceState.POSTURE_OPENED);
-        return builder.build();
-    }
-
-    private interface DeviceStateConsumer extends Consumer<DeviceState> { }
-
     private interface WindowLayoutInfoConsumer extends Consumer<WindowLayoutInfo> { }
 
     private static class SimpleConsumer<T> implements Consumer<T> {

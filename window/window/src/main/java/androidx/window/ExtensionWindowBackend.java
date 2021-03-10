@@ -55,14 +55,6 @@ final class ExtensionWindowBackend implements WindowBackend {
     final List<WindowLayoutChangeCallbackWrapper> mWindowLayoutChangeCallbacks =
             new CopyOnWriteArrayList<>();
 
-    /**
-     * List of all registered callbacks for window layout info. Not protected by {@link #sLock} to
-     * allow iterating and callback execution without holding the global lock.
-     */
-    @VisibleForTesting
-    final List<DeviceStateChangeCallbackWrapper> mDeviceStateChangeCallbacks =
-            new CopyOnWriteArrayList<>();
-
     private static final String TAG = "WindowServer";
 
     @VisibleForTesting
@@ -201,25 +193,6 @@ final class ExtensionWindowBackend implements WindowBackend {
 
         void accept(WindowLayoutInfo layoutInfo) {
             mExecutor.execute(() -> mCallback.accept(layoutInfo));
-        }
-    }
-
-    /**
-     * Wrapper around {@link Consumer<DeviceState>} that also includes the {@link Executor} on
-     * which the callback should run.
-     */
-    private static class DeviceStateChangeCallbackWrapper {
-        final Executor mExecutor;
-        final Consumer<DeviceState> mCallback;
-
-        DeviceStateChangeCallbackWrapper(@NonNull Executor executor,
-                @NonNull Consumer<DeviceState> callback) {
-            mExecutor = executor;
-            mCallback = callback;
-        }
-
-        void accept(DeviceState state) {
-            mExecutor.execute(() -> mCallback.accept(state));
         }
     }
 

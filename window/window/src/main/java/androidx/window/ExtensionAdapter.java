@@ -24,7 +24,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.window.extensions.ExtensionDeviceState;
 import androidx.window.extensions.ExtensionDisplayFeature;
 import androidx.window.extensions.ExtensionFoldingFeature;
 import androidx.window.extensions.ExtensionWindowLayoutInfo;
@@ -37,25 +36,6 @@ import java.util.List;
  */
 final class ExtensionAdapter {
     private static final String TAG = "ExtensionAdapter";
-
-    @NonNull
-    DeviceState translate(ExtensionDeviceState deviceState) {
-        final int posture;
-        switch (deviceState.getPosture()) {
-            case ExtensionDeviceState.POSTURE_FLIPPED:
-                posture = DeviceState.POSTURE_FLIPPED;
-                break;
-            case ExtensionDeviceState.POSTURE_HALF_OPENED:
-                posture = DeviceState.POSTURE_HALF_OPENED;
-                break;
-            case ExtensionDeviceState.POSTURE_OPENED:
-                posture = DeviceState.POSTURE_OPENED;
-                break;
-            default:
-                posture = DeviceState.POSTURE_UNKNOWN;
-        }
-        return new DeviceState(posture);
-    }
 
     /**
      * Perform the translation from {@link ExtensionWindowLayoutInfo} to {@link WindowLayoutInfo}.
