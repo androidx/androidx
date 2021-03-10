@@ -20,10 +20,12 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.annotations.CarProtocol;
 
 /**
  * A host-side interface for reporting to clients that the checked state has changed.
  */
+@CarProtocol
 public interface OnCheckedChangeDelegate {
     /**
      * Notifies that checked state has changed.

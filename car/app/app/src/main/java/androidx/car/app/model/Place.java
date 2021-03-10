@@ -21,10 +21,12 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.util.Objects;
 
 /** Represents a geographical location and additional information on how to display it. */
+@CarProtocol
 public final class Place {
     @Keep
     @Nullable
