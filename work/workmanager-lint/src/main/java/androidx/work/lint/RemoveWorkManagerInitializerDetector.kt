@@ -54,7 +54,7 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
             briefDescription = DESCRIPTION,
             explanation = """
                 If an `android.app.Application` implements `androidx.work.Configuration.Provider`,
-                the default `androidx.work.impl.WorkManagerInitializer` needs to be removed from the
+                the default `androidx.startup.InitializationProvider` needs to be removed from the
                 AndroidManifest.xml file.
             """,
             androidSpecific = true,
@@ -88,14 +88,28 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
     override fun applicableSuperClasses() = listOf("androidx.work.Configuration.Provider")
 
     override fun visitElement(context: XmlContext, element: Element) {
+        // Check providers
         val providers = element.getElementsByTagName("provider")
         val provider = providers.find { node ->
             val name = node.attributes.getNamedItemNS(ANDROID_URI, ATTR_NAME)?.textContent
-            name == "androidx.work.impl.WorkManagerInitializer"
+            name == "androidx.startup.InitializationProvider"
         }
         if (provider != null) {
             location = context.getLocation(provider)
             val remove = provider.attributes.getNamedItemNS(TOOLS_URI, ATTR_NODE)
+            if (remove?.textContent == "remove") {
+                removedDefaultInitializer = true
+            }
+        }
+        // Check metadata
+        val metadataElements = element.getElementsByTagName("meta-data")
+        val metadata = metadataElements.find { node ->
+            val name = node.attributes.getNamedItemNS(ANDROID_URI, ATTR_NAME)?.textContent
+            name == "androidx.work.impl.WorkManagerInitializer"
+        }
+        if (metadata != null && !removedDefaultInitializer) {
+            location = context.getLocation(metadata)
+            val remove = metadata.attributes.getNamedItemNS(TOOLS_URI, ATTR_NODE)
             if (remove?.textContent == "remove") {
                 removedDefaultInitializer = true
             }

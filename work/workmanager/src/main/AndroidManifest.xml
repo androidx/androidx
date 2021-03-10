@@ -25,12 +25,13 @@
 
     <application>
         <provider
-            android:name="androidx.work.impl.WorkManagerInitializer"
-            android:authorities="${applicationId}.workmanager-init"
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
-            android:multiprocess="true"
-            android:directBootAware="false"
-            tools:targetApi="n"/>
+            tools:node="merge">
+            <meta-data  android:name="androidx.work.impl.WorkManagerInitializer"
+                android:value="androidx.startup" />
+        </provider>
         <service
             android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
             android:exported="false"
