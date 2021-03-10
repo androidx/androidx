@@ -1891,6 +1891,12 @@ package androidx.leanback.widget {
     method public void startPostponedEnterTransition();
   }
 
+  public final class GridLayoutManager extends androidx.recyclerview.widget.RecyclerView.LayoutManager {
+    ctor public GridLayoutManager();
+    method public androidx.recyclerview.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
+    method public void setOrientation(int);
+  }
+
   public class GuidanceStylist implements androidx.leanback.widget.FragmentAnimationProvider {
     ctor public GuidanceStylist();
     method public android.widget.TextView! getBreadcrumbView();

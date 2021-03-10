@@ -87,6 +87,8 @@ CallbackName: androidx.leanback.widget.ObjectAdapter.DataObserver:
     Class should be named DataCallback
 
 
+ConcreteCollection: androidx.leanback.widget.GridLayoutManager#onAddFocusables(androidx.recyclerview.widget.RecyclerView, java.util.ArrayList<android.view.View>, int, int) parameter #1:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 ConcreteCollection: androidx.leanback.widget.ItemBridgeAdapter#getPresenterMapper():
     Return type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 ConcreteCollection: androidx.leanback.widget.ItemBridgeAdapter#setPresenterMapper(java.util.ArrayList<androidx.leanback.widget.Presenter>) parameter #0:
