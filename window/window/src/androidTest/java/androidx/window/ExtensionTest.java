@@ -40,7 +40,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
-import androidx.window.extensions.ExtensionDeviceState;
 import androidx.window.extensions.ExtensionFoldingFeature;
 
 import org.junit.Before;
@@ -72,30 +71,6 @@ public final class ExtensionTest extends WindowTestBase {
         assumeExtensionV10_V01();
         ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
         assertTrue(extension.validateExtensionInterface());
-    }
-
-    @Test
-    public void testDeviceStateCallback() {
-        assumeExtensionV10_V01();
-        final Set<Integer> validValues = new HashSet<>();
-        validValues.add(ExtensionDeviceState.POSTURE_FLIPPED);
-        validValues.add(ExtensionDeviceState.POSTURE_HALF_OPENED);
-        validValues.add(ExtensionDeviceState.POSTURE_OPENED);
-        ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
-        ExtensionCallbackInterface callbackInterface = mock(ExtensionCallbackInterface.class);
-        extension.setExtensionCallback(callbackInterface);
-        extension.onDeviceStateListenersChanged(false);
-
-        verify(callbackInterface, atLeastOnce()).onDeviceStateChanged(any());
-    }
-
-    @Test
-    public void testRegisterDeviceStateChangeListener() {
-        assumeExtensionV10_V01();
-        ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
-
-        extension.onDeviceStateListenersChanged(false);
-        extension.onDeviceStateListenersChanged(true);
     }
 
     @Test

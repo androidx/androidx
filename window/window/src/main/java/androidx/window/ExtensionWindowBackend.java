@@ -63,11 +63,6 @@ final class ExtensionWindowBackend implements WindowBackend {
     final List<DeviceStateChangeCallbackWrapper> mDeviceStateChangeCallbacks =
             new CopyOnWriteArrayList<>();
 
-    /** Device state that was last reported through callbacks, used to filter out duplicates. */
-    @GuardedBy("sLock")
-    @VisibleForTesting
-    DeviceState mLastReportedDeviceState;
-
     private static final String TAG = "WindowServer";
 
     @VisibleForTesting
@@ -173,24 +168,6 @@ final class ExtensionWindowBackend implements WindowBackend {
 
     @VisibleForTesting
     class ExtensionListenerImpl implements ExtensionInterfaceCompat.ExtensionCallbackInterface {
-        @Override
-        @SuppressLint("SyntheticAccessor")
-        public void onDeviceStateChanged(@NonNull DeviceState newDeviceState) {
-            synchronized (sLock) {
-                if (newDeviceState.equals(mLastReportedDeviceState)) {
-                    // Skipping, value already reported
-                    if (DEBUG) {
-                        Log.w(TAG, "Extension reported old layout value");
-                    }
-                    return;
-                }
-                mLastReportedDeviceState = newDeviceState;
-            }
-
-            for (DeviceStateChangeCallbackWrapper callbackWrapper : mDeviceStateChangeCallbacks) {
-                callbackWrapper.accept(newDeviceState);
-            }
-        }
 
         @Override
         @SuppressLint("SyntheticAccessor")

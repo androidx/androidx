@@ -49,24 +49,10 @@ public interface ExtensionInterface {
     void onWindowLayoutChangeListenerRemoved(@NonNull Activity activity);
 
     /**
-     * Notifies the extension that a device state change listener was updated.
-     * @param isEmpty flag indicating if the list of device state change listeners is empty.
-     */
-    void onDeviceStateListenersChanged(boolean isEmpty);
-
-    /**
      * Callback that will be registered with the WindowManager library, and that the extension
      * should use to report all state changes.
      */
     interface ExtensionCallback {
-        /**
-         * Called by extension when the device state changes. Initial value should be provided
-         * through this callback as soon as possible after the first device state change listener
-         * was added and the Extension was notified via
-         * {@link #onDeviceStateListenersChanged(boolean)}.
-         */
-        void onDeviceStateChanged(@NonNull ExtensionDeviceState newDeviceState);
-
         /**
          * Called by extension when the feature layout inside the window changes. Initial value
          * should be provided as soon as possible.
