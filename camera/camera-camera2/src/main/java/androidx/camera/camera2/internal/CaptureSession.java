@@ -908,7 +908,6 @@ final class CaptureSession {
                     case INITIALIZED:
                     case GET_SURFACE:
                     case OPENED:
-                    case RELEASED:
                         throw new IllegalStateException(
                                 "onConfigureFailed() should not be possible in state: " + mState);
                     case OPENING:
@@ -919,6 +918,9 @@ final class CaptureSession {
                         // trigger StateCallback.onClosed(). It has to complete the close flow
                         // internally. Check b/147402661 for detail.
                         finishClose();
+                        break;
+                    case RELEASED:
+                        Logger.d(TAG, "ConfigureFailed callback after change to RELEASED state");
                         break;
                 }
                 Logger.e(TAG, "CameraCaptureSession.onConfigureFailed() " + mState);
