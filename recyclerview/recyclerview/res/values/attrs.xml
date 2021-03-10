@@ -46,12 +46,5 @@
         <attr name="fastScrollVerticalTrackDrawable" format="reference" />
         <attr name="fastScrollHorizontalThumbDrawable" format="reference" />
         <attr name="fastScrollHorizontalTrackDrawable" format="reference" />
-        <attr name="android:edgeEffectType">
-            <!-- Use a colored glow at the edge. -->
-            <enum name="glow" value="0" />
-
-            <!-- Stretch the content. -->
-            <enum name="stretch" value="1" />
-        </attr>
     </declare-styleable>
 </resources>
