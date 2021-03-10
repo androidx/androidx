@@ -18,15 +18,15 @@ package androidx.camera.camera2.pipe
 
 import android.content.Context
 import android.os.Build
-import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
-import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameras
+import androidx.camera.camera2.pipe.testing.awaitEvent
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -73,7 +73,6 @@ internal class CameraPipeTest {
     }
 
     @Test
-    @Ignore("b/180539013: Test is currently flaky")
     fun createExternalCameraGraph() {
         val fakeRequestProcessor = FakeRequestProcessor()
         val fakeCameraMetadata = FakeCameraMetadata()
@@ -103,7 +102,7 @@ internal class CameraPipeTest {
 
             cameraGraph.stop()
 
-            val closeEvent = fakeRequestProcessor.nextEvent()
+            val closeEvent = fakeRequestProcessor.awaitEvent { it.close }
             assertThat(closeEvent.close).isTrue()
         }
 
