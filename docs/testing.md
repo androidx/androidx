@@ -24,6 +24,10 @@ The currently allowed test runners for on-device tests are
 and
 [`Parameterized`](https://junit.org/junit4/javadoc/4.12/org/junit/runners/Parameterized.html).
 
+NOTE For best practices on writing libraries in a way that makes it easy for end
+users -- and library developers -- to write tests, see the
+[Testability](testability.md) guide.
+
 ### What gets tested, and when
 
 We use the
