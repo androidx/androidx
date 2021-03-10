@@ -23,6 +23,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -130,6 +131,7 @@ public class AutoCloserTest {
     }
 
     @Test
+    @FlakyTest(bugId = 182343970)
     public fun dbNotClosedWithRefCountIncremented() {
         autoCloser.incrementCountAndEnsureDbIsOpen()
 
