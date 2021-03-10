@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="5" by="lint 4.2.0-beta04" client="gradle" variant="debug" version="4.2.0-beta04">
 
     <issue
         id="BanTargetApiAnnotation"
@@ -8,7 +8,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.java"
-            line="458"
+            line="459"
             column="5"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.java"
-            line="521"
+            line="523"
             column="5"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.java"
-            line="559"
+            line="561"
             column="5"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.java"
-            line="601"
+            line="603"
             column="5"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.java"
-            line="640"
+            line="642"
             column="5"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.java"
-            line="495"
+            line="497"
             column="40"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/activity/ComponentActivity.java"
-            line="246"
+            line="232"
             column="35"/>
     </issue>
 
