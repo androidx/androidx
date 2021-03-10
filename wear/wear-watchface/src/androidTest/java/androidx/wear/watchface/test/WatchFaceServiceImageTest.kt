@@ -194,6 +194,12 @@ class WatchFaceServiceImageTest {
 
         engineWrapper =
             canvasAnalogWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onSurfaceChanged(
+            surfaceHolder,
+            0,
+            surfaceHolder.surfaceFrame.width(),
+            surfaceHolder.surfaceFrame.height()
+        )
     }
 
     private fun initGles2WatchFace() {
@@ -214,6 +220,12 @@ class WatchFaceServiceImageTest {
         setPendingWallpaperInteractiveWatchFaceInstance()
 
         engineWrapper = glesWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onSurfaceChanged(
+            surfaceHolder,
+            0,
+            surfaceHolder.surfaceFrame.width(),
+            surfaceHolder.surfaceFrame.height()
+        )
     }
 
     private fun setPendingWallpaperInteractiveWatchFaceInstance() {
@@ -556,6 +568,12 @@ class WatchFaceServiceImageTest {
             )
 
             engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
+            engineWrapper.onSurfaceChanged(
+                surfaceHolder,
+                0,
+                surfaceHolder.surfaceFrame.width(),
+                surfaceHolder.surfaceFrame.height()
+            )
             handler.post { engineWrapper.draw() }
         }
 
