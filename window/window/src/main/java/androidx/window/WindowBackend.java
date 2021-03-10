@@ -17,7 +17,6 @@
 package androidx.window;
 
 import android.app.Activity;
-import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
@@ -38,27 +37,8 @@ public interface WindowBackend {
             @NonNull Consumer<WindowLayoutInfo> callback);
 
     /**
-     * Registers a callback for layout changes of the window for {@link Activity} associated with
-     * the supplied {@link Context}. Must be called only after the it is attached to the window.
-     * @deprecated will be removed in the next alpha.
-     */
-    @Deprecated
-    void registerLayoutChangeCallback(@NonNull Context context, @NonNull Executor executor,
-            @NonNull Consumer<WindowLayoutInfo> callback);
-
-    /**
      * Unregisters a callback for window layout changes of the {@link Activity} window.
      */
     void unregisterLayoutChangeCallback(@NonNull Consumer<WindowLayoutInfo> callback);
 
-    /**
-     * Registers a callback for device state changes.
-     */
-    void registerDeviceStateChangeCallback(@NonNull Executor executor,
-            @NonNull Consumer<DeviceState> callback);
-
-    /**
-     * Unregisters a callback for device state changes.
-     */
-    void unregisterDeviceStateChangeCallback(@NonNull Consumer<DeviceState> callback);
 }
