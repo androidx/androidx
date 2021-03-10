@@ -100,7 +100,7 @@ package androidx.wear.watchface {
   }
 
   public static interface ComplicationsManager.TapCallback {
-    method public default void onComplicationSingleTapped(int complicationId);
+    method public default void onComplicationTapped(int complicationId);
   }
 
   public final class ComplicationsManagerKt {
