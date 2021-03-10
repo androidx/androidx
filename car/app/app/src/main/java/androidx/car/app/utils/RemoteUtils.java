@@ -18,8 +18,8 @@ package androidx.car.app.utils;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.utils.LogTags.TAG;
+import static androidx.lifecycle.Lifecycle.State.CREATED;
 
-import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.os.RemoteException;
 import android.util.Log;
@@ -36,6 +36,7 @@ import androidx.car.app.SurfaceCallback;
 import androidx.car.app.SurfaceContainer;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
+import androidx.lifecycle.Lifecycle;
 
 /**
  * Assorted utilities to deal with serialization of remote calls.
@@ -56,19 +57,28 @@ public final class RemoteUtils {
      * success/failure.
      */
     public interface HostCall {
-        void dispatch() throws BundlerException;
+        /**
+         * Dispatches the call and returns its outcome if any.
+         *
+         * @return the response from the app for the host call, or {@code null} if there is
+         * nothing to return
+         */
+        @Nullable
+        Object dispatch() throws BundlerException;
     }
 
     /**
-     * Performs the remote call and handles exceptions thrown by the host.
+     * Performs the remote call to the host and handles exceptions thrown by the host.
      *
+     * @return the value that the host returns for the IPC
+     *
+     * @throws RemoteException   if the host is unresponsive
      * @throws SecurityException as a pass through from the host
      * @throws HostException     if the remote call fails with any other exception
      */
-    @SuppressLint("LambdaLast")
     @Nullable
-    public static <ReturnT> ReturnT call(@NonNull RemoteCall<ReturnT> remoteCall,
-            @NonNull String callName) {
+    public static <ReturnT> ReturnT dispatchCallToHostForResult(@NonNull String callName,
+            @NonNull RemoteCall<ReturnT> remoteCall) throws RemoteException {
         try {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "Dispatching call " + callName + " to host");
@@ -78,8 +88,24 @@ public final class RemoteUtils {
             // SecurityException is treated specially where we allow it to flow through since
             // this is specific to not having permissions to perform an API.
             throw e;
-        } catch (RemoteException | RuntimeException e) {
+        } catch (RuntimeException e) {
             throw new HostException("Remote " + callName + " call failed", e);
+        }
+    }
+
+    /**
+     * Performs the remote call to the host and handles exceptions thrown by the host.
+     *
+     * @throws SecurityException as a pass through from the host
+     * @throws HostException     if the remote call fails with any other exception
+     */
+    public static void dispatchCallToHost(@NonNull String callName,
+            @NonNull RemoteCall<?> remoteCall) {
+        try {
+            dispatchCallToHostForResult(callName, remoteCall);
+        } catch (RemoteException e) {
+            // The host is dead, don't crash the app, just log.
+            Log.e(LogTags.TAG_DISPATCH, "Host unresponsive when dispatching call " + callName, e);
         }
     }
 
@@ -87,14 +113,19 @@ public final class RemoteUtils {
      * Returns an {@link ISurfaceCallback} stub that invokes the input {@link SurfaceCallback}
      * if it is not {@code null}, or {@code null} if the input {@link SurfaceCallback} is {@code
      * null}
+     *
+     * @param lifecycle       the lifecycle of the session to be used to not dispatch calls out of
+     *                        lifecycle.
+     * @param surfaceCallback the callback to wrap in an {@link ISurfaceCallback}
      */
     @Nullable
-    public static ISurfaceCallback stubSurfaceCallback(@Nullable SurfaceCallback surfaceCallback) {
+    public static ISurfaceCallback stubSurfaceCallback(@NonNull Lifecycle lifecycle,
+            @Nullable SurfaceCallback surfaceCallback) {
         if (surfaceCallback == null) {
             return null;
         }
 
-        return new SurfaceCallbackStub(surfaceCallback);
+        return new SurfaceCallbackStub(lifecycle, surfaceCallback);
     }
 
     /**
@@ -107,22 +138,51 @@ public final class RemoteUtils {
      * <p>If the app throws an exception, will call {@link IOnDoneCallback#onFailure} with a {@link
      * FailureResponse} including information from the caught exception.
      */
-    @SuppressLint("LambdaLast")
-    public static void dispatchHostCall(
-            @NonNull HostCall hostCall, @NonNull IOnDoneCallback callback,
-            @NonNull String callName) {
+    public static void dispatchCallFromHost(
+            @NonNull IOnDoneCallback callback, @NonNull String callName,
+            @NonNull HostCall hostCall) {
+        // TODO(b/180530156): Move callers that should be lifecycle aware once we can put a
+        //  lifecycle into a Template and propagate it to the models.
         ThreadUtils.runOnMain(
                 () -> {
                     try {
-                        hostCall.dispatch();
-                    } catch (BundlerException e) {
-                        sendFailureResponse(callback, callName, e);
-                        throw new HostException("Serialization failure in " + callName, e);
+                        sendSuccessResponseToHost(callback, callName, hostCall.dispatch());
                     } catch (RuntimeException e) {
-                        sendFailureResponse(callback, callName, e);
+                        // Catch exceptions, notify the host of it, then rethrow it.
+                        // This allows the host to log, and show an error to the user.
+                        sendFailureResponseToHost(callback, callName, e);
                         throw new RuntimeException(e);
+                    } catch (BundlerException e) {
+                        sendFailureResponseToHost(callback, callName, e);
                     }
-                    sendSuccessResponse(callback, callName, null);
+                });
+    }
+
+    /**
+     * Dispatches the given {@link HostCall} to the client in the main thread, but only if the
+     * provided {@link Lifecycle} has a state of at least created, and notifies the host of outcome.
+     *
+     * <p>If the app processes the response, will call {@link IOnDoneCallback#onSuccess} with a
+     * {@code null}.
+     *
+     * <p>If the app throws an exception, will call {@link IOnDoneCallback#onFailure} with a {@link
+     * FailureResponse} including information from the caught exception.
+     *
+     * <p>If the {@code lifecycle} provided is {@code null} or not at least created, will call
+     * {@link IOnDoneCallback#onFailure} with a {@link FailureResponse}.
+     */
+    public static void dispatchCallFromHost(
+            @Nullable Lifecycle lifecycle, @NonNull IOnDoneCallback callback,
+            @NonNull String callName, @NonNull HostCall hostCall) {
+        ThreadUtils.runOnMain(
+                () -> {
+                    if (lifecycle == null || !lifecycle.getCurrentState().isAtLeast(CREATED)) {
+                        sendFailureResponseToHost(callback, callName, new IllegalStateException(
+                                "Lifecycle is not at least created when dispatching " + hostCall));
+                        return;
+                    }
+
+                    dispatchCallFromHost(callback, callName, hostCall);
                 });
     }
 
@@ -131,36 +191,35 @@ public final class RemoteUtils {
      */
     // TODO(b/178748627): the nullable annotation from the AIDL file is not being considered.
     @SuppressWarnings("NullAway")
-    public static void sendSuccessResponse(
+    public static void sendSuccessResponseToHost(
             @NonNull IOnDoneCallback callback, @NonNull String callName,
             @Nullable Object response) {
-        call(() -> {
+        dispatchCallToHost(callName + " onSuccess", () -> {
             try {
                 callback.onSuccess(response == null ? null : Bundleable.create(response));
             } catch (BundlerException e) {
-                sendFailureResponse(callback, callName, e);
-                throw new IllegalStateException("Serialization failure in " + callName, e);
+                sendFailureResponseToHost(callback, callName, e);
             }
             return null;
-        }, callName + " onSuccess");
+        });
     }
 
     /**
      * Invoke onFailure on the given {@code callback} instance with the given {@link Throwable}.
      */
-    public static void sendFailureResponse(@NonNull IOnDoneCallback callback,
+    public static void sendFailureResponseToHost(@NonNull IOnDoneCallback callback,
             @NonNull String callName,
             @NonNull Throwable e) {
-        call(() -> {
+        dispatchCallToHost(callName + " onFailure", () -> {
             try {
                 callback.onFailure(Bundleable.create(new FailureResponse(e)));
             } catch (BundlerException bundlerException) {
                 // Not possible, but catching since BundlerException is not runtime.
-                throw new IllegalStateException(
+                Log.e(LogTags.TAG_DISPATCH,
                         "Serialization failure in " + callName, bundlerException);
             }
             return null;
-        }, callName + " onFailure");
+        });
     }
 
     /**
@@ -183,43 +242,60 @@ public final class RemoteUtils {
     }
 
     private static class SurfaceCallbackStub extends ISurfaceCallback.Stub {
+        private final Lifecycle mLifecycle;
         private final SurfaceCallback mSurfaceCallback;
 
-        SurfaceCallbackStub(SurfaceCallback surfaceCallback) {
+        SurfaceCallbackStub(Lifecycle lifecycle, SurfaceCallback surfaceCallback) {
+            mLifecycle = lifecycle;
             mSurfaceCallback = surfaceCallback;
         }
 
         @Override
         public void onSurfaceAvailable(Bundleable surfaceContainer, IOnDoneCallback callback) {
-            dispatchHostCall(
-                    () -> mSurfaceCallback.onSurfaceAvailable(
-                            (SurfaceContainer) surfaceContainer.get()),
+            dispatchCallFromHost(
+                    mLifecycle,
                     callback,
-                    "onSurfaceAvailable");
+                    "onSurfaceAvailable",
+                    () -> {
+                        mSurfaceCallback.onSurfaceAvailable(
+                                (SurfaceContainer) surfaceContainer.get());
+                        return null;
+                    });
         }
 
         @Override
         public void onVisibleAreaChanged(Rect visibleArea, IOnDoneCallback callback) {
-            dispatchHostCall(
-                    () -> mSurfaceCallback.onVisibleAreaChanged(visibleArea),
+            dispatchCallFromHost(
+                    mLifecycle,
                     callback,
-                    "onVisibleAreaChanged");
+                    "onVisibleAreaChanged",
+                    () -> {
+                        mSurfaceCallback.onVisibleAreaChanged(visibleArea);
+                        return null;
+                    });
         }
 
         @Override
         public void onStableAreaChanged(Rect stableArea, IOnDoneCallback callback) {
-            dispatchHostCall(
-                    () -> mSurfaceCallback.onStableAreaChanged(stableArea), callback,
-                    "onStableAreaChanged");
+            dispatchCallFromHost(
+                    mLifecycle, callback,
+                    "onStableAreaChanged", () -> {
+                        mSurfaceCallback.onStableAreaChanged(stableArea);
+                        return null;
+                    });
         }
 
         @Override
         public void onSurfaceDestroyed(Bundleable surfaceContainer, IOnDoneCallback callback) {
-            dispatchHostCall(
-                    () -> mSurfaceCallback.onSurfaceDestroyed(
-                            (SurfaceContainer) surfaceContainer.get()),
+            dispatchCallFromHost(
+                    mLifecycle,
                     callback,
-                    "onSurfaceDestroyed");
+                    "onSurfaceDestroyed",
+                    () -> {
+                        mSurfaceCallback.onSurfaceDestroyed(
+                                (SurfaceContainer) surfaceContainer.get());
+                        return null;
+                    });
         }
     }
 

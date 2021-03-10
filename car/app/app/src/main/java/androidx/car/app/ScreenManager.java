@@ -406,6 +406,7 @@ public class ScreenManager {
         @Override
         public void onDestroy(@NonNull LifecycleOwner lifecycleOwner) {
             destroyAndClearScreenStack();
+            lifecycleOwner.getLifecycle().removeObserver(this);
         }
     }
 }
