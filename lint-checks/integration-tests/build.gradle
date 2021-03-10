@@ -28,7 +28,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":annotation:annotation"))
+    implementation(projectOrArtifact(":annotation:annotation"))
     implementation(KOTLIN_STDLIB)
 }
 
