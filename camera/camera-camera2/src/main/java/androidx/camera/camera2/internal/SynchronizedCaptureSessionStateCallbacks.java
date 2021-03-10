@@ -98,6 +98,13 @@ final class SynchronizedCaptureSessionStateCallbacks extends
         }
     }
 
+    @Override
+    void onSessionFinished(@NonNull SynchronizedCaptureSession session) {
+        for (SynchronizedCaptureSession.StateCallback callback : mCallbacks) {
+            callback.onSessionFinished(session);
+        }
+    }
+
     static class Adapter extends SynchronizedCaptureSession.StateCallback {
         @NonNull
         private final CameraCaptureSession.StateCallback mCameraCaptureSessionStateCallback;
@@ -153,6 +160,11 @@ final class SynchronizedCaptureSessionStateCallbacks extends
         public void onClosed(@NonNull SynchronizedCaptureSession session) {
             mCameraCaptureSessionStateCallback.onClosed(
                     session.toCameraCaptureSessionCompat().toCameraCaptureSession());
+        }
+
+        @Override
+        void onSessionFinished(@NonNull SynchronizedCaptureSession session) {
+            // This callback is internally used, don't forward.
         }
     }
 }

@@ -56,15 +56,9 @@ import java.util.concurrent.ScheduledExecutorService;
  * reused to open the second SynchronizedCaptureSession. The {@link #openCaptureSession} can't
  * be called more than once in the same Opener.
  *
- * @see #openCaptureSession(CameraDevice, SessionConfigurationCompat)
+ * @see #openCaptureSession(CameraDevice, SessionConfigurationCompat, List)
  * @see #createSessionConfigurationCompat(int, List, SynchronizedCaptureSession.StateCallback)
  * @see SynchronizedCaptureSession.StateCallback
- *
- * <p>The {@link #startWithDeferrableSurface} method will return a Surface list that
- * is held in the List<DeferrableSurface>. The Opener helps in maintaining the timing to close
- * the returned DeferrableSurface list. Most use case should attempt to use the
- * {@link #startWithDeferrableSurface} method to get the Surface for creating the
- * SynchronizedCaptureSession.
  *
  * <p>The {@link #stop} method should be invoked when the SynchronizedCaptureSession opening flow
  * is interropted.
@@ -125,6 +119,11 @@ final class SynchronizedCaptureSessionOpener {
      * <p>The {@link SessionConfigurationCompat} object that is needed in this method should be
      * created via the {@link #createSessionConfigurationCompat}.
      *
+     * <p>The use count of the input DeferrableSurfaces will be increased. It will be
+     * automatically decreased when the surface is not used by the camera. For instance, when the
+     * opened SynchronizedCaptureSession is closed completely or when the configuration of the
+     * session is failed.
+     *
      * <p>Cancellation of the returned future is a no-op. The opening task can only be
      * cancelled by the {@link #stop()}. The {@link #stop()} only effective when the
      * CameraDevice#createCaptureSession() hasn't been invoked. If the {@link #stop()} is called
@@ -138,6 +137,8 @@ final class SynchronizedCaptureSessionOpener {
      *                                   SynchronizedCaptureSession
      * @param sessionConfigurationCompat A {@link SessionConfigurationCompat} that is created via
      *                                   the {@link #createSessionConfigurationCompat}.
+     * @param deferrableSurfaces         the list of the DeferrableSurface that be used to
+     *                                   configure the session.
      * @return a ListenableFuture object which completes when the SynchronizedCaptureSession is
      * configured.
      * @see #createSessionConfigurationCompat(int, List, SynchronizedCaptureSession.StateCallback)
@@ -145,8 +146,10 @@ final class SynchronizedCaptureSessionOpener {
      */
     @NonNull
     ListenableFuture<Void> openCaptureSession(@NonNull CameraDevice cameraDevice,
-            @NonNull SessionConfigurationCompat sessionConfigurationCompat) {
-        return mImpl.openCaptureSession(cameraDevice, sessionConfigurationCompat);
+            @NonNull SessionConfigurationCompat sessionConfigurationCompat,
+            @NonNull List<DeferrableSurface> deferrableSurfaces) {
+        return mImpl.openCaptureSession(cameraDevice, sessionConfigurationCompat,
+                deferrableSurfaces);
     }
 
     /**
@@ -168,13 +171,13 @@ final class SynchronizedCaptureSessionOpener {
     }
 
     /**
-     * Start to use the DeferrableSurfaces for the SynchronizedCaptureSession.
+     * Get the surface from the DeferrableSurfaces.
      *
-     * <p>When the {@link SynchronizedSessionFeature#FEATURE_DEFERRABLE_SURFACE_CLOSE} is
-     * enabled. The DeferrableSurface list will be tagged as started and cannot be used on any
-     * other SynchronizedCaptureSession instance until it is untagged. The DeferrableSurfaces
-     * will be untagged when the opened SynchronizedCaptureSession is closed or when calling the
-     * {@link #stop()} with a true return value.
+     * <p>The {@link #startWithDeferrableSurface} method will return a Surface list that
+     * is held in the List<DeferrableSurface>. The Opener helps in maintaining the timing to
+     * close the returned DeferrableSurface list. Most use case should attempt to use the
+     * {@link #startWithDeferrableSurface} method to get the Surface for creating the
+     * SynchronizedCaptureSession.
      *
      * @param deferrableSurfaces The deferrable surfaces to open.
      * @param timeout            the timeout to get surfaces from the deferrable surface list.
@@ -195,11 +198,6 @@ final class SynchronizedCaptureSessionOpener {
      * startWithDeferrableSurface() and openCaptureSession() if CameraDevice#createCaptureSession()
      * hasn't been invoked. Once the CameraDevice#createCaptureSession() already been invoked, the
      * task of openCaptureSession() will keep going.
-     *
-     * <p>If the DeferrableSurfaces had tagged as started via {@link #startWithDeferrableSurface}
-     * will also be untagged if the SynchronizedCaptureSession doesn't open yet. If the
-     * SynchronizedCaptureSession is already opened, the tagged DeferrableSurfaces will be
-     * untagged when the SynchronizedCaptureSession is closed.
      *
      * @return true if the CameraCaptureSession creation has not been started yet. Otherwise true
      * false.
@@ -267,7 +265,8 @@ final class SynchronizedCaptureSessionOpener {
 
         @NonNull
         ListenableFuture<Void> openCaptureSession(@NonNull CameraDevice cameraDevice, @NonNull
-                SessionConfigurationCompat sessionConfigurationCompat);
+                SessionConfigurationCompat sessionConfigurationCompat,
+                @NonNull List<DeferrableSurface> deferrableSurfaces);
 
         @NonNull
         SessionConfigurationCompat createSessionConfigurationCompat(int sessionType,
