@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-beta02" client="gradle" variant="debug" version="4.2.0-beta02">
+<issues format="5" by="lint 4.2.0-beta04" client="gradle" variant="debug" version="4.2.0-beta04">
 
     <issue
         id="BanSynchronizedMethods"
@@ -109,17 +109,6 @@
             file="src/main/java/androidx/benchmark/IsolationActivity.kt"
             line="183"
             column="30"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.benchmark.ProfilerKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="        Debug.startMethodTracingSampling(path, bufferSize, Arguments.profilerSampleFrequency)"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/Profiler.kt"
-            line="99"
-            column="15"/>
     </issue>
 
 </issues>
