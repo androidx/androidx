@@ -218,6 +218,24 @@ public class NavigationManagerTest {
     }
 
     @Test
+    public void onStopNavigation_noListener_doesNotThrow() throws RemoteException {
+        InOrder inOrder = inOrder(mMockNavHost, mNavigationListener);
+
+        mNavigationManager.setNavigationManagerCallback(new SynchronousExecutor(),
+                mNavigationListener);
+        mNavigationManager.navigationStarted();
+        inOrder.verify(mMockNavHost).navigationStarted();
+
+        mNavigationManager.onStopNavigation();
+        mNavigationManager.clearNavigationManagerCallback();
+        inOrder.verify(mNavigationListener).onStopNavigation();
+
+        mNavigationManager.getIInterface().onStopNavigation(mock(IOnDoneCallback.class));
+
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
     public void onAutoDriveEnabled_callsListener() {
         mNavigationManager.setNavigationManagerCallback(new SynchronousExecutor(),
                 mNavigationListener);
