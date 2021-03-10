@@ -24,7 +24,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 /**
  * Utilities for working with {@link com.google.common.util.concurrent.ListenableFuture}.
@@ -37,7 +37,7 @@ public final class FutureUtil {
     /** Executes the given lambda on the given executor and returns a {@link ListenableFuture}. */
     @NonNull
     public static <T> ListenableFuture<T> execute(
-            @NonNull ExecutorService executor,
+            @NonNull Executor executor,
             @NonNull Callable<T> callable) {
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(callable);

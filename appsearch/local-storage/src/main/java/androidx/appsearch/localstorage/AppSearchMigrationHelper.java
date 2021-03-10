@@ -137,6 +137,7 @@ class AppSearchMigrationHelper implements Closeable {
      * @throws AppSearchException on AppSearch problem
      */
     @NonNull
+    @WorkerThread
     public SetSchemaResponse readAndPutDocuments(@NonNull SetSchemaResponse.Builder responseBuilder)
             throws IOException, AppSearchException {
         Preconditions.checkState(mFile.exists(), "Internal temp file does not exist.");

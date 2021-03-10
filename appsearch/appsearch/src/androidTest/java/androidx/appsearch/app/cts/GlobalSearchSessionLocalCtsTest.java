@@ -39,6 +39,7 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
     @Override
     protected ListenableFuture<GlobalSearchSession> createGlobalSearchSession() {
         Context context = ApplicationProvider.getApplicationContext();
-        return LocalStorage.createGlobalSearchSession(context);
+        return LocalStorage.createGlobalSearchSession(
+                new LocalStorage.GlobalSearchContext.Builder(context).build());
     }
 }

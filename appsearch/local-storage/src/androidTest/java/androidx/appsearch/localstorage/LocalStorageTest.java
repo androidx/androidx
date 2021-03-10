@@ -24,13 +24,17 @@ import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 public class LocalStorageTest {
     @Test
     public void testSameInstance() throws Exception {
-        LocalStorage b1 =
-                LocalStorage.getOrCreateInstance(ApplicationProvider.getApplicationContext());
-        LocalStorage b2 =
-                LocalStorage.getOrCreateInstance(ApplicationProvider.getApplicationContext());
+        Executor executor = Executors.newCachedThreadPool();
+        LocalStorage b1 = LocalStorage.getOrCreateInstance(
+                ApplicationProvider.getApplicationContext(), executor);
+        LocalStorage b2 = LocalStorage.getOrCreateInstance(
+                ApplicationProvider.getApplicationContext(), executor);
         assertThat(b1).isSameInstanceAs(b2);
     }
 

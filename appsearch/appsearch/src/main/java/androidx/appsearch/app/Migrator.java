@@ -76,7 +76,8 @@ public abstract class Migrator {
      * <p>This method will be invoked only if the {@link SetSchemaRequest} is setting a
      * higher version number than the current {@link AppSearchSchema} saved in AppSearch.
      *
-     * <p>This method will be invoked on the background worker thread.
+     * <p>This method will be invoked on the background worker thread provided via
+     * {@link AppSearchSession#setSchema}.
      *
      * @param currentVersion The current version of the document's schema.
      * @param targetVersion  The final version that documents need to be migrated to.

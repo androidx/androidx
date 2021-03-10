@@ -40,7 +40,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
             @NonNull String dbName, @NonNull ExecutorService executor) {
         Context context = ApplicationProvider.getApplicationContext();
         return LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context, dbName).build(),
-                executor);
+                new LocalStorage.SearchContext.Builder(context, dbName)
+                        .setWorkerExecutor(executor).build());
     }
 }
