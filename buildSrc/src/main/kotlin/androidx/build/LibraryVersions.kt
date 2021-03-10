@@ -22,8 +22,8 @@ package androidx.build
 object LibraryVersions {
     val ACTIVITY = Version("1.3.0-alpha03")
     val ADS_IDENTIFIER = Version("1.0.0-alpha04")
-    val ANNOTATION = Version("1.2.0-rc01")
-    val ANNOTATION_EXPERIMENTAL = Version("1.1.0-rc01")
+    val ANNOTATION = Version("1.2.0")
+    val ANNOTATION_EXPERIMENTAL = Version("1.1.0-rc02")
     val APPCOMPAT = Version("1.3.0-beta02")
     val APPSEARCH = Version("1.0.0-alpha01")
     val ARCH_CORE = Version("2.2.0-alpha01")
