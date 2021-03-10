@@ -98,13 +98,14 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
                 factory = new TestEdgeEffectFactory();
         mRecyclerView.setEdgeEffectFactory(factory);
 
-        assertEquals(EdgeEffect.TYPE_STRETCH, mRecyclerView.getEdgeEffectType());
+        int expectedType = isSOrHigher() ? EdgeEffect.TYPE_STRETCH : EdgeEffect.TYPE_GLOW;
+        assertEquals(expectedType, mRecyclerView.getEdgeEffectType());
 
         scrollToPosition(0);
         waitForIdleScroll(mRecyclerView);
         scrollVerticalBy(3);
 
-        assertEquals(EdgeEffect.TYPE_STRETCH, factory.mEdgeEffectType);
+        assertEquals(expectedType, factory.mEdgeEffectType);
         mRecyclerView.setEdgeEffectType(EdgeEffect.TYPE_GLOW);
         assertEquals(EdgeEffect.TYPE_GLOW, mRecyclerView.getEdgeEffectType());
 

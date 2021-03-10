@@ -17,8 +17,6 @@
 
 package androidx.recyclerview.widget;
 
-import static android.widget.EdgeEffect.TYPE_GLOW;
-
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.util.Preconditions.checkArgument;
@@ -723,8 +721,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
                 defStyleAttr, 0);
-        mEdgeEffectType = a.getInt(R.styleable.RecyclerView_android_edgeEffectType,
-                TYPE_GLOW);
+        mEdgeEffectType = EdgeEffectCompat.getType(EdgeEffectCompat.create(context, attrs));
 
         ViewCompat.saveAttributeDataForStyleable(this, context, R.styleable.RecyclerView,
                 attrs, a, defStyleAttr, 0);

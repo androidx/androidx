@@ -17,5 +17,6 @@
 <androidx.recyclerview.widget.RecyclerView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/recycler_view"
+    android:edgeEffectType="stretch"
     android:layout_width="90px"
     android:layout_height="90px" />
