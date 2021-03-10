@@ -79,12 +79,12 @@ package androidx.wear.watchface {
 
   public final class ComplicationOutlineRenderer {
     ctor public ComplicationOutlineRenderer();
-    method public static void drawComplicationSelectOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
+    method public static void drawComplicationOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
     field public static final androidx.wear.watchface.ComplicationOutlineRenderer.Companion Companion;
   }
 
   public static final class ComplicationOutlineRenderer.Companion {
-    method public void drawComplicationSelectOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
+    method public void drawComplicationOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
   }
 
   public final class ComplicationsManager {

@@ -200,7 +200,7 @@ public open class CanvasComplicationDrawable(
         @ColorInt color: Int
     ) {
         if (!attachedComplication!!.fixedComplicationProvider) {
-            ComplicationOutlineRenderer.drawComplicationSelectOutline(
+            ComplicationOutlineRenderer.drawComplicationOutline(
                 canvas,
                 bounds,
                 color
