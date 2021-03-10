@@ -16,11 +16,9 @@
 
 package androidx.emoji2.widget;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.inputmethodservice.InputMethodService;
-import android.os.Build;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -32,7 +30,6 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.EmojiSpan;
@@ -91,14 +88,6 @@ public class EmojiExtractTextLayout extends LinearLayout {
             @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr, 0 /*defStyleRes*/);
-    }
-
-    @SuppressLint("UnsafeNewApiCall")
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public EmojiExtractTextLayout(@NonNull Context context, @Nullable AttributeSet attrs,
-            int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init(context, attrs, defStyleAttr, defStyleRes);
     }
 
     private void init(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
