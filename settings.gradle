@@ -574,7 +574,6 @@ includeProject(":wear:wear-ongoing", "wear/wear-ongoing", [BuildType.MAIN, Build
 includeProject(":wear:wear-phone-interactions", "wear/wear-phone-interactions", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-remote-interactions", "wear/wear-remote-interactions", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-tiles", "wear/wear-tiles", [BuildType.MAIN, BuildType.WEAR])
-includeProject(":wear:wear-tiles-data", "wear/wear-tiles-data", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-tiles-proto", "wear/wear-tiles-proto", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-tiles-renderer", "wear/wear-tiles-renderer", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-watchface", "wear/wear-watchface", [BuildType.MAIN, BuildType.WEAR])
