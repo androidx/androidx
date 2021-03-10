@@ -2288,7 +2288,7 @@ public class ViewPager extends ViewGroup {
                     // Scroll to follow the motion event
                     final int activePointerIndex = ev.findPointerIndex(mActivePointerId);
                     final float x = ev.getX(activePointerIndex);
-                    needsInvalidate |= performDrag(x, ev.getY());
+                    needsInvalidate |= performDrag(x, ev.getY(activePointerIndex));
                 }
                 break;
             case MotionEvent.ACTION_UP:
