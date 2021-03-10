@@ -42,7 +42,7 @@ dependencies {
     implementation("androidx.arch.core:core-runtime:2.0.1")
     compileOnly("androidx.paging:paging-common:2.0.0")
     compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
-    implementation("androidx.annotation:annotation-experimental:1.1.0-beta01")
+    implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
     compileOnly KOTLIN_STDLIB // Due to :annotation-experimental
 
     testImplementation("androidx.arch.core:core-testing:2.0.1")
