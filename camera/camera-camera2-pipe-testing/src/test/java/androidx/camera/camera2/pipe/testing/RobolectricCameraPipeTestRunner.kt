@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,31 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.junit.runners.model.FrameworkMethod
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.internal.bytecode.InstrumentationConfiguration
+
+/**
+ * A [RobolectricTestRunner] for [androidx.camera.camera2.pipe] unit tests.
+ *
+ * This test runner disables instrumentation for the [androidx.camera.camera2.pipe] and
+ * [androidx.camera.camera2.pipe.testing] packages.
+ *
+ * Robolectric tries to instrument Kotlin classes, and it throws errors when it encounters
+ * companion objects, constructors with default values for parameters, and data classes with
+ * inline classes. We don't need shadowing of our classes because we want to use the actual
+ * objects in our tests.
+ */
+public class RobolectricCameraPipeTestRunner(testClass: Class<*>) :
+    RobolectricTestRunner(testClass) {
+    override fun createClassLoaderConfig(method: FrameworkMethod?): InstrumentationConfiguration {
+        val builder = InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
+        builder.doNotInstrumentPackage("androidx.camera.camera2.pipe")
+        builder.doNotInstrumentPackage("androidx.camera.camera2.pipe.testing")
+        return builder.build()
+    }
+}
 
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 public inline class TestValue(public val value: String)

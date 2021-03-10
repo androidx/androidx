@@ -25,14 +25,20 @@ import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.compat.Camera2CameraMetadata
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth
 import kotlinx.atomicfu.atomic
+import org.junit.After
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowApplication
 import org.robolectric.shadows.ShadowCameraCharacteristics
@@ -167,5 +173,34 @@ public object RobolectricCameras {
         ) {
             throw UnsupportedOperationException("onError is not expected for Robolectric Camera")
         }
+    }
+}
+
+@RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+class RobolectricCamerasTest {
+    private val context = ApplicationProvider.getApplicationContext() as Context
+    private val mainLooper = shadowOf(Looper.getMainLooper())
+
+    @Test
+    fun fakeCamerasCanBeOpened() {
+        val fakeCameraId = RobolectricCameras.create(
+            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK)
+        )
+        val fakeCamera = RobolectricCameras.open(fakeCameraId)
+
+        Truth.assertThat(fakeCamera).isNotNull()
+        Truth.assertThat(fakeCamera.cameraId).isEqualTo(fakeCameraId)
+        Truth.assertThat(fakeCamera.cameraDevice).isNotNull()
+        Truth.assertThat(fakeCamera.characteristics).isNotNull()
+        Truth.assertThat(fakeCamera.characteristics[CameraCharacteristics.LENS_FACING]).isNotNull()
+        Truth.assertThat(fakeCamera.metadata).isNotNull()
+        Truth.assertThat(fakeCamera.metadata[CameraCharacteristics.LENS_FACING]).isNotNull()
+    }
+
+    @After
+    fun teardown() {
+        mainLooper.idle()
+        RobolectricCameras.clear()
     }
 }
