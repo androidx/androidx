@@ -24,6 +24,7 @@ import android.graphics.Rect
 import android.os.Handler
 import android.os.Looper
 import android.service.wallpaper.WallpaperService
+import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -88,6 +89,8 @@ class WatchFaceControlClientTest {
 
     @Mock
     private lateinit var surfaceHolder: SurfaceHolder
+    @Mock
+    private lateinit var surface: Surface
     private lateinit var engine: WallpaperService.Engine
     private val handler = Handler(Looper.getMainLooper())
     private val engineLatch = CountDownLatch(1)
@@ -100,6 +103,7 @@ class WatchFaceControlClientTest {
 
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
+        Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
     }
 
     @After
@@ -141,6 +145,12 @@ class WatchFaceControlClientTest {
     private fun createEngine() {
         handler.post {
             engine = wallpaperService.onCreateEngine()
+            engine.onSurfaceChanged(
+                surfaceHolder,
+                0,
+                surfaceHolder.surfaceFrame.width(),
+                surfaceHolder.surfaceFrame.height()
+            )
             engineLatch.countDown()
         }
         engineLatch.await(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
@@ -537,7 +547,15 @@ class WatchFaceControlClientTest {
         assertFalse(deferredExistingInstance.isCompleted)
 
         // We don't want to leave a pending request or it'll mess up subsequent tests.
-        handler.post { engine = wallpaperService.onCreateEngine() }
+        handler.post {
+            engine = wallpaperService.onCreateEngine()
+            engine.onSurfaceChanged(
+                surfaceHolder,
+                0,
+                surfaceHolder.surfaceFrame.width(),
+                surfaceHolder.surfaceFrame.height()
+            )
+        }
         runBlocking {
             withTimeout(CONNECT_TIMEOUT_MILLIS) {
                 deferredExistingInstance.await()
