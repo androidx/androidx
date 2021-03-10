@@ -67,7 +67,6 @@ public class NavigationManager {
     private final INavigationManager.Stub mNavigationManager;
     private final HostDispatcher mHostDispatcher;
 
-
     // Guarded by main thread access.
     @Nullable
     private NavigationManagerCallback mNavigationManagerCallback;
@@ -286,9 +285,14 @@ public class NavigationManager {
             return;
         }
         mIsNavigating = false;
-        requireNonNull(mNavigationManagerCallbackExecutor).execute(() -> {
-            requireNonNull(mNavigationManagerCallback).onStopNavigation();
-        });
+
+        NavigationManagerCallback callback = mNavigationManagerCallback;
+        Executor executor = mNavigationManagerCallbackExecutor;
+        if (callback == null || executor == null) {
+            return;
+        }
+
+        executor.execute(callback::onStopNavigation);
     }
 
     /**
@@ -309,14 +313,16 @@ public class NavigationManager {
         }
 
         mIsAutoDriveEnabled = true;
+
         NavigationManagerCallback callback = mNavigationManagerCallback;
-        if (callback != null) {
-            requireNonNull(mNavigationManagerCallbackExecutor).execute(
-                    callback::onAutoDriveEnabled);
-        } else {
+        Executor executor = mNavigationManagerCallbackExecutor;
+        if (callback == null || executor == null) {
             Log.w(TAG_NAVIGATION_MANAGER,
                     "NavigationManagerCallback not set, skipping onAutoDriveEnabled");
+            return;
         }
+
+        executor.execute(callback::onAutoDriveEnabled);
     }
 
     /** @hide */
