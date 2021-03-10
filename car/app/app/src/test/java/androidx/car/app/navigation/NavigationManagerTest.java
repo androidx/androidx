@@ -38,6 +38,7 @@ import androidx.car.app.navigation.model.TravelEstimate;
 import androidx.car.app.navigation.model.Trip;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.testing.TestCarContext;
+import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
@@ -86,12 +87,13 @@ public class NavigationManagerTest {
                     .addStep(mStep, mStepTravelEstimate)
                     .setCurrentRoad(CURRENT_ROAD)
                     .build();
+    private TestCarContext mTestCarContext;
 
     @Before
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);
 
-        TestCarContext testCarContext =
+        mTestCarContext =
                 TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
 
         INavigationHost navHostStub =
@@ -115,7 +117,8 @@ public class NavigationManagerTest {
 
         mHostDispatcher.setCarHost(mMockCarHost);
 
-        mNavigationManager = NavigationManager.create(testCarContext, mHostDispatcher);
+        mNavigationManager = NavigationManager.create(mTestCarContext, mHostDispatcher,
+                mTestCarContext.getLifecycleOwner().mRegistry);
     }
 
     @Test
@@ -162,14 +165,43 @@ public class NavigationManagerTest {
     }
 
     @Test
+    public void lifecycleDestroyed_callsOnStopNavigation() throws RemoteException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mNavigationManager.setNavigationManagerCallback(new SynchronousExecutor(),
+                mNavigationListener);
+        mNavigationManager.navigationStarted();
+        verify(mMockNavHost).navigationStarted();
+
+        mTestCarContext.getLifecycleOwner().mRegistry.handleLifecycleEvent(
+                Lifecycle.Event.ON_DESTROY);
+
+        verify(mNavigationListener).onStopNavigation();
+    }
+
+    @Test
     public void onStopNavigation_notNavigating() throws RemoteException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
         mNavigationManager.setNavigationManagerCallback(mNavigationListener);
+
         mNavigationManager.getIInterface().onStopNavigation(mock(IOnDoneCallback.class));
+
+        verify(mNavigationListener, never()).onStopNavigation();
+    }
+
+    @Test
+    public void onStopNavigation_lifecycleNotCreated_doesNotDispatch() throws RemoteException {
+        mNavigationManager.setNavigationManagerCallback(mNavigationListener);
+        mNavigationManager.navigationStarted();
+        verify(mMockNavHost).navigationStarted();
+
+        mNavigationManager.getIInterface().onStopNavigation(mock(IOnDoneCallback.class));
+
         verify(mNavigationListener, never()).onStopNavigation();
     }
 
     @Test
     public void onStopNavigation_navigating_restart() throws RemoteException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
         InOrder inOrder = inOrder(mMockNavHost, mNavigationListener);
 
         mNavigationManager.setNavigationManagerCallback(new SynchronousExecutor(),

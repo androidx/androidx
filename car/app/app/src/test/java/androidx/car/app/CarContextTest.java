@@ -52,6 +52,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.lang.reflect.Field;
 import java.util.Locale;
 
 /** Tests for {@link CarContext}. */
@@ -401,5 +402,20 @@ public class CarContextTest {
         mCarContext.getOnBackPressedDispatcher().onBackPressed();
 
         verify(callback).handleOnBackPressed();
+    }
+
+    @Test
+    public void lifecycleDestroyed_removesHostBinders()
+            throws ReflectiveOperationException, RemoteException {
+        mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_CREATE);
+        Field field = CarContext.class.getDeclaredField("mHostDispatcher");
+        field.setAccessible(true);
+        HostDispatcher hostDispatcher = (HostDispatcher) field.get(mCarContext);
+
+        assertThat(hostDispatcher.getHost(CarContext.APP_SERVICE)).isNotNull();
+
+        mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_DESTROY);
+
+        assertThat(hostDispatcher.getHost(CarContext.APP_SERVICE)).isNull();
     }
 }

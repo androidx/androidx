@@ -21,20 +21,28 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.graphics.Rect;
 import android.os.RemoteException;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.model.Template;
+import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.testing.TestCarContext;
+import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
@@ -50,6 +58,13 @@ public final class AppManagerTest {
     private IAppHost.Stub mMockAppHost;
     @Mock
     private IOnDoneCallback mMockOnDoneCallback;
+    @Mock
+    private OnBackPressedCallback mMockOnBackPressedCallback;
+    @Mock
+    private SurfaceCallback mSurfaceCallback;
+
+    @Captor
+    private ArgumentCaptor<ISurfaceCallback> mSurfaceCallbackCaptor;
 
     private TestCarContext mTestCarContext;
     private final HostDispatcher mHostDispatcher = new HostDispatcher();
@@ -86,27 +101,87 @@ public final class AppManagerTest {
 
         mHostDispatcher.setCarHost(mMockCarHost);
 
-        mAppManager = AppManager.create(mTestCarContext, mHostDispatcher);
+        mAppManager = AppManager.create(mTestCarContext, mHostDispatcher,
+                mTestCarContext.getLifecycleOwner().mRegistry);
     }
 
     @Test
-    public void getTemplate_serializationFails_throwsIllegalStateException()
-            throws RemoteException {
+    public void getTemplate_lifecycleCreated_sendsToApp() throws RemoteException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
         mTestCarContext
                 .getCarService(ScreenManager.class)
                 .push(new Screen(mTestCarContext) {
                     @NonNull
                     @Override
                     public Template onGetTemplate() {
-                        return new Template() {
+                        return new TestTemplate();
+                    }
+                });
+
+        mAppManager.getIInterface().getTemplate(mMockOnDoneCallback);
+
+        verify(mMockOnDoneCallback).onSuccess(any());
+    }
+
+    @Test
+    public void getTemplate_lifecycleNotCreated_doesNotSendToApp() throws RemoteException {
+        mTestCarContext
+                .getCarService(ScreenManager.class)
+                .push(new Screen(mTestCarContext) {
+                    @NonNull
+                    @Override
+                    public Template onGetTemplate() {
+                        return new TestTemplate() {
                         };
                     }
                 });
 
-        assertThrows(
-                HostException.class,
-                () -> mAppManager.getIInterface().getTemplate(mMockOnDoneCallback));
+        mAppManager.getIInterface().getTemplate(mMockOnDoneCallback);
+
         verify(mMockOnDoneCallback).onFailure(any());
+    }
+
+    @Test
+    public void getTemplate_serializationFails_sendsFailureToHost()
+            throws RemoteException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mTestCarContext
+                .getCarService(ScreenManager.class)
+                .push(new Screen(mTestCarContext) {
+                    @NonNull
+                    @Override
+                    public Template onGetTemplate() {
+                        return new NonBundleableTemplate("foo") {
+                        };
+                    }
+                });
+
+        mAppManager.getIInterface().getTemplate(mMockOnDoneCallback);
+
+        verify(mMockOnDoneCallback).onFailure(any());
+    }
+
+    @Test
+    public void onBackPressed_lifecycleCreated_sendsToApp() throws RemoteException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        when(mMockOnBackPressedCallback.isEnabled()).thenReturn(true);
+        mTestCarContext.getOnBackPressedDispatcher().addCallback(mMockOnBackPressedCallback);
+
+        mAppManager.getIInterface().onBackPressed(mMockOnDoneCallback);
+
+        verify(mMockOnDoneCallback).onSuccess(any());
+        verify(mMockOnBackPressedCallback).handleOnBackPressed();
+    }
+
+    @Test
+    public void onBackPressed_lifecycleNotCreated_doesNotSendToApp() throws RemoteException {
+        when(mMockOnBackPressedCallback.isEnabled()).thenReturn(true);
+        mTestCarContext.getOnBackPressedDispatcher().addCallback(mMockOnBackPressedCallback);
+
+        mAppManager.getIInterface().onBackPressed(mMockOnDoneCallback);
+
+        verify(mMockOnDoneCallback).onFailure(any());
+        verify(mMockOnBackPressedCallback, never()).handleOnBackPressed();
     }
 
     @Test
@@ -117,11 +192,11 @@ public final class AppManagerTest {
     }
 
     @Test
-    public void invalidate_hostThrowsRemoteException_throwsHostException() throws
+    public void invalidate_hostThrowsRemoteException_doesNotThrow() throws
             RemoteException {
         doThrow(new RemoteException()).when(mMockAppHost).invalidate();
 
-        assertThrows(HostException.class, () -> mAppManager.invalidate());
+        mAppManager.invalidate();
     }
 
     @Test
@@ -142,10 +217,10 @@ public final class AppManagerTest {
     }
 
     @Test
-    public void showToast_hostThrowsRemoteException_throwsHostException() throws RemoteException {
+    public void showToast_hostThrowsRemoteException_doesNotThrow() throws RemoteException {
         doThrow(new RemoteException()).when(mMockAppHost).showToast(anyString(), anyInt());
 
-        assertThrows(HostException.class, () -> mAppManager.showToast("foo", 1));
+        mAppManager.showToast("foo", 1);
     }
 
     @Test
@@ -172,11 +247,11 @@ public final class AppManagerTest {
     }
 
     @Test
-    public void etSurfaceListener_hostThrowsRemoteException_throwsHostException()
+    public void etSurfaceListener_hostThrowsRemoteException_doesNotThrow()
             throws RemoteException {
         doThrow(new RemoteException()).when(mMockAppHost).setSurfaceCallback(any());
 
-        assertThrows(HostException.class, () -> mAppManager.setSurfaceCallback(null));
+        mAppManager.setSurfaceCallback(null);
     }
 
     @Test
@@ -185,5 +260,125 @@ public final class AppManagerTest {
         doThrow(new IllegalStateException()).when(mMockAppHost).setSurfaceCallback(any());
 
         assertThrows(HostException.class, () -> mAppManager.setSurfaceCallback(null));
+    }
+
+    @Test
+    public void onSurfaceAvailable_dispatches()
+            throws RemoteException, BundlerException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+        SurfaceContainer surfaceContainer = new SurfaceContainer(null, 1, 2, 3);
+
+        mSurfaceCallbackCaptor.getValue().onSurfaceAvailable(Bundleable.create(surfaceContainer),
+                mMockOnDoneCallback);
+
+        verify(mSurfaceCallback).onSurfaceAvailable(any());
+        verify(mMockOnDoneCallback).onSuccess(any());
+    }
+
+    @Test
+    public void onSurfaceAvailable_lifecycleNotCreated_doesNotDispatch_sendsAFailure()
+            throws RemoteException, BundlerException {
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+        SurfaceContainer surfaceContainer = new SurfaceContainer(null, 1, 2, 3);
+
+        mSurfaceCallbackCaptor.getValue().onSurfaceAvailable(Bundleable.create(surfaceContainer),
+                mMockOnDoneCallback);
+
+        verify(mSurfaceCallback, never()).onSurfaceAvailable(surfaceContainer);
+        verify(mMockOnDoneCallback).onFailure(any());
+    }
+
+    @Test
+    public void onVisibleAreaChanged_dispatches()
+            throws RemoteException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+        Rect rect = new Rect(0, 0, 1, 1);
+
+        mSurfaceCallbackCaptor.getValue().onVisibleAreaChanged(rect, mMockOnDoneCallback);
+
+        verify(mSurfaceCallback).onVisibleAreaChanged(rect);
+        verify(mMockOnDoneCallback).onSuccess(any());
+    }
+
+    @Test
+    public void onVisibleAreaChanged_lifecycleNotCreated_doesNotDispatch_sendsAFailure()
+            throws RemoteException {
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+        Rect rect = new Rect(0, 0, 1, 1);
+
+        mSurfaceCallbackCaptor.getValue().onVisibleAreaChanged(rect, mMockOnDoneCallback);
+
+        verify(mSurfaceCallback, never()).onVisibleAreaChanged(any());
+        verify(mMockOnDoneCallback).onFailure(any());
+    }
+
+    @Test
+    public void onStableAreaChanged_dispatches()
+            throws RemoteException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+        Rect rect = new Rect(0, 0, 1, 1);
+
+        mSurfaceCallbackCaptor.getValue().onStableAreaChanged(rect, mMockOnDoneCallback);
+
+        verify(mSurfaceCallback).onStableAreaChanged(rect);
+        verify(mMockOnDoneCallback).onSuccess(any());
+    }
+
+    @Test
+    public void onStableAreaChanged_lifecycleNotCreated_doesNotDispatch_sendsAFailure()
+            throws RemoteException {
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+        Rect rect = new Rect(0, 0, 1, 1);
+
+        mSurfaceCallbackCaptor.getValue().onStableAreaChanged(rect, mMockOnDoneCallback);
+
+        verify(mSurfaceCallback, never()).onStableAreaChanged(any());
+        verify(mMockOnDoneCallback).onFailure(any());
+    }
+
+    @Test
+    public void onSurfaceDestroyed_dispatches()
+            throws RemoteException, BundlerException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+        SurfaceContainer surfaceContainer = new SurfaceContainer(null, 1, 2, 3);
+
+        mSurfaceCallbackCaptor.getValue().onSurfaceDestroyed(Bundleable.create(surfaceContainer),
+                mMockOnDoneCallback);
+
+        verify(mSurfaceCallback).onSurfaceDestroyed(any());
+        verify(mMockOnDoneCallback).onSuccess(any());
+    }
+
+    @Test
+    public void onSurfaceDestroyed_lifecycleNotCreated_doesNotDispatch_sendsAFailure()
+            throws RemoteException, BundlerException {
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+        SurfaceContainer surfaceContainer = new SurfaceContainer(null, 1, 2, 3);
+
+        mSurfaceCallbackCaptor.getValue().onSurfaceDestroyed(Bundleable.create(surfaceContainer),
+                mMockOnDoneCallback);
+
+        verify(mSurfaceCallback, never()).onSurfaceDestroyed(surfaceContainer);
+        verify(mMockOnDoneCallback).onFailure(any());
+    }
+
+    private static class NonBundleableTemplate implements Template {
+        NonBundleableTemplate(String s) {
+        }
+    }
+
+    private static class TestTemplate implements Template {
     }
 }

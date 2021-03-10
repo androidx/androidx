@@ -80,8 +80,11 @@ public class OnSelectedDelegateImpl implements OnSelectedDelegate {
 
         @Override
         public void onSelected(int index, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mListener.onSelected(index), callback, "onSelectedListener");
+            RemoteUtils.dispatchCallFromHost(
+                    callback, "onSelectedListener", () -> {
+                        mListener.onSelected(index);
+                        return null;
+                    });
         }
     }
 }

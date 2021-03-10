@@ -92,15 +92,21 @@ public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
 
         @Override
         public void onSearchTextChanged(String text, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mCallback.onSearchTextChanged(text), callback,
-                    "onSearchTextChanged");
+            RemoteUtils.dispatchCallFromHost(
+                    callback, "onSearchTextChanged", () -> {
+                        mCallback.onSearchTextChanged(text);
+                        return null;
+                    }
+            );
         }
 
         @Override
         public void onSearchSubmitted(String text, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mCallback.onSearchSubmitted(text), callback, "onSearchSubmitted");
+            RemoteUtils.dispatchCallFromHost(
+                    callback, "onSearchSubmitted", () -> {
+                        mCallback.onSearchSubmitted(text);
+                        return null;
+                    });
         }
     }
 }
