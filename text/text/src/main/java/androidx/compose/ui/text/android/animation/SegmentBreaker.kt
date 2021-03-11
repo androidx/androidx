@@ -20,9 +20,12 @@ import android.text.Layout
 import androidx.compose.ui.text.android.CharSequenceCharacterIterator
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.LayoutHelper
+import androidx.compose.ui.text.android.fastForEach
+import androidx.compose.ui.text.android.fastZipWithNext
 import androidx.compose.ui.text.android.getLineForOffset
 import java.text.BreakIterator
 import java.util.Locale
+import java.util.TreeSet
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
@@ -59,7 +62,10 @@ object SegmentBreaker {
         val text = layoutHelper.layout.text
         val words = breakWithBreakIterator(text, BreakIterator.getLineInstance(Locale.getDefault()))
 
-        val set = words.toSortedSet()
+        val set = TreeSet<Int>().apply {
+            words.fastForEach { add(it) }
+        }
+
         for (paraIndex in 0 until layoutHelper.paragraphCount) {
             val bidi = layoutHelper.analyzeBidi(paraIndex) ?: continue
             val paragraphStart = layoutHelper.getParagraphStart(paraIndex)
@@ -217,7 +223,7 @@ object SegmentBreaker {
     ): List<Segment> {
         val layout = layoutHelper.layout
         val wsWidth = ceil(layout.paint.measureText(" ")).toInt()
-        return breakOffsets(layoutHelper, SegmentType.Word).zipWithNext { start, end ->
+        return breakOffsets(layoutHelper, SegmentType.Word).fastZipWithNext { start, end ->
             val lineNo = layout.getLineForOffset(start, false /* downstream */)
             val paraRTL = layout.getParagraphDirection(lineNo) == Layout.DIR_RIGHT_TO_LEFT
             val runRtl = layout.isRtlCharAt(start) // no bidi transition inside segment
@@ -266,7 +272,7 @@ object SegmentBreaker {
         dropSpaces: Boolean
     ): List<Segment> {
         val res = mutableListOf<Segment>()
-        breakOffsets(layoutHelper, SegmentType.Character).zipWithNext lambda@{ start, end ->
+        breakOffsets(layoutHelper, SegmentType.Character).fastZipWithNext lambda@{ start, end ->
             val layout = layoutHelper.layout
 
             if (dropSpaces && end == start + 1 &&

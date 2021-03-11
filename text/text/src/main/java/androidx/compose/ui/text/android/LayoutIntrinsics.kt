@@ -98,7 +98,12 @@ internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
         end = iterator.next()
     }
 
-    return longestWordCandidates.map { pair ->
-        Layout.getDesiredWidth(text, pair.first, pair.second, paint)
-    }.maxOrNull() ?: 0f
+    var minWidth = 0f
+
+    longestWordCandidates.forEach { (start, end) ->
+        val width = Layout.getDesiredWidth(text, start, end, paint)
+        minWidth = maxOf(minWidth, width)
+    }
+
+    return minWidth
 }
