@@ -259,7 +259,7 @@ fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
 
 fun loadTestSource(fileName: String, qName: String): Source {
     val contents = File("src/test/data/$fileName")
-    return Source.load(contents, qName)
+    return Source.load(contents, qName, fileName)
 }
 
 fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVerifier {

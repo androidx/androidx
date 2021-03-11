@@ -126,10 +126,11 @@ sealed class Source {
         }
 
         fun loadKotlinSource(
-            file: File
+            file: File,
+            relativePath: String
         ): Source {
             check(file.exists() && file.name.endsWith(".kt"))
-            return kotlin(file.absolutePath, file.readText())
+            return kotlin(relativePath, file.readText())
         }
 
         fun loadJavaSource(
@@ -142,13 +143,14 @@ sealed class Source {
 
         fun load(
             file: File,
-            qName: String
+            qName: String,
+            relativePath: String
         ): Source {
             check(file.exists()) {
                 "file does not exist: ${file.absolutePath}"
             }
             return when {
-                file.name.endsWith(".kt") -> loadKotlinSource(file)
+                file.name.endsWith(".kt") -> loadKotlinSource(file, relativePath)
                 file.name.endsWith(".java") -> loadJavaSource(file, qName)
                 else -> error("invalid file extension ${file.name}")
             }
