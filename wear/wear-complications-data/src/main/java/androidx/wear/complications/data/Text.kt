@@ -203,12 +203,12 @@ public class TimeDifferenceComplicationText internal constructor(
         public constructor(
             style: TimeDifferenceStyle,
             countUpTimeReference: CountUpTimeReference
-        ) : this(style, countUpTimeReference.dateTimeMillis, null)
+        ) : this(style, null, countUpTimeReference.dateTimeMillis)
 
         public constructor(
             style: TimeDifferenceStyle,
             countDownTimeReference: CountDownTimeReference
-        ) : this(style, null, countDownTimeReference.dateTimeMillis)
+        ) : this(style, countDownTimeReference.dateTimeMillis, null)
 
         /**
          * Sets the text within which the time difference will be displayed.
