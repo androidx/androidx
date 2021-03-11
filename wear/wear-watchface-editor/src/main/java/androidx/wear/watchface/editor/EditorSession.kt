@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.wearable.complications.ComplicationProviderInfo
@@ -490,7 +491,8 @@ internal class OnWatchFaceEditorSessionImpl(
                 it.value.initiallyEnabled,
                 it.value.renderer.getIdAndData()?.complicationData?.type
                     ?: ComplicationType.NO_DATA,
-                it.value.fixedComplicationProvider
+                it.value.fixedComplicationProvider,
+                it.value.configExtras
             )
         }
 
@@ -619,6 +621,10 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
             input.complicationId,
             input.editorSession.complicationState[input.complicationId]!!.supportedTypes,
             input.instanceId
+        )
+        val complicationState = input.editorSession.complicationState[input.complicationId]!!
+        intent.replaceExtras(
+            Bundle(complicationState.complicationConfigExtras).apply { putAll(intent.extras!!) }
         )
         if (useTestComplicationHelperActivity) {
             intent.component = ComponentName(

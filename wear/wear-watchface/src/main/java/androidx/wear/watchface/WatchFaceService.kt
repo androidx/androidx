@@ -547,7 +547,8 @@ public abstract class WatchFaceService : WallpaperService() {
                             it.value.renderer.getIdAndData()?.complicationData?.type
                                 ?.asWireComplicationType()
                                 ?: ComplicationType.NO_DATA.asWireComplicationType(),
-                            it.value.fixedComplicationProvider
+                            it.value.fixedComplicationProvider,
+                            it.value.configExtras
                         )
                     )
                 }
