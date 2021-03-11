@@ -31,7 +31,7 @@ import java.io.File
 public object Outputs {
 
     /**
-     * The output directory that the developer wants us to use.
+     * The intended output directory that respects the `additionalTestOutputDir`.
      */
     public val outputDirectory: File
 
@@ -94,6 +94,7 @@ public object Outputs {
                 val actualOutputDirectory = outputDirectory
                 destination = File(actualOutputDirectory, fileName)
                 if (file != destination) {
+                    Log.d(BenchmarkState.TAG, "Copying $file to $destination")
                     try {
                         destination.mkdirs()
                         file.copyTo(destination, overwrite = true)
@@ -125,12 +126,10 @@ public object Outputs {
     }
 
     public fun relativePathFor(path: String): String {
-        var basePath = outputDirectory.absolutePath
-        val relativePath = if (path.indexOf(basePath) > 0) {
-            path.removePrefix("$basePath/")
-        } else {
-            basePath = dirUsableByAppAndShell.absolutePath
-            path.removePrefix("$basePath/")
+        val hasOutputDirectoryPrefix = path.startsWith(outputDirectory.absolutePath)
+        val relativePath = when {
+            hasOutputDirectoryPrefix -> path.removePrefix("${outputDirectory.absolutePath}/")
+            else -> path.removePrefix("${dirUsableByAppAndShell.absolutePath}/")
         }
         check(relativePath != path) {
             "$relativePath == $path"
