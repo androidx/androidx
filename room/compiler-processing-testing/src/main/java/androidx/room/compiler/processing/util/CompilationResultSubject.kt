@@ -427,7 +427,10 @@ internal class KotlinCompileTestingCompilationResult(
                         Source.loadJavaSource(sourceFile, qName)
                     }
                     sourceFile.name.endsWith(".kt") -> {
-                        Source.loadKotlinSource(sourceFile)
+                        val relativePath = sourceFile.absolutePath.substringAfter(
+                            srcRoot.absolutePath
+                        ).dropWhile { it == '/' }
+                        Source.loadKotlinSource(sourceFile, relativePath)
                     }
                     else -> null
                 }
