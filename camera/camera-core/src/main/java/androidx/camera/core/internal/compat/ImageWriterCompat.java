@@ -74,10 +74,10 @@ public final class ImageWriterCompat {
     @NonNull
     public static ImageWriter newInstance(@NonNull Surface surface,
             @IntRange(from = 1) int maxImages, int format) {
-        if (Build.VERSION.SDK_INT >= 26) {
-            return ImageWriterCompatApi26Impl.newInstance(surface, maxImages, format);
-        } else if (Build.VERSION.SDK_INT >= 29) {
+        if (Build.VERSION.SDK_INT >= 29) {
             return ImageWriterCompatApi29Impl.newInstance(surface, maxImages, format);
+        } else if (Build.VERSION.SDK_INT >= 26) {
+            return ImageWriterCompatApi26Impl.newInstance(surface, maxImages, format);
         }
 
         throw new RuntimeException(
