@@ -221,6 +221,54 @@ src/com/example/test.kt:10: Error: Cannot set non-nullable LiveData value to nul
     }
 
     @Test
+    fun nullLiteralFailMultipleFieldsDifferentNullability() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                val liveDataField = MutableLiveData<Boolean>()
+                val secondLiveDataField = MutableLiveData<String?>()
+
+                fun foo() {
+                    liveDataField.value = false
+                    secondLiveDataField.value = null
+                }
+            """
+            ).indented()
+        ).expectClean()
+    }
+
+    @Test
+    fun nullLiteralFailMultipleAssignment() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                val liveDataField = MutableLiveData<Boolean>()
+
+                fun foo() {
+                    liveDataField.value = false
+                    liveDataField.value = null
+                }
+            """
+            ).indented()
+        ).expect(
+            """
+src/com/example/test.kt:9: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+    liveDataField.value = null
+                          ~~~~
+1 errors, 0 warnings
+        """
+        )
+    }
+
+    @Test
     fun nullLiteralFailFieldAndIgnore() {
         check(
             kotlin(
@@ -388,5 +436,167 @@ Fix for src/com/example/test.kt line 6: Add non-null asserted (!!) call:
 +     liveData.value = bar!!
         """
         )
+    }
+
+    @Test
+    fun differentClassSameFieldTestFirstNull() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                class MyClass1 {
+                    val liveDataField = MutableLiveData<Boolean>()
+
+                    fun foo() {
+                        liveDataField.value = null
+                    }
+                }
+            """
+            ).indented(),
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                class MyClass2 {
+                    val liveDataField = MutableLiveData<Boolean>()
+
+                    fun foo() {
+                        liveDataField.value = false
+                    }
+                }
+            """
+            ).indented()
+        ).expect(
+            """
+src/com/example/MyClass1.kt:9: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+        liveDataField.value = null
+                              ~~~~
+1 errors, 0 warnings
+        """
+        ).expectFixDiffs(
+            """
+Fix for src/com/example/MyClass1.kt line 9: Change `LiveData` type to nullable:
+@@ -6 +6
+-     val liveDataField = MutableLiveData<Boolean>()
++     val liveDataField = MutableLiveData<Boolean?>()
+        """
+        )
+    }
+
+    @Test
+    fun differentClassSameFieldTestSecondNull() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                class MyClass1 {
+                    val liveDataField = MutableLiveData<Boolean>()
+
+                    fun foo() {
+                        liveDataField.value = false
+                    }
+                }
+            """
+            ).indented(),
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                class MyClass2 {
+                    val liveDataField = MutableLiveData<Boolean>()
+
+                    fun foo() {
+                        liveDataField.value = null
+                    }
+                }
+            """
+            ).indented()
+        ).expect(
+            """
+src/com/example/MyClass2.kt:9: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+        liveDataField.value = null
+                              ~~~~
+1 errors, 0 warnings
+        """
+        ).expectFixDiffs(
+            """
+Fix for src/com/example/MyClass2.kt line 9: Change `LiveData` type to nullable:
+@@ -6 +6
+-     val liveDataField = MutableLiveData<Boolean>()
++     val liveDataField = MutableLiveData<Boolean?>()
+        """
+        )
+    }
+
+    @Test
+    fun nestedClassSameFieldTest() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                class MyClass1 {
+                    val liveDataField = MutableLiveData<Boolean>()
+
+                    fun foo() {
+                        liveDataField.value = false
+                    }
+
+                    class MyClass2 {
+                        val liveDataField = MutableLiveData<Boolean>()
+
+                        fun foo() {
+                            liveDataField.value = null
+                        }
+                    }
+                }
+            """
+            ).indented()
+        ).expect(
+            """
+src/com/example/MyClass1.kt:16: Error: Cannot set non-nullable LiveData value to null [NullSafeMutableLiveData]
+            liveDataField.value = null
+                                  ~~~~
+1 errors, 0 warnings
+        """
+        ).expectFixDiffs(
+            """
+Fix for src/com/example/MyClass1.kt line 16: Change `LiveData` type to nullable:
+@@ -13 +13
+-         val liveDataField = MutableLiveData<Boolean>()
++         val liveDataField = MutableLiveData<Boolean?>()
+        """
+        )
+    }
+
+    @Test
+    fun objectLiveData() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.LiveData
+
+                val foo = object : LiveData<Int>() {
+                    private fun bar() {
+                        value = 0
+                    }
+                }
+            """
+            ).indented()
+        ).expectClean()
     }
 }
