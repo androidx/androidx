@@ -52,7 +52,6 @@ import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.Token;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Surface;
@@ -88,9 +87,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
-    private static final String DEFAULT_MEDIA_SESSION_TAG_PREFIX = "androidx.media2.session.id";
-    private static final String DEFAULT_MEDIA_SESSION_TAG_DELIM = ".";
-
     // Create a static lock for synchronize methods below.
     // We'd better not use MediaSessionImplBase.class for synchronized(), which indirectly exposes
     // lock object to the outside of the class.
@@ -116,7 +112,6 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     private final Context mContext;
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
-    private final MediaSessionCompat mSessionCompat;
     private final MediaSessionStub mSessionStub;
     private final MediaSessionLegacyStub mSessionLegacyStub;
     private final String mSessionId;
@@ -134,11 +129,6 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaController.PlaybackInfo mPlaybackInfo;
-
-    @GuardedBy("mLock")
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    @Nullable
-    VolumeProviderCompat mVolumeProviderCompat;
 
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -179,8 +169,6 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                 .appendPath(String.valueOf(SystemClock.elapsedRealtime())).build();
         mSessionToken = new SessionToken(new SessionTokenImplBase(Process.myUid(),
                 SessionToken.TYPE_SESSION, context.getPackageName(), mSessionStub, tokenExtras));
-        String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
-                new String[] {DEFAULT_MEDIA_SESSION_TAG_PREFIX, id});
 
         ComponentName mbrComponent = null;
         synchronized (STATIC_LOCK) {
@@ -226,83 +214,40 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             mBroadcastReceiver = null;
         }
 
-        mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mbrComponent,
-                mMediaButtonIntent, mSessionToken.getExtras(), mSessionToken);
-        // NOTE: mSessionLegacyStub should be created after mSessionCompat created.
-        mSessionLegacyStub = new MediaSessionLegacyStub(this, mHandler);
-
-        mSessionCompat.setSessionActivity(sessionActivity);
-        mSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
+        mSessionLegacyStub = new MediaSessionLegacyStub(this, mbrComponent,
+                mMediaButtonIntent, mHandler);
 
         updatePlayer(player);
+
         // Do followings at the last moment. Otherwise commands through framework would be sent to
         // this session while initializing, and end up with unexpected situation.
-        mSessionCompat.setCallback(mSessionLegacyStub, mHandler);
-        mSessionCompat.setActive(true);
-    }
-
-    @Override
-    public void updatePlayer(@NonNull SessionPlayer player,
-            @Nullable SessionPlayer playlistAgent) {
-        // No-op
+        mSessionLegacyStub.start();
     }
 
     // TODO(jaewan): Remove SuppressLint when removing duplication session callback.
     @Override
     @SuppressLint("WrongConstant")
     public void updatePlayer(@NonNull SessionPlayer player) {
-        final boolean isPlaybackInfoChanged;
-
         final SessionPlayer oldPlayer;
-        final MediaController.PlaybackInfo info = createPlaybackInfo(player, null);
-
-        VolumeProviderCompat volumeProviderCompat = player instanceof RemoteSessionPlayer
-                ? createVolumeProviderCompat((RemoteSessionPlayer) player) : null;
+        final MediaController.PlaybackInfo oldPlaybackInfo;
+        final MediaController.PlaybackInfo playbackInfo = createPlaybackInfo(player, null);
 
         synchronized (mLock) {
-            isPlaybackInfoChanged = !info.equals(mPlaybackInfo);
-
+            if (mPlayer == player) {
+                return;
+            }
             oldPlayer = mPlayer;
             mPlayer = player;
-            mPlaybackInfo = info;
-            mVolumeProviderCompat = volumeProviderCompat;
+            oldPlaybackInfo = mPlaybackInfo;
+            mPlaybackInfo = playbackInfo;
         }
 
-        if (oldPlayer != player) {
-            if (oldPlayer != null) {
-                oldPlayer.unregisterPlayerCallback(mPlayerCallback);
-            }
-            player.registerPlayerCallback(mCallbackExecutor, mPlayerCallback);
+        if (oldPlayer != null) {
+            oldPlayer.unregisterPlayerCallback(mPlayerCallback);
         }
+        player.registerPlayerCallback(mCallbackExecutor, mPlayerCallback);
 
-        if (oldPlayer == null) {
-            // updatePlayerConnector() is called inside of the constructor.
-            // There's no connected controllers at this moment, so just initialize session compat's
-            // playback state. Otherwise, framework doesn't know whether this is ready to receive
-            // media key event.
-            mSessionCompat.setPlaybackState(createPlaybackStateCompat());
-        } else {
-            if (player != oldPlayer) {
-                final int state = getPlayerState();
-                mCallbackExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback.onPlayerStateChanged(getInstance(), state);
-                    }
-                });
-                notifyPlayerUpdatedNotLocked(oldPlayer);
-            }
-            if (isPlaybackInfoChanged) {
-                notifyPlaybackInfoChangedNotLocked(info);
-            }
-        }
-
-        if (player instanceof RemoteSessionPlayer) {
-            mSessionCompat.setPlaybackToRemote(volumeProviderCompat);
-        } else {
-            int stream = getLegacyStreamType(player.getAudioAttributes());
-            mSessionCompat.setPlaybackToLocal(stream);
-        }
+        notifyPlayerUpdatedNotLocked(oldPlayer, oldPlaybackInfo, player, playbackInfo);
     }
 
     @NonNull
@@ -312,7 +257,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                 player.getAudioAttributes();
 
         if (!(player instanceof RemoteSessionPlayer)) {
-            int stream = getLegacyStreamType(attrs);
+            int stream = MediaUtils.getLegacyStreamType(attrs);
             int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
             if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
                 controlType = VolumeProviderCompat.VOLUME_CONTROL_FIXED;
@@ -334,24 +279,6 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         }
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static int getLegacyStreamType(@Nullable AudioAttributesCompat attrs) {
-        int stream;
-        if (attrs == null) {
-            stream = AudioManager.STREAM_MUSIC;
-        } else {
-            stream = attrs.getLegacyStreamType();
-            if (stream == AudioManager.USE_DEFAULT_STREAM_TYPE) {
-                // Usually, AudioAttributesCompat#getLegacyStreamType() does not return
-                // USE_DEFAULT_STREAM_TYPE unless the developer sets it with
-                // AudioAttributesCompat.Builder#setLegacyStreamType().
-                // But for safety, let's convert USE_DEFAULT_STREAM_TYPE to STREAM_MUSIC here.
-                stream = AudioManager.STREAM_MUSIC;
-            }
-        }
-        return stream;
-    }
-
     @Override
     public void close() {
         SessionPlayer player;
@@ -368,8 +295,8 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             player = mPlayer;
         }
         player.unregisterPlayerCallback(mPlayerCallback);
-        mSessionCompat.release();
         mMediaButtonIntent.cancel();
+        mSessionLegacyStub.close();
         if (mBroadcastReceiver != null) {
             mContext.unregisterReceiver(mBroadcastReceiver);
         }
@@ -971,8 +898,9 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     }
 
     @Override
+    @NonNull
     public MediaSessionCompat getSessionCompat() {
-        return mSessionCompat;
+        return mSessionLegacyStub.getSessionCompat();
     }
 
     @Override
@@ -1053,7 +981,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         synchronized (mLock) {
             if (mBrowserServiceLegacyStub == null) {
                 mBrowserServiceLegacyStub = createLegacyBrowserServiceLocked(mContext,
-                        mSessionToken, mSessionCompat.getSessionToken());
+                        mSessionToken, mSessionLegacyStub.getSessionCompat().getSessionToken());
             }
             legacyStub = mBrowserServiceLegacyStub;
         }
@@ -1072,22 +1000,6 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         return !isClosed()
                 && player.getPlayerState() != SessionPlayer.PLAYER_STATE_IDLE
                 && player.getPlayerState() != SessionPlayer.PLAYER_STATE_ERROR;
-    }
-
-    private @Nullable MediaItem getCurrentMediaItemOrNull() {
-        final SessionPlayer player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        return player != null ? player.getCurrentMediaItem() : null;
-    }
-
-    private @Nullable List<MediaItem> getPlaylistOrNull() {
-        final SessionPlayer player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        return player != null ? player.getPlaylist() : null;
     }
 
     private ListenableFuture<PlayerResult> dispatchPlayerTask(
@@ -1118,98 +1030,15 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     // TODO(jaewan): Remove SuppressLint when removing duplication session callback.
     @SuppressLint("WrongConstant")
-    private void notifyPlayerUpdatedNotLocked(SessionPlayer oldPlayer) {
-        // Tells the playlist change first, to current item can change be notified with an item
-        // within the playlist.
-        List<MediaItem> oldPlaylist = oldPlayer.getPlaylist();
-        final List<MediaItem> newPlaylist = getPlaylistOrNull();
-        if (!ObjectsCompat.equals(oldPlaylist, newPlaylist)) {
-            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
-                @Override
-                public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onPlaylistChanged(seq,
-                            newPlaylist, getPlaylistMetadata(), getCurrentMediaItemIndex(),
-                            getPreviousMediaItemIndex(), getNextMediaItemIndex());
-                }
-            });
-        } else {
-            MediaMetadata oldMetadata = oldPlayer.getPlaylistMetadata();
-            final MediaMetadata newMetadata = getPlaylistMetadata();
-            if (!ObjectsCompat.equals(oldMetadata, newMetadata)) {
-                dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
-                    @Override
-                    public void run(ControllerCb callback, int seq) throws RemoteException {
-                        callback.onPlaylistMetadataChanged(seq, newMetadata);
-                    }
-                });
-            }
-        }
-        MediaItem oldCurrentItem = oldPlayer.getCurrentMediaItem();
-        final MediaItem newCurrentItem = getCurrentMediaItemOrNull();
-        if (!ObjectsCompat.equals(oldCurrentItem, newCurrentItem)) {
-            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
-                @Override
-                public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onCurrentMediaItemChanged(seq, newCurrentItem,
-                            getCurrentMediaItemIndex(), getPreviousMediaItemIndex(),
-                            getNextMediaItemIndex());
-                }
-            });
-        }
-        final @SessionPlayer.RepeatMode int repeatMode = getRepeatMode();
-        if (oldPlayer.getRepeatMode() != repeatMode) {
-            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
-                @Override
-                public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onRepeatModeChanged(seq, repeatMode, getCurrentMediaItemIndex(),
-                            getPreviousMediaItemIndex(), getNextMediaItemIndex());
-                }
-            });
-        }
-        final @SessionPlayer.ShuffleMode int shuffleMode = getShuffleMode();
-        if (oldPlayer.getShuffleMode() != shuffleMode) {
-            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
-                @Override
-                public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onShuffleModeChanged(seq, shuffleMode, getCurrentMediaItemIndex(),
-                            getPreviousMediaItemIndex(), getNextMediaItemIndex());
-                }
-            });
-        }
-
-        // Always forcefully send the player state and buffered state to send the current position
-        // and buffered position.
-        final long currentTimeMs = SystemClock.elapsedRealtime();
-        final long positionMs = getCurrentPosition();
-        final int playerState = getPlayerState();
+    private void notifyPlayerUpdatedNotLocked(@Nullable SessionPlayer oldPlayer,
+            @Nullable MediaController.PlaybackInfo oldPlaybackInfo,
+            @NonNull SessionPlayer player, @NonNull MediaController.PlaybackInfo playbackInfo) {
         dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
             @Override
             public void run(ControllerCb callback, int seq) throws RemoteException {
-                callback.onPlayerStateChanged(seq, currentTimeMs, positionMs, playerState);
+                callback.onPlayerChanged(seq, oldPlayer, oldPlaybackInfo, player, playbackInfo);
             }
         });
-        final MediaItem item = getCurrentMediaItemOrNull();
-        if (item != null) {
-            final int bufferingState = getBufferingState();
-            final long bufferedPositionMs = getBufferedPosition();
-            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
-                @Override
-                public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onBufferingStateChanged(seq, item, bufferingState, bufferedPositionMs,
-                            SystemClock.elapsedRealtime(), getCurrentPosition());
-                }
-            });
-        }
-        final float speed = getPlaybackSpeed();
-        if (speed != oldPlayer.getPlaybackSpeed()) {
-            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
-                @Override
-                public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onPlaybackSpeedChanged(seq, currentTimeMs, positionMs, speed);
-                }
-            });
-        }
-        // Note: AudioInfo is updated outside of this API.
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -1328,26 +1157,6 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         }
         ResolveInfo resolveInfo = resolveInfos.get(0);
         return new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name);
-    }
-
-    private static VolumeProviderCompat createVolumeProviderCompat(
-            @NonNull RemoteSessionPlayer player) {
-        return new VolumeProviderCompat(player.getVolumeControlType(), player.getMaxVolume(),
-                player.getVolume()) {
-            // TODO(b/138091975) Do not ignore the returned Future.
-            @SuppressWarnings("FutureReturnValueIgnored")
-            @Override
-            public void onSetVolumeTo(int volume) {
-                player.setVolume(volume);
-            }
-
-            // TODO(b/138091975) Do not ignore the returned Future.
-            @SuppressWarnings("FutureReturnValueIgnored")
-            @Override
-            public void onAdjustVolume(int direction) {
-                player.adjustVolume(direction);
-            }
-        };
     }
 
     ///////////////////////////////////////////////////
@@ -1549,14 +1358,6 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             }
             if (!ObjectsCompat.equals(newInfo, oldInfo)) {
                 session.notifyPlaybackInfoChangedNotLocked(newInfo);
-                if (!(player instanceof RemoteSessionPlayer)) {
-                    int oldStreamType = getLegacyStreamType(
-                            oldInfo == null ? null : oldInfo.getAudioAttributes());
-                    int newStreamType = getLegacyStreamType(newInfo.getAudioAttributes());
-                    if (oldStreamType != newStreamType) {
-                        session.getSessionCompat().setPlaybackToLocal(newStreamType);
-                    }
-                }
             }
         }
 
@@ -1650,20 +1451,15 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             MediaController.PlaybackInfo newInfo =
                     session.createPlaybackInfo(player, /* audioAttributes= */ null);
             MediaController.PlaybackInfo oldInfo;
-            VolumeProviderCompat volumeProviderCompat;
             synchronized (session.mLock) {
                 if (session.mPlayer != player) {
                     return;
                 }
                 oldInfo = session.mPlaybackInfo;
                 session.mPlaybackInfo = newInfo;
-                volumeProviderCompat = session.mVolumeProviderCompat;
             }
             if (!ObjectsCompat.equals(newInfo, oldInfo)) {
                 session.notifyPlaybackInfoChangedNotLocked(newInfo);
-            }
-            if (volumeProviderCompat != null) {
-                volumeProviderCompat.setCurrentVolume(volume);
             }
         }
 
