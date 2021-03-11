@@ -31,7 +31,7 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.complications.data.IdAndComplicationData
+import androidx.wear.complications.data.asApiComplicationData
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
@@ -206,18 +206,15 @@ open class TestRenderer(
     }
 }
 
-fun createIdAndComplicationData(id: Int) =
-    IdAndComplicationData(
-        id,
-        ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-            .setShortText(ComplicationText.plainText("Test Text"))
-            .setTapAction(
-                PendingIntent.getActivity(
-                    ApplicationProvider.getApplicationContext(), 0,
-                    Intent("Fake intent"), 0
-                )
-            ).build()
-    )
+fun createComplicationData() =
+    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+        .setShortText(ComplicationText.plainText("Test Text"))
+        .setTapAction(
+            PendingIntent.getActivity(
+                ApplicationProvider.getApplicationContext(), 0,
+                Intent("Fake intent"), 0
+            )
+        ).build().asApiComplicationData()
 
 /**
  * We need to prevent roboloetric from instrumenting our classes or things break...

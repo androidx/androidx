@@ -23,14 +23,13 @@ import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.os.Bundle
-import android.support.wearable.complications.ComplicationData
 import androidx.annotation.ColorInt
 import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.complications.data.IdAndComplicationData
+import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
@@ -50,7 +49,7 @@ public interface CanvasComplication {
     public fun onAttach(complication: Complication)
 
     /**
-     * Draws the complication defined by [getIdAndData] into the canvas with the specified bounds.
+     * Draws the complication defined by [getData] into the canvas with the specified bounds.
      * This will usually be called by user watch face drawing code, but the system may also call it
      * for complication selection UI rendering. The width and height will be the same as that
      * computed by computeBounds but the translation and canvas size may differ.
@@ -59,13 +58,15 @@ public interface CanvasComplication {
      * @param bounds A [Rect] describing the bounds of the complication
      * @param calendar The current [Calendar]
      * @param renderParameters The current [RenderParameters]
+     * @param complicationId The Id of the parent [Complication]
      */
     @UiThread
     public fun render(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar,
-        renderParameters: RenderParameters
+        renderParameters: RenderParameters,
+        complicationId: Int
     )
 
     /**
@@ -77,21 +78,18 @@ public interface CanvasComplication {
     @set:JvmName("setIsHighlighted")
     public var isHighlighted: Boolean
 
-    /** Returns the [IdAndComplicationData] to render with. */
-    public fun getIdAndData(): IdAndComplicationData?
+    /** Returns the [ComplicationData] to render with. */
+    public fun getData(): ComplicationData?
 
     /**
-     * Sets the [IdAndComplicationData] to render with.
+     * Sets the [ComplicationData] to render with. Note ComplicationData may reference one or
+     * more [Drawable]s which get loaded as a side effect, you can choose whether this is done
+     * synchronously or asynchronously via [loadDrawablesAsynchronous].
      *
+     * @param complicationData The [ComplicationData] to render with
      * @param loadDrawablesAsynchronous Whether or not any drawables should be loaded asynchronously
-     **/
-    public fun setIdAndData(
-        idAndComplicationData: IdAndComplicationData?,
-        loadDrawablesAsynchronous: Boolean
-    )
-
-    /** The [IdAndComplicationData] should be cleared. */
-    public fun clearIdAndData()
+     */
+    public fun setData(complicationData: ComplicationData?, loadDrawablesAsynchronous: Boolean)
 }
 
 /**
@@ -154,7 +152,8 @@ public open class CanvasComplicationDrawable(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar,
-        renderParameters: RenderParameters
+        renderParameters: RenderParameters,
+        complicationId: Int
     ) {
         when (renderParameters.layerParameters[Layer.COMPLICATIONS]) {
             LayerMode.DRAW -> {
@@ -166,8 +165,7 @@ public open class CanvasComplicationDrawable(
                 drawable.bounds = bounds
                 drawable.currentTimeMillis = calendar.timeInMillis
                 val wasHighlighted = drawable.isHighlighted
-                drawable.isHighlighted =
-                    renderParameters.selectedComplicationId == getIdAndData()?.complicationId
+                drawable.isHighlighted = renderParameters.selectedComplicationId == complicationId
                 drawable.draw(canvas)
                 drawable.isHighlighted = wasHighlighted
 
@@ -215,24 +213,19 @@ public open class CanvasComplicationDrawable(
             drawable.isHighlighted = value
         }
 
-    private var _idAndData: IdAndComplicationData? = null
+    private var _data: ComplicationData? = null
 
-    override fun getIdAndData(): IdAndComplicationData? = _idAndData
+    override fun getData(): ComplicationData? = _data
 
-    override fun setIdAndData(
-        idAndComplicationData: IdAndComplicationData?,
+    override fun setData(
+        complicationData: ComplicationData?,
         loadDrawablesAsynchronous: Boolean
     ): Unit = TraceEvent("CanvasComplicationDrawable.setIdAndData").use {
-        _idAndData = idAndComplicationData
+        _data = complicationData
         drawable.setComplicationData(
-            idAndComplicationData?.complicationData?.asWireComplicationData(),
+            complicationData?.asWireComplicationData(),
             loadDrawablesAsynchronous
         )
-    }
-
-    override fun clearIdAndData() {
-        _idAndData = null
-        drawable.setComplicationData(null, false)
     }
 }
 
@@ -533,7 +526,7 @@ public class Complication internal constructor(
     internal var defaultProviderTypeDirty = true
 
     /**
-     * The default [ComplicationData.ComplicationType] to use alongside [defaultProviderPolicy].
+     * The default [ComplicationType] to use alongside [defaultProviderPolicy].
      */
     public var defaultProviderType: ComplicationType = defaultProviderType
         @UiThread
@@ -592,7 +585,7 @@ public class Complication internal constructor(
         renderParameters: RenderParameters
     ) {
         val bounds = computeBounds(Rect(0, 0, canvas.width, canvas.height))
-        renderer.render(canvas, bounds, calendar, renderParameters)
+        renderer.render(canvas, bounds, calendar, renderParameters, id)
     }
 
     /**
@@ -634,8 +627,8 @@ public class Complication internal constructor(
         // Try the current type if there is one, otherwise fall back to the bounds for the default
         // provider type.
         val unitSquareBounds =
-            renderer.getIdAndData()?.let {
-                complicationBounds.perComplicationTypeBounds[it.complicationData.type]
+            renderer.getData()?.let {
+                complicationBounds.perComplicationTypeBounds[it.type]
             } ?: complicationBounds.perComplicationTypeBounds[defaultProviderType]!!
         unitSquareBounds.intersect(unitSquare)
         return Rect(
@@ -667,7 +660,7 @@ public class Complication internal constructor(
             "defaultProviderPolicy.systemProviderFallback=" +
                 "${defaultProviderPolicy.systemProviderFallback}"
         )
-        writer.println("data=${renderer.getIdAndData()?.complicationData}")
+        writer.println("data=${renderer.getData()}")
         val bounds = complicationBounds.perComplicationTypeBounds.map {
             "${it.key} -> ${it.value}"
         }
