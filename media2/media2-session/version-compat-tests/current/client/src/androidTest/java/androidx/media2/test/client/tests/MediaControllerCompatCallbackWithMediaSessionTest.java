@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -35,9 +36,11 @@ import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.session.HeartRating;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaUtils;
 import androidx.media2.session.RemoteSessionPlayer;
+import androidx.media2.session.ThumbRating;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.PollingCheck;
@@ -50,6 +53,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -83,6 +87,75 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
     public void cleanUp() throws Exception {
         super.cleanUp();
         mSession.close();
+    }
+
+    @Test
+    public void gettersAfterConnected() throws Exception {
+        int testState = SessionPlayer.PLAYER_STATE_PLAYING;
+        int testBufferingPosition = 1500;
+        float testSpeed = 1.5f;
+        List<MediaItem> testPlaylist = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            testPlaylist.add(new MediaItem.Builder()
+                    .setMetadata(new MediaMetadata.Builder()
+                            .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, "id=" + i)
+                            .putRating(MediaMetadata.METADATA_KEY_USER_RATING, new HeartRating())
+                            .build())
+                    .build());
+        }
+        int testItemIndex = 0;
+        String testPlaylistTitle = "testPlaylistTitle";
+        MediaMetadata testPlaylistMetadata = new MediaMetadata.Builder()
+                .putText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, testPlaylistTitle).build();
+        int testShuffleMode = SessionPlayer.SHUFFLE_MODE_ALL;
+        int testRepeatMode = SessionPlayer.SHUFFLE_MODE_GROUP;
+
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setPlayerState(testState)
+                .setBufferedPosition(testBufferingPosition)
+                .setPlaybackSpeed(testSpeed)
+                .setPlaylist(testPlaylist)
+                .setPlaylistMetadata(testPlaylistMetadata)
+                .setCurrentMediaItem(testPlaylist.get(testItemIndex))
+                .setShuffleMode(testShuffleMode)
+                .setRepeatMode(testRepeatMode)
+                .build();
+        mSession.updatePlayer(playerConfig);
+
+        MediaControllerCompat controller =
+                new MediaControllerCompat(mContext, mSession.getCompatToken());
+        CountDownLatch latch = new CountDownLatch(1);
+        controller.registerCallback(
+                new MediaControllerCompat.Callback() {
+                    @Override
+                    public void onSessionReady() {
+                        latch.countDown();
+                    }
+                }, sHandler);
+
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
+        assertEquals(testState, MediaUtils.convertToPlayerState(controller.getPlaybackState()));
+        assertEquals(testBufferingPosition, controller.getPlaybackState().getBufferedPosition());
+        assertEquals(testSpeed, controller.getPlaybackState().getPlaybackSpeed(), EPSILON);
+
+        assertEquals(testPlaylist.get(testItemIndex).getMediaId(),
+                controller.getMetadata().getString(MediaMetadata.METADATA_KEY_MEDIA_ID));
+
+        List<QueueItem> queue = controller.getQueue();
+        assertNotNull(queue);
+        assertEquals(testPlaylist.size(), queue.size());
+        for (int i = 0; i < testPlaylist.size(); i++) {
+            assertEquals(testPlaylist.get(i).getMediaId(),
+                    queue.get(i).getDescription().getMediaId());
+        }
+        assertEquals(testPlaylistTitle, controller.getQueueTitle().toString());
+        // TODO(b/182255673): Remove this when the relevant fix is released.
+        if (MediaTestUtils.isServiceToT()) {
+            assertEquals(RatingCompat.RATING_HEART, controller.getRatingType());
+            assertEquals(testShuffleMode, controller.getShuffleMode());
+            assertEquals(testRepeatMode, controller.getRepeatMode());
+        }
     }
 
     @Test
@@ -154,13 +227,19 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         String testPlaylistTitle = "testPlaylistTitle";
         MediaMetadata testPlaylistMetadata = new MediaMetadata.Builder()
                 .putText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, testPlaylistTitle).build();
+        int testShuffleMode = SessionPlayer.SHUFFLE_MODE_ALL;
+        int testRepeatMode = SessionPlayer.SHUFFLE_MODE_GROUP;
 
         AtomicReference<PlaybackStateCompat> playbackStateRef = new AtomicReference<>();
         AtomicReference<MediaMetadataCompat> metadataRef = new AtomicReference<>();
         AtomicReference<CharSequence> queueTitleRef = new AtomicReference<>();
+        AtomicInteger shuffleModeRef = new AtomicInteger();
+        AtomicInteger repeatModeRef = new AtomicInteger();
         CountDownLatch latchForPlaybackState = new CountDownLatch(1);
         CountDownLatch latchForMetadata = new CountDownLatch(1);
         CountDownLatch latchForQueue = new CountDownLatch(2);
+        CountDownLatch latchForShuffleMode = new CountDownLatch(1);
+        CountDownLatch latchForRepeatMode = new CountDownLatch(1);
         MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
             @Override
             public void onPlaybackStateChanged(PlaybackStateCompat state) {
@@ -184,6 +263,18 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
                 queueTitleRef.set(title);
                 latchForQueue.countDown();
             }
+
+            @Override
+            public void onShuffleModeChanged(int shuffleMode) {
+                shuffleModeRef.set(shuffleMode);
+                latchForShuffleMode.countDown();
+            }
+
+            @Override
+            public void onRepeatModeChanged(int repeatMode) {
+                repeatModeRef.set(repeatMode);
+                latchForRepeatMode.countDown();
+            }
         };
         mControllerCompat.registerCallback(callback, sHandler);
 
@@ -194,6 +285,8 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
                 .setPlaylist(testPlaylist)
                 .setPlaylistMetadata(testPlaylistMetadata)
                 .setCurrentMediaItem(testPlaylist.get(testItemIndex))
+                .setShuffleMode(testShuffleMode)
+                .setRepeatMode(testRepeatMode)
                 .build();
         mSession.updatePlayer(playerConfig);
 
@@ -215,6 +308,14 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
                     queue.get(i).getDescription().getMediaId());
         }
         assertEquals(testPlaylistTitle, queueTitleRef.get().toString());
+
+        // TODO(b/182255673): Remove this when the relevant fix is released.
+        if (MediaTestUtils.isServiceToT()) {
+            assertTrue(latchForShuffleMode.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            assertEquals(testShuffleMode, shuffleModeRef.get());
+            assertTrue(latchForRepeatMode.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            assertEquals(testRepeatMode, repeatModeRef.get());
+        }
     }
 
     @Test
@@ -502,7 +603,9 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         long testPosition = 1234;
         String displayTitle = "displayTitle";
         MediaMetadata metadata = new MediaMetadata.Builder()
-                .putText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, displayTitle).build();
+                .putText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, displayTitle)
+                .putRating(MediaMetadata.METADATA_KEY_USER_RATING, new ThumbRating())
+                .build();
         MediaItem currentMediaItem = new FileMediaItem.Builder(ParcelFileDescriptor.adoptFd(-1))
                 .setMetadata(metadata)
                 .build();
@@ -550,6 +653,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
                     playbackStateRef.get().getActiveQueueItemId());
             assertEquals(MediaUtils.convertToQueueItemId(testItemIndex),
                     mControllerCompat.getPlaybackState().getActiveQueueItemId());
+            assertEquals(RatingCompat.RATING_THUMB_UP_DOWN, mControllerCompat.getRatingType());
         }
     }
 

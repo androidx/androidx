@@ -35,6 +35,7 @@ import static androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_ID;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_URI;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_PLAYABLE;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_TITLE;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_USER_RATING;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SELECT_TRACK;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED;
@@ -44,6 +45,7 @@ import static androidx.media2.session.SessionCommand.COMMAND_VERSION_1;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.BadParcelableException;
 import android.os.Build;
@@ -309,15 +311,19 @@ public class MediaUtils {
 
     /**
      * Convert a {@link MediaMetadataCompat} from the {@link MediaControllerCompat#getMetadata()}
-     * to a {@link MediaItem}.
+     * and rating type to a {@link MediaItem}.
      */
-    public static MediaItem convertToMediaItem(MediaMetadataCompat metadataCompat) {
+    @Nullable
+    public static MediaItem convertToMediaItem(@Nullable MediaMetadataCompat metadataCompat,
+            int ratingType) {
         if (metadataCompat == null) {
             return null;
         }
         // Item is from the MediaControllerCompat, so forcefully set the playable.
         MediaMetadata.Builder builder = new MediaMetadata.Builder()
-                .putLong(METADATA_KEY_PLAYABLE, 1);
+                .putLong(METADATA_KEY_PLAYABLE, 1)
+                .putRating(METADATA_KEY_USER_RATING,
+                        MediaUtils.convertToRating(RatingCompat.newUnratedRating(ratingType)));
         for (String key : metadataCompat.keySet()) {
             Object value = metadataCompat.getBundle().get(key);
             String metadataKey = METADATA_COMPAT_KEY_TO_METADATA_KEY.containsKey(key)
@@ -346,7 +352,8 @@ public class MediaUtils {
     /**
      * Convert a {@link MediaDescriptionCompat} to a {@link MediaItem}.
      */
-    public static MediaItem convertToMediaItem(MediaDescriptionCompat descriptionCompat) {
+    @Nullable
+    public static MediaItem convertToMediaItem(@Nullable MediaDescriptionCompat descriptionCompat) {
         MediaMetadata metadata = convertToMediaMetadata(descriptionCompat, false, true);
         if (metadata == null) {
             return null;
@@ -955,6 +962,29 @@ public class MediaUtils {
             layout.add(button);
         }
         return layout;
+    }
+
+    /**
+     * Gets the legacy stream type from {@link androidx.media.AudioAttributesCompat}.
+     *
+     * @param attrs audio attributes
+     * @return int legacy stream type from {@link AudioManager}
+     **/
+    public static int getLegacyStreamType(@Nullable AudioAttributesCompat attrs) {
+        int stream;
+        if (attrs == null) {
+            stream = AudioManager.STREAM_MUSIC;
+        } else {
+            stream = attrs.getLegacyStreamType();
+            if (stream == AudioManager.USE_DEFAULT_STREAM_TYPE) {
+                // Usually, AudioAttributesCompat#getLegacyStreamType() does not return
+                // USE_DEFAULT_STREAM_TYPE unless the developer sets it with
+                // AudioAttributesCompat.Builder#setLegacyStreamType().
+                // But for safety, let's convert USE_DEFAULT_STREAM_TYPE to STREAM_MUSIC here.
+                stream = AudioManager.STREAM_MUSIC;
+            }
+        }
+        return stream;
     }
 
     @SuppressWarnings("ParcelClassLoader")

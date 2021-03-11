@@ -188,8 +188,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
         assertEquals(seekPosition, mPlayer.mSeekPosition);
     }
 
-
-
     @Test
     public void gettersAfterConnected() throws InterruptedException {
         final int state = SessionPlayer.PLAYER_STATE_PLAYING;
@@ -199,6 +197,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final float speed = 0.5f;
         final long timeDiff = 102;
         final MediaItem currentMediaItem = TestUtils.createMediaItemWithMetadata();
+        final int shuffleMode = SessionPlayer.SHUFFLE_MODE_ALL;
+        final int repeatMode = SessionPlayer.REPEAT_MODE_ONE;
 
         mPlayer.mLastPlayerState = state;
         mPlayer.mLastBufferingState = bufferingState;
@@ -206,6 +206,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         mPlayer.mBufferedPosition = bufferedPosition;
         mPlayer.mPlaybackSpeed = speed;
         mPlayer.mCurrentMediaItem = currentMediaItem;
+        mPlayer.mShuffleMode = shuffleMode;
+        mPlayer.mRepeatMode = repeatMode;
 
         MediaController controller = createController(mSession.getToken());
         controller.setTimeDiff(timeDiff);
@@ -214,6 +216,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         assertEquals(speed, controller.getPlaybackSpeed(), 0.0f);
         assertEquals(position + (long) (speed * timeDiff), controller.getCurrentPosition());
         assertEquals(currentMediaItem, controller.getCurrentMediaItem());
+        assertEquals(shuffleMode, controller.getShuffleMode());
+        assertEquals(repeatMode, controller.getRepeatMode());
     }
 
     @Test
@@ -222,7 +226,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final List<MediaItem> testPlaylist = TestUtils.createMediaItems(3);
         final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_RING).build();
-        final CountDownLatch latch = new CountDownLatch(3);
+        final int testShuffleMode = SessionPlayer.SHUFFLE_MODE_ALL;
+        final int testRepeatMode = SessionPlayer.REPEAT_MODE_ONE;
+        final CountDownLatch latch = new CountDownLatch(5);
         mController = createController(mSession.getToken(), true, null, new ControllerCallback() {
             @Override
             public void onPlayerStateChanged(@NonNull MediaController controller, int state) {
@@ -247,12 +253,32 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 assertEquals(testAudioAttributes, info.getAudioAttributes());
                 latch.countDown();
             }
+
+            @Override
+            public void onShuffleModeChanged(
+                    @NonNull MediaController controller,
+                    int shuffleMode) {
+                assertEquals(mController, controller);
+                assertEquals(testShuffleMode, shuffleMode);
+                latch.countDown();
+            }
+
+            @Override
+            public void onRepeatModeChanged(
+                    @NonNull MediaController controller,
+                    int repeatMode) {
+                assertEquals(mController, controller);
+                assertEquals(testRepeatMode, repeatMode);
+                latch.countDown();
+            }
         });
 
         MockPlayer player = new MockPlayer(0);
         player.mLastPlayerState = testState;
         player.mAudioAttributes = testAudioAttributes;
         player.mPlaylist = testPlaylist;
+        player.mShuffleMode = testShuffleMode;
+        player.mRepeatMode = testRepeatMode;
 
         mSession.updatePlayer(player);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
