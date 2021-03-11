@@ -19,7 +19,6 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.XFiler
 import com.squareup.javapoet.JavaFile
 import com.squareup.kotlinpoet.FileSpec
-import javax.annotation.processing.Filer
 import javax.annotation.processing.ProcessingEnvironment
 
 internal class JavacFiler(val processingEnv: ProcessingEnvironment) : XFiler {
