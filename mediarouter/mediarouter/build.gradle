@@ -27,6 +27,7 @@ dependencies {
     api("androidx.media:media:1.2.0")
     api(GUAVA_LISTENABLE_FUTURE)
 
+    implementation(project(":core:core"))
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.palette:palette:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
