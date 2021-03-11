@@ -127,4 +127,18 @@ public class FragmentStrictModeTest {
             assertThat(thread).isEqualTo(Looper.getMainLooper().thread)
         }
     }
+
+    @Test
+    public fun detectSetUserVisibleHint() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectSetUserVisibleHint()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        @Suppress("DEPRECATION")
+        StrictFragment().userVisibleHint = true
+        assertThat(violation).isInstanceOf(SetUserVisibleHintViolation::class.java)
+    }
 }
