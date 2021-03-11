@@ -85,7 +85,7 @@ public class PreviewTransformationDeviceTest {
                 Rect(
                     0,
                     0,
-                    PREVIEW_VIEW_SIZE.height,
+                    PREVIEW_VIEW_SIZE.height + 1,
                     PREVIEW_VIEW_SIZE.width - 1
                 )
             )
@@ -99,7 +99,7 @@ public class PreviewTransformationDeviceTest {
                 Rect(
                     0,
                     0,
-                    PREVIEW_VIEW_SIZE.height,
+                    PREVIEW_VIEW_SIZE.height + 2,
                     PREVIEW_VIEW_SIZE.width - 2
                 )
             )

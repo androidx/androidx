@@ -32,21 +32,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 public class CoordinateTransformDeviceTest {
 
-    @Test(expected = IllegalArgumentException::class)
-    public fun mismatchViewPort_throwsException() {
-        // Arrange: create 2 imageProxy with mismatched viewport aspect ratio.
-        val imageProxyTransformFactory = ImageProxyTransformFactory.Builder().build()
-        val source = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(300, 400, 0, Rect(0, 0, 300, 400))
-        )
-        val target = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(300, 400, 0, Rect(0, 0, 200, 400))
-        )
-
-        // Act: creating CoordinateTransform throws exception.
-        CoordinateTransform(source, target)
-    }
-
     @Test
     public fun sameSourceAndTarget_getsIdentityMatrix() {
         // Arrange.
