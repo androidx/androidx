@@ -87,9 +87,10 @@ def lintOutputFile = project.file("${buildDir}/reports/lint-results-debug.xml")
 def lintOutputFileNormalized = project.file("${buildDir}/lint-results-normalized/lint-results-debug.xml.normalized")
 
 def normalizeLintOutput = tasks.register("normalizeLintOutput", Copy) {
+    def supportRootFolder = project.rootProject.ext.supportRootFolder
     from(lintOutputFile) {
         filter { line ->
-            return line.replace("${project.rootProject.projectDir}", "\$SUPPORT")
+            return line.replace(supportRootFolder.getAbsolutePath(), "\$SUPPORT")
         }
     }
     into(lintOutputFileNormalized.parentFile)
