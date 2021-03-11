@@ -16,6 +16,10 @@
 
 package androidx.appsearch.localstorage;
 
+import static androidx.appsearch.localstorage.util.PrefixUtil.addPrefixToDocument;
+import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
+import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromDocument;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -31,6 +35,7 @@ import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
+import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.test.core.app.ApplicationProvider;
@@ -46,6 +51,7 @@ import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import org.junit.Before;
@@ -90,38 +96,52 @@ public class AppSearchImplTest {
         // Create a copy so we can modify it.
         List<SchemaTypeConfigProto> existingTypes =
                 new ArrayList<>(existingSchemaBuilder.getTypesList());
-
-        SchemaProto newSchema = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("Foo").build())
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("TestType")
-                        .addProperties(PropertyConfigProto.newBuilder()
-                                .setPropertyName("subject")
-                                .setDataType(PropertyConfigProto.DataType.Code.STRING)
-                                .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                                .setStringIndexingConfig(StringIndexingConfig.newBuilder()
-                                        .setTokenizerType(
-                                                StringIndexingConfig.TokenizerType.Code.PLAIN)
-                                        .setTermMatchType(TermMatchType.Code.PREFIX)
-                                        .build()
-                                ).build()
-                        ).addProperties(PropertyConfigProto.newBuilder()
-                                .setPropertyName("link")
-                                .setDataType(PropertyConfigProto.DataType.Code.DOCUMENT)
-                                .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                                .setSchemaType("RefType")
+        SchemaTypeConfigProto schemaTypeConfigProto1 = SchemaTypeConfigProto.newBuilder()
+                .setSchemaType("Foo").build();
+        SchemaTypeConfigProto schemaTypeConfigProto2 = SchemaTypeConfigProto.newBuilder()
+                .setSchemaType("TestType")
+                .addProperties(PropertyConfigProto.newBuilder()
+                        .setPropertyName("subject")
+                        .setDataType(PropertyConfigProto.DataType.Code.STRING)
+                        .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
+                        .setStringIndexingConfig(StringIndexingConfig.newBuilder()
+                                .setTokenizerType(
+                                        StringIndexingConfig.TokenizerType.Code.PLAIN)
+                                .setTermMatchType(TermMatchType.Code.PREFIX)
                                 .build()
                         ).build()
+                ).addProperties(PropertyConfigProto.newBuilder()
+                        .setPropertyName("link")
+                        .setDataType(PropertyConfigProto.DataType.Code.DOCUMENT)
+                        .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
+                        .setSchemaType("RefType")
+                        .build()
                 ).build();
+        SchemaTypeConfigProto schemaTypeConfigProto3 = SchemaTypeConfigProto.newBuilder()
+                .setSchemaType("RefType").build();
+        SchemaProto newSchema = SchemaProto.newBuilder()
+                .addTypes(schemaTypeConfigProto1)
+                .addTypes(schemaTypeConfigProto2)
+                .addTypes(schemaTypeConfigProto3)
+                .build();
 
         AppSearchImpl.RewrittenSchemaResults rewrittenSchemaResults = mAppSearchImpl.rewriteSchema(
-                AppSearchImpl.createPrefix("package", "newDatabase"), existingSchemaBuilder,
+                createPrefix("package", "newDatabase"), existingSchemaBuilder,
                 newSchema);
 
         // We rewrote all the new types that were added. And nothing was removed.
-        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes)
-                .containsExactly("package$newDatabase/Foo", "package$newDatabase/TestType");
+        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes.keySet()).containsExactly(
+                "package$newDatabase/Foo", "package$newDatabase/TestType",
+                "package$newDatabase/RefType");
+        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes.get(
+                "package$newDatabase/Foo").getSchemaType()).isEqualTo(
+                "package$newDatabase/Foo");
+        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes.get(
+                "package$newDatabase/TestType").getSchemaType()).isEqualTo(
+                "package$newDatabase/TestType");
+        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes.get(
+                "package$newDatabase/RefType").getSchemaType()).isEqualTo(
+                "package$newDatabase/RefType");
         assertThat(rewrittenSchemaResults.mDeletedPrefixedTypes).isEmpty();
 
         SchemaProto expectedSchema = SchemaProto.newBuilder()
@@ -146,6 +166,8 @@ public class AppSearchImplTest {
                                 .setSchemaType("package$newDatabase/RefType")
                                 .build()
                         ).build())
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("package$newDatabase/RefType").build())
                 .build();
 
         existingTypes.addAll(expectedSchema.getTypesList());
@@ -168,12 +190,12 @@ public class AppSearchImplTest {
                 .build();
 
         AppSearchImpl.RewrittenSchemaResults rewrittenSchemaResults = mAppSearchImpl.rewriteSchema(
-                AppSearchImpl.createPrefix("package", "existingDatabase"), existingSchemaBuilder,
+                createPrefix("package", "existingDatabase"), existingSchemaBuilder,
                 newSchema);
 
         // Nothing was removed, but the method did rewrite the type name.
-        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes)
-                .containsExactly("package$existingDatabase/Foo");
+        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes.keySet()).containsExactly(
+                "package$existingDatabase/Foo");
         assertThat(rewrittenSchemaResults.mDeletedPrefixedTypes).isEmpty();
 
         // Same schema since nothing was added.
@@ -198,13 +220,14 @@ public class AppSearchImplTest {
                 .build();
 
         AppSearchImpl.RewrittenSchemaResults rewrittenSchemaResults = mAppSearchImpl.rewriteSchema(
-                AppSearchImpl.createPrefix("package", "existingDatabase"), existingSchemaBuilder,
+                createPrefix("package", "existingDatabase"), existingSchemaBuilder,
                 newSchema);
 
         // Bar type was rewritten, but Foo ended up being deleted since it wasn't included in the
         // new schema.
         assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes)
-                .containsExactly("package$existingDatabase/Bar");
+                .containsKey("package$existingDatabase/Bar");
+        assertThat(rewrittenSchemaResults.mRewrittenPrefixedTypes.keySet().size()).isEqualTo(1);
         assertThat(rewrittenSchemaResults.mDeletedPrefixedTypes)
                 .containsExactly("package$existingDatabase/Foo");
 
@@ -245,7 +268,7 @@ public class AppSearchImplTest {
                 .build();
 
         DocumentProto.Builder actualDocument = documentProto.toBuilder();
-        mAppSearchImpl.addPrefixToDocument(actualDocument, AppSearchImpl.createPrefix("package",
+        addPrefixToDocument(actualDocument, createPrefix("package",
                 "databaseName"));
         assertThat(actualDocument.build()).isEqualTo(expectedDocumentProto);
     }
@@ -278,7 +301,7 @@ public class AppSearchImplTest {
                 .build();
 
         DocumentProto.Builder actualDocument = documentProto.toBuilder();
-        assertThat(mAppSearchImpl.removePrefixesFromDocument(actualDocument)).isEqualTo(
+        assertThat(removePrefixesFromDocument(actualDocument)).isEqualTo(
                 "package$databaseName/");
         assertThat(actualDocument.build()).isEqualTo(expectedDocumentProto);
     }
@@ -294,7 +317,7 @@ public class AppSearchImplTest {
 
         DocumentProto.Builder actualDocument = documentProto.toBuilder();
         AppSearchException e = assertThrows(AppSearchException.class, () ->
-                mAppSearchImpl.removePrefixesFromDocument(actualDocument));
+                removePrefixesFromDocument(actualDocument));
         assertThat(e).hasMessageThat().contains("Found unexpected multiple prefix names");
     }
 
@@ -316,7 +339,7 @@ public class AppSearchImplTest {
 
         DocumentProto.Builder actualDocument = documentProto.toBuilder();
         AppSearchException e = assertThrows(AppSearchException.class, () ->
-                mAppSearchImpl.removePrefixesFromDocument(actualDocument));
+                removePrefixesFromDocument(actualDocument));
         assertThat(e).hasMessageThat().contains("Found unexpected multiple prefix names");
     }
 
@@ -394,7 +417,7 @@ public class AppSearchImplTest {
 
         // Rewrite SearchSpec
         mAppSearchImpl.rewriteSearchSpecForPrefixesLocked(searchSpecProto,
-                Collections.singleton(AppSearchImpl.createPrefix("package", "database")),
+                Collections.singleton(createPrefix("package", "database")),
                 ImmutableSet.of("package$database/type"));
         assertThat(searchSpecProto.getSchemaTypeFiltersList()).containsExactly(
                 "package$database/type");
@@ -429,8 +452,8 @@ public class AppSearchImplTest {
 
         // Rewrite SearchSpec
         mAppSearchImpl.rewriteSearchSpecForPrefixesLocked(searchSpecProto,
-                ImmutableSet.of(AppSearchImpl.createPrefix("package", "database1"),
-                        AppSearchImpl.createPrefix("package", "database2")), ImmutableSet.of(
+                ImmutableSet.of(createPrefix("package", "database1"),
+                        createPrefix("package", "database2")), ImmutableSet.of(
                         "package$database1/typeA", "package$database1/typeB",
                         "package$database2/typeA", "package$database2/typeB"));
         assertThat(searchSpecProto.getSchemaTypeFiltersList()).containsExactly(
@@ -460,7 +483,7 @@ public class AppSearchImplTest {
         // If 'allowedPrefixedSchemas' is empty, this returns false since there's nothing to
         // search over. Despite the searchSpecProto having schema type filters.
         assertThat(mAppSearchImpl.rewriteSearchSpecForPrefixesLocked(searchSpecProto,
-                Collections.singleton(AppSearchImpl.createPrefix("package", "database")),
+                Collections.singleton(createPrefix("package", "database")),
                 /*allowedPrefixedSchemas=*/ Collections.emptySet())).isFalse();
     }
 
@@ -868,7 +891,7 @@ public class AppSearchImplTest {
 
         // Has database1
         Set<String> expectedPrefixes = new ArraySet<>(existingPrefixes);
-        expectedPrefixes.add(AppSearchImpl.createPrefix("package", "database1"));
+        expectedPrefixes.add(createPrefix("package", "database1"));
         mAppSearchImpl.setSchema("package", "database1",
                 Collections.singletonList(new AppSearchSchema.Builder(
                         "schema").build()), /*schemasNotPlatformSurfaceable=*/
@@ -877,7 +900,7 @@ public class AppSearchImplTest {
         assertThat(mAppSearchImpl.getPrefixesLocked()).containsExactlyElementsIn(expectedPrefixes);
 
         // Has both databases
-        expectedPrefixes.add(AppSearchImpl.createPrefix("package", "database2"));
+        expectedPrefixes.add(createPrefix("package", "database2"));
         mAppSearchImpl.setSchema("package", "database2",
                 Collections.singletonList(new AppSearchSchema.Builder(
                         "schema").build()), /*schemasNotPlatformSurfaceable=*/
@@ -889,8 +912,8 @@ public class AppSearchImplTest {
     @Test
     public void testRewriteSearchResultProto() throws Exception {
         final String prefix =
-                "com.package.foo" + AppSearchImpl.PACKAGE_DELIMITER + "databaseName"
-                        + AppSearchImpl.DATABASE_DELIMITER;
+                "com.package.foo" + PrefixUtil.PACKAGE_DELIMITER + "databaseName"
+                        + PrefixUtil.DATABASE_DELIMITER;
         final String uri = "uri";
         final String namespace = prefix + "namespace";
         final String schemaType = prefix + "schema";
@@ -907,17 +930,23 @@ public class AppSearchImplTest {
         SearchResultProto searchResultProto = SearchResultProto.newBuilder()
                 .addResults(resultProto)
                 .build();
+        SchemaTypeConfigProto schemaTypeConfigProto =
+                SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType(schemaType)
+                        .build();
+        Map<String, Map<String, SchemaTypeConfigProto>> schemaMap = ImmutableMap.of(prefix,
+                ImmutableMap.of(schemaType, schemaTypeConfigProto));
 
         DocumentProto.Builder strippedDocumentProto = documentProto.toBuilder();
-        AppSearchImpl.removePrefixesFromDocument(strippedDocumentProto);
+        removePrefixesFromDocument(strippedDocumentProto);
         SearchResultPage searchResultPage =
-                AppSearchImpl.rewriteSearchResultProto(searchResultProto);
+                AppSearchImpl.rewriteSearchResultProto(searchResultProto, schemaMap);
         for (SearchResult result : searchResultPage.getResults()) {
             assertThat(result.getPackageName()).isEqualTo("com.package.foo");
             assertThat(result.getDatabaseName()).isEqualTo("databaseName");
             assertThat(result.getGenericDocument()).isEqualTo(
                     GenericDocumentToProtoConverter.toGenericDocument(
-                            strippedDocumentProto.build()));
+                            strippedDocumentProto.build(), prefix, schemaMap.get(prefix)));
         }
     }
 

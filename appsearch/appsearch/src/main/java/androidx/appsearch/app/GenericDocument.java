@@ -752,8 +752,7 @@ public class GenericDocument {
          *
          * @param key    the key associated with the {@code values}.
          * @param values the {@code boolean} values of the property.
-         * @throws IllegalArgumentException if no values are provided or if values exceed maximum
-         *                                  repeated property length.
+         * @throws IllegalArgumentException if values exceed maximum repeated property length.
          * @throws IllegalStateException    if the builder has already been used.
          */
         @NonNull
@@ -771,8 +770,7 @@ public class GenericDocument {
          *
          * @param key    the key associated with the {@code values}.
          * @param values the {@code long} values of the property.
-         * @throws IllegalArgumentException if no values are provided or if values exceed maximum
-         *                                  repeated property length.
+         * @throws IllegalArgumentException if values exceed maximum repeated property length.
          * @throws IllegalStateException    if the builder has already been used.
          */
         @NonNull
@@ -790,8 +788,7 @@ public class GenericDocument {
          *
          * @param key    the key associated with the {@code values}.
          * @param values the {@code double} values of the property.
-         * @throws IllegalArgumentException if no values are provided or if values exceed maximum
-         *                                  repeated property length.
+         * @throws IllegalArgumentException if values exceed maximum repeated property length.
          * @throws IllegalStateException    if the builder has already been used.
          */
         @NonNull
@@ -908,9 +905,7 @@ public class GenericDocument {
         }
 
         private static void validateRepeatedPropertyLength(@NonNull String key, int length) {
-            if (length == 0) {
-                throw new IllegalArgumentException("The input array is empty.");
-            } else if (length > MAX_REPEATED_PROPERTY_LENGTH) {
+            if (length > MAX_REPEATED_PROPERTY_LENGTH) {
                 throw new IllegalArgumentException(
                         "Repeated property \"" + key + "\" has length " + length
                                 + ", which exceeds the limit of "
