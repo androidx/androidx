@@ -217,6 +217,11 @@ trace enabled, e.g. `GIT_DAPPER_TRACE=1 repo --trace upload . --cbr -y`. These
 logs can be helpful for reporting issues to the team that manages our git
 servers.
 
+NOTE If `repo upload` or any `git` command hangs and causes your CPU usage to
+skyrocket (e.g. your laptop fan sounds like a jet engine), then you may be
+hitting a rare issue with Git-on-Borg and HTTP/2. You can force `git` and `repo`
+to use HTTP/1.1 with `git config --global http.version HTTP/1.1`.
+
 ## Building {#building}
 
 ### Modules and Maven artifacts {#modules-and-maven-artifacts}
@@ -228,11 +233,12 @@ example, if you are working on `core` module use:
 ./gradlew core:core:assemble
 ```
 
-Use the `-Pandroidx.allWarningsAsErrors` to make warnings fail your build (same
-as presubmits):
+To make warnings fail your build (same as presubmit), use the `--strict` flag,
+which our gradlew expands into a few correctness-related flags including
+`-Pandroidx.allWarningsAsErrors`:
 
 ```shell
-./gradlew core:core:assemble -Pandroidx.allWarningsAsErrors
+./gradlew core:core:assemble --strict
 ```
 
 To build every module, run the Lint verifier, verify the public API surface, and
@@ -243,11 +249,11 @@ task:
 ./gradlew createArchive
 ```
 
-To run the complete build task that our build servers use, use the
-`buildOnServer` Gradle task:
+To run the complete build task that our build servers use, use the corresponding
+shell script:
 
 ```shell
-./gradlew buildOnServer
+./busytown/androidx.sh
 ```
 
 ### Attaching a debugger to the build

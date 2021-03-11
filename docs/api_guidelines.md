@@ -1223,20 +1223,63 @@ scopes:
     <tr>
         <td><code>RestrictTo.Scope</code></td>
         <td>Visibility by Maven coordinate</td>
+        <td>Versioning</td>
     </tr>
     <tr>
         <td><code>LIBRARY</code></td>
         <td><code>androidx.concurrent:concurrent</code></td>
+        <td>No compatibility gurantees (same as private)</td>
     </tr>
     <tr>
         <td><code>LIBRARY_GROUP</code></td>
         <td><code>androidx.concurrent:*</code></td>
+        <td>Semantic versioning (including deprecation)</td>
     </tr>
     <tr>
         <td><code>LIBRARY_GROUP_PREFIX</code></td>
         <td><code>androidx.*:*</code></td>
+        <td>Semantic versioning (including deprecation)</td>
     </tr>
 </table>
+
+#### `@IntDef` `@StringDef` and `@LongDef` and visibility
+
+All `@IntDef`, `@StringDef`, and `@LongDef` will be stripped from resulting
+artifacts to avoid issues where compiler inlining constants removes information
+as to which `@IntDef` defined the value of `1`. The annotations are extracted
+and packaged separately to be read by Android Studio and lint which enforces the
+types in application code.
+
+*   Libraries _must_ `@hide` all `@IntDef`, `@StringDef`, and `@LongDef`
+    declarations.
+*   Libraries _must_ expose constants used to define the `@IntDef` etc at the
+    same Java visibility as the hidden `@IntDef`
+*   Libraries _should_ also use @RestrictTo to create a warning when the type
+    used incorrectly.
+
+Here is a complete example of an `@IntDef`
+
+```java
+// constants match Java visibility of ExifStreamType
+// code outside this module interacting with ExifStreamType uses these constants
+public static final int STREAM_TYPE_FULL_IMAGE_DATA = 1;
+public static final int STREAM_TYPE_EXIF_DATA_ONLY = 2;
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY) // Don't export ExifStreamType outside module
+@Retention(RetentionPolicy.SOURCE)
+@IntDef({
+  STREAM_TYPE_FULL_IMAGE_DATA,
+  STREAM_TYPE_EXIF_DATA_ONLY,
+})
+public @interface ExifStreamType {}
+```
+
+Java visibilty should be set as appropriate for the code in question (`private`,
+`package` or `public`) and is unrelated to hiding.
+
+For more, read the section in
+[Android API Council Guidelines](https://android.googlesource.com/platform/developers/docs/+/refs/heads/master/api-guidelines/index.md#no-public-typedefs)
 
 ### Constructors {#constructors}
 
