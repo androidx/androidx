@@ -226,7 +226,7 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
         return when {
             length < other.length -> true
             length > other.length -> false
-            else -> this < other
+            else -> this > other
         }
     }
 }
