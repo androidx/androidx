@@ -190,6 +190,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Action.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Action.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
     method public androidx.car.app.model.Action.Builder setTitle(CharSequence);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.Action.Builder setTitle(androidx.car.app.model.CarText);
   }
 
   public final class ActionStrip {
@@ -345,7 +346,9 @@ package androidx.car.app.model {
     method public androidx.car.app.model.GridItem.Builder setLoading(boolean);
     method public androidx.car.app.model.GridItem.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
     method public androidx.car.app.model.GridItem.Builder setText(CharSequence);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.GridItem.Builder setText(androidx.car.app.model.CarText);
     method public androidx.car.app.model.GridItem.Builder setTitle(CharSequence);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.GridItem.Builder setTitle(androidx.car.app.model.CarText);
   }
 
   public final class GridTemplate implements androidx.car.app.model.Template {
@@ -797,9 +800,11 @@ package androidx.car.app.navigation.model {
 
   public static final class MessageInfo.Builder {
     ctor public MessageInfo.Builder(CharSequence);
+    ctor @androidx.car.app.annotations.ExperimentalCarApi public MessageInfo.Builder(androidx.car.app.model.CarText);
     method public androidx.car.app.navigation.model.MessageInfo build();
     method public androidx.car.app.navigation.model.MessageInfo.Builder setImage(androidx.car.app.model.CarIcon);
     method public androidx.car.app.navigation.model.MessageInfo.Builder setText(CharSequence);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.navigation.model.MessageInfo.Builder setText(androidx.car.app.model.CarText);
     method public androidx.car.app.navigation.model.MessageInfo.Builder setTitle(CharSequence);
   }
 
@@ -887,6 +892,7 @@ package androidx.car.app.navigation.model {
 
   public static final class Step.Builder {
     ctor public Step.Builder(CharSequence);
+    ctor @androidx.car.app.annotations.ExperimentalCarApi public Step.Builder(androidx.car.app.model.CarText);
     method public androidx.car.app.navigation.model.Step.Builder addLane(androidx.car.app.navigation.model.Lane);
     method public androidx.car.app.navigation.model.Step build();
     method public androidx.car.app.navigation.model.Step.Builder setCue(CharSequence);

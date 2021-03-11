@@ -105,6 +105,17 @@ public class ActionTest {
     }
 
     @Test
+    public void create_titleHasTextVariants() {
+        CarText title = new CarText.Builder("foo long text").addVariant("foo").build();
+        OnClickListener onClickListener = mock(OnClickListener.class);
+        Action action = new Action.Builder().setTitle(title).setOnClickListener(
+                onClickListener).build();
+        assertThat(action.getTitle()).isNotNull();
+        assertThat(action.getTitle().toCharSequence().toString()).isEqualTo("foo long text");
+        assertThat(action.getTitle().getVariants().get(0).toString()).isEqualTo("foo");
+    }
+
+    @Test
     public void create_noBackgroundColorDefault() {
         OnClickListener onClickListener = mock(OnClickListener.class);
         Action action = new Action.Builder().setTitle("foo").setOnClickListener(

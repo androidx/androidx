@@ -64,6 +64,15 @@ public class GridItemTest {
     }
 
     @Test
+    public void title_variants() {
+        CarText title = new CarText.Builder("Foo Long").addVariant("Foo").build();
+        GridItem gridItem = new GridItem.Builder().setTitle(title).setImage(BACK).build();
+
+        assertThat(gridItem.getTitle().toString()).isEqualTo("Foo Long");
+        assertThat(gridItem.getTitle().getVariants().get(0).toString()).isEqualTo("Foo");
+    }
+
+    @Test
     public void title_throwsIfNotSet() {
         // Not set
         assertThrows(IllegalStateException.class,
@@ -82,6 +91,16 @@ public class GridItemTest {
                 BACK).build();
 
         assertThat(CarText.create(text)).isEqualTo(gridItem.getText());
+    }
+
+    @Test
+    public void text_variants() {
+        CarText text = new CarText.Builder("Foo Long").addVariant("Foo").build();
+        GridItem gridItem = new GridItem.Builder().setTitle("title").setText(text).setImage(
+                BACK).build();
+
+        assertThat(gridItem.getText().toString()).isEqualTo("Foo Long");
+        assertThat(gridItem.getText().getVariants().get(0).toString()).isEqualTo("Foo");
     }
 
     @Test
