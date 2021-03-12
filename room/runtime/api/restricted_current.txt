@@ -300,6 +300,7 @@ package androidx.room.util {
   public static final class TableInfo.Column {
     ctor @Deprecated public TableInfo.Column(String!, String!, boolean, int);
     ctor public TableInfo.Column(String!, String!, boolean, int, String!, int);
+    method public static boolean defaultValueEquals(String, String?);
     method public boolean isPrimaryKey();
     field @androidx.room.ColumnInfo.SQLiteTypeAffinity public final int affinity;
     field public final String! defaultValue;

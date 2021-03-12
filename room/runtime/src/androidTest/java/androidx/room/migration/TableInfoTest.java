@@ -17,6 +17,8 @@
 package androidx.room.migration;
 
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -46,6 +48,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
@@ -400,5 +403,75 @@ public class TableInfoTest {
                             }
                         }).build()
         ).getWritableDatabase();
+    }
+
+    @Test
+    public void testSurroundingParenthesis() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name INTEGER NOT NULL DEFAULT ((0) + (1 + 2)))");
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+
+        assertThat("((0) + (1 + 2))")
+                .isNotEqualTo(Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue);
+
+        assertThat(TableInfo.Column.defaultValueEquals(
+                "((0) + (1 + 2))",
+                Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue)).isTrue();
+    }
+
+    @Test
+    public void testDoubleSurroundingParenthesis() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name INTEGER NOT NULL DEFAULT (((0) + (1 + 2))))");
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+
+        assertThat("(((0) + (1 + 2)))")
+                .isNotEqualTo(Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue);
+
+        assertThat(TableInfo.Column.defaultValueEquals(
+                "(((0) + (1 + 2)))",
+                Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue));
+    }
+
+    @Test
+    public void testMultipleParenthesisWithSurrounding() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name INTEGER NOT NULL DEFAULT (((3 + 5) + (2 + 1)) + (1 + 2)))");
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+
+        assertThat("(((3 + 5) + (2 + 1)) + (1 + 2))")
+                .isNotEqualTo(Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue);
+
+        assertThat(TableInfo.Column.defaultValueEquals(
+                "(((3 + 5) + (2 + 1)) + (1 + 2))",
+                Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue));
+    }
+
+    @Test
+    public void testSurroundingParenthesisWithSpacesBefore() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name INTEGER NOT NULL DEFAULT (    (0) + (1 + 2)))");
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+
+        assertThat("(    (0) + (1 + 2))")
+                .isNotEqualTo(Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue);
+
+        assertThat(TableInfo.Column.defaultValueEquals(
+                "(    (0) + (1 + 2))",
+                Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue));
+    }
+
+    @Test
+    public void testSurroundingParenthesisWithSpacesAfter() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name INTEGER NOT NULL DEFAULT ((0) + (1 + 2)    ))");
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+
+        assertThat("((0) + (1 + 2)    )")
+                .isNotEqualTo(Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue);
+
+        assertThat(TableInfo.Column.defaultValueEquals(
+                "((0) + (1 + 2)    )",
+                Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue)).isTrue();
     }
 }
