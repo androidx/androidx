@@ -21,7 +21,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 
 /**
- * InitialPagedList is an empty placeholder that's sent at the front of a stream of [PagedList].
+ * [InitialPagedList] is an empty placeholder that's sent at the front of a stream of [PagedList].
  *
  * It's used solely for listening to [LoadType.REFRESH] loading events, and retrying
  * any errors that occur during initial load.

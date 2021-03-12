@@ -18,18 +18,23 @@ package androidx.paging
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
-import org.junit.Assert.assertEquals
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -38,6 +43,36 @@ class LivePagedListTest {
     @JvmField
     @Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    @Test
+    fun instantiatesPagingSourceOnFetchDispatcher() {
+        var pagingSourcesCreated = 0
+        val pagingSourceFactory = {
+            pagingSourcesCreated++
+            TestPagingSource()
+        }
+        val testDispatcher = TestDispatcher()
+        val livePagedList = LivePagedList(
+            coroutineScope = GlobalScope,
+            initialKey = null,
+            config = PagedList.Config.Builder().setPageSize(10).build(),
+            boundaryCallback = null,
+            pagingSourceFactory = pagingSourceFactory,
+            notifyDispatcher = ArchTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher(),
+            fetchDispatcher = testDispatcher,
+        )
+
+        assertTrue { testDispatcher.queue.isEmpty() }
+        assertEquals(0, pagingSourcesCreated)
+
+        livePagedList.observeForever { }
+
+        assertTrue { testDispatcher.queue.isNotEmpty() }
+        assertEquals(0, pagingSourcesCreated)
+
+        testDispatcher.executeAll()
+        assertEquals(1, pagingSourcesCreated)
+    }
 
     @Test
     fun toLiveData_dataSourceConfig() {
