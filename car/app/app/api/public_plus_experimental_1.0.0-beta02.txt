@@ -271,9 +271,16 @@ package androidx.car.app.model {
 
   public final class CarText {
     method public static androidx.car.app.model.CarText create(CharSequence);
+    method @androidx.car.app.annotations.ExperimentalCarApi public java.util.List<java.lang.CharSequence!> getVariants();
     method public boolean isEmpty();
     method public static boolean isNullOrEmpty(androidx.car.app.model.CarText?);
     method public CharSequence toCharSequence();
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public static final class CarText.Builder {
+    ctor public CarText.Builder(CharSequence);
+    method public androidx.car.app.model.CarText.Builder addVariant(CharSequence);
+    method public androidx.car.app.model.CarText build();
   }
 
   @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public final class ClickableSpan extends androidx.car.app.model.CarSpan {
