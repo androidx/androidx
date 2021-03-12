@@ -37,6 +37,7 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 
 /** Interface for rendering complications onto a [Canvas]. */
 public interface CanvasComplication {
@@ -259,8 +260,11 @@ public class Complication internal constructor(
     defaultProviderPolicy: DefaultComplicationProviderPolicy,
     defaultProviderType: ComplicationType,
     /**
-     * The initial state of the complication. Note complications can be enabled / disabled by
-     * [UserStyleSetting.ComplicationsUserStyleSetting].
+     * At creation a complication is either enabled or disabled. This can be overridden by a
+     * [ComplicationsUserStyleSetting] (see [ComplicationOverlay.enabled]).
+     *
+     * Editors need to know the initial state of a complication to predict the effects of making a
+     * style change.
      */
     @get:JvmName("isInitiallyEnabled")
     public val initiallyEnabled: Boolean,
