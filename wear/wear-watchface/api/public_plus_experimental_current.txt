@@ -48,7 +48,6 @@ package androidx.wear.watchface {
     method public boolean isFixedComplicationProvider();
     method public boolean isInitiallyEnabled();
     method @UiThread public void render(android.graphics.Canvas canvas, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    method @UiThread public void setComplicationBounds(androidx.wear.complications.ComplicationBounds value);
     method @UiThread public void setRenderer(androidx.wear.watchface.CanvasComplication value);
     property public final int boundsType;
     property @UiThread public final androidx.wear.complications.ComplicationBounds complicationBounds;
