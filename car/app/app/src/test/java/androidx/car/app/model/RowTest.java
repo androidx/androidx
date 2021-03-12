@@ -34,6 +34,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Tests for {@link Row}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -63,6 +66,25 @@ public class RowTest {
         String text2 = "bar";
         Row row = new Row.Builder().setTitle("Title").addText(text1).addText(text2).build();
         assertThat(row.getTexts()).containsExactly(CarText.create(text1), CarText.create(text2));
+    }
+
+    @Test
+    public void title_text_variants() {
+        List<CharSequence> titleVariants = new ArrayList<>();
+        titleVariants.add("foo");
+        titleVariants.add("foo long");
+
+        List<CharSequence> textVariants = new ArrayList<>();
+        textVariants.add("bar");
+        textVariants.add("bar long");
+
+        CarText title =
+                new CarText.Builder(titleVariants.get(0)).addVariant(titleVariants.get(1)).build();
+        CarText text = new CarText.Builder(textVariants.get(0)).addVariant(
+                textVariants.get(1)).build();
+        Row row = new Row.Builder().setTitle(title).addText(text).build();
+        assertThat(title).isEqualTo(row.getTitle());
+        assertThat(row.getTexts()).containsExactly(text);
     }
 
     @Test
