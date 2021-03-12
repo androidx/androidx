@@ -81,8 +81,10 @@ public object Outputs {
         reportOnRunEndOnly: Boolean = false,
         block: (file: File) -> Unit,
     ): String {
-        val override = Build.VERSION.SDK_INT == Build.VERSION_CODES.R
-        // We override the `additionalTestOutputDir` argument on R.
+        // We need to copy files over anytime `dirUsableByAppAndShell` is different from
+        // `outputDirectory`.
+        val override = dirUsableByAppAndShell != outputDirectory
+        // We override the `additionalTestOutputDir` argument.
         // Context: b/181601156
         val file = File(dirUsableByAppAndShell, fileName)
         try {
@@ -93,23 +95,21 @@ public object Outputs {
                 // This respects the `additionalTestOutputDir` argument.
                 val actualOutputDirectory = outputDirectory
                 destination = File(actualOutputDirectory, fileName)
-                if (file != destination) {
-                    Log.d(BenchmarkState.TAG, "Copying $file to $destination")
-                    try {
-                        destination.mkdirs()
-                        file.copyTo(destination, overwrite = true)
-                    } catch (exception: Throwable) {
-                        // This can happen when `additionalTestOutputDir` being passed in cannot
-                        // be written to. The shell does not have permissions to do the necessary
-                        // setup, and this can cause `adb pull` to fail.
-                        val message = """
-                            Unable to copy files to ${destination.absolutePath}.
-                            Please pull the Macrobenchmark results manually by using:
-                            adb pull ${file.absolutePath}
-                        """.trimIndent()
-                        Log.e(BenchmarkState.TAG, message, exception)
-                        destination = file
-                    }
+                Log.d(BenchmarkState.TAG, "Copying $file to $destination")
+                try {
+                    destination.mkdirs()
+                    file.copyTo(destination, overwrite = true)
+                } catch (exception: Throwable) {
+                    // This can happen when `additionalTestOutputDir` being passed in cannot
+                    // be written to. The shell does not have permissions to do the necessary
+                    // setup, and this can cause `adb pull` to fail.
+                    val message = """
+                        Unable to copy files to ${destination.absolutePath}.
+                        Please pull the Macrobenchmark results manually by using:
+                        adb pull ${file.absolutePath}
+                    """.trimIndent()
+                    Log.e(BenchmarkState.TAG, message, exception)
+                    destination = file
                 }
             }
             InstrumentationResults.reportAdditionalFileToCopy(
