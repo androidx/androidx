@@ -29,7 +29,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
+        new GenericDocument.Builder<>(document.namespace, document.uri, SCHEMA_NAME);
     String oldNameCopy = document.oldName;
     if (oldNameCopy != null) {
       builder.setPropertyString("newName", oldNameCopy);
@@ -40,12 +40,14 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String uriConv = genericDoc.getUri();
+    String namespaceConv = genericDoc.getNamespace();
     String[] oldNameCopy = genericDoc.getPropertyStringArray("newName");
     String oldNameConv = null;
     if (oldNameCopy != null && oldNameCopy.length != 0) {
       oldNameConv = oldNameCopy[0];
     }
     Gift document = new Gift();
+    document.namespace = namespaceConv;
     document.uri = uriConv;
     document.oldName = oldNameConv;
     return document;

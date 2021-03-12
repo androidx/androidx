@@ -35,15 +35,15 @@ public class CustomerDocumentTest {
     private static final byte[] BYTE_ARRAY1 = new byte[]{(byte) 1, (byte) 2, (byte) 3};
     private static final byte[] BYTE_ARRAY2 = new byte[]{(byte) 4, (byte) 5, (byte) 6};
     private static final GenericDocument DOCUMENT_PROPERTIES1 = new GenericDocument
-            .Builder<>("sDocumentProperties1", "sDocumentPropertiesSchemaType1")
+            .Builder<>("namespace", "sDocumentProperties1", "sDocumentPropertiesSchemaType1")
             .build();
     private static final GenericDocument DOCUMENT_PROPERTIES2 = new GenericDocument
-            .Builder<>("sDocumentProperties2", "sDocumentPropertiesSchemaType2")
+            .Builder<>("namespace", "sDocumentProperties2", "sDocumentPropertiesSchemaType2")
             .build();
 
     @Test
     public void testBuildCustomerDocument() {
-        CustomerDocument customerDocument = new CustomerDocument.Builder("uri1")
+        CustomerDocument customerDocument = new CustomerDocument.Builder("namespace", "uri1")
                 .setScore(1)
                 .setCreationTimestampMillis(0)
                 .setPropertyLong("longKey1", 1L, 2L, 3L)
@@ -54,6 +54,7 @@ public class CustomerDocumentTest {
                 .setPropertyDocument("documentKey1", DOCUMENT_PROPERTIES1, DOCUMENT_PROPERTIES2)
                 .build();
 
+        assertThat(customerDocument.getNamespace()).isEqualTo("namespace");
         assertThat(customerDocument.getUri()).isEqualTo("uri1");
         assertThat(customerDocument.getSchemaType()).isEqualTo("customerDocument");
         assertThat(customerDocument.getScore()).isEqualTo(1);
@@ -83,8 +84,8 @@ public class CustomerDocumentTest {
         }
 
         public static class Builder extends GenericDocument.Builder<CustomerDocument.Builder> {
-            private Builder(@NonNull String uri) {
-                super(uri, "customerDocument");
+            private Builder(@NonNull String namespace, @NonNull String uri) {
+                super(namespace, uri, "customerDocument");
             }
 
             @Override

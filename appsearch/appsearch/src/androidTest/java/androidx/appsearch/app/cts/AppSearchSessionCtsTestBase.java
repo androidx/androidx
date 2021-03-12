@@ -250,7 +250,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Index a document
-        AppSearchEmail email = new AppSearchEmail.Builder("uri1")
+        AppSearchEmail email = new AppSearchEmail.Builder("namespace", "uri1")
                 .setFrom("from@example.com")
                 .setTo("to1@example.com", "to2@example.com")
                 .setSubject("testPut example")
@@ -269,10 +269,11 @@ public abstract class AppSearchSessionCtsTestBase {
     public void testPut_addDocumentClasses() throws Exception {
         // Schema registration
         mDb1.setSchema(new SetSchemaRequest.Builder()
-                        .addDocumentClasses(EmailDocument.class).build()).get();
+                .addDocumentClasses(EmailDocument.class).build()).get();
 
         // Index a document
         EmailDocument email = new EmailDocument();
+        email.namespace = "namespace";
         email.uri = "uri1";
         email.subject = "testPut example";
         email.body = "This is the body of the testPut email";
@@ -316,7 +317,8 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Try to index a gift. This should fail as it's not in the schema.
         GenericDocument gift =
-                new GenericDocument.Builder<>("gift1", "Gift").setPropertyLong("price", 5).build();
+                new GenericDocument.Builder<>("namespace", "gift1", "Gift").setPropertyLong("price",
+                        5).build();
         AppSearchBatchResult<String, Void> result =
                 mDb1.put(
                         new PutDocumentsRequest.Builder().addGenericDocuments(gift).build()).get();
@@ -334,7 +336,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         new PutDocumentsRequest.Builder().addGenericDocuments(gift).build()));
 
         // Indexing an email with a body should also work
-        AppSearchEmail email = new AppSearchEmail.Builder("email1")
+        AppSearchEmail email = new AppSearchEmail.Builder("namespace", "email1")
                 .setSubject("testPut example")
                 .setBody("This is the body of the testPut email")
                 .build();
@@ -356,14 +358,14 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1.setSchema(new SetSchemaRequest.Builder().addSchemas(emailSchema).build()).get();
 
         // Index an email and check it present.
-        AppSearchEmail email = new AppSearchEmail.Builder("email1")
+        AppSearchEmail email = new AppSearchEmail.Builder("namespace", "email1")
                 .setSubject("testPut example")
                 .build();
         checkIsBatchResultSuccess(
                 mDb1.put(
                         new PutDocumentsRequest.Builder().addGenericDocuments(email).build()));
         List<GenericDocument> outDocuments =
-                doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "email1");
+                doGet(mDb1, "namespace", "email1");
         assertThat(outDocuments).hasSize(1);
         AppSearchEmail outEmail = new AppSearchEmail(outDocuments.get(0));
         assertThat(outEmail).isEqualTo(email);
@@ -383,8 +385,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Make sure the indexed email is gone.
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder()
-                        .setNamespace(GenericDocument.DEFAULT_NAMESPACE)
+                new GetByUriRequest.Builder("namespace")
                         .addUris("email1")
                         .build()).get();
         assertThat(getResult.isSuccess()).isFalse();
@@ -392,7 +393,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         // Try to index an email again. This should fail as the schema has been removed.
-        AppSearchEmail email2 = new AppSearchEmail.Builder("email2")
+        AppSearchEmail email2 = new AppSearchEmail.Builder("namespace", "email2")
                 .setSubject("testPut example")
                 .build();
         AppSearchBatchResult<String, Void> failResult2 = mDb1.put(
@@ -417,26 +418,26 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb2.setSchema(new SetSchemaRequest.Builder().addSchemas(emailSchema).build()).get();
 
         // Index an email and check it present in database1.
-        AppSearchEmail email1 = new AppSearchEmail.Builder("email1")
+        AppSearchEmail email1 = new AppSearchEmail.Builder("namespace", "email1")
                 .setSubject("testPut example")
                 .build();
         checkIsBatchResultSuccess(
                 mDb1.put(
                         new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
         List<GenericDocument> outDocuments =
-                doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "email1");
+                doGet(mDb1, "namespace", "email1");
         assertThat(outDocuments).hasSize(1);
         AppSearchEmail outEmail = new AppSearchEmail(outDocuments.get(0));
         assertThat(outEmail).isEqualTo(email1);
 
         // Index an email and check it present in database2.
-        AppSearchEmail email2 = new AppSearchEmail.Builder("email2")
+        AppSearchEmail email2 = new AppSearchEmail.Builder("namespace", "email2")
                 .setSubject("testPut example")
                 .build();
         checkIsBatchResultSuccess(
                 mDb2.put(
                         new PutDocumentsRequest.Builder().addGenericDocuments(email2).build()));
-        outDocuments = doGet(mDb2, GenericDocument.DEFAULT_NAMESPACE, "email2");
+        outDocuments = doGet(mDb2, "namespace", "email2");
         assertThat(outDocuments).hasSize(1);
         outEmail = new AppSearchEmail(outDocuments.get(0));
         assertThat(outEmail).isEqualTo(email2);
@@ -457,14 +458,14 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Make sure the indexed email is gone in database 1.
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().setNamespace(GenericDocument.DEFAULT_NAMESPACE)
+                new GetByUriRequest.Builder("namespace")
                         .addUris("email1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("email1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         // Try to index an email again. This should fail as the schema has been removed.
-        AppSearchEmail email3 = new AppSearchEmail.Builder("email3")
+        AppSearchEmail email3 = new AppSearchEmail.Builder("namespace", "email3")
                 .setSubject("testPut example")
                 .build();
         AppSearchBatchResult<String, Void> failResult2 = mDb1.put(
@@ -475,7 +476,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         + "/builtin:Email' not found");
 
         // Make sure email in database 2 still present.
-        outDocuments = doGet(mDb2, GenericDocument.DEFAULT_NAMESPACE, "email2");
+        outDocuments = doGet(mDb2, "namespace", "email2");
         assertThat(outDocuments).hasSize(1);
         outEmail = new AppSearchEmail(outDocuments.get(0));
         assertThat(outEmail).isEqualTo(email2);
@@ -494,7 +495,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index a document
         AppSearchEmail inEmail =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -504,14 +505,15 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
 
         // Get the document
-        List<GenericDocument> outDocuments = doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1");
+        List<GenericDocument> outDocuments = doGet(mDb1, "namespace", "uri1");
         assertThat(outDocuments).hasSize(1);
         AppSearchEmail outEmail = new AppSearchEmail(outDocuments.get(0));
         assertThat(outEmail).isEqualTo(inEmail);
 
         // Can't get the document in the other instance.
         AppSearchBatchResult<String, GenericDocument> failResult = mDb2.getByUri(
-                new GetByUriRequest.Builder().addUris("uri1").build()).get();
+                new GetByUriRequest.Builder("namespace").addUris(
+                        "uri1").build()).get();
         assertThat(failResult.isSuccess()).isFalse();
         assertThat(failResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -527,6 +529,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index a document
         EmailDocument inEmail = new EmailDocument();
+        inEmail.namespace = "namespace";
         inEmail.uri = "uri1";
         inEmail.subject = "testPut example";
         inEmail.body = "This is the body of the testPut inEmail";
@@ -534,7 +537,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addDocuments(inEmail).build()));
 
         // Get the document
-        List<GenericDocument> outDocuments = doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1");
+        List<GenericDocument> outDocuments = doGet(mDb1, "namespace", "uri1");
         assertThat(outDocuments).hasSize(1);
         EmailDocument outEmail = outDocuments.get(0).toDocumentClass(EmailDocument.class);
         assertThat(inEmail.uri).isEqualTo(outEmail.uri);
@@ -554,8 +557,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -563,8 +565,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -576,8 +577,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
-        GetByUriRequest request = new GetByUriRequest.Builder()
-                .setNamespace("namespace")
+        GetByUriRequest request = new GetByUriRequest.Builder("namespace")
                 .addUris("uri1", "uri2")
                 .addProjection(
                         AppSearchEmail.SCHEMA_TYPE, ImmutableList.of("subject", "to"))
@@ -587,15 +587,13 @@ public abstract class AppSearchSessionCtsTestBase {
         // The two email documents should have been returned with only the "subject" and "to"
         // properties.
         AppSearchEmail expected1 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .build();
         AppSearchEmail expected2 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -613,8 +611,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -622,8 +619,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -635,20 +631,18 @@ public abstract class AppSearchSessionCtsTestBase {
                         .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
-        GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUris(
+        GetByUriRequest request = new GetByUriRequest.Builder("namespace").addUris(
                 "uri1",
                 "uri2").addProjection(AppSearchEmail.SCHEMA_TYPE, Collections.emptyList()).build();
         List<GenericDocument> outDocuments = doGet(mDb1, request);
 
         // The two email documents should have been returned without any properties.
         AppSearchEmail expected1 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .build();
         AppSearchEmail expected2 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .build();
         assertThat(outDocuments).containsExactly(expected1, expected2);
@@ -664,8 +658,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -673,8 +666,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -686,8 +678,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
-        GetByUriRequest request = new GetByUriRequest.Builder()
-                .setNamespace("namespace")
+        GetByUriRequest request = new GetByUriRequest.Builder("namespace")
                 .addUris("uri1", "uri2")
                 .addProjection("NonExistentType", Collections.emptyList())
                 .addProjection(AppSearchEmail.SCHEMA_TYPE, ImmutableList.of("subject", "to"))
@@ -697,15 +688,13 @@ public abstract class AppSearchSessionCtsTestBase {
         // The two email documents should have been returned with only the "subject" and "to"
         // properties.
         AppSearchEmail expected1 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .build();
         AppSearchEmail expected2 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -723,8 +712,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -732,8 +720,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -745,8 +732,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
-        GetByUriRequest request = new GetByUriRequest.Builder()
-                .setNamespace("namespace")
+        GetByUriRequest request = new GetByUriRequest.Builder("namespace")
                 .addUris("uri1", "uri2")
                 .addProjection(
                         GetByUriRequest.PROJECTION_SCHEMA_TYPE_WILDCARD,
@@ -757,15 +743,13 @@ public abstract class AppSearchSessionCtsTestBase {
         // The two email documents should have been returned with only the "subject" and "to"
         // properties.
         AppSearchEmail expected1 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .build();
         AppSearchEmail expected2 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -783,8 +767,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -792,8 +775,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -805,21 +787,18 @@ public abstract class AppSearchSessionCtsTestBase {
                         .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
-        GetByUriRequest request = new GetByUriRequest.Builder().setNamespace("namespace").addUris(
-                "uri1",
+        GetByUriRequest request = new GetByUriRequest.Builder("namespace").addUris("uri1",
                 "uri2").addProjection(GetByUriRequest.PROJECTION_SCHEMA_TYPE_WILDCARD,
                 Collections.emptyList()).build();
         List<GenericDocument> outDocuments = doGet(mDb1, request);
 
         // The two email documents should have been returned without any properties.
         AppSearchEmail expected1 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .build();
         AppSearchEmail expected2 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .build();
         assertThat(outDocuments).containsExactly(expected1, expected2);
@@ -835,8 +814,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -844,8 +822,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -857,8 +834,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .addGenericDocuments(email1, email2).build()));
 
         // Get with type property paths {"Email", ["subject", "to"]}
-        GetByUriRequest request = new GetByUriRequest.Builder()
-                .setNamespace("namespace")
+        GetByUriRequest request = new GetByUriRequest.Builder("namespace")
                 .addUris("uri1", "uri2")
                 .addProjection("NonExistentType", Collections.emptyList())
                 .addProjection(
@@ -870,15 +846,13 @@ public abstract class AppSearchSessionCtsTestBase {
         // The two email documents should have been returned with only the "subject" and "to"
         // properties.
         AppSearchEmail expected1 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .build();
         AppSearchEmail expected2 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -894,7 +868,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index a document
         AppSearchEmail inEmail =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -930,7 +904,7 @@ public abstract class AppSearchSessionCtsTestBase {
         // Index 31 documents
         for (int i = 0; i < 31; i++) {
             AppSearchEmail inEmail =
-                    new AppSearchEmail.Builder("uri" + i)
+                    new AppSearchEmail.Builder("namespace", "uri" + i)
                             .setFrom("from@example.com")
                             .setTo("to1@example.com", "to2@example.com")
                             .setSubject("testPut example")
@@ -976,8 +950,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -985,8 +958,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("A little lamb, little lamb")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -1038,13 +1010,13 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index a document
         AppSearchEmail inEmail =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        GenericDocument inDoc = new GenericDocument.Builder<>("uri2", "Generic")
+        GenericDocument inDoc = new GenericDocument.Builder<>("namespace", "uri2", "Generic")
                 .setPropertyString("foo", "body").build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail, inDoc).build()));
@@ -1075,7 +1047,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index documents
         AppSearchEmail email =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("foo")
@@ -1109,16 +1081,14 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail expectedEmail =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("expectedNamespace")
+                new AppSearchEmail.Builder("expectedNamespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail unexpectedEmail =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("unexpectedNamespace")
+                new AppSearchEmail.Builder("unexpectedNamespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -1155,7 +1125,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index a document
         AppSearchEmail inEmail =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -1192,7 +1162,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index a document
         AppSearchEmail inEmail =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -1270,8 +1240,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -1279,8 +1248,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         GenericDocument note =
-                new GenericDocument.Builder<>("uri2", "Note")
-                        .setNamespace("namespace")
+                new GenericDocument.Builder<>("namespace", "uri2", "Note")
                         .setCreationTimestampMillis(1000)
                         .setPropertyString("title", "Note title")
                         .setPropertyString("body", "Note body").build();
@@ -1298,15 +1266,13 @@ public abstract class AppSearchSessionCtsTestBase {
         // The email document should have been returned with only the "body" and "to"
         // properties. The note document should have been returned with all of its properties.
         AppSearchEmail expectedEmail =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
                         .setBody("This is the body of the testPut email")
                         .build();
         GenericDocument expectedNote =
-                new GenericDocument.Builder<>("uri2", "Note")
-                        .setNamespace("namespace")
+                new GenericDocument.Builder<>("namespace", "uri2", "Note")
                         .setCreationTimestampMillis(1000)
                         .setPropertyString("title", "Note title")
                         .setPropertyString("body", "Note body").build();
@@ -1339,8 +1305,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -1348,8 +1313,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         GenericDocument note =
-                new GenericDocument.Builder<>("uri2", "Note")
-                        .setNamespace("namespace")
+                new GenericDocument.Builder<>("namespace", "uri2", "Note")
                         .setCreationTimestampMillis(1000)
                         .setPropertyString("title", "Note title")
                         .setPropertyString("body", "Note body").build();
@@ -1367,13 +1331,11 @@ public abstract class AppSearchSessionCtsTestBase {
         // The email document should have been returned without any properties. The note document
         // should have been returned with all of its properties.
         AppSearchEmail expectedEmail =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .build();
         GenericDocument expectedNote =
-                new GenericDocument.Builder<>("uri2", "Note")
-                        .setNamespace("namespace")
+                new GenericDocument.Builder<>("namespace", "uri2", "Note")
                         .setCreationTimestampMillis(1000)
                         .setPropertyString("title", "Note title")
                         .setPropertyString("body", "Note body").build();
@@ -1406,8 +1368,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -1415,8 +1376,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         GenericDocument note =
-                new GenericDocument.Builder<>("uri2", "Note")
-                        .setNamespace("namespace")
+                new GenericDocument.Builder<>("namespace", "uri2", "Note")
                         .setCreationTimestampMillis(1000)
                         .setPropertyString("title", "Note title")
                         .setPropertyString("body", "Note body").build();
@@ -1435,15 +1395,13 @@ public abstract class AppSearchSessionCtsTestBase {
         // The email document should have been returned with only the "body" and "to" properties.
         // The note document should have been returned with all of its properties.
         AppSearchEmail expectedEmail =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
                         .setBody("This is the body of the testPut email")
                         .build();
         GenericDocument expectedNote =
-                new GenericDocument.Builder<>("uri2", "Note")
-                        .setNamespace("namespace")
+                new GenericDocument.Builder<>("namespace", "uri2", "Note")
                         .setCreationTimestampMillis(1000)
                         .setPropertyString("title", "Note title")
                         .setPropertyString("body", "Note body").build();
@@ -1475,8 +1433,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -1484,8 +1441,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         GenericDocument note =
-                new GenericDocument.Builder<>("uri2", "Note")
-                        .setNamespace("namespace")
+                new GenericDocument.Builder<>("namespace", "uri2", "Note")
                         .setCreationTimestampMillis(1000)
                         .setPropertyString("title", "Note title")
                         .setPropertyString("body", "Note body").build();
@@ -1504,15 +1460,13 @@ public abstract class AppSearchSessionCtsTestBase {
         // The email document should have been returned with only the "body" and "to"
         // properties. The note document should have been returned with only the "body" property.
         AppSearchEmail expectedEmail =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
                         .setBody("This is the body of the testPut email")
                         .build();
         GenericDocument expectedNote =
-                new GenericDocument.Builder<>("uri2", "Note")
-                        .setNamespace("namespace")
+                new GenericDocument.Builder<>("namespace", "uri2", "Note")
                         .setCreationTimestampMillis(1000)
                         .setPropertyString("body", "Note body").build();
         assertThat(documents).containsExactly(expectedNote, expectedEmail);
@@ -1541,8 +1495,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -1550,8 +1503,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         GenericDocument note =
-                new GenericDocument.Builder<>("uri2", "Note")
-                        .setNamespace("namespace")
+                new GenericDocument.Builder<>("namespace", "uri2", "Note")
                         .setCreationTimestampMillis(1000)
                         .setPropertyString("title", "Note title")
                         .setPropertyString("body", "Note body").build();
@@ -1568,13 +1520,11 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // The email and note documents should have been returned without any properties.
         AppSearchEmail expectedEmail =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .build();
         GenericDocument expectedNote =
-                new GenericDocument.Builder<>("uri2", "Note")
-                        .setNamespace("namespace")
+                new GenericDocument.Builder<>("namespace", "uri2", "Note")
                         .setCreationTimestampMillis(1000).build();
         assertThat(documents).containsExactly(expectedNote, expectedEmail);
     }
@@ -1605,8 +1555,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index two documents
         AppSearchEmail email =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
@@ -1614,8 +1563,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setBody("This is the body of the testPut email")
                         .build();
         GenericDocument note =
-                new GenericDocument.Builder<>("uri2", "Note")
-                        .setNamespace("namespace")
+                new GenericDocument.Builder<>("namespace", "uri2", "Note")
                         .setCreationTimestampMillis(1000)
                         .setPropertyString("title", "Note title")
                         .setPropertyString("body", "Note body").build();
@@ -1635,15 +1583,13 @@ public abstract class AppSearchSessionCtsTestBase {
         // The email document should have been returned with only the "body" and "to"
         // properties. The note document should have been returned with only the "body" property.
         AppSearchEmail expectedEmail =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setCreationTimestampMillis(1000)
                         .setTo("to1@example.com", "to2@example.com")
                         .setBody("This is the body of the testPut email")
                         .build();
         GenericDocument expectedNote =
-                new GenericDocument.Builder<>("uri2", "Note")
-                        .setNamespace("namespace")
+                new GenericDocument.Builder<>("namespace", "uri2", "Note")
                         .setCreationTimestampMillis(1000)
                         .setPropertyString("body", "Note body").build();
         assertThat(documents).containsExactly(expectedNote, expectedEmail);
@@ -1659,7 +1605,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index a document to instance 1.
         AppSearchEmail inEmail1 =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -1670,7 +1616,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index a document to instance 2.
         AppSearchEmail inEmail2 =
-                new AppSearchEmail.Builder("uri2")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -1712,8 +1658,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index a document
         GenericDocument document =
-                new GenericDocument.Builder<>("uri", "Generic")
-                        .setNamespace("document")
+                new GenericDocument.Builder<>("namespace", "uri", "Generic")
                         .setPropertyString("subject", "A commonly used fake word is foo. "
                                 + "Another nonsense word that’s used a lot is bar")
                         .build();
@@ -1754,14 +1699,14 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example 2")
@@ -1771,16 +1716,18 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2).build()));
 
         // Check the presence of the documents
-        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
-        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri2")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "uri1")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "uri2")).hasSize(1);
 
         // Delete the document
         checkIsBatchResultSuccess(mDb1.remove(
-                new RemoveByUriRequest.Builder().addUris("uri1").build()));
+                new RemoveByUriRequest.Builder("namespace").addUris(
+                        "uri1").build()));
 
         // Make sure it's really gone
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().addUris("uri1", "uri2").build())
+                new GetByUriRequest.Builder("namespace").addUris("uri1",
+                        "uri2").build())
                 .get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
@@ -1789,7 +1736,8 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Test if we delete a nonexistent URI.
         AppSearchBatchResult<String, Void> deleteResult = mDb1.remove(
-                new RemoveByUriRequest.Builder().addUris("uri1").build()).get();
+                new RemoveByUriRequest.Builder("namespace").addUris(
+                        "uri1").build()).get();
 
         assertThat(deleteResult.getFailures().get("uri1").getResultCode()).isEqualTo(
                 AppSearchResult.RESULT_NOT_FOUND);
@@ -1803,14 +1751,14 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("foo")
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("bar")
@@ -1820,14 +1768,14 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2).build()));
 
         // Check the presence of the documents
-        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
-        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri2")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "uri1")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "uri2")).hasSize(1);
 
         // Delete the email 1 by query "foo"
         mDb1.remove("foo",
                 new SearchSpec.Builder().setTermMatch(SearchSpec.TERM_MATCH_PREFIX).build()).get();
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().addUris("uri1", "uri2").build())
+                new GetByUriRequest.Builder("namespace").addUris("uri1", "uri2").build())
                 .get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
@@ -1838,7 +1786,7 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1.remove("bar",
                 new SearchSpec.Builder().setTermMatch(SearchSpec.TERM_MATCH_PREFIX).build()).get();
         getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().addUris("uri2").build())
+                new GetByUriRequest.Builder("namespace").addUris("uri2").build())
                 .get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri2").getResultCode())
@@ -1853,7 +1801,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index documents
         AppSearchEmail email =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("foo")
@@ -1863,7 +1811,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email).build()));
 
         // Check the presence of the documents
-        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "uri1")).hasSize(1);
 
         // Try to delete email with query "foo", but restricted to a different package name.
         // Won't work and email will still exist.
@@ -1871,14 +1819,14 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SearchSpec.Builder().setTermMatch(
                         SearchSpec.TERM_MATCH_PREFIX).addFilterPackageNames(
                         "some.other.package").build()).get();
-        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "uri1")).hasSize(1);
 
         // Delete the email by query "foo", restricted to the correct package this time.
         mDb1.remove("foo", new SearchSpec.Builder().setTermMatch(
                 SearchSpec.TERM_MATCH_PREFIX).addFilterPackageNames(
                 ApplicationProvider.getApplicationContext().getPackageName()).build()).get();
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().addUris("uri1", "uri2").build())
+                new GetByUriRequest.Builder("namespace").addUris("uri1", "uri2").build())
                 .get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
@@ -1893,7 +1841,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -1903,29 +1851,29 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
 
         // Check the presence of the documents
-        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "uri1")).hasSize(1);
 
         // Can't delete in the other instance.
         AppSearchBatchResult<String, Void> deleteResult = mDb2.remove(
-                new RemoveByUriRequest.Builder().addUris("uri1").build()).get();
+                new RemoveByUriRequest.Builder("namespace").addUris("uri1").build()).get();
         assertThat(deleteResult.getFailures().get("uri1").getResultCode()).isEqualTo(
                 AppSearchResult.RESULT_NOT_FOUND);
-        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "uri1")).hasSize(1);
 
         // Delete the document
         checkIsBatchResultSuccess(mDb1.remove(
-                new RemoveByUriRequest.Builder().addUris("uri1").build()));
+                new RemoveByUriRequest.Builder("namespace").addUris("uri1").build()));
 
         // Make sure it's really gone
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().addUris("uri1").build()).get();
+                new GetByUriRequest.Builder("namespace").addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         // Test if we delete a nonexistent URI.
         deleteResult = mDb1.remove(
-                new RemoveByUriRequest.Builder().addUris("uri1").build()).get();
+                new RemoveByUriRequest.Builder("namespace").addUris("uri1").build()).get();
         assertThat(deleteResult.getFailures().get("uri1").getResultCode()).isEqualTo(
                 AppSearchResult.RESULT_NOT_FOUND);
     }
@@ -1940,28 +1888,27 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example 2")
                         .setBody("This is the body of the testPut second email")
                         .build();
         GenericDocument document1 =
-                new GenericDocument.Builder<>("uri3", "Generic").build();
+                new GenericDocument.Builder<>("namespace", "uri3", "Generic").build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2, document1)
                         .build()));
 
         // Check the presence of the documents
-        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1", "uri2",
-                "uri3")).hasSize(3);
+        assertThat(doGet(mDb1, "namespace", "uri1", "uri2", "uri3")).hasSize(3);
 
         // Delete the email type
         mDb1.remove("",
@@ -1973,7 +1920,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Make sure it's really gone
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().addUris("uri1", "uri2", "uri3").build())
+                new GetByUriRequest.Builder("namespace").addUris("uri1", "uri2", "uri3").build())
                 .get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
@@ -1993,14 +1940,14 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example 2")
@@ -2012,8 +1959,8 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email2).build()));
 
         // Check the presence of the documents
-        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
-        assertThat(doGet(mDb2, GenericDocument.DEFAULT_NAMESPACE, "uri2")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "uri1")).hasSize(1);
+        assertThat(doGet(mDb2, "namespace", "uri2")).hasSize(1);
 
         // Delete the email type in instance 1
         mDb1.remove("",
@@ -2025,14 +1972,14 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Make sure it's really gone in instance 1
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().addUris("uri1").build()).get();
+                new GetByUriRequest.Builder("namespace").addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         // Make sure it's still in instance 2.
         getResult = mDb2.getByUri(
-                new GetByUriRequest.Builder().addUris("uri2").build()).get();
+                new GetByUriRequest.Builder("namespace").addUris("uri2").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
     }
@@ -2053,24 +2000,21 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("email")
+                new AppSearchEmail.Builder("email", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("email")
+                new AppSearchEmail.Builder("email", "uri2")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example 2")
                         .setBody("This is the body of the testPut second email")
                         .build();
         GenericDocument document1 =
-                new GenericDocument.Builder<>("uri3", "Generic")
-                        .setNamespace("document")
+                new GenericDocument.Builder<>("document", "uri3", "Generic")
                         .setPropertyString("foo", "bar").build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2, document1)
@@ -2090,7 +2034,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Make sure it's really gone
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().setNamespace("email")
+                new GetByUriRequest.Builder("email")
                         .addUris("uri1", "uri2").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
@@ -2098,7 +2042,7 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(getResult.getFailures().get("uri2").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
         getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().setNamespace("document")
+                new GetByUriRequest.Builder("document")
                         .addUris("uri3").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri3")).isEqualTo(document1);
@@ -2114,16 +2058,14 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("email")
+                new AppSearchEmail.Builder("email", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
-                        .setNamespace("email")
+                new AppSearchEmail.Builder("email", "uri2")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example 2")
@@ -2148,7 +2090,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Make sure it's really gone in instance 1
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().setNamespace("email")
+                new GetByUriRequest.Builder("email")
                         .addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
@@ -2156,7 +2098,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Make sure it's still in instance 2.
         getResult = mDb2.getByUri(
-                new GetByUriRequest.Builder().setNamespace("email")
+                new GetByUriRequest.Builder("email")
                         .addUris("uri2").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
@@ -2172,14 +2114,14 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example 2")
@@ -2191,8 +2133,8 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email2).build()));
 
         // Check the presence of the documents
-        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
-        assertThat(doGet(mDb2, GenericDocument.DEFAULT_NAMESPACE, "uri2")).hasSize(1);
+        assertThat(doGet(mDb1, "namespace", "uri1")).hasSize(1);
+        assertThat(doGet(mDb2, "namespace", "uri2")).hasSize(1);
 
         // Delete the all document in instance 1
         mDb1.remove("",
@@ -2203,14 +2145,14 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Make sure it's really gone in instance 1
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().addUris("uri1").build()).get();
+                new GetByUriRequest.Builder("namespace").addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         // Make sure it's still in instance 2.
         getResult = mDb2.getByUri(
-                new GetByUriRequest.Builder().addUris("uri2").build()).get();
+                new GetByUriRequest.Builder("namespace").addUris("uri2").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
     }
@@ -2225,28 +2167,28 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
         AppSearchEmail email2 =
-                new AppSearchEmail.Builder("uri2")
+                new AppSearchEmail.Builder("namespace", "uri2")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example 2")
                         .setBody("This is the body of the testPut second email")
                         .build();
         AppSearchEmail email3 =
-                new AppSearchEmail.Builder("uri3")
+                new AppSearchEmail.Builder("namespace", "uri3")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example 3")
                         .setBody("This is the body of the testPut second email")
                         .build();
         AppSearchEmail email4 =
-                new AppSearchEmail.Builder("uri4")
+                new AppSearchEmail.Builder("namespace", "uri4")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example 4")
@@ -2302,8 +2244,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index documents
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri1")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -2317,12 +2258,11 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Remove the document
         checkIsBatchResultSuccess(
-                mDb1.remove(new RemoveByUriRequest.Builder()
-                        .setNamespace("namespace").addUris("uri1").build()));
+                mDb1.remove(new RemoveByUriRequest.Builder("namespace").addUris("uri1").build()));
 
         // Make sure it's really gone
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().addUris("uri1").build()).get();
+                new GetByUriRequest.Builder("namespace").addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -2334,7 +2274,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Make sure it's still gone
         getResult = mDb1.getByUri(
-                new GetByUriRequest.Builder().addUris("uri1").build()).get();
+                new GetByUriRequest.Builder("namespace").addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -2348,7 +2288,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Index a document
         AppSearchEmail inEmail =
-                new AppSearchEmail.Builder("uri1")
+                new AppSearchEmail.Builder("namespace", "uri1")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
@@ -2408,21 +2348,21 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Index two documents.
-        AppSearchEmail email1 = new AppSearchEmail.Builder("uri1").build();
-        AppSearchEmail email2 = new AppSearchEmail.Builder("uri2").build();
+        AppSearchEmail email1 = new AppSearchEmail.Builder("namespace", "uri1").build();
+        AppSearchEmail email2 = new AppSearchEmail.Builder("namespace", "uri2").build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2).build()));
 
         // Email 1 has more usages, but email 2 has more recent usages.
-        mDb1.reportUsage(new ReportUsageRequest.Builder()
+        mDb1.reportUsage(new ReportUsageRequest.Builder("namespace")
                 .setUri("uri1").setUsageTimeMillis(10).build()).get();
-        mDb1.reportUsage(new ReportUsageRequest.Builder()
+        mDb1.reportUsage(new ReportUsageRequest.Builder("namespace")
                 .setUri("uri1").setUsageTimeMillis(20).build()).get();
-        mDb1.reportUsage(new ReportUsageRequest.Builder()
+        mDb1.reportUsage(new ReportUsageRequest.Builder("namespace")
                 .setUri("uri1").setUsageTimeMillis(30).build()).get();
-        mDb1.reportUsage(new ReportUsageRequest.Builder()
+        mDb1.reportUsage(new ReportUsageRequest.Builder("namespace")
                 .setUri("uri2").setUsageTimeMillis(100).build()).get();
-        mDb1.reportUsage(new ReportUsageRequest.Builder()
+        mDb1.reportUsage(new ReportUsageRequest.Builder("namespace")
                 .setUri("uri2").setUsageTimeMillis(200).build()).get();
 
         // Query by number of usages
@@ -2449,7 +2389,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Index a document
-        AppSearchEmail email = new AppSearchEmail.Builder("uri1")
+        AppSearchEmail email = new AppSearchEmail.Builder("namespace", "uri1")
                 .setFrom("from@example.com")
                 .setTo("to1@example.com", "to2@example.com")
                 .setSubject("testPut example")

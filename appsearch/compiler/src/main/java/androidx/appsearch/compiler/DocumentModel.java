@@ -239,6 +239,13 @@ class DocumentModel {
                     mClass);
         }
 
+        // Every document must always have a namespace
+        if (namespaceField == null) {
+            throw new ProcessingException(
+                    "All @Document classes must have exactly one field annotated with @Namespace",
+                    mClass);
+        }
+
         for (VariableElement appSearchField : mAllAppSearchFields.values()) {
             chooseAccessKinds(appSearchField);
         }

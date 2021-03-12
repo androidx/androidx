@@ -99,6 +99,9 @@ public class SearchSpecTest {
 // @exportToFramework:startStrip()
     @Document
     static class King extends Card {
+        @Document.Namespace
+        String mNamespace;
+
         @Document.Uri
         String mUri;
 

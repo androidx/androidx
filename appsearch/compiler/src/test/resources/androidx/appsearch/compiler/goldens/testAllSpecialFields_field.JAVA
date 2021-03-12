@@ -27,11 +27,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
-    String namespaceCopy = document.namespace;
-    if (namespaceCopy != null) {
-      builder.setNamespace(namespaceCopy);
-    }
+        new GenericDocument.Builder<>(document.namespace, document.uri, SCHEMA_NAME);
     builder.setCreationTimestampMillis(document.creationTs);
     builder.setTtlMillis(document.ttlMs);
     builder.setScore(document.score);
@@ -48,8 +44,8 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     int scoreConv = genericDoc.getScore();
     int priceConv = (int) genericDoc.getPropertyLong("price");
     Gift document = new Gift();
-    document.uri = uriConv;
     document.namespace = namespaceConv;
+    document.uri = uriConv;
     document.creationTs = creationTsConv;
     document.ttlMs = ttlMsConv;
     document.price = priceConv;

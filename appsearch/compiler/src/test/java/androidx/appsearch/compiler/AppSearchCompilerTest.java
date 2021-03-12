@@ -80,7 +80,9 @@ public class AppSearchCompilerTest {
     public void testNoUri() {
         Compilation compilation = compile(
                 "@Document\n"
-                        + "public class Gift {}\n");
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "must have exactly one field annotated with @Uri");
     }
@@ -90,6 +92,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri1;\n"
                         + "  @Document.Uri String uri2;\n"
                         + "}\n");
@@ -102,6 +105,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.CreationTimestampMillis long ts1;\n"
                         + "  @Document.CreationTimestampMillis long ts2;\n"
@@ -111,13 +115,24 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testManyNamespace() {
+    public void testNoNamespace() {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
                         + "  @Document.Uri String uri;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).hadErrorContaining(
+                "must have exactly one field annotated with @Namespace");
+    }
+
+    @Test
+    public void testManyNamespace() {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
                         + "  @Document.Namespace String ns1;\n"
                         + "  @Document.Namespace String ns2;\n"
+                        + "  @Document.Uri String uri;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "contains multiple fields annotated @Namespace");
@@ -128,6 +143,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.TtlMillis long ts1;\n"
                         + "  @Document.TtlMillis long ts2;\n"
@@ -141,6 +157,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Score int score1;\n"
                         + "  @Document.Score int score2;\n"
@@ -154,6 +171,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property private int getPrice() { return 0; }\n"
                         + "}\n");
@@ -166,6 +184,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property private int price;\n"
                         + "}\n");
@@ -179,6 +198,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property private int price;\n"
                         + "  private int getPrice() { return 0; }\n"
@@ -195,6 +215,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property private int price;\n"
                         + "  int getPrice(int n) { return 0; }\n"
@@ -211,6 +232,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property private int price;\n"
                         + "  int getPrice(int n) { return 0; }\n"
@@ -226,6 +248,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
@@ -244,6 +267,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
@@ -265,6 +289,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
@@ -286,6 +311,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
@@ -302,6 +328,7 @@ public class AppSearchCompilerTest {
                 "@Document\n"
                         + "public class Gift {\n"
                         + "  private Gift() {}\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property int price;\n"
                         + "}\n");
@@ -317,6 +344,7 @@ public class AppSearchCompilerTest {
                 "@Document\n"
                         + "public class Gift {\n"
                         + "  Gift(int price) {}\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri final String uri;\n"
                         + "  @Document.Property int price;\n"
                         + "}\n");
@@ -331,10 +359,12 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
-                        + "  Gift(int price, String uri, int unknownParam) {\n"
+                        + "  Gift(int price, String uri, String namespace, int unknownParam) {\n"
                         + "    this.uri = uri;\n"
+                        + "    this.namespace = namespace;\n"
                         + "    this.price = price;\n"
                         + "  }\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri final String uri;\n"
                         + "  @Document.Property int price;\n"
                         + "}\n");
@@ -350,10 +380,12 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
-                        + "  Gift(boolean dog, String uri) {\n"
+                        + "  Gift(boolean dog, String uri, String namespace) {\n"
                         + "    this.uri = uri;\n"
+                        + "    this.namespace = namespace;\n"
                         + "    this.dog = dog;\n"
                         + "  }\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri final String uri;\n"
                         + "  @Document.Property int price;\n"
                         + "  @Document.Property boolean cat = false;\n"
@@ -370,6 +402,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document(name=\"DifferentType\")\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
@@ -381,6 +414,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document(version=42)\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
@@ -393,6 +427,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property List<String> listOfString;\n"
                         + "  @Document.Property Collection<Integer> setOfInt;\n"
@@ -409,9 +444,10 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property(required=true) List<String> repeatReq;\n"
-                        + " @Document.Property(required=false) List<String> repeatNoReq;\n"
+                        + "  @Document.Property(required=false) List<String> repeatNoReq;\n"
                         + "  @Document.Property(required=true) Float req;\n"
                         + "  @Document.Property(required=false) Float noReq;\n"
                         + "}\n");
@@ -426,6 +462,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property String stringProp;\n"
                         + "  @Document.Property Integer integerProp;\n"
@@ -448,6 +485,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property(tokenizerType=0) String tokNone;\n"
                         + "  @Document.Property(tokenizerType=1) String tokPlain;\n"
@@ -464,6 +502,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property(indexingType=1, tokenizerType=100)\n"
                         + "  String str;\n"
@@ -479,6 +518,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property(indexingType=0) String indexNone;\n"
                         + "  @Document.Property(indexingType=1) String indexExact;\n"
@@ -496,6 +536,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property(indexingType=100, tokenizerType=1)\n"
                         + "  String str;\n"
@@ -509,6 +550,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri String uri;\n"
                         + "  @Document.Property(name=\"newName\") String oldName;\n"
                         + "}\n");
@@ -524,6 +566,7 @@ public class AppSearchCompilerTest {
                         + "import androidx.appsearch.app.GenericDocument;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Namespace String namespace;\n"
                         + "  @Uri String uri;\n"
                         + "\n"
                         + "  // Collections\n"
@@ -577,6 +620,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Namespace String namespace;\n"
                         + "  @Uri String uri;\n"
                         + "  @Property Collection<Byte[]> collectBoxByteArr;\n" // 1x
                         + "}\n");
@@ -587,6 +631,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Namespace String namespace;\n"
                         + "  @Uri String uri;\n"
                         + "  @Property Collection<Byte> collectByte;\n" // 1x
                         + "}\n");
@@ -597,6 +642,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Namespace String namespace;\n"
                         + "  @Uri String uri;\n"
                         + "  @Property Collection<Object> collectObject;\n" // 1x
                         + "}\n");
@@ -607,6 +653,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Namespace String namespace;\n"
                         + "  @Uri String uri;\n"
                         + "  @Property Byte[][] arrBoxByteArr;\n" // 2x
                         + "}\n");
@@ -617,6 +664,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Namespace String namespace;\n"
                         + "  @Uri String uri;\n"
                         + "  @Property Object[] arrObject;\n" // 2x
                         + "}\n");
@@ -627,6 +675,7 @@ public class AppSearchCompilerTest {
                 "import java.util.*;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Namespace String namespace;\n"
                         + "  @Uri String uri;\n"
                         + "  @Property Object object;\n" // 3x
                         + "}\n");
@@ -639,8 +688,8 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
-                        + "  @Document.Uri String uri;\n"
                         + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Uri String uri;\n"
                         + "  @Document.CreationTimestampMillis long creationTs;\n"
                         + "  @Document.TtlMillis int ttlMs;\n"
                         + "  @Document.Property int price;\n"
@@ -655,6 +704,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Uri private String uri;\n"
                         + "  @Document.Score private int score;\n"
                         + "  @Document.CreationTimestampMillis private long creationTs;\n"
@@ -662,6 +712,10 @@ public class AppSearchCompilerTest {
                         + "  @Document.Property private int price;\n"
                         + "  public String getUri() { return uri; }\n"
                         + "  public void setUri(String uri) { this.uri = uri; }\n"
+                        + "  public String getNamespace() { return namespace; }\n"
+                        + "  public void setNamespace(String namespace) {\n"
+                        + "    this.namespace = namespace;\n"
+                        + "  }\n"
                         + "  public int getScore() { return score; }\n"
                         + "  public void setScore(int score) { this.score = score; }\n"
                         + "  public long getCreationTs() { return creationTs; }\n"
@@ -685,6 +739,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document\n"
                         + "  public static class InnerGift{\n"
+                        + "    @Document.Namespace String namespace;\n"
                         + "    @Document.Uri String uri;\n"
                         + "    @Property String[] arrString;\n"        // 2b
                         + "  }\n"

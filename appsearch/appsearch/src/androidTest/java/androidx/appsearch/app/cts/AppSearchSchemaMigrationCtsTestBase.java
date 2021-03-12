@@ -315,11 +315,11 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         mDb.setSchema(new SetSchemaRequest.Builder()
                 .addSchemas(schema).setForceOverride(true).build()).get();
 
-        GenericDocument doc1 = new GenericDocument.Builder<>("uri1", "testSchema")
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "uri1", "testSchema")
                 .setPropertyString("subject", "testPut example1")
                 .setPropertyString("To", "testTo example1")
                 .build();
-        GenericDocument doc2 = new GenericDocument.Builder<>("uri2", "testSchema")
+        GenericDocument doc2 = new GenericDocument.Builder<>("namespace", "uri2", "testSchema")
                 .setPropertyString("subject", "testPut example2")
                 .setPropertyString("To", "testTo example2")
                 .build();
@@ -350,14 +350,16 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 helper.queryAndTransform("testSchema",
                         (currentVersion1, finalVersion1, document) -> {
                             if (document.getUri().equals("uri2")) {
-                                return new GenericDocument.Builder<>(document.getUri(),
+                                return new GenericDocument.Builder<>(document.getNamespace(),
+                                        document.getUri(),
                                         document.getSchemaType())
                                         .setPropertyString("subject", "testPut example2")
                                         .setPropertyString("to",
                                                 "Except to fail, property not in the schema")
                                         .build();
                             }
-                            return new GenericDocument.Builder<>(document.getUri(),
+                            return new GenericDocument.Builder<>(document.getNamespace(),
+                                    document.getUri(),
                                     document.getSchemaType())
                                     .setPropertyString("subject", "testPut example1 migrated")
                                     .setCreationTimestampMillis(12345L)
@@ -381,18 +383,17 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .containsExactly("testSchema");
 
         // Check migrate the first document is success
-        GenericDocument expected = new GenericDocument.Builder<>("uri1", "testSchema")
+        GenericDocument expected = new GenericDocument.Builder<>("namespace", "uri1", "testSchema")
                 .setPropertyString("subject", "testPut example1 migrated")
                 .setCreationTimestampMillis(12345L)
                 .build();
-        assertThat(doGet(mDb, GenericDocument.DEFAULT_NAMESPACE,
-                "uri1")).containsExactly(expected);
+        assertThat(doGet(mDb, "namespace", "uri1")).containsExactly(expected);
 
         // Check migrate the second document is fail.
         assertThat(setSchemaResponse.getMigrationFailures()).hasSize(1);
         SetSchemaResponse.MigrationFailure migrationFailure =
                 setSchemaResponse.getMigrationFailures().get(0);
-        assertThat(migrationFailure.getNamespace()).isEqualTo(GenericDocument.DEFAULT_NAMESPACE);
+        assertThat(migrationFailure.getNamespace()).isEqualTo("namespace");
         assertThat(migrationFailure.getSchemaType()).isEqualTo("testSchema");
         assertThat(migrationFailure.getUri()).isEqualTo("uri2");
     }

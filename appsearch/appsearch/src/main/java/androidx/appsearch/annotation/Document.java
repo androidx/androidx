@@ -84,10 +84,7 @@ public @interface Document {
      * during querying or deletion. Indexing a document with a particular {@link java.net.URI}
      * replaces any existing documents with the same URI in that namespace.
      *
-     * <p>This field is not required. If not present or not set, the document will be assigned to
-     * the default namespace, {@link androidx.appsearch.app.GenericDocument#DEFAULT_NAMESPACE}.
-     *
-     * <p>If present, the field must be of type {@code String}.
+     * <p>A document must have exactly one such field, and it must be of type {@link String}.
      *
      * <p>See the class description of {@link Document} for other requirements (i.e. if
      * present it must be visible, or have a visible getter and setter, or be exposed through a

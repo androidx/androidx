@@ -36,8 +36,9 @@ public class PutDocumentsRequestTest {
 
     @Test
     public void addGenericDocument_byCollection() {
-        Set<AppSearchEmail> emails = ImmutableSet.of(new AppSearchEmail.Builder("test1").build(),
-                new AppSearchEmail.Builder("test2").build());
+        Set<AppSearchEmail> emails =
+                ImmutableSet.of(new AppSearchEmail.Builder("namespace", "test1").build(),
+                        new AppSearchEmail.Builder("namespace", "test2").build());
         PutDocumentsRequest request = new PutDocumentsRequest.Builder().addGenericDocuments(emails)
                 .build();
 
@@ -48,14 +49,18 @@ public class PutDocumentsRequestTest {
 // @exportToFramework:startStrip()
     @Document
     static class Card {
+        @Document.Namespace
+        String mNamespace;
+
         @Document.Uri
         String mUri;
 
         @Document.Property(indexingType = INDEXING_TYPE_PREFIXES)
         String mString;
 
-        Card(String mUri, String mString) {
+        Card(String mNamespace, String mUri, String mString) {
             this.mUri = mUri;
+            this.mNamespace = mNamespace;
             this.mString = mString;
         }
     }
@@ -72,7 +77,7 @@ public class PutDocumentsRequestTest {
         ).get();
         session.setSchema(new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build());
 
-        Set<Card> cards = ImmutableSet.of(new Card("cardUri", "cardProperty"));
+        Set<Card> cards = ImmutableSet.of(new Card("cardNamespace", "cardUri", "cardProperty"));
         PutDocumentsRequest request = new PutDocumentsRequest.Builder().addDocuments(cards)
                 .build();
 

@@ -76,12 +76,14 @@ class ToGenericDocumentCodeGenerator {
                 .addParameter(classType, "document")
                 .addException(mHelper.getAppSearchExceptionClass());
 
-        // Construct a new GenericDocument.Builder with the schema type and URI
-        methodBuilder.addStatement("$T builder =\nnew $T<>($L, SCHEMA_NAME)",
+        // Construct a new GenericDocument.Builder with the namespace, URI, and schema type
+        methodBuilder.addStatement("$T builder =\nnew $T<>($L, $L, SCHEMA_NAME)",
                 ParameterizedTypeName.get(
                         mHelper.getAppSearchClass("GenericDocument", "Builder"),
                         WildcardTypeName.subtypeOf(Object.class)),
                 mHelper.getAppSearchClass("GenericDocument", "Builder"),
+                createAppSearchFieldRead(
+                        mModel.getSpecialFieldName(DocumentModel.SpecialField.NAMESPACE)),
                 createAppSearchFieldRead(
                         mModel.getSpecialFieldName(DocumentModel.SpecialField.URI)));
 
@@ -210,7 +212,7 @@ class ToGenericDocumentCodeGenerator {
         if (!tryCollectionForLoopAssign(body, fieldName, propertyName, propertyType)           // 1a
                 && !tryCollectionCallToArray(body, fieldName, propertyName, propertyType)      // 1b
                 && !tryCollectionForLoopCallToGenericDocument(
-                        body, fieldName, propertyName, propertyType)) {                        // 1c
+                body, fieldName, propertyName, propertyType)) {                        // 1c
             // Scenario 1x
             throw new ProcessingException(
                     "Unhandled out property type (1x): " + property.asType().toString(), property);
@@ -380,7 +382,7 @@ class ToGenericDocumentCodeGenerator {
         if (!tryArrayForLoopAssign(body, fieldName, propertyName, propertyType)                // 2a
                 && !tryArrayUseDirectly(body, fieldName, propertyName, propertyType)           // 2b
                 && !tryArrayForLoopCallToGenericDocument(
-                        body, fieldName, propertyName, propertyType)) {                        // 2c
+                body, fieldName, propertyName, propertyType)) {                        // 2c
             // Scenario 2x
             throw new ProcessingException(
                     "Unhandled out property type (2x): " + property.asType().toString(), property);
@@ -540,9 +542,9 @@ class ToGenericDocumentCodeGenerator {
         if (!tryFieldUseDirectlyWithNullCheck(
                 body, fieldName, propertyName, property.asType())  // 3a
                 && !tryFieldUseDirectlyWithoutNullCheck(
-                        body, fieldName, propertyName, property.asType())  // 3b
+                body, fieldName, propertyName, property.asType())  // 3b
                 && !tryFieldCallToGenericDocument(
-                        body, fieldName, propertyName, property.asType())) {  // 3c
+                body, fieldName, propertyName, property.asType())) {  // 3c
             // Scenario 3x
             throw new ProcessingException(
                     "Unhandled out property type (3x): " + property.asType().toString(), property);
@@ -675,15 +677,7 @@ class ToGenericDocumentCodeGenerator {
                 case URI:
                     break;  // Always provided to builder constructor; cannot be set separately.
                 case NAMESPACE:
-                    method.addCode(CodeBlock.builder()
-                            .addStatement(
-                                    "String $NCopy = $L",
-                                    fieldName, createAppSearchFieldRead(fieldName))
-                            .add("if ($NCopy != null) {\n", fieldName).indent()
-                            .addStatement("builder.setNamespace($NCopy)", fieldName)
-                            .unindent().add("}\n")
-                            .build());
-                    break;
+                    break;  // Always provided to builder constructor; cannot be set separately.
                 case CREATION_TIMESTAMP_MILLIS:
                     method.addStatement(
                             "builder.setCreationTimestampMillis($L)",

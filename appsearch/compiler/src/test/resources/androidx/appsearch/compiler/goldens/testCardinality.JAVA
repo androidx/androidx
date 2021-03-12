@@ -43,7 +43,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(document.uri, SCHEMA_NAME);
+        new GenericDocument.Builder<>(document.namespace, document.uri, SCHEMA_NAME);
     List<String> repeatReqCopy = document.repeatReq;
     if (repeatReqCopy != null) {
       String[] repeatReqConv = repeatReqCopy.toArray(new String[0]);
@@ -68,6 +68,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String uriConv = genericDoc.getUri();
+    String namespaceConv = genericDoc.getNamespace();
     String[] repeatReqCopy = genericDoc.getPropertyStringArray("repeatReq");
     List<String> repeatReqConv = null;
     if (repeatReqCopy != null) {
@@ -89,6 +90,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
       noReqConv = (float) noReqCopy[0];
     }
     Gift document = new Gift();
+    document.namespace = namespaceConv;
     document.uri = uriConv;
     document.repeatReq = repeatReqConv;
     document.repeatNoReq = repeatNoReqConv;

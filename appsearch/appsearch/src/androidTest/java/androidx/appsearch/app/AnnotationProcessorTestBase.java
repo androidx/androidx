@@ -65,6 +65,9 @@ public abstract class AnnotationProcessorTestBase {
 
     @Document
     static class Card {
+        @Document.Namespace
+        String mNamespace;
+
         @Document.Uri
         String mUri;
 
@@ -91,6 +94,9 @@ public abstract class AnnotationProcessorTestBase {
 
     @Document
     static class Gift {
+        @Document.Namespace
+        String mNamespace;
+
         @Document.Uri
         String mUri;
 
@@ -182,6 +188,7 @@ public abstract class AnnotationProcessorTestBase {
                 return false;
             }
             Gift otherGift = (Gift) other;
+            assertThat(otherGift.mNamespace).isEqualTo(this.mNamespace);
             assertThat(otherGift.mUri).isEqualTo(this.mUri);
             assertThat(otherGift.mArrBoxBoolean).isEqualTo(this.mArrBoxBoolean);
             assertThat(otherGift.mArrBoxDouble).isEqualTo(this.mArrBoxDouble);
@@ -234,6 +241,7 @@ public abstract class AnnotationProcessorTestBase {
 
         public static Gift createPopulatedGift() {
             Gift gift = new Gift();
+            gift.mNamespace = "gift.namespace";
             gift.mUri = "gift.uri";
 
             gift.mArrBoxBoolean = new Boolean[]{true, false};
@@ -251,8 +259,10 @@ public abstract class AnnotationProcessorTestBase {
             gift.mArrUnboxLong = new long[]{7, 6};
 
             Card card1 = new Card();
+            card1.mNamespace = "card.namespace";
             card1.mUri = "card.uri1";
             Card card2 = new Card();
+            card2.mNamespace = "card.namespace";
             card2.mUri = "card.uri2";
             gift.mArrCard = new Card[]{card2, card2};
 
@@ -318,12 +328,13 @@ public abstract class AnnotationProcessorTestBase {
 
         // Create documents and index them
         Gift inputDocument1 = new Gift();
+        inputDocument1.mNamespace = "gift.namespace";
         inputDocument1.mUri = "gift.uri1";
         Gift inputDocument2 = new Gift();
+        inputDocument2.mNamespace = "gift.namespace";
         inputDocument2.mUri = "gift.uri2";
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri3")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "uri3")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
