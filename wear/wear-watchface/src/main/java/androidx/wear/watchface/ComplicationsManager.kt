@@ -65,9 +65,9 @@ public class ComplicationsManager(
         /**
          * Called when the user single taps on a complication.
          *
-         * @param complicationId The watch face's id for the complication single tapped
+         * @param complicationId The watch face's id for the complication that was tapped
          */
-        public fun onComplicationSingleTapped(complicationId: Int) {}
+        public fun onComplicationTapped(complicationId: Int) {}
     }
 
     private lateinit var watchFaceHostApi: WatchFaceHostApi
@@ -367,7 +367,7 @@ public class ComplicationsManager(
 
         data.complicationData.tapAction?.send()
         for (complicationListener in complicationListeners) {
-            complicationListener.onComplicationSingleTapped(complicationId)
+            complicationListener.onComplicationTapped(complicationId)
         }
     }
 
