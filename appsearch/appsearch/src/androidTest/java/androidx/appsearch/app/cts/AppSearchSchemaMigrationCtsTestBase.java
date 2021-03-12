@@ -32,7 +32,6 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
-import androidx.appsearch.localstorage.LocalStorage;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -70,7 +69,7 @@ import java.util.concurrent.ExecutionException;
 //TODO(b/178060626) add a platform version of this test
 public abstract class AppSearchSchemaMigrationCtsTestBase {
 
-    private static final String DB_NAME = LocalStorage.DEFAULT_DATABASE_NAME;
+    private static final String DB_NAME = "";
     private static final AppSearchSchema.Migrator NO_OP_MIGRATOR = new AppSearchSchema.Migrator() {
         @Override
         public void onUpgrade(int currentVersion,

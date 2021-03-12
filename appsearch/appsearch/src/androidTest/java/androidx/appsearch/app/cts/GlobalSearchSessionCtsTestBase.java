@@ -35,7 +35,6 @@ import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
@@ -51,7 +50,7 @@ import java.util.List;
 
 public abstract class GlobalSearchSessionCtsTestBase {
     private AppSearchSession mDb1;
-    private static final String DB_NAME_1 = LocalStorage.DEFAULT_DATABASE_NAME;
+    private static final String DB_NAME_1 = "";
     private AppSearchSession mDb2;
     private static final String DB_NAME_2 = "testDb2";
 

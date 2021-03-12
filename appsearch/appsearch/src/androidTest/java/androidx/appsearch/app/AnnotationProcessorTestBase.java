@@ -25,7 +25,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.annotation.Document;
-import androidx.appsearch.localstorage.LocalStorage;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -39,7 +38,7 @@ import java.util.List;
 
 public abstract class AnnotationProcessorTestBase {
     private AppSearchSession mSession;
-    private static final String DB_NAME_1 = LocalStorage.DEFAULT_DATABASE_NAME;
+    private static final String DB_NAME_1 = "";
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull String dbName);

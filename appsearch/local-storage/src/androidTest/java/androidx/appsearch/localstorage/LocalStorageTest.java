@@ -40,13 +40,18 @@ public class LocalStorageTest {
         // in database name, add checker in SearchContext.Builder and reflect it in java doc.
         LocalStorage.SearchContext.Builder contextBuilder =
                 new LocalStorage.SearchContext.Builder(
-                        ApplicationProvider.getApplicationContext());
+                        ApplicationProvider.getApplicationContext(),
+                        /*databaseName=*/ "");
 
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> contextBuilder.setDatabaseName("testDatabaseNameEndWith/"));
+                () -> new LocalStorage.SearchContext.Builder(
+                        ApplicationProvider.getApplicationContext(),
+                        "testDatabaseNameEndWith/").build());
         assertThat(e).hasMessageThat().isEqualTo("Database name cannot contain '/'");
         e = assertThrows(IllegalArgumentException.class,
-                () -> contextBuilder.setDatabaseName("/testDatabaseNameStartWith"));
+                () -> new LocalStorage.SearchContext.Builder(
+                        ApplicationProvider.getApplicationContext(),
+                        "/testDatabaseNameStartWith").build());
         assertThat(e).hasMessageThat().isEqualTo("Database name cannot contain '/'");
     }
 }

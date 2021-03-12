@@ -71,8 +71,7 @@ public class PutDocumentsRequestTest {
         // PutDocumentsRequest.
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession session = LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context)
-                        .setDatabaseName(LocalStorage.DEFAULT_DATABASE_NAME)
+                new LocalStorage.SearchContext.Builder(context, /*databaseName=*/ "")
                         .build()
         ).get();
         session.setSchema(new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build());

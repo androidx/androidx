@@ -30,6 +30,6 @@ public class AppSearchSchemaMigrationLocalCtsTest extends AppSearchSchemaMigrati
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
         return LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context).setDatabaseName(dbName).build());
+                new LocalStorage.SearchContext.Builder(context, dbName).build());
     }
 }

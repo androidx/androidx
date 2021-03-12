@@ -50,14 +50,6 @@ import java.util.concurrent.Executors;
  */
 public class LocalStorage {
     private static final String TAG = "AppSearchLocalStorage";
-    /**
-     * The default empty database name.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @VisibleForTesting
-    public static final String DEFAULT_DATABASE_NAME = "";
 
     private static final String ICING_LIB_ROOT_DIR = "appsearch";
 
@@ -82,15 +74,11 @@ public class LocalStorage {
         /** Builder for {@link SearchContext} objects. */
         public static final class Builder {
             private final Context mContext;
-            private String mDatabaseName = DEFAULT_DATABASE_NAME;
+            private final String mDatabaseName;
             private boolean mBuilt = false;
 
-            public Builder(@NonNull Context context) {
-                mContext = Preconditions.checkNotNull(context);
-            }
-
             /**
-             * Sets the name of the database associated with {@link AppSearchSession}.
+             * Creates a {@link SearchContext.Builder} instance.
              *
              * <p>{@link AppSearchSession} will create or open a database under the given name.
              *
@@ -99,21 +87,16 @@ public class LocalStorage {
              *
              * <p>The database name cannot contain {@code '/'}.
              *
-             * <p>If not specified, the database name is set to an empty string.
-             *
              * @param databaseName The name of the database.
              * @throws IllegalArgumentException if the databaseName contains {@code '/'}.
-             * @throws IllegalStateException if the builder has already been used.
              */
-            @NonNull
-            public Builder setDatabaseName(@NonNull String databaseName) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
+            public Builder(@NonNull Context context, @NonNull String databaseName) {
+                mContext = Preconditions.checkNotNull(context);
                 Preconditions.checkNotNull(databaseName);
                 if (databaseName.contains("/")) {
                     throw new IllegalArgumentException("Database name cannot contain '/'");
                 }
                 mDatabaseName = databaseName;
-                return this;
             }
 
             /** Builds a {@link SearchContext} instance. */
@@ -180,6 +163,7 @@ public class LocalStorage {
      *
      * <p>This process requires a native search library. If it's not created, the initialization
      * process will create one.
+     *
      * @hide
      */
     @NonNull

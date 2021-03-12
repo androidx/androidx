@@ -46,7 +46,6 @@ import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.cts.customer.EmailDocument;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
@@ -66,7 +65,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 public abstract class AppSearchSessionCtsTestBase {
-    private static final String DB_NAME_1 = LocalStorage.DEFAULT_DATABASE_NAME;
+    private static final String DB_NAME_1 = "";
     private static final String DB_NAME_2 = "testDb2";
 
     private AppSearchSession mDb1;

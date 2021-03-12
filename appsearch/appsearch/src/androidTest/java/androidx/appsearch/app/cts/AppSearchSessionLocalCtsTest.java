@@ -32,7 +32,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
         return LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context).setDatabaseName(dbName).build());
+                new LocalStorage.SearchContext.Builder(context, dbName).build());
     }
 
     @Override
@@ -40,7 +40,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
             @NonNull String dbName, @NonNull ExecutorService executor) {
         Context context = ApplicationProvider.getApplicationContext();
         return LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context).setDatabaseName(dbName).build(),
+                new LocalStorage.SearchContext.Builder(context, dbName).build(),
                 executor);
     }
 }
