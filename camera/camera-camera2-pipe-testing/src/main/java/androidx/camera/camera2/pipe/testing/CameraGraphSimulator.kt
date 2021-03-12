@@ -40,12 +40,12 @@ class CameraGraphSimulator(
         check(config.camera == metadata.camera)
     }
 
-    private val requestProcessor = FakeRequestProcessor()
+    private val fakeRequestProcessor = FakeRequestProcessor()
     private val cameraPipe = CameraPipe.External()
     public val cameraGraph = cameraPipe.create(
         config,
         FakeCameraDevices(listOf(metadata)),
-        requestProcessor
+        fakeRequestProcessor
     )
 
     private var frameClockNanos = atomic(0L)
@@ -64,7 +64,7 @@ class CameraGraphSimulator(
         // available it will suspend until the next interaction with the request processor.
         if (pendingFrameQueue.isEmpty()) {
             val requestSequence =
-                withTimeoutOrNull(timeMillis = 50) { requestProcessor.nextRequestSequence() }
+                withTimeoutOrNull(timeMillis = 200) { fakeRequestProcessor.nextRequestSequence() }
                     ?: return null
 
             // Each sequence is processed as a group, and if a sequence contains multiple requests
