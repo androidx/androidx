@@ -598,7 +598,8 @@ public final class CameraX {
                 // Only verify the devices might have the b/167201193
                 if (DeviceQuirks.get(IncompleteCameraListQuirk.class) != null) {
                     // Please ensure only validate the camera at the last of the initialization.
-                    CameraValidator.validateCameras(mAppContext, mCameraRepository);
+                    CameraValidator.validateCameras(mAppContext, mCameraRepository,
+                            availableCamerasLimiter);
                 }
 
                 // Set completer to null if the init was successful.
