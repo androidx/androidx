@@ -163,9 +163,6 @@ public sealed class Renderer(
             }
         }
 
-    /** Allows the renderer to finalize init after the child class's constructor has finished. */
-    internal open fun onPostCreate() {}
-
     /** Called when the Renderer is destroyed. */
     @UiThread
     public open fun onDestroy() {
@@ -371,6 +368,7 @@ public sealed class Renderer(
 
     /**
      * Watch faces that require [GLES20] rendering should extend their [Renderer] from this class.
+     * Before passing to the [WatchFace] constructor [initOpenGlContext] must be called.
      */
     public abstract class GlesRenderer @JvmOverloads constructor(
         /** The [SurfaceHolder] whose [android.view.Surface] [render] will draw into. */
@@ -413,7 +411,8 @@ public sealed class Renderer(
             private const val TAG = "Gles2WatchFace"
         }
 
-        private var eglDisplay: EGLDisplay? = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY).apply {
+        /** The GlesRenderer's [EGLDisplay]. */
+        public var eglDisplay: EGLDisplay? = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY).apply {
             if (this == EGL14.EGL_NO_DISPLAY) {
                 throw RuntimeException("eglGetDisplay returned EGL_NO_DISPLAY")
             }
@@ -424,10 +423,12 @@ public sealed class Renderer(
             }
         }
 
-        private var eglConfig: EGLConfig = chooseEglConfig(eglDisplay!!)
+        /** The GlesRenderer's [EGLConfig]. */
+        public var eglConfig: EGLConfig = chooseEglConfig(eglDisplay!!)
 
+        /** The GlesRenderer's [EGLContext]. */
         @SuppressWarnings("SyntheticAccessor")
-        private var eglContext: EGLContext? = EGL14.eglCreateContext(
+        public var eglContext: EGLContext? = EGL14.eglCreateContext(
             eglDisplay,
             eglConfig,
             EGL14.EGL_NO_CONTEXT,
@@ -443,6 +444,7 @@ public sealed class Renderer(
 
         private var eglSurface: EGLSurface? = null
         private var calledOnGlContextCreated = false
+        internal var initDone = false
 
         /**
          * Chooses the EGLConfig to use.
@@ -538,7 +540,12 @@ public sealed class Renderer(
             }
         }
 
-        internal override fun onPostCreate() {
+        /**
+         * Initializes the GlesRenderer, and calls [onGlSurfaceCreated]. It is an error to construct
+         * a [WatchFace] before this method has been called.
+         */
+        @UiThread
+        public fun initOpenGlContext() {
             surfaceHolder.addCallback(object : SurfaceHolder.Callback {
                 @SuppressLint("SyntheticAccessor")
                 override fun surfaceChanged(
@@ -562,10 +569,14 @@ public sealed class Renderer(
                 }
             })
 
+            // Note we have to call this after the derived class's init() method has run or it's
+            // typically going to fail because members have not been initialized.
             createWindowSurface(
                 surfaceHolder.surfaceFrame.width(),
                 surfaceHolder.surfaceFrame.height()
             )
+
+            initDone = true
         }
 
         /** Called when a new GL context is created. It's safe to use GL APIs in this method. */

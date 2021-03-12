@@ -22,6 +22,8 @@
     <string name="canvas_digital_watch_face_name"
         translatable="false">Example Digital Watchface</string>
     <string name="gl_watch_face_name" translatable="false">Example OpenGL Watchface</string>
+    <string name="gl_background_init_watch_face_name"
+        translatable="false">Background Init Watchface</string>
 
     <!-- Name of watchface style [CHAR LIMIT=20] -->
     <string name="red_style_name">Red Style</string>

@@ -136,6 +136,14 @@ public class WatchFace @JvmOverloads constructor(
 ) {
     internal var tapListener: TapListener? = null
 
+    init {
+        if (renderer is Renderer.GlesRenderer) {
+            require(renderer.initDone) {
+                "Did you forget to call GlesRenderer.initOpenGLContext?"
+            }
+        }
+    }
+
     public companion object {
         /** Returns whether [LegacyWatchFaceOverlayStyle] is supported on this device. */
         @JvmStatic

@@ -966,8 +966,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
             mutableWatchState.isVisible.value = true
             mutableWatchState.isAmbient.value = false
-
-            watchFaceImpl.renderer.onPostCreate()
             return HeadlessWatchFaceImpl(this, uiThreadHandler)
         }
 
@@ -1000,7 +998,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
             params.idAndComplicationDataWireFormats?.let { setComplicationDataList(it) }
 
-            watchFaceImpl.renderer.onPostCreate()
             val visibility = pendingVisibilityChanged
             if (visibility != null) {
                 onVisibilityChanged(visibility)
@@ -1068,7 +1065,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 val watchState = mutableWatchState.asWatchState()
                 createWatchFaceInternal(watchState, surfaceHolder, "maybeCreateWatchFace")
-                watchFaceImpl.renderer.onPostCreate()
 
                 val backgroundAction = pendingBackgroundAction
                 if (backgroundAction != null) {

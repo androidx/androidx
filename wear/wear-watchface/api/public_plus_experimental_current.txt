@@ -194,9 +194,19 @@ package androidx.wear.watchface {
     ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList);
     ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList);
     ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis);
+    method public final android.opengl.EGLConfig getEglConfig();
+    method public final android.opengl.EGLContext? getEglContext();
+    method public final android.opengl.EGLDisplay? getEglDisplay();
+    method @UiThread public final void initOpenGlContext();
     method @UiThread public void onGlContextCreated();
     method @UiThread public void onGlSurfaceCreated(int width, int height);
     method @UiThread public abstract void render(android.icu.util.Calendar calendar);
+    method public final void setEglConfig(android.opengl.EGLConfig p);
+    method public final void setEglContext(android.opengl.EGLContext? p);
+    method public final void setEglDisplay(android.opengl.EGLDisplay? p);
+    property public final android.opengl.EGLConfig eglConfig;
+    property public final android.opengl.EGLContext? eglContext;
+    property public final android.opengl.EGLDisplay? eglDisplay;
   }
 
   public final class RendererKt {
