@@ -1233,6 +1233,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @Deprecated
     public void setRetainInstance(boolean retain) {
+        FragmentStrictMode.onSetRetainInstance(this);
         mRetainInstance = retain;
         if (mFragmentManager != null) {
             if (retain) {

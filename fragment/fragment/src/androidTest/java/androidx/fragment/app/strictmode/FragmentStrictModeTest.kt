@@ -129,6 +129,20 @@ public class FragmentStrictModeTest {
     }
 
     @Test
+    public fun detectSetRetainInstance() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectSetRetainInstance()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        @Suppress("DEPRECATION")
+        StrictFragment().retainInstance = true
+        assertThat(violation).isInstanceOf(SetRetainInstanceViolation::class.java)
+    }
+
+    @Test
     public fun detectSetUserVisibleHint() {
         var violation: Violation? = null
         val policy = FragmentStrictMode.Policy.Builder()
