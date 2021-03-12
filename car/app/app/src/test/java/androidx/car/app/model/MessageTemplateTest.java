@@ -33,6 +33,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Tests for {@link MessageTemplate}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -121,6 +124,25 @@ public class MessageTemplateTest {
         assertThat(template.getIcon()).isEqualTo(icon);
         assertThat(template.getHeaderAction()).isEqualTo(Action.BACK);
         assertThat(template.getActions()).containsExactly(action);
+    }
+
+    @Test
+    public void create_messageHasTextVariants() {
+        List<CharSequence> variants = new ArrayList<>();
+        variants.add("This is a long message that only fits in a large screen");
+        variants.add("This is a short message");
+        CarText message =
+                new CarText.Builder(variants.get(0)).addVariant(variants.get(1)).build();
+
+        MessageTemplate template =
+                new MessageTemplate.Builder(message)
+                        .setTitle(mTitle)
+                        .build();
+
+        assertThat(template.getMessage().toCharSequence().toString()).isEqualTo(variants.get(0));
+        assertThat(template.getMessage().getVariants().size()).isEqualTo(1);
+        assertThat(template.getMessage().getVariants().get(0).toString()).isEqualTo(
+                variants.get(1));
     }
 
     @Test
