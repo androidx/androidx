@@ -29,6 +29,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -309,6 +310,21 @@ public final class Row implements Item {
         }
 
         /**
+         * Sets the title of the row.
+         *
+         * @throws IllegalArgumentException if {@code title} is {@code null} or empty
+         */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder setTitle(@NonNull CarText title) {
+            if (requireNonNull(title).isEmpty()) {
+                throw new IllegalArgumentException("The title cannot be null or empty");
+            }
+            mTitle = title;
+            return this;
+        }
+
+        /**
          * Adds a text string to the row below the title.
          *
          * <p>The text's color can be customized with {@link ForegroundCarColorSpan} instances, any
@@ -376,6 +392,19 @@ public final class Row implements Item {
         @NonNull
         public Builder addText(@NonNull CharSequence text) {
             mTexts.add(CarText.create(requireNonNull(text)));
+            return this;
+        }
+
+        /**
+         * Adds a text string to the row below the title.
+         *
+         * @throws NullPointerException if {@code text} is {@code null}
+         * @see Builder#addText(CharSequence)
+         */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder addText(@NonNull CarText text) {
+            mTexts.add(requireNonNull(text));
             return this;
         }
 
