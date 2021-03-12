@@ -488,6 +488,7 @@ package androidx.fragment.app.strictmode {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public final class FragmentStrictMode {
     method public static androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onRetainInstanceUsage(androidx.fragment.app.Fragment);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onSetTargetFragment(androidx.fragment.app.Fragment);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onSetUserVisibleHint(androidx.fragment.app.Fragment);
     method public static void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy);
   }
@@ -504,6 +505,7 @@ package androidx.fragment.app.strictmode {
     ctor public FragmentStrictMode.Policy.Builder();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy build();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectRetainInstanceUsage();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectSetTargetFragment();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectSetUserVisibleHint();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyDeath();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyListener(androidx.fragment.app.strictmode.FragmentStrictMode.OnViolationListener);
@@ -512,6 +514,10 @@ package androidx.fragment.app.strictmode {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public final class RetainInstanceUsageViolation extends androidx.fragment.app.strictmode.Violation {
     ctor public RetainInstanceUsageViolation();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public final class SetTargetFragmentViolation extends androidx.fragment.app.strictmode.Violation {
+    ctor public SetTargetFragmentViolation();
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {

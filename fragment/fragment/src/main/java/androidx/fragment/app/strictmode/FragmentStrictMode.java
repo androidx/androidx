@@ -52,6 +52,7 @@ public final class FragmentStrictMode {
         PENALTY_DEATH,
 
         DETECT_RETAIN_INSTANCE_USAGE,
+        DETECT_SET_TARGET_FRAGMENT,
         DETECT_SET_USER_VISIBLE_HINT
     }
 
@@ -154,6 +155,14 @@ public final class FragmentStrictMode {
                 return this;
             }
 
+            /** Detects calls to #{@link Fragment#setTargetFragment}. */
+            @NonNull
+            @SuppressLint("BuilderSetStyle")
+            public Builder detectSetTargetFragment() {
+                flags.add(Flag.DETECT_SET_TARGET_FRAGMENT);
+                return this;
+            }
+
             /** Detects calls to #{@link Fragment#setUserVisibleHint}. */
             @NonNull
             @SuppressLint("BuilderSetStyle")
@@ -212,6 +221,14 @@ public final class FragmentStrictMode {
         Policy policy = getNearestPolicy(fragment);
         if (policy.flags.contains(Flag.DETECT_RETAIN_INSTANCE_USAGE)) {
             handlePolicyViolation(fragment, policy, new RetainInstanceUsageViolation());
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onSetTargetFragment(@NonNull Fragment fragment) {
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.flags.contains(Flag.DETECT_SET_TARGET_FRAGMENT)) {
+            handlePolicyViolation(fragment, policy, new SetTargetFragmentViolation());
         }
     }
 
