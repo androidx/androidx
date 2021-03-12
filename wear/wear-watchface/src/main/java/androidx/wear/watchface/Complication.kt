@@ -454,7 +454,7 @@ public class Complication internal constructor(
         @UiThread
         get
         @UiThread
-        set(value) {
+        internal set(value) {
             require(boundsType != ComplicationBoundsType.BACKGROUND)
             if (field == value) {
                 return
