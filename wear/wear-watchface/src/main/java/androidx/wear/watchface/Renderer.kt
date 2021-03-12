@@ -290,7 +290,7 @@ public sealed class Renderer(
          * animation once per second it can adjust the frame rate inorder to sleep when not
          * animating.
          */
-        @IntRange(from = 0, to = 10000)
+        @IntRange(from = 0, to = 60000)
         interactiveDrawModeUpdateDelayMillis: Long
     ) : Renderer(
         surfaceHolder,
@@ -390,7 +390,7 @@ public sealed class Renderer(
          * animation once per second it can adjust the frame rate inorder to sleep when not
          * animating.
          */
-        @IntRange(from = 0, to = 10000)
+        @IntRange(from = 0, to = 60000)
         interactiveDrawModeUpdateDelayMillis: Long,
 
         /**
