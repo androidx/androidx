@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarText;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,6 +60,20 @@ public class StepTest {
         assertThat(maneuver).isEqualTo(step.getManeuver());
         assertThat(cue).isEqualTo(step.getCue().toString());
         assertThat(road).isEqualTo(step.getRoad().toString());
+    }
+
+    @Test
+    public void createInstance_cueHasVariants() {
+        Lane lane = new Lane.Builder().addDirection(
+                LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
+        CarText cue = new CarText.Builder("Foo Long").addVariant("Foo").build();
+        Step step =
+                new Step.Builder(cue)
+                        .addLane(lane)
+                        .build();
+
+        assertThat(step.getCue().toString()).isEqualTo("Foo Long");
+        assertThat(step.getCue().getVariants().get(0).toString()).isEqualTo("Foo");
     }
 
     @Test

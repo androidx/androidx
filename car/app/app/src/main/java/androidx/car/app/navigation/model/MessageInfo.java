@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -121,8 +122,6 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Sets the title of the message.
          *
-         * <p>Unless set with this method, the message will not have a title.
-         *
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code message} is {@code null}
@@ -137,8 +136,6 @@ public final class MessageInfo implements NavigationInfo {
         /**
          * Sets additional text on the message.
          *
-         * <p>Unless set with this method, the message will not have additional text.
-         *
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code text} is {@code null}
@@ -147,6 +144,21 @@ public final class MessageInfo implements NavigationInfo {
         @NonNull
         public Builder setText(@NonNull CharSequence text) {
             mText = CarText.create(requireNonNull(text));
+            return this;
+        }
+
+        /**
+         * Sets additional text on the message.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code text} is {@code null}
+         * @see CarText
+         */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder setText(@NonNull CarText text) {
+            mText = requireNonNull(text);
             return this;
         }
 
@@ -177,6 +189,16 @@ public final class MessageInfo implements NavigationInfo {
          */
         public Builder(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+        }
+
+        /**
+         * Returns a new instance of a {@link Builder}.
+         *
+         * @throws NullPointerException if {@code title} is {@code null}
+         */
+        @ExperimentalCarApi
+        public Builder(@NonNull CarText title) {
+            mTitle = requireNonNull(title);
         }
     }
 }

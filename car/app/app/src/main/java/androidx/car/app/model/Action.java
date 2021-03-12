@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -281,8 +282,6 @@ public final class Action {
         /**
          * Sets the title to display in the action.
          *
-         * <p>Unless set with this method, the action will not have a title.
-         *
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code title} is {@code null}
@@ -291,6 +290,21 @@ public final class Action {
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            return this;
+        }
+
+        /**
+         * Sets the title to display in the action.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code title} is {@code null}
+         * @see CarText
+         */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder setTitle(@NonNull CarText title) {
+            mTitle = requireNonNull(title);
             return this;
         }
 
