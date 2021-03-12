@@ -556,7 +556,8 @@ public class MediaSessionCompat {
             // the associated intent will be handled by the component being registered
             mediaButtonIntent.setComponent(mbrComponent);
             mbrIntent = PendingIntent.getBroadcast(context,
-                    0/* requestCode, ignored */, mediaButtonIntent, 0/* flags */);
+                    0/* requestCode, ignored */, mediaButtonIntent,
+                    PendingIntent.FLAG_IMMUTABLE);
         }
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
