@@ -220,14 +220,14 @@ package androidx.wear.watchface {
   }
 
   public abstract static class Renderer.CanvasRenderer extends androidx.wear.watchface.Renderer {
-    ctor public Renderer.CanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
+    ctor public Renderer.CanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis);
     method @UiThread public abstract void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
   }
 
   public abstract static class Renderer.GlesRenderer extends androidx.wear.watchface.Renderer {
-    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList);
-    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList);
-    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
+    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList);
+    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList);
+    ctor public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis);
     method @UiThread public void onGlContextCreated();
     method @UiThread public void onGlSurfaceCreated(int width, int height);
     method @UiThread public abstract void render(android.icu.util.Calendar calendar);
