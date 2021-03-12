@@ -234,7 +234,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
             results = searchResults.getNextPage().get();
             ++pageNumber;
             for (SearchResult result : results) {
-                documents.add(result.getDocument());
+                documents.add(result.getGenericDocument());
             }
         } while (results.size() > 0);
 

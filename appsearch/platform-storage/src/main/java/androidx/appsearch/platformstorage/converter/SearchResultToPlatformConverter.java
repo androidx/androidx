@@ -17,7 +17,6 @@
 package androidx.appsearch.platformstorage.converter;
 
 import android.os.Build;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -26,7 +25,6 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResult;
 import androidx.core.util.Preconditions;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,43 +41,34 @@ public class SearchResultToPlatformConverter {
     public static SearchResult toJetpackSearchResult(
             @NonNull android.app.appsearch.SearchResult platformResult) {
         Preconditions.checkNotNull(platformResult);
-        Bundle bundle = new Bundle();
         GenericDocument document = GenericDocumentToPlatformConverter.toJetpackGenericDocument(
                 platformResult.getDocument());
-        bundle.putBundle(SearchResult.DOCUMENT_FIELD, document.getBundle());
-        bundle.putString(SearchResult.PACKAGE_NAME_FIELD, platformResult.getPackageName());
-        bundle.putString(SearchResult.DATABASE_NAME_FIELD, platformResult.getDatabaseName());
-
+        SearchResult.Builder builder = new SearchResult.Builder(
+                platformResult.getPackageName(), platformResult.getDatabaseName())
+                .setGenericDocument(document);
         List<android.app.appsearch.SearchResult.MatchInfo> platformMatches =
                 platformResult.getMatches();
-        ArrayList<Bundle> jetpackMatches = new ArrayList<>(platformMatches.size());
         for (int i = 0; i < platformMatches.size(); i++) {
-            Bundle jetpackMatchInfoBundle = convertToJetpackMatchInfoBundle(platformMatches.get(i));
-            jetpackMatches.add(jetpackMatchInfoBundle);
+            SearchResult.MatchInfo jetpackMatchInfo = toJetpackMatchInfo(platformMatches.get(i));
+            builder.addMatch(jetpackMatchInfo);
         }
-        bundle.putParcelableArrayList(SearchResult.MATCHES_FIELD, jetpackMatches);
-        return new SearchResult(bundle);
+        return builder.build();
     }
 
     @NonNull
-    private static Bundle convertToJetpackMatchInfoBundle(
+    private static SearchResult.MatchInfo toJetpackMatchInfo(
             @NonNull android.app.appsearch.SearchResult.MatchInfo platformMatchInfo) {
         Preconditions.checkNotNull(platformMatchInfo);
-        Bundle bundle = new Bundle();
-        bundle.putString(
-                SearchResult.MatchInfo.PROPERTY_PATH_FIELD, platformMatchInfo.getPropertyPath());
-        bundle.putInt(
-                SearchResult.MatchInfo.EXACT_MATCH_POSITION_LOWER_FIELD,
-                platformMatchInfo.getExactMatchPosition().getStart());
-        bundle.putInt(
-                SearchResult.MatchInfo.EXACT_MATCH_POSITION_UPPER_FIELD,
-                platformMatchInfo.getExactMatchPosition().getEnd());
-        bundle.putInt(
-                SearchResult.MatchInfo.WINDOW_POSITION_LOWER_FIELD,
-                platformMatchInfo.getSnippetPosition().getStart());
-        bundle.putInt(
-                SearchResult.MatchInfo.WINDOW_POSITION_UPPER_FIELD,
-                platformMatchInfo.getSnippetPosition().getEnd());
-        return bundle;
+        return new SearchResult.MatchInfo.Builder()
+                .setPropertyPath(platformMatchInfo.getPropertyPath())
+                .setExactMatchRange(
+                        new SearchResult.MatchRange(
+                                platformMatchInfo.getExactMatchPosition().getStart(),
+                                platformMatchInfo.getExactMatchPosition().getEnd()))
+                .setSnippetRange(
+                        new SearchResult.MatchRange(
+                                platformMatchInfo.getSnippetPosition().getStart(),
+                                platformMatchInfo.getSnippetPosition().getEnd()))
+                .build();
     }
 }

@@ -957,7 +957,7 @@ public abstract class AppSearchSessionCtsTestBase {
             results = searchResults.getNextPage().get();
             ++pageNumber;
             for (SearchResult result : results) {
-                documents.add(result.getDocument());
+                documents.add(result.getGenericDocument());
             }
         } while (results.size() > 0);
 
@@ -1175,10 +1175,10 @@ public abstract class AppSearchSessionCtsTestBase {
         do {
             results = searchResults.getNextPage().get();
             for (SearchResult result : results) {
-                assertThat(result.getDocument()).isEqualTo(inEmail);
+                assertThat(result.getGenericDocument()).isEqualTo(inEmail);
                 assertThat(result.getPackageName()).isEqualTo(
                         ApplicationProvider.getApplicationContext().getPackageName());
-                documents.add(result.getDocument());
+                documents.add(result.getGenericDocument());
             }
         } while (results.size() > 0);
         assertThat(documents).hasSize(1);
@@ -1212,9 +1212,9 @@ public abstract class AppSearchSessionCtsTestBase {
         do {
             results = searchResults.getNextPage().get();
             for (SearchResult result : results) {
-                assertThat(result.getDocument()).isEqualTo(inEmail);
+                assertThat(result.getGenericDocument()).isEqualTo(inEmail);
                 assertThat(result.getDatabaseName()).isEqualTo(DB_NAME_1);
-                documents.add(result.getDocument());
+                documents.add(result.getGenericDocument());
             }
         } while (results.size() > 0);
         assertThat(documents).hasSize(1);
@@ -1236,9 +1236,9 @@ public abstract class AppSearchSessionCtsTestBase {
         do {
             results = searchResults.getNextPage().get();
             for (SearchResult result : results) {
-                assertThat(result.getDocument()).isEqualTo(inEmail);
+                assertThat(result.getGenericDocument()).isEqualTo(inEmail);
                 assertThat(result.getDatabaseName()).isEqualTo(DB_NAME_2);
-                documents.add(result.getDocument());
+                documents.add(result.getGenericDocument());
             }
         } while (results.size() > 0);
         assertThat(documents).hasSize(1);
@@ -1738,10 +1738,10 @@ public abstract class AppSearchSessionCtsTestBase {
         SearchResult.MatchInfo matchInfo = matchInfos.get(0);
         assertThat(matchInfo.getFullText()).isEqualTo("A commonly used fake word is foo. "
                 + "Another nonsense word that’s used a lot is bar");
-        assertThat(matchInfo.getExactMatchPosition()).isEqualTo(
+        assertThat(matchInfo.getExactMatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/29,  /*upper=*/32));
         assertThat(matchInfo.getExactMatch()).isEqualTo("foo");
-        assertThat(matchInfo.getSnippetPosition()).isEqualTo(
+        assertThat(matchInfo.getSnippetRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/26,  /*upper=*/33));
         assertThat(matchInfo.getSnippet()).isEqualTo("is foo.");
     }
