@@ -113,8 +113,6 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
      * Builder for {@link AppSearchBatchResult} objects.
      *
      * <p>Once {@link #build} is called, the instance can no longer be used.
-     *
-     * @hide
      */
     public static final class Builder<KeyType, ValueType> {
         private final Map<KeyType, ValueType> mSuccesses = new ArrayMap<>();
@@ -129,6 +127,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
          *
          * @throws IllegalStateException if the builder has already been used.
          */
+        @SuppressWarnings("MissingGetterMatchingBuilder")  // See getSuccesses
         @NonNull
         public Builder<KeyType, ValueType> setSuccess(
                 @NonNull KeyType key, @Nullable ValueType result) {
@@ -144,6 +143,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
          *
          * @throws IllegalStateException if the builder has already been used.
          */
+        @SuppressWarnings("MissingGetterMatchingBuilder")  // See getFailures
         @NonNull
         public Builder<KeyType, ValueType> setFailure(
                 @NonNull KeyType key,
@@ -161,6 +161,7 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
          *
          * @throws IllegalStateException if the builder has already been used.
          */
+        @SuppressWarnings("MissingGetterMatchingBuilder")  // See getAll
         @NonNull
         public Builder<KeyType, ValueType> setResult(
                 @NonNull KeyType key, @NonNull AppSearchResult<ValueType> result) {

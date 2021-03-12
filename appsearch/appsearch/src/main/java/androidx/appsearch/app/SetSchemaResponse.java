@@ -159,12 +159,8 @@ public class SetSchemaResponse {
                 .addMigrationFailures(mMigrationFailures);
     }
 
-    /**
-     * Builder for {@link SetSchemaResponse} objects.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static class Builder {
+    /** Builder for {@link SetSchemaResponse} objects. */
+    public static final class Builder {
         private final ArrayList<MigrationFailure> mMigrationFailures = new ArrayList<>();
         private final ArrayList<String> mDeletedTypes = new ArrayList<>();
         private final ArrayList<String> mMigratedTypes = new ArrayList<>();
@@ -307,12 +303,8 @@ public class SetSchemaResponse {
                     mBundle.getString(ERROR_MESSAGE_FIELD, /*defaultValue=*/""));
         }
 
-        /**
-         * Builder for {@link MigrationFailure} objects.
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static class Builder {
+        /** Builder for {@link MigrationFailure} objects. */
+        public static final class Builder {
             private String mSchemaType;
             private String mNamespace;
             private String mUri;

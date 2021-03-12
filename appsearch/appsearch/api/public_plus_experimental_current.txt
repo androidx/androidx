@@ -39,6 +39,14 @@ package androidx.appsearch.app {
     method public boolean isSuccess();
   }
 
+  public static final class AppSearchBatchResult.Builder<KeyType, ValueType> {
+    ctor public AppSearchBatchResult.Builder();
+    method public androidx.appsearch.app.AppSearchBatchResult<KeyType!,ValueType!> build();
+    method public androidx.appsearch.app.AppSearchBatchResult.Builder<KeyType!,ValueType!> setFailure(KeyType, int, String?);
+    method public androidx.appsearch.app.AppSearchBatchResult.Builder<KeyType!,ValueType!> setResult(KeyType, androidx.appsearch.app.AppSearchResult<ValueType!>);
+    method public androidx.appsearch.app.AppSearchBatchResult.Builder<KeyType!,ValueType!> setSuccess(KeyType, ValueType?);
+  }
+
   public interface AppSearchMigrationHelper {
     method public void queryAndTransform(String, androidx.appsearch.app.AppSearchMigrationHelper.Transformer) throws java.lang.Exception;
   }
@@ -52,6 +60,8 @@ package androidx.appsearch.app {
     method public int getResultCode();
     method public ValueType? getResultValue();
     method public boolean isSuccess();
+    method public static <ValueType> androidx.appsearch.app.AppSearchResult<ValueType!> newFailedResult(int, String?);
+    method public static <ValueType> androidx.appsearch.app.AppSearchResult<ValueType!> newSuccessfulResult(ValueType?);
     field public static final int RESULT_INTERNAL_ERROR = 2; // 0x2
     field public static final int RESULT_INVALID_ARGUMENT = 3; // 0x3
     field public static final int RESULT_INVALID_SCHEMA = 7; // 0x7
@@ -131,7 +141,6 @@ package androidx.appsearch.app {
 
   public abstract static class AppSearchSchema.PropertyConfig {
     method public int getCardinality();
-    method public int getDataType();
     method public String getName();
     field public static final int CARDINALITY_OPTIONAL = 2; // 0x2
     field public static final int CARDINALITY_REPEATED = 1; // 0x1
@@ -388,6 +397,19 @@ package androidx.appsearch.app {
     method public java.util.List<androidx.appsearch.app.SetSchemaResponse.MigrationFailure!> getMigrationFailures();
   }
 
+  public static final class SetSchemaResponse.Builder {
+    ctor public SetSchemaResponse.Builder();
+    method public androidx.appsearch.app.SetSchemaResponse.Builder addDeletedType(String);
+    method public androidx.appsearch.app.SetSchemaResponse.Builder addDeletedTypes(java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.SetSchemaResponse.Builder addIncompatibleType(String);
+    method public androidx.appsearch.app.SetSchemaResponse.Builder addIncompatibleTypes(java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.SetSchemaResponse.Builder addMigratedType(String);
+    method public androidx.appsearch.app.SetSchemaResponse.Builder addMigratedTypes(java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.SetSchemaResponse.Builder addMigrationFailure(androidx.appsearch.app.SetSchemaResponse.MigrationFailure);
+    method public androidx.appsearch.app.SetSchemaResponse.Builder addMigrationFailures(java.util.Collection<androidx.appsearch.app.SetSchemaResponse.MigrationFailure!>);
+    method public androidx.appsearch.app.SetSchemaResponse build();
+  }
+
   public static class SetSchemaResponse.MigrationFailure {
     method public androidx.appsearch.app.AppSearchResult<java.lang.Void!> getAppSearchResult();
     method public String getNamespace();
@@ -395,11 +417,23 @@ package androidx.appsearch.app {
     method public String getUri();
   }
 
+  public static final class SetSchemaResponse.MigrationFailure.Builder {
+    ctor public SetSchemaResponse.MigrationFailure.Builder();
+    method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure build();
+    method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure.Builder setAppSearchResult(androidx.appsearch.app.AppSearchResult<java.lang.Void!>);
+    method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure.Builder setNamespace(String);
+    method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure.Builder setSchemaType(String);
+    method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure.Builder setUri(String);
+  }
+
 }
 
 package androidx.appsearch.exceptions {
 
   public class AppSearchException extends java.lang.Exception {
+    ctor public AppSearchException(int);
+    ctor public AppSearchException(int, String?);
+    ctor public AppSearchException(int, String?, Throwable?);
     method public int getResultCode();
     method public <T> androidx.appsearch.app.AppSearchResult<T!> toAppSearchResult();
   }

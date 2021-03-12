@@ -170,7 +170,6 @@ public final class AppSearchResult<ValueType> {
 
     /**
      * Creates a new successful {@link AppSearchResult}.
-     * @hide
      */
     @NonNull
     public static <ValueType> AppSearchResult<ValueType> newSuccessfulResult(
@@ -180,7 +179,6 @@ public final class AppSearchResult<ValueType> {
 
     /**
      * Creates a new failed {@link AppSearchResult}.
-     * @hide
      */
     @NonNull
     public static <ValueType> AppSearchResult<ValueType> newFailedResult(
