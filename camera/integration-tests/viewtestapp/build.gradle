@@ -58,6 +58,7 @@ dependencies {
     implementation(project(":lifecycle:lifecycle-runtime"))
     implementation(project(":camera:camera-view"))
     implementation(GUAVA_ANDROID)
+    implementation("androidx.exifinterface:exifinterface:1.3.2")
 
     // Lifecycle and LiveData
     implementation("androidx.lifecycle:lifecycle-livedata:2.2.0")
