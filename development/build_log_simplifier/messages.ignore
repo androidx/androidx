@@ -208,6 +208,7 @@ Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphic
 Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics\.vector Function:group Receiver:<this>
 Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics\.vector Function:path Receiver:<this>
 Exception while resolving link to Module: Package:androidx\.compose\.ui\.unit ExternalClass:kotlin\.Int Function:times Receiver:<this>
+Exception while resolving link to Module: Package:androidx.lifecycle ExternalClass:kotlinx.coroutines.flow.Flow Function:flowWithLifecycle Receiver:<this>
 # > Task :icing:extractIncludeDebugAndroidTestProto
 proto file '[^ ]*' directly specified in configuration\. It's likely you specified files\('path/to/foo\.proto'\) or fileTree\('path/to/directory'\) in protobuf or compile configuration\. This makes you vulnerable to https://github\.com/google/protobuf\-gradle\-plugin/issues/[0-9][0-9]*\. Please use files\('path/to/directory'\) instead\.
 OUT_DIR=\$OUT_DIR
