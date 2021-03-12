@@ -50,13 +50,6 @@ public interface CanvasComplication {
     public fun onAttach(complication: Complication)
 
     /**
-     * Called when the CanvasComplication detaches from a [Complication]. This will get called if
-     * [Complication.renderer] is assigned to a different CanvasComplication.
-     */
-    @UiThread
-    public fun onDetach()
-
-    /**
      * Draws the complication defined by [getIdAndData] into the canvas with the specified bounds.
      * This will usually be called by user watch face drawing code, but the system may also call it
      * for complication selection UI rendering. The width and height will be the same as that
@@ -133,6 +126,9 @@ public open class CanvasComplicationDrawable(
     /** The [ComplicationDrawable] to render with. */
     public var drawable: ComplicationDrawable = drawable
         set(value) {
+            // Copy the ComplicationData otherwise the complication will be blank until the next
+            // update.
+            value.setComplicationData(field.complicationData, false)
             field = value
             value.isInAmbientMode = watchState.isAmbient.value
             value.isLowBitAmbient = watchState.hasLowBitAmbient
@@ -151,12 +147,6 @@ public open class CanvasComplicationDrawable(
     override fun onAttach(complication: Complication) {
         attachedComplication = complication
         watchState.isAmbient.addObserver(isAmbientObserver)
-    }
-
-    /** {@inheritDoc} */
-    override fun onDetach() {
-        watchState.isAmbient.removeObserver(isAmbientObserver)
-        attachedComplication = null
     }
 
     /** {@inheritDoc} */
@@ -255,7 +245,8 @@ public class Complication internal constructor(
     internal val id: Int,
     @ComplicationBoundsType public val boundsType: Int,
     complicationBounds: ComplicationBounds,
-    canvasComplication: CanvasComplication,
+    /** The [CanvasComplication] used to render the complication. */
+    public val renderer: CanvasComplication,
     supportedTypes: List<ComplicationType>,
     defaultProviderPolicy: DefaultComplicationProviderPolicy,
     defaultProviderType: ComplicationType,
@@ -434,7 +425,7 @@ public class Complication internal constructor(
     }
 
     init {
-        canvasComplication.onAttach(this)
+        renderer.onAttach(this)
     }
 
     internal interface InvalidateListener {
@@ -491,21 +482,6 @@ public class Complication internal constructor(
             if (this::complicationsManager.isInitialized) {
                 complicationsManager.scheduleUpdate()
             }
-        }
-
-    /** The [CanvasComplication] used to render the complication. */
-    public var renderer: CanvasComplication = canvasComplication
-        @UiThread
-        get
-        @UiThread
-        set(value) {
-            if (field == value) {
-                return
-            }
-            renderer.onDetach()
-            value.setIdAndData(renderer.getIdAndData(), true)
-            field = value
-            value.onAttach(this)
         }
 
     internal var supportedTypesDirty = true
