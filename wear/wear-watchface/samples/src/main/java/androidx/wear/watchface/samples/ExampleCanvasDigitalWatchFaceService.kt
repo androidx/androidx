@@ -43,6 +43,7 @@ import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
@@ -498,7 +499,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         )
         val leftComplication = Complication.createRoundRectComplicationBuilder(
             ComplicationID.LEFT.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
+            CanvasComplicationDrawable(watchFaceStyle.getDrawable(this)!!, watchState),
             listOf(
                 ComplicationType.RANGED_VALUE,
                 ComplicationType.SHORT_TEXT,
@@ -516,7 +517,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             .build()
         val rightComplication = Complication.createRoundRectComplicationBuilder(
             ComplicationID.RIGHT.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
+            CanvasComplicationDrawable(watchFaceStyle.getDrawable(this)!!, watchState),
             listOf(
                 ComplicationType.RANGED_VALUE,
                 ComplicationType.SHORT_TEXT,
@@ -543,7 +544,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         // The upper and lower complications change shape depending on the complication's type.
         val upperComplication = Complication.createRoundRectComplicationBuilder(
             ComplicationID.UPPER.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
+            CanvasComplicationDrawable(watchFaceStyle.getDrawable(this)!!, watchState),
             upperAndLowerComplicationTypes,
             DefaultComplicationProviderPolicy(SystemProviders.WORLD_CLOCK),
             ComplicationBounds(
@@ -565,7 +566,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             .build()
         val lowerComplication = Complication.createRoundRectComplicationBuilder(
             ComplicationID.LOWER.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
+            CanvasComplicationDrawable(watchFaceStyle.getDrawable(this)!!, watchState),
             upperAndLowerComplicationTypes,
             DefaultComplicationProviderPolicy(SystemProviders.NEXT_EVENT),
             ComplicationBounds(
@@ -587,7 +588,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             .build()
         val backgroundComplication = Complication.createBackgroundComplicationBuilder(
             ComplicationID.BACKGROUND.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
+            CanvasComplicationDrawable(watchFaceStyle.getDrawable(this)!!, watchState),
             listOf(ComplicationType.PHOTO_IMAGE),
             DefaultComplicationProviderPolicy()
         ).build()
@@ -634,7 +635,7 @@ class ExampleDigitalWatchCanvasRenderer(
     private val context: Context,
     private var watchFaceColorStyle: WatchFaceColorStyle,
     userStyleRepository: UserStyleRepository,
-    private val watchState: WatchState,
+    watchState: WatchState,
     private val colorStyleSetting: UserStyleSetting.ListUserStyleSetting,
     private val complicationsManager: ComplicationsManager
 ) : Renderer.CanvasRenderer(
@@ -759,8 +760,8 @@ class ExampleDigitalWatchCanvasRenderer(
                     // the styles are defined in XML so we need to replace the complication's
                     // drawables.
                     for ((_, complication) in complicationsManager.complications) {
-                        complication.renderer =
-                            watchFaceColorStyle.getComplicationDrawableRenderer(context, watchState)
+                        (complication.renderer as CanvasComplicationDrawable).drawable =
+                            watchFaceColorStyle.getDrawable(context)!!
                     }
 
                     clearDigitBitmapCache()
