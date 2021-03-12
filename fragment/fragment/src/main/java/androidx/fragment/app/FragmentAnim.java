@@ -43,11 +43,11 @@ class FragmentAnim {
     }
 
     static AnimationOrAnimator loadAnimation(@NonNull Context context,
-            @NonNull Fragment fragment, boolean enter) {
+            @NonNull Fragment fragment, boolean enter, boolean isPop) {
         int transit = fragment.getNextTransition();
-        int nextAnim = fragment.getNextAnim();
-        // Clear the Fragment animation
-        fragment.setNextAnim(0);
+        int nextAnim = getNextAnim(fragment, enter, isPop);
+        // Clear the Fragment animations
+        fragment.setAnimations(0, 0, 0, 0);
         // We do not need to keep up with the removing Fragment after we get its next animation.
         // If transactions do not allow reordering, this will always be true and the visible
         // removing fragment will be cleared. If reordering is allowed, this will only be true
@@ -116,6 +116,22 @@ class FragmentAnim {
             }
         }
         return null;
+    }
+
+    private static int getNextAnim(Fragment fragment, boolean enter, boolean isPop) {
+        if (isPop) {
+            if (enter) {
+                return fragment.getPopEnterAnim();
+            } else {
+                return fragment.getPopExitAnim();
+            }
+        } else {
+            if (enter) {
+                return fragment.getEnterAnim();
+            } else {
+                return fragment.getExitAnim();
+            }
+        }
     }
 
     /**
