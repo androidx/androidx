@@ -20,6 +20,7 @@ import android.os.Looper
 import androidx.fragment.app.StrictFragment
 import androidx.fragment.app.executePendingTransactions
 import androidx.fragment.app.test.FragmentTestActivity
+import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -125,6 +126,21 @@ public class FragmentStrictModeTest {
             FragmentStrictMode.onPolicyViolation(fragment, object : Violation() {})
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertThat(thread).isEqualTo(Looper.getMainLooper().thread)
+        }
+    }
+
+    @Test
+    public fun detectFragmentTagUsage() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectFragmentTagUsage()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            withActivity { setContentView(R.layout.activity_inflated_fragment) }
+            assertThat(violation).isInstanceOf(FragmentTagUsageViolation::class.java)
         }
     }
 
