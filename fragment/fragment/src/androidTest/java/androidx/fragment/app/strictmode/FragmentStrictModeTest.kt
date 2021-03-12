@@ -130,6 +130,72 @@ public class FragmentStrictModeTest {
     }
 
     @Test
+    public fun detectFragmentReuse() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectFragmentReuse()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+            val fragment = StrictFragment()
+
+            fragmentManager.beginTransaction()
+                .add(fragment, null)
+                .commit()
+            executePendingTransactions()
+
+            fragmentManager.beginTransaction()
+                .remove(fragment)
+                .commit()
+            executePendingTransactions()
+
+            fragmentManager.beginTransaction()
+                .add(fragment, null)
+                .commit()
+            executePendingTransactions()
+
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            assertThat(violation).isInstanceOf(FragmentReuseViolation::class.java)
+        }
+    }
+
+    @Test
+    public fun detectFragmentReuseInFlightTransaction() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectFragmentReuse()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+            val fragment = StrictFragment()
+
+            fragmentManager.beginTransaction()
+                .add(fragment, null)
+                .commit()
+            executePendingTransactions()
+
+            fragmentManager.beginTransaction()
+                .remove(fragment)
+                .commit()
+            // Don't execute transaction here, keep it in-flight
+
+            fragmentManager.beginTransaction()
+                .add(fragment, null)
+                .commit()
+            executePendingTransactions()
+
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            assertThat(violation).isInstanceOf(FragmentReuseViolation::class.java)
+        }
+    }
+
+    @Test
     public fun detectFragmentTagUsage() {
         var violation: Violation? = null
         val policy = FragmentStrictMode.Policy.Builder()

@@ -283,6 +283,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // track it separately.
     boolean mIsCreated;
 
+    // True if the fragment was already added to a FragmentManager, but has since been removed
+    // again.
+    boolean mRemovedFromFragmentManager;
+
     // Max Lifecycle state this Fragment can achieve.
     Lifecycle.State mMaxState = Lifecycle.State.RESUMED;
 
@@ -2184,6 +2188,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mTag = null;
         mHidden = false;
         mDetached = false;
+        mRemovedFromFragmentManager = true;
     }
 
     /**
