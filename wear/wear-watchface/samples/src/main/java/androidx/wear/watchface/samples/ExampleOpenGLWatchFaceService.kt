@@ -137,6 +137,7 @@ fun createExampleOpenGLWatchFaceBuilder(
         colorStyleSetting,
         complicationsManager[EXAMPLE_OPENGL_COMPLICATION_ID]!!
     )
+    renderer.initOpenGlContext()
     return WatchFace(
         WatchFaceType.ANALOG,
         userStyleRepository,
