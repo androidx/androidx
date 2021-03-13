@@ -24,10 +24,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
-import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PutDocumentsRequest;
@@ -112,11 +112,14 @@ class SearchSessionImpl implements AppSearchSession {
 
             // Migration process
             // 1. Generate the current and the final version map.
+            // TODO(b/182620003) remove the version map.
+            GetSchemaResponse getSchemaResponse =
+                    mAppSearchImpl.getSchema(mPackageName, mDatabaseName);
             Map<String, Integer> currentVersionMap =
-                    SchemaMigrationUtil.buildVersionMap(
-                            mAppSearchImpl.getSchema(mPackageName, mDatabaseName));
+                    SchemaMigrationUtil.buildVersionMap(getSchemaResponse.getSchemas(),
+                            getSchemaResponse.getVersion());
             Map<String, Integer> finalVersionMap =
-                    SchemaMigrationUtil.buildVersionMap(request.getSchemas());
+                    SchemaMigrationUtil.buildVersionMap(request.getSchemas(), request.getVersion());
 
             // 2. SetSchema with forceOverride=false, to retrieve the list of incompatible/deleted
             // types.
@@ -126,7 +129,8 @@ class SearchSessionImpl implements AppSearchSession {
                     new ArrayList<>(request.getSchemas()),
                     new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
                     copySchemasPackageAccessible,
-                    /*forceOverride=*/false);
+                    /*forceOverride=*/false,
+                    request.getVersion());
 
             // 3. If forceOverride is false, check that all incompatible types will be migrated.
             // If some aren't we must throw an error, rather than proceeding and deleting those
@@ -171,7 +175,8 @@ class SearchSessionImpl implements AppSearchSession {
                             new ArrayList<>(request.getSchemas()),
                             new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
                             copySchemasPackageAccessible,
-                            /*forceOverride=*/ true);
+                            /*forceOverride=*/ true,
+                            request.getVersion());
                 }
                 SetSchemaResponse.Builder responseBuilder = setSchemaResponse.toBuilder()
                         .addMigratedTypes(migratedTypes);
@@ -192,12 +197,9 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<Set<AppSearchSchema>> getSchema() {
+    public ListenableFuture<GetSchemaResponse> getSchema() {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
-        return execute(() -> {
-            List<AppSearchSchema> schemas = mAppSearchImpl.getSchema(mPackageName, mDatabaseName);
-            return new ArraySet<>(schemas);
-        });
+        return execute(() -> mAppSearchImpl.getSchema(mPackageName, mDatabaseName));
     }
 
     @NonNull
@@ -399,7 +401,8 @@ class SearchSessionImpl implements AppSearchSession {
                 new ArrayList<>(request.getSchemas()),
                 new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
                 copySchemasPackageAccessible,
-                request.isForceOverride());
+                request.isForceOverride(),
+                request.getVersion());
         if (!request.isForceOverride()) {
             // check both deleted types and incompatible types are empty. That's the only case we
             // swallowed in the AppSearchImpl#setSchema().

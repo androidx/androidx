@@ -31,6 +31,7 @@ import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
@@ -299,6 +300,7 @@ public final class AppSearchImpl implements Closeable {
      * @param forceOverride                 Whether to force-apply the schema even if it is
      *                                      incompatible. Documents
      *                                      which do not comply with the new schema will be deleted.
+     * @param version                       The overall version number of the request.
      * @return The response contains deleted schema types and incompatible schema types of this
      * call.
      * @throws AppSearchException On IcingSearchEngine error. If the status code is
@@ -312,7 +314,8 @@ public final class AppSearchImpl implements Closeable {
             @NonNull List<AppSearchSchema> schemas,
             @NonNull List<String> schemasNotPlatformSurfaceable,
             @NonNull Map<String, List<PackageIdentifier>> schemasPackageAccessible,
-            boolean forceOverride) throws AppSearchException {
+            boolean forceOverride,
+            int version) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
@@ -323,7 +326,7 @@ public final class AppSearchImpl implements Closeable {
             for (int i = 0; i < schemas.size(); i++) {
                 AppSearchSchema schema = schemas.get(i);
                 SchemaTypeConfigProto schemaTypeProto =
-                        SchemaToProtoConverter.toSchemaTypeConfigProto(schema);
+                        SchemaToProtoConverter.toSchemaTypeConfigProto(schema, version);
                 newSchemaBuilder.addTypes(schemaTypeProto);
             }
 
@@ -394,7 +397,7 @@ public final class AppSearchImpl implements Closeable {
      * @throws AppSearchException on IcingSearchEngine error.
      */
     @NonNull
-    public List<AppSearchSchema> getSchema(@NonNull String packageName,
+    public GetSchemaResponse getSchema(@NonNull String packageName,
             @NonNull String databaseName) throws AppSearchException {
         mReadWriteLock.readLock().lock();
         try {
@@ -403,7 +406,12 @@ public final class AppSearchImpl implements Closeable {
             SchemaProto fullSchema = getSchemaProtoLocked();
 
             String prefix = createPrefix(packageName, databaseName);
-            List<AppSearchSchema> result = new ArrayList<>();
+            GetSchemaResponse.Builder responseBuilder = new GetSchemaResponse.Builder();
+            if (!fullSchema.getTypesList().isEmpty()) {
+                //TODO(b/183050495) find a place to store the version for the database, rather
+                // than read from a schema.
+                responseBuilder.setVersion(fullSchema.getTypes(0).getVersion());
+            }
             for (int i = 0; i < fullSchema.getTypesCount(); i++) {
                 String typePrefix = getPrefix(fullSchema.getTypes(i).getSchemaType());
                 if (!prefix.equals(typePrefix)) {
@@ -432,9 +440,9 @@ public final class AppSearchImpl implements Closeable {
 
                 AppSearchSchema schema = SchemaToProtoConverter.toAppSearchSchema(
                         typeConfigBuilder);
-                result.add(schema);
+                responseBuilder.addSchema(schema);
             }
-            return result;
+            return responseBuilder.build();
         } finally {
             mReadWriteLock.readLock().unlock();
         }

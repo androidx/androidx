@@ -341,5 +341,17 @@ public class SetSchemaRequestTest {
         assertThat(getSchemaTypesFromSetSchemaRequest(request)).containsExactly("Queen",
                 "King");
     }
+
+    @Test
+    public void testSetVersion() throws
+            Exception {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new SetSchemaRequest.Builder()
+                .addDocumentClasses(ImmutableSet.of(Queen.class)).setVersion(0).build());
+        assertThat(exception).hasMessageThat().contains("Version must be a positive number");
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                        .addDocumentClasses(ImmutableSet.of(Queen.class)).setVersion(1).build();
+        assertThat(request.getVersion()).isEqualTo(1);
+    }
 // @exportToFramework:endStrip()
 }

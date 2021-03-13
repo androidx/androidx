@@ -38,6 +38,7 @@ import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByUriRequest;
 import androidx.appsearch.app.ReportUsageRequest;
@@ -150,8 +151,7 @@ public abstract class AppSearchSessionCtsTestBase {
 
     @Test
     public void testSetSchema_updateVersion() throws Exception {
-        AppSearchSchema oldSchema = new AppSearchSchema.Builder("Email")
-                .setVersion(1)
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
                 .addProperty(new StringPropertyConfig.Builder("subject")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
@@ -164,30 +164,19 @@ public abstract class AppSearchSessionCtsTestBase {
                         .build()
                 ).build();
 
-        mDb1.setSchema(new SetSchemaRequest.Builder().addSchemas(oldSchema).build()).get();
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchemas(schema)
+                .setVersion(1).build()).get();
 
-        Set<AppSearchSchema> actualSchemaTypes = mDb1.getSchema().get();
-        assertThat(actualSchemaTypes).containsExactly(oldSchema);
+        Set<AppSearchSchema> actualSchemaTypes = mDb1.getSchema().get().getSchemas();
+        assertThat(actualSchemaTypes).containsExactly(schema);
 
-        AppSearchSchema newSchema = new AppSearchSchema.Builder("Email")
-                .setVersion(2)
-                .addProperty(new StringPropertyConfig.Builder("subject")
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                        .build()
-                ).addProperty(new StringPropertyConfig.Builder("body")
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                        .build()
-                ).build();
+        // increase version number
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchemas(schema)
+                .setVersion(2).build()).get();
 
-        mDb1.setSchema(
-                new SetSchemaRequest.Builder().addSchemas(newSchema).build()).get();
-
-        actualSchemaTypes = mDb1.getSchema().get();
-        assertThat(actualSchemaTypes).containsExactly(newSchema);
+        GetSchemaResponse getSchemaResponse = mDb1.getSchema().get();
+        assertThat(getSchemaResponse.getSchemas()).containsExactly(schema);
+        assertThat(getSchemaResponse.getVersion()).isEqualTo(2);
     }
 
 // @exportToFramework:startStrip()
@@ -236,10 +225,11 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1.setSchema(request1).get();
         mDb2.setSchema(request2).get();
 
-        Set<AppSearchSchema> actual1 = mDb1.getSchema().get();
-        Set<AppSearchSchema> actual2 = mDb2.getSchema().get();
-
+        Set<AppSearchSchema> actual1 = mDb1.getSchema().get().getSchemas();
+        assertThat(actual1).hasSize(2);
         assertThat(actual1).isEqualTo(request1.getSchemas());
+        Set<AppSearchSchema> actual2 = mDb2.getSchema().get().getSchemas();
+        assertThat(actual2).hasSize(2);
         assertThat(actual2).isEqualTo(request2.getSchemas());
     }
 // @exportToFramework:endStrip()
@@ -312,6 +302,11 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1 = createSearchSession(DB_NAME_1).get();
         assertThat(mDb1.getNamespaces().get()).containsExactly("namespace1_db1", "namespace2_db1");
         assertThat(mDb2.getNamespaces().get()).containsExactly("namespace_db2");
+    }
+
+    public void testGetSchema_emptyDB() throws Exception {
+        GetSchemaResponse getSchemaResponse = mDb1.getSchema().get();
+        assertThat(getSchemaResponse.getVersion()).isEqualTo(0);
     }
 
     @Test

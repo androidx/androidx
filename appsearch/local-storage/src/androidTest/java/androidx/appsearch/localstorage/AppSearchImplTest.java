@@ -327,7 +327,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
         mAppSearchImpl.setSchema("package", "database", schemas, /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Insert enough documents.
         for (int i = 0; i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT
@@ -385,7 +385,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
         mAppSearchImpl.setSchema("package", "database", schemas, /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false);
+                Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
 
         // Insert document
         GenericDocument document = new GenericDocument.Builder<>("namespace", "uri",
@@ -413,10 +413,10 @@ public class AppSearchImplTest {
                 new AppSearchSchema.Builder("typeB").build());
         mAppSearchImpl.setSchema("package", "database1", schemas, /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false);
+                Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
         mAppSearchImpl.setSchema("package", "database2", schemas, /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false);
+                Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
 
         // Insert documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "uri",
@@ -450,7 +450,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
         mAppSearchImpl.setSchema("package", "database", schemas, /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false);
+                Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
 
         // Insert document
         GenericDocument document = new GenericDocument.Builder<>("namespace", "uri",
@@ -485,7 +485,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.setSchema("package1", "database1", schema1,
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                 /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Insert package2 schema
         List<AppSearchSchema> schema2 =
@@ -493,7 +493,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.setSchema("package2", "database2", schema2,
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                 /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Insert package1 document
         GenericDocument document = new GenericDocument.Builder<>("namespace", "uri", "schema1")
@@ -529,7 +529,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.setSchema("package1", "database1", schema1,
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                 /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Insert package2 schema
         List<AppSearchSchema> schema2 =
@@ -537,7 +537,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.setSchema("package2", "database2", schema2,
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                 /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Insert package1 document
         GenericDocument document = new GenericDocument.Builder<>("namespace", "uri",
@@ -605,7 +605,7 @@ public class AppSearchImplTest {
         // Set schema Email to AppSearch database1
         mAppSearchImpl.setSchema("package", "database1", schemas, /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false);
+                Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
 
         // Create expected schemaType proto.
         SchemaProto expectedProto = SchemaProto.newBuilder()
@@ -640,7 +640,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.setSchema("package", "database1", oldSchemas,
                 /*schemasNotPlatformSurfaceable=*/  Collections.emptyList(),
                 /*schemasPackageAccessible=*/  Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Create incompatible schema
         List<AppSearchSchema> newSchemas =
@@ -649,7 +649,8 @@ public class AppSearchImplTest {
         // set email incompatible and delete text
         SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema("package", "database1",
                 newSchemas,  /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ true);
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ true, /*version=*/ 0);
         assertThat(setSchemaResponse.getDeletedTypes()).containsExactly("Text");
         assertThat(setSchemaResponse.getIncompatibleTypes()).containsExactly("Email");
     }
@@ -665,7 +666,8 @@ public class AppSearchImplTest {
         // Set schema Email and Document to AppSearch database1
         mAppSearchImpl.setSchema("package", "database1", schemas,
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ false);
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Create expected schemaType proto.
         SchemaProto expectedProto = SchemaProto.newBuilder()
@@ -689,7 +691,7 @@ public class AppSearchImplTest {
                 mAppSearchImpl.setSchema("package", "database1", finalSchemas,
                         /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                         /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                        /*forceOverride=*/ false);
+                        /*forceOverride=*/ false, /*version=*/ 0);
 
         // Check the Document type has been deleted.
         assertThat(setSchemaResponse.getDeletedTypes()).containsExactly("Document");
@@ -697,7 +699,8 @@ public class AppSearchImplTest {
         // ForceOverride to delete.
         mAppSearchImpl.setSchema("package", "database1", finalSchemas,
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ true);
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ true, /*version=*/ 0);
 
         // Check Document schema is removed.
         expectedProto = SchemaProto.newBuilder()
@@ -726,10 +729,12 @@ public class AppSearchImplTest {
         // Set schema Email and Document to AppSearch database1 and 2
         mAppSearchImpl.setSchema("package", "database1", schemas,
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ false);
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false, /*version=*/ 0);
         mAppSearchImpl.setSchema("package", "database2", schemas,
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ false);
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Create expected schemaType proto.
         SchemaProto expectedProto = SchemaProto.newBuilder()
@@ -756,7 +761,8 @@ public class AppSearchImplTest {
         schemas = Collections.singletonList(new AppSearchSchema.Builder("Email").build());
         mAppSearchImpl.setSchema("package", "database1", schemas,
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
-                /*schemasPackageAccessible=*/ Collections.emptyMap(), /*forceOverride=*/ true);
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ true, /*version=*/ 0);
 
         // Create expected schemaType list, database 1 should only contain Email but database 2
         // remains in same.
@@ -791,7 +797,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder(
                         "schema").build()), /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false);
+                Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
         assertThat(mAppSearchImpl.getPackageToDatabases()).containsExactlyEntriesIn(
                 expectedMapping);
 
@@ -801,7 +807,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder(
                         "schema").build()), /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false);
+                Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
         assertThat(mAppSearchImpl.getPackageToDatabases()).containsExactlyEntriesIn(
                 expectedMapping);
 
@@ -811,7 +817,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder(
                         "schema").build()), /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false);
+                Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
         assertThat(mAppSearchImpl.getPackageToDatabases()).containsExactlyEntriesIn(
                 expectedMapping);
     }
@@ -827,7 +833,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder(
                         "schema").build()), /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false);
+                Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
         assertThat(mAppSearchImpl.getPrefixesLocked()).containsExactlyElementsIn(expectedPrefixes);
 
         // Has both databases
@@ -836,7 +842,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder(
                         "schema").build()), /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/
-                Collections.emptyMap(), /*forceOverride=*/ false);
+                Collections.emptyMap(), /*forceOverride=*/ false, /*version=*/ 0);
         assertThat(mAppSearchImpl.getPrefixesLocked()).containsExactlyElementsIn(expectedPrefixes);
     }
 
@@ -882,7 +888,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
         mAppSearchImpl.setSchema("package", "database", schemas, /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Insert two docs
         GenericDocument document1 =
@@ -965,7 +971,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
         mAppSearchImpl.setSchema("package1", "database", schemas, /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Since "package1" doesn't have a document, it get any space attributed to it.
         StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForPackage("package1");
@@ -982,7 +988,7 @@ public class AppSearchImplTest {
         // Insert schema for "package1"
         mAppSearchImpl.setSchema("package1", "database", schemas, /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Insert document for "package1"
         GenericDocument document =
@@ -992,7 +998,7 @@ public class AppSearchImplTest {
         // Insert schema for "package2"
         mAppSearchImpl.setSchema("package2", "database", schemas, /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Insert two documents for "package2"
         document = new GenericDocument.Builder<>("namespace", "uri1", "type").build();
@@ -1034,7 +1040,7 @@ public class AppSearchImplTest {
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
         mAppSearchImpl.setSchema("package1", "database", schemas, /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // "package2" doesn't exist yet, so it shouldn't have any storage size
         StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForDatabase("package1",
@@ -1052,7 +1058,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.setSchema("package1", "database1", schemas,
                 /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Since "package1", "database1" doesn't have a document, it get any space attributed to it.
         StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForDatabase("package1", "database1");
@@ -1069,11 +1075,11 @@ public class AppSearchImplTest {
         mAppSearchImpl.setSchema("package1", "database1", schemas,
                 /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
         mAppSearchImpl.setSchema("package1", "database2", schemas,
                 /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         // Add a document for "package1", "database1"
         GenericDocument document =
@@ -1116,7 +1122,7 @@ public class AppSearchImplTest {
         appSearchImpl.setSchema("package", "database", schemas,
                 /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                 /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
 
         appSearchImpl.close();
 
@@ -1125,7 +1131,7 @@ public class AppSearchImplTest {
             appSearchImpl.setSchema("package", "database", schemas,
                     /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
                     /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                    /*forceOverride=*/ false);
+                    /*forceOverride=*/ false, /*version=*/ 0);
         });
 
         assertThrows(IllegalStateException.class, () -> {

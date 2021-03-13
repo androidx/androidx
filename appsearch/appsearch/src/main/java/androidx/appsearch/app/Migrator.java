@@ -76,6 +76,10 @@ public abstract class Migrator {
      * <p>This method will be invoked only if the {@link SetSchemaRequest} is setting a
      * higher version number than the current {@link AppSearchSchema} saved in AppSearch.
      *
+     * <p>If this {@link Migrator} is provided to cover a compatible schema change via
+     * {@link AppSearchSession#setSchema}, documents under the old version won't be removed
+     * unless you use the same URI.
+     *
      * <p>This method will be invoked on the background worker thread provided via
      * {@link AppSearchSession#setSchema}.
      *
@@ -94,6 +98,10 @@ public abstract class Migrator {
      *
      * <p>This method will be invoked only if the {@link SetSchemaRequest} is setting a
      * lower version number than the current {@link AppSearchSchema} saved in AppSearch.
+     *
+     * <p>If this {@link Migrator} is provided to cover a compatible schema change via
+     * {@link AppSearchSession#setSchema}, documents under the old version won't be removed
+     * unless you use the same URI.
      *
      * <p>This method will be invoked on the background worker thread.
      *

@@ -117,7 +117,6 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     public void testSchemaMigration_A_B_C_D() throws Exception {
         // create a backwards compatible schema and update the version
         AppSearchSchema B_C_Schema = new AppSearchSchema.Builder("testSchema")
-                .setVersion(1)     // upgrade version
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(
@@ -130,6 +129,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 new SetSchemaRequest.Builder().addSchemas(B_C_Schema)
                         .setMigrator("testSchema", NO_OP_MIGRATOR)
                         .setForceOverride(true)
+                        .setVersion(2)     // upgrade version
                         .build()).get();
     }
 
@@ -156,13 +156,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     public void testSchemaMigration_A_NB_C_D() throws Exception {
         // create a backwards incompatible schema and update the version
         AppSearchSchema NB_C_Schema = new AppSearchSchema.Builder("testSchema")
-                .setVersion(1)     // upgrade version
                 .build();
 
         mDb.setSchema(
                 new SetSchemaRequest.Builder().addSchemas(NB_C_Schema)
                         .setMigrator("testSchema", NO_OP_MIGRATOR)
                         .setForceOverride(true)
+                        .setVersion(2)     // upgrade version
                         .build()).get();
     }
 
@@ -170,13 +170,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     public void testSchemaMigration_A_NB_C_ND() throws Exception {
         // create a backwards incompatible schema and update the version
         AppSearchSchema NB_C_Schema = new AppSearchSchema.Builder("testSchema")
-                .setVersion(1)     // upgrade version
                 .build();
 
         mDb.setSchema(
                 new SetSchemaRequest.Builder().addSchemas(NB_C_Schema)
                         .setMigrator("nonexistSchema", NO_OP_MIGRATOR)  //ND
                         .setForceOverride(true)
+                        .setVersion(2)     // upgrade version
                         .build()).get();
     }
 
@@ -210,7 +210,6 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     public void testSchemaMigration_NA_B_C_D() throws Exception {
         // create a backwards compatible schema and update the version
         AppSearchSchema B_C_Schema = new AppSearchSchema.Builder("testSchema")
-                .setVersion(1)     // upgrade version
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(
@@ -222,6 +221,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         mDb.setSchema(
                 new SetSchemaRequest.Builder().addSchemas(B_C_Schema)
                         .setMigrator("testSchema", NO_OP_MIGRATOR)
+                        .setVersion(2)     // upgrade version
                         .build()).get();
     }
 
@@ -248,12 +248,12 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     public void testSchemaMigration_NA_NB_C_D() throws Exception {
         // create a backwards incompatible schema and update the version
         AppSearchSchema NB_C_Schema = new AppSearchSchema.Builder("testSchema")
-                .setVersion(1)     // upgrade version
                 .build();
 
         mDb.setSchema(
                 new SetSchemaRequest.Builder().addSchemas(NB_C_Schema)
                         .setMigrator("testSchema", NO_OP_MIGRATOR)
+                        .setVersion(2)     // upgrade version
                         .build()).get();
     }
 
@@ -261,13 +261,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     public void testSchemaMigration_NA_NB_C_ND() throws Exception {
         // create a backwards incompatible schema and update the version
         AppSearchSchema $B_C_Schema = new AppSearchSchema.Builder("testSchema")
-                .setVersion(1)     // upgrade version
                 .build();
 
         ExecutionException exception = assertThrows(ExecutionException.class,
                 () -> mDb.setSchema(
                         new SetSchemaRequest.Builder().addSchemas($B_C_Schema)
                                 .setMigrator("nonexistSchema", NO_OP_MIGRATOR)  //ND
+                                .setVersion(2)     // upgrade version
                                 .build()).get());
         assertThat(exception).hasMessageThat().contains("Schema is incompatible.");
     }
@@ -335,7 +335,6 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // create new schema type and upgrade the version number
         AppSearchSchema newSchema = new AppSearchSchema.Builder("testSchema")
-                .setVersion(1)     // upgrade version
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(
@@ -377,7 +376,9 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         SetSchemaResponse setSchemaResponse =
                 mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
-                        .setMigrator("testSchema", migrator).build()).get();
+                        .setMigrator("testSchema", migrator)
+                        .setVersion(2)     // upgrade version
+                        .build()).get();
 
         // Check the schema has been saved
         assertThat(mDb.getSchema().get()).containsExactly(newSchema);
@@ -419,10 +420,9 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                                 AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
-                .setVersion(3)
                 .build();
         mDb.setSchema(new SetSchemaRequest.Builder()
-                .addSchemas(schema).setForceOverride(true).build()).get();
+                .addSchemas(schema).setForceOverride(true).setVersion(3).build()).get();
 
         GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "uri1", "testSchema")
                 .setPropertyString("subject", "testPut example1")
@@ -436,7 +436,6 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // create new schema type and upgrade the version number
         AppSearchSchema newSchema = new AppSearchSchema.Builder("testSchema")
-                .setVersion(1)     // downgrade version
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(
@@ -468,10 +467,12 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         SetSchemaResponse setSchemaResponse =
                 mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
-                        .setMigrator("testSchema", migrator).build()).get();
+                        .setMigrator("testSchema", migrator)
+                        .setVersion(1)     // downgrade version
+                        .build()).get();
 
         // Check the schema has been saved
-        assertThat(mDb.getSchema().get()).containsExactly(newSchema);
+        assertThat(mDb.getSchema().get().getSchemas()).containsExactly(newSchema);
 
         assertThat(setSchemaResponse.getDeletedTypes()).isEmpty();
         assertThat(setSchemaResponse.getIncompatibleTypes())
@@ -502,10 +503,9 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                                 AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
-                .setVersion(3)
                 .build();
         mDb.setSchema(new SetSchemaRequest.Builder()
-                .addSchemas(schema).setForceOverride(true).build()).get();
+                .addSchemas(schema).setForceOverride(true).setVersion(3).build()).get();
 
         GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "uri1", "testSchema")
                 .setPropertyString("subject", "testPut example1")
@@ -519,7 +519,6 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // create new schema type with the same version number
         AppSearchSchema newSchema = new AppSearchSchema.Builder("testSchema")
-                .setVersion(3)     // same version
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(
@@ -548,16 +547,19 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // SetSchema with forceOverride=false
         ExecutionException exception = assertThrows(ExecutionException.class,
                 () -> mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
-                        .setMigrator("testSchema", migrator).build()).get());
+                        .setMigrator("testSchema", migrator)
+                        .setVersion(3)     // same version
+                        .build()).get());
         assertThat(exception).hasMessageThat().contains("Schema is incompatible.");
 
         // SetSchema with forceOverride=true
         SetSchemaResponse setSchemaResponse =
                 mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
                         .setMigrator("testSchema", migrator)
+                        .setVersion(3)     // same version
                         .setForceOverride(true).build()).get();
 
-        assertThat(mDb.getSchema().get()).containsExactly(newSchema);
+        assertThat(mDb.getSchema().get().getSchemas()).containsExactly(newSchema);
 
         assertThat(setSchemaResponse.getDeletedTypes()).isEmpty();
         assertThat(setSchemaResponse.getIncompatibleTypes())
@@ -581,10 +583,9 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                                 AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
                         .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build())
-                .setVersion(2)
                 .build();
         mDb.setSchema(new SetSchemaRequest.Builder()
-                .addSchemas(schema).setForceOverride(true).build()).get();
+                .addSchemas(schema).setForceOverride(true).setVersion(2).build()).get();
 
         GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "uri1", "testSchema")
                 .setPropertyString("subject", "testPut example1")
@@ -598,7 +599,6 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // create new schema type and upgrade the version number
         AppSearchSchema newSchema = new AppSearchSchema.Builder("testSchema")
-                .setVersion(4)     // upgrade version
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(
@@ -627,7 +627,9 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // SetSchema with forceOverride=false
         ExecutionException exception = assertThrows(ExecutionException.class,
                 () -> mDb.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
-                        .setMigrator("testSchema", migrator).build()).get());
+                        .setMigrator("testSchema", migrator)
+                        .setVersion(4)     // upgrade version
+                        .build()).get());
         assertThat(exception).hasMessageThat().contains("Schema is incompatible.");
     }
 

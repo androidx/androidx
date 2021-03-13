@@ -105,11 +105,12 @@ public final class SchemaMigrationUtil {
 
     /** Builds a Map of SchemaType and its version of given set of {@link AppSearchSchema}. */
     @NonNull
+    //TODO(b/182622448) remove the version map and this method.
     public static Map<String, Integer> buildVersionMap(
-            @NonNull Collection<AppSearchSchema> schemas) {
+            @NonNull Collection<AppSearchSchema> schemas, int version) {
         Map<String, Integer> currentVersionMap = new ArrayMap<>(schemas.size());
         for (AppSearchSchema currentSchema : schemas) {
-            currentVersionMap.put(currentSchema.getSchemaType(), currentSchema.getVersion());
+            currentVersionMap.put(currentSchema.getSchemaType(), version);
         }
         return currentVersionMap;
     }
