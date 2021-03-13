@@ -404,34 +404,30 @@ final class BackStackRecord extends FragmentTransaction implements
             final Op op = mOps.get(opNum);
             final Fragment f = op.mFragment;
             if (f != null) {
+                f.setPopDirection(false);
+                f.setAnimations(op.mEnterAnim, op.mExitAnim, op.mPopEnterAnim, op.mPopExitAnim);
                 f.setNextTransition(mTransition);
                 f.setSharedElementNames(mSharedElementSourceNames, mSharedElementTargetNames);
             }
             switch (op.mCmd) {
                 case OP_ADD:
-                    f.setNextAnim(op.mEnterAnim);
                     mManager.setExitAnimationOrder(f, false);
                     mManager.addFragment(f);
                     break;
                 case OP_REMOVE:
-                    f.setNextAnim(op.mExitAnim);
                     mManager.removeFragment(f);
                     break;
                 case OP_HIDE:
-                    f.setNextAnim(op.mExitAnim);
                     mManager.hideFragment(f);
                     break;
                 case OP_SHOW:
-                    f.setNextAnim(op.mEnterAnim);
                     mManager.setExitAnimationOrder(f, false);
                     mManager.showFragment(f);
                     break;
                 case OP_DETACH:
-                    f.setNextAnim(op.mExitAnim);
                     mManager.detachFragment(f);
                     break;
                 case OP_ATTACH:
-                    f.setNextAnim(op.mEnterAnim);
                     mManager.setExitAnimationOrder(f, false);
                     mManager.attachFragment(f);
                     break;
@@ -471,35 +467,31 @@ final class BackStackRecord extends FragmentTransaction implements
             final Op op = mOps.get(opNum);
             Fragment f = op.mFragment;
             if (f != null) {
+                f.setPopDirection(true);
+                f.setAnimations(op.mEnterAnim, op.mExitAnim, op.mPopEnterAnim, op.mPopExitAnim);
                 f.setNextTransition(FragmentManager.reverseTransit(mTransition));
                 // Reverse the target and source names for pop operations
                 f.setSharedElementNames(mSharedElementTargetNames, mSharedElementSourceNames);
             }
             switch (op.mCmd) {
                 case OP_ADD:
-                    f.setNextAnim(op.mPopExitAnim);
                     mManager.setExitAnimationOrder(f, true);
                     mManager.removeFragment(f);
                     break;
                 case OP_REMOVE:
-                    f.setNextAnim(op.mPopEnterAnim);
                     mManager.addFragment(f);
                     break;
                 case OP_HIDE:
-                    f.setNextAnim(op.mPopEnterAnim);
                     mManager.showFragment(f);
                     break;
                 case OP_SHOW:
-                    f.setNextAnim(op.mPopExitAnim);
                     mManager.setExitAnimationOrder(f, true);
                     mManager.hideFragment(f);
                     break;
                 case OP_DETACH:
-                    f.setNextAnim(op.mPopEnterAnim);
                     mManager.attachFragment(f);
                     break;
                 case OP_ATTACH:
-                    f.setNextAnim(op.mPopExitAnim);
                     mManager.setExitAnimationOrder(f, true);
                     mManager.detachFragment(f);
                     break;

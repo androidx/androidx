@@ -2852,8 +2852,19 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     writer.print(" mTargetRequestCode=");
                     writer.println(mTargetRequestCode);
         }
-        if (getNextAnim() != 0) {
-            writer.print(prefix); writer.print("mNextAnim="); writer.println(getNextAnim());
+        writer.print(prefix); writer.print("mPopDirection="); writer.println(getPopDirection());
+        if (getEnterAnim() != 0) {
+            writer.print(prefix); writer.print("getEnterAnim="); writer.println(getEnterAnim());
+        }
+        if (getExitAnim() != 0) {
+            writer.print(prefix); writer.print("getExitAnim="); writer.println(getExitAnim());
+        }
+        if (getPopEnterAnim() != 0) {
+            writer.print(prefix); writer.print("getPopEnterAnim=");
+            writer.println(getPopEnterAnim());
+        }
+        if (getPopExitAnim() != 0) {
+            writer.print(prefix); writer.print("getPopExitAnim="); writer.println(getPopExitAnim());
         }
         if (mContainer != null) {
             writer.print(prefix); writer.print("mContainer="); writer.println(mContainer);
@@ -3257,18 +3268,56 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo;
     }
 
-    int getNextAnim() {
+    void setAnimations(int enter, int exit, int popEnter, int popExit) {
+        if (mAnimationInfo == null && enter == 0 && exit == 0 && popEnter == 0 && popExit == 0) {
+            return; // no change!
+        }
+        ensureAnimationInfo().mEnterAnim = enter;
+        ensureAnimationInfo().mExitAnim = exit;
+        ensureAnimationInfo().mPopEnterAnim = popEnter;
+        ensureAnimationInfo().mPopExitAnim = popExit;
+    }
+
+    int getEnterAnim() {
         if (mAnimationInfo == null) {
             return 0;
         }
-        return mAnimationInfo.mNextAnim;
+        return mAnimationInfo.mEnterAnim;
     }
 
-    void setNextAnim(int animResourceId) {
-        if (mAnimationInfo == null && animResourceId == 0) {
+    int getExitAnim() {
+        if (mAnimationInfo == null) {
+            return 0;
+        }
+        return mAnimationInfo.mExitAnim;
+    }
+
+    int getPopEnterAnim() {
+        if (mAnimationInfo == null) {
+            return 0;
+        }
+        return mAnimationInfo.mPopEnterAnim;
+    }
+
+    int getPopExitAnim() {
+        if (mAnimationInfo == null) {
+            return 0;
+        }
+        return mAnimationInfo.mPopExitAnim;
+    }
+
+    boolean getPopDirection() {
+        if (mAnimationInfo == null) {
+            return false;
+        }
+        return mAnimationInfo.mIsPop;
+    }
+
+    void setPopDirection(boolean isPop) {
+        if (mAnimationInfo == null) {
             return; // no change!
         }
-        ensureAnimationInfo().mNextAnim = animResourceId;
+        ensureAnimationInfo().mIsPop = isPop;
     }
 
     int getNextTransition() {
@@ -3518,8 +3567,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // animator instead of an animation.
         Animator mAnimator;
 
-        // If app has requested a specific animation, this is the one to use.
-        int mNextAnim;
+        // If app requests the animation direction, this is what to use
+        boolean mIsPop;
+
+        // All possible animations
+        int mEnterAnim;
+        int mExitAnim;
+        int mPopEnterAnim;
+        int mPopExitAnim;
 
         // If app has requested a specific transition, this is the one to use.
         int mNextTransition;

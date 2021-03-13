@@ -89,7 +89,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             CancellationSignal animCancellationSignal = new CancellationSignal();
             operation.markStartedSpecialEffect(animCancellationSignal);
             // Add the animation special effect
-            animations.add(new AnimationInfo(operation, animCancellationSignal));
+            animations.add(new AnimationInfo(operation, animCancellationSignal, isPop));
 
             // Create the transition CancellationSignal
             CancellationSignal transitionCancellationSignal = new CancellationSignal();
@@ -777,12 +777,15 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
 
     private static class AnimationInfo extends SpecialEffectsInfo {
 
+        private boolean mIsPop;
         private boolean mLoadedAnim = false;
         @Nullable
         private FragmentAnim.AnimationOrAnimator mAnimation;
 
-        AnimationInfo(@NonNull Operation operation, @NonNull CancellationSignal signal) {
+        AnimationInfo(@NonNull Operation operation, @NonNull CancellationSignal signal,
+                boolean isPop) {
             super(operation, signal);
+            mIsPop = isPop;
         }
 
         @Nullable
@@ -792,7 +795,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             }
             mAnimation = FragmentAnim.loadAnimation(context,
                     getOperation().getFragment(),
-                    getOperation().getFinalState() == Operation.State.VISIBLE);
+                    getOperation().getFinalState() == Operation.State.VISIBLE,
+                    mIsPop);
             mLoadedAnim = true;
             return mAnimation;
         }
