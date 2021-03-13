@@ -1442,7 +1442,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                         && f.mView.getVisibility() == View.VISIBLE
                                         && f.mPostponedAlpha >= 0) {
                                     anim = FragmentAnim.loadAnimation(mHost.getContext(),
-                                            f, false);
+                                            f, false, f.getPopDirection());
                                 }
                                 f.mPostponedAlpha = 0;
                                 // Robolectric tests do not post the animation like a real device
@@ -1558,7 +1558,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     private void completeShowHideFragment(@NonNull final Fragment fragment) {
         if (fragment.mView != null) {
             FragmentAnim.AnimationOrAnimator anim = FragmentAnim.loadAnimation(
-                    mHost.getContext(), fragment, !fragment.mHidden);
+                    mHost.getContext(), fragment, !fragment.mHidden, fragment.getPopDirection());
             if (anim != null && anim.animator != null) {
                 anim.animator.setTarget(fragment.mView);
                 if (fragment.mHidden) {
@@ -1630,7 +1630,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 f.mIsNewlyAdded = false;
                 // run animations:
                 FragmentAnim.AnimationOrAnimator anim = FragmentAnim.loadAnimation(
-                        mHost.getContext(), f, true);
+                        mHost.getContext(), f, true, f.getPopDirection());
                 if (anim != null) {
                     if (anim.animation != null) {
                         f.mView.startAnimation(anim.animation);
@@ -2437,12 +2437,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
      */
     private void setVisibleRemovingFragment(@NonNull Fragment f) {
         ViewGroup container = getFragmentContainer(f);
-        if (container != null && f.getNextAnim() > 0) {
+        if (container != null
+                && f.getEnterAnim() + f.getExitAnim() + f.getPopEnterAnim() + f.getPopExitAnim() > 0
+        ) {
             if (container.getTag(R.id.visible_removing_fragment_view_tag) == null) {
                 container.setTag(R.id.visible_removing_fragment_view_tag, f);
             }
             ((Fragment) container.getTag(R.id.visible_removing_fragment_view_tag))
-                    .setNextAnim(f.getNextAnim());
+                    .setPopDirection(f.getPopDirection());
         }
     }
 
