@@ -17,9 +17,7 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
-import androidx.core.util.Preconditions;
 
 /**
  * A migrator class to translate {@link GenericDocument} from different version of
@@ -37,38 +35,14 @@ import androidx.core.util.Preconditions;
  * documents won't have any observable changes.
  */
 public abstract class Migrator {
-    private final int mStartVersion;
-
     /**
-     * Creates a {@link Migrator} will trigger migration for any version less than the final version
-     * in the new schema.
-     */
-    public Migrator() {
-        this(/*startVersion=*/ 0);
-    }
-
-    /**
-     * Creates a {@link Migrator} with a non-negative start version.
+     * Returns {@code true} if this migrator's source type needs to be migrated to update from
+     * currentVersion to finalVersion.
      *
-     * <p>Providing 0 will trigger migration for any version less than the final version in the
-     * new schema.
-     *
-     * @param startVersion The migration will be only triggered for those versions greater or
-     *                     equal to the given startVersion.
+     * <p>Migration won't be triggered if currentVersion is equal to finalVersion even if
+     * {@link #shouldMigrate} return true;
      */
-    public Migrator(int startVersion) {
-        Preconditions.checkArgumentNonnegative(startVersion);
-        mStartVersion = startVersion;
-    }
-
-    /**
-     * @return {@code True} if the current version need to be migrated.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public boolean shouldMigrateToFinalVersion(int currentVersion, int finalVersion) {
-        return currentVersion >= mStartVersion && currentVersion != finalVersion;
-    }
+    public abstract boolean shouldMigrate(int currentVersion, int finalVersion);
 
     /**
      * Migrates {@link GenericDocument} to a newer version of {@link AppSearchSchema}.
@@ -84,13 +58,13 @@ public abstract class Migrator {
      * {@link AppSearchSession#setSchema}.
      *
      * @param currentVersion The current version of the document's schema.
-     * @param targetVersion  The final version that documents need to be migrated to.
+     * @param finalVersion  The final version that documents need to be migrated to.
      * @param document       The {@link GenericDocument} need to be translated to new version.
      * @return               A {@link GenericDocument} in new version.
      */
     @WorkerThread
     @NonNull
-    public abstract GenericDocument onUpgrade(int currentVersion, int targetVersion,
+    public abstract GenericDocument onUpgrade(int currentVersion, int finalVersion,
             @NonNull GenericDocument document);
 
     /**
@@ -106,12 +80,12 @@ public abstract class Migrator {
      * <p>This method will be invoked on the background worker thread.
      *
      * @param currentVersion The current version of the document's schema.
-     * @param targetVersion  The final version that documents need to be migrated to.
+     * @param finalVersion  The final version that documents need to be migrated to.
      * @param document       The {@link GenericDocument} need to be translated to new version.
      * @return               A {@link GenericDocument} in new version.
      */
     @WorkerThread
     @NonNull
-    public abstract GenericDocument onDowngrade(int currentVersion, int targetVersion,
+    public abstract GenericDocument onDowngrade(int currentVersion, int finalVersion,
             @NonNull GenericDocument document);
 }

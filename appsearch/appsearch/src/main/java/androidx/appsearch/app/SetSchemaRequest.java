@@ -357,6 +357,19 @@ public final class SetSchemaRequest {
             return this;
         }
 
+        /**
+         * Sets {@link Migrator}s.
+         *
+         * @param migrators  A {@link Map} of migrators that translate a document from its old
+         *                   version to a new incompatible version.
+         */
+        @NonNull
+        public Builder setMigrators(@NonNull Map<String, Migrator> migrators) {
+            Preconditions.checkNotNull(migrators);
+            mMigrators.putAll(migrators);
+            return this;
+        }
+
 // @exportToFramework:startStrip()
 
         /**
