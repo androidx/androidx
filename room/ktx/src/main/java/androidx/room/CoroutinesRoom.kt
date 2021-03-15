@@ -111,7 +111,8 @@ public class CoroutinesRoom private constructor() {
             }
             observerChannel.offer(Unit) // Initial signal to perform first query.
             val flowContext = coroutineContext
-            val queryContext = if (inTransaction) db.transactionDispatcher else db.queryDispatcher
+            val queryContext = coroutineContext[TransactionElement]?.transactionDispatcher
+                ?: if (inTransaction) db.transactionDispatcher else db.queryDispatcher
             withContext(queryContext) {
                 db.invalidationTracker.addObserver(observer)
                 try {
