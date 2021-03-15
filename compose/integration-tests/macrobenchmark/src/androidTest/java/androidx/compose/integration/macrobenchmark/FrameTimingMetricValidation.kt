@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.integration.macrobenchmark
+package androidx.compose.integration.macrobenchmark
 
 import android.content.Intent
 import android.graphics.Point
@@ -22,10 +22,10 @@ import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -33,11 +33,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @LargeTest
-@SdkSuppress(minSdkVersion = 29)
 @RunWith(Parameterized::class)
-class FrameTimingMetricValidation(
-    private val compilationMode: CompilationMode
-) {
+class FrameTimingMetricValidation(private val compilationMode: CompilationMode) {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
@@ -62,22 +59,24 @@ class FrameTimingMetricValidation(
                 startActivityAndWait(intent)
             }
         ) {
-            val recycler = device.findObject(By.res(PACKAGE_NAME, RESOURCE_ID))
+            val lazyColumn = device.findObject(By.desc(CONTENT_DESCRIPTION))
             // Setting a gesture margin is important otherwise gesture nav is triggered.
-            recycler.setGestureMargin(device.displayWidth / 5)
+            lazyColumn.setGestureMargin(device.displayWidth / 5)
             for (i in 1..10) {
                 // From center we scroll 2/3 of it which is 1/3 of the screen.
-                recycler.drag(Point(0, recycler.visibleCenter.y / 3))
-                device.waitForIdle()
+                lazyColumn.drag(Point(0, lazyColumn.visibleCenter.y / 3))
+                device.wait(Until.findObject(By.desc(COMPOSE_IDLE)), 3000)
             }
         }
     }
 
     companion object {
-        private const val PACKAGE_NAME = "androidx.benchmark.integration.macrobenchmark.target"
+        private const val PACKAGE_NAME = "androidx.compose.integration.macrobenchmark.target"
         private const val ACTION =
-            "androidx.benchmark.integration.macrobenchmark.target.RECYCLER_VIEW"
-        private const val RESOURCE_ID = "recycler"
+            "androidx.compose.integration.macrobenchmark.target.LAZY_COLUMN_ACTIVITY"
+        private const val CONTENT_DESCRIPTION = "IamLazy"
+
+        private const val COMPOSE_IDLE = "COMPOSE-IDLE"
 
         @Parameterized.Parameters(name = "compilation_mode={0}")
         @JvmStatic
