@@ -320,7 +320,7 @@ package androidx.wear.watchface {
 
   public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
     ctor public WatchFaceService();
-    method protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace> p);
+    method @UiThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace> p);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.view.SurfaceHolder? getWallpaperSurfaceHolderOverride();
     method public final android.service.wallpaper.WallpaperService.Engine onCreateEngine();
   }

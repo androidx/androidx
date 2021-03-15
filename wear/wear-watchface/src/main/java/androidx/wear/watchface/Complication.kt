@@ -26,7 +26,6 @@ import android.os.Bundle
 import androidx.annotation.ColorInt
 import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationBounds
-import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.ComplicationData
@@ -36,7 +35,6 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 
 /** Interface for rendering complications onto a [Canvas]. */
 public interface CanvasComplication {
@@ -95,15 +93,13 @@ public interface CanvasComplication {
 /**
  * A complication rendered with [ComplicationDrawable] which renders complications in a material
  * design style. This renderer can't be shared by multiple complications.
+ *
+ * @param _drawable The [ComplicationDrawable] to render with.
+ * @param watchState The watch's [WatchState] which contains details pertaining to (low-bit) ambient
+ *     mode and burn in protection needed to render correctly.
  */
 public open class CanvasComplicationDrawable(
-    /** The [ComplicationDrawable] to render with. */
     _drawable: ComplicationDrawable,
-
-    /**
-     * The watch's [WatchState] which contains details pertaining to (low-bit) ambient mode and
-     * burn in protection needed to render correctly.
-     */
     private val watchState: WatchState
 ) : CanvasComplication {
 
@@ -233,30 +229,38 @@ public open class CanvasComplicationDrawable(
  * Represents a individual complication on the screen. The number of complications is fixed
  * (see [ComplicationsManager]) but complications can be enabled or disabled via
  * [UserStyleSetting.ComplicationsUserStyleSetting].
+ *
+ * @param id The Watch Face's ID for the complication.
+ * @param boundsType The [ComplicationBoundsType] of the complication.
+ * @param bounds The complication's [ComplicationBounds].
+ * @param renderer The [CanvasComplication] used to render the complication.
+ * @param supportedTypes The list of [ComplicationType]s accepted by this complication. Passed
+ *     into [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
+ *     configuration. This list should be non-empty.
+ * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] which controls the initial
+ *     provider when the watch face is first installed.
+ * @param defaultProviderType The default [ComplicationType] for the default provider.
+ * @param initiallyEnabled At creation a complication is either enabled or disabled. This can be
+ *     overridden by a [ComplicationsUserStyleSetting] (see [ComplicationOverlay.enabled]).
+ *     Editors need to know the initial state of a complication to predict the effects of making a
+ *     style change.
+ * @param configExtras Extras to be merged into the Intent sent when invoking the provider chooser
+ *     activity.
+ * @param fixedComplicationProvider  Whether or not the complication provider is fixed (i.e.
+ *     can't be changed by the user).  This is useful for watch faces built around specific
+ *     complications.
  */
 public class Complication internal constructor(
     internal val id: Int,
     @ComplicationBoundsType public val boundsType: Int,
     bounds: ComplicationBounds,
-    /** The [CanvasComplication] used to render the complication. */
     public val renderer: CanvasComplication,
     supportedTypes: List<ComplicationType>,
     defaultProviderPolicy: DefaultComplicationProviderPolicy,
     defaultProviderType: ComplicationType,
-    /**
-     * At creation a complication is either enabled or disabled. This can be overridden by a
-     * [ComplicationsUserStyleSetting] (see [ComplicationOverlay.enabled]).
-     *
-     * Editors need to know the initial state of a complication to predict the effects of making a
-     * style change.
-     */
     @get:JvmName("isInitiallyEnabled")
     public val initiallyEnabled: Boolean,
-
-    /** Extras to be merged into the Intent sent when invoking the provider chooser activity. */
     public val configExtras: Bundle,
-
-    /** Whether or not the complication provider is fixed. */
     @get:JvmName("isFixedComplicationProvider")
     public val fixedComplicationProvider: Boolean
 ) {
@@ -268,35 +272,24 @@ public class Complication internal constructor(
          * [ComplicationBoundsType.ROUND_RECT]. This is the most common type of complication.
          * These can be single tapped by the user to either trigger the associated intent or
          * double tapped to open the provider selector.
+         *
+         * @param id The watch face's ID for this complication. Can be any integer but should be
+         *     unique within the watch face.
+         * @param renderer The [CanvasComplication] to use for rendering. Note renderers should
+         *     not be shared between complications.
+         * @param supportedTypes The types of complication supported by this Complication. Passed
+         *     into [ComplicationHelperActivity.createProviderChooserHelperIntent] during
+         *     complication configuration. This list should be non-empty.
+         * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
+         *     the initial complication provider when the watch is first installed.
+         * @param bounds The complication's [ComplicationBounds].
          */
         @JvmStatic
         public fun createRoundRectComplicationBuilder(
-            /**
-             * The watch face's ID for this complication. Can be any integer but should be unique
-             * within the watch face.
-             */
             id: Int,
-
-            /**
-             * The [CanvasComplication] to use for rendering. Note renderers should not be shared
-             * between complications.
-             */
             renderer: CanvasComplication,
-
-            /**
-             * The types of complication supported by this Complication. Passed into
-             * [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
-             * configuration. This list should be non-empty.
-             */
             supportedTypes: List<ComplicationType>,
-
-            /**
-             * The [DefaultComplicationProviderPolicy] used to select the initial complication
-             * provider.
-             */
             defaultProviderPolicy: DefaultComplicationProviderPolicy,
-
-            /** The initial [ComplicationBounds]. */
             bounds: ComplicationBounds
         ): Builder = Builder(
             id,
@@ -313,32 +306,22 @@ public class Complication internal constructor(
          * complication is for watch faces that wish to have a full screen user selectable
          * backdrop. This sort of complication isn't clickable and at most one may be present in
          * the list of complications.
+         *
+         * @param id The watch face's ID for this complication. Can be any integer but should be
+         *     unique within the watch face.
+         * @param renderer The [CanvasComplication] to use for rendering. Note renderers should
+         *     not be shared between complications.
+         * @param supportedTypes The types of complication supported by this Complication. Passed
+         *     into [ComplicationHelperActivity.createProviderChooserHelperIntent] during
+         *     complication configuration. This list should be non-empty.
+         * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
+         *     the initial complication provider when the watch is first installed.
          */
         @JvmStatic
         public fun createBackgroundComplicationBuilder(
-            /**
-             * The watch face's ID for this complication. Can be any integer but should be unique
-             * within the watch face.
-             */
             id: Int,
-
-            /**
-             * The [CanvasComplication] to use for rendering. Note renderers should not be shared
-             * between complications.
-             */
             renderer: CanvasComplication,
-
-            /**
-             * The types of complication supported by this Complication. Passed into
-             * [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
-             * configuration. This list should be non-empty.
-             */
             supportedTypes: List<ComplicationType>,
-
-            /**
-             * The [DefaultComplicationProviderPolicy] used to select the initial complication
-             * provider.
-             */
             defaultProviderPolicy: DefaultComplicationProviderPolicy
         ): Builder = Builder(
             id,
@@ -350,7 +333,21 @@ public class Complication internal constructor(
         )
     }
 
-    /** Builder for constructing [Complication]s. */
+    /**
+     * Builder for constructing [Complication]s.
+     *
+     * @param id The watch face's ID for this complication. Can be any integer but should be unique
+     *     within the watch face.
+     * @param renderer The [CanvasComplication] to use for rendering. Note renderers should not be
+     *     shared between complications.
+     * @param supportedTypes The types of complication supported by this Complication. Passed into
+     *     [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
+     *     configuration. This list should be non-empty.
+     * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
+     *     the initial complication provider when the watch is first installed.
+     * @param boundsType The [ComplicationBoundsType] of the complication.
+     * @param bounds The complication's [ComplicationBounds].
+     */
     public class Builder internal constructor(
         private val id: Int,
         private val renderer: CanvasComplication,

@@ -223,29 +223,40 @@ public abstract class WatchFaceService : WallpaperService() {
         private const val DIRECT_BOOT_PREFS = "directboot.prefs"
     }
 
-    /** Override this factory method to create your WatchFaceImpl. */
+    /**
+     * Override this factory method to create your WatchFaceImpl. This method will be called by the
+     * library on the UiThread. If possible any expensive initialization should be done on a
+     * background thread.
+     *
+     * @param surfaceHolder The [SurfaceHolder] to pass to the [Renderer]'s constructor.
+     * @param watchState The [WatchState] for the watch face.
+     * @return A [WatchFace] whose [Renderer] uses the provided [surfaceHolder].
+     */
+    @UiThread
     protected abstract suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
     ): WatchFace
 
-    // Creates an interactive engine for WallpaperService.
+    /** Creates an interactive engine for WallpaperService. */
     final override fun onCreateEngine(): Engine = EngineWrapper(getHandler(), false)
 
-    // Creates a headless engine.
+    /** Creates a headless engine. */
     internal fun createHeadlessEngine(): Engine = EngineWrapper(getHandler(), true)
 
-    // This is open to allow mocking.
+    /** This is open to allow mocking. */
     internal open fun getHandler() = Handler(Looper.getMainLooper())
 
-    // This is open to allow mocking.
+    /** This is open to allow mocking. */
     internal open fun getMutableWatchState() = MutableWatchState()
 
-    // This is open for use by tests.
+    /** This is open for use by tests. */
     internal open fun allowWatchFaceToAnimate() = true
 
-    // Whether or not the pre R style init flow (SET_BINDER wallpaper command) is expected.
-    // This is open for use by tests.
+    /**
+     * Whether or not the pre R style init flow (SET_BINDER wallpaper command) is expected.
+     * This is open for use by tests.
+     */
     internal open fun expectPreRInitFlow() = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
 
     /**
@@ -1327,9 +1338,12 @@ public abstract class WatchFaceService : WallpaperService() {
  * Runs the supplied task on the handler thread. If we're not on the handler thread a task is posted
  * and we block until it's been processed.
  *
- * AIDL calls are dispatched from a thread pool, but for simplicity WatchFaceImpl code is
- * largely single threaded so we need to post tasks to the UI thread and wait for them to
- * execute.
+ * AIDL calls are dispatched from a thread pool, but for simplicity WatchFaceImpl code is largely
+ * single threaded so we need to post tasks to the UI thread and wait for them to execute.
+ *
+ * @param traceEventName The name of the trace event to emit.
+ * @param task The task to post on the handler.
+ * @return [R] the return value of [task].
  */
 internal fun <R> Handler.runOnHandlerWithTracing(
     traceEventName: String,

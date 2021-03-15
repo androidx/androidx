@@ -152,15 +152,17 @@ public abstract class EditorSession : AutoCloseable {
          * Constructs an [EditorSession] for an on watch face editor. This registers an activity
          * result handler and so it must be called during an Activity or Fragment initialization
          * path.
+         *
+         * @param activity The [ComponentActivity] associated with the [EditorSession].
+         * @param editIntent The [Intent] sent by SysUI to launch the editing session.
+         * @return Deferred<EditorSession?> which is resolved with either the [EditorSession] or
+         *    `null` if it can't be constructed.
          */
         @SuppressWarnings("ExecutorRegistration")
         @JvmStatic
         @UiThread
         public fun createOnWatchEditingSessionAsync(
-            /** The [ComponentActivity] associated with the EditorSession. */
             activity: ComponentActivity,
-
-            /** [Intent] sent by SysUI to launch the editing session. */
             editIntent: Intent
         ): Deferred<EditorSession?> = createOnWatchEditingSessionAsyncImpl(
             activity,
@@ -206,17 +208,20 @@ public abstract class EditorSession : AutoCloseable {
             } ?: CompletableDeferred(null)
         }
 
-        /** Constructs an [EditorSession] for a remote watch face editor. */
+        /**
+         * Constructs an [EditorSession] for a remote watch face editor.
+         *
+         * @param activity The [ComponentActivity] associated with the EditorSession.
+         * @param editIntent The [Intent] sent by SysUI to launch the editing session.
+         * @param headlessWatchFaceClient The [HeadlessWatchFaceClient] to use for rendering etc...
+         * @return The [EditorSession] or `null` if it could not be constructed.
+         */
         @JvmStatic
         @RequiresApi(27)
         @UiThread
         public fun createHeadlessEditingSession(
-            /** The [ComponentActivity] associated with the EditorSession. */
             activity: ComponentActivity,
-
-            /** [Intent] sent by SysUI to launch the editing session. */
             editIntent: Intent,
-
             headlessWatchFaceClient: HeadlessWatchFaceClient
         ): EditorSession? = TraceEvent("EditorSession.createHeadlessEditingSession").use {
             EditorRequest.createFromIntent(editIntent)?.let {

@@ -44,7 +44,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.wear.utility.TraceEvent
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
@@ -114,21 +113,17 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
 /**
  * The return value of [WatchFaceService.createWatchFace] which brings together rendering, styling,
  * complications and state observers.
+ *
+ * @param watchFaceType The type of watch face, whether it's digital or analog. Used to determine
+ *     the default time for editor preview screenshots.
+ * @param userStyleRepository The [UserStyleRepository] for this WatchFace.
+ * @param renderer The [Renderer] for this WatchFace.
+ * @param complicationsManager The [ComplicationsManager] for this WatchFace.
  */
 public class WatchFace @JvmOverloads constructor(
-    /**
-     * The type of watch face, whether it's digital or analog. Used to determine the
-     * default time for editor preview screenshots.
-     */
     @WatchFaceType internal var watchFaceType: Int,
-
-    /** The [UserStyleRepository] for this WatchFace. */
     public val userStyleRepository: UserStyleRepository,
-
-    /** The [Renderer] for this WatchFace. */
     internal val renderer: Renderer,
-
-    /** The [ComplicationsManager] for this WatchFace. */
     internal var complicationsManager: ComplicationsManager =
         ComplicationsManager(emptyList(), userStyleRepository)
 ) {
@@ -260,44 +255,30 @@ public class WatchFace @JvmOverloads constructor(
     /**
      * Legacy Wear 2.0 watch face styling. These settings will be ignored on Wear 3.0 devices.
      *
+     * @param viewProtectionMode The view protection mode bit field, must be a combination of
+     *     zero or more of [PROTECT_STATUS_BAR], [PROTECT_HOTWORD_INDICATOR],
+     *     [PROTECT_WHOLE_SCREEN].
+     * @param statusBarGravity Controls the position of status icons (battery state, lack of
+     *     connection) on the screen. This must be any combination of horizontal Gravity constant:
+     *         ([Gravity.LEFT], [Gravity.CENTER_HORIZONTAL], [Gravity.RIGHT])
+     *         and vertical Gravity constants ([Gravity.TOP], [Gravity,CENTER_VERTICAL},
+     *         [Gravity,BOTTOM]), e.g. {@code Gravity.LEFT | Gravity.BOTTOM}. On circular screens,
+     *          only the vertical gravity is respected.
+     * @param tapEventsAccepted Controls whether this watch face accepts tap events. Watchfaces
+     *     that set this {@code true} are indicating they are prepared to receive
+     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH],
+     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH_CANCEL], and
+     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_TAP] events.
+     * @param accentColor The accent color which will be used when drawing the unread notification
+     *     indicator. Default color is white.
      * @throws IllegalArgumentException if [viewProtectionMode] has an unexpected value
      */
     public class LegacyWatchFaceOverlayStyle @JvmOverloads constructor(
-        /**
-         * The view protection mode bit field, must be a combination of
-         *     zero or more of [PROTECT_STATUS_BAR], [PROTECT_HOTWORD_INDICATOR],
-         *     [PROTECT_WHOLE_SCREEN].
-         */
         public val viewProtectionMode: Int,
-
-        /**
-         * Controls the position of status icons (battery state, lack of connection) on the screen.
-         *
-         * This must be any combination of horizontal Gravity constant
-         *     ([Gravity.LEFT], [Gravity.CENTER_HORIZONTAL], [Gravity.RIGHT])
-         *     and vertical Gravity constants ([Gravity.TOP], [Gravity,CENTER_VERTICAL},
-         *     [Gravity,BOTTOM]), e.g. {@code Gravity.LEFT | Gravity.BOTTOM}. On circular screens,
-         *     only the vertical gravity is respected.
-         */
         public val statusBarGravity: Int,
-
-        /**
-         * Controls whether this watch face accepts tap events.
-         *
-         * Watchfaces that set this {@code true} are indicating they are prepared to receive
-         * [IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH],
-         * [IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH_CANCEL], and
-         * [IInteractiveWatchFaceSysUI.TAP_TYPE_TAP] events.
-         */
         @get:JvmName("isTapEventsAccepted")
         public val tapEventsAccepted: Boolean,
-
-        /**
-         * The accent color which will be used when drawing the unread notification indicator.
-         * Default color is white.
-         */
-        @ColorInt
-        public val accentColor: Int = WatchFaceStyle.DEFAULT_ACCENT_COLOR
+        @ColorInt public val accentColor: Int = WatchFaceStyle.DEFAULT_ACCENT_COLOR
     ) {
         init {
             if (viewProtectionMode < 0 ||

@@ -65,27 +65,23 @@ public enum class LayerMode {
     HIDE
 }
 
-/** Used to parameterize watch face rendering. */
+/**
+ * Used to parameterize watch face rendering.
+ *
+ * @param drawMode The overall drawing parameters based on system state.
+ * @param layerParameters Parameters for rendering individual layers. Generally these will all be
+ *     [LayerMode#DRAW] in normal operation, but the editor may make more complicated requests
+ *     which need to be honored to function properly.
+ * @param selectedComplicationId Optional parameter which if non null specifies that a particular
+ *     complication should be drawn with a special highlight to indicate it's been selected.
+ * @param outlineTint Specifies the tint should be used with [LayerMode.DRAW_OUTLINED]
+ */
 public class RenderParameters constructor(
-    /** The overall drawing parameters based on system state. */
     public val drawMode: DrawMode,
-
-    /**
-     * Parameters for rendering individual layers. Generally these will all be [LayerMode#DRAW]
-     * in normal operation, but the editor may make more complicated requests which need to be
-     * honored to function properly.
-     */
     public val layerParameters: Map<Layer, LayerMode>,
-
-    /**
-     * Optional parameter which if non null specifies that a particular complication should be
-     * drawn with a special highlight to indicate it's been selected.
-     */
     @SuppressWarnings("AutoBoxing")
     @get:SuppressWarnings("AutoBoxing")
     public val selectedComplicationId: Int?,
-
-    /** Specifies the tint should be used with [LayerMode.DRAW_OUTLINED] .*/
     @ColorInt
     @get:ColorInt
     public val outlineTint: Int
@@ -93,22 +89,18 @@ public class RenderParameters constructor(
     /**
      * Constructs [RenderParameters] without an explicit [outlineTint]. This constructor doesn't
      * support [LayerMode.DRAW_OUTLINED].
+     *
+     * @param drawMode The overall drawing parameters based on system state.
+     * @param layerParameters Parameters for rendering individual layers. Generally these will all
+     *     be [LayerMode#DRAW] in normal operation, but the editor may make more complicated
+     *     requests which need to be honored to function properly.
+     * @param selectedComplicationId Optional parameter which if non null specifies that a
+     *     particular complication should be drawn with a special highlight to indicate it's been
+     *     selected.
      */
     public constructor(
-        /** The overall drawing parameters based on system state. */
         drawMode: DrawMode,
-
-        /**
-         * Parameters for rendering individual layers. Generally these will all be [LayerMode#DRAW]
-         * in normal operation, but the editor may make more complicated requests which need to be
-         * honored to function properly.
-         */
         layerParameters: Map<Layer, LayerMode>,
-
-        /**
-         * Optional parameter which if non null specifies that a particular complication should be
-         * drawn with a special highlight to indicate it's been selected.
-         */
         @SuppressWarnings("AutoBoxing")
         selectedComplicationId: Int?,
     ) : this(drawMode, layerParameters, selectedComplicationId, Color.RED) {

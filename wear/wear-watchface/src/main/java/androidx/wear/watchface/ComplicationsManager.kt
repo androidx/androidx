@@ -45,15 +45,13 @@ private fun getComponentName(context: Context) = ComponentName(
 /**
  * The [Complication]s associated with the [WatchFace]. Dynamic creation of complications isn't
  * supported, however complications can be enabled and disabled by [ComplicationsUserStyleSetting].
+ *
+ * @param complicationCollection The complications associated with the watch face, may be empty.
+ * @param userStyleRepository The [UserStyleRepository] used to listen for
+ *     [ComplicationsUserStyleSetting] changes and apply them.
  */
 public class ComplicationsManager(
-    /** The complications associated with the watch face, may be empty. */
     complicationCollection: Collection<Complication>,
-
-    /**
-     * The [UserStyleRepository] used to listen for [ComplicationsUserStyleSetting] changes and
-     * apply them.
-     */
     private val userStyleRepository: UserStyleRepository
 ) {
     /**

@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.style
 
+/** Describes part of watchface. Used as a parameter for rendering. */
 public enum class Layer {
     BASE_LAYER,
     COMPLICATIONS,
