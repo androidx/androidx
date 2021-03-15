@@ -2,10 +2,11 @@
 package androidx.wear.watchface.client {
 
   public final class ComplicationState {
-    ctor public ComplicationState(android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.complications.data.ComplicationType currentType, boolean fixedComplicationProvider);
+    ctor public ComplicationState(android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.complications.data.ComplicationType currentType, boolean fixedComplicationProvider, android.os.Bundle complicationConfigExtras);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public ComplicationState(androidx.wear.watchface.data.ComplicationStateWireFormat complicationStateWireFormat);
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();
+    method public android.os.Bundle getComplicationConfigExtras();
     method public androidx.wear.complications.data.ComplicationType getCurrentType();
     method public androidx.wear.complications.DefaultComplicationProviderPolicy getDefaultProviderPolicy();
     method public androidx.wear.complications.data.ComplicationType getDefaultProviderType();
@@ -15,6 +16,7 @@ package androidx.wear.watchface.client {
     method public boolean isInitiallyEnabled();
     property public final android.graphics.Rect bounds;
     property public final int boundsType;
+    property public final android.os.Bundle complicationConfigExtras;
     property public final androidx.wear.complications.data.ComplicationType currentType;
     property public final androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy;
     property public final androidx.wear.complications.data.ComplicationType defaultProviderType;

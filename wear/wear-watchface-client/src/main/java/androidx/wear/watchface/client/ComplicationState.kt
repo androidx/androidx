@@ -17,6 +17,7 @@
 package androidx.wear.watchface.client
 
 import android.graphics.Rect
+import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationData
@@ -60,7 +61,10 @@ public class ComplicationState(
 
     /** Whether or not the complication provider is fixed (i.e the user can't configure it). */
     @get:JvmName("isFixedComplicationProvider")
-    public val fixedComplicationProvider: Boolean
+    public val fixedComplicationProvider: Boolean,
+
+    /** Extras to be merged into the Intent sent when invoking the provider chooser activity. */
+    public val complicationConfigExtras: Bundle
 ) {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -78,6 +82,7 @@ public class ComplicationState(
         complicationStateWireFormat.isEnabled,
         complicationStateWireFormat.isInitiallyEnabled,
         ComplicationType.fromWireType(complicationStateWireFormat.currentType),
-        complicationStateWireFormat.isFixedComplicationProvider
+        complicationStateWireFormat.isFixedComplicationProvider,
+        complicationStateWireFormat.complicationConfigExtras
     )
 }
