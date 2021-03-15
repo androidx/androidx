@@ -37,6 +37,7 @@ dependencies {
     api(projectOrArtifact(":paging:paging-common"))
 
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(projectOrArtifact(":compose:test-utils"))
     androidTestImplementation(projectOrArtifact(":internal-testutils-paging"))
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)
