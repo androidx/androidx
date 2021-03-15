@@ -72,14 +72,17 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(project(":lifecycle:lifecycle-runtime"))
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
     androidTestImplementation(TRUTH)
     debugImplementation(ANDROIDX_TEST_CORE)
     debugImplementation("androidx.fragment:fragment-testing:1.2.3")
-    // Testing resource dependency for manifest
-    debugImplementation(project(":camera:camera-testing"))
+    // camera-testing added as 'implementation' dependency to include camera-testing activity in APK
+    debugImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in camera-core project dependency which will
+        // override pinned dependency.
+        exclude(group:"androidx.camera", module:"camera-core")
+    }
 }
 
