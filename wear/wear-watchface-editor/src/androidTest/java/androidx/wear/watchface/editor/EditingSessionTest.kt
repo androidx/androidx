@@ -89,6 +89,9 @@ public val provider3: ComponentName = ComponentName("provider.app3", "provider.c
 
 private const val TIMEOUT_MILLIS = 500L
 
+private const val PROVIDER_CHOOSER_EXTRA_KEY = "PROVIDER_CHOOSER_EXTRA_KEY"
+private const val PROVIDER_CHOOSER_EXTRA_VALUE = "PROVIDER_CHOOSER_EXTRA_VALUE"
+
 /** Trivial "editor" which exposes the EditorSession for testing. */
 public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
     public lateinit var editorSession: EditorSession
@@ -312,6 +315,11 @@ public class EditorSessionTest {
             DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
             ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+            .setConfigExtras(
+                Bundle().apply {
+                    putString(PROVIDER_CHOOSER_EXTRA_KEY, PROVIDER_CHOOSER_EXTRA_VALUE)
+                }
+            )
             .build()
 
     private val mockBackgroundCanvasComplication = Mockito.mock(CanvasComplication::class.java)
@@ -738,11 +746,7 @@ public class EditorSessionTest {
              * Invoke [TestComplicationHelperActivity] which will change the provider (and hence
              * the preview data) for [LEFT_COMPLICATION_ID].
              */
-            assertTrue(
-                editorSession.launchComplicationProviderChooser(
-                    LEFT_COMPLICATION_ID
-                )
-            )
+            assertTrue(editorSession.launchComplicationProviderChooser(LEFT_COMPLICATION_ID))
 
             // This should update the preview data to point to the updated provider3 data.
             val previewComplication =
@@ -761,6 +765,31 @@ public class EditorSessionTest {
                     ProviderChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID
                 )
             ).isEqualTo(testInstanceId)
+        }
+    }
+
+    @Test
+    public fun launchComplicationProviderChooser_ComplicationConfigExtras() {
+        ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication)
+        )
+
+        lateinit var editorSession: EditorSession
+        scenario.onActivity { activity ->
+            editorSession = activity.editorSession
+        }
+
+        runBlocking {
+            assertTrue(editorSession.launchComplicationProviderChooser(RIGHT_COMPLICATION_ID))
+
+            assertThat(
+                TestComplicationHelperActivity.lastIntent?.extras?.getString(
+                    PROVIDER_CHOOSER_EXTRA_KEY
+                )
+            ).isEqualTo(PROVIDER_CHOOSER_EXTRA_VALUE)
         }
     }
 

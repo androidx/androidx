@@ -244,7 +244,7 @@ public open class CanvasComplicationDrawable(
 public class Complication internal constructor(
     internal val id: Int,
     @ComplicationBoundsType public val boundsType: Int,
-    complicationBounds: ComplicationBounds,
+    bounds: ComplicationBounds,
     /** The [CanvasComplication] used to render the complication. */
     public val renderer: CanvasComplication,
     supportedTypes: List<ComplicationType>,
@@ -261,7 +261,7 @@ public class Complication internal constructor(
     public val initiallyEnabled: Boolean,
 
     /** Extras to be merged into the Intent sent when invoking the provider chooser activity. */
-    public val complicationConfigExtras: Bundle?,
+    public val configExtras: Bundle,
 
     /** Whether or not the complication provider is fixed. */
     @get:JvmName("isFixedComplicationProvider")
@@ -304,14 +304,14 @@ public class Complication internal constructor(
             defaultProviderPolicy: DefaultComplicationProviderPolicy,
 
             /** The initial [ComplicationBounds]. */
-            complicationBounds: ComplicationBounds
+            bounds: ComplicationBounds
         ): Builder = Builder(
             id,
             renderer,
             supportedTypes,
             defaultProviderPolicy,
             ComplicationBoundsType.ROUND_RECT,
-            complicationBounds
+            bounds
         )
 
         /**
@@ -364,11 +364,11 @@ public class Complication internal constructor(
         private val supportedTypes: List<ComplicationType>,
         private val defaultProviderPolicy: DefaultComplicationProviderPolicy,
         @ComplicationBoundsType private val boundsType: Int,
-        private val complicationBounds: ComplicationBounds
+        private val bounds: ComplicationBounds
     ) {
         private var defaultProviderType = ComplicationType.NOT_CONFIGURED
         private var initiallyEnabled = true
-        private var complicationConfigExtras: Bundle? = null
+        private var configExtras: Bundle = Bundle.EMPTY
         private var fixedComplicationProvider = false
 
         /**
@@ -396,8 +396,8 @@ public class Complication internal constructor(
          * Sets optional extras to be merged into the Intent sent when invoking the provider chooser
          * activity.
          */
-        public fun setComplicationConfigExtras(extras: Bundle?): Builder {
-            this.complicationConfigExtras = extras
+        public fun setConfigExtras(extras: Bundle): Builder {
+            this.configExtras = extras
             return this
         }
 
@@ -413,13 +413,13 @@ public class Complication internal constructor(
         public fun build(): Complication = Complication(
             id,
             boundsType,
-            complicationBounds,
+            bounds,
             renderer,
             supportedTypes,
             defaultProviderPolicy,
             defaultProviderType,
             initiallyEnabled,
-            complicationConfigExtras,
+            configExtras,
             fixedComplicationProvider
         )
     }
@@ -445,7 +445,7 @@ public class Complication internal constructor(
      * Note it's not allowed to change the bounds of a background complication because
      * they are assumed to always cover the entire screen.
      */
-    public var complicationBounds: ComplicationBounds = complicationBounds
+    public var complicationBounds: ComplicationBounds = bounds
         @UiThread
         get
         @UiThread
@@ -654,9 +654,9 @@ public class Complication internal constructor(
         writer.println("enabled=$enabled")
         writer.println("renderer.isHighlighted=${renderer.isHighlighted}")
         writer.println("boundsType=$boundsType")
-        writer.println("complicationConfigExtras=$complicationConfigExtras")
+        writer.println("configExtras=$configExtras")
         writer.println("supportedTypes=${supportedTypes.joinToString { it.toString() }}")
-        writer.println("complicationConfigExtras=$complicationConfigExtras")
+        writer.println("initiallyEnabled=$initiallyEnabled")
         writer.println(
             "defaultProviderPolicy.primaryProvider=${defaultProviderPolicy.primaryProvider}"
         )
