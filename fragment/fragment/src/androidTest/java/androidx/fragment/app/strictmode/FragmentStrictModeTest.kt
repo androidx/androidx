@@ -148,20 +148,6 @@ public class FragmentStrictModeTest {
     }
 
     @Test
-    public fun detectSetTargetFragment() {
-        var violation: Violation? = null
-        val policy = FragmentStrictMode.Policy.Builder()
-            .detectSetTargetFragment()
-            .penaltyListener { violation = it }
-            .build()
-        FragmentStrictMode.setDefaultPolicy(policy)
-
-        @Suppress("DEPRECATION")
-        StrictFragment().setTargetFragment(StrictFragment(), 1)
-        assertThat(violation).isInstanceOf(SetTargetFragmentViolation::class.java)
-    }
-
-    @Test
     public fun detectSetUserVisibleHint() {
         var violation: Violation? = null
         val policy = FragmentStrictMode.Policy.Builder()
@@ -173,5 +159,29 @@ public class FragmentStrictModeTest {
         @Suppress("DEPRECATION")
         StrictFragment().userVisibleHint = true
         assertThat(violation).isInstanceOf(SetUserVisibleHintViolation::class.java)
+    }
+
+    @Test
+    public fun detectTargetFragmentUsage() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectTargetFragmentUsage()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        @Suppress("DEPRECATION")
+        StrictFragment().setTargetFragment(StrictFragment(), 1)
+        assertThat(violation).isInstanceOf(TargetFragmentUsageViolation::class.java)
+
+        violation = null
+        @Suppress("DEPRECATION")
+        StrictFragment().targetFragment
+        assertThat(violation).isInstanceOf(TargetFragmentUsageViolation::class.java)
+
+        violation = null
+        @Suppress("DEPRECATION")
+        StrictFragment().targetRequestCode
+        assertThat(violation).isInstanceOf(TargetFragmentUsageViolation::class.java)
     }
 }

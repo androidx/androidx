@@ -806,7 +806,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @SuppressWarnings("ReferenceEquality, deprecation")
     @Deprecated
     public void setTargetFragment(@Nullable Fragment fragment, int requestCode) {
-        FragmentStrictMode.onSetTargetFragment(this);
+        FragmentStrictMode.onTargetFragmentUsage(this);
         // Don't allow a caller to set a target fragment in another FragmentManager,
         // but there's a snag: people do set target fragments before fragments get added.
         // We'll have the FragmentManager check that for validity when we move
@@ -854,6 +854,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Nullable
     @Deprecated
     final public Fragment getTargetFragment() {
+        FragmentStrictMode.onTargetFragmentUsage(this);
         if (mTarget != null) {
             // Ensure that any Fragment set with setTargetFragment is immediately
             // available here
@@ -876,6 +877,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @Deprecated
     final public int getTargetRequestCode() {
+        FragmentStrictMode.onTargetFragmentUsage(this);
         return mTargetRequestCode;
     }
 

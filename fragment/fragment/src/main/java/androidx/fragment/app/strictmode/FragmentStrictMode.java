@@ -52,8 +52,8 @@ public final class FragmentStrictMode {
         PENALTY_DEATH,
 
         DETECT_RETAIN_INSTANCE_USAGE,
-        DETECT_SET_TARGET_FRAGMENT,
-        DETECT_SET_USER_VISIBLE_HINT
+        DETECT_SET_USER_VISIBLE_HINT,
+        DETECT_TARGET_FRAGMENT_USAGE,
     }
 
     private FragmentStrictMode() {}
@@ -155,19 +155,22 @@ public final class FragmentStrictMode {
                 return this;
             }
 
-            /** Detects calls to #{@link Fragment#setTargetFragment}. */
-            @NonNull
-            @SuppressLint("BuilderSetStyle")
-            public Builder detectSetTargetFragment() {
-                flags.add(Flag.DETECT_SET_TARGET_FRAGMENT);
-                return this;
-            }
-
             /** Detects calls to #{@link Fragment#setUserVisibleHint}. */
             @NonNull
             @SuppressLint("BuilderSetStyle")
             public Builder detectSetUserVisibleHint() {
                 flags.add(Flag.DETECT_SET_USER_VISIBLE_HINT);
+                return this;
+            }
+
+            /**
+             * Detects calls to #{@link Fragment#setTargetFragment},
+             * #{@link Fragment#getTargetFragment()} and #{@link Fragment#getTargetRequestCode()}.
+             */
+            @NonNull
+            @SuppressLint("BuilderSetStyle")
+            public Builder detectTargetFragmentUsage() {
+                flags.add(Flag.DETECT_TARGET_FRAGMENT_USAGE);
                 return this;
             }
 
@@ -225,18 +228,18 @@ public final class FragmentStrictMode {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void onSetTargetFragment(@NonNull Fragment fragment) {
-        Policy policy = getNearestPolicy(fragment);
-        if (policy.flags.contains(Flag.DETECT_SET_TARGET_FRAGMENT)) {
-            handlePolicyViolation(fragment, policy, new SetTargetFragmentViolation());
-        }
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void onSetUserVisibleHint(@NonNull Fragment fragment) {
         Policy policy = getNearestPolicy(fragment);
         if (policy.flags.contains(Flag.DETECT_SET_USER_VISIBLE_HINT)) {
             handlePolicyViolation(fragment, policy, new SetUserVisibleHintViolation());
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onTargetFragmentUsage(@NonNull Fragment fragment) {
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.flags.contains(Flag.DETECT_TARGET_FRAGMENT_USAGE)) {
+            handlePolicyViolation(fragment, policy, new TargetFragmentUsageViolation());
         }
     }
 
