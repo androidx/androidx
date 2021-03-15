@@ -113,10 +113,7 @@ internal object KotlinCompilationUtil {
         val classpaths: MutableSet<String> = LinkedHashSet()
         while (true) {
             if (currentClassloader === systemClassLoader) {
-                classpaths.addAll(
-                    System.getProperty("java.class.path")
-                        .split(System.getProperty("path.separator"))
-                )
+                classpaths.addAll(getSystemClasspaths())
                 break
             }
             if (currentClassloader === platformClassLoader) {
