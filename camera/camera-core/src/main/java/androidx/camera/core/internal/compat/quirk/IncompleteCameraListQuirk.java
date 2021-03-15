@@ -41,7 +41,8 @@ public class IncompleteCameraListQuirk implements Quirk {
                     "vox_alpha_plus", "a5y17ltecan", "x304l", "hero2qltevzw", "a5y17lteskt",
                     "1801", "a5y17lteskt", "1801", "a5y17ltelgt", "herolte", "htc_hiau_ml_tuhl",
                     "a6plte", "hwtrt-q", "co2_sprout", "h3223", "davinci", "vince", "armor_x5",
-                    "a2corelte", "j6lte"));
+                    "a2corelte", "j6lte", "walleye", "taimen", "blueline", "crosshatch", "bonito",
+                    "sargo", "coral", "flame", "sunfish", "bramble", "redfin"));
 
     static boolean load() {
         return KNOWN_AFFECTED_DEVICES.contains(Build.DEVICE.toLowerCase(Locale.getDefault()));
