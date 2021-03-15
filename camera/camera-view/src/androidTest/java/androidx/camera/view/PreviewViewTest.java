@@ -24,11 +24,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.app.Instrumentation;
 import android.content.Context;
@@ -56,6 +54,7 @@ import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -181,7 +180,8 @@ public class PreviewViewTest {
             previewView.set(new PreviewView(mContext));
             setContentView(previewView.get());
             // Feed the PreviewView with a fake SurfaceRequest
-            CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+            CameraInfoInternal cameraInfo =
+                    createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
             previewView.get().getSurfaceProvider().onSurfaceRequested(
                     createSurfaceRequest(cameraInfo));
             notifyLatchWhenLayoutReady(previewView.get(), countDownLatch);
@@ -358,7 +358,7 @@ public class PreviewViewTest {
     @Test
     @UiThreadTest
     public void usesTextureView_whenLegacyDevice() {
-        final CameraInfo cameraInfo =
+        final CameraInfoInternal cameraInfo =
                 createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
@@ -373,7 +373,8 @@ public class PreviewViewTest {
     @UiThreadTest
     public void usesTextureView_whenAPILevelNotNewerThanN() {
         assumeTrue(Build.VERSION.SDK_INT <= 24);
-        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfoInternal cameraInfo =
+                createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
@@ -388,7 +389,8 @@ public class PreviewViewTest {
     @UiThreadTest
     public void usesSurfaceView_whenNonLegacyDevice_andAPILevelNewerThanN() {
         assumeTrue(Build.VERSION.SDK_INT > 24);
-        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfoInternal cameraInfo =
+                createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
@@ -402,7 +404,8 @@ public class PreviewViewTest {
     @Test
     @UiThreadTest
     public void usesTextureView_whenNonLegacyDevice_andImplModeIsTextureView() {
-        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfoInternal cameraInfo =
+                createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
@@ -415,7 +418,8 @@ public class PreviewViewTest {
 
     @Test
     public void correctSurfacePixelFormat_whenRGBA8888IsRequired() throws Throwable {
-        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfoInternal cameraInfo =
+                createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
         SurfaceRequest surfaceRequest = createRgb8888SurfaceRequest(cameraInfo);
         ListenableFuture<Surface> future = surfaceRequest.getDeferrableSurface().getSurface();
 
@@ -448,7 +452,7 @@ public class PreviewViewTest {
 
     @Test
     public void canCreateValidMeteringPoint() throws Exception {
-        final CameraInfo cameraInfo = createCameraInfo(90,
+        final CameraInfoInternal cameraInfo = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -478,7 +482,7 @@ public class PreviewViewTest {
 
     @Test
     public void meteringPointFactoryAutoAdjusted_whenViewSizeChange() throws Exception {
-        final CameraInfo cameraInfo = createCameraInfo(90,
+        final CameraInfoInternal cameraInfo = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
         mInstrumentation.runOnMainSync(() -> {
@@ -528,7 +532,7 @@ public class PreviewViewTest {
 
     @Test
     public void meteringPointFactoryAutoAdjusted_whenScaleTypeChanged() throws Exception {
-        final CameraInfo cameraInfo = createCameraInfo(90,
+        final CameraInfoInternal cameraInfo = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
         mInstrumentation.runOnMainSync(() -> {
             mPreviewView = new PreviewView(mContext);
@@ -558,9 +562,9 @@ public class PreviewViewTest {
 
     @Test
     public void meteringPointFactoryAutoAdjusted_whenTransformationInfoChanged() throws Exception {
-        final CameraInfo cameraInfo1 = createCameraInfo(90,
+        final CameraInfoInternal cameraInfo1 = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
-        final CameraInfo cameraInfo2 = createCameraInfo(270,
+        final CameraInfoInternal cameraInfo2 = createCameraInfo(270,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_FRONT);
 
         mInstrumentation.runOnMainSync(() -> {
@@ -614,7 +618,7 @@ public class PreviewViewTest {
     @Test
     @UiThreadTest
     public void meteringPointInvalid_whenPreviewViewWidthOrHeightIs0() {
-        final CameraInfo cameraInfo = createCameraInfo(90,
+        final CameraInfoInternal cameraInfo = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
         final PreviewView previewView = new PreviewView(mContext);
@@ -818,7 +822,8 @@ public class PreviewViewTest {
 
         // Start a preview stream
         final Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
-        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfoInternal cameraInfo =
+                createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
         surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
 
         // Create a new surfaceProvider
@@ -840,17 +845,17 @@ public class PreviewViewTest {
         mActivityScenario.onActivity(activity -> activity.setContentView(view));
     }
 
-    private SurfaceRequest createRgb8888SurfaceRequest(CameraInfo cameraInfo) {
+    private SurfaceRequest createRgb8888SurfaceRequest(CameraInfoInternal cameraInfo) {
         return createSurfaceRequest(cameraInfo, true);
     }
 
-    private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
+    private SurfaceRequest createSurfaceRequest(CameraInfoInternal cameraInfo) {
         return createSurfaceRequest(cameraInfo, false);
     }
 
-    private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo, boolean isRGBA8888Required) {
-        final FakeCamera fakeCamera = spy(new FakeCamera());
-        when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
+    private SurfaceRequest createSurfaceRequest(CameraInfoInternal cameraInfo,
+            boolean isRGBA8888Required) {
+        final FakeCamera fakeCamera = new FakeCamera(/*cameraControl=*/null, cameraInfo);
 
         final SurfaceRequest surfaceRequest = new SurfaceRequest(DEFAULT_SURFACE_SIZE, fakeCamera,
                 isRGBA8888Required);
@@ -858,13 +863,13 @@ public class PreviewViewTest {
         return surfaceRequest;
     }
 
-    private CameraInfo createCameraInfo(String implementationType) {
+    private CameraInfoInternal createCameraInfo(String implementationType) {
         FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal();
         cameraInfoInternal.setImplementationType(implementationType);
         return cameraInfoInternal;
     }
 
-    private CameraInfo createCameraInfo(int rotationDegrees, String implementationType,
+    private CameraInfoInternal createCameraInfo(int rotationDegrees, String implementationType,
             @CameraSelector.LensFacing int lensFacing) {
         FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal(rotationDegrees,
                 lensFacing);

@@ -61,7 +61,6 @@ import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.Threads;
@@ -187,7 +186,7 @@ public final class PreviewView extends FrameLayout {
                     : new SurfaceViewImplementation(PreviewView.this, mPreviewTransform);
 
             PreviewStreamStateObserver streamStateObserver =
-                    new PreviewStreamStateObserver((CameraInfoInternal) camera.getCameraInfo(),
+                    new PreviewStreamStateObserver(camera.getCameraInfoInternal(),
                             mPreviewStreamStateLiveData, mImplementation);
             mActiveStreamStateObserver.set(streamStateObserver);
 
@@ -598,7 +597,7 @@ public final class PreviewView extends FrameLayout {
     boolean shouldUseTextureView(@NonNull SurfaceRequest surfaceRequest,
             @NonNull final ImplementationMode implementationMode) {
         // TODO(b/159127402): use TextureView if target rotation is not display rotation.
-        boolean isLegacyDevice = surfaceRequest.getCamera().getCameraInfo()
+        boolean isLegacyDevice = surfaceRequest.getCamera().getCameraInfoInternal()
                 .getImplementationType().equals(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
         if (surfaceRequest.isRGBA8888Required() || Build.VERSION.SDK_INT <= 24 || isLegacyDevice) {
             // Force to use TextureView when the device is running android 7.0 and below, legacy
