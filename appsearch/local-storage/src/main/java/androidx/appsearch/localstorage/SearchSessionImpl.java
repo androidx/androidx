@@ -22,6 +22,7 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
@@ -69,18 +70,21 @@ class SearchSessionImpl implements AppSearchSession {
     private final String mDatabaseName;
     private volatile boolean mIsMutated = false;
     private volatile boolean mIsClosed = false;
+    @Nullable private final AppSearchLogger mLogger;
 
     SearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull ExecutorService executorService,
             @NonNull Context context,
             @NonNull String packageName,
-            @NonNull String databaseName) {
+            @NonNull String databaseName,
+            @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutorService = Preconditions.checkNotNull(executorService);
         mContext = Preconditions.checkNotNull(context);
         mPackageName = packageName;
         mDatabaseName = Preconditions.checkNotNull(databaseName);
+        mLogger = logger;
     }
 
     @Override
@@ -211,7 +215,7 @@ class SearchSessionImpl implements AppSearchSession {
             for (int i = 0; i < request.getGenericDocuments().size(); i++) {
                 GenericDocument document = request.getGenericDocuments().get(i);
                 try {
-                    mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document);
+                    mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document, mLogger);
                     resultBuilder.setSuccess(document.getUri(), /*result=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(document.getUri(), throwableToFailedResult(t));

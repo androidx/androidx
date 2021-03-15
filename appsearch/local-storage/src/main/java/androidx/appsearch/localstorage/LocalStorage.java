@@ -219,7 +219,7 @@ public class LocalStorage {
     private AppSearchSession doCreateSearchSession(@NonNull SearchContext context,
             @NonNull ExecutorService executor) {
         return new SearchSessionImpl(mAppSearchImpl, executor, context.mContext,
-                context.mContext.getPackageName(), context.mDatabaseName);
+                context.mContext.getPackageName(), context.mDatabaseName, /*logger=*/ null);
     }
 
     @NonNull

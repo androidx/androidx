@@ -148,7 +148,8 @@ class AppSearchMigrationHelper implements Closeable {
             while (!codedInputStream.isAtEnd()) {
                 GenericDocument document = readDocumentFromInputStream(codedInputStream);
                 try {
-                    mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document);
+                    mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document,
+                            /*logger=*/ null);
                 } catch (Throwable t) {
                     responseBuilder.addMigrationFailure(
                             new SetSchemaResponse.MigrationFailure.Builder()

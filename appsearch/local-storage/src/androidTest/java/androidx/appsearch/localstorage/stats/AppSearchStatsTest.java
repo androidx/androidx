@@ -18,12 +18,14 @@ package androidx.appsearch.localstorage.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.appsearch.app.AppSearchResult;
+
 import org.junit.Test;
 
 public class AppSearchStatsTest {
     static final String TEST_PACKAGE_NAME = "com.google.test";
     static final String TEST_DATA_BASE = "testDataBase";
-    static final int TEST_STATUS_CODE = 2;
+    static final int TEST_STATUS_CODE = AppSearchResult.RESULT_INTERNAL_ERROR;
     static final int TEST_TOTAL_LATENCY_MILLIS = 20;
 
     @Test
@@ -39,24 +41,39 @@ public class AppSearchStatsTest {
         assertThat(gStats.getTotalLatencyMillis()).isEqualTo(TEST_TOTAL_LATENCY_MILLIS);
     }
 
+    /**
+     * Make sure status code is UNKNOWN if not set in {@link GeneralStats}
+     */
+    @Test
+    public void testAppSearchStats_GeneralStats_defaultStatsCode_Unknown() {
+        final GeneralStats gStats = new GeneralStats.Builder(TEST_PACKAGE_NAME, TEST_DATA_BASE)
+                .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
+                .build();
+
+        assertThat(gStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
+        assertThat(gStats.getDatabase()).isEqualTo(TEST_DATA_BASE);
+        assertThat(gStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_UNKNOWN_ERROR);
+        assertThat(gStats.getTotalLatencyMillis()).isEqualTo(TEST_TOTAL_LATENCY_MILLIS);
+    }
+
     @Test
     public void testAppSearchStats_CallStats() {
         final int estimatedBinderLatencyMillis = 1;
         final int numOperationsSucceeded = 2;
         final int numOperationsFailed = 3;
-
-        final GeneralStats gStats = new GeneralStats.Builder(TEST_PACKAGE_NAME, TEST_DATA_BASE)
-                .setStatusCode(TEST_STATUS_CODE)
-                .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
-                .build();
         final @CallStats.CallType int callType =
                 CallStats.CALL_TYPE_PUT_DOCUMENTS;
-        final CallStats cStats = new CallStats.Builder(gStats)
+
+        final CallStats.Builder cStatsBuilder = new CallStats.Builder(TEST_PACKAGE_NAME,
+                TEST_DATA_BASE)
                 .setCallType(callType)
                 .setEstimatedBinderLatencyMillis(estimatedBinderLatencyMillis)
                 .setNumOperationsSucceeded(numOperationsSucceeded)
-                .setNumOperationsFailed(numOperationsFailed)
-                .build();
+                .setNumOperationsFailed(numOperationsFailed);
+        cStatsBuilder.getGeneralStatsBuilder()
+                .setStatusCode(TEST_STATUS_CODE)
+                .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS);
+        final CallStats cStats = cStatsBuilder.build();
 
         assertThat(cStats.getGeneralStats().getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
         assertThat(cStats.getGeneralStats().getDatabase()).isEqualTo(TEST_DATA_BASE);
@@ -80,23 +97,22 @@ public class AppSearchStatsTest {
         final int nativeIndexMergeLatencyMillis = 6;
         final int nativeDocumentSize = 7;
         final int nativeNumTokensIndexed = 8;
-        final int nativeNumTokensClipped = 9;
-
-        final GeneralStats gStats = new GeneralStats.Builder(TEST_PACKAGE_NAME, TEST_DATA_BASE)
+        final boolean nativeExceededMaxNumTokens = true;
+        final PutDocumentStats.Builder pStatsBuilder =
+                new PutDocumentStats.Builder(TEST_PACKAGE_NAME, TEST_DATA_BASE)
+                        .setGenerateDocumentProtoLatencyMillis(generateDocumentProtoLatencyMillis)
+                        .setRewriteDocumentTypesLatencyMillis(rewriteDocumentTypesLatencyMillis)
+                        .setNativeLatencyMillis(nativeLatencyMillis)
+                        .setNativeDocumentStoreLatencyMillis(nativeDocumentStoreLatencyMillis)
+                        .setNativeIndexLatencyMillis(nativeIndexLatencyMillis)
+                        .setNativeIndexMergeLatencyMillis(nativeIndexMergeLatencyMillis)
+                        .setNativeDocumentSizeBytes(nativeDocumentSize)
+                        .setNativeNumTokensIndexed(nativeNumTokensIndexed)
+                        .setNativeExceededMaxNumTokens(nativeExceededMaxNumTokens);
+        pStatsBuilder.getGeneralStatsBuilder()
                 .setStatusCode(TEST_STATUS_CODE)
-                .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
-                .build();
-        final PutDocumentStats pStats = new PutDocumentStats.Builder(gStats)
-                .setGenerateDocumentProtoLatencyMillis(generateDocumentProtoLatencyMillis)
-                .setRewriteDocumentTypesLatencyMillis(rewriteDocumentTypesLatencyMillis)
-                .setNativeLatencyMillis(nativeLatencyMillis)
-                .setNativeDocumentStoreLatencyMillis(nativeDocumentStoreLatencyMillis)
-                .setNativeIndexLatencyMillis(nativeIndexLatencyMillis)
-                .setNativeIndexMergeLatencyMillis(nativeIndexMergeLatencyMillis)
-                .setNativeDocumentSizeBytes(nativeDocumentSize)
-                .setNativeNumTokensIndexed(nativeNumTokensIndexed)
-                .setNativeNumTokensClipped(nativeNumTokensClipped)
-                .build();
+                .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS);
+        final PutDocumentStats pStats = pStatsBuilder.build();
 
         assertThat(pStats.getGeneralStats().getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
         assertThat(pStats.getGeneralStats().getDatabase()).isEqualTo(TEST_DATA_BASE);
@@ -115,6 +131,6 @@ public class AppSearchStatsTest {
                 nativeIndexMergeLatencyMillis);
         assertThat(pStats.getNativeDocumentSizeBytes()).isEqualTo(nativeDocumentSize);
         assertThat(pStats.getNativeNumTokensIndexed()).isEqualTo(nativeNumTokensIndexed);
-        assertThat(pStats.getNativeNumTokensClipped()).isEqualTo(nativeNumTokensClipped);
+        assertThat(pStats.getNativeExceededMaxNumTokens()).isEqualTo(nativeExceededMaxNumTokens);
     }
 }
