@@ -29,6 +29,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertTrue
 
+@Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
 class RxPagedListBuilderTest {
     private data class LoadStateEvent(
@@ -101,20 +102,17 @@ class RxPagedListBuilderTest {
     fun basic() {
         val factory = testDataSourceSequence(
             listOf(
-                listOf(), // first used by InitialPagedList
                 listOf("a", "b"),
                 listOf("c", "d")
             )
         )
         val scheduler = TestScheduler()
 
-        @Suppress("DEPRECATION")
         val observable = RxPagedListBuilder(factory, 10)
             .setFetchScheduler(scheduler)
             .setNotifyScheduler(scheduler)
             .buildObservable()
 
-        @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
 
         observable.subscribe(observer)
@@ -130,7 +128,6 @@ class RxPagedListBuilderTest {
         assertEquals(listOf("a", "b"), observer.values().last())
 
         // invalidate triggers second load
-        @Suppress("DEPRECATION")
         observer.values().last().dataSource.invalidate()
         scheduler.triggerActions()
         observer.assertValueCount(3)
@@ -144,13 +141,11 @@ class RxPagedListBuilderTest {
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
 
-        @Suppress("DEPRECATION")
         val observable: Observable<PagedList<String>> = RxPagedListBuilder(factory, 10)
             .setFetchScheduler(fetchScheduler)
             .setNotifyScheduler(notifyScheduler)
             .buildObservable()
 
-        @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
         observable.subscribe(observer)
 
@@ -177,13 +172,11 @@ class RxPagedListBuilderTest {
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
 
-        @Suppress("DEPRECATION")
         val observable = RxPagedListBuilder(factory::create, 2)
             .setFetchScheduler(fetchScheduler)
             .setNotifyScheduler(notifyScheduler)
             .buildObservable()
 
-        @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
         observable.subscribe(observer)
 
@@ -259,6 +252,34 @@ class RxPagedListBuilderTest {
             ),
             loadStates
         )
+    }
+
+    @Test
+    fun instantiatesPagingSourceOnFetchDispatcher() {
+        var pagingSourcesCreated = 0
+        val pagingSourceFactory = {
+            pagingSourcesCreated++
+            TestPagingSource()
+        }
+        val notifyScheduler = TestScheduler()
+        val fetchScheduler = TestScheduler()
+        val rxPagedList = RxPagedListBuilder(
+            pagingSourceFactory = pagingSourceFactory,
+            pageSize = 10,
+        ).apply {
+            setNotifyScheduler(notifyScheduler)
+            setFetchScheduler(fetchScheduler)
+        }.buildObservable()
+
+        fetchScheduler.triggerActions()
+        assertEquals(0, pagingSourcesCreated)
+
+        rxPagedList.subscribe { }
+
+        assertEquals(0, pagingSourcesCreated)
+
+        fetchScheduler.triggerActions()
+        assertEquals(1, pagingSourcesCreated)
     }
 
     companion object {
