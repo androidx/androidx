@@ -51,7 +51,7 @@ public class RobolectricSmokeTest {
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext);
     }
 
-    @Test
+    @Test(timeout = 10000)
     public void testWorker_shouldSucceedSynchronously()
             throws InterruptedException, ExecutionException {
         WorkRequest request = new OneTimeWorkRequest.Builder(TestWorker.class).build();
