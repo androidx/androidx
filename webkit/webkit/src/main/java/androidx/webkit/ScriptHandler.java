@@ -20,14 +20,13 @@ import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 
 /**
- * TODO(ctzsm): Complete Javadoc
- * @see WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView, String, Set)
+ * This class represents the return result from {@link WebViewCompat#addDocumentStartJavaScript(
+ * android.webkit.WebView, String, Set)}. Call {@link ScriptHandler#remove()} when the
+ * corresponding JavaScript script should be removed.
  *
- * TODO(ctzsm): unhide when ready.
- * @hide
+ * @see WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView, String, Set)
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class ScriptReferenceCompat {
+public abstract class ScriptHandler {
     /**
      * Removes the corresponding script, it will take effect from next page load.
      */
@@ -40,5 +39,5 @@ public abstract class ScriptReferenceCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public ScriptReferenceCompat() {}
+    public ScriptHandler() {}
 }
