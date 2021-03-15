@@ -23,6 +23,7 @@ import android.content.Intent
 import android.icu.util.Calendar
 import android.support.wearable.watchface.accessibility.AccessibilityUtils
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
+import androidx.annotation.Px
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.ComplicationBounds
@@ -317,7 +318,7 @@ public class ComplicationsManager(
      * @param y The y coordinate of the point to perform a hit test
      * @return The complication at coordinates x, y or {@code null} if there isn't one
      */
-    public fun getComplicationAt(x: Int, y: Int): Complication? =
+    public fun getComplicationAt(@Px x: Int, @Px y: Int): Complication? =
         complications.entries.firstOrNull {
             it.value.enabled && it.value.boundsType != ComplicationBoundsType.BACKGROUND &&
                 it.value.computeBounds(renderer.screenBounds).contains(x, y)

@@ -87,7 +87,7 @@ package androidx.wear.watchface {
     method @UiThread public void bringAttentionToComplication(int complicationId);
     method public operator androidx.wear.watchface.Complication? get(int id);
     method public androidx.wear.watchface.Complication? getBackgroundComplication();
-    method public androidx.wear.watchface.Complication? getComplicationAt(int x, int y);
+    method public androidx.wear.watchface.Complication? getComplicationAt(@Px int x, @Px int y);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.Complication> getComplications();
     method @UiThread public void removeTapListener(androidx.wear.watchface.ComplicationsManager.TapCallback tapCallback);
     property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.Complication> complications;
@@ -178,12 +178,12 @@ package androidx.wear.watchface {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RenderParameters(androidx.wear.watchface.data.RenderParametersWireFormat wireFormat);
     method public androidx.wear.watchface.DrawMode getDrawMode();
     method public java.util.Map<androidx.wear.watchface.style.Layer,androidx.wear.watchface.LayerMode> getLayerParameters();
-    method public int getOutlineTint();
+    method @ColorInt public int getOutlineTint();
     method public Integer? getSelectedComplicationId();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.data.RenderParametersWireFormat toWireFormat();
     property public final androidx.wear.watchface.DrawMode drawMode;
     property public final java.util.Map<androidx.wear.watchface.style.Layer,androidx.wear.watchface.LayerMode> layerParameters;
-    property public final int outlineTint;
+    property @ColorInt public final int outlineTint;
     property public final Integer? selectedComplicationId;
     field public static final androidx.wear.watchface.RenderParameters.Companion Companion;
     field public static final androidx.wear.watchface.RenderParameters DEFAULT_INTERACTIVE;
@@ -229,7 +229,7 @@ package androidx.wear.watchface {
     method public final android.opengl.EGLDisplay? getEglDisplay();
     method @UiThread public final void initOpenGlContext();
     method @UiThread public void onGlContextCreated();
-    method @UiThread public void onGlSurfaceCreated(int width, int height);
+    method @UiThread public void onGlSurfaceCreated(@Px int width, @Px int height);
     method @UiThread public abstract void render(android.icu.util.Calendar calendar);
     method public final void setEglConfig(android.opengl.EGLConfig p);
     method public final void setEglContext(android.opengl.EGLContext? p);
