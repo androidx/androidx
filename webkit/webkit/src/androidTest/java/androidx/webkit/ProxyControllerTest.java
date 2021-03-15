@@ -161,7 +161,7 @@ public class ProxyControllerTest {
         setProxyOverrideSync(new ProxyConfig.Builder()
                 .addProxyRule(mProxyServer.getHostName() + ":" + mProxyServer.getPort())
                 .addBypassRule(bypassUrl)
-                .setReverseBypass(true)
+                .setReverseBypassEnabled(true)
                 .build());
         mWebViewOnUiThread.loadUrl(contentUrl);
 
