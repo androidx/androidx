@@ -2630,12 +2630,16 @@ public abstract class FragmentManager implements FragmentResultOwner {
             HashSet<Fragment> addedFragments = new HashSet<>();
             for (FragmentTransaction.Op op : record.mOps) {
                 Fragment f = op.mFragment;
-                if (f != null && !op.mTopmostFragment && !allFragments.contains(f)) {
+                if (f == null) {
+                    continue;
+                }
+                if (!op.mFromExpandedOp || op.mCmd == FragmentTransaction.OP_ADD
+                        || op.mCmd == FragmentTransaction.OP_SET_PRIMARY_NAV) {
                     allFragments.add(f);
                     affectedFragments.add(f);
-                    if (op.mCmd == FragmentTransaction.OP_ADD) {
-                        addedFragments.add(f);
-                    }
+                }
+                if (op.mCmd == FragmentTransaction.OP_ADD) {
+                    addedFragments.add(f);
                 }
             }
             affectedFragments.removeAll(addedFragments);

@@ -592,6 +592,7 @@ final class BackStackRecord extends FragmentTransaction implements
                         opNum--;
                     } else {
                         op.mCmd = OP_ADD;
+                        op.mFromExpandedOp = true;
                         added.add(f);
                     }
                 }
@@ -599,7 +600,8 @@ final class BackStackRecord extends FragmentTransaction implements
                 case OP_SET_PRIMARY_NAV: {
                     // It's ok if this is null, that means we will restore to no active
                     // primary navigation fragment on a pop.
-                    mOps.add(opNum, new Op(OP_UNSET_PRIMARY_NAV, oldPrimaryNav));
+                    mOps.add(opNum, new Op(OP_UNSET_PRIMARY_NAV, oldPrimaryNav, true));
+                    op.mFromExpandedOp = true;
                     opNum++;
                     // Will be set by the OP_SET_PRIMARY_NAV we inserted before when run
                     oldPrimaryNav = op.mFragment;
@@ -644,6 +646,44 @@ final class BackStackRecord extends FragmentTransaction implements
             }
         }
         return oldPrimaryNav;
+    }
+
+    /**
+     * Removes any Ops expanded by {@link #expandOps(ArrayList, Fragment)},
+     * reverting them back to their collapsed form.
+     */
+    void collapseOps() {
+        for (int opNum = mOps.size() - 1; opNum >= 0; opNum--) {
+            final Op op = mOps.get(opNum);
+            if (!op.mFromExpandedOp) {
+                continue;
+            }
+            if (op.mCmd == OP_SET_PRIMARY_NAV) {
+                // OP_SET_PRIMARY_NAV is always expanded to two ops:
+                // 1. The OP_SET_PRIMARY_NAV we want to keep
+                op.mFromExpandedOp = false;
+                // And the OP_UNSET_PRIMARY_NAV we want to remove
+                mOps.remove(opNum - 1);
+                opNum--;
+            } else {
+                // Handle the collapse of an OP_REPLACE, which could start
+                // with either an OP_ADD (the usual case) or an OP_REMOVE
+                // (if the dev explicitly called add() earlier in the transaction)
+                int containerId = op.mFragment.mContainerId;
+                // Swap this expanded op with a replace
+                op.mCmd = OP_REPLACE;
+                op.mFromExpandedOp = false;
+                // And remove all other expanded ops with the same containerId
+                for (int replaceOpNum = opNum - 1; replaceOpNum >= 0; replaceOpNum--) {
+                    final Op potentialReplaceOp = mOps.get(replaceOpNum);
+                    if (potentialReplaceOp.mFromExpandedOp
+                            && potentialReplaceOp.mFragment.mContainerId == containerId) {
+                        mOps.remove(replaceOpNum);
+                        opNum--;
+                    }
+                }
+            }
+        }
     }
 
     boolean isPostponed() {
