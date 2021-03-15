@@ -1233,7 +1233,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @Deprecated
     public void setRetainInstance(boolean retain) {
-        FragmentStrictMode.onSetRetainInstance(this);
+        FragmentStrictMode.onRetainInstanceUsage(this);
         mRetainInstance = retain;
         if (mFragmentManager != null) {
             if (retain) {
@@ -1260,6 +1260,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @Deprecated
     final public boolean getRetainInstance() {
+        FragmentStrictMode.onRetainInstanceUsage(this);
         return mRetainInstance;
     }
 
