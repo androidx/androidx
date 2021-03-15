@@ -2331,7 +2331,7 @@ public abstract class AppSearchSessionCtsTestBase {
                     sameThreadDb.search("query", new SearchSpec.Builder()
                             .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                             .build()));
-            assertThat(e).hasMessageThat().contains("AppSearchSession has already been closed");
+            assertThat(e).hasMessageThat().contains("SearchSession has already been closed");
         } finally {
             // To clean the data that has been added in the test, need to re-open the session and
             // set an empty schema.
