@@ -27,11 +27,9 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.ComplicationHelperActivity
-import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.EmptyComplicationData
-import androidx.wear.complications.data.IdAndComplicationData
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
@@ -81,10 +79,7 @@ public class ComplicationsManager(
 
     private class InitialComplicationConfig(
         val complicationBounds: ComplicationBounds,
-        val enabled: Boolean,
-        val supportedTypes: List<ComplicationType>,
-        val defaultProviderPolicy: DefaultComplicationProviderPolicy,
-        val defaultProviderType: ComplicationType
+        val enabled: Boolean
     )
 
     // Copy of the original complication configs. This is necessary because the semantics of
@@ -96,10 +91,7 @@ public class ComplicationsManager(
             {
                 InitialComplicationConfig(
                     it.complicationBounds,
-                    it.enabled,
-                    it.supportedTypes,
-                    it.defaultProviderPolicy,
-                    it.defaultProviderType
+                    it.enabled
                 )
             }
         )
@@ -199,12 +191,12 @@ public class ComplicationsManager(
                 if (complication.boundsType == ComplicationBoundsType.BACKGROUND) {
                     ComplicationBoundsType.BACKGROUND
                 } else {
-                    complication.renderer.getIdAndData()?.let {
+                    complication.renderer.getData()?.let {
                         labels.add(
                             ContentDescriptionLabel(
                                 watchFaceHostApi.getContext(),
                                 complication.computeBounds(renderer.screenBounds),
-                                it.complicationData.asWireComplicationData()
+                                it.asWireComplicationData()
                             )
                         )
                     }
@@ -278,11 +270,8 @@ public class ComplicationsManager(
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
         val complication = complications[watchFaceComplicationId] ?: return
         complication.dataDirty = complication.dataDirty ||
-            (complication.renderer.getIdAndData()?.complicationData != data)
-        complication.renderer.setIdAndData(
-            IdAndComplicationData(watchFaceComplicationId, data),
-            true
-        )
+            (complication.renderer.getData() != data)
+        complication.renderer.setData(data, true)
         (complication.complicationData as MutableObservableWatchData<ComplicationData>).value =
             data
     }
@@ -290,7 +279,7 @@ public class ComplicationsManager(
     @UiThread
     internal fun clearComplicationData() {
         for ((_, complication) in complications) {
-            complication.renderer.clearIdAndData()
+            complication.renderer.setData(null, false)
             (complication.complicationData as MutableObservableWatchData).value =
                 EmptyComplicationData()
         }
@@ -354,8 +343,8 @@ public class ComplicationsManager(
     @UiThread
     internal fun onComplicationSingleTapped(complicationId: Int) {
         // Check if the complication is missing permissions.
-        val data = complications[complicationId]?.renderer?.getIdAndData() ?: return
-        if (data.complicationData.type == ComplicationType.NO_PERMISSION) {
+        val data = complications[complicationId]?.renderer?.getData() ?: return
+        if (data.type == ComplicationType.NO_PERMISSION) {
             watchFaceHostApi.getContext().startActivity(
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
                     watchFaceHostApi.getContext(),
@@ -365,7 +354,7 @@ public class ComplicationsManager(
             return
         }
 
-        data.complicationData.tapAction?.send()
+        data.tapAction?.send()
         for (complicationListener in complicationListeners) {
             complicationListener.onComplicationTapped(complicationId)
         }

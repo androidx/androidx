@@ -2,27 +2,25 @@
 package androidx.wear.watchface {
 
   public interface CanvasComplication {
-    method public void clearIdAndData();
-    method public androidx.wear.complications.data.IdAndComplicationData? getIdAndData();
+    method public androidx.wear.complications.data.ComplicationData? getData();
     method public boolean isHighlighted();
     method @UiThread public void onAttach(androidx.wear.watchface.Complication complication);
-    method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    method public void setIdAndData(androidx.wear.complications.data.IdAndComplicationData? idAndComplicationData, boolean loadDrawablesAsynchronous);
+    method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters, int complicationId);
+    method public void setData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
     method public void setIsHighlighted(boolean p);
     property public abstract boolean isHighlighted;
   }
 
   public class CanvasComplicationDrawable implements androidx.wear.watchface.CanvasComplication {
     ctor public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable, androidx.wear.watchface.WatchState watchState);
-    method public void clearIdAndData();
     method public void drawOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, @ColorInt int color);
+    method public androidx.wear.complications.data.ComplicationData? getData();
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
-    method public androidx.wear.complications.data.IdAndComplicationData? getIdAndData();
     method @UiThread public boolean isHighlighted();
     method public void onAttach(androidx.wear.watchface.Complication complication);
-    method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
+    method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters, int complicationId);
+    method public void setData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
     method public final void setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable value);
-    method public void setIdAndData(androidx.wear.complications.data.IdAndComplicationData? idAndComplicationData, boolean loadDrawablesAsynchronous);
     method @UiThread public void setIsHighlighted(boolean value);
     property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
     property @UiThread public boolean isHighlighted;
@@ -110,11 +108,13 @@ package androidx.wear.watchface {
   }
 
   public final class GlesTextureComplication {
-    ctor public GlesTextureComplication(androidx.wear.watchface.CanvasComplication canvasComplication, @Px int textureWidth, @Px int textureHeight, int textureType);
+    ctor public GlesTextureComplication(androidx.wear.watchface.CanvasComplication canvasComplication, @Px int textureWidth, @Px int textureHeight, int textureType, int id);
     method public void bind();
     method public androidx.wear.watchface.CanvasComplication getCanvasComplication();
+    method public int getId();
     method public void renderToTexture(android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
     property public final androidx.wear.watchface.CanvasComplication canvasComplication;
+    property public final int id;
   }
 
   public enum LayerMode {

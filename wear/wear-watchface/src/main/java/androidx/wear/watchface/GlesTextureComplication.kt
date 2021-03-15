@@ -42,7 +42,10 @@ public class GlesTextureComplication(
     textureHeight: Int,
 
     /** The texture type, e.g. GLES20.GL_TEXTURE_2D */
-    private val textureType: Int
+    private val textureType: Int,
+
+    /** The id of the associated [Complication]. */
+    public val id: Int
 ) {
     private val texture = createTexture(textureType)
     private val bitmap = Bitmap.createBitmap(
@@ -56,7 +59,7 @@ public class GlesTextureComplication(
     /** Renders [canvasComplication] to an OpenGL texture. */
     public fun renderToTexture(calendar: Calendar, renderParameters: RenderParameters) {
         canvas.drawColor(Color.BLACK)
-        canvasComplication.render(canvas, bounds, calendar, renderParameters)
+        canvasComplication.render(canvas, bounds, calendar, renderParameters, id)
         bind()
         GLUtils.texImage2D(textureType, 0, bitmap, 0)
     }

@@ -44,8 +44,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.wear.utility.TraceEvent
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.complications.data.IdAndComplicationData
-import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
@@ -674,19 +672,14 @@ internal class WatchFaceImpl(
             idToComplicationData: Map<Int, ComplicationData>?
         ): Bitmap = TraceEvent("WFEditorDelegate.takeScreenshot").use {
             val oldComplicationData =
-                complicationsManager.complications.values.map {
-                    it.renderer.getIdAndData() ?: IdAndComplicationData(
-                        it.id,
-                        NoDataComplicationData()
-                    )
-                }
+                complicationsManager.complications.values.associateBy(
+                    { it.id },
+                    { it.renderer.getData() }
+                )
 
             idToComplicationData?.let {
                 for ((id, complicationData) in it) {
-                    complicationsManager[id]!!.renderer.setIdAndData(
-                        IdAndComplicationData(id, complicationData),
-                        false
-                    )
+                    complicationsManager[id]!!.renderer.setData(complicationData, false)
                 }
             }
             val screenShot = renderer.takeScreenshot(
@@ -696,9 +689,8 @@ internal class WatchFaceImpl(
                 renderParameters
             )
             if (idToComplicationData != null) {
-                for (idAndData in oldComplicationData) {
-                    complicationsManager[idAndData.complicationId]!!.renderer
-                        .setIdAndData(idAndData, false)
+                for ((id, data) in oldComplicationData) {
+                    complicationsManager[id]!!.renderer.setData(data, false)
                 }
             }
             return screenShot
