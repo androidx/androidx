@@ -51,8 +51,6 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.security.InvalidParameterException;
@@ -495,7 +493,7 @@ public class CarContext extends ContextWrapper {
 
         LifecycleObserver observer = new DefaultLifecycleObserver() {
             @Override
-            public void onDestroy(@NonNull @NotNull LifecycleOwner owner) {
+            public void onDestroy(@NonNull LifecycleOwner owner) {
                 hostDispatcher.resetHosts();
                 owner.getLifecycle().removeObserver(this);
             }
