@@ -1,3 +1,8 @@
+import static androidx.build.dependencies.DependenciesKt.ANDROIDX_TEST_CORE
+import static androidx.build.dependencies.DependenciesKt.JUNIT
+import static androidx.build.dependencies.DependenciesKt.ROBOLECTRIC
+import static androidx.build.dependencies.DependenciesKt.TRUTH
+
 /*
  * Copyright (C) 2021 The Android Open Source Project
  *
@@ -32,5 +37,11 @@ dependencies {
     implementation(project(":car:app:app"))
 
     implementation("androidx.lifecycle:lifecycle-common-java8:2.2.0")
+
+    testImplementation(ROBOLECTRIC)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
+    testImplementation(project(":car:app:app-testing"))
 }
 
