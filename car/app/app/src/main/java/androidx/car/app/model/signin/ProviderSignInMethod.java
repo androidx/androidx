@@ -1,0 +1,128 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.car.app.model.signin;
+
+import static java.util.Objects.requireNonNull;
+
+import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.Action;
+
+import java.util.Objects;
+
+/**
+ * A {@link SignInTemplate.SignInMethod} that allows the user to initiate sign-in with a
+ * authentication provider.
+ *
+ * <p>Not all providers will be available on all devices. It is the developer's responsibility to
+ * verify the presence of the corresponding provider by using the provider's own APIs. For
+ * example, for Google Sign In, check
+ * <a href="https://developers.google.com/identity/sign-in/android/sign-in">Integrating Google
+ * Sign-In into Your Android App</a>).
+ */
+@ExperimentalCarApi
+@RequiresCarApi(2)
+public final class ProviderSignInMethod implements SignInTemplate.SignInMethod {
+    @Keep
+    @Nullable
+    private final Action mAction;
+
+    /**
+     * Returns the {@link Action} the user can use to initiate the sign-in with a given provider
+     * or {@code null} if not set.
+     *
+     * @see Builder#Builder(Action)
+     */
+    @NonNull
+    public Action getAction() {
+        return requireNonNull(mAction);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "[action:" + mAction + "]";
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (!(other instanceof ProviderSignInMethod)) {
+            return false;
+        }
+
+        ProviderSignInMethod that = (ProviderSignInMethod) other;
+        return Objects.equals(mAction, that.mAction);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mAction);
+    }
+
+    ProviderSignInMethod(Builder builder) {
+        mAction = builder.mAction;
+    }
+
+    /** Constructs an empty instance, used by serialization code. */
+    private ProviderSignInMethod() {
+        mAction = null;
+    }
+
+    /** A builder of {@link ProviderSignInMethod}. */
+    public static final class Builder {
+        final Action mAction;
+
+        /**
+         * Returns a {@link ProviderSignInMethod} instance.
+         */
+        @NonNull
+        public ProviderSignInMethod build() {
+            return new ProviderSignInMethod(this);
+        }
+
+        /**
+         * Returns a {@link ProviderSignInMethod.Builder} instance.
+         *
+         * <h4>Requirements</h4>
+         *
+         * The provider action must not be a standard action, and it must use a
+         * {@link androidx.car.app.model.ParkedOnlyOnClickListener}.
+         *
+         * @throws IllegalArgumentException if {@code action} does not meet the requirements
+         * @throws NullPointerException     if {@code action} is {@code null}
+         * @see Action
+         * @see androidx.car.app.model.ParkedOnlyOnClickListener
+         */
+        public Builder(@NonNull Action action) {
+            if (requireNonNull(action).getType() != Action.TYPE_CUSTOM) {
+                throw new IllegalArgumentException("The action must not be a standard action");
+            }
+            if (!requireNonNull(action.getOnClickDelegate()).isParkedOnly()) {
+                throw new IllegalArgumentException("The action must use a "
+                        + "ParkedOnlyOnClickListener");
+            }
+            mAction = action;
+        }
+    }
+}
