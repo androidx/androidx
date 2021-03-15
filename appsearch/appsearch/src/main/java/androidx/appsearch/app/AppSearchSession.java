@@ -222,6 +222,17 @@ public interface AppSearchSession extends Closeable {
     ListenableFuture<Void> remove(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
 
     /**
+     * Gets the storage info for this {@link AppSearchSession} database.
+     *
+     * <p>This may take time proportional to the number of documents and may be inefficient to
+     * call repeatedly.
+     *
+     * @return a {@link ListenableFuture} which resolves to a {@link StorageInfo} object.
+     */
+    @NonNull
+    ListenableFuture<StorageInfo> getStorageInfo();
+
+    /**
      * Flush all schema and document updates, additions, and deletes to disk if possible.
      *
      * @return The pending result of performing this operation.
