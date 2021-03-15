@@ -49,8 +49,6 @@ import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.complications.SystemProviders.ProviderId
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.complications.data.IdAndComplicationData
-import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.complications.data.asApiComplicationData
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
@@ -544,8 +542,7 @@ public abstract class WatchFaceService : WallpaperService() {
                             it.value.defaultProviderType.asWireComplicationType(),
                             it.value.enabled,
                             it.value.initiallyEnabled,
-                            it.value.renderer.getIdAndData()?.complicationData?.type
-                                ?.asWireComplicationType()
+                            it.value.renderer.getData()?.type?.asWireComplicationType()
                                 ?: ComplicationType.NO_DATA.asWireComplicationType(),
                             it.value.fixedComplicationProvider,
                             it.value.configExtras
@@ -608,21 +605,15 @@ public abstract class WatchFaceService : WallpaperService() {
             }
 
             val oldComplicationData =
-                watchFaceImpl.complicationsManager.complications.values.map {
-                    it.renderer.getIdAndData() ?: IdAndComplicationData(
-                        it.id,
-                        NoDataComplicationData()
-                    )
-                }
+                watchFaceImpl.complicationsManager.complications.values.associateBy(
+                    { it.id },
+                    { it.renderer.getData() }
+                )
+
             params.idAndComplicationDatumWireFormats?.let {
                 for (idAndData in it) {
                     watchFaceImpl.complicationsManager[idAndData.id]!!.renderer
-                        .setIdAndData(
-                            IdAndComplicationData(
-                                idAndData.id, idAndData.complicationData.asApiComplicationData()
-                            ),
-                            false
-                        )
+                        .setData(idAndData.complicationData.asApiComplicationData(), false)
                 }
             }
 
@@ -639,9 +630,8 @@ public abstract class WatchFaceService : WallpaperService() {
             }
 
             if (params.idAndComplicationDatumWireFormats != null) {
-                for (idAndData in oldComplicationData) {
-                    watchFaceImpl.complicationsManager[idAndData.complicationId]!!.renderer
-                        .setIdAndData(idAndData, false)
+                for ((id, data) in oldComplicationData) {
+                    watchFaceImpl.complicationsManager[id]!!.renderer.setData(data, false)
                 }
             }
 
@@ -672,15 +662,12 @@ public abstract class WatchFaceService : WallpaperService() {
                         Bitmap.Config.ARGB_8888
                     )
 
-                var prevIdAndComplicationData: IdAndComplicationData? = null
+                var prevData: ComplicationData? = null
                 val screenshotComplicationData = params.complicationData
                 if (screenshotComplicationData != null) {
-                    prevIdAndComplicationData = it.renderer.getIdAndData()
-                    it.renderer.setIdAndData(
-                        IdAndComplicationData(
-                            params.complicationId,
-                            screenshotComplicationData
-                        ),
+                    prevData = it.renderer.getData()
+                    it.renderer.setData(
+                        screenshotComplicationData.asApiComplicationData(),
                         false
                     )
                 }
@@ -689,12 +676,13 @@ public abstract class WatchFaceService : WallpaperService() {
                     Canvas(complicationBitmap),
                     Rect(0, 0, bounds.width(), bounds.height()),
                     calendar,
-                    RenderParameters(params.renderParametersWireFormat)
+                    RenderParameters(params.renderParametersWireFormat),
+                    params.complicationId
                 )
 
                 // Restore previous ComplicationData & style if required.
                 if (params.complicationData != null) {
-                    it.renderer.setIdAndData(prevIdAndComplicationData, false)
+                    it.renderer.setData(prevData, false)
                 }
 
                 if (newStyle != null) {
