@@ -295,12 +295,11 @@ public final class AppSearchImpl implements Closeable {
      * @param forceOverride                 Whether to force-apply the schema even if it is
      *                                      incompatible. Documents
      *                                      which do not comply with the new schema will be deleted.
-     *
-     * @throws AppSearchException           On IcingSearchEngine error. If the status code is
-     *                                      FAILED_PRECONDITION for the incompatible change, the
-     *                                      exception will be converted to the SetSchemaResponse.
      * @return The response contains deleted schema types and incompatible schema types of this
-     *         call.
+     * call.
+     * @throws AppSearchException On IcingSearchEngine error. If the status code is
+     *                            FAILED_PRECONDITION for the incompatible change, the
+     *                            exception will be converted to the SetSchemaResponse.
      */
     @NonNull
     public SetSchemaResponse setSchema(
@@ -730,6 +729,18 @@ public final class AppSearchImpl implements Closeable {
         ResultSpecProto.Builder resultSpecBuilder =
                 SearchSpecToProtoConverter.toResultSpecProto(searchSpec).toBuilder();
 
+        int groupingType = searchSpec.getResultGroupingTypeFlags();
+        if ((groupingType & SearchSpec.GROUPING_TYPE_PER_PACKAGE) != 0
+                && (groupingType & SearchSpec.GROUPING_TYPE_PER_NAMESPACE) != 0) {
+            addPerPackagePerNamespaceResultGroupingsLocked(resultSpecBuilder, prefixes,
+                    searchSpec.getResultGroupingLimit());
+        } else if ((groupingType & SearchSpec.GROUPING_TYPE_PER_PACKAGE) != 0) {
+            addPerPackageResultGroupingsLocked(resultSpecBuilder, prefixes,
+                    searchSpec.getResultGroupingLimit());
+        } else if ((groupingType & SearchSpec.GROUPING_TYPE_PER_NAMESPACE) != 0) {
+            addPerNamespaceResultGroupingsLocked(resultSpecBuilder, prefixes,
+                    searchSpec.getResultGroupingLimit());
+        }
         rewriteResultSpecForPrefixesLocked(resultSpecBuilder, prefixes, allowedPrefixedSchemas);
 
         ScoringSpecProto scoringSpec = SearchSpecToProtoConverter.toScoringSpecProto(searchSpec);
@@ -1242,6 +1253,148 @@ public final class AppSearchImpl implements Closeable {
         }
         resultSpecBuilder.clearTypePropertyMasks().addAllTypePropertyMasks(
                 prefixedTypePropertyMasks);
+    }
+
+    /**
+     * Adds result groupings for each namespace in each package being queried for.
+     *
+     * <p>This method should be only called in query methods and get the READ lock to keep thread
+     * safety.
+     *
+     * @param resultSpecBuilder ResultSpecs as specified by client
+     * @param prefixes          Prefixes that we should prepend to all our filters
+     * @param maxNumResults     The maximum number of results for each grouping to support.
+     */
+    @GuardedBy("mReadWriteLock")
+    private void addPerPackagePerNamespaceResultGroupingsLocked(
+            @NonNull ResultSpecProto.Builder resultSpecBuilder,
+            @NonNull Set<String> prefixes, int maxNumResults) {
+        Set<String> existingPrefixes = new ArraySet<>(mNamespaceMapLocked.keySet());
+        existingPrefixes.retainAll(prefixes);
+
+        // Create a map for package+namespace to prefixedNamespaces. This is NOT necessarily the
+        // same as the list of namespaces. If one package has multiple databases, each with the same
+        // namespace, then those should be grouped together.
+        Map<String, List<String>> packageAndNamespaceToNamespaces = new ArrayMap<>();
+        for (String prefix : existingPrefixes) {
+            Set<String> prefixedNamespaces = mNamespaceMapLocked.get(prefix);
+            String packageName = getPackageName(prefix);
+            // Create a new prefix without the database name. This will allow us to group namespaces
+            // that have the same name and package but a different database name together.
+            String emptyDatabasePrefix = createPrefix(packageName, /*databaseName*/"");
+            for (String prefixedNamespace : prefixedNamespaces) {
+                String namespace;
+                try {
+                    namespace = removePrefix(prefixedNamespace);
+                } catch (AppSearchException e) {
+                    // This should never happen. Skip this namespace if it does.
+                    Log.e(TAG, "Prefixed namespace " + prefixedNamespace + " is malformed.");
+                    continue;
+                }
+                String emptyDatabasePrefixedNamespace = emptyDatabasePrefix + namespace;
+                List<String> namespaceList =
+                        packageAndNamespaceToNamespaces.get(emptyDatabasePrefixedNamespace);
+                if (namespaceList == null) {
+                    namespaceList = new ArrayList<>();
+                    packageAndNamespaceToNamespaces.put(emptyDatabasePrefixedNamespace,
+                            namespaceList);
+                }
+                namespaceList.add(prefixedNamespace);
+            }
+        }
+
+        for (List<String> namespaces : packageAndNamespaceToNamespaces.values()) {
+            resultSpecBuilder.addResultGroupings(
+                    ResultSpecProto.ResultGrouping.newBuilder()
+                            .addAllNamespaces(namespaces).setMaxResults(maxNumResults));
+        }
+    }
+
+    /**
+     * Adds result groupings for each package being queried for.
+     *
+     * <p>This method should be only called in query methods and get the READ lock to keep thread
+     * safety.
+     *
+     * @param resultSpecBuilder ResultSpecs as specified by client
+     * @param prefixes          Prefixes that we should prepend to all our filters
+     * @param maxNumResults     The maximum number of results for each grouping to support.
+     */
+    @GuardedBy("mReadWriteLock")
+    private void addPerPackageResultGroupingsLocked(
+            @NonNull ResultSpecProto.Builder resultSpecBuilder,
+            @NonNull Set<String> prefixes, int maxNumResults) {
+        Set<String> existingPrefixes = new ArraySet<>(mNamespaceMapLocked.keySet());
+        existingPrefixes.retainAll(prefixes);
+
+        // Build up a map of package to namespaces.
+        Map<String, List<String>> packageToNamespacesMap = new ArrayMap<>();
+        for (String prefix : existingPrefixes) {
+            Set<String> prefixedNamespaces = mNamespaceMapLocked.get(prefix);
+            String packageName = getPackageName(prefix);
+            List<String> packageNamespaceList = packageToNamespacesMap.get(packageName);
+            if (packageNamespaceList == null) {
+                packageNamespaceList = new ArrayList<>();
+                packageToNamespacesMap.put(packageName, packageNamespaceList);
+            }
+            packageNamespaceList.addAll(prefixedNamespaces);
+        }
+
+        for (List<String> prefixedNamespaces : packageToNamespacesMap.values()) {
+            resultSpecBuilder.addResultGroupings(
+                    ResultSpecProto.ResultGrouping.newBuilder()
+                            .addAllNamespaces(prefixedNamespaces).setMaxResults(maxNumResults));
+        }
+    }
+
+    /**
+     * Adds result groupings for each namespace being queried for.
+     *
+     * <p>This method should be only called in query methods and get the READ lock to keep thread
+     * safety.
+     *
+     * @param resultSpecBuilder ResultSpecs as specified by client
+     * @param prefixes          Prefixes that we should prepend to all our filters
+     * @param maxNumResults     The maximum number of results for each grouping to support.
+     */
+    @GuardedBy("mReadWriteLock")
+    private void addPerNamespaceResultGroupingsLocked(
+            @NonNull ResultSpecProto.Builder resultSpecBuilder,
+            @NonNull Set<String> prefixes, int maxNumResults) {
+        Set<String> existingPrefixes = new ArraySet<>(mNamespaceMapLocked.keySet());
+        existingPrefixes.retainAll(prefixes);
+
+        // Create a map of namespace to prefixedNamespaces. This is NOT necessarily the
+        // same as the list of namespaces. If a namespace exists under different packages and/or
+        // different databases, they should still be grouped together.
+        Map<String, List<String>> namespaceToPrefixedNamespaces = new ArrayMap<>();
+        for (String prefix : existingPrefixes) {
+            Set<String> prefixedNamespaces = mNamespaceMapLocked.get(prefix);
+            for (String prefixedNamespace : prefixedNamespaces) {
+                String namespace;
+                try {
+                    namespace = removePrefix(prefixedNamespace);
+                } catch (AppSearchException e) {
+                    // This should never happen. Skip this namespace if it does.
+                    Log.e(TAG, "Prefixed namespace " + prefixedNamespace + " is malformed.");
+                    continue;
+                }
+                List<String> groupedPrefixedNamespaces =
+                        namespaceToPrefixedNamespaces.get(namespace);
+                if (groupedPrefixedNamespaces == null) {
+                    groupedPrefixedNamespaces = new ArrayList<>();
+                    namespaceToPrefixedNamespaces.put(namespace,
+                            groupedPrefixedNamespaces);
+                }
+                groupedPrefixedNamespaces.add(prefixedNamespace);
+            }
+        }
+
+        for (List<String> namespaces : namespaceToPrefixedNamespaces.values()) {
+            resultSpecBuilder.addResultGroupings(
+                    ResultSpecProto.ResultGrouping.newBuilder()
+                            .addAllNamespaces(namespaces).setMaxResults(maxNumResults));
+        }
     }
 
     @VisibleForTesting

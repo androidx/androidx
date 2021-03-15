@@ -56,6 +56,8 @@ public final class SearchSpecToPlatformConverter {
                 .setSnippetCount(jetpackSearchSpec.getSnippetCount())
                 .setSnippetCountPerProperty(jetpackSearchSpec.getSnippetCountPerProperty())
                 .setMaxSnippetSize(jetpackSearchSpec.getMaxSnippetSize());
+        // TODO(b/180429302) When calling setResultGrouping, check that
+        //  getResultGroupingType doesn't return 0 before calling setResultGrouping.
         for (Map.Entry<String, List<String>> projection :
                 jetpackSearchSpec.getProjections().entrySet()) {
             platformBuilder.addProjection(projection.getKey(), projection.getValue());

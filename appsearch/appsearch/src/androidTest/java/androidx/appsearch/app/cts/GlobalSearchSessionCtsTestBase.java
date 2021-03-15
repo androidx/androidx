@@ -616,4 +616,84 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .build();
         assertThat(documents).containsExactly(expected1, expected2);
     }
+
+    @Test
+    public void testQuery_ResultGroupingLimits() throws Exception {
+        // Schema registration
+        mDb1.setSchema(new SetSchemaRequest.Builder()
+                .addSchemas(AppSearchEmail.SCHEMA).build()).get();
+        mDb2.setSchema(new SetSchemaRequest.Builder()
+                .addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index one document in 'namespace1' and one document in 'namespace2' into db1.
+        AppSearchEmail inEmail1 =
+                new AppSearchEmail.Builder("namespace1", "uri1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1).build()));
+        AppSearchEmail inEmail2 =
+                new AppSearchEmail.Builder("namespace2", "uri2")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail2).build()));
+
+        // Index one document in 'namespace1' and one document in 'namespace2' into db2.
+        AppSearchEmail inEmail3 =
+                new AppSearchEmail.Builder("namespace1", "uri3")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb2.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail3).build()));
+        AppSearchEmail inEmail4 =
+                new AppSearchEmail.Builder("namespace2", "uri4")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb2.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail4).build()));
+
+        // Query with per package result grouping. Only the last document 'email4' should be
+        // returned.
+        List<GenericDocument> documents =
+                snapshotResults("body", new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .setResultGrouping(
+                                SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 1)
+                        .build());
+        assertThat(documents).containsExactly(inEmail4);
+
+        // Query with per namespace result grouping. Only the last document in each namespace should
+        // be returned ('email4' and 'email3').
+        documents =
+                snapshotResults("body", new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .setResultGrouping(
+                                SearchSpec.GROUPING_TYPE_PER_NAMESPACE, /*resultLimit=*/ 1)
+                        .build());
+        assertThat(documents).containsExactly(inEmail4, inEmail3);
+
+        // Query with per package and per namespace result grouping. Only the last document in each
+        // namespace should be returned ('email4' and 'email3').
+        documents =
+                snapshotResults("body", new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .setResultGrouping(
+                                SearchSpec.GROUPING_TYPE_PER_NAMESPACE
+                                        | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 1)
+                        .build());
+        assertThat(documents).containsExactly(inEmail4, inEmail3);
+    }
 }
