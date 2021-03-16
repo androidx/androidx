@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.MoreElements
 import com.google.common.collect.SetMultimap
+import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
@@ -66,18 +67,22 @@ interface XProcessingStep {
         )
     }
 
-    fun executeInKsp(env: XProcessingEnv) {
+    fun executeInKsp(env: XProcessingEnv): List<KSAnnotated> {
         check(env is KspProcessingEnv)
+        val elementMap = mutableMapOf<XTypeElement, KSAnnotated>()
         val args = annotations().associateWith { annotation ->
             val elements = env.resolver.getSymbolsWithAnnotation(
                 annotation.java.canonicalName
             ).filterIsInstance<KSClassDeclaration>()
                 .map {
-                    env.requireTypeElement(it.qualifiedName!!.asString())
+                    val element = env.requireTypeElement(it.qualifiedName!!.asString())
+                    elementMap[element] = it
+                    element
                 }
             elements
         }
-        process(env, args)
+        return process(env, args)
+            .mapNotNull { elementMap[it] }
     }
 }
 

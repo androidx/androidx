@@ -21,6 +21,13 @@ import androidx.room.compiler.processing.testcode.OtherAnnotation
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.AnnotationSpec
@@ -28,10 +35,19 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import com.tschuchort.compiletesting.KotlinCompilation
+import com.tschuchort.compiletesting.SourceFile
+import com.tschuchort.compiletesting.symbolProcessors
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import kotlin.reflect.KClass
 
 class XProcessingStepTest {
+    @field:Rule
+    @JvmField
+    val temporaryFolder = TemporaryFolder()
+
     @Test
     fun xProcessingStep() {
         val annotatedElements = mutableMapOf<KClass<out Annotation>, String>()
@@ -255,5 +271,75 @@ class XProcessingStepTest {
         // make sure elements between different rounds are not the same instances
         assertThat(elementPerRound.get(0)?.get(0))
             .isNotSameInstanceAs(elementPerRound.get(1)?.get(0))
+    }
+
+    @Test
+    fun kspReturnsUnprocessed() {
+        val processingStep = object : XProcessingStep {
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<KClass<out Annotation>, List<XTypeElement>>
+            ): Set<XTypeElement> {
+                return elementsByAnnotation.values
+                    .flatten()
+                    .toSet()
+            }
+
+            override fun annotations(): Set<KClass<out Annotation>> {
+                return setOf(OtherAnnotation::class)
+            }
+        }
+        var returned: List<KSAnnotated>? = null
+        val processor = object : SymbolProcessor {
+            private lateinit var codeGenerator: CodeGenerator
+            private lateinit var logger: KSPLogger
+
+            override fun init(
+                options: Map<String, String>,
+                kotlinVersion: KotlinVersion,
+                codeGenerator: CodeGenerator,
+                logger: KSPLogger
+            ) {
+                this.codeGenerator = codeGenerator
+                this.logger = logger
+            }
+
+            override fun process(resolver: Resolver): List<KSAnnotated> {
+                val env = XProcessingEnv.create(
+                    emptyMap(),
+                    resolver,
+                    codeGenerator,
+                    logger
+                )
+                return processingStep.executeInKsp(env)
+                    .also { returned = it }
+            }
+        }
+        val main = SourceFile.kotlin(
+            "Other.kt",
+            """
+            package foo.bar
+            import androidx.room.compiler.processing.testcode.*
+            @OtherAnnotation("y")
+            class Other {
+            }
+            """.trimIndent()
+        )
+
+        KotlinCompilation().apply {
+            workingDir = temporaryFolder.root
+            inheritClassPath = true
+            symbolProcessors = listOf(processor)
+            sources = listOf(main)
+            verbose = false
+        }.compile()
+
+        assertThat(returned).apply {
+            isNotNull()
+            isNotEmpty()
+        }
+        val element = returned!!.first() as KSClassDeclaration
+        assertThat(element.classKind).isEqualTo(ClassKind.CLASS)
+        assertThat(element.qualifiedName!!.asString()).isEqualTo("foo.bar.Other")
     }
 }
