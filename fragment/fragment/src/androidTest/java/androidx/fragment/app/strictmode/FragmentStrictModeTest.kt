@@ -129,6 +129,25 @@ public class FragmentStrictModeTest {
     }
 
     @Test
+    public fun detectRetainInstanceUsage() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectRetainInstanceUsage()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        @Suppress("DEPRECATION")
+        StrictFragment().retainInstance = true
+        assertThat(violation).isInstanceOf(RetainInstanceUsageViolation::class.java)
+
+        violation = null
+        @Suppress("DEPRECATION")
+        StrictFragment().retainInstance
+        assertThat(violation).isInstanceOf(RetainInstanceUsageViolation::class.java)
+    }
+
+    @Test
     public fun detectSetUserVisibleHint() {
         var violation: Violation? = null
         val policy = FragmentStrictMode.Policy.Builder()
