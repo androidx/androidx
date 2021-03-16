@@ -27,7 +27,7 @@ plugins {
 
 dependencies {
     api(project(":fragment:fragment"))
-    api("androidx.activity:activity-ktx:1.2.0") {
+    api("androidx.activity:activity-ktx:1.2.2") {
         because "Mirror fragment dependency graph for -ktx artifacts"
     }
     api("androidx.core:core-ktx:1.1.0") {
@@ -36,10 +36,10 @@ dependencies {
     api("androidx.collection:collection-ktx:1.1.0") {
         because "Mirror fragment dependency graph for -ktx artifacts"
     }
-    api("androidx.lifecycle:lifecycle-livedata-core-ktx:2.3.0") {
+    api("androidx.lifecycle:lifecycle-livedata-core-ktx:2.3.1") {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0")
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
     api("androidx.savedstate:savedstate-ktx:1.1.0") {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
