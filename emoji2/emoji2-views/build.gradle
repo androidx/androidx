@@ -13,7 +13,7 @@ plugins {
 dependencies {
     api("androidx.core:core:1.3.0-rc01")
     api(project(":emoji2:emoji2"))
-    implementation(project(":emoji2:emoji2-views-core"))
+    implementation(project(":emoji2:emoji2-views-helper"))
 
     implementation("androidx.collection:collection:1.1.0")
 

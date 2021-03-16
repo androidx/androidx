@@ -16,12 +16,8 @@
 
 package androidx.emoji2.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.inputmethodservice.ExtractEditText;
-import android.os.Build;
 import android.text.method.KeyListener;
 import android.util.AttributeSet;
 import android.view.ActionMode;
@@ -32,7 +28,6 @@ import android.widget.TextView;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.widget.TextViewCompat;
 import androidx.emoji2.helpers.EmojiEditTextHelper;
@@ -46,7 +41,7 @@ import androidx.emoji2.text.EmojiSpan;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EmojiExtractEditText extends ExtractEditText {
     private EmojiEditTextHelper mEmojiEditTextHelper;
 
@@ -70,14 +65,6 @@ public class EmojiExtractEditText extends ExtractEditText {
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(attrs, defStyleAttr, 0 /*defStyleRes*/);
-    }
-
-    @SuppressLint("UnsafeNewApiCall")
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    public EmojiExtractEditText(@NonNull Context context, @Nullable AttributeSet attrs,
-            int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init(attrs, defStyleAttr, defStyleRes);
     }
 
     private void init(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {

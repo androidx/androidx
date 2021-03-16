@@ -15,9 +15,7 @@
  */
 package androidx.emoji2.widget;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.text.method.KeyListener;
 import android.util.AttributeSet;
 import android.view.ActionMode;
@@ -28,7 +26,6 @@ import android.widget.EditText;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.widget.TextViewCompat;
 import androidx.emoji2.helpers.EmojiEditTextHelper;
 import androidx.emoji2.text.EmojiCompat;
@@ -61,14 +58,6 @@ public class EmojiEditText extends EditText {
     public EmojiEditText(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(attrs, defStyleAttr, 0 /*defStyleRes*/);
-    }
-
-    @SuppressLint("UnsafeNewApiCall")
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    public EmojiEditText(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init(attrs, defStyleAttr, defStyleRes);
     }
 
     private void init(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
