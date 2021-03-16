@@ -34,6 +34,12 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+/**
+ * A sample test on the session instance from {@link HelloWorldService}.
+ *
+ * <p>Demonstrating the usage of {@link SessionController} and validating that the session is
+ * pushing the expected screen when created.
+ */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class HelloWorldSessionTest {
