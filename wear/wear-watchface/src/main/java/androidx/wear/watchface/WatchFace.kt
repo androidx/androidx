@@ -923,7 +923,7 @@ internal class WatchFaceImpl(
                 if (!pendingSingleTap.isPending()) {
                     // Give the user immediate visual feedback, the UI feels sluggish if we defer
                     // this.
-                    complicationsManager.bringAttentionToComplication(tappedComplication.id)
+                    complicationsManager.displayPressedAnimation(tappedComplication.id)
 
                     lastTappedComplicationId = tappedComplication.id
 

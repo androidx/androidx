@@ -84,7 +84,7 @@ package androidx.wear.watchface {
   public final class ComplicationsManager {
     ctor public ComplicationsManager(java.util.Collection<androidx.wear.watchface.Complication> complicationCollection, androidx.wear.watchface.style.UserStyleRepository userStyleRepository);
     method @UiThread public void addTapListener(androidx.wear.watchface.ComplicationsManager.TapCallback tapCallback);
-    method @UiThread public void bringAttentionToComplication(int complicationId);
+    method @UiThread public void displayPressedAnimation(int complicationId);
     method public operator androidx.wear.watchface.Complication? get(int id);
     method public androidx.wear.watchface.Complication? getBackgroundComplication();
     method public androidx.wear.watchface.Complication? getComplicationAt(@Px int x, @Px int y);
