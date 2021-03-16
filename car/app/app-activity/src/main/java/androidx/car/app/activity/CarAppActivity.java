@@ -53,18 +53,48 @@ import androidx.car.app.utils.ThreadUtils;
 import java.util.List;
 
 /**
- * The class representing all the car app activities. This class is responsible for binding to the
- * host and rendering the content given by the car app service.
+ * The class representing a car app activity.
  *
- * <p> The apps that wish to show their content in a {@link CarAppActivity}, should define an
- * activity-alias for the {@link  CarAppActivity} and provide the car app service associated with
- * the activity using a metadata tag.
+ * <p>This class is responsible for binding to the host and rendering the content given by a
+ * {@link androidx.car.app.CarAppService}.
+ *
+ * <p>Usage of {@link CarAppActivity} is only required for applications targeting Automotive OS.
+ *
+ * <h4>Activity Declaration</h4>
+ * The app must declare an {@code activity-alias} for a {@link CarAppActivity} providing its
+ * associated {@link androidx.car.app.CarAppService} as meta-data. For example:
+ *
+ * <pre>{@code
+ * <activity-alias
+ *   android:enabled="true"
+ *   android:exported="true"
+ *   android:label="@string/your_app_label"
+ *   android:name=".YourActivityAliasName"
+ *   android:targetActivity="androidx.car.app.activity.CarAppActivity" >
+ *   <intent-filter>
+ *     <action android:name="android.intent.action.MAIN" />
+ *     <category android:name="android.intent.category.LAUNCHER" />
+ *   </intent-filter>
+ *   <meta-data
+ *     android:name="androidx.car.app.CAR_APP_SERVICE"
+ *     android:value=".YourCarAppService" />
+ *   <meta-data android:name="distractionOptimized" android:value="true"/>
+ * </activity-alias>
+ * }</pre>
+ *
+ * <p>See {@link androidx.car.app.CarAppService} for how to declare your app's car app service in
+ * the manifest.
+ *
+ * <p>Note the name of the alias should be unique and resemble a fully qualified class name, but
+ * unlike the name of the target activity, the alias name is arbitrary; it does not refer to an
+ * actual class.
  */
-//TODO(b/179146927) update javadoc
+// TODO(b/179225768): Remove distractionOptimized from the javadoc above if we can make that
+// implicit for car apps.
 @SuppressLint({"ForbiddenSuperClass"})
 public final class CarAppActivity extends Activity {
     @VisibleForTesting
-    static final String SERVICE_METADATA_KEY = "car-app-service";
+    static final String SERVICE_METADATA_KEY = "androidx.car.app.CAR_APP_SERVICE";
     private static final String TAG = "CarAppActivity";
 
     // TODO(b/177448399): Update after service intent action is added to car-lib.
