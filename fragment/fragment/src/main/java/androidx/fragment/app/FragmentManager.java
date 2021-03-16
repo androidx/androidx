@@ -1728,7 +1728,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     FragmentStateManager addFragment(@NonNull Fragment fragment) {
-        if (fragment.mRemovedFromFragmentManager) {
+        if (fragment.mRemoved) {
             FragmentStrictMode.onFragmentReuse(fragment);
         }
         if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "add: " + fragment);

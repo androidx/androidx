@@ -254,7 +254,7 @@ public abstract class FragmentTransaction {
     }
 
     void doAddOp(int containerViewId, Fragment fragment, @Nullable String tag, int opcmd) {
-        if (fragment.mRemovedFromFragmentManager) {
+        if (fragment.mRemoved) {
             FragmentStrictMode.onFragmentReuse(fragment);
         }
         final Class<?> fragmentClass = fragment.getClass();
