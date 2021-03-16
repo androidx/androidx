@@ -173,6 +173,14 @@
             android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
+            android:name="androidx.appcompat.app.NightModeActivityA"
+            android:theme="@style/Theme.AppCompat.DayNight"/>
+
+        <activity
+            android:name="androidx.appcompat.app.NightModeActivityB"
+            android:theme="@style/Theme.AppCompat.DayNight"/>
+
+        <activity
             android:name="androidx.appcompat.app.NightModePreventOverrideConfigActivity"
             android:theme="@style/Theme.AppCompat.DayNight"/>
 
