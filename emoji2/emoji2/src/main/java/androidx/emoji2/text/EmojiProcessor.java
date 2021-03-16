@@ -15,7 +15,7 @@
  */
 package androidx.emoji2.text;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.os.Build;
 import android.text.Editable;
@@ -49,7 +49,7 @@ import java.util.List;
  * @hide
  */
 @AnyThread
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY)
 @RequiresApi(19)
 final class EmojiProcessor {
 
@@ -782,7 +782,7 @@ final class EmojiProcessor {
      * @hide
      */
     @AnyThread
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static class DefaultGlyphChecker implements EmojiCompat.GlyphChecker {
         /**
          * Default text size for {@link #mTextPaint}.

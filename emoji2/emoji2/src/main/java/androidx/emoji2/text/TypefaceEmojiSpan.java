@@ -15,8 +15,6 @@
  */
 package androidx.emoji2.text;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -33,7 +31,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(19)
 public final class TypefaceEmojiSpan extends EmojiSpan {
 

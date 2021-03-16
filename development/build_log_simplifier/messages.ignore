@@ -363,6 +363,8 @@ Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :in
 Build testing_surface_format_.*
 # > Task :collection:collection-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/collection/collection\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :emoji2:emoji2-benchmark:processReleaseAndroidTestManifest
+\$OUT_DIR/androidx/emoji2/emoji2\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :gridlayout:gridlayout:compileDebugAndroidTestJavaWithJavac
 # > Task :leanback:leanback:processDebugAndroidTestManifest
 Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-espresso\.

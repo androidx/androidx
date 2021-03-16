@@ -123,7 +123,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public FontRequestEmojiCompatConfig(@NonNull Context context, @NonNull FontRequest request,
             @NonNull FontProviderHelper fontProviderHelper) {
         super(new FontRequestMetadataLoader(context, request, fontProviderHelper));
@@ -331,7 +331,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
      * Delegate class for mocking FontsContractCompat.fetchFonts.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class FontProviderHelper {
         /** Calls FontsContractCompat.fetchFonts. */
         @NonNull

@@ -15,8 +15,6 @@
  */
 package androidx.emoji2.helpers;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.text.Editable;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -38,7 +36,7 @@ import androidx.emoji2.text.EmojiCompat;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 final class EmojiInputConnection extends InputConnectionWrapper {
     private final TextView mTextView;

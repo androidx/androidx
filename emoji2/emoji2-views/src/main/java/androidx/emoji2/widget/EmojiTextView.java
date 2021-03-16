@@ -15,9 +15,7 @@
  */
 package androidx.emoji2.widget;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.view.ActionMode;
@@ -25,7 +23,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.widget.TextViewCompat;
 import androidx.emoji2.helpers.EmojiTextViewHelper;
 
@@ -54,14 +51,6 @@ public class EmojiTextView extends TextView {
 
     public EmojiTextView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    @SuppressLint("UnsafeNewApiCall")
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public EmojiTextView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
 

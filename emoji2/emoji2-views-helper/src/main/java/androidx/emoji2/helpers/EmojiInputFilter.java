@@ -15,8 +15,6 @@
  */
 package androidx.emoji2.helpers;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.Spanned;
@@ -40,7 +38,7 @@ import java.lang.ref.WeakReference;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 final class EmojiInputFilter implements android.text.InputFilter {
     private final TextView mTextView;

@@ -16,18 +16,13 @@
 
 package androidx.emoji2.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.widget.TextViewCompat;
 
@@ -36,7 +31,7 @@ import androidx.core.widget.TextViewCompat;
  * inflating {@link EmojiExtractEditText} for keyboard use.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExtractButtonCompat extends Button {
     public ExtractButtonCompat(@NonNull Context context) {
         super(context, null);
@@ -49,13 +44,6 @@ public class ExtractButtonCompat extends Button {
     public ExtractButtonCompat(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
-
-    @SuppressLint("UnsafeNewApiCall")
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public ExtractButtonCompat(@NonNull Context context, @Nullable AttributeSet attrs,
-            int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
     }
 
     /**
