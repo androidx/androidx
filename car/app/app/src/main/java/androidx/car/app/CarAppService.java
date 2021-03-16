@@ -87,7 +87,12 @@ import java.security.InvalidParameterException;
  */
 public abstract class CarAppService extends Service {
     /**
-     * The {@link Intent} that must be declared as handled by the service.
+     * The full qualified name of the {@link CarAppService} class.
+     *
+     * <p>This is the same name that must be used to declare the action of the intent filter for
+     * the app's {@link CarAppService} in the app's manifest.
+     *
+     * @see CarAppService
      */
     public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
 
