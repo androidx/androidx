@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appsearch.debugview.samples.model.Note;
+import androidx.appsearch.debugview.view.AppSearchDebugActivity;
 import androidx.core.content.ContextCompat;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -59,6 +60,7 @@ import java.util.concurrent.Executors;
  * <p>Each sample note's text is added to the list view for display.
  */
 public class NotesActivity extends AppCompatActivity {
+    private static final String DB_NAME = "notesDb";
     private static final String SAMPLE_NOTES_FILENAME = "sample_notes.json";
     private static final String TAG = "NotesActivity";
 
@@ -121,7 +123,8 @@ public class NotesActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case (R.id.app_search_debug):
-                Intent intent = new Intent(this, androidx.appsearch.debugview.MainActivity.class);
+                Intent intent = new Intent(this, AppSearchDebugActivity.class);
+                intent.putExtra("databaseName", DB_NAME);
                 startActivity(intent);
                 return true;
         }
