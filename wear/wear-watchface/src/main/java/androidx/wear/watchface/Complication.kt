@@ -80,14 +80,14 @@ public interface CanvasComplication {
     public fun getData(): ComplicationData?
 
     /**
-     * Sets the [ComplicationData] to render with. Note ComplicationData may reference one or
-     * more [Drawable]s which get loaded as a side effect, you can choose whether this is done
-     * synchronously or asynchronously via [loadDrawablesAsynchronous].
+     * Sets the [ComplicationData] to render with and loads any [Drawable]s contained within the
+     * ComplicationData. You can choose whether this is done synchronously or asynchronously via
+     * [loadDrawablesAsynchronous].
      *
      * @param complicationData The [ComplicationData] to render with
      * @param loadDrawablesAsynchronous Whether or not any drawables should be loaded asynchronously
      */
-    public fun setData(complicationData: ComplicationData?, loadDrawablesAsynchronous: Boolean)
+    public fun loadData(complicationData: ComplicationData?, loadDrawablesAsynchronous: Boolean)
 }
 
 /**
@@ -213,7 +213,7 @@ public open class CanvasComplicationDrawable(
 
     override fun getData(): ComplicationData? = _data
 
-    override fun setData(
+    override fun loadData(
         complicationData: ComplicationData?,
         loadDrawablesAsynchronous: Boolean
     ): Unit = TraceEvent("CanvasComplicationDrawable.setIdAndData").use {

@@ -270,7 +270,7 @@ public class ComplicationsManager(
         val complication = complications[watchFaceComplicationId] ?: return
         complication.dataDirty = complication.dataDirty ||
             (complication.renderer.getData() != data)
-        complication.renderer.setData(data, true)
+        complication.renderer.loadData(data, true)
         (complication.complicationData as MutableObservableWatchData<ComplicationData>).value =
             data
     }
@@ -278,7 +278,7 @@ public class ComplicationsManager(
     @UiThread
     internal fun clearComplicationData() {
         for ((_, complication) in complications) {
-            complication.renderer.setData(null, false)
+            complication.renderer.loadData(null, false)
             (complication.complicationData as MutableObservableWatchData).value =
                 EmptyComplicationData()
         }

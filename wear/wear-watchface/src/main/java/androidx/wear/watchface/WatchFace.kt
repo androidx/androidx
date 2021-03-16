@@ -660,7 +660,7 @@ internal class WatchFaceImpl(
 
             idToComplicationData?.let {
                 for ((id, complicationData) in it) {
-                    complicationsManager[id]!!.renderer.setData(complicationData, false)
+                    complicationsManager[id]!!.renderer.loadData(complicationData, false)
                 }
             }
             val screenShot = renderer.takeScreenshot(
@@ -671,7 +671,7 @@ internal class WatchFaceImpl(
             )
             if (idToComplicationData != null) {
                 for ((id, data) in oldComplicationData) {
-                    complicationsManager[id]!!.renderer.setData(data, false)
+                    complicationsManager[id]!!.renderer.loadData(data, false)
                 }
             }
             return screenShot
