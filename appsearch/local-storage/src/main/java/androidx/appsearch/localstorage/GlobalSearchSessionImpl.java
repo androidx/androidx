@@ -24,7 +24,7 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.core.util.Preconditions;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 /**
  * An implementation of {@link GlobalSearchSession} which stores data locally
@@ -35,16 +35,16 @@ import java.util.concurrent.ExecutorService;
  */
 class GlobalSearchSessionImpl implements GlobalSearchSession {
     private final AppSearchImpl mAppSearchImpl;
-    private final ExecutorService mExecutorService;
+    private final Executor mExecutor;
     private boolean mIsClosed = false;
     private final Context mContext;
 
     GlobalSearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
-            @NonNull ExecutorService executorService,
+            @NonNull Executor executor,
             @NonNull Context context) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
-        mExecutorService = Preconditions.checkNotNull(executorService);
+        mExecutor = Preconditions.checkNotNull(executor);
         mContext = Preconditions.checkNotNull(context);
     }
 
@@ -57,8 +57,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
         return new SearchResultsImpl(
                 mAppSearchImpl,
-                mExecutorService,
-                mContext,
+                mExecutor,
                 mContext.getPackageName(),
                 /*databaseName=*/ null,
                 queryExpression,

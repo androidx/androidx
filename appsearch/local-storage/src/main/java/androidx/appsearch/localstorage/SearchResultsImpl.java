@@ -16,7 +16,6 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
-import android.content.Context;
 import android.os.Process;
 
 import androidx.annotation.NonNull;
@@ -33,12 +32,12 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 class SearchResultsImpl implements SearchResults {
     private final AppSearchImpl mAppSearchImpl;
 
-    private final ExecutorService mExecutorService;
+    private final Executor mExecutor;
 
     // The package name to search over. If null, this will search over all package names.
     @Nullable
@@ -60,14 +59,13 @@ class SearchResultsImpl implements SearchResults {
 
     SearchResultsImpl(
             @NonNull AppSearchImpl appSearchImpl,
-            @NonNull ExecutorService executorService,
-            @NonNull Context context,
+            @NonNull Executor executor,
             @Nullable String packageName,
             @Nullable String databaseName,
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
-        mExecutorService = Preconditions.checkNotNull(executorService);
+        mExecutor = Preconditions.checkNotNull(executor);
         mPackageName = packageName;
         mDatabaseName = databaseName;
         mQueryExpression = Preconditions.checkNotNull(queryExpression);
@@ -78,7 +76,7 @@ class SearchResultsImpl implements SearchResults {
     @NonNull
     public ListenableFuture<List<SearchResult>> getNextPage() {
         Preconditions.checkState(!mIsClosed, "SearchResults has already been closed");
-        return FutureUtil.execute(mExecutorService, () -> {
+        return FutureUtil.execute(mExecutor, () -> {
             SearchResultPage searchResultPage;
             if (mIsFirstLoad) {
                 mIsFirstLoad = false;
@@ -109,7 +107,7 @@ class SearchResultsImpl implements SearchResults {
         // Checking the future result is not needed here since this is a cleanup step which is not
         // critical to the correct functioning of the system; also, the return value is void.
         if (!mIsClosed) {
-            FutureUtil.execute(mExecutorService, () -> {
+            FutureUtil.execute(mExecutor, () -> {
                 mAppSearchImpl.invalidateNextPageToken(mNextPageToken);
                 mIsClosed = true;
                 return null;

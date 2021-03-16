@@ -33,6 +33,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -57,10 +58,13 @@ public class LocalStorage {
     public static final class SearchContext {
         final Context mContext;
         final String mDatabaseName;
+        final Executor mExecutor;
 
-        SearchContext(@NonNull Context context, @NonNull String databaseName) {
+        SearchContext(@NonNull Context context, @NonNull String databaseName,
+                @NonNull Executor executor) {
             mContext = Preconditions.checkNotNull(context);
             mDatabaseName = Preconditions.checkNotNull(databaseName);
+            mExecutor = Preconditions.checkNotNull(executor);
         }
 
         /**
@@ -71,10 +75,26 @@ public class LocalStorage {
             return mDatabaseName;
         }
 
+        /**
+         * Returns the worker executor associated with {@link AppSearchSession}.
+         *
+         * <p>If an executor is not provided to {@link Builder}, the AppSearch default executor will
+         * be returned. You should never cast the executor to
+         * {@link java.util.concurrent.ExecutorService} and call
+         * {@link ExecutorService#shutdownNow()}. It will cancel the futures it's returned. And
+         * since {@link Executor#execute} won't return anything, we will hang forever waiting for
+         * the execution.
+         */
+        @NonNull
+        public Executor getWorkerExecutor() {
+            return mExecutor;
+        }
+
         /** Builder for {@link SearchContext} objects. */
         public static final class Builder {
             private final Context mContext;
             private final String mDatabaseName;
+            private Executor mExecutor;
             private boolean mBuilt = false;
 
             /**
@@ -99,40 +119,108 @@ public class LocalStorage {
                 mDatabaseName = databaseName;
             }
 
+            /**
+             * Sets the worker executor associated with {@link AppSearchSession}.
+             *
+             * <p>If an executor is not provided, the AppSearch default executor will be used.
+             *
+             * @param executor the worker executor used to run heavy background tasks.
+             */
+            @NonNull
+            public Builder setWorkerExecutor(@NonNull Executor executor) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                mExecutor = Preconditions.checkNotNull(executor);
+                return this;
+            }
+
             /** Builds a {@link SearchContext} instance. */
             @NonNull
             public SearchContext build() {
                 Preconditions.checkState(!mBuilt, "Builder has already been used");
+                if (mExecutor == null) {
+                    mExecutor = EXECUTOR;
+                }
                 mBuilt = true;
-                return new SearchContext(mContext, mDatabaseName);
+                return new SearchContext(mContext, mDatabaseName, mExecutor);
             }
         }
     }
 
-    // Never call Executor.shutdownNow(), it will cancel the futures it's returned. And since
-    // execute() won't return anything, we will hang forever waiting for the execution.
+    /**
+     * Contains information relevant to creating a global search session.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final class GlobalSearchContext {
+        final Context mContext;
+        final Executor mExecutor;
+
+        GlobalSearchContext(@NonNull Context context, @NonNull Executor executor) {
+            mContext = Preconditions.checkNotNull(context);
+            mExecutor = Preconditions.checkNotNull(executor);
+        }
+
+        /**
+         * Returns the worker executor associated with {@link GlobalSearchSession}.
+         *
+         * <p>If an executor is not provided to {@link Builder}, the AppSearch default executor will
+         * be returned. You should never cast the executor to
+         * {@link java.util.concurrent.ExecutorService} and call
+         * {@link ExecutorService#shutdownNow()}. It will cancel the futures it's returned. And
+         * since {@link Executor#execute} won't return anything, we will hang forever waiting for
+         * the execution.
+         */
+        @NonNull
+        public Executor getWorkerExecutor() {
+            return mExecutor;
+        }
+
+        /** Builder for {@link GlobalSearchContext} objects. */
+        public static final class Builder {
+            private final Context mContext;
+            private Executor mExecutor;
+            private boolean mBuilt = false;
+
+            public Builder(@NonNull Context context) {
+                mContext = Preconditions.checkNotNull(context);
+            }
+
+            /**
+             * Sets the worker executor associated with {@link GlobalSearchSession}.
+             *
+             * <p>If an executor is not provided, the AppSearch default executor will be used.
+             *
+             * @param executor the worker executor used to run heavy background tasks.
+             */
+            @NonNull
+            public Builder setWorkerExecutor(@NonNull Executor executor) {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                Preconditions.checkNotNull(executor);
+                mExecutor = executor;
+                return this;
+            }
+
+            /** Builds a {@link GlobalSearchContext} instance. */
+            @NonNull
+            public GlobalSearchContext build() {
+                Preconditions.checkState(!mBuilt, "Builder has already been used");
+                if (mExecutor == null) {
+                    mExecutor = EXECUTOR;
+                }
+
+                mBuilt = true;
+                return new GlobalSearchContext(mContext, mExecutor);
+            }
+        }
+    }
+
     // AppSearch multi-thread execution is guarded by Read & Write Lock in AppSearchImpl, all
     // mutate requests will need to gain write lock and query requests need to gain read lock.
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+    static final Executor EXECUTOR = Executors.newCachedThreadPool();
+
     private static volatile LocalStorage sInstance;
 
     private final AppSearchImpl mAppSearchImpl;
-
-    /**
-     * Opens a new {@link AppSearchSession} on this storage.
-     *
-     * <p>This process requires a native search library. If it's not created, the initialization
-     * process will create one.
-     *
-     * @param context The {@link SearchContext} contains all information to create a new
-     *                {@link AppSearchSession}
-     */
-    @NonNull
-    public static ListenableFuture<AppSearchSession> createSearchSession(
-            @NonNull SearchContext context) {
-        Preconditions.checkNotNull(context);
-        return createSearchSession(context, EXECUTOR_SERVICE);
-    }
 
     /**
      * Opens a new {@link AppSearchSession} on this storage with executor.
@@ -142,19 +230,14 @@ public class LocalStorage {
      *
      * @param context  The {@link SearchContext} contains all information to create a new
      *                 {@link AppSearchSession}
-     * @param executor The executor of where tasks will execute.
-     * @hide
      */
     @NonNull
-    @VisibleForTesting
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static ListenableFuture<AppSearchSession> createSearchSession(
-            @NonNull SearchContext context, @NonNull ExecutorService executor) {
+            @NonNull SearchContext context) {
         Preconditions.checkNotNull(context);
-        Preconditions.checkNotNull(executor);
-        return FutureUtil.execute(executor, () -> {
-            LocalStorage instance = getOrCreateInstance(context.mContext);
-            return instance.doCreateSearchSession(context, executor);
+        return FutureUtil.execute(context.mExecutor, () -> {
+            LocalStorage instance = getOrCreateInstance(context.mContext, context.mExecutor);
+            return instance.doCreateSearchSession(context);
         });
     }
 
@@ -166,13 +249,14 @@ public class LocalStorage {
      *
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
-            @NonNull Context context) {
+            @NonNull GlobalSearchContext context) {
         Preconditions.checkNotNull(context);
-        return FutureUtil.execute(EXECUTOR_SERVICE, () -> {
-            LocalStorage instance = getOrCreateInstance(context);
-            return instance.doCreateGlobalSearchSession(context, EXECUTOR_SERVICE);
+        return FutureUtil.execute(context.mExecutor, () -> {
+            LocalStorage instance = getOrCreateInstance(context.mContext, context.mExecutor);
+            return instance.doCreateGlobalSearchSession(context);
         });
     }
 
@@ -185,12 +269,13 @@ public class LocalStorage {
     @NonNull
     @WorkerThread
     @VisibleForTesting
-    static LocalStorage getOrCreateInstance(@NonNull Context context) throws AppSearchException {
+    static LocalStorage getOrCreateInstance(@NonNull Context context, @NonNull Executor executor)
+            throws AppSearchException {
         Preconditions.checkNotNull(context);
         if (sInstance == null) {
             synchronized (LocalStorage.class) {
                 if (sInstance == null) {
-                    sInstance = new LocalStorage(context);
+                    sInstance = new LocalStorage(context, executor);
                 }
             }
         }
@@ -198,7 +283,8 @@ public class LocalStorage {
     }
 
     @WorkerThread
-    private LocalStorage(@NonNull Context context) throws AppSearchException {
+    private LocalStorage(@NonNull Context context, @NonNull Executor executor)
+            throws AppSearchException {
         Preconditions.checkNotNull(context);
         File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
 
@@ -206,7 +292,7 @@ public class LocalStorage {
         mAppSearchImpl = AppSearchImpl.create(icingDir, context, VisibilityStore.NO_OP_USER_ID,
                 /*globalQuerierPackage=*/ "");
 
-        EXECUTOR_SERVICE.execute(() -> {
+        executor.execute(() -> {
             try {
                 mAppSearchImpl.checkForOptimize();
             } catch (AppSearchException e) {
@@ -216,15 +302,14 @@ public class LocalStorage {
     }
 
     @NonNull
-    private AppSearchSession doCreateSearchSession(@NonNull SearchContext context,
-            @NonNull ExecutorService executor) {
-        return new SearchSessionImpl(mAppSearchImpl, executor, context.mContext,
+    private AppSearchSession doCreateSearchSession(@NonNull SearchContext context) {
+        return new SearchSessionImpl(mAppSearchImpl, context.mExecutor,
                 context.mContext.getPackageName(), context.mDatabaseName, /*logger=*/ null);
     }
 
     @NonNull
     private GlobalSearchSession doCreateGlobalSearchSession(
-            @NonNull Context context, @NonNull ExecutorService executor) {
-        return new GlobalSearchSessionImpl(mAppSearchImpl, executor, context);
+            @NonNull GlobalSearchContext context) {
+        return new GlobalSearchSessionImpl(mAppSearchImpl, context.mExecutor, context.mContext);
     }
 }

@@ -18,7 +18,6 @@ package androidx.appsearch.localstorage;
 
 import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -52,7 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 /**
  * An implementation of {@link AppSearchSession} which stores data locally
@@ -64,8 +63,7 @@ import java.util.concurrent.ExecutorService;
 class SearchSessionImpl implements AppSearchSession {
     private static final String TAG = "AppSearchSessionImpl";
     private final AppSearchImpl mAppSearchImpl;
-    private final ExecutorService mExecutorService;
-    private final Context mContext;
+    private final Executor mExecutor;
     private final String mPackageName;
     private final String mDatabaseName;
     private volatile boolean mIsMutated = false;
@@ -74,14 +72,12 @@ class SearchSessionImpl implements AppSearchSession {
 
     SearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
-            @NonNull ExecutorService executorService,
-            @NonNull Context context,
+            @NonNull Executor executor,
             @NonNull String packageName,
             @NonNull String databaseName,
             @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
-        mExecutorService = Preconditions.checkNotNull(executorService);
-        mContext = Preconditions.checkNotNull(context);
+        mExecutor = Preconditions.checkNotNull(executor);
         mPackageName = packageName;
         mDatabaseName = Preconditions.checkNotNull(databaseName);
         mLogger = logger;
@@ -266,8 +262,7 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         return new SearchResultsImpl(
                 mAppSearchImpl,
-                mExecutorService,
-                mContext,
+                mExecutor,
                 mPackageName,
                 mDatabaseName,
                 queryExpression,
@@ -345,7 +340,7 @@ class SearchSessionImpl implements AppSearchSession {
     public void close() {
         if (mIsMutated && !mIsClosed) {
             // No future is needed here since the method is void.
-            FutureUtil.execute(mExecutorService, () -> {
+            FutureUtil.execute(mExecutor, () -> {
                 mAppSearchImpl.persistToDisk();
                 mIsClosed = true;
                 return null;
@@ -354,7 +349,7 @@ class SearchSessionImpl implements AppSearchSession {
     }
 
     private <T> ListenableFuture<T> execute(Callable<T> callable) {
-        return FutureUtil.execute(mExecutorService, callable);
+        return FutureUtil.execute(mExecutor, callable);
     }
 
     /**  Checks the setSchema() call won't delete any types or has incompatible types. */
@@ -397,7 +392,7 @@ class SearchSessionImpl implements AppSearchSession {
     }
 
     private void checkForOptimize(int mutateBatchSize) {
-        mExecutorService.execute(() -> {
+        mExecutor.execute(() -> {
             try {
                 mAppSearchImpl.checkForOptimize(mutateBatchSize);
             } catch (AppSearchException e) {
@@ -407,7 +402,7 @@ class SearchSessionImpl implements AppSearchSession {
     }
 
     private void checkForOptimize() {
-        mExecutorService.execute(() -> {
+        mExecutor.execute(() -> {
             try {
                 mAppSearchImpl.checkForOptimize();
             } catch (AppSearchException e) {
