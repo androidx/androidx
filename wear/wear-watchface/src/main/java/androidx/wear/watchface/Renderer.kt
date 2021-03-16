@@ -591,7 +591,7 @@ public sealed class Renderer(
          * @param height height of surface in pixels
          */
         @UiThread
-        public open fun onGlSurfaceCreated(width: Int, height: Int) {
+        public open fun onGlSurfaceCreated(@Px width: Int, @Px height: Int) {
         }
 
         internal override fun renderInternal(

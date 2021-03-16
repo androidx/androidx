@@ -87,6 +87,7 @@ public class RenderParameters constructor(
 
     /** Specifies the tint should be used with [LayerMode.DRAW_OUTLINED] .*/
     @ColorInt
+    @get:ColorInt
     public val outlineTint: Int
 ) {
     /**
