@@ -19,6 +19,7 @@ package androidx.car.app.testing;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
+import android.content.ComponentName;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
@@ -47,12 +48,15 @@ public class SessionControllerTest {
 
     private SessionController mSessionController;
     private TestCarContext mCarContext;
+    private Intent mIntent;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
         mCarContext = TestCarContext.createCarContext(
                 ApplicationProvider.getApplicationContext());
+        mIntent = new Intent().setComponent(new ComponentName(mCarContext,
+                this.getClass()));
 
         Session session = new Session() {
             @NonNull
@@ -69,14 +73,14 @@ public class SessionControllerTest {
 
     @Test
     public void create() {
-        mSessionController.create();
+        mSessionController.create(mIntent);
 
         verify(mMockObserver).onCreate(any());
     }
 
     @Test
     public void start() {
-        mSessionController.create().start();
+        mSessionController.create(mIntent).start();
 
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
@@ -84,7 +88,7 @@ public class SessionControllerTest {
 
     @Test
     public void resume() {
-        mSessionController.create().resume();
+        mSessionController.create(mIntent).resume();
 
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
@@ -93,7 +97,7 @@ public class SessionControllerTest {
 
     @Test
     public void pause() {
-        mSessionController.create().resume().pause();
+        mSessionController.create(mIntent).resume().pause();
 
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
@@ -103,7 +107,7 @@ public class SessionControllerTest {
 
     @Test
     public void stop() {
-        mSessionController.create().resume().stop();
+        mSessionController.create(mIntent).resume().stop();
 
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
@@ -114,7 +118,7 @@ public class SessionControllerTest {
 
     @Test
     public void destroy() {
-        mSessionController.create().resume().destroy();
+        mSessionController.create(mIntent).resume().destroy();
 
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
