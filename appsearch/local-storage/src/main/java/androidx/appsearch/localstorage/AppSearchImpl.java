@@ -61,6 +61,7 @@ import com.google.android.icing.proto.IcingSearchEngineOptions;
 import com.google.android.icing.proto.InitializeResultProto;
 import com.google.android.icing.proto.OptimizeResultProto;
 import com.google.android.icing.proto.PersistToDiskResultProto;
+import com.google.android.icing.proto.PersistType;
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.PropertyProto;
 import com.google.android.icing.proto.PutResultProto;
@@ -910,7 +911,7 @@ public final class AppSearchImpl implements Closeable {
             throwIfClosedLocked();
 
             PersistToDiskResultProto persistToDiskResultProto =
-                    mIcingSearchEngineLocked.persistToDisk();
+                    mIcingSearchEngineLocked.persistToDisk(PersistType.Code.FULL);
             checkSuccess(persistToDiskResultProto.getStatus());
         } finally {
             mReadWriteLock.writeLock().unlock();
