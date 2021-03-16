@@ -113,10 +113,12 @@ internal sealed class KspAnnotated(
             }
         }
 
+        /**
+         * TODO: We should be able to remove use site filters once
+         * https://github.com/google/ksp/issues/355 is fixed.
+         */
         companion object {
             val FIELD: UseSiteFilter = Impl(true, AnnotationUseSiteTarget.FIELD)
-            val PROPERTY_GETTER: UseSiteFilter = Impl(false, AnnotationUseSiteTarget.GET)
-            val PROPERTY_SETTER: UseSiteFilter = Impl(false, AnnotationUseSiteTarget.SET)
             val PROPERTY_SETTER_PARAMETER: UseSiteFilter =
                 Impl(false, AnnotationUseSiteTarget.SETPARAM)
             val METHOD_PARAMETER: UseSiteFilter = Impl(true, AnnotationUseSiteTarget.PARAM)
@@ -125,6 +127,8 @@ internal sealed class KspAnnotated(
                     return annotation.useSiteTarget == null
                 }
             }
+            val NO_USE_SITE_OR_GETTER: UseSiteFilter = Impl(true, AnnotationUseSiteTarget.GET)
+            val NO_USE_SITE_OR_SETTER: UseSiteFilter = Impl(true, AnnotationUseSiteTarget.SET)
         }
     }
 

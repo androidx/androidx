@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.getSystemClasspathFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames
 import androidx.room.testing.context
@@ -29,7 +30,6 @@ import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import com.squareup.javapoet.TypeName
 import createVerifierFromEntitiesAndViews
-import getSystemClasspathFiles
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
