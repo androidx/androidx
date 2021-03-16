@@ -30,6 +30,12 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.List;
 
+/**
+ * A sample test on {@link HelloWorldScreen}.
+ *
+ * <p>Demonstrating the usage of {@link TestCarContext} and validating that the returned
+ * {@link androidx.car.app.model.Template} has the expected contents.
+ */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class HelloWorldScreenTest {
