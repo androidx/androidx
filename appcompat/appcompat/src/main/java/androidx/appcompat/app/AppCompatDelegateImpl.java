@@ -249,6 +249,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mIsDestroyed;
 
+    /**
+     * The configuration from the most recent call to either onConfigurationChanged or onCreate.
+     * May be null neither method has been called yet.
+     */
+    private Configuration mEffectiveConfiguration;
+
     @NightMode
     private int mLocalNightMode = MODE_NIGHT_UNSPECIFIED;
 
@@ -521,6 +527,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             addActiveDelegate(this);
         }
 
+        mEffectiveConfiguration = new Configuration(mContext.getResources().getConfiguration());
         mCreated = true;
     }
 
@@ -649,6 +656,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         // Make sure that the DrawableManager knows about the new config
         AppCompatDrawableManager.get().onConfigurationChanged(mContext);
+
+        // Cache the last-seen configuration before calling applyDayNight, since applyDayNight
+        // inspects the last-seen configuration. Otherwise, we'll recurse back to this method.
+        mEffectiveConfiguration = new Configuration(mContext.getResources().getConfiguration());
 
         // Re-apply Day/Night with the new configuration but disable recreations. Since this
         // configuration change has only just happened we can safely just update the resources now
@@ -2509,7 +2520,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 createOverrideConfigurationForDayNight(mContext, mode, null);
 
         final boolean activityHandlingUiMode = isActivityManifestHandlingUiMode();
-        final int currentNightMode = mContext.getResources().getConfiguration().uiMode
+        final Configuration currentConfiguration = mEffectiveConfiguration == null
+                ? mContext.getResources().getConfiguration() : mEffectiveConfiguration;
+        final int currentNightMode = currentConfiguration.uiMode
                 & Configuration.UI_MODE_NIGHT_MASK;
         final int newNightMode = overrideConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
