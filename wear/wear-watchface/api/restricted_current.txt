@@ -1,42 +1,32 @@
 // Signature format: 4.0
 package androidx.wear.watchface {
 
-  public interface CanvasComplication {
-    method public androidx.wear.complications.data.ComplicationData? getData();
-    method public boolean isHighlighted();
-    method public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
-    method @UiThread public void onAttach(androidx.wear.watchface.Complication complication);
-    method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters, int complicationId);
-    method public void setIsHighlighted(boolean p);
-    property public abstract boolean isHighlighted;
-  }
-
-  public class CanvasComplicationDrawable implements androidx.wear.watchface.CanvasComplication {
+  public class CanvasComplicationDrawable {
     ctor public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable _drawable, androidx.wear.watchface.WatchState watchState);
     method public void drawOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, @ColorInt int color);
-    method public androidx.wear.complications.data.ComplicationData? getData();
+    method public final androidx.wear.complications.data.ComplicationData? getData();
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
-    method @UiThread public boolean isHighlighted();
-    method public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
-    method public void onAttach(androidx.wear.watchface.Complication complication);
-    method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters, int complicationId);
+    method @UiThread public final boolean isHighlighted();
+    method @CallSuper public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
+    method @UiThread public final void onAttach(androidx.wear.watchface.Complication complication);
+    method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters, int complicationId);
     method public final void setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable value);
-    method @UiThread public void setIsHighlighted(boolean value);
+    method @UiThread public final void setIsHighlighted(boolean value);
     property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
-    property @UiThread public boolean isHighlighted;
+    property @UiThread public final boolean isHighlighted;
   }
 
   public final class Complication {
     method public android.graphics.Rect computeBounds(android.graphics.Rect screen);
-    method public static androidx.wear.watchface.Complication.Builder createBackgroundComplicationBuilder(int id, androidx.wear.watchface.CanvasComplication renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy);
-    method public static androidx.wear.watchface.Complication.Builder createRoundRectComplicationBuilder(int id, androidx.wear.watchface.CanvasComplication renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.ComplicationBounds bounds);
+    method public static androidx.wear.watchface.Complication.Builder createBackgroundComplicationBuilder(int id, androidx.wear.watchface.CanvasComplicationDrawable renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy);
+    method public static androidx.wear.watchface.Complication.Builder createRoundRectComplicationBuilder(int id, androidx.wear.watchface.CanvasComplicationDrawable renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.ComplicationBounds bounds);
     method public int getBoundsType();
     method @UiThread public androidx.wear.complications.ComplicationBounds getComplicationBounds();
     method public androidx.wear.watchface.ObservableWatchData<androidx.wear.complications.data.ComplicationData> getComplicationData();
     method public android.os.Bundle getConfigExtras();
     method @UiThread public androidx.wear.complications.DefaultComplicationProviderPolicy getDefaultProviderPolicy();
     method @UiThread public androidx.wear.complications.data.ComplicationType getDefaultProviderType();
-    method public androidx.wear.watchface.CanvasComplication getRenderer();
+    method public androidx.wear.watchface.CanvasComplicationDrawable getRenderer();
     method @UiThread public java.util.List<androidx.wear.complications.data.ComplicationType> getSupportedTypes();
     method public void invalidate();
     method public boolean isActiveAt(long dateTimeMillis);
@@ -53,7 +43,7 @@ package androidx.wear.watchface {
     property @UiThread public final boolean enabled;
     property public final boolean fixedComplicationProvider;
     property public final boolean initiallyEnabled;
-    property public final androidx.wear.watchface.CanvasComplication renderer;
+    property public final androidx.wear.watchface.CanvasComplicationDrawable renderer;
     property @UiThread public final java.util.List<androidx.wear.complications.data.ComplicationType> supportedTypes;
     field public static final androidx.wear.watchface.Complication.Companion Companion;
   }
@@ -67,8 +57,8 @@ package androidx.wear.watchface {
   }
 
   public static final class Complication.Companion {
-    method public androidx.wear.watchface.Complication.Builder createBackgroundComplicationBuilder(int id, androidx.wear.watchface.CanvasComplication renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy);
-    method public androidx.wear.watchface.Complication.Builder createRoundRectComplicationBuilder(int id, androidx.wear.watchface.CanvasComplication renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.ComplicationBounds bounds);
+    method public androidx.wear.watchface.Complication.Builder createBackgroundComplicationBuilder(int id, androidx.wear.watchface.CanvasComplicationDrawable renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy);
+    method public androidx.wear.watchface.Complication.Builder createRoundRectComplicationBuilder(int id, androidx.wear.watchface.CanvasComplicationDrawable renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.ComplicationBounds bounds);
   }
 
   public final class ComplicationOutlineRenderer {
@@ -108,12 +98,12 @@ package androidx.wear.watchface {
   }
 
   public final class GlesTextureComplication {
-    ctor public GlesTextureComplication(androidx.wear.watchface.CanvasComplication canvasComplication, @Px int textureWidth, @Px int textureHeight, int textureType, int id);
+    ctor public GlesTextureComplication(androidx.wear.watchface.CanvasComplicationDrawable canvasComplication, @Px int textureWidth, @Px int textureHeight, int textureType, int id);
     method public void bind();
-    method public androidx.wear.watchface.CanvasComplication getCanvasComplication();
+    method public androidx.wear.watchface.CanvasComplicationDrawable getCanvasComplication();
     method public int getId();
     method public void renderToTexture(android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    property public final androidx.wear.watchface.CanvasComplication canvasComplication;
+    property public final androidx.wear.watchface.CanvasComplicationDrawable canvasComplication;
     property public final int id;
   }
 
