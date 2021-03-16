@@ -17,7 +17,7 @@
 package androidx.webkit.internal;
 
 import androidx.annotation.NonNull;
-import androidx.webkit.ScriptReferenceCompat;
+import androidx.webkit.ScriptHandler;
 
 import org.chromium.support_lib_boundary.ScriptReferenceBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -27,7 +27,7 @@ import java.lang.reflect.InvocationHandler;
 /**
  * Internal implementation of {@link androidx.webkit.ScriptReference}.
  */
-public class ScriptReferenceImpl extends ScriptReferenceCompat {
+public class ScriptReferenceImpl extends ScriptHandler {
     private ScriptReferenceBoundaryInterface mBoundaryInterface;
 
     private ScriptReferenceImpl(@NonNull ScriptReferenceBoundaryInterface boundaryInterface) {
@@ -37,7 +37,7 @@ public class ScriptReferenceImpl extends ScriptReferenceCompat {
     /**
      * Create an AndroidX ScriptReference from the given InvocationHandler.
      */
-    public static @NonNull ScriptReferenceImpl toScriptReferenceCompat(
+    public static @NonNull ScriptReferenceImpl toScriptHandler(
             @NonNull /* ScriptReference */ InvocationHandler invocationHandler) {
         final ScriptReferenceBoundaryInterface boundaryInterface =
                 BoundaryInterfaceReflectionUtil.castToSuppLibClass(
