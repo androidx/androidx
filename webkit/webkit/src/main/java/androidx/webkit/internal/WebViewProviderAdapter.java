@@ -104,7 +104,7 @@ public class WebViewProviderAdapter {
      */
     public @NonNull ScriptReferenceImpl addDocumentStartJavaScript(
             @NonNull String script, @NonNull String[] allowedOriginRules) {
-        return ScriptReferenceImpl.toScriptReferenceCompat(
+        return ScriptReferenceImpl.toScriptHandler(
                 mImpl.addDocumentStartJavaScript(script, allowedOriginRules));
     }
 
