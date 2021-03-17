@@ -25,9 +25,25 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+}
+
 dependencies {
     api(KOTLIN_STDLIB)
-    // Add dependencies here
+    api("androidx.core:core:1.5.0-beta03")
+
+    implementation("com.google.firebase:firebase-appindexing:19.2.0")
+
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
+    androidTestImplementation(TRUTH)
 }
 
 androidx {
