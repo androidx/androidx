@@ -30,7 +30,7 @@ dependencies {
     api(GUAVA_LISTENABLE_FUTURE)
 
     implementation 'androidx.annotation:annotation:1.2.0-alpha01'
-    implementation(project(path: ":wear:wear-tiles-proto", configuration: "shadow"))
+    implementation(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
 
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
     testImplementation(ANDROIDX_TEST_EXT_TRUTH)
@@ -56,7 +56,7 @@ android {
 androidx {
     name = "Android Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR
+    mavenGroup = LibraryGroups.WEAR_TILES
     mavenVersion = LibraryVersions.WEAR_TILES
     inceptionYear = "2020"
     description = "Android Wear Tiles"

@@ -35,12 +35,12 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.2.0-alpha01'
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation "androidx.core:core:1.3.2"
-    implementation(project(":wear:wear-tiles"))
-    implementation(project(path: ":wear:wear-tiles-proto", configuration: "shadow"))
+    implementation(project(":wear:tiles:tiles"))
+    implementation(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
     implementation(KOTLIN_COROUTINES_CORE)
     implementation(KOTLIN_COROUTINES_ANDROID)
 
-    androidTestImplementation(project(path: ":wear:wear-tiles-proto", configuration: "shadow"))
+    androidTestImplementation(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
     androidTestImplementation(project(":test-screenshot"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -99,8 +99,7 @@ protobuf {
 androidx {
     name = "Android Wear Tiles Renderer"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR
-    // Tie the versions together to keep everything simpler.
+    mavenGroup = LibraryGroups.WEAR_TILES
     mavenVersion = LibraryVersions.WEAR_TILES
     inceptionYear = "2021"
     description = "Android Wear Tiles Renderer components. These components can be used to parse " +
