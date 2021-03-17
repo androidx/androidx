@@ -57,8 +57,15 @@ public class ReflectionsBenchmark {
         assertNotNull(result);
     }
 
+    /**
+     * This test is not an accurate reflection of first lookup cost, as it will warm up caches
+     * before the main benchmark starts.
+     *
+     * However, it is a good _lower bound_ of the cost to do this lookup, with the assumption
+     * that real world lookups will always be the same cost or slower.
+     */
     @Test
-    public void doMethodLookup() throws NoSuchMethodException, IllegalAccessException {
+    public void doWarmedUpMethodLookup() throws NoSuchMethodException, IllegalAccessException {
         BenchmarkState state = benchmarkRule.getState();
         ReflectionImplementation subject = new ReflectionImplementation();
         MethodHandle result = null;
