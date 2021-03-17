@@ -1061,20 +1061,41 @@ class NavDeepLinkTest {
 
     @Test
     fun deepLinkCaseInsensitiveDomainRegexMatching() {
-        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?path=go/to/{path}"
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users/{id}/posts"
         val deepLink = NavDeepLink(deepLinkArgument)
 
-        val path = "directions"
+        val id = 2
         val matchArgs = deepLink.getMatchingArguments(
-            Uri.parse("${DEEP_LINK_EXACT_HTTPS.toUpperCase()}/users?path=go/to/"),
-            mapOf("path" to stringArgument(path))
+            Uri.parse("${DEEP_LINK_EXACT_HTTPS.toUpperCase()}/users/${id}/posts"),
+            mapOf("id" to intArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should not contain the path")
-            .that(matchArgs?.containsKey("path"))
-            .isFalse()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getInt("id"))
+            .isEqualTo(id)
+    }
+
+    @Test
+    fun deepLinkCaseInsensitiveArguments() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users/{id}/posts"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val id = 2
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(deepLinkArgument
+                .replace("{id}", id.toString())
+                .replace("users", "Users")
+            ),
+            mapOf("id" to intArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getInt("id"))
+            .isEqualTo(id)
     }
 
     @Test
