@@ -37,11 +37,4 @@ dependencies {
     implementation 'com.google.guava:guava:28.1-jre'
 
     implementation "androidx.car.app:app:1.0.0-beta01"
-
-    // TODO transitive dependencies for the library. Remove once they can be fetched from the pom file.
-    implementation "androidx.activity:activity:1.1.0"
-    implementation "androidx.annotation:annotation:1.1.0"
-    implementation "androidx.core:core:1.3.0"
-    implementation "androidx.lifecycle:lifecycle-viewmodel:2.2.0"
-    implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
 }
