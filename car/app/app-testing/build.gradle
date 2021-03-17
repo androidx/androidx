@@ -33,9 +33,9 @@ plugins {
 
 dependencies {
     api(project(":car:app:app"))
+    implementation "androidx.lifecycle:lifecycle-runtime:2.2.0"
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation 'androidx.annotation:annotation:1.1.0'
-    implementation project(path: ':lifecycle:lifecycle-runtime')
 
     testImplementation("junit:junit:4.13")
     testImplementation(ANDROIDX_TEST_CORE)
