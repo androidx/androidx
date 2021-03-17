@@ -428,6 +428,9 @@ public class WearArcLayout extends ViewGroup {
             } else {
                 // Normal widgets need to be placed on their canvas, taking into account their
                 // vertical position.
+                // In terms of x axis, they are placed in the center of the screen, same as the
+                // center of the circle where all components lay.
+                // In terms of y axis, widget is placed on top of the circle (12 o'clock).
                 int leftPx =
                         round((getMeasuredWidth() / 2f) - (child.getMeasuredWidth() / 2f));
                 int topPx = round(getChildTopInset(child));
@@ -556,7 +559,9 @@ public class WearArcLayout extends ViewGroup {
         LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
         float middleAngle = childLayoutParams.mMiddleAngle;
 
-        // Rotate the child widget.
+        // Rotate the child widget. This rotation places child widget in its correct place in the
+        // circle. Rotation is done around the center of the circle that components make. Canvas
+        // does this at the end, when all (if any) rotations are done.
         canvas.rotate(
                 middleAngle,
                 getMeasuredWidth() / 2f,
@@ -583,8 +588,13 @@ public class WearArcLayout extends ViewGroup {
                 angleToRotate = -middleAngle;
             }
 
-            // Do the actual rotation. Note that the strange rotation center is because the child
-            // view is x-centered but at the top of this container.
+            // Do the actual rotation. This rotation is done in place around the center of the
+            // child to adjust it based on rotation and clockwise attributes.
+            // Actual position of this component here is still at the
+            // top of the circle (12 o'clock), meaning that the strange rotation center is
+            // because the child view is x-centered but at the top of this container. Additional
+            // offset is added for vertical rectangular screens as for them the start of an arc
+            // is lower then usual.
             float childInset = getChildTopInset(child);
             canvas.rotate(
                     angleToRotate,
@@ -662,18 +672,30 @@ public class WearArcLayout extends ViewGroup {
                         - childHeight;
 
         int margin = mClockwise ? childLayoutParams.topMargin : childLayoutParams.bottomMargin;
+        float topInset = margin + getChildTopOffset(child);
 
         switch (childLayoutParams.getVerticalAlignment()) {
             case LayoutParams.VALIGN_OUTER:
-                return margin;
+                return topInset;
             case LayoutParams.VALIGN_CENTER:
-                return margin + thicknessDiffPx / 2f;
+                return topInset + thicknessDiffPx / 2f;
             case LayoutParams.VALIGN_INNER:
-                return margin + thicknessDiffPx;
+                return topInset + thicknessDiffPx;
             default:
-                // Nortmally unreachable...
+                // Normally unreachable...
                 return 0;
         }
+    }
+
+    /**
+     * For vertical rectangular screens, additional offset needs to be taken into the account for
+     * y position of normal widget in order to be in the correct place in the circle.
+     */
+    private float getChildTopOffset(View child) {
+        if (child instanceof ArcLayoutWidget || getMeasuredWidth() >= getMeasuredHeight()) {
+            return 0;
+        }
+        return round((getMeasuredHeight() - getMeasuredWidth()) / 2f);
     }
 
     @Override
