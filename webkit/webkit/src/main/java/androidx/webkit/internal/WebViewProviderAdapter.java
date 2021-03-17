@@ -102,9 +102,9 @@ public class WebViewProviderAdapter {
      * Adapter method for {@link WebViewCompat#addWebMessageListener(android.webkit.WebView,
      * String, Set)}
      */
-    public @NonNull ScriptReferenceImpl addDocumentStartJavaScript(
+    public @NonNull ScriptHandlerImpl addDocumentStartJavaScript(
             @NonNull String script, @NonNull String[] allowedOriginRules) {
-        return ScriptReferenceImpl.toScriptHandler(
+        return ScriptHandlerImpl.toScriptHandler(
                 mImpl.addDocumentStartJavaScript(script, allowedOriginRules));
     }
 
