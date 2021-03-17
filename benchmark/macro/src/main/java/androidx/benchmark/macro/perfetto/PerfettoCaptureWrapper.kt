@@ -20,6 +20,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Outputs
+import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.macro.device
 import androidx.test.platform.app.InstrumentationRegistry
 
@@ -50,7 +51,7 @@ class PerfettoCaptureWrapper {
         val iterString = iteration.toString().padStart(3, '0')
         // NOTE: Macrobenchmarks still use legacy .trace name until
         // Studio supports .perfetto-trace extension (b/171251272)
-        val traceName = "${benchmarkName}_iter$iterString.trace".replace(
+        val traceName = "${benchmarkName}_iter${iterString}_${dateToFileName()}.trace".replace(
             oldValue = " ",
             newValue = ""
         )
