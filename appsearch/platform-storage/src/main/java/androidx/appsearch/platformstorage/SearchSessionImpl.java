@@ -112,6 +112,13 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
+    @NonNull
+    @Override
+    public ListenableFuture<Set<String>> getNamespaces() {
+        // TODO(b/183042276): Implement this once getNamespaces() is exposed in the platform SDK
+        throw new UnsupportedOperationException();
+    }
+
     @Override
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> put(

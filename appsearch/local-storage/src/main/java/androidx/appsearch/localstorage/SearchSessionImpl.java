@@ -199,6 +199,16 @@ class SearchSessionImpl implements AppSearchSession {
         });
     }
 
+    @NonNull
+    @Override
+    public ListenableFuture<Set<String>> getNamespaces() {
+        Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
+        return execute(() -> {
+            List<String> namespaces = mAppSearchImpl.getNamespaces(mPackageName, mDatabaseName);
+            return new ArraySet<>(namespaces);
+        });
+    }
+
     @Override
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> put(

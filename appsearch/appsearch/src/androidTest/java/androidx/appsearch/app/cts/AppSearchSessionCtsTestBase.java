@@ -243,6 +243,76 @@ public abstract class AppSearchSessionCtsTestBase {
 // @exportToFramework:endStrip()
 
     @Test
+    public void testGetNamespaces() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+        assertThat(mDb1.getNamespaces().get()).isEmpty();
+
+        // Index a document
+        checkIsBatchResultSuccess(mDb1.put(new PutDocumentsRequest.Builder()
+                .addGenericDocuments(new AppSearchEmail.Builder("namespace1", "uri1").build())
+                .build()));
+        assertThat(mDb1.getNamespaces().get()).containsExactly("namespace1");
+
+        // Index additional data
+        checkIsBatchResultSuccess(mDb1.put(new PutDocumentsRequest.Builder()
+                .addGenericDocuments(
+                        new AppSearchEmail.Builder("namespace2", "uri1").build(),
+                        new AppSearchEmail.Builder("namespace2", "uri2").build(),
+                        new AppSearchEmail.Builder("namespace3", "uri1").build())
+                .build()));
+        assertThat(mDb1.getNamespaces().get()).containsExactly(
+                "namespace1", "namespace2", "namespace3");
+
+        // Remove namespace2/uri2 -- namespace2 should still exist because of namespace2/uri1
+        checkIsBatchResultSuccess(
+                mDb1.remove(new RemoveByUriRequest.Builder("namespace2").addUris("uri2").build()));
+        assertThat(mDb1.getNamespaces().get()).containsExactly(
+                "namespace1", "namespace2", "namespace3");
+
+        // Remove namespace2/uri1 -- namespace2 should now be gone
+        checkIsBatchResultSuccess(
+                mDb1.remove(new RemoveByUriRequest.Builder("namespace2").addUris("uri1").build()));
+        assertThat(mDb1.getNamespaces().get()).containsExactly("namespace1", "namespace3");
+
+        // Make sure the list of namespaces is preserved after restart
+        mDb1.close();
+        mDb1 = createSearchSession(DB_NAME_1).get();
+        assertThat(mDb1.getNamespaces().get()).containsExactly("namespace1", "namespace3");
+    }
+
+    @Test
+    public void testGetNamespaces_dbIsolation() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+        mDb2.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+        assertThat(mDb1.getNamespaces().get()).isEmpty();
+        assertThat(mDb2.getNamespaces().get()).isEmpty();
+
+        // Index documents
+        checkIsBatchResultSuccess(mDb1.put(new PutDocumentsRequest.Builder()
+                .addGenericDocuments(new AppSearchEmail.Builder("namespace1_db1", "uri1").build())
+                .build()));
+        checkIsBatchResultSuccess(mDb1.put(new PutDocumentsRequest.Builder()
+                .addGenericDocuments(new AppSearchEmail.Builder("namespace2_db1", "uri1").build())
+                .build()));
+        checkIsBatchResultSuccess(mDb2.put(new PutDocumentsRequest.Builder()
+                .addGenericDocuments(new AppSearchEmail.Builder("namespace_db2", "uri1").build())
+                .build()));
+        assertThat(mDb1.getNamespaces().get()).containsExactly("namespace1_db1", "namespace2_db1");
+        assertThat(mDb2.getNamespaces().get()).containsExactly("namespace_db2");
+
+        // Make sure the list of namespaces is preserved after restart
+        mDb1.close();
+        mDb1 = createSearchSession(DB_NAME_1).get();
+        assertThat(mDb1.getNamespaces().get()).containsExactly("namespace1_db1", "namespace2_db1");
+        assertThat(mDb2.getNamespaces().get()).containsExactly("namespace_db2");
+    }
+
+    @Test
     public void testPutDocuments() throws Exception {
         // Schema registration
         mDb1.setSchema(

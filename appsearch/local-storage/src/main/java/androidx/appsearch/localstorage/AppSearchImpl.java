@@ -438,6 +438,41 @@ public final class AppSearchImpl implements Closeable {
     }
 
     /**
+     * Retrieves the list of namespaces with at least one document for this package name, database.
+     *
+     * <p>This method belongs to query group.
+     *
+     * @param packageName  Package name that owns this schema
+     * @param databaseName The name of the database where this schema lives.
+     * @throws AppSearchException on IcingSearchEngine error.
+     */
+    @NonNull
+    public List<String> getNamespaces(
+            @NonNull String packageName, @NonNull String databaseName) throws AppSearchException {
+        mReadWriteLock.readLock().lock();
+        try {
+            throwIfClosedLocked();
+            // We can't just use mNamespaceMap here because we have no way to prune namespaces from
+            // mNamespaceMap when they have no more documents (e.g. after setting schema to empty or
+            // using deleteByQuery).
+            GetAllNamespacesResultProto getAllNamespacesResultProto =
+                    mIcingSearchEngineLocked.getAllNamespaces();
+            checkSuccess(getAllNamespacesResultProto.getStatus());
+            String prefix = createPrefix(packageName, databaseName);
+            List<String> results = new ArrayList<>();
+            for (int i = 0; i < getAllNamespacesResultProto.getNamespacesCount(); i++) {
+                String prefixedNamespace = getAllNamespacesResultProto.getNamespaces(i);
+                if (prefixedNamespace.startsWith(prefix)) {
+                    results.add(prefixedNamespace.substring(prefix.length()));
+                }
+            }
+            return results;
+        } finally {
+            mReadWriteLock.readLock().unlock();
+        }
+    }
+
+    /**
      * Adds a document to the AppSearch index.
      *
      * <p>This method belongs to mutate group.

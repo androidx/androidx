@@ -62,6 +62,14 @@ public interface AppSearchSession extends Closeable {
     ListenableFuture<Set<AppSearchSchema>> getSchema();
 
     /**
+     * Retrieves the set of all namespaces in the current database with at least one document.
+     *
+     * @return The pending result of performing this operation.
+     */
+    @NonNull
+    ListenableFuture<Set<String>> getNamespaces();
+
+    /**
      * Indexes documents into the {@link AppSearchSession} database.
      *
      * <p>Each {@link GenericDocument} object must have a {@code schemaType} field set to an
