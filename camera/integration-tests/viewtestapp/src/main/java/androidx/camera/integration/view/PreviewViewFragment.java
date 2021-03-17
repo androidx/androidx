@@ -93,6 +93,10 @@ public class PreviewViewFragment extends Fragment {
     @SuppressWarnings("WeakerAccess")
     Preview mPreview;
 
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    ProcessCameraProvider mCameraProvider;
+
     public PreviewViewFragment() {
         super(R.layout.fragment_preview_view);
     }
@@ -108,12 +112,19 @@ public class PreviewViewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mPreviewView = view.findViewById(R.id.preview_view);
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
-
+        mPreviewView.addOnLayoutChangeListener(
+                (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom)
+                        -> {
+                    if (mCameraProvider != null) {
+                        bindPreview(mCameraProvider);
+                    }
+                });
         mBlurBitmap = new BlurBitmap(requireContext());
         Futures.addCallback(mCameraProviderFuture, new FutureCallback<ProcessCameraProvider>() {
             @Override
             public void onSuccess(@Nullable ProcessCameraProvider cameraProvider) {
                 Preconditions.checkNotNull(cameraProvider);
+                mCameraProvider = cameraProvider;
                 mPreview = new Preview.Builder()
                         .setTargetRotation(view.getDisplay().getRotation())
                         .setTargetName("Preview")
