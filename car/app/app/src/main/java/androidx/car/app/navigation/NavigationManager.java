@@ -286,13 +286,16 @@ public class NavigationManager {
         }
         mIsNavigating = false;
 
-        NavigationManagerCallback callback = mNavigationManagerCallback;
-        Executor executor = mNavigationManagerCallbackExecutor;
-        if (callback == null || executor == null) {
+        if (mNavigationManagerCallbackExecutor == null) {
             return;
         }
 
-        executor.execute(callback::onStopNavigation);
+        mNavigationManagerCallbackExecutor.execute(() -> {
+            NavigationManagerCallback callback = mNavigationManagerCallback;
+            if (callback != null) {
+                callback.onStopNavigation();
+            }
+        });
     }
 
     /**

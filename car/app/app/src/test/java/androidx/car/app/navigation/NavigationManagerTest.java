@@ -74,12 +74,12 @@ public class NavigationManagerTest {
             new TravelEstimate.Builder(
                     Distance.create(/* displayDistance= */ 10, Distance.UNIT_KILOMETERS),
                     createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific"))
-            .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
+                    .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
     private final TravelEstimate mDestinationTravelEstimate =
             new TravelEstimate.Builder(
                     Distance.create(/* displayDistance= */ 100, Distance.UNIT_KILOMETERS),
                     createDateTimeWithZone("2020-04-14T16:57:00", "US/Pacific"))
-            .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
+                    .setRemainingTimeSeconds(TimeUnit.HOURS.toSeconds(1)).build();
     private static final String CURRENT_ROAD = "State St.";
     private final Trip mTrip =
             new Trip.Builder()
@@ -236,6 +236,40 @@ public class NavigationManagerTest {
     }
 
     @Test
+    public void onStopNavigation_asynchronousCallback_callsIt() throws RemoteException {
+        InOrder inOrder = inOrder(mMockNavHost, mNavigationListener);
+
+        AsynchronousExecutor executor = new AsynchronousExecutor();
+        mNavigationManager.setNavigationManagerCallback(executor,
+                mNavigationListener);
+        mNavigationManager.navigationStarted();
+        inOrder.verify(mMockNavHost).navigationStarted();
+
+        mNavigationManager.onStopNavigation();
+        executor.run();
+
+        inOrder.verify(mNavigationListener).onStopNavigation();
+    }
+
+    @Test
+    public void onStopNavigation_asynchronousCallbackClearedBeforeExecution_doesNotCallIt()
+            throws RemoteException {
+        InOrder inOrder = inOrder(mMockNavHost, mNavigationListener);
+
+        AsynchronousExecutor executor = new AsynchronousExecutor();
+        mNavigationManager.setNavigationManagerCallback(executor,
+                mNavigationListener);
+        mNavigationManager.navigationStarted();
+        inOrder.verify(mMockNavHost).navigationStarted();
+
+        mNavigationManager.onStopNavigation();
+        mNavigationManager.clearNavigationManagerCallback();
+        executor.run();
+
+        inOrder.verify(mNavigationListener, never()).onStopNavigation();
+    }
+
+    @Test
     public void onAutoDriveEnabled_callsListener() {
         mNavigationManager.setNavigationManagerCallback(new SynchronousExecutor(),
                 mNavigationListener);
@@ -257,6 +291,21 @@ public class NavigationManagerTest {
         @Override
         public void execute(Runnable r) {
             r.run();
+        }
+    }
+
+    static class AsynchronousExecutor implements Executor {
+        private Runnable mToRun;
+
+        @Override
+        public void execute(Runnable r) {
+            mToRun = r;
+        }
+
+        void run() {
+            if (mToRun != null) {
+                mToRun.run();
+            }
         }
     }
 
