@@ -60,4 +60,16 @@ public class ShortcutUtilsTest {
         String expectedShortcutUrl = "http://www.google.com";
         assertThat(shortcutUrl).isEqualTo(expectedShortcutUrl);
     }
+
+    @Test
+    @SmallTest
+    public void testIsAppActionCapability_returnsTrue() {
+        assertThat(ShortcutUtils.isAppActionCapability("actions.intent.ORDER_MENU_ITEM")).isTrue();
+    }
+
+    @Test
+    @SmallTest
+    public void testIsAppActionCapability_returnsFalse() {
+        assertThat(ShortcutUtils.isAppActionCapability("ORDER_MENU_ITEM")).isFalse();
+    }
 }
