@@ -20,6 +20,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Outputs
+import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.macro.perfetto.PerfettoCapture
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -51,7 +52,9 @@ class PerfettoRule : TestRule {
     override fun apply(base: Statement, description: Description) = object : Statement() {
         override fun evaluate() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val traceName = "${description.className}_${description.methodName}.perfetto-trace"
+                val prefix = "${description.className}_${description.methodName}"
+                val suffix = dateToFileName()
+                val traceName = "${prefix}_$suffix.perfetto-trace"
                 PerfettoCapture().recordAndReportFile(traceName) {
                     base.evaluate()
                 }

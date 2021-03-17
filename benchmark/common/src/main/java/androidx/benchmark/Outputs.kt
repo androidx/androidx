@@ -23,12 +23,17 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.TimeZone
 
 /**
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object Outputs {
+
+    private val formatter: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
 
     /**
      * The intended output directory that respects the `additionalTestOutputDir`.
@@ -42,6 +47,9 @@ public object Outputs {
     public val dirUsableByAppAndShell: File
 
     init {
+        // Be explicit about the TimeZone for stable formatting
+        formatter.timeZone = TimeZone.getTimeZone("UTC")
+
         @SuppressLint("UnsafeNewApiCall", "NewApi")
         @Suppress("DEPRECATION")
         dirUsableByAppAndShell = when (Build.VERSION.SDK_INT) {
@@ -123,6 +131,10 @@ public object Outputs {
 
     public fun testOutputFile(filename: String): File {
         return File(outputDirectory, filename)
+    }
+
+    public fun dateToFileName(date: Date = Date()): String {
+        return formatter.format(date)
     }
 
     public fun relativePathFor(path: String): String {

@@ -23,6 +23,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
+import java.util.Date
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
@@ -53,6 +54,13 @@ public class OutputsTest {
     @SdkSuppress(minSdkVersion = 30, maxSdkVersion = 30)
     public fun testRelativePaths_usesDirectoryUsableByAppAndShell() {
         assertRelativePaths(Outputs.dirUsableByAppAndShell, outputs)
+    }
+
+    @Test
+    public fun testDateToFileName() {
+        val date = Date(0)
+        val expected = "1970-01-01-00-00-00"
+        assertEquals(Outputs.dateToFileName(date), expected)
     }
 
     private fun assertRelativePaths(base: File, paths: List<String>) {
