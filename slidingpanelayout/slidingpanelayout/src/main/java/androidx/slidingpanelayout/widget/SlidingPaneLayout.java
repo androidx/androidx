@@ -60,6 +60,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
 /**
@@ -159,7 +161,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     private float mInitialMotionX;
     private float mInitialMotionY;
 
-    private PanelSlideListener mPanelSlideListener;
+    private final List<PanelSlideListener> mPanelSlideListeners = new CopyOnWriteArrayList<>();
+    private @Nullable PanelSlideListener mPanelSlideListener;
 
     final ViewDragHelper mDragHelper;
 
@@ -260,15 +263,15 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      */
     public static class SimplePanelSlideListener implements PanelSlideListener {
         @Override
-        public void onPanelSlide(View panel, float slideOffset) {
+        public void onPanelSlide(@NonNull View panel, float slideOffset) {
         }
 
         @Override
-        public void onPanelOpened(View panel) {
+        public void onPanelOpened(@NonNull View panel) {
         }
 
         @Override
-        public void onPanelClosed(View panel) {
+        public void onPanelClosed(@NonNull View panel) {
         }
     }
 
@@ -379,26 +382,70 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         return 0;
     }
 
+    /**
+     * Set a listener to be notified of panel slide events. Note that this method is deprecated
+     * and you should use {@link #addPanelSlideListener(PanelSlideListener)} to add a listener and
+     * {@link #removePanelSlideListener(PanelSlideListener)} to remove a registered listener.
+     *
+     * @param listener Listener to notify when drawer events occur
+     * @deprecated Use {@link #addPanelSlideListener(PanelSlideListener)}
+     * @see PanelSlideListener
+     * @see #addPanelSlideListener(PanelSlideListener)
+     * @see #removePanelSlideListener(PanelSlideListener)
+     */
+    @Deprecated
     public void setPanelSlideListener(@Nullable PanelSlideListener listener) {
+        // The logic in this method emulates what we had before support for multiple
+        // registered listeners.
+        if (mPanelSlideListener != null) {
+            removePanelSlideListener(mPanelSlideListener);
+        }
+        if (listener != null) {
+            addPanelSlideListener(listener);
+        }
+        // Update the deprecated field so that we can remove the passed listener the next
+        // time we're called
         mPanelSlideListener = listener;
     }
 
-    void dispatchOnPanelSlide(View panel) {
-        if (mPanelSlideListener != null) {
-            mPanelSlideListener.onPanelSlide(panel, mSlideOffset);
+    /**
+     * Adds the specified listener to the list of listeners that will be notified of
+     * panel slide events.
+     *
+     * @param listener Listener to notify when panel slide events occur.
+     * @see #removePanelSlideListener(PanelSlideListener)
+     */
+    public void addPanelSlideListener(@NonNull PanelSlideListener listener) {
+        mPanelSlideListeners.add(listener);
+    }
+
+    /**
+     * Removes the specified listener from the list of listeners that will be notified of
+     * panel slide events.
+     *
+     * @param listener Listener to remove from being notified of panel slide events
+     * @see #addPanelSlideListener(PanelSlideListener)
+     */
+    public void removePanelSlideListener(@NonNull PanelSlideListener listener) {
+        mPanelSlideListeners.remove(listener);
+    }
+
+    void dispatchOnPanelSlide(@NonNull View panel) {
+        for (PanelSlideListener listener : mPanelSlideListeners) {
+            listener.onPanelSlide(panel, mSlideOffset);
         }
     }
 
-    void dispatchOnPanelOpened(View panel) {
-        if (mPanelSlideListener != null) {
-            mPanelSlideListener.onPanelOpened(panel);
+    void dispatchOnPanelOpened(@NonNull View panel) {
+        for (PanelSlideListener listener : mPanelSlideListeners) {
+            listener.onPanelOpened(panel);
         }
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }
 
-    void dispatchOnPanelClosed(View panel) {
-        if (mPanelSlideListener != null) {
-            mPanelSlideListener.onPanelClosed(panel);
+    void dispatchOnPanelClosed(@NonNull View panel) {
+        for (PanelSlideListener listener : mPanelSlideListeners) {
+            listener.onPanelClosed(panel);
         }
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
     }

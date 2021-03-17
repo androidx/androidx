@@ -36,9 +36,12 @@ public inline fun <reified A : Activity> ActivityScenario<A>.addWaitForOpenLatch
     val latch = CountDownLatch(1)
     withActivity {
         val slidingPaneLayout = findViewById<SlidingPaneLayout>(resId)
-        slidingPaneLayout.setPanelSlideListener(object : SlidingPaneLayout.PanelSlideListener {
+        slidingPaneLayout.addPanelSlideListener(object : SlidingPaneLayout.PanelSlideListener {
             override fun onPanelSlide(panel: View, slideOffset: Float) {}
-            override fun onPanelOpened(panel: View) = latch.countDown()
+            override fun onPanelOpened(panel: View) {
+                latch.countDown()
+                slidingPaneLayout.removePanelSlideListener(this)
+            }
             override fun onPanelClosed(panel: View) {}
         })
     }
