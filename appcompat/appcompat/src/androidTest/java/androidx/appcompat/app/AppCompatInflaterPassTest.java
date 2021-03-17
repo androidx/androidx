@@ -15,8 +15,11 @@
  */
 package androidx.appcompat.app;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 
@@ -28,7 +31,9 @@ import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.AppCompatToggleButton;
+import androidx.core.view.ViewCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 
@@ -98,4 +103,21 @@ public abstract class AppCompatInflaterPassTest<A extends BaseTestActivity> {
                 mContainer.findViewById(R.id.scrollview).getClass());
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testBackportAccessibilityAttributes() {
+        View view = mContainer.findViewById(R.id.accessibility_heading_view);
+        assertThat(ViewCompat.isAccessibilityHeading(view)).isTrue();
+
+        view = mContainer.findViewById(R.id.accessibility_pane_view);
+        assertThat(ViewCompat.getAccessibilityPaneTitle(view)).isEqualTo("Pane");
+
+        view = mContainer.findViewById(R.id.screen_reader_focusable_view);
+        assertThat(ViewCompat.isScreenReaderFocusable(view)).isTrue();
+
+        view = mContainer.findViewById(R.id.not_accessible_view);
+        assertThat(ViewCompat.isAccessibilityHeading(view)).isFalse();
+        assertThat(ViewCompat.getAccessibilityPaneTitle(view)).isNull();
+        assertThat(ViewCompat.isScreenReaderFocusable(view)).isFalse();
+    }
 }
