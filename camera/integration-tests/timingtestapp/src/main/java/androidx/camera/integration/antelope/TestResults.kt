@@ -18,17 +18,23 @@
 
 package androidx.camera.integration.antelope
 
+import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
+import androidx.camera.integration.antelope.MainActivity.Companion.LOG_DIR
+import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import com.google.common.math.Quantiles
 import com.google.common.math.Stats
-import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -275,13 +281,24 @@ class TestResults {
  * @param csv The comma-based csv string
  */
 fun writeCSV(activity: MainActivity, filePrefix: String, csv: String) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        writeCSVAfterQ(activity, filePrefix, csv)
+    } else {
+        writeCSVBeforeQ(activity, filePrefix, csv)
+    }
+}
 
+/**
+* Original writeFile implementation. It is workable on Pie and Pei lower for
+* Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+*/
+fun writeCSVBeforeQ(activity: MainActivity, prefix: String, csv: String) {
     val csvFile = File(
         Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_DOCUMENTS
         ),
         File.separatorChar + MainActivity.LOG_DIR + File.separatorChar +
-            filePrefix + "_" + generateCSVTimestamp() + ".csv"
+            prefix + "_" + generateCSVTimestamp() + ".csv"
     )
 
     val csvDir = File(
@@ -345,13 +362,61 @@ fun writeCSV(activity: MainActivity, filePrefix: String, csv: String) {
         scannerIntent.data = Uri.fromFile(csvFile)
         activity.sendBroadcast(scannerIntent)
     } catch (e: IOException) {
-        logd("IOException vail on CSV write: " + e.printStackTrace())
+        logd("IOException Fail on CSV write: " + e.printStackTrace())
     } finally {
         try {
             output.close()
         } catch (e: IOException) {
-            logd("IOException vail on CSV close: " + e.printStackTrace())
+            logd("IOException Fail on CSV close: " + e.printStackTrace())
             e.printStackTrace()
+        }
+    }
+}
+
+/**
+ * After Q, change to use MediaStore to access the shared media files.
+ * https://developer.android.com/training/data-storage/shared
+ *
+ * @param activity The main activity
+ * @param prefix The prefix for the .csv file
+ * @param csv The comma-based csv string
+ */
+fun writeCSVAfterQ(activity: MainActivity, prefix: String, csv: String) {
+    var output: OutputStream?
+    var csvUri: Uri?
+    val resolver: ContentResolver = activity.contentResolver
+
+    val relativePath = Environment.DIRECTORY_DOCUMENTS + File.separatorChar + LOG_DIR
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, prefix + "_" + generateCSVTimestamp() + ".csv")
+        put(MediaStore.MediaColumns.MIME_TYPE, "text/comma-separated-values")
+        put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
+    }
+
+    csvUri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
+    if (csvUri != null) {
+        lateinit var bufferWriter: BufferedWriter
+        try {
+            output = activity.contentResolver.openOutputStream(csvUri)
+            bufferWriter = BufferedWriter(OutputStreamWriter(output))
+            bufferWriter.write(csv)
+            logd("CSV write completed successfully.")
+        } catch (e: IOException) {
+            logd("IOException Fail on CSV write: " + e.printStackTrace())
+        } finally {
+            try {
+                bufferWriter.close()
+            } catch (e: IOException) {
+                logd("IOException Fail on CSV close: " + e.printStackTrace())
+                e.printStackTrace()
+            }
+        }
+    } else {
+        activity.runOnUiThread {
+            Toast.makeText(
+                activity, "CSV log file creation failed.",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }
@@ -442,7 +507,7 @@ fun outputBooleanResultLine(
 ): String {
     var output = ""
 
-    // If every result is false, don't output this line at all
+// If every result is false, don't output this line at all
     if (!results.isEmpty() && results.contains(true)) {
         output += name + ": "
         for ((index, result) in results.withIndex()) {

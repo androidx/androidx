@@ -18,6 +18,8 @@
 
 package androidx.camera.integration.antelope
 
+import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
@@ -26,6 +28,7 @@ import android.media.ImageReader
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
@@ -183,6 +186,18 @@ fun generateTimestamp(): String {
  * Actually write a byteArray file to disk. Assume the file is a jpg and use that extension
  */
 fun writeFile(activity: MainActivity, bytes: ByteArray) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        writeFileAfterQ(activity, bytes)
+    } else {
+        writeFileBeforeQ(activity, bytes)
+    }
+}
+
+/**
+ * Original writeFile implementation. It is workable on Pie and Pei lower for
+ * Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+ */
+fun writeFileBeforeQ(activity: MainActivity, bytes: ByteArray) {
     val jpgFile = File(
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
         File.separatorChar + PHOTOS_DIR + File.separatorChar +
@@ -237,6 +252,54 @@ fun writeFile(activity: MainActivity, bytes: ByteArray) {
         }
     }
     logd("writeFile: Completed.")
+}
+
+/**
+ * After Q, change to use MediaStore to access the shared media files.
+ * https://developer.android.com/training/data-storage/shared
+ */
+fun writeFileAfterQ(activity: MainActivity, bytes: ByteArray) {
+    var imageUri: Uri?
+    val resolver: ContentResolver = activity.contentResolver
+
+    val relativeLocation = Environment.DIRECTORY_DCIM + File.separatorChar + PHOTOS_DIR
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, generateTimestamp().toString() + ".jpg")
+        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+        put(MediaStore.MediaColumns.RELATIVE_PATH, relativeLocation)
+    }
+
+    imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+    if (imageUri != null) {
+        val output = activity.contentResolver.openOutputStream(imageUri)
+        try {
+            output?.write(bytes)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            if (null != output) {
+                try {
+                    output.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+        logd("writeFile: Completed.")
+        if (PrefHelper.getAutoDelete(activity)) {
+            val result = resolver.delete(imageUri, null, null)
+            if (result > 0) {
+                logd("Delete image $imageUri completed.")
+            }
+        }
+    } else {
+        activity.runOnUiThread {
+            Toast.makeText(
+                activity, "Image file creation failed.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 }
 
 /**
