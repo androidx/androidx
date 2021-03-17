@@ -53,9 +53,8 @@ class RoomKspProcessor : SymbolProcessor {
             logger
         )
 
-        DatabaseProcessingStep().executeInKsp(
+        return DatabaseProcessingStep().executeInKsp(
             processingEnv
         )
-        return emptyList()
     }
 }
