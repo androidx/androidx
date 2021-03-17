@@ -26,8 +26,8 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
-import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.PROPERTY_GETTER
-import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.PROPERTY_SETTER
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_GETTER
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_SETTER
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.PROPERTY_SETTER_PARAMETER
 import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.ksp.KspHasModifiers
@@ -107,11 +107,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         XAnnotated by KspAnnotated.create(
             env = env,
             delegate = field.declaration.getter,
-            filter = NO_USE_SITE
-        ) + KspAnnotated.create(
-            env = env,
-            delegate = field.declaration,
-            filter = PROPERTY_GETTER
+            filter = NO_USE_SITE_OR_GETTER
         ) {
         override val equalityItems: Array<out Any?> by lazy {
             arrayOf(field, "getter")
@@ -120,9 +116,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
         @OptIn(KspExperimental::class)
         override val name: String by lazy {
             field.declaration.getter?.let {
-                return@lazy env.resolver.getJvmName(it)
-            }
-            computeGetterName(field.name)
+                env.resolver.getJvmName(it)
+            } ?: computeGetterName(field.name)
         }
 
         override val returnType: XType by lazy {
@@ -167,11 +162,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         XAnnotated by KspAnnotated.create(
             env = env,
             delegate = field.declaration.setter,
-            filter = NO_USE_SITE
-        ) + KspAnnotated.create(
-            env = env,
-            delegate = field.declaration,
-            filter = PROPERTY_SETTER
+            filter = NO_USE_SITE_OR_SETTER
         ) {
         override val equalityItems: Array<out Any?> by lazy {
             arrayOf(field, "setter")
@@ -180,9 +171,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
         @OptIn(KspExperimental::class)
         override val name: String by lazy {
             field.declaration.setter?.let {
-                return@lazy env.resolver.getJvmName(it)
-            }
-            computeSetterName(field.name)
+                env.resolver.getJvmName(it)
+            } ?: computeSetterName(field.name)
         }
 
         override val returnType: XType by lazy {

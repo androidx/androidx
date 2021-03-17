@@ -61,7 +61,10 @@ internal fun KSDeclaration.typeName(resolver: Resolver): TypeName {
     // TODO: https://issuetracker.google.com/issues/168639183
     val qualified = qualifiedName?.asString() ?: return ERROR_TYPE_NAME
     val jvmSignature = resolver.mapToJvmSignature(this)
-    if (jvmSignature.isNotBlank()) {
+    // https://github.com/google/ksp/commit/964e6f87a55e8ac159dbc37b4a70fc07a0b02e34
+    // jvmSignature will be nullable in alpha06
+    @Suppress("SENSELESS_COMPARISON")
+    if (jvmSignature != null && jvmSignature.isNotBlank()) {
         return jvmSignature.typeNameFromJvmSignature()
     }
     if (this is KSTypeParameter) {
