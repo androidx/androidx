@@ -17,6 +17,7 @@
 package androidx.appsearch.app.cts;
 
 import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
+import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;
 import static androidx.appsearch.app.util.AppSearchTestUtils.doGet;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -30,6 +31,8 @@ import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PutDocumentsRequest;
+import androidx.appsearch.app.SearchResults;
+import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 
@@ -39,6 +42,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /*
@@ -999,5 +1004,391 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .build();
         assertThat(doGet(mDb, "namespace", "adult-uri"))
                 .containsExactly(expectedInAdult);
+    }
+
+    @Test
+    public void testSchemaMigration_loadTest() throws Exception {
+        // set the two source type A & B to AppSearch
+        AppSearchSchema sourceSchemaA = new AppSearchSchema.Builder("schemaA")
+                .addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("num")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .build())
+                .build();
+        AppSearchSchema sourceSchemaB = new AppSearchSchema.Builder("schemaB")
+                .addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("num")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .build())
+                .build();
+        mDb.setSchema(new SetSchemaRequest.Builder()
+                .addSchemas(sourceSchemaA, sourceSchemaB).setForceOverride(true).build()).get();
+
+        // save 100 docs to each type
+        PutDocumentsRequest.Builder putRequestBuilder = new PutDocumentsRequest.Builder();
+        for (int i = 0; i < 100; i++) {
+            GenericDocument docInA = new GenericDocument.Builder<>(
+                    "namespace", "uriA-" + i, "schemaA")
+                    .setPropertyLong("num", i)
+                    .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
+            GenericDocument docInB = new GenericDocument.Builder<>(
+                    "namespace", "uriB-" + i, "schemaB")
+                    .setPropertyLong("num", i)
+                    .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
+            putRequestBuilder.addGenericDocuments(docInA, docInB);
+        }
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+                putRequestBuilder.build()));
+        assertThat(result.getFailures()).isEmpty();
+
+        // create three destination types B, C & D
+        AppSearchSchema destinationSchemaB = new AppSearchSchema.Builder("schemaB")
+                .addProperty(
+                        new AppSearchSchema.Int64PropertyConfig.Builder("numNewProperty")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .build())
+                .build();
+        AppSearchSchema destinationSchemaC = new AppSearchSchema.Builder("schemaC")
+                .addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("num")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .build())
+                .build();
+        AppSearchSchema destinationSchemaD = new AppSearchSchema.Builder("schemaD")
+                .addProperty(new AppSearchSchema.Int64PropertyConfig.Builder("num")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .build())
+                .build();
+
+        // Create an active migrator for type A which will migrate first 50 docs to C and second
+        // 50 docs to D
+        Migrator migratorA = new Migrator() {
+            @Override
+            public boolean shouldMigrate(int currentVersion, int finalVersion) {
+                return true;
+            }
+
+            @NonNull
+            @Override
+            public GenericDocument onUpgrade(int currentVersion, int finalVersion,
+                    @NonNull GenericDocument document) {
+                if (document.getPropertyLong("num") < 50) {
+                    return new GenericDocument.Builder<>("namespace",
+                            document.getUri() + "-destC", "schemaC")
+                            .setPropertyLong("num", document.getPropertyLong("num"))
+                            .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
+                            .build();
+                } else {
+                    return new GenericDocument.Builder<>("namespace",
+                            document.getUri() + "-destD", "schemaD")
+                            .setPropertyLong("num", document.getPropertyLong("num"))
+                            .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
+                            .build();
+                }
+            }
+
+            @NonNull
+            @Override
+            public GenericDocument onDowngrade(int currentVersion, int finalVersion,
+                    @NonNull GenericDocument document) {
+                return document;
+            }
+        };
+
+        // Create an active migrator for type B which will migrate first 50 docs to B and second
+        // 50 docs to D
+        Migrator migratorB = new Migrator() {
+            @Override
+            public boolean shouldMigrate(int currentVersion, int finalVersion) {
+                return true;
+            }
+
+            @NonNull
+            @Override
+            public GenericDocument onUpgrade(int currentVersion, int finalVersion,
+                    @NonNull GenericDocument document) {
+                if (document.getPropertyLong("num") < 50) {
+                    return new GenericDocument.Builder<>("namespace",
+                            document.getUri() + "-destB", "schemaB")
+                            .setPropertyLong("numNewProperty",
+                                    document.getPropertyLong("num"))
+                            .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
+                            .build();
+                } else {
+                    return new GenericDocument.Builder<>("namespace",
+                            document.getUri() + "-destD", "schemaD")
+                            .setPropertyLong("num", document.getPropertyLong("num"))
+                            .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
+                            .build();
+                }
+            }
+
+            @NonNull
+            @Override
+            public GenericDocument onDowngrade(int currentVersion, int finalVersion,
+                    @NonNull GenericDocument document) {
+                return document;
+            }
+        };
+
+        // SetSchema with forceOverride=false and increase overall version
+        SetSchemaResponse setSchemaResponse = mDb.setSchema(new SetSchemaRequest.Builder()
+                .addSchemas(destinationSchemaB, destinationSchemaC, destinationSchemaD)
+                .setMigrator("schemaA", migratorA)
+                .setMigrator("schemaB", migratorB)
+                .setForceOverride(false)
+                .setVersion(2)    // upgrade version
+                .build()).get();
+        assertThat(setSchemaResponse.getDeletedTypes())
+                .containsExactly("schemaA");
+        assertThat(setSchemaResponse.getIncompatibleTypes()).containsExactly("schemaB");
+        assertThat(setSchemaResponse.getMigratedTypes())
+                .containsExactly("schemaA", "schemaB");
+
+        // generate expected documents
+        List<GenericDocument> expectedDocs = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            GenericDocument docAToC = new GenericDocument.Builder<>(
+                    "namespace", "uriA-" + i + "-destC", "schemaC")
+                    .setPropertyLong("num", i)
+                    .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
+            GenericDocument docBToB = new GenericDocument.Builder<>(
+                    "namespace", "uriB-" + i + "-destB", "schemaB")
+                    .setPropertyLong("numNewProperty", i)
+                    .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
+            expectedDocs.add(docAToC);
+            expectedDocs.add(docBToB);
+        }
+
+        for (int i = 50; i < 100; i++) {
+            GenericDocument docAToD = new GenericDocument.Builder<>(
+                    "namespace", "uriA-" + i + "-destD", "schemaD")
+                    .setPropertyLong("num", i)
+                    .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
+            GenericDocument docBToD = new GenericDocument.Builder<>(
+                    "namespace", "uriB-" + i + "-destD", "schemaD")
+                    .setPropertyLong("num", i)
+                    .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
+            expectedDocs.add(docAToD);
+            expectedDocs.add(docBToD);
+        }
+        //query all documents and compare
+        SearchResults searchResults = mDb.search("", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactlyElementsIn(expectedDocs);
+    }
+
+    //*************************** Multi-step migration tests   ******************************
+    // Version structure and how version bumps:
+    // Version 1: Start - typeA docs contains "subject" property.
+    // Version 2: typeA docs get new "body" property, contains "subject" and "body" now.
+    // Version 3: typeA docs is migrated to typeB, typeA docs got removed, typeB doc contains
+    //            "subject" and "body" property.
+    // Version 4: typeB docs remove "subject" property, contains only "body" now.
+
+    // Create a multi-step migrator for A, which could migrate version 1-3 to 4.
+    private static final Migrator MULTI_STEP_MIGRATOR_A = new Migrator() {
+        @Override
+        public boolean shouldMigrate(int currentVersion, int finalVersion) {
+            return currentVersion < 3;
+        }
+
+        @NonNull
+        @Override
+        public GenericDocument onUpgrade(int currentVersion, int finalVersion,
+                @NonNull GenericDocument document) {
+            GenericDocument.Builder docBuilder =
+                    new GenericDocument.Builder<>("namespace", "uri", "TypeB")
+                            .setCreationTimestampMillis(DOCUMENT_CREATION_TIME);
+            if (currentVersion == 2) {
+                docBuilder.setPropertyString("body", document.getPropertyString("body"));
+            } else {
+                docBuilder.setPropertyString("body",
+                        "new content for the newly added 'body' property");
+            }
+            return docBuilder.build();
+        }
+
+        @NonNull
+        @Override
+        public GenericDocument onDowngrade(int currentVersion, int finalVersion,
+                @NonNull GenericDocument document) {
+            return document;
+        }
+    };
+
+    // create a multi-step migrator for B, which could migrate version 1-3 to 4.
+    private static final Migrator MULTI_STEP_MIGRATOR_B = new Migrator() {
+        @Override
+        public boolean shouldMigrate(int currentVersion, int finalVersion) {
+            return currentVersion == 3;
+        }
+
+        @NonNull
+        @Override
+        public GenericDocument onUpgrade(int currentVersion, int finalVersion,
+                @NonNull GenericDocument document) {
+            return new GenericDocument.Builder<>("namespace", "uri", "TypeB")
+                    .setPropertyString("body", document.getPropertyString("body"))
+                    .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
+                    .build();
+        }
+
+        @NonNull
+        @Override
+        public GenericDocument onDowngrade(int currentVersion, int finalVersion,
+                @NonNull GenericDocument document) {
+            return document;
+        }
+    };
+
+    // create a setSchemaRequest, which could migrate version 1-3 to 4.
+    private static final SetSchemaRequest MULTI_STEP_REQUEST = new SetSchemaRequest.Builder()
+            .addSchemas(new AppSearchSchema.Builder("TypeB")
+                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                            .setIndexingType(
+                                    AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                            .setTokenizerType(
+                                    AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                            .build())
+                    .build())
+            .setMigrator("TypeA", MULTI_STEP_MIGRATOR_A)
+            .setMigrator("TypeB", MULTI_STEP_MIGRATOR_B)
+            .setVersion(4)
+            .build();
+
+    @Test
+    public void testSchemaMigration_multiStep1To4() throws Exception {
+        // set version 1 to the database, only contain TypeA
+        AppSearchSchema typeA = new AppSearchSchema.Builder("TypeA")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        mDb.setSchema(new SetSchemaRequest.Builder()
+                .addSchemas(typeA).setForceOverride(true).setVersion(1).build()).get();
+
+        // save a doc to version 1.
+        GenericDocument doc = new GenericDocument.Builder<>(
+                "namespace", "uri", "TypeA")
+                .setPropertyString("subject", "subject")
+                .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
+        assertThat(result.getSuccesses()).containsExactly("uri", null);
+        assertThat(result.getFailures()).isEmpty();
+
+        // update to version 4.
+        SetSchemaResponse setSchemaResponse = mDb.setSchema(MULTI_STEP_REQUEST).get();
+        assertThat(setSchemaResponse.getDeletedTypes()).containsExactly("TypeA");
+        assertThat(setSchemaResponse.getIncompatibleTypes()).isEmpty();
+        assertThat(setSchemaResponse.getMigratedTypes()).containsExactly("TypeA");
+
+        // Create expected doc. Since we started at version 1 and migrated to version 4:
+        // 1: A 'body' property should have been added with "new content for the newly added 'body'
+        //    property"
+        // 2: The type should have been changed from 'TypeA' to 'TypeB'
+        // 3: The 'subject' property should have been removed
+        GenericDocument expected = new GenericDocument.Builder<>(
+                "namespace", "uri", "TypeB")
+                .setPropertyString("body", "new content for the newly added 'body' property")
+                .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
+                .build();
+        assertThat(doGet(mDb, "namespace", "uri")).containsExactly(expected);
+    }
+
+    @Test
+    public void testSchemaMigration_multiStep2To4() throws Exception {
+        // set version 2 to the database, only contain TypeA with a new property
+        AppSearchSchema typeA = new AppSearchSchema.Builder("TypeA")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        mDb.setSchema(new SetSchemaRequest.Builder()
+                .addSchemas(typeA).setForceOverride(true).setVersion(2).build()).get();
+
+        // save a doc to version 2.
+        GenericDocument doc = new GenericDocument.Builder<>(
+                "namespace", "uri", "TypeA")
+                .setPropertyString("subject", "subject")
+                .setPropertyString("body", "bodyFromA")
+                .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
+        assertThat(result.getSuccesses()).containsExactly("uri", null);
+        assertThat(result.getFailures()).isEmpty();
+
+        // update to version 4.
+        SetSchemaResponse setSchemaResponse = mDb.setSchema(MULTI_STEP_REQUEST).get();
+        assertThat(setSchemaResponse.getDeletedTypes()).containsExactly("TypeA");
+        assertThat(setSchemaResponse.getIncompatibleTypes()).isEmpty();
+        assertThat(setSchemaResponse.getMigratedTypes()).containsExactly("TypeA");
+
+        // create expected doc, body exists in type A of version 2
+        GenericDocument expected = new GenericDocument.Builder<>(
+                "namespace", "uri", "TypeB")
+                .setPropertyString("body", "bodyFromA")
+                .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
+                .build();
+        assertThat(doGet(mDb, "namespace", "uri")).containsExactly(expected);
+    }
+
+    @Test
+    public void testSchemaMigration_multiStep3To4() throws Exception {
+        // set version 3 to the database, only contain TypeB
+        AppSearchSchema typeA = new AppSearchSchema.Builder("TypeB")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        mDb.setSchema(new SetSchemaRequest.Builder()
+                .addSchemas(typeA).setForceOverride(true).setVersion(3).build()).get();
+
+        // save a doc to version 2.
+        GenericDocument doc = new GenericDocument.Builder<>(
+                "namespace", "uri", "TypeB")
+                .setPropertyString("subject", "subject")
+                .setPropertyString("body", "bodyFromB")
+                .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
+        assertThat(result.getSuccesses()).containsExactly("uri", null);
+        assertThat(result.getFailures()).isEmpty();
+
+        // update to version 4.
+        SetSchemaResponse setSchemaResponse = mDb.setSchema(MULTI_STEP_REQUEST).get();
+        assertThat(setSchemaResponse.getDeletedTypes()).isEmpty();
+        assertThat(setSchemaResponse.getIncompatibleTypes()).containsExactly("TypeB");
+        assertThat(setSchemaResponse.getMigratedTypes()).containsExactly("TypeB");
+
+        // create expected doc, body exists in type A of version 3
+        GenericDocument expected = new GenericDocument.Builder<>(
+                "namespace", "uri", "TypeB")
+                .setPropertyString("body", "bodyFromB")
+                .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
+                .build();
+        assertThat(doGet(mDb, "namespace", "uri")).containsExactly(expected);
     }
 }

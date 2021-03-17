@@ -43,6 +43,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -90,8 +91,8 @@ class AppSearchMigrationHelper implements Closeable {
      * @throws AppSearchException on AppSearch problem
      */
     @WorkerThread
-    public void queryAndTransform(@NonNull String schemaType, @NonNull Migrator migrator,
-            int currentVersion, int finalVersion)
+    public void queryAndTransform(@NonNull Map<String, Migrator> migrators, int currentVersion,
+            int finalVersion)
             throws IOException, AppSearchException {
         Preconditions.checkState(mFile.exists(), "Internal temp file does not exist.");
         try (FileOutputStream outputStream = new FileOutputStream(mFile, /*append=*/ true)) {
@@ -100,13 +101,14 @@ class AppSearchMigrationHelper implements Closeable {
             SearchResultPage searchResultPage = mAppSearchImpl.query(mPackageName, mDatabaseName,
                     /*queryExpression=*/"",
                     new SearchSpec.Builder()
-                            .addFilterSchemas(schemaType)
+                            .addFilterSchemas(migrators.keySet())
                             .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                             .build());
             while (!searchResultPage.getResults().isEmpty()) {
                 for (int i = 0; i < searchResultPage.getResults().size(); i++) {
                     GenericDocument document =
                             searchResultPage.getResults().get(i).getGenericDocument();
+                    Migrator migrator = migrators.get(document.getSchemaType());
                     GenericDocument newDocument;
                     if (currentVersion < finalVersion) {
                         newDocument = migrator.onUpgrade(currentVersion, finalVersion, document);

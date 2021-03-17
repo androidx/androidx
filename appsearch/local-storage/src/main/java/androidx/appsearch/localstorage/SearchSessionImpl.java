@@ -144,13 +144,7 @@ class SearchSessionImpl implements AppSearchSession {
             try (AppSearchMigrationHelper migrationHelper = new AppSearchMigrationHelper(
                     mAppSearchImpl, mPackageName, mDatabaseName, request.getSchemas())) {
                 // 4. Trigger migration for all activity migrators.
-                // TODO(b/177266929) trigger migration for all types together rather than
-                //  separately.
-                for (Map.Entry<String, Migrator> entry : activeMigrators.entrySet()) {
-                    migrationHelper.queryAndTransform(/*schemaType=*/ entry.getKey(),
-                            /*migrator=*/ entry.getValue(), currentVersion,
-                            finalVersion);
-                }
+                migrationHelper.queryAndTransform(activeMigrators, currentVersion, finalVersion);
 
                 // 5. SetSchema a second time with forceOverride=true if the first attempted failed
                 // due to backward incompatible changes.
