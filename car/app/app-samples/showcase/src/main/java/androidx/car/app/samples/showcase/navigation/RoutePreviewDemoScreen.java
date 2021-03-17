@@ -21,10 +21,13 @@ import static androidx.car.app.CarToast.LENGTH_LONG;
 import android.text.SpannableString;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.CarText;
 import androidx.car.app.model.DurationSpan;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Row;
@@ -39,15 +42,29 @@ public final class RoutePreviewDemoScreen extends Screen {
         super(carContext);
     }
 
+    @OptIn(markerClass = ExperimentalCarApi.class)
     @NonNull
     @Override
     public Template onGetTemplate() {
-        SpannableString firstRoute = new SpannableString("   \u00b7 Shortest route");
-        firstRoute.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(26)), 0, 1, 0);
+        // Set text variants for the first route.
+        SpannableString firstRouteLongText = new SpannableString(
+                "   \u00b7 ---------------- Short" + "  " + "route " + "-------------------");
+        firstRouteLongText.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(26)), 0, 1, 0);
+        SpannableString firstRouteShortText = new SpannableString("   \u00b7 Short Route");
+        firstRouteShortText.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(26)), 0, 1, 0);
+        CarText firstRoute = new CarText.Builder(firstRouteLongText)
+                .addVariant(firstRouteShortText)
+                .build();
+
         SpannableString secondRoute = new SpannableString("   \u00b7 Less busy");
         secondRoute.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(24)), 0, 1, 0);
         SpannableString thirdRoute = new SpannableString("   \u00b7 HOV friendly");
         thirdRoute.setSpan(DurationSpan.create(TimeUnit.MINUTES.toSeconds(867)), 0, 1, 0);
+
+        // Set text variants for the navigate action text.
+        CarText navigateActionText =
+                new CarText.Builder("Continue to start navigation").addVariant("Continue to "
+                        + "route").build();
 
         return new RoutePreviewNavigationTemplate.Builder()
                 .setItemList(
@@ -72,7 +89,7 @@ public final class RoutePreviewDemoScreen extends Screen {
                                 .build())
                 .setNavigateAction(
                         new Action.Builder()
-                                .setTitle("Continue to route")
+                                .setTitle(navigateActionText)
                                 .setOnClickListener(this::onNavigate)
                                 .build())
                 .setTitle("Routes")

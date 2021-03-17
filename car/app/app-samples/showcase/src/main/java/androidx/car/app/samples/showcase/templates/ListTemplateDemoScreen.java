@@ -20,11 +20,14 @@ import static androidx.car.app.CarToast.LENGTH_LONG;
 import static androidx.car.app.model.Action.BACK;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
+import androidx.car.app.model.CarText;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.ParkedOnlyOnClickListener;
@@ -44,6 +47,7 @@ public final class ListTemplateDemoScreen extends Screen implements DefaultLifec
 
     @NonNull
     @Override
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public Template onGetTemplate() {
         ItemList.Builder listBuilder = new ItemList.Builder();
 
@@ -56,13 +60,22 @@ public final class ListTemplateDemoScreen extends Screen implements DefaultLifec
                         .build());
 
         for (int i = 2; i <= 6; ++i) {
+            // For row text, set text variants that fit best in different screen sizes.
+            String secondTextStr = "Second line of text";
+            CarText secondText =
+                    new CarText.Builder(
+                            "================= " + secondTextStr + " ================")
+                            .addVariant("--------------------- " + secondTextStr
+                                    + " ----------------------")
+                            .addVariant(secondTextStr)
+                            .build();
             final String onClickText = "Clicked row: " + i;
             listBuilder.addItem(
                     new Row.Builder()
                             .setOnClickListener(() -> onClick(onClickText))
                             .setTitle("Title " + i)
                             .addText("First line of text")
-                            .addText("Second line of text")
+                            .addText(secondText)
                             .build());
         }
 
