@@ -40,7 +40,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
     api("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
     api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0")
-    api("androidx.recyclerview:recyclerview:1.2.0-beta01")
+    api("androidx.recyclerview:recyclerview:1.2.0-beta02")
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_ANDROID)
     implementation("androidx.core:core-ktx:1.2.0")

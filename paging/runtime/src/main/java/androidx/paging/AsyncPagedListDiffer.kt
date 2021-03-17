@@ -425,7 +425,7 @@ open class AsyncPagedListDiffer<T : Any> {
     internal fun latchPagedList(
         @Suppress("DEPRECATION") newList: PagedList<T>,
         @Suppress("DEPRECATION") diffSnapshot: PagedList<T>,
-        diffResult: DiffUtil.DiffResult,
+        diffResult: NullPaddedDiffResult,
         recordingCallback: RecordingCallback,
         lastAccessIndex: Int,
         commitCallback: Runnable?

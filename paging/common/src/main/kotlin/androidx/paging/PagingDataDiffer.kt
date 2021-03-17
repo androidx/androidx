@@ -373,3 +373,17 @@ public interface DifferCallback {
     public fun onInserted(position: Int, count: Int)
     public fun onRemoved(position: Int, count: Int)
 }
+
+/**
+ * Payloads used to dispatch change events.
+ * Could become a public API post 3.0 in case developers want to handle it more effectively.
+ *
+ * Sending these change payloads is critical for the common case where DefaultItemAnimator won't
+ * animate them and re-use the same view holder if possible.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public enum class DiffingChangePayload {
+    ITEM_TO_PLACEHOLDER,
+    PLACEHOLDER_TO_ITEM,
+    PLACEHOLDER_POSITION_CHANGE
+}

@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.lifecycle.testing.TestLifecycleOwner
+import androidx.paging.DiffingChangePayload.ITEM_TO_PLACEHOLDER
 import androidx.paging.ListUpdateEvent.Changed
 import androidx.paging.ListUpdateEvent.Inserted
 import androidx.paging.ListUpdateEvent.Moved
@@ -250,12 +251,16 @@ class AsyncPagingDataDifferTest {
             currentPagedSource!!.invalidate()
             advanceUntilIdle()
 
+            // TODO every change event here should have payload and we should also not dispatch
+            //  events with 0 count
+            //  b/182510751
             val expected = listOf(
                 Inserted(0, 100), // [(50 placeholders), 50, 51, (48 placeholders)]
                 Changed(52, 1, null), // [(50 placeholders), 50, 51, 52, (47 placeholders)]
                 Inserted(53, 0), // ignored
-                Inserted(0, 1), // [(51 placeholders), 50, 51, 52, (47 placeholders)]
-                Removed(51, 1), // [(51 placeholders), 51, 52, (47 placeholders)]
+                // refresh
+                Changed(50, 1, ITEM_TO_PLACEHOLDER), // 50 got unloaded
+                // fix prefetch, 50 got reloaded
                 Changed(50, 1, null), // [(50 placeholders), 50, 51, 52, (47 placeholders)]
                 Inserted(0, 0) // ignored
             )

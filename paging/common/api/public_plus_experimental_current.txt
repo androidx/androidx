@@ -45,6 +45,12 @@ package androidx.paging {
     method @AnyThread public void onInvalidated();
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public enum DiffingChangePayload {
+    enum_constant public static final androidx.paging.DiffingChangePayload ITEM_TO_PLACEHOLDER;
+    enum_constant public static final androidx.paging.DiffingChangePayload PLACEHOLDER_POSITION_CHANGE;
+    enum_constant public static final androidx.paging.DiffingChangePayload PLACEHOLDER_TO_ITEM;
+  }
+
   @kotlin.RequiresOptIn public @interface ExperimentalPagingApi {
   }
 
