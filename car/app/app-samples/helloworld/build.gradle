@@ -46,8 +46,6 @@ android {
 dependencies {
     implementation(project(":car:app:app"))
 
-    implementation("androidx.lifecycle:lifecycle-common-java8:2.2.0")
-
     testImplementation(ROBOLECTRIC)
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(JUNIT)
