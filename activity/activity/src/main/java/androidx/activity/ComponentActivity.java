@@ -165,6 +165,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             // Start activity path
             Intent intent = contract.createIntent(activity, input);
             Bundle optionsBundle = null;
+            // If there are any extras, we should defensively set the classLoader
+            if (intent.getExtras() != null && intent.getExtras().getClassLoader() == null) {
+                intent.setExtrasClassLoader(activity.getClassLoader());
+            }
             if (intent.hasExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE)) {
                 optionsBundle = intent.getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
                 intent.removeExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
