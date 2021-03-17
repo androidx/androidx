@@ -353,6 +353,11 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
         public final StableIdMode stableIdMode;
 
 
+        /**
+         * Default configuration for {@link ConcatAdapter} where {@link Config#isolateViewTypes}
+         * is set to {@code true} and {@link Config#stableIdMode} is set to
+         * {@link StableIdMode#NO_STABLE_IDS}.
+         */
         @NonNull
         public static final Config DEFAULT = new Config(true, NO_STABLE_IDS);
 
@@ -403,8 +408,8 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
          * The builder for {@link Config} class.
          */
         public static final class Builder {
-            private boolean mIsolateViewTypes;
-            private StableIdMode mStableIdMode = NO_STABLE_IDS;
+            private boolean mIsolateViewTypes = DEFAULT.isolateViewTypes;
+            private StableIdMode mStableIdMode = DEFAULT.stableIdMode;
 
             /**
              * Sets whether {@link ConcatAdapter} should isolate view types of nested adapters from
@@ -413,7 +418,8 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
              * @param isolateViewTypes {@code true} if {@link ConcatAdapter} should override view
              *                         types of nested adapters to avoid view type
              *                         conflicts, {@code false} otherwise.
-             *                         Defaults to true.
+             *                         Defaults to {@link Config#DEFAULT}'s
+             *                         {@link Config#isolateViewTypes} value ({@code true}).
              * @return this
              * @see Config#isolateViewTypes
              */
@@ -429,7 +435,8 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
              * for details.
              *
              * @param stableIdMode The stable id mode for the {@link ConcatAdapter}. Defaults to
-             *                     {@link StableIdMode#NO_STABLE_IDS}.
+             *                     {@link Config#DEFAULT}'s {@link Config#stableIdMode} value
+             *                     ({@link StableIdMode#NO_STABLE_IDS}).
              * @return this
              * @see Config#stableIdMode
              */
