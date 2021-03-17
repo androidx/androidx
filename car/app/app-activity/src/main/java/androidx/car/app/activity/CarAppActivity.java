@@ -97,10 +97,9 @@ public final class CarAppActivity extends Activity {
     static final String SERVICE_METADATA_KEY = "androidx.car.app.CAR_APP_SERVICE";
     private static final String TAG = "CarAppActivity";
 
-    // TODO(b/177448399): Update after service intent action is added to car-lib.
     @SuppressLint({"ActionValue"})
     @VisibleForTesting
-    static final String ACTION_RENDER = "android.car.template.host.action.RENDER";
+    static final String ACTION_RENDER = "android.car.template.host.RendererService";
 
     @Nullable
     private ComponentName mServiceComponentName;
