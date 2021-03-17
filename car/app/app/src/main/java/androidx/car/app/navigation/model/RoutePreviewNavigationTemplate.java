@@ -69,6 +69,9 @@ import java.util.Objects;
  *       between the previous and new {@link ItemList}s have not changed.
  * </ul>
  *
+ * <p>Note that specifically, this means the app can't use this template to continuously refresh
+ * the routes as the car moves without hitting the template limit.
+ *
  * <p>In order to use this template your car app <b>MUST</b> declare that it uses the {@code
  * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
  */
