@@ -1076,7 +1076,7 @@ class NavDeepLinkTest {
             .that(matchArgs?.containsKey("path"))
             .isFalse()
     }
-    
+
     @Test
     fun deepLinkCaseSensitiveParams() {
         val deepLinkString = "$DEEP_LINK_EXACT_HTTP/?myParam={param}"
