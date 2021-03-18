@@ -115,13 +115,13 @@ class AutoMigrationProcessor(
     private fun getValidatedSchemaFile(version: Int): File? {
         val schemaFile = File(
             context.schemaOutFolder,
-            "${element.qualifiedName}/$version.json"
+            "${element.className.enclosingClassName()}/$version.json"
         )
         if (!schemaFile.exists()) {
             context.logger.e(
                 ProcessorErrors.autoMigrationSchemasNotFound(
                     context.schemaOutFolder.toString(),
-                    "${element.qualifiedName}/$version.json"
+                    "${element.className.enclosingClassName()}/$version.json"
                 ),
                 element
             )

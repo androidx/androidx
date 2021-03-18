@@ -130,6 +130,7 @@ object CollectionTypeNames {
 }
 
 object CommonTypeNames {
+    val ARRAYS = ClassName.get("java.util", "Arrays")
     val LIST = ClassName.get("java.util", "List")
     val MAP = ClassName.get("java.util", "Map")
     val SET = ClassName.get("java.util", "Set")

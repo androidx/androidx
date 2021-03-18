@@ -45,6 +45,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
@@ -184,6 +185,10 @@ public abstract class RoomDatabase {
     @CallSuper
     public void init(@NonNull DatabaseConfiguration configuration) {
         mOpenHelper = createOpenHelper(configuration);
+        List<Migration> autoMigrations = getAutoMigrations();
+        if (autoMigrations.size() > 0) {
+            configuration.migrationContainer.addMigrations(autoMigrations);
+        }
 
         // Configure SqliteCopyOpenHelper if it is available:
         SQLiteCopyOpenHelper copyOpenHelper = unwrapOpenHelper(SQLiteCopyOpenHelper.class,
@@ -254,6 +259,17 @@ public abstract class RoomDatabase {
                         + "or remove this converter from the builder.");
             }
         }
+    }
+
+    @NonNull
+    /**
+     * Returns a list of {@link Migration} of a database that have been generated using
+     * {@link AutoMigration}.
+     *
+     * @return A list of migration instances each of which is a generated autoMigration
+     */
+    protected List<Migration> getAutoMigrations() {
+        return Arrays.asList();
     }
 
     /**
@@ -1380,6 +1396,12 @@ public abstract class RoomDatabase {
             }
         }
 
+        public void addMigrations(@NonNull List<Migration> migrations) {
+            for (Migration migration : migrations) {
+                addMigration(migration);
+            }
+        }
+
         private void addMigration(Migration migration) {
             final int start = migration.startVersion;
             final int end = migration.endVersion;
@@ -1390,6 +1412,7 @@ public abstract class RoomDatabase {
             }
             Migration existing = targetMap.get(end);
             if (existing != null) {
+                // TODO: (b/182251019) Favor user specified migration over generated automigrations
                 Log.w(Room.LOG_TAG, "Overriding migration " + existing + " with " + migration);
             }
             targetMap.put(end, migration);
