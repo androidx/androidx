@@ -283,7 +283,7 @@ class NavDestinationTest {
             .build()
         destination.addArgument("stringArg", stringArgument)
         assertThat(destination.arguments.size).isEqualTo(1)
-        assertThat(destination.arguments.get("stringArg")).isEqualTo(stringArgument)
+        assertThat(destination.arguments["stringArg"]).isEqualTo(stringArgument)
     }
 
     @Test
@@ -294,10 +294,10 @@ class NavDestinationTest {
             .build()
         destination.addArgument("stringArg", stringArgument)
         assertThat(destination.arguments.size).isEqualTo(1)
-        assertThat(destination.arguments.get("stringArg")).isEqualTo(stringArgument)
+        assertThat(destination.arguments["stringArg"]).isEqualTo(stringArgument)
 
         destination.removeArgument("stringArg")
         assertThat(destination.arguments.size).isEqualTo(0)
-        assertThat(destination.arguments.get("stringArg")).isNull()
+        assertThat(destination.arguments["stringArg"]).isNull()
     }
 }
