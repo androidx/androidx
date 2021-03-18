@@ -31,6 +31,7 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -62,6 +63,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             addMethod(createCreateInvalidationTracker())
             addMethod(createClearAllTables())
             addMethod(createCreateTypeConvertersMap())
+            addMethod(getAutoMigrations())
         }
         addDaoImpls(builder)
         return builder
@@ -299,6 +301,22 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
                 .write(openHelperVar, configParam, openHelperCode)
             addCode(openHelperCode.builder().build())
             addStatement("return $L", openHelperVar)
+        }.build()
+    }
+
+    private fun getAutoMigrations(): MethodSpec {
+        return MethodSpec.methodBuilder("getAutoMigrations").apply {
+            addModifiers(PROTECTED)
+            addAnnotation(Override::class.java)
+            returns(ParameterizedTypeName.get(CommonTypeNames.LIST, RoomTypeNames.MIGRATION))
+            val autoMigrationsList = database.autoMigrations.map {
+                CodeBlock.of("new $L()", it.implTypeName)
+            }
+            addStatement(
+                "return $T.asList( $L )",
+                CommonTypeNames.ARRAYS,
+                CodeBlock.join(autoMigrationsList, ",")
+            )
         }.build()
     }
 }

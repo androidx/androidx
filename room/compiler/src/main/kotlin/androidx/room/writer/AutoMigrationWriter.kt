@@ -36,7 +36,7 @@ import javax.lang.model.element.Modifier
 class AutoMigrationWriter(
     private val dbElement: XElement,
     val autoMigrationResult: AutoMigrationResult
-) : ClassWriter(autoMigrationResult.element.className) {
+) : ClassWriter(autoMigrationResult.implTypeName) {
 
     override fun createTypeSpecBuilder(): TypeSpec.Builder {
         val builder = TypeSpec.classBuilder(autoMigrationResult.implTypeName)
@@ -98,7 +98,7 @@ class AutoMigrationWriter(
                         "${it.fieldBundle.affinity} "
                 )
                 if (it.fieldBundle.isNonNull) {
-                    append("NOT NULL DEFAULT `${it.fieldBundle.defaultValue}`")
+                    append("NOT NULL DEFAULT ${it.fieldBundle.defaultValue}")
                 } else {
                     append("DEFAULT NULL")
                 }
