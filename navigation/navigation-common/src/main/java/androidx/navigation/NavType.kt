@@ -257,8 +257,8 @@ public abstract class NavType<T> internal constructor(
                 bundle.putInt(key, value)
             }
 
-            override fun get(bundle: Bundle, key: String): Int? {
-                return bundle[key] as Int?
+            override fun get(bundle: Bundle, key: String): Int {
+                return bundle[key] as Int
             }
 
             override fun parseValue(value: String): Int {

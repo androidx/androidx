@@ -463,7 +463,7 @@ constructor(
         if (args != null) {
             defaultArgs.putAll(args)
             for ((key, value) in _arguments) {
-                require(value.verify(key, args)) {
+                require(value.verify(key, defaultArgs)) {
                     "Wrong argument type for '$key' in argument bundle. ${value.type.name} " +
                         "expected."
                 }
