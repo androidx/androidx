@@ -59,8 +59,6 @@ androidx {
     name = "androidx.car.app:app-testing"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.CAR_APP
-    // Special pre-release version to exclude the app-aaos module from the 1.0.0 release.
-    mavenVersion = LibraryVersions.CAR_APP_PRE_RELEASE
     inceptionYear = "2021"
     description = "androidx.car.app:app-testing"
 }
