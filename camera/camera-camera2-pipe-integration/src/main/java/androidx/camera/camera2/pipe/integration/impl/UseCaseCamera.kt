@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CaptureRequest
+import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
@@ -29,10 +30,11 @@ import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.utils.futures.FutureCallback
+import androidx.camera.core.impl.utils.futures.Futures
 import dagger.Module
 import dagger.Provides
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 
 internal val useCaseCameraIds = atomic(0)
@@ -147,7 +149,7 @@ class UseCaseCameraImpl(
                 useCases: java.util.ArrayList<UseCase>,
                 cameraConfig: CameraConfig,
                 callbackMap: CameraCallbackMap,
-                coroutineScope: CoroutineScope,
+                threads: UseCaseThreads,
             ): UseCaseCamera {
                 val streamConfigs = mutableListOf<CameraStream.Config>()
                 val useCaseMap = mutableMapOf<CameraStream.Config, UseCase>()
@@ -184,12 +186,27 @@ class UseCaseCameraImpl(
                     val deferredSurfaces = useCaseSessionConfig?.surfaces
                     if (stream != null && deferredSurfaces != null && deferredSurfaces.size == 1) {
                         val deferredSurface = deferredSurfaces.first()
-                        graph.setSurface(stream.id, deferredSurface.surface.get())
                         surfaceToStreamMap[deferredSurface] = stream.id
+
+                        Futures.addCallback(
+                            deferredSurface.surface,
+                            object : FutureCallback<Surface?> {
+                                override fun onSuccess(result: Surface?) {
+                                    debug { "Configured $result for $stream" }
+                                    graph.setSurface(stream.id, result)
+                                }
+
+                                override fun onFailure(t: Throwable) {
+                                    debug(t) { "Surface for $deferredSurface failed to arrive!" }
+                                    graph.setSurface(stream.id, null)
+                                }
+                            },
+                            threads.backgroundExecutor
+                        )
                     }
                 }
 
-                val state = UseCaseCameraState(graph, coroutineScope)
+                val state = UseCaseCameraState(graph, threads)
 
                 graph.start()
                 return UseCaseCameraImpl(graph, useCases, surfaceToStreamMap, state)
