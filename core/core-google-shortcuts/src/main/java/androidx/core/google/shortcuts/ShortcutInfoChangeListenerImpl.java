@@ -25,8 +25,10 @@ import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.content.pm.ShortcutInfoChangeListener;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
 
@@ -34,8 +36,10 @@ import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.appindexing.Indexable;
+import com.google.firebase.appindexing.builders.IndexableBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -44,8 +48,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-// TODO (b/182185987): update class to extend ShortcutInfoChangeListener once that is added to core
-public class ShortcutInfoChangeListenerImpl {
+public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
     private final Context mContext;
     private final FirebaseAppIndex mFirebaseAppIndex;
     private final FirebaseUserActions mFirebaseUserActions;
@@ -75,6 +78,7 @@ public class ShortcutInfoChangeListenerImpl {
      *
      * @param shortcuts list of shortcuts added
      */
+    @Override
     public void onShortcutAdded(@NonNull List<ShortcutInfoCompat> shortcuts) {
         mFirebaseAppIndex.update(buildIndexables(shortcuts));
     }
@@ -84,6 +88,7 @@ public class ShortcutInfoChangeListenerImpl {
      *
      * @param shortcuts list of shortcuts updated
      */
+    @Override
     public void onShortcutUpdated(@NonNull List<ShortcutInfoCompat> shortcuts) {
         mFirebaseAppIndex.update(buildIndexables(shortcuts));
     }
@@ -93,6 +98,7 @@ public class ShortcutInfoChangeListenerImpl {
      *
      * @param shortcutIds list of shortcut ids removed
      */
+    @Override
     public void onShortcutRemoved(@NonNull List<String> shortcutIds) {
         List<String> urls = new ArrayList<>();
         for (String shortcutId : shortcutIds) {
@@ -106,6 +112,7 @@ public class ShortcutInfoChangeListenerImpl {
      *
      * @param shortcutIds list of shortcut ids used
      */
+    @Override
     public void onShortcutUsageReported(@NonNull List<String> shortcutIds) {
         for (String shortcutId : shortcutIds) {
             // Actions reported here is only on-device due to setUpload(false) in buildAction
@@ -119,6 +126,7 @@ public class ShortcutInfoChangeListenerImpl {
      * Called when all shortcuts are removed
      * by {@link androidx.core.content.pm.ShortcutManagerCompat}.
      */
+    @Override
     public void onAllShortcutsRemoved() {
         mFirebaseAppIndex.removeAll();
     }
@@ -151,6 +159,7 @@ public class ShortcutInfoChangeListenerImpl {
         Indexable.Builder builder = new Indexable.Builder()
                 .setId(shortcut.getId())
                 .setUrl(url)
+                .setName(shortcut.getShortLabel().toString())
                 .put(SHORTCUT_URL_KEY, shortcutUrl)
                 .put(SHORTCUT_LABEL_KEY, shortcut.getShortLabel().toString());
 
@@ -162,9 +171,52 @@ public class ShortcutInfoChangeListenerImpl {
             builder.setImage(shortcut.getIcon().getUri().toString());
         }
 
-        // TODO (b/182186140): add logic for matching names and CapabilityBinding
+        // Add capability binding
+        if (shortcut.getCategories() != null) {
+            List<Indexable.Builder> partOfList = new ArrayList<>();
+            for (String capability : shortcut.getCategories()) {
+                if (!ShortcutUtils.isAppActionCapability(capability)) {
+                    continue;
+                }
+
+                if (shortcut.getExtras() == null
+                        || shortcut.getExtras().getStringArray(capability) == null) {
+                    // Shortcut has a capability binding without parameters.
+                    partOfList.add(buildPartOfIndexable(capability, null));
+                } else {
+                    String[] params = shortcut.getExtras().getStringArray(capability);
+                    for (String param : params) {
+                        String capabilityParam = capability + "/" + param;
+                        partOfList.add(buildPartOfIndexable(capabilityParam,
+                                shortcut.getExtras().getStringArray(capabilityParam)));
+                    }
+                }
+            }
+
+            if (!partOfList.isEmpty()) {
+                builder.setIsPartOf(partOfList.toArray(new IndexableBuilder[0]));
+            }
+        }
 
         // By default, the indexable will be saved only on-device.
         return builder.build();
+    }
+
+    @NonNull
+    private Indexable.Builder buildPartOfIndexable(@NonNull String capabilityParam,
+            @Nullable String[] values) {
+        Indexable.Builder partOfBuilder = new Indexable.Builder()
+                .setId(capabilityParam);
+        if (values == null) {
+            return partOfBuilder;
+        }
+
+        if (values.length > 0) {
+            partOfBuilder.setName(values[0]);
+        }
+        if (values.length > 1) {
+            partOfBuilder.setAlternateName(Arrays.copyOfRange(values, 1, values.length));
+        }
+        return partOfBuilder;
     }
 }
