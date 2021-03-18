@@ -556,7 +556,7 @@ public class MigrationTest {
 
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS `Entity2` ("
                     + "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                     + " `name` TEXT)");
@@ -565,7 +565,7 @@ public class MigrationTest {
 
     private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE " + MigrationDb.Entity2.TABLE_NAME
                     + " ADD COLUMN addedInV3 TEXT");
         }
@@ -573,7 +573,7 @@ public class MigrationTest {
 
     private static final Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3` (`id` INTEGER NOT NULL,"
                     + " `removedInV5` TEXT, `name` TEXT, PRIMARY KEY(`id`))");
         }
@@ -581,7 +581,7 @@ public class MigrationTest {
 
     private static final Migration MIGRATION_4_5 = new Migration(4, 5) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3_New` (`id` INTEGER NOT NULL,"
                     + " `name` TEXT, PRIMARY KEY(`id`))");
             database.execSQL("INSERT INTO Entity3_New(`id`, `name`) "
@@ -593,14 +593,14 @@ public class MigrationTest {
 
     private static final Migration MIGRATION_5_6 = new Migration(5, 6) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("DROP TABLE " + MigrationDb.Entity3.TABLE_NAME);
         }
     };
 
     private static final Migration MIGRATION_6_7 = new Migration(6, 7) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS " + MigrationDb.Entity4.TABLE_NAME
                     + " (`id` INTEGER NOT NULL, `name` TEXT COLLATE NOCASE, PRIMARY KEY(`id`),"
                     + " FOREIGN KEY(`name`) REFERENCES `Entity1`(`name`)"
@@ -612,7 +612,7 @@ public class MigrationTest {
 
     private static final Migration MIGRATION_7_8 = new Migration(7, 8) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("CREATE VIEW IF NOT EXISTS `" + MigrationDb.View1.VIEW_NAME
                     + "` AS SELECT Entity4.id, Entity4.name, Entity1.id AS entity1Id"
                     + " FROM Entity4 INNER JOIN Entity1 ON Entity4.name = Entity1.name");
@@ -671,7 +671,7 @@ public class MigrationTest {
     private static final Migration MIGRATION_MAX_LATEST = new Migration(
             MigrationDb.MAX_VERSION, MigrationDb.LATEST_VERSION) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Drop Entity1 since its possible that LATEST_VERSION schema defines it differently.
             database.execSQL("DROP TABLE IF EXISTS " + MigrationDb.Entity1.TABLE_NAME);
 
