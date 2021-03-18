@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.testing
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import kotlinx.coroutines.runBlocking
 
 /**
  * This provides a fake implementation of [CameraDevices] for tests with a fixed list of Cameras.
@@ -26,7 +27,9 @@ import androidx.camera.camera2.pipe.CameraMetadata
 class FakeCameraDevices(
     private val cameras: List<CameraMetadata>
 ) : CameraDevices {
-    override fun findAll(): List<CameraId> = cameras.map { it.camera }
+    override fun findAll(): List<CameraId> = runBlocking { ids() }
+    override suspend fun ids(): List<CameraId> = cameras.map { it.camera }
+
     override suspend fun getMetadata(camera: CameraId): CameraMetadata = awaitMetadata(camera)
     override fun awaitMetadata(camera: CameraId): CameraMetadata = cameras.first {
         it.camera == camera

@@ -91,15 +91,18 @@ public class CameraPipe(config: Config) {
          */
         public fun create(
             config: CameraGraph.Config,
-            cameraDevices: CameraDevices,
+            cameraMetadata: CameraMetadata,
             requestProcessor: RequestProcessor
         ): CameraGraph {
+            check(config.camera == cameraMetadata.camera) {
+                "Invalid camera config: ${config.camera} does not match ${cameraMetadata.camera}"
+            }
             val componentBuilder = component.cameraGraphBuilder()
             val component: ExternalCameraGraphComponent = componentBuilder
                 .externalCameraGraphConfigModule(
                     ExternalCameraGraphConfigModule(
                         config,
-                        cameraDevices,
+                        cameraMetadata,
                         requestProcessor
                     )
                 ).build()

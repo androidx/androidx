@@ -34,17 +34,17 @@ import kotlinx.coroutines.withTimeoutOrNull
 /** Simulator for observing and responding to interactions with the a [CameraGraph]. */
 class CameraGraphSimulator(
     private val config: CameraGraph.Config,
-    metadata: CameraMetadata
+    cameraMetadata: CameraMetadata
 ) {
     init {
-        check(config.camera == metadata.camera)
+        check(config.camera == cameraMetadata.camera)
     }
 
     private val fakeRequestProcessor = FakeRequestProcessor()
     private val cameraPipe = CameraPipe.External()
     public val cameraGraph = cameraPipe.create(
         config,
-        FakeCameraDevices(listOf(metadata)),
+        cameraMetadata,
         fakeRequestProcessor
     )
 
