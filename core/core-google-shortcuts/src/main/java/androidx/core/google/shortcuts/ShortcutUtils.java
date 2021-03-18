@@ -36,6 +36,8 @@ class ShortcutUtils {
     public static final String SHORTCUT_URL_KEY = "shortcutUrl";
     public static final String ID_KEY = "id";
 
+    private static final String APP_ACTION_CAPABILITY_PREFIX = "actions.intent.";
+
     /**
      * Generate value for Indexable url field. The url field will not be used for anything other
      * than referencing the Indexable object. But since it requires that it's openable by the
@@ -65,6 +67,10 @@ class ShortcutUtils {
         // TODO (b/182599835): support private shortcut intents by wrapping it inside an intent
         //  that launches the trampoline activity.
         return shortcutIntent.toUri(0);
+    }
+
+    public static boolean isAppActionCapability(String category) {
+        return category.startsWith(APP_ACTION_CAPABILITY_PREFIX);
     }
 
     private ShortcutUtils() {}
