@@ -290,7 +290,8 @@ public class LocalStorage {
 
         // There is no global querier for a local storage instance.
         mAppSearchImpl = AppSearchImpl.create(icingDir, context, VisibilityStore.NO_OP_USER_ID,
-                /*globalQuerierPackage=*/ "");
+                /*globalQuerierPackage=*/ "",
+                /*logger=*/ null);
 
         executor.execute(() -> {
             try {

@@ -18,9 +18,11 @@ package androidx.appsearch.localstorage;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.core.util.Preconditions;
 
+import com.google.android.icing.proto.InitializeStatsProto;
 import com.google.android.icing.proto.PutDocumentStatsProto;
 
 /**
@@ -36,7 +38,7 @@ public final class AppSearchLoggerHelper {
     }
 
     /**
-     * Copies native stats to builder.
+     * Copies native PutDocument stats to builder.
      *
      * @param fromNativeStats stats copied from
      * @param toStatsBuilder  stats copied to
@@ -56,5 +58,35 @@ public final class AppSearchLoggerHelper {
                         fromNativeStats.getTokenizationStats().getNumTokensIndexed())
                 .setNativeExceededMaxNumTokens(
                         fromNativeStats.getTokenizationStats().getExceededMaxTokenNum());
+    }
+
+    /**
+     * Copies native Initialize stats to builder.
+     *
+     * @param fromNativeStats stats copied from
+     * @param toStatsBuilder  stats copied to
+     */
+    static void copyNativeStats(@NonNull InitializeStatsProto fromNativeStats,
+            @NonNull InitializeStats.Builder toStatsBuilder) {
+        Preconditions.checkNotNull(fromNativeStats);
+        Preconditions.checkNotNull(toStatsBuilder);
+        toStatsBuilder
+                .setNativeLatencyMillis(fromNativeStats.getLatencyMs())
+                .setDocumentStoreRecoveryCause(
+                        fromNativeStats.getDocumentStoreRecoveryCause().getNumber())
+                .setIndexRestorationCause(
+                        fromNativeStats.getIndexRestorationCause().getNumber())
+                .setSchemaStoreRecoveryCause(
+                        fromNativeStats.getSchemaStoreRecoveryCause().getNumber())
+                .setDocumentStoreRecoveryLatencyMillis(
+                        fromNativeStats.getDocumentStoreRecoveryLatencyMs())
+                .setIndexRestorationLatencyMillis(
+                        fromNativeStats.getIndexRestorationLatencyMs())
+                .setSchemaStoreRecoveryLatencyMillis(
+                        fromNativeStats.getSchemaStoreRecoveryLatencyMs())
+                .setDocumentStoreDataStatus(
+                        fromNativeStats.getDocumentStoreDataStatus().getNumber())
+                .setDocumentCount(fromNativeStats.getNumDocuments())
+                .setSchemaTypeCount(fromNativeStats.getNumSchemaTypes());
     }
 }

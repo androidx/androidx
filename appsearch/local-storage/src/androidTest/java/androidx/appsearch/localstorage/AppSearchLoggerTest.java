@@ -26,9 +26,11 @@ import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.localstorage.stats.CallStats;
+import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.google.android.icing.proto.InitializeStatsProto;
 import com.google.android.icing.proto.PutDocumentStatsProto;
 
 import org.junit.Before;
@@ -52,24 +54,88 @@ public class AppSearchLoggerTest {
         // Give ourselves global query permissions
         mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
                 context, VisibilityStore.NO_OP_USER_ID,
-                /*globalQuerierPackage=*/ context.getPackageName());
+                /*globalQuerierPackage=*/ context.getPackageName(),
+                /*logger=*/ null);
         mLogger = new TestLogger();
     }
 
     // Test only not thread safe.
     public class TestLogger implements AppSearchLogger {
         @Nullable
+        CallStats mCallStats;
+        @Nullable
         PutDocumentStats mPutDocumentStats;
+        @Nullable
+        InitializeStats mInitializeStats;
 
         @Override
         public void logStats(@NonNull CallStats stats) {
-            throw new UnsupportedOperationException();
+            mCallStats = stats;
         }
 
         @Override
         public void logStats(@NonNull PutDocumentStats stats) {
             mPutDocumentStats = stats;
         }
+
+        @Override
+        public void logStats(@NonNull InitializeStats stats) {
+            mInitializeStats = stats;
+        }
+    }
+
+    @Test
+    public void testAppSearchLoggerHelper_testCopyNativeStats_initialize() {
+        int nativeLatencyMillis = 3;
+        int nativeDocumentStoreRecoveryCause = InitializeStatsProto.RecoveryCause.DATA_LOSS_VALUE;
+        int nativeIndexRestorationCause =
+                InitializeStatsProto.RecoveryCause.INCONSISTENT_WITH_GROUND_TRUTH_VALUE;
+        int nativeSchemaStoreRecoveryCause =
+                InitializeStatsProto.RecoveryCause.TOTAL_CHECKSUM_MISMATCH_VALUE;
+        int nativeDocumentStoreRecoveryLatencyMillis = 7;
+        int nativeIndexRestorationLatencyMillis = 8;
+        int nativeSchemaStoreRecoveryLatencyMillis = 9;
+        int nativeDocumentStoreDataStatus =
+                InitializeStatsProto.DocumentStoreDataStatus.NO_DATA_LOSS_VALUE;
+        int nativeNumDocuments = 11;
+        int nativeNumSchemaTypes = 12;
+        InitializeStatsProto.Builder nativeInitBuilder = InitializeStatsProto.newBuilder()
+                .setLatencyMs(nativeLatencyMillis)
+                .setDocumentStoreRecoveryCause(InitializeStatsProto.RecoveryCause.forNumber(
+                        nativeDocumentStoreRecoveryCause))
+                .setIndexRestorationCause(
+                        InitializeStatsProto.RecoveryCause.forNumber(nativeIndexRestorationCause))
+                .setSchemaStoreRecoveryCause(
+                        InitializeStatsProto.RecoveryCause.forNumber(
+                                nativeSchemaStoreRecoveryCause))
+                .setDocumentStoreRecoveryLatencyMs(nativeDocumentStoreRecoveryLatencyMillis)
+                .setIndexRestorationLatencyMs(nativeIndexRestorationLatencyMillis)
+                .setSchemaStoreRecoveryLatencyMs(nativeSchemaStoreRecoveryLatencyMillis)
+                .setDocumentStoreDataStatus(InitializeStatsProto.DocumentStoreDataStatus.forNumber(
+                        nativeDocumentStoreDataStatus))
+                .setNumDocuments(nativeNumDocuments)
+                .setNumSchemaTypes(nativeNumSchemaTypes);
+        InitializeStats.Builder initBuilder = new InitializeStats.Builder();
+
+        AppSearchLoggerHelper.copyNativeStats(nativeInitBuilder.build(), initBuilder);
+
+        InitializeStats iStats = initBuilder.build();
+        assertThat(iStats.getNativeLatencyMillis()).isEqualTo(nativeLatencyMillis);
+        assertThat(iStats.getDocumentStoreRecoveryCause()).isEqualTo(
+                nativeDocumentStoreRecoveryCause);
+        assertThat(iStats.getIndexRestorationCause()).isEqualTo(nativeIndexRestorationCause);
+        assertThat(iStats.getSchemaStoreRecoveryCause()).isEqualTo(
+                nativeSchemaStoreRecoveryCause);
+        assertThat(iStats.getDocumentStoreRecoveryLatencyMillis()).isEqualTo(
+                nativeDocumentStoreRecoveryLatencyMillis);
+        assertThat(iStats.getIndexRestorationLatencyMillis()).isEqualTo(
+                nativeIndexRestorationLatencyMillis);
+        assertThat(iStats.getSchemaStoreRecoveryLatencyMillis()).isEqualTo(
+                nativeSchemaStoreRecoveryLatencyMillis);
+        assertThat(iStats.getDocumentStoreDataStatus()).isEqualTo(
+                nativeDocumentStoreDataStatus);
+        assertThat(iStats.getDocumentCount()).isEqualTo(nativeNumDocuments);
+        assertThat(iStats.getSchemaTypeCount()).isEqualTo(nativeNumSchemaTypes);
     }
 
     @Test
@@ -110,9 +176,32 @@ public class AppSearchLoggerTest {
         assertThat(pStats.getNativeExceededMaxNumTokens()).isEqualTo(nativeExceededMaxNumTokens);
     }
 
+
     //
     // Testing actual logging
     //
+    @Test
+    public void testLoggingStats_initialize() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+
+        AppSearchImpl appSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
+                context,
+                VisibilityStore.NO_OP_USER_ID,
+                /*globalQuerierPackage=*/ context.getPackageName(),
+                mLogger);
+
+        InitializeStats iStats = mLogger.mInitializeStats;
+        assertThat(iStats).isNotNull();
+        assertThat(iStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
+        assertThat(iStats.getTotalLatencyMillis()).isGreaterThan(0);
+        assertThat(iStats.hasDeSync()).isFalse();
+        assertThat(iStats.getNativeLatencyMillis()).isGreaterThan(0);
+        assertThat(iStats.getDocumentStoreDataStatus()).isEqualTo(
+                InitializeStatsProto.DocumentStoreDataStatus.NO_DATA_LOSS_VALUE);
+        assertThat(iStats.getDocumentCount()).isEqualTo(0);
+        assertThat(iStats.getSchemaTypeCount()).isEqualTo(0);
+    }
+
     @Test
     public void testLoggingStats_putDocument() throws Exception {
         // Insert schema
