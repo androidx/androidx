@@ -259,7 +259,7 @@ public class CameraGraphSimulatorTest {
         assertThat(event2.requestMetadata.request).isSameInstanceAs(request)
         assertThat(event3.requestMetadata.request).isSameInstanceAs(request)
 
-        val completeEvents = withTimeout(timeMillis = 50) {
+        val completeEvents = withTimeout(timeMillis = 150) {
             listener.onCompleteFlow.take(3).toList()
         }
         assertThat(completeEvents).hasSize(3)

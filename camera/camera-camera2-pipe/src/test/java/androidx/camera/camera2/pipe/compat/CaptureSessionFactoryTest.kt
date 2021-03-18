@@ -32,7 +32,7 @@ import androidx.camera.camera2.pipe.config.Camera2CameraGraphModules
 import androidx.camera.camera2.pipe.config.Camera2CameraPipeModules
 import androidx.camera.camera2.pipe.config.CameraGraphModules
 import androidx.camera.camera2.pipe.config.CameraGraphScope
-import androidx.camera.camera2.pipe.config.CameraPipeModules
+import androidx.camera.camera2.pipe.config.ThreadConfigModule
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
@@ -70,6 +70,7 @@ internal class CaptureSessionFactoryTest {
     fun canCreateSessionFactoryTestComponent() = runBlockingTest {
         val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
             .fakeCameraPipeModule(FakeCameraPipeModule(context, testCamera))
+            .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
             .build()
 
         val sessionFactory = component.sessionFactory()
@@ -80,6 +81,7 @@ internal class CaptureSessionFactoryTest {
     fun createCameraCaptureSession() = runBlockingTest {
         val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
             .fakeCameraPipeModule(FakeCameraPipeModule(context, testCamera))
+            .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
             .build()
 
         val sessionFactory = component.sessionFactory()
@@ -137,7 +139,7 @@ internal interface CameraSessionTestComponent {
 /**
  * Utility module for testing the Dagger generated graph with a a reasonable default config.
  */
-@Module(includes = [CameraPipeModules::class, Camera2CameraPipeModules::class])
+@Module(includes = [ThreadConfigModule::class, Camera2CameraPipeModules::class])
 class FakeCameraPipeModule(
     private val context: Context,
     private val fakeCamera: RobolectricCameras.FakeCamera
