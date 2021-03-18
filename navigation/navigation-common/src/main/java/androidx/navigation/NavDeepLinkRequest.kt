@@ -54,7 +54,7 @@ constructor(
 ) {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(intent: Intent) : this(intent.data, intent.action, intent.type) {}
+    public constructor(intent: Intent) : this(intent.data, intent.action, intent.type)
 
     public override fun toString(): String {
         val sb = StringBuilder()
