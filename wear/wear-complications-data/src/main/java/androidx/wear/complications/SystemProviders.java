@@ -46,7 +46,6 @@ public class SystemProviders {
         WORLD_CLOCK,
         APP_SHORTCUT,
         UNREAD_NOTIFICATION_COUNT,
-        GOOGLE_PAY,
         NEXT_EVENT,
         RETAIL_STEP_COUNT,
         RETAIL_CHAT,
@@ -138,18 +137,6 @@ public class SystemProviders {
      * {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
      */
     public static final int UNREAD_NOTIFICATION_COUNT = 7;
-
-    /**
-     * Id for the Google Pay complication provider.
-     *
-     * <p>This is a safe provider (because it only launches the Google Pay app), so if a watch face
-     * uses this as a default it will be able to receive data from it even before the
-     * RECEIVE_COMPLICATION_DATA permission has been granted.
-     *
-     * <p>This provider supports only {@link ComplicationData#TYPE_SMALL_IMAGE TYPE_SMALL_IMAGE}.
-     */
-    @SuppressWarnings("MentionsGoogle") // This is not an api service.
-    public static final int GOOGLE_PAY = 8;
 
     /**
      * Id for the 'next event' complication provider.
