@@ -35,7 +35,7 @@ class DatabaseViewProcessor(
             element, androidx.room.DatabaseView::class,
             ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW
         )
-        val annotationBox = element.toAnnotationBox(androidx.room.DatabaseView::class)
+        val annotationBox = element.getAnnotation(androidx.room.DatabaseView::class)
 
         val viewName: String = if (annotationBox != null) {
             extractViewName(element, annotationBox.value)

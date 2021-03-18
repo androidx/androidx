@@ -46,7 +46,8 @@ class AutoMigrationProcessor(
             return null
         }
 
-        if (!context.processingEnv.requireType(RoomTypeNames.AUTO_MIGRATION_CALLBACK)
+        if (!context.processingEnv
+            .requireType(RoomTypeNames.AUTO_MIGRATION_CALLBACK)
             .isAssignableFrom(element.type)
         ) {
             context.logger.e(
@@ -56,7 +57,7 @@ class AutoMigrationProcessor(
             return null
         }
 
-        val annotationBox = element.toAnnotationBox(AutoMigration::class)
+        val annotationBox = element.getAnnotation(AutoMigration::class)
         if (annotationBox == null) {
             context.logger.e(
                 element,

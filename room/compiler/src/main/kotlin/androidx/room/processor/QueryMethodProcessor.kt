@@ -48,7 +48,7 @@ class QueryMethodProcessor(
      * implemented as a sub procedure in [InternalQueryProcessor].
      */
     fun process(): QueryMethod {
-        val annotation = executableElement.toAnnotationBox(Query::class)?.value
+        val annotation = executableElement.getAnnotation(Query::class)?.value
         context.checker.check(
             annotation != null, executableElement,
             ProcessorErrors.MISSING_QUERY_ANNOTATION
