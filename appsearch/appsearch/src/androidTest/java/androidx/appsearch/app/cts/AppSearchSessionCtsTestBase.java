@@ -20,6 +20,7 @@ import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
 import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;
 import static androidx.appsearch.app.util.AppSearchTestUtils.doGet;
+import static androidx.appsearch.app.util.AppSearchTestUtils.retrieveAllSearchResults;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -973,22 +974,32 @@ public abstract class AppSearchSessionCtsTestBase {
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
                 .build());
-        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
 
         // The email1 should be ranked higher because 'little' appears three times in email1 and
         // only once in email2.
-        assertThat(documents).containsExactly(email1, email2).inOrder();
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(email1);
+        assertThat(results.get(0).getRankingSignal()).isGreaterThan(
+                results.get(1).getRankingSignal());
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(email2);
+        assertThat(results.get(1).getRankingSignal()).isGreaterThan(0);
 
         // Query for "little OR stout". It should match both emails.
         searchResults = mDb1.search("little OR stout", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
                 .build());
-        documents = convertSearchResultsToDocuments(searchResults);
+        results = retrieveAllSearchResults(searchResults);
 
         // The email2 should be ranked higher because 'little' appears once and "stout", which is a
         // rarer term, appears once. email1 only has the three 'little' appearances.
-        assertThat(documents).containsExactly(email2, email1).inOrder();
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(email2);
+        assertThat(results.get(0).getRankingSignal()).isGreaterThan(
+                results.get(1).getRankingSignal());
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(email1);
+        assertThat(results.get(1).getRankingSignal()).isGreaterThan(0);
     }
 
     @Test
@@ -2347,37 +2358,45 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
 
         // Index two documents.
-        AppSearchEmail email1 = new AppSearchEmail.Builder("namespace", "uri1").build();
-        AppSearchEmail email2 = new AppSearchEmail.Builder("namespace", "uri2").build();
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("namespace", "uri1").build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("namespace", "uri2").build();
         checkIsBatchResultSuccess(mDb1.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2).build()));
 
         // Email 1 has more usages, but email 2 has more recent usages.
         mDb1.reportUsage(new ReportUsageRequest.Builder("namespace")
-                .setUri("uri1").setUsageTimeMillis(10).build()).get();
+                .setUri("uri1").setUsageTimeMillis(1000).build()).get();
         mDb1.reportUsage(new ReportUsageRequest.Builder("namespace")
-                .setUri("uri1").setUsageTimeMillis(20).build()).get();
+                .setUri("uri1").setUsageTimeMillis(2000).build()).get();
         mDb1.reportUsage(new ReportUsageRequest.Builder("namespace")
-                .setUri("uri1").setUsageTimeMillis(30).build()).get();
+                .setUri("uri1").setUsageTimeMillis(3000).build()).get();
         mDb1.reportUsage(new ReportUsageRequest.Builder("namespace")
-                .setUri("uri2").setUsageTimeMillis(100).build()).get();
+                .setUri("uri2").setUsageTimeMillis(10000).build()).get();
         mDb1.reportUsage(new ReportUsageRequest.Builder("namespace")
-                .setUri("uri2").setUsageTimeMillis(200).build()).get();
+                .setUri("uri2").setUsageTimeMillis(20000).build()).get();
 
         // Query by number of usages
-        List<GenericDocument> documents = convertSearchResultsToDocuments(
+        List<SearchResult> results = retrieveAllSearchResults(
                 mDb1.search("", new SearchSpec.Builder()
                         .setRankingStrategy(SearchSpec.RANKING_STRATEGY_USAGE_COUNT)
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build()));
-        assertThat(documents).containsExactly(email1, email2).inOrder();
+        // Email 1 has three usages and email 2 has two usages.
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(email1);
+        assertThat(results.get(0).getRankingSignal()).isEqualTo(3);
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(email2);
+        assertThat(results.get(1).getRankingSignal()).isEqualTo(2);
 
-        // Query by most recent usage
-        documents = convertSearchResultsToDocuments(
+        // Query by most recent usag.
+        List<GenericDocument> documents = convertSearchResultsToDocuments(
                 mDb1.search("", new SearchSpec.Builder()
                         .setRankingStrategy(SearchSpec.RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP)
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build()));
+        // TODO(b/182958600) Check the score for usage timestamp once b/182958600 is fixed.
         assertThat(documents).containsExactly(email2, email1).inOrder();
     }
 

@@ -300,6 +300,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.GenericDocument getGenericDocument();
     method public java.util.List<androidx.appsearch.app.SearchResult.MatchInfo!> getMatches();
     method public String getPackageName();
+    method public double getRankingSignal();
   }
 
   public static final class SearchResult.Builder {
@@ -308,6 +309,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchResult build();
     method public androidx.appsearch.app.SearchResult.Builder setDocument(Object) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchResult.Builder setGenericDocument(androidx.appsearch.app.GenericDocument);
+    method public androidx.appsearch.app.SearchResult.Builder setRankingSignal(double);
   }
 
   public static final class SearchResult.MatchInfo {
