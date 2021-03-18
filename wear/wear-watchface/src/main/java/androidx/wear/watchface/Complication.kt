@@ -98,7 +98,7 @@ public interface CanvasComplication {
  */
 public open class CanvasComplicationDrawable(
     /** The [ComplicationDrawable] to render with. */
-    drawable: ComplicationDrawable,
+    _drawable: ComplicationDrawable,
 
     /**
      * The watch's [WatchState] which contains details pertaining to (low-bit) ambient mode and
@@ -108,7 +108,7 @@ public open class CanvasComplicationDrawable(
 ) : CanvasComplication {
 
     init {
-        drawable.callback = object :
+        _drawable.callback = object :
             Drawable.Callback {
             override fun unscheduleDrawable(who: Drawable, what: Runnable) {}
 
@@ -122,7 +122,7 @@ public open class CanvasComplicationDrawable(
     }
 
     /** The [ComplicationDrawable] to render with. */
-    public var drawable: ComplicationDrawable = drawable
+    public var drawable: ComplicationDrawable = _drawable
         set(value) {
             // Copy the ComplicationData otherwise the complication will be blank until the next
             // update.
