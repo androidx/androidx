@@ -165,6 +165,10 @@ final class PreviewTransformation {
      * display rotation.
      */
     void transformView(Size previewViewSize, int layoutDirection, @NonNull View preview) {
+        if (previewViewSize.getHeight() == 0 || previewViewSize.getWidth() == 0) {
+            Logger.w(TAG, "Transform not applied due to PreviewView size: " + previewViewSize);
+            return;
+        }
         if (!isTransformationInfoReady()) {
             return;
         }
