@@ -22,6 +22,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
+import androidx.appsearch.localstorage.stats.SearchStats;
 
 /**
  * An interface for implementing client-defined logging AppSearch operations stats.
@@ -49,6 +50,11 @@ public interface AppSearchLogger {
      * Logs {@link InitializeStats}
      */
     void logStats(@NonNull InitializeStats stats) throws AppSearchException;
+
+    /**
+     * Logs {@link SearchStats}
+     */
+    void logStats(@NonNull SearchStats stats) throws AppSearchException;
 
     // TODO(b/173532925) Add remaining logStats once we add all the stats.
 }

@@ -55,6 +55,7 @@ import androidx.appsearch.localstorage.converter.SetSchemaResponseToProtoConvert
 import androidx.appsearch.localstorage.converter.TypePropertyPathToProtoConverter;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
+import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -689,6 +690,7 @@ public final class AppSearchImpl implements Closeable {
      * @param databaseName    The databaseName this query for.
      * @param queryExpression Query String to search.
      * @param searchSpec      Spec for setting filters, raw query etc.
+     * @param logger          logger to collect query stats
      * @return The results of performing this search. It may contain an empty list of results if
      * no documents matched the query.
      * @throws AppSearchException on IcingSearchEngine error.
@@ -698,7 +700,16 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull String queryExpression,
-            @NonNull SearchSpec searchSpec) throws AppSearchException {
+            @NonNull SearchSpec searchSpec,
+            @Nullable AppSearchLogger logger) throws AppSearchException {
+        long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+        SearchStats.Builder sStatsBuilder = null;
+        if (logger != null) {
+            sStatsBuilder =
+                    new SearchStats.Builder(SearchStats.VISIBILITY_SCOPE_LOCAL,
+                            packageName).setDatabase(databaseName);
+        }
+
         mReadWriteLock.readLock().lock();
         try {
             throwIfClosedLocked();
@@ -716,9 +727,15 @@ public final class AppSearchImpl implements Closeable {
             return doQueryLocked(Collections.singleton(createPrefix(packageName, databaseName)),
                     allowedPrefixedSchemas,
                     queryExpression,
-                    searchSpec);
+                    searchSpec,
+                    sStatsBuilder);
         } finally {
             mReadWriteLock.readLock().unlock();
+            if (logger != null && sStatsBuilder != null) {
+                sStatsBuilder.setTotalLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
+                logger.logStats(sStatsBuilder.build());
+            }
         }
     }
 
@@ -732,6 +749,7 @@ public final class AppSearchImpl implements Closeable {
      * @param searchSpec        Spec for setting filters, raw query etc.
      * @param callerPackageName Package name of the caller, should belong to the {@code callerUid}.
      * @param callerUid         UID of the client making the globalQuery call.
+     * @param logger            logger to collect globalQuery stats
      * @return The results of performing this search. It may contain an empty list of results if
      * no documents matched the query.
      * @throws AppSearchException on IcingSearchEngine error.
@@ -741,7 +759,17 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec,
             @NonNull String callerPackageName,
-            int callerUid) throws AppSearchException {
+            int callerUid,
+            @Nullable AppSearchLogger logger) throws AppSearchException {
+        long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+        SearchStats.Builder sStatsBuilder = null;
+        if (logger != null) {
+            sStatsBuilder =
+                    new SearchStats.Builder(
+                            SearchStats.VISIBILITY_SCOPE_GLOBAL,
+                            callerPackageName);
+        }
+
         mReadWriteLock.readLock().lock();
         try {
             throwIfClosedLocked();
@@ -796,9 +824,15 @@ public final class AppSearchImpl implements Closeable {
             }
 
             return doQueryLocked(prefixFilters, allowedPrefixedSchemas, queryExpression,
-                    searchSpec);
+                    searchSpec, sStatsBuilder);
         } finally {
             mReadWriteLock.readLock().unlock();
+
+            if (logger != null && sStatsBuilder != null) {
+                sStatsBuilder.setTotalLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
+                logger.logStats(sStatsBuilder.build());
+            }
         }
     }
 
@@ -836,8 +870,11 @@ public final class AppSearchImpl implements Closeable {
             @NonNull Set<String> prefixes,
             @NonNull Set<String> allowedPrefixedSchemas,
             @NonNull String queryExpression,
-            @NonNull SearchSpec searchSpec)
+            @NonNull SearchSpec searchSpec,
+            @Nullable SearchStats.Builder sStatsBuilder)
             throws AppSearchException {
+        long rewriteSearchSpecLatencyStartMillis = SystemClock.elapsedRealtime();
+
         SearchSpecProto.Builder searchSpecBuilder =
                 SearchSpecToProtoConverter.toSearchSpecProto(searchSpec).toBuilder().setQuery(
                         queryExpression);
@@ -846,9 +883,16 @@ public final class AppSearchImpl implements Closeable {
         // sending request to Icing.
         if (!rewriteSearchSpecForPrefixesLocked(searchSpecBuilder, prefixes,
                 allowedPrefixedSchemas)) {
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setRewriteSearchSpecLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime()
+                                - rewriteSearchSpecLatencyStartMillis));
+            }
             return new SearchResultPage(Bundle.EMPTY);
         }
 
+        // rewriteSearchSpec, rewriteResultSpec and convertScoringSpec are all counted in
+        // rewriteSearchSpecLatencyMillis
         ResultSpecProto.Builder resultSpecBuilder =
                 SearchSpecToProtoConverter.toResultSpecProto(searchSpec).toBuilder();
 
@@ -864,14 +908,35 @@ public final class AppSearchImpl implements Closeable {
             addPerNamespaceResultGroupingsLocked(resultSpecBuilder, prefixes,
                     searchSpec.getResultGroupingLimit());
         }
-        rewriteResultSpecForPrefixesLocked(resultSpecBuilder, prefixes, allowedPrefixedSchemas);
 
+        rewriteResultSpecForPrefixesLocked(resultSpecBuilder, prefixes, allowedPrefixedSchemas);
         ScoringSpecProto scoringSpec = SearchSpecToProtoConverter.toScoringSpecProto(searchSpec);
+
+        long rewriteSearchSpecLatencyEndMillis = SystemClock.elapsedRealtime();
+
         SearchResultProto searchResultProto = mIcingSearchEngineLocked.search(
                 searchSpecBuilder.build(), scoringSpec, resultSpecBuilder.build());
+
+        if (sStatsBuilder != null) {
+            sStatsBuilder
+                    .setStatusCode(statusProtoToAppSearchException(
+                            searchResultProto.getStatus()).getResultCode())
+                    .setRewriteSearchSpecLatencyMillis((int) (rewriteSearchSpecLatencyEndMillis
+                            - rewriteSearchSpecLatencyStartMillis));
+            AppSearchLoggerHelper.copyNativeStats(searchResultProto.getQueryStats(), sStatsBuilder);
+        }
+
         checkSuccess(searchResultProto.getStatus());
 
-        return rewriteSearchResultProto(searchResultProto, mSchemaMapLocked);
+        long rewriteSearchResultLatencyStartMillis = SystemClock.elapsedRealtime();
+        SearchResultPage resultPage = rewriteSearchResultProto(searchResultProto, mSchemaMapLocked);
+        if (sStatsBuilder != null) {
+            sStatsBuilder.setRewriteSearchResultLatencyMillis(
+                    (int) (SystemClock.elapsedRealtime()
+                            - rewriteSearchResultLatencyStartMillis));
+        }
+
+        return resultPage;
     }
 
     /**

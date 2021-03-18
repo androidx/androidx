@@ -495,7 +495,7 @@ public class AppSearchImplTest {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package", "EmptyDatabase", "",
-                searchSpec);
+                searchSpec, /*logger=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
     }
 
@@ -530,7 +530,7 @@ public class AppSearchImplTest {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package2", "database2", "",
-                searchSpec);
+                searchSpec, /*logger=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
 
         // Insert package2 document
@@ -538,7 +538,8 @@ public class AppSearchImplTest {
         mAppSearchImpl.putDocument("package2", "database2", document, /*logger=*/ null);
 
         // No query filters specified. package2 should only get its own documents back.
-        searchResultPage = mAppSearchImpl.query("package2", "database2", "", searchSpec);
+        searchResultPage = mAppSearchImpl.query("package2", "database2", "", searchSpec, /*logger=
+         */ null);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document);
     }
@@ -577,7 +578,7 @@ public class AppSearchImplTest {
                 .addFilterPackageNames("package1")
                 .build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package2", "database2", "",
-                searchSpec);
+                searchSpec, /*logger=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
 
         // Insert package2 document
@@ -589,7 +590,8 @@ public class AppSearchImplTest {
                 .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
                 .addFilterPackageNames("package2")
                 .build();
-        searchResultPage = mAppSearchImpl.query("package2", "database2", "", searchSpec);
+        searchResultPage = mAppSearchImpl.query("package2", "database2", "", searchSpec, /*logger=
+         */ null);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document);
     }
@@ -599,7 +601,7 @@ public class AppSearchImplTest {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
         SearchResultPage searchResultPage = mAppSearchImpl.globalQuery("", searchSpec,
-                /*callerPackageName=*/ "", /*callerUid=*/ 0);
+                /*callerPackageName=*/ "", /*callerUid=*/ 0, /*logger=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
     }
 
@@ -834,7 +836,7 @@ public class AppSearchImplTest {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package",
-                "database",  /*queryExpression=*/ "", searchSpec);
+                "database",  /*queryExpression=*/ "", searchSpec, /*logger=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document);
 
@@ -843,7 +845,7 @@ public class AppSearchImplTest {
 
         // Verify the document is cleared.
         searchResultPage = mAppSearchImpl.query("package2", "database2",
-                /*queryExpression=*/ "", searchSpec);
+                /*queryExpression=*/ "", searchSpec, /*logger=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
 
         // Verify the schema is cleared.
@@ -990,7 +992,7 @@ public class AppSearchImplTest {
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setRankingStrategy(SearchSpec.RANKING_STRATEGY_USAGE_COUNT)
-                        .build()).getResults();
+                        .build(), /*logger=*/ null).getResults();
         assertThat(page).hasSize(2);
         assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("id1");
         assertThat(page.get(1).getGenericDocument().getId()).isEqualTo("id2");
@@ -1000,7 +1002,7 @@ public class AppSearchImplTest {
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setRankingStrategy(SearchSpec.RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP)
-                        .build()).getResults();
+                        .build(), /*logger=*/ null).getResults();
         assertThat(page).hasSize(2);
         assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("id2");
         assertThat(page.get(1).getGenericDocument().getId()).isEqualTo("id1");
@@ -1010,7 +1012,7 @@ public class AppSearchImplTest {
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setRankingStrategy(SearchSpec.RANKING_STRATEGY_SYSTEM_USAGE_COUNT)
-                        .build()).getResults();
+                        .build(), /*logger=*/ null).getResults();
         assertThat(page).hasSize(2);
         assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("id2");
         assertThat(page.get(1).getGenericDocument().getId()).isEqualTo("id1");
@@ -1021,7 +1023,7 @@ public class AppSearchImplTest {
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setRankingStrategy(
                                 SearchSpec.RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP)
-                        .build()).getResults();
+                        .build(), /*logger=*/ null).getResults();
         assertThat(page).hasSize(2);
         assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("id1");
         assertThat(page.get(1).getGenericDocument().getId()).isEqualTo("id2");
@@ -1225,13 +1227,13 @@ public class AppSearchImplTest {
         assertThrows(IllegalStateException.class, () -> {
             appSearchImpl.query("package", "database", "query",
                     new SearchSpec.Builder().setTermMatch(
-                            TermMatchType.Code.PREFIX_VALUE).build());
+                            TermMatchType.Code.PREFIX_VALUE).build(), /*logger=*/ null);
         });
 
         assertThrows(IllegalStateException.class, () -> {
             appSearchImpl.globalQuery("query",
                     new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build(),
-                    "package", /*callerUid=*/ 1);
+                    "package", /*callerUid=*/ 1, /*logger=*/ null);
         });
 
         assertThrows(IllegalStateException.class, () -> {

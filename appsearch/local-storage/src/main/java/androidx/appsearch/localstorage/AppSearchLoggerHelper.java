@@ -20,10 +20,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
+import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.InitializeStatsProto;
 import com.google.android.icing.proto.PutDocumentStatsProto;
+import com.google.android.icing.proto.QueryStatsProto;
 
 /**
  * Class contains helper functions for logging.
@@ -88,5 +90,36 @@ public final class AppSearchLoggerHelper {
                         fromNativeStats.getDocumentStoreDataStatus().getNumber())
                 .setDocumentCount(fromNativeStats.getNumDocuments())
                 .setSchemaTypeCount(fromNativeStats.getNumSchemaTypes());
+    }
+
+    /*
+     * Copy native Query stats to buiilder.
+     *
+     * @param fromNativeStats Stats copied from.
+     * @param toStatsBuilder Stats copied to.
+     */
+    static void copyNativeStats(@NonNull QueryStatsProto fromNativeStats,
+            @NonNull SearchStats.Builder toStatsBuilder) {
+        Preconditions.checkNotNull(fromNativeStats);
+        Preconditions.checkNotNull(toStatsBuilder);
+        toStatsBuilder
+                .setNativeLatencyMillis(fromNativeStats.getLatencyMs())
+                .setTermCount(fromNativeStats.getNumTerms())
+                // TODO(b/173532925) query length missing in native
+                // .setNativeQueryLength(0)
+                .setFilteredNamespaceCount(fromNativeStats.getNumNamespacesFiltered())
+                .setFilteredSchemaTypeCount(fromNativeStats.getNumSchemaTypesFiltered())
+                .setRequestedPageSize(fromNativeStats.getRequestedPageSize())
+                .setCurrentPageReturnedResultCount(
+                        fromNativeStats.getNumResultsReturnedCurrentPage())
+                .setIsFirstPage(fromNativeStats.getIsFirstPage())
+                .setParseQueryLatencyMillis(fromNativeStats.getParseQueryLatencyMs())
+                .setRankingStrategy(fromNativeStats.getRankingStrategy().getNumber())
+                .setScoredDocumentCount(fromNativeStats.getNumDocumentsScored())
+                .setScoringLatencyMillis(fromNativeStats.getScoringLatencyMs())
+                .setRankingLatencyMillis(fromNativeStats.getRankingLatencyMs())
+                .setResultWithSnippetsCount(fromNativeStats.getNumResultsWithSnippets())
+                .setDocumentRetrievingLatencyMillis(
+                        fromNativeStats.getDocumentRetrievalLatencyMs());
     }
 }
