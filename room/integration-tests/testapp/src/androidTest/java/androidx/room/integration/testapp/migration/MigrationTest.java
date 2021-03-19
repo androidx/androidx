@@ -296,6 +296,29 @@ public class MigrationTest {
     }
 
     @Test
+    public void validateDefaultValueWithSurroundingParenthesis() throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, 12);
+        database.close();
+        Context targetContext = ApplicationProvider.getApplicationContext();
+        MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                .addMigrations(MIGRATION_12_13)
+                .build();
+
+        assertThat(db.dao().loadAllEntity1s(), is(notNullValue()));
+        helper.closeWhenFinished(db);
+
+        // Confirm if this is also works with the Migration Test Helper.
+        Throwable throwable = null;
+        try {
+            helper.runMigrationsAndValidate(TEST_DB, 13, true,
+                    MIGRATION_12_13);
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        assertThat(throwable, is(nullValue()));
+    }
+
+    @Test
     public void missingMigration_onUpgrade() throws IOException {
         SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, 1);
         database.close();
@@ -510,7 +533,7 @@ public class MigrationTest {
         database.close();
         Context targetContext = ApplicationProvider.getApplicationContext();
         MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
-                .addMigrations(new EmptyMigration(11, 12))
+                .addMigrations(new EmptyMigration(11, MIGRATION_MAX_LATEST.endVersion))
                 .build();
         try {
             db.dao().loadAllEntity1s();
@@ -657,6 +680,14 @@ public class MigrationTest {
         }
     };
 
+    private static final Migration MIGRATION_12_13 = new Migration(12, 13) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE Entity1 "
+                    + "ADD COLUMN added1InV13 INTEGER NOT NULL DEFAULT (0)");
+        }
+    };
+
     /**
      * Downgrade migration from {@link MigrationDb#MAX_VERSION} to
      * {@link MigrationDb#LATEST_VERSION} that uses the schema file and re-creates the tables such
@@ -697,7 +728,8 @@ public class MigrationTest {
 
     private static final Migration[] ALL_MIGRATIONS = new Migration[]{MIGRATION_1_2,
             MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
-            MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12};
+            MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12,
+            MIGRATION_12_13};
 
     static final class EmptyMigration extends Migration {
         EmptyMigration(int startVersion, int endVersion) {
