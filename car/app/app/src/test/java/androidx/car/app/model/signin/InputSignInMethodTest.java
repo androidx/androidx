@@ -53,8 +53,8 @@ public class InputSignInMethodTest {
 
         assertThat(signIn.getInputType()).isEqualTo(INPUT_TYPE_DEFAULT);
         assertThat(signIn.getKeyboardType()).isEqualTo(KEYBOARD_DEFAULT);
-        assertThat(signIn.getPrompt()).isNull();
-        assertThat(signIn.getMessage()).isNull();
+        assertThat(signIn.getHint()).isNull();
+        assertThat(signIn.getErrorMessage()).isNull();
         assertThat(signIn.isShowKeyboardByDefault()).isFalse();
 
         OnInputCompletedDelegate delegate = signIn.getOnInputCompletedDelegate();
@@ -86,19 +86,19 @@ public class InputSignInMethodTest {
     @Test
     public void create_wtihPrompt() {
         InputSignInMethod signIn = new InputSignInMethod.Builder(mListener)
-                .setPrompt("Signin")
+                .setHint("Signin")
                 .build();
 
-        assertThat(signIn.getPrompt().toString()).isEqualTo("Signin");
+        assertThat(signIn.getHint().toString()).isEqualTo("Signin");
     }
 
     @Test
     public void create_withMessage() {
         InputSignInMethod signIn = new InputSignInMethod.Builder(mListener)
-                .setMessage("error")
+                .setErrorMessage("error")
                 .build();
 
-        assertThat(signIn.getMessage().toString()).isEqualTo("error");
+        assertThat(signIn.getErrorMessage().toString()).isEqualTo("error");
     }
 
     @Test
@@ -120,8 +120,8 @@ public class InputSignInMethodTest {
         InputSignInMethod signIn = new InputSignInMethod.Builder(mListener)
                 .setInputType(inputType)
                 .setKeyboardType(keyboardType)
-                .setPrompt(instructions)
-                .setMessage(message)
+                .setHint(instructions)
+                .setErrorMessage(message)
                 .setShowKeyboardByDefault(true)
                 .build();
 
@@ -129,8 +129,8 @@ public class InputSignInMethodTest {
                 .isEqualTo(new InputSignInMethod.Builder(mListener)
                         .setInputType(inputType)
                         .setKeyboardType(keyboardType)
-                        .setPrompt(instructions)
-                        .setMessage(message)
+                        .setHint(instructions)
+                        .setErrorMessage(message)
                         .setShowKeyboardByDefault(true)
                         .build());
     }
@@ -144,8 +144,8 @@ public class InputSignInMethodTest {
         InputSignInMethod signIn = new InputSignInMethod.Builder(mListener)
                 .setInputType(INPUT_TYPE_PASSWORD)
                 .setKeyboardType(keyboardType)
-                .setPrompt(instructions)
-                .setMessage(message)
+                .setHint(instructions)
+                .setErrorMessage(message)
                 .setShowKeyboardByDefault(true)
                 .build();
 
@@ -153,8 +153,8 @@ public class InputSignInMethodTest {
                 .isNotEqualTo(new InputSignInMethod.Builder(mListener)
                         .setInputType(INPUT_TYPE_DEFAULT)
                         .setKeyboardType(keyboardType)
-                        .setPrompt(instructions)
-                        .setMessage(message)
+                        .setHint(instructions)
+                        .setErrorMessage(message)
                         .setShowKeyboardByDefault(true)
                         .build());
     }
@@ -168,8 +168,8 @@ public class InputSignInMethodTest {
         InputSignInMethod signIn = new InputSignInMethod.Builder(mListener)
                 .setInputType(inputType)
                 .setKeyboardType(KEYBOARD_EMAIL)
-                .setPrompt(instructions)
-                .setMessage(message)
+                .setHint(instructions)
+                .setErrorMessage(message)
                 .setShowKeyboardByDefault(true)
                 .build();
 
@@ -177,8 +177,8 @@ public class InputSignInMethodTest {
                 .isNotEqualTo(new InputSignInMethod.Builder(mListener)
                         .setInputType(inputType)
                         .setKeyboardType(KEYBOARD_DEFAULT)
-                        .setPrompt(instructions)
-                        .setMessage(message)
+                        .setHint(instructions)
+                        .setErrorMessage(message)
                         .setShowKeyboardByDefault(true)
                         .build());
     }
@@ -192,8 +192,8 @@ public class InputSignInMethodTest {
         InputSignInMethod signIn = new InputSignInMethod.Builder(mListener)
                 .setInputType(inputType)
                 .setKeyboardType(keyboardType)
-                .setPrompt("signin")
-                .setMessage(message)
+                .setHint("signin")
+                .setErrorMessage(message)
                 .setShowKeyboardByDefault(true)
                 .build();
 
@@ -201,8 +201,8 @@ public class InputSignInMethodTest {
                 .isNotEqualTo(new InputSignInMethod.Builder(mListener)
                         .setInputType(inputType)
                         .setKeyboardType(keyboardType)
-                        .setPrompt("sign2")
-                        .setMessage(message)
+                        .setHint("sign2")
+                        .setErrorMessage(message)
                         .setShowKeyboardByDefault(true)
                         .build());
     }
@@ -216,8 +216,8 @@ public class InputSignInMethodTest {
         InputSignInMethod signIn = new InputSignInMethod.Builder(mListener)
                 .setInputType(inputType)
                 .setKeyboardType(keyboardType)
-                .setPrompt(instructions)
-                .setMessage("error")
+                .setHint(instructions)
+                .setErrorMessage("error")
                 .setShowKeyboardByDefault(true)
                 .build();
 
@@ -225,8 +225,8 @@ public class InputSignInMethodTest {
                 .isNotEqualTo(new InputSignInMethod.Builder(mListener)
                         .setInputType(inputType)
                         .setKeyboardType(keyboardType)
-                        .setPrompt(instructions)
-                        .setMessage("error2")
+                        .setHint(instructions)
+                        .setErrorMessage("error2")
                         .setShowKeyboardByDefault(true)
                         .build());
     }
@@ -241,8 +241,8 @@ public class InputSignInMethodTest {
         InputSignInMethod signIn = new InputSignInMethod.Builder(mListener)
                 .setInputType(inputType)
                 .setKeyboardType(keyboardType)
-                .setPrompt(instructions)
-                .setMessage(message)
+                .setHint(instructions)
+                .setErrorMessage(message)
                 .setShowKeyboardByDefault(true)
                 .build();
 
@@ -250,8 +250,8 @@ public class InputSignInMethodTest {
                 .isNotEqualTo(new InputSignInMethod.Builder(mListener)
                         .setInputType(inputType)
                         .setKeyboardType(keyboardType)
-                        .setPrompt(instructions)
-                        .setMessage(message)
+                        .setHint(instructions)
+                        .setErrorMessage(message)
                         .setShowKeyboardByDefault(false)
                         .build());
     }

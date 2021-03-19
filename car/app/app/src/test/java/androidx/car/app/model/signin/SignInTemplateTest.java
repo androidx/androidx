@@ -51,6 +51,7 @@ public class SignInTemplateTest {
                 .build();
 
         assertThat(template.getTitle().toString()).isEqualTo("Title");
+        assertThat(template.isLoading()).isFalse();
         assertThat(template.getHeaderAction()).isNull();
         assertThat(template.getSignInMethod()).isEqualTo(signInMethod);
         assertThat(template.getActions()).isEmpty();
@@ -70,6 +71,16 @@ public class SignInTemplateTest {
                                         new Action.Builder().setTitle("Action").setOnClickListener(
                                                 () -> {
                                                 }).build()));
+    }
+
+    @Test
+    public void createInstance_setLoading() {
+        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        SignInTemplate template = new SignInTemplate.Builder(signInMethod)
+                .setHeaderAction(Action.BACK)
+                .setLoading(true)
+                .build();
+        assertThat(template.isLoading()).isTrue();
     }
 
     @Test
@@ -152,6 +163,7 @@ public class SignInTemplateTest {
 
         SignInTemplate template = new SignInTemplate.Builder(signInMethod)
                 .setTitle(title)
+                .setLoading(true)
                 .setInstructions(instructions)
                 .setAdditionalText(additionalText)
                 .addAction(action)
@@ -161,6 +173,37 @@ public class SignInTemplateTest {
         assertThat(template)
                 .isEqualTo(
                         new SignInTemplate.Builder(signInMethod)
+                                .setLoading(true)
+                                .setTitle(title)
+                                .setInstructions(instructions)
+                                .setAdditionalText(additionalText)
+                                .addAction(action)
+                                .setActionStrip(actionStrip)
+                                .build());
+    }
+
+    @Test
+    public void notEquals_differentLoadingState() {
+        PinSignInMethod signInMethod = new PinSignInMethod.Builder("ABC").build();
+        String title = "Title";
+        String instructions = "instructions";
+        String additionalText = "Text";
+        Action action = Action.BACK;
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(action).build();
+
+        SignInTemplate template = new SignInTemplate.Builder(signInMethod)
+                .setTitle(title)
+                .setLoading(true)
+                .setInstructions(instructions)
+                .setAdditionalText(additionalText)
+                .addAction(action)
+                .setActionStrip(actionStrip)
+                .build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new SignInTemplate.Builder(signInMethod)
+                                .setLoading(false)
                                 .setTitle(title)
                                 .setInstructions(instructions)
                                 .setAdditionalText(additionalText)
