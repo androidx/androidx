@@ -329,8 +329,7 @@ class ExampleAnalogWatchCanvasRenderer(
                     // the styles are defined in XML so we need to replace the complication's
                     // drawables.
                     for ((_, complication) in complicationsManager.complications) {
-                        (complication.renderer as CanvasComplicationDrawable).drawable =
-                            watchFaceColorStyle.getDrawable(context)!!
+                        complication.renderer.drawable = watchFaceColorStyle.getDrawable(context)!!
                     }
 
                     val drawPipsOption = userStyle[drawPipsStyleSetting]?.toBooleanOption()!!
