@@ -35,6 +35,7 @@ class ShortcutUtils {
     public static final String SHORTCUT_DESCRIPTION_KEY = "shortcutDescription";
     public static final String SHORTCUT_URL_KEY = "shortcutUrl";
     public static final String ID_KEY = "id";
+    public static final String CAPABILITY_PARAM_SEPARATOR = "/";
 
     private static final String APP_ACTION_CAPABILITY_PREFIX = "actions.intent.";
 
@@ -69,8 +70,8 @@ class ShortcutUtils {
         return shortcutIntent.toUri(0);
     }
 
-    public static boolean isAppActionCapability(String category) {
-        return category.startsWith(APP_ACTION_CAPABILITY_PREFIX);
+    public static boolean isAppActionCapability(@NonNull final String capability) {
+        return capability.startsWith(APP_ACTION_CAPABILITY_PREFIX);
     }
 
     private ShortcutUtils() {}
