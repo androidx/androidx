@@ -270,7 +270,7 @@ public class ComplicationsManager(
         val complication = complications[watchFaceComplicationId] ?: return
         complication.dataDirty = complication.dataDirty ||
             (complication.renderer.getData() != data)
-        complication.renderer.setData(data, true)
+        complication.renderer.loadData(data, true)
         (complication.complicationData as MutableObservableWatchData<ComplicationData>).value =
             data
     }
@@ -278,20 +278,20 @@ public class ComplicationsManager(
     @UiThread
     internal fun clearComplicationData() {
         for ((_, complication) in complications) {
-            complication.renderer.setData(null, false)
+            complication.renderer.loadData(null, false)
             (complication.complicationData as MutableObservableWatchData).value =
                 EmptyComplicationData()
         }
     }
 
     /**
-     * Brings attention to the complication by briefly highlighting it to provide visual feedback
+     * Starts a short animation, briefly highlighting the complication to provide visual feedback
      * when the user has tapped on it.
      *
      * @param complicationId The watch face's ID of the complication to briefly highlight
      */
     @UiThread
-    public fun bringAttentionToComplication(complicationId: Int) {
+    public fun displayPressedAnimation(complicationId: Int) {
         val complication = requireNotNull(complications[complicationId]) {
             "No complication found with ID $complicationId"
         }

@@ -4,9 +4,9 @@ package androidx.wear.watchface {
   public interface CanvasComplication {
     method public androidx.wear.complications.data.ComplicationData? getData();
     method public boolean isHighlighted();
+    method public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
     method @UiThread public void onAttach(androidx.wear.watchface.Complication complication);
     method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters, int complicationId);
-    method public void setData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
     method public void setIsHighlighted(boolean p);
     property public abstract boolean isHighlighted;
   }
@@ -17,9 +17,9 @@ package androidx.wear.watchface {
     method public androidx.wear.complications.data.ComplicationData? getData();
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
     method @UiThread public boolean isHighlighted();
+    method public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
     method public void onAttach(androidx.wear.watchface.Complication complication);
     method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters, int complicationId);
-    method public void setData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
     method public final void setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable value);
     method @UiThread public void setIsHighlighted(boolean value);
     property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
@@ -84,7 +84,7 @@ package androidx.wear.watchface {
   public final class ComplicationsManager {
     ctor public ComplicationsManager(java.util.Collection<androidx.wear.watchface.Complication> complicationCollection, androidx.wear.watchface.style.UserStyleRepository userStyleRepository);
     method @UiThread public void addTapListener(androidx.wear.watchface.ComplicationsManager.TapCallback tapCallback);
-    method @UiThread public void bringAttentionToComplication(int complicationId);
+    method @UiThread public void displayPressedAnimation(int complicationId);
     method public operator androidx.wear.watchface.Complication? get(int id);
     method public androidx.wear.watchface.Complication? getBackgroundComplication();
     method public androidx.wear.watchface.Complication? getComplicationAt(@Px int x, @Px int y);

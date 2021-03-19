@@ -624,7 +624,7 @@ public abstract class WatchFaceService : WallpaperService() {
             params.idAndComplicationDatumWireFormats?.let {
                 for (idAndData in it) {
                     watchFaceImpl.complicationsManager[idAndData.id]!!.renderer
-                        .setData(idAndData.complicationData.asApiComplicationData(), false)
+                        .loadData(idAndData.complicationData.asApiComplicationData(), false)
                 }
             }
 
@@ -642,7 +642,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
             if (params.idAndComplicationDatumWireFormats != null) {
                 for ((id, data) in oldComplicationData) {
-                    watchFaceImpl.complicationsManager[id]!!.renderer.setData(data, false)
+                    watchFaceImpl.complicationsManager[id]!!.renderer.loadData(data, false)
                 }
             }
 
@@ -677,7 +677,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 val screenshotComplicationData = params.complicationData
                 if (screenshotComplicationData != null) {
                     prevData = it.renderer.getData()
-                    it.renderer.setData(
+                    it.renderer.loadData(
                         screenshotComplicationData.asApiComplicationData(),
                         false
                     )
@@ -693,7 +693,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 // Restore previous ComplicationData & style if required.
                 if (params.complicationData != null) {
-                    it.renderer.setData(prevData, false)
+                    it.renderer.loadData(prevData, false)
                 }
 
                 if (newStyle != null) {
