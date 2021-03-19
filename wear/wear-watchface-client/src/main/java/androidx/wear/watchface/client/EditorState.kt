@@ -16,6 +16,8 @@
 
 package androidx.wear.watchface.client
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.asApiComplicationData
@@ -26,7 +28,7 @@ import androidx.wear.watchface.style.UserStyle
  * The state of the editing session. See [androidx.wear.watchface.editor.EditorSession].
  *
  * @param watchFaceInstanceId Unique ID for the instance of the watch face being edited, only
- *     defined for Android R and beyond, it's `null` on Android P and earlier.
+ *     defined for Android R and beyond.
  * @param userStyle The current [UserStyle] encoded as a Map<String, String>.
  * @param previewComplicationData Preview [ComplicationData] needed for taking screenshots without
  *     live complication data.
@@ -36,7 +38,8 @@ import androidx.wear.watchface.style.UserStyle
  *     library will have restored the previous style.
  */
 public class EditorState internal constructor(
-    public val watchFaceInstanceId: String?,
+    @RequiresApi(Build.VERSION_CODES.R)
+    public val watchFaceInstanceId: String,
     public val userStyle: Map<String, String>,
     public val previewComplicationData: Map<Int, ComplicationData>,
     @get:JvmName("hasCommitChanges")
@@ -47,7 +50,7 @@ public class EditorState internal constructor(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun EditorStateWireFormat.asApiEditorState(): EditorState {
     return EditorState(
-        watchFaceInstanceId,
+        watchFaceInstanceId ?: "",
         userStyle.mUserStyle,
         previewComplicationData.associateBy(
             { it.id },
