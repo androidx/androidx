@@ -48,10 +48,13 @@ abstract class CameraAppModule {
 @Module
 class CameraAppConfig(
     private val context: Context,
-    private val threadConfig: CameraThreadConfig
+    private val cameraThreadConfig: CameraThreadConfig
 ) {
     @Provides
     fun provideContext(): Context = context
+
+    @Provides
+    fun provideCameraThreadConfig(): CameraThreadConfig = cameraThreadConfig
 }
 
 /** Dagger component for Application (Process) scoped dependencies. */

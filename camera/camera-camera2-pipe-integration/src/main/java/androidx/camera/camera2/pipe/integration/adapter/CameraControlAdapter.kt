@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraCharacteristics
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
@@ -38,7 +39,6 @@ import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -57,7 +57,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 class CameraControlAdapter @Inject constructor(
     private val cameraProperties: CameraProperties,
-    private val cameraScope: CoroutineScope,
+    private val threads: UseCaseThreads,
     private val useCaseManager: UseCaseManager,
     private val cameraStateAdapter: CameraStateAdapter,
     private val zoomControl: ZoomControl,
@@ -84,7 +84,7 @@ class CameraControlAdapter @Inject constructor(
 
     override fun enableTorch(torch: Boolean): ListenableFuture<Void> {
         // Launch UNDISPATCHED to preserve interaction order with the camera.
-        return cameraScope.launch(start = CoroutineStart.UNDISPATCHED) {
+        return threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
             useCaseManager.camera?.let {
                 // Tell the camera to turn the torch on / off.
                 val result = it.setTorchAsync(torch)
@@ -116,7 +116,7 @@ class CameraControlAdapter @Inject constructor(
     }
 
     override fun setZoomRatio(ratio: Float): ListenableFuture<Void> {
-        return cameraScope.launch(start = CoroutineStart.UNDISPATCHED) {
+        return threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
             useCaseManager.camera?.let {
                 zoomControl.zoomRatio = ratio
                 val zoomValue = ZoomValue(
@@ -159,7 +159,7 @@ class CameraControlAdapter @Inject constructor(
 
     @SuppressLint("UnsafeExperimentalUsageError")
     override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> {
-        return cameraScope.async(start = CoroutineStart.UNDISPATCHED) {
+        return threads.scope.async(start = CoroutineStart.UNDISPATCHED) {
             useCaseManager.camera?.let {
                 evCompControl.evCompIndex = exposure
                 cameraStateAdapter.setExposureState(
