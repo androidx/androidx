@@ -12,7 +12,7 @@ package androidx.wear.watchface {
   }
 
   public class CanvasComplicationDrawable implements androidx.wear.watchface.CanvasComplication {
-    ctor public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable, androidx.wear.watchface.WatchState watchState);
+    ctor public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable _drawable, androidx.wear.watchface.WatchState watchState);
     method public void drawOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, @ColorInt int color);
     method public androidx.wear.complications.data.ComplicationData? getData();
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
@@ -254,7 +254,7 @@ package androidx.wear.watchface {
 
   public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
     ctor public WatchFaceService();
-    method protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace> p);
+    method @UiThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace> p);
     method public final android.service.wallpaper.WallpaperService.Engine onCreateEngine();
   }
 

@@ -25,17 +25,28 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 /**
  * The users style choices represented as a map of [UserStyleSetting] to
  * [UserStyleSetting.Option].
+ *
+ * @param selectedOptions The [UserStyleSetting.Option] selected for each [UserStyleSetting]
  */
 public class UserStyle(
     public val selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>
 ) {
-    /** Constructs a UserStyle with a deep copy of the [selectedOptions]. */
+    /**
+     * Constructs a UserStyle with a deep copy of the [selectedOptions].
+     *
+     * @param userStyle The [UserStyle] to copy.
+     */
     public constructor(userStyle: UserStyle) : this(HashMap(userStyle.selectedOptions))
 
     /**
      * Constructs a [UserStyle] from a Map<String, String> and the [UserStyleSchema]. Unrecognized
      * style settings will be ignored. Unlisted style settings will be initialized with that
      * settings default option.
+     *
+     * @param userStyle The [UserStyle] represented as a Map<String, String> of
+     *     [UserStyleSetting.id] to [UserStyleSetting.Option.id]
+     * @param styleSchema The [UserStyleSchema] for this UserStyle, describes how we interpret
+     *     [userStyle].
      */
     public constructor(
         userStyle: Map<String, String>,
@@ -79,12 +90,13 @@ public class UserStyle(
         ) + "]"
 }
 
-/** Describes the list of [UserStyleSetting]s the user can configure. */
+/**
+ * Describes the list of [UserStyleSetting]s the user can configure.
+ *
+ * @param userStyleSettings The user configurable style categories associated with this watch
+ *     face. Empty if the watch face doesn't support user styling.
+ */
 public class UserStyleSchema(
-    /**
-     * The user configurable style categories associated with this watch face. Empty if the watch
-     * face doesn't support user styling.
-     */
     public val userStyleSettings: List<UserStyleSetting>
 ) {
     init {
@@ -122,12 +134,11 @@ public class UserStyleSchema(
  * An in memory storage for user style choices represented as [UserStyle], listeners can be
  * registered to observe style changes. The UserStyleRepository is initialized with a
  * [UserStyleSchema].
+ *
+ * @param schema The [UserStyleSchema] for this UserStyleRepository which describes the available
+ *     style categories.
  */
 public class UserStyleRepository(
-    /**
-     * The [UserStyleSchema] for this UserStyleRepository which describes the available style
-     * categories.
-     */
     public val schema: UserStyleSchema
 ) {
     /** A listener for observing [UserStyle] changes. */

@@ -34,17 +34,17 @@ import androidx.annotation.IntDef
 )
 public annotation class InterruptionFilter
 
-/** Describes the system state of the watch face. */
+/**
+ * Describes the system state of the watch face.
+ *
+ * @param inAmbientMode Whether the device is is ambient mode or not.
+ * @param interruptionFilter The current user interruption settings. @see [NotificationManager]
+ *     for details.
+ */
 public class SystemState(
-    /** Whether the device is is ambient mode or not. */
     @get:JvmName("inAmbientMode")
     public val inAmbientMode: Boolean,
 
-    /**
-     * The current user interruption settings.
-     *
-     * @see [NotificationManager] for details.
-     */
     @InterruptionFilter
     public val interruptionFilter: Int
 )

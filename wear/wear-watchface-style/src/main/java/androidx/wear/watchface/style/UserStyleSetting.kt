@@ -19,8 +19,10 @@ package androidx.wear.watchface.style
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.ComplicationBounds
+import androidx.wear.watchface.style.UserStyleSetting.Companion.maxIdLength
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
+import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.Option.Companion.maxIdLength
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
@@ -49,39 +51,30 @@ import java.security.InvalidParameterException
  *
  * Styling data gets shared with the companion phone to support editors (typically over bluetooth),
  * as a result the size of serialized UserStyleSettings could become an issue if large.
+ *
+ * @param id Identifier for the element, must be unique. Styling data gets shared with the companion
+ *     (typically via bluetooth) so size is a consideration and short ids are encouraged. There is a
+ *     maximum length see [maxIdLength].
+ * @param displayName Localized human readable name for the element, used in the userStyle selection
+ *     UI.
+ * @param description Localized description string displayed under the displayName.
+ * @param icon Icon for use in the style selection UI.
+ * @param options List of options for this UserStyleSetting. Depending on the type of
+ *     UserStyleSetting this may be an exhaustive list, or just examples to populate a ListView
+ *     in case the UserStyleSetting isn't supported by the UI (e.g. a new WatchFace with an old
+ *     Companion).
+ * @param defaultOptionIndex The default option index, used if nothing has been selected within the
+ *     [options] list.
+ * @param affectsLayers Used by the style configuration UI. Describes which rendering layers this
+ *     style affects.
  */
 public sealed class UserStyleSetting(
-    /**
-     * Identifier for the element, must be unique. Styling data gets shared with the companion
-     * (typically via bluetooth) so size is a consideration and short ids are encouraged. There is a
-     * maximum length see [maxIdLength].
-     */
     public val id: String,
-
-    /** Localized human readable name for the element, used in the userStyle selection UI. */
     public val displayName: CharSequence,
-
-    /** Localized description string displayed under the displayName. */
     public val description: CharSequence,
-
-    /** Icon for use in the style selection UI. */
     public val icon: Icon?,
-
-    /**
-     * List of options for this UserStyleSetting. Depending on the type of UserStyleSetting this
-     * may be an exhaustive list, or just examples to populate a ListView in case the
-     * UserStyleSetting isn't supported by the UI (e.g. a new WatchFace with an old Companion).
-     */
     public val options: List<Option>,
-
-    /**
-     * The default option index, used if nothing has been selected within the [options] list.
-     */
     public val defaultOptionIndex: Int,
-
-    /**
-     * Used by the style configuration UI. Describes which rendering layers this style affects.
-     */
     public val affectsLayers: Collection<Layer>
 ) {
     public companion object {
@@ -156,16 +149,12 @@ public sealed class UserStyleSetting(
      * Represents a choice within a style setting which can either be an option from the list or a
      * an arbitrary value depending on the nature of the style setting.
      *
-     * @property id Machine readable identifier for the style setting.
+     * @property id Machine readable identifier for the style setting. Identifier for the option
+     *     (or the option itself for [CustomValueUserStyleSetting.CustomValueOption]), must be
+     *     unique within the UserStyleSetting. Short ids are encouraged. There is a maximum
+     *     length see [maxIdLength].
      */
-    public abstract class Option(
-        /**
-         * Identifier for the option (or the option itself for
-         * [CustomValueUserStyleSetting.CustomValueOption]), must be unique within the
-         * UserStyleSetting. Short ids are encouraged. There is a maximum length see [maxIdLength].
-         */
-        public val id: String
-    ) {
+    public abstract class Option(public val id: String) {
         init {
             require(id.length <= maxIdLength) {
                 "UserStyleSetting.Option id length must not exceed $maxIdLength"
@@ -272,28 +261,24 @@ public sealed class UserStyleSetting(
     /** A BooleanUserStyleSetting represents a setting with a true and a false setting. */
     public class BooleanUserStyleSetting : UserStyleSetting {
 
+        /**
+         * Constructs a [BooleanUserStyleSetting].
+         *
+         * @param id Identifier for the element, must be unique.
+         * @param displayName Localized human readable name for the element, used in the userStyle
+         *     selection UI.
+         * @param description Localized description string displayed under the displayName.
+         * @param icon [Icon] for use in the userStyle selection UI.
+         * @param affectsLayers Used by the style configuration UI. Describes which rendering
+         *     layers this style affects.
+         * @param defaultValue The default value for this BooleanUserStyleSetting.
+         */
         public constructor (
-            /** Identifier for the element, must be unique. */
             id: String,
-
-            /**
-             * Localized human readable name for the element, used in the userStyle selection UI.
-             */
             displayName: CharSequence,
-
-            /** Localized description string displayed under the displayName. */
             description: CharSequence,
-
-            /** Icon for use in the userStyle selection UI. */
             icon: Icon?,
-
-            /**
-             * Used by the style configuration UI. Describes which rendering layers this style
-             * affects.
-             */
             affectsLayers: Collection<Layer>,
-
-            /** The default value for this BooleanUserStyleSetting. */
             defaultValue: Boolean
         ) : super(
             id,
@@ -366,22 +351,17 @@ public sealed class UserStyleSetting(
         /**
          * Overrides to be applied to the corresponding complication's initial config (as specified
          * in [androidx.wear.watchface.Complication]) when the setting is selected.
+         *
+         * @param complicationId The id of the complication to configure.
+         * @param enabled If non null, whether the complication should be enabled for this
+         *     configuration. If null then no changes are made.
+         * @param complicationBounds If non null, the new [ComplicationBounds] for this
+         *     configuration. If null then no changes are made.
          */
         public class ComplicationOverlay constructor(
-            /** The id of the complication to configure. */
             public val complicationId: Int,
-
-            /**
-             * If non null, whether the complication should be enabled for this configuration. If
-             * null then no changes are made.
-             */
             @get:JvmName("isEnabled")
             public val enabled: Boolean? = null,
-
-            /**
-             * If non null, the new [ComplicationBounds] for this configuration. If null then no
-             * changes are made.
-             */
             public val complicationBounds: ComplicationBounds? = null
         ) {
             public class Builder(
@@ -436,32 +416,28 @@ public sealed class UserStyleSetting(
                 )
         }
 
+        /**
+         * Constructs a [ComplicationsUserStyleSetting].
+         *
+         * @param id Identifier for the element, must be unique.
+         * @param displayName Localized human readable name for the element, used in the userStyle
+         *     selection UI.
+         * @param description Localized description string displayed under the displayName.
+         * @param icon [Icon] for use in the userStyle selection UI.
+         * @param complicationConfig The configuration for affected complications.
+         * @param affectsLayers Used by the style configuration UI. Describes which rendering layers
+         *     this style affects, must include [Layer.COMPLICATIONS].
+         * @param defaultOption The default option, used when data isn't persisted. Optional
+         *     parameter which defaults to the first element of [complicationConfig].
+         */
         @JvmOverloads
         public constructor (
-            /** Identifier for the element, must be unique. */
             id: String,
-
-            /**
-             * Localized human readable name for the element, used in the userStyle selection UI.
-             */
             displayName: CharSequence,
-
-            /** Localized description string displayed under the displayName. */
             description: CharSequence,
-
-            /** Icon for use in the userStyle selection UI. */
             icon: Icon?,
-
-            /** The configuration for affected complications. */
             complicationConfig: List<ComplicationsOption>,
-
-            /**
-             * Used by the style configuration UI. Describes which rendering layers this style
-             * affects, must include [Layer.COMPLICATIONS].
-             */
             affectsLayers: Collection<Layer>,
-
-            /** The default option, used when data isn't persisted. */
             defaultOption: ComplicationsOption = complicationConfig.first()
         ) : super(
             id,
@@ -506,6 +482,17 @@ public sealed class UserStyleSetting(
             /** Icon for use in the style selection UI. */
             public val icon: Icon?
 
+            /**
+             * Constructs a [ComplicationsUserStyleSetting].
+             *
+             * @param id Identifier for the element, must be unique.
+             * @param displayName Localized human readable name for the element, used in the
+             *     userStyle selection UI.
+             * @param icon [Icon] for use in the style selection UI.
+             * @param complicationOverlays Overlays to be applied when this ComplicationsOption is
+             *     selected. If this is empty then the net result is the initial complication
+             *     configuration.
+             */
             public constructor(
                 id: String,
                 displayName: CharSequence,
@@ -567,34 +554,28 @@ public sealed class UserStyleSetting(
             }
         }
 
+        /**
+         * Constructs a [DoubleRangeUserStyleSetting].
+         *
+         * @param id Identifier for the element, must be unique.
+         * @param displayName Localized human readable name for the element, used in the
+         *     userStyle selection UI.
+         * @param description Localized description string displayed under the displayName.
+         * @param icon [Icon] for use in the style selection UI.
+         * @param minimumValue Minimum value (inclusive).
+         * @param maximumValue Maximum value (inclusive).
+         * @param affectsLayers Used by the style configuration UI. Describes which rendering layers
+         *     this style affects.
+         * @param defaultValue The default value for this DoubleRangeUserStyleSetting.
+         */
         public constructor (
-            /** Identifier for the element, must be unique. */
             id: String,
-
-            /**
-             * Localized human readable name for the element, used in the userStyle selection UI.
-             */
             displayName: CharSequence,
-
-            /** Localized description string displayed under the displayName. */
             description: CharSequence,
-
-            /** Icon for use in the userStyle selection UI. */
             icon: Icon?,
-
-            /** Minimum value (inclusive). */
             minimumValue: Double,
-
-            /** Maximum value (inclusive). */
             maximumValue: Double,
-
-            /**
-             * Used by the style configuration UI. Describes which rendering layers this style
-             * affects.
-             */
             affectsLayers: Collection<Layer>,
-
-            /** The default value for this DoubleRangeUserStyleSetting. */
             defaultValue: Double
         ) : super(
             id,
@@ -630,12 +611,13 @@ public sealed class UserStyleSetting(
             /* The value for this option. Must be within the range [minimumValue .. maximumValue].*/
             public val value: Double
 
+            /**
+             * Constructs a [DoubleRangeOption].
+             *
+             * @param value The value of this [DoubleRangeOption]
+             */
             public constructor(value: Double) : super(value.toString()) {
                 this.value = value
-            }
-
-            internal companion object {
-                internal const val KEY_DOUBLE_VALUE = "KEY_DOUBLE_VALUE"
             }
 
             internal constructor(
@@ -684,30 +666,27 @@ public sealed class UserStyleSetting(
     /** A ListStyleCategory represents a setting with options selected from a List. */
     public open class ListUserStyleSetting : UserStyleSetting {
 
+        /**
+         * Constructs a [ListUserStyleSetting].
+         *
+         * @param id Identifier for the element, must be unique.
+         * @param displayName Localized human readable name for the element, used in the userStyle
+         *     selection UI.
+         * @param description Localized description string displayed under the displayName.
+         * @param icon [Icon] for use in the userStyle selection UI.
+         * @param options List of all options for this ListUserStyleSetting.
+         * @param affectsLayers Used by the style configuration UI. Describes which rendering layers
+         *     this style affects.
+         * @param defaultOption The default option, used when data isn't persisted.
+         */
         @JvmOverloads
         public constructor (
-            /** Identifier for the element, must be unique. */
             id: String,
-
-            /** Localized human readable name for the element, used in the userStyle selection UI.*/
             displayName: CharSequence,
-
-            /** Localized description string displayed under the displayName. */
             description: CharSequence,
-
-            /** Icon for use in the userStyle selection UI. */
             icon: Icon?,
-
-            /** List of all options for this ListUserStyleSetting. */
             options: List<ListOption>,
-
-            /**
-             * Used by the style configuration UI. Describes which rendering layers this style
-             * affects.
-             */
             affectsLayers: Collection<Layer>,
-
-            /** The default option, used when data isn't persisted. */
             defaultOption: ListOption = options.first()
         ) : super(
             id,
@@ -744,6 +723,15 @@ public sealed class UserStyleSetting(
             /** Icon for use in the style selection UI. */
             public val icon: Icon?
 
+            /**
+             * Constructs a [ListOption].
+             *
+             * @param id The id of this [ListOption], must be unique within the
+             *     [ListUserStyleSetting].
+             * @param displayName Localized human readable name for the setting, used in the style
+             *     selection UI.
+             * @param icon [Icon] for use in the style selection UI.
+             */
             public constructor(id: String, displayName: CharSequence, icon: Icon?) : super(id) {
                 this.displayName = displayName
                 this.icon = icon
@@ -798,32 +786,28 @@ public sealed class UserStyleSetting(
             }
         }
 
+        /**
+         * Constructs a [LongRangeUserStyleSetting].
+         *
+         * @param id Identifier for the element, must be unique.
+         * @param displayName Localized human readable name for the element, used in the userStyle
+         *     selection UI.
+         * @param description Localized description string displayed under the displayName.
+         * @param icon [Icon] for use in the userStyle selection UI.
+         * @param minimumValue Minimum value (inclusive).
+         * @param maximumValue Maximum value (inclusive).
+         * @param affectsLayers Used by the style configuration UI. Describes which rendering layers
+         *     this style affects.
+         * @param defaultValue The default value for this LongRangeUserStyleSetting.
+         */
         public constructor (
-            /** Identifier for the element, must be unique. */
             id: String,
-
-            /** Localized human readable name for the element, used in the userStyle selection UI.*/
             displayName: CharSequence,
-
-            /** Localized description string displayed under the displayName. */
             description: CharSequence,
-
-            /** Icon for use in the userStyle selection UI. */
             icon: Icon?,
-
-            /** Minimum value (inclusive). */
             minimumValue: Long,
-
-            /** Maximum value (inclusive). */
             maximumValue: Long,
-
-            /**
-             * Used by the style configuration UI. Describes which rendering layers this style
-             * affects.
-             */
             affectsLayers: Collection<Layer>,
-
-            /** The default value for this LongRangeUserStyleSetting. */
             defaultValue: Long
         ) : super(
             id,
@@ -861,12 +845,13 @@ public sealed class UserStyleSetting(
             /* The value for this option. Must be within the range [minimumValue..maximumValue]. */
             public val value: Long
 
+            /**
+             * Constructs a [LongRangeOption].
+             *
+             * @param value The value of this [LongRangeOption]
+             */
             public constructor(value: Long) : super(value.toString()) {
                 this.value = value
-            }
-
-            internal companion object {
-                internal const val KEY_LONG_VALUE = "KEY_LONG_VALUE"
             }
 
             internal constructor(
@@ -928,14 +913,15 @@ public sealed class UserStyleSetting(
             internal const val CUSTOM_VALUE_USER_STYLE_SETTING_ID = "CustomValue"
         }
 
+        /**
+         * Constructs a [CustomValueUserStyleSetting].
+         *
+         * @param affectsLayers Used by the style configuration UI. Describes which rendering layers
+         *     this style affects.
+         * @param defaultValue The default value.
+         */
         public constructor (
-            /**
-             * Used by the style configuration UI. Describes which rendering layers this style
-             * affects.
-             */
             affectsLayers: Collection<Layer>,
-
-            /** The default value. */
             defaultValue: String
         ) : super(
             CUSTOM_VALUE_USER_STYLE_SETTING_ID,
@@ -961,12 +947,20 @@ public sealed class UserStyleSetting(
                 affectsLayers.map { it.ordinal }
             )
 
-        /** An application specific custom value.  */
+        /**
+         * An application specific custom value. NB the [CustomValueOption.customValue] is the
+         * same as the [CustomValueOption.id].
+         */
         public class CustomValueOption : Option {
-            /* The value for this option. */
+            /* The value for this option which is the same as the [id]. */
             public val customValue: String
                 get() = id
 
+            /**
+             * Constructs a [CustomValueOption].
+             *
+             * @param customValue The [id] and value of this [CustomValueOption].
+             */
             public constructor(customValue: String) : super(customValue)
 
             internal constructor(

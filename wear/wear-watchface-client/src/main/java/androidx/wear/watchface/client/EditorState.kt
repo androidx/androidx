@@ -22,21 +22,23 @@ import androidx.wear.complications.data.asApiComplicationData
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.UserStyle
 
-/** The state of the editing session. See [androidx.wear.watchface.editor.EditorSession]. */
+/**
+ * The state of the editing session. See [androidx.wear.watchface.editor.EditorSession].
+ *
+ * @param watchFaceInstanceId Unique ID for the instance of the watch face being edited, only
+ *     defined for Android R and beyond, it's `null` on Android P and earlier.
+ * @param userStyle The current [UserStyle] encoded as a Map<String, String>.
+ * @param previewComplicationData Preview [ComplicationData] needed for taking screenshots without
+ *     live complication data.
+ * @param commitChanges Whether or not this state should be committed (i.e. the user aborted the
+ *     session). If it's not committed then any changes (E.g. complication provider changes)
+ *     should be abandoned. There's no need to resend the style to the watchface because the
+ *     library will have restored the previous style.
+ */
 public class EditorState internal constructor(
-    /**
-     * Unique ID for the instance of the watch face being edited, only defined for Android R and
-     * beyond, it's `null` on Android P and earlier.
-     */
     public val watchFaceInstanceId: String?,
-
-    /** The current [UserStyle] encoded as a Map<String, String>. */
     public val userStyle: Map<String, String>,
-
-    /** Preview [ComplicationData] needed for taking screenshots without live complication data. */
     public val previewComplicationData: Map<Int, ComplicationData>,
-
-    /** Whether or not this state should be committed. */
     @get:JvmName("hasCommitChanges")
     public val commitChanges: Boolean
 )
