@@ -67,7 +67,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -914,7 +913,7 @@ public class EditorSessionTest {
             TIMEOUT_MILLIS,
             TimeUnit.MILLISECONDS
         ).asApiEditorState()
-        assertNull(result.watchFaceInstanceId)
+        assertThat(result.watchFaceInstanceId).isEmpty()
 
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
