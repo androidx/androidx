@@ -1036,4 +1036,24 @@ public class EditorSessionTest {
 
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
+
+    @Test
+    public fun closeEditorSessionBeforeWatchFaceDelegateCreated() {
+        val session: ActivityScenario<OnWatchFaceEditingTestActivity> = ActivityScenario.launch(
+            WatchFaceEditorContractForTest().createIntent(
+                ApplicationProvider.getApplicationContext<Context>(),
+                EditorRequest(testComponentName, testEditorPackageName, "instanceId", null)
+            ).apply {
+                component = ComponentName(
+                    ApplicationProvider.getApplicationContext<Context>(),
+                    OnWatchFaceEditingTestActivity::class.java
+                )
+            }
+        )
+
+        session.onActivity { activity ->
+            // This shouldn't throw an exception.
+            activity.editorSession.close()
+        }
+    }
 }

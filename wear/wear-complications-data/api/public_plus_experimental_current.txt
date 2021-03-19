@@ -185,7 +185,6 @@ package androidx.wear.complications {
     field public static final int DAY_AND_DATE = 16; // 0x10
     field public static final int DAY_OF_WEEK = 13; // 0xd
     field public static final int FAVORITE_CONTACT = 14; // 0xe
-    field public static final int GOOGLE_PAY = 8; // 0x8
     field public static final int MOST_RECENT_APP = 15; // 0xf
     field public static final int NEXT_EVENT = 9; // 0x9
     field public static final int NO_PROVIDER = -1; // 0xffffffff

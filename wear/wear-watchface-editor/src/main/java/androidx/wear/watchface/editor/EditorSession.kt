@@ -105,7 +105,9 @@ public abstract class EditorSession : AutoCloseable {
      * their own config (e.g. the world clock has a timezone setting) and that config currently
      * can't be reverted.
      */
+    @get:UiThread
     @get:JvmName("isCommitChangesOnClose")
+    @set:UiThread
     public var commitChangesOnClose: Boolean = true
 
     /**
@@ -115,6 +117,7 @@ public abstract class EditorSession : AutoCloseable {
      * provider, but it may change (on the UIThread) as a result of
      * [launchComplicationProviderChooser].
      */
+    @UiThread
     public abstract suspend fun getComplicationPreviewData(): Map<Int, ComplicationData>
 
     /** The ID of the background complication or `null` if there isn't one. */
@@ -447,6 +450,7 @@ public abstract class BaseEditorSession internal constructor(
         }
     }
 
+    @UiThread
     internal fun forceClose() {
         commitChangesOnClose = false
         closed = true
@@ -463,6 +467,7 @@ public abstract class BaseEditorSession internal constructor(
         }
     }
 
+    @UiThread
     protected abstract fun releaseResources()
 }
 
@@ -534,7 +539,9 @@ internal class OnWatchFaceEditorSessionImpl(
     }
 
     override fun releaseResources() {
-        editorDelegate.onDestroy()
+        if (this::editorDelegate.isInitialized) {
+            editorDelegate.onDestroy()
+        }
         // Revert any changes to the UserStyle if needed.
         if (!commitChangesOnClose) {
             userStyle = previousWatchFaceUserStyle
