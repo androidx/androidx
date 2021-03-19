@@ -52,7 +52,7 @@ import java.util.Objects;
  * This template is considered a refresh of a previous one if:
  *
  * <ul>
- *   <li>The template title and the sign-in method have not changed.
+ *   <li>The template's header, sign-in method, instructions and additional text have not changed.
  * </ul>
  *
  * @see Screen#onGetTemplate()
@@ -68,6 +68,8 @@ public final class SignInTemplate implements Template {
 
     private static final int MAX_ACTIONS_ALLOWED = 2;
 
+    @Keep
+    private final boolean mIsLoading;
     @Keep
     @Nullable
     private final Action mHeaderAction;
@@ -88,6 +90,15 @@ public final class SignInTemplate implements Template {
     @Keep
     @Nullable
     private final SignInMethod mSignInMethod;
+
+    /**
+     * Returns whether the template is loading.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
+    }
 
     /**
      * Returns the title of the template or {@code null} if not set.
@@ -173,7 +184,8 @@ public final class SignInTemplate implements Template {
         }
 
         SignInTemplate that = (SignInTemplate) other;
-        return Objects.equals(mHeaderAction, that.mHeaderAction)
+        return mIsLoading == that.mIsLoading
+                && Objects.equals(mHeaderAction, that.mHeaderAction)
                 && Objects.equals(mTitle, that.mTitle)
                 && Objects.equals(mInstructions, that.mInstructions)
                 && Objects.equals(mAdditionalText, that.mAdditionalText)
@@ -185,6 +197,7 @@ public final class SignInTemplate implements Template {
     @Override
     public int hashCode() {
         return Objects.hash(
+                mIsLoading,
                 mHeaderAction,
                 mTitle,
                 mInstructions,
@@ -201,6 +214,7 @@ public final class SignInTemplate implements Template {
     }
 
     SignInTemplate(Builder builder) {
+        mIsLoading = builder.mIsLoading;
         mHeaderAction = builder.mHeaderAction;
         mTitle = builder.mTitle;
         mInstructions = builder.mInstructions;
@@ -212,6 +226,7 @@ public final class SignInTemplate implements Template {
 
     /** Constructs an empty instance, used by serialization code. */
     private SignInTemplate() {
+        mIsLoading = false;
         mHeaderAction = null;
         mTitle = null;
         mInstructions = null;
@@ -223,6 +238,7 @@ public final class SignInTemplate implements Template {
 
     /** A builder of {@link SignInTemplate}. */
     public static final class Builder {
+        boolean mIsLoading;
         final SignInMethod mSignInMethod;
         @Nullable
         Action mHeaderAction;
@@ -235,6 +251,19 @@ public final class SignInTemplate implements Template {
         @Nullable
         ActionStrip mActionStrip;
         List<Action> mActionList = new ArrayList<>();
+
+        /**
+         * Sets whether the template is in a loading state.
+         *
+         * <p>If set to {@code true}, the UI will display a loading indicator instead of the
+         * {@link SignInMethod}. The caller is expected to call
+         * {@link androidx.car.app.Screen#invalidate()} once loading is complete.
+         */
+        @NonNull
+        public SignInTemplate.Builder setLoading(boolean isLoading) {
+            mIsLoading = isLoading;
+            return this;
+        }
 
         /**
          * Sets the {@link Action} that will be displayed in the header of the template.

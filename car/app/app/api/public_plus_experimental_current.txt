@@ -672,11 +672,11 @@ package androidx.car.app.model.signin {
 
   @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public final class InputSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
     method public androidx.car.app.model.CarText? getDefaultValue();
+    method public androidx.car.app.model.CarText? getErrorMessage();
+    method public androidx.car.app.model.CarText? getHint();
     method public int getInputType();
     method public int getKeyboardType();
-    method public androidx.car.app.model.CarText? getMessage();
     method public androidx.car.app.model.signin.OnInputCompletedDelegate getOnInputCompletedDelegate();
-    method public androidx.car.app.model.CarText? getPrompt();
     method public boolean isShowKeyboardByDefault();
     field public static final int INPUT_TYPE_DEFAULT = 1; // 0x1
     field public static final int INPUT_TYPE_PASSWORD = 2; // 0x2
@@ -690,10 +690,10 @@ package androidx.car.app.model.signin {
     ctor public InputSignInMethod.Builder(androidx.car.app.model.signin.InputSignInMethod.OnInputCompletedListener);
     method public androidx.car.app.model.signin.InputSignInMethod build();
     method public androidx.car.app.model.signin.InputSignInMethod.Builder setDefaultValue(String);
+    method public androidx.car.app.model.signin.InputSignInMethod.Builder setErrorMessage(CharSequence);
+    method public androidx.car.app.model.signin.InputSignInMethod.Builder setHint(CharSequence);
     method public androidx.car.app.model.signin.InputSignInMethod.Builder setInputType(int);
     method public androidx.car.app.model.signin.InputSignInMethod.Builder setKeyboardType(int);
-    method public androidx.car.app.model.signin.InputSignInMethod.Builder setMessage(CharSequence);
-    method public androidx.car.app.model.signin.InputSignInMethod.Builder setPrompt(CharSequence);
     method public androidx.car.app.model.signin.InputSignInMethod.Builder setShowKeyboardByDefault(boolean);
   }
 
@@ -731,6 +731,7 @@ package androidx.car.app.model.signin {
     method public androidx.car.app.model.CarText? getInstructions();
     method public androidx.car.app.model.signin.SignInTemplate.SignInMethod getSignInMethod();
     method public androidx.car.app.model.CarText? getTitle();
+    method public boolean isLoading();
   }
 
   public static final class SignInTemplate.Builder {
@@ -741,6 +742,7 @@ package androidx.car.app.model.signin {
     method public androidx.car.app.model.signin.SignInTemplate.Builder setAdditionalText(CharSequence);
     method public androidx.car.app.model.signin.SignInTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.signin.SignInTemplate.Builder setInstructions(CharSequence);
+    method public androidx.car.app.model.signin.SignInTemplate.Builder setLoading(boolean);
     method public androidx.car.app.model.signin.SignInTemplate.Builder setTitle(CharSequence);
   }
 
