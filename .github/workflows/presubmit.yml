@@ -44,29 +44,32 @@ jobs:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
         with:
-          fetch-depth: 1
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
+          fetch-depth: 0 # Need full depth for changed-files-action
 
       - name: "Get changed files in push or pull_request"
         id: changed-files
         # Temporary workaround for failing on force-push
         continue-on-error: true
-        uses: jitterbit/get-changed-files@v1
+        uses: dlam/changed-files-action@main
 
       - name: Check invalid suppressions
         run: |
           set -x
-          ./development/checkInvalidSuppress.py -f ${{ steps.changed-files.outputs.added_modified }}
+          echo ${{ steps.changed-files.outputs.files }}
+          ./development/checkInvalidSuppress.py -f ${{ steps.changed-files.outputs.files }}
 
       - name: "Warn on missing updateApi"
         run: |
           set -x
-          ./development/apilint.py -f ${{ steps.changed-files.outputs.added_modified }}
+          ./development/apilint.py -f ${{ steps.changed-files.outputs.files }}
 
       - name: "Parse changed-files as ktlint args"
         id: ktlint-file-args
         run: |
           set -x
-          KTLINT_FILES=`echo "${{ steps.changed-files.outputs.added_modified }}" | sed 's|[^ ]* *|--file=${{ github.workspace }}/&|g'`
+          KTLINT_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--file=${{ github.workspace }}/&|g'`
           echo "::set-output name=ktlint-file-args::$KTLINT_FILES"
 
       - name: "ktlint"
