@@ -358,8 +358,7 @@ package androidx.wear.watchface.control {
     field public static final String ACTION_WATCHFACE_CONTROL_SERVICE = "com.google.android.wearable.action.WATCH_FACE_CONTROL";
   }
 
-  @RequiresApi(27) public final class WatchFaceControlServiceFactory {
-    ctor public WatchFaceControlServiceFactory();
+  @RequiresApi(27) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class WatchFaceControlServiceFactory {
     method public static androidx.wear.watchface.control.IWatchFaceControlService createWatchFaceControlService(android.content.Context context, android.os.Handler uiThreadHandler);
     field public static final androidx.wear.watchface.control.WatchFaceControlServiceFactory.Companion Companion;
   }
