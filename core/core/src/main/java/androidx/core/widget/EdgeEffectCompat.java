@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.core.os.BuildCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -76,7 +77,7 @@ public final class EdgeEffectCompat {
      */
     @NonNull
     public static EdgeEffect create(@NonNull Context context, @Nullable AttributeSet attrs) {
-        if (isSOrHigher()) {
+        if (BuildCompat.isAtLeastS()) {
             return EdgeEffectCompatApi31.create(context, attrs);
         }
 
@@ -92,7 +93,7 @@ public final class EdgeEffectCompat {
      */
     @EdgeEffectType
     public static int getType(@NonNull EdgeEffect edgeEffect) {
-        if (isSOrHigher()) {
+        if (BuildCompat.isAtLeastS()) {
             return EdgeEffectCompatApi31.getType(edgeEffect);
         }
         return TYPE_GLOW;
@@ -107,7 +108,7 @@ public final class EdgeEffectCompat {
      * @attr ref android.R.styleable#EdgeEffect_edgeEffectType
      */
     public static void setType(@NonNull EdgeEffect edgeEffect, @EdgeEffectType int type) {
-        if (isSOrHigher()) {
+        if (BuildCompat.isAtLeastS()) {
             EdgeEffectCompatApi31.setType(edgeEffect, type);
         }
     }
@@ -126,7 +127,7 @@ public final class EdgeEffectCompat {
      * versions {@link Build.VERSION_CODES#R} and earlier.
      */
     public static float getDistance(@NonNull EdgeEffect edgeEffect) {
-        if (isSOrHigher()) {
+        if (BuildCompat.isAtLeastS()) {
             return EdgeEffectCompatApi31.getDistance(edgeEffect);
         }
         return 0;
@@ -278,7 +279,7 @@ public final class EdgeEffectCompat {
             float deltaDistance,
             float displacement
     ) {
-        if (isSOrHigher()) {
+        if (BuildCompat.isAtLeastS()) {
             return EdgeEffectCompatApi31.onPullDistance(edgeEffect, deltaDistance, displacement);
         }
         onPull(edgeEffect, deltaDistance, displacement);
@@ -337,20 +338,17 @@ public final class EdgeEffectCompat {
         return mEdgeEffect.draw(canvas);
     }
 
-    private static boolean isSOrHigher() {
-        // TODO(b/181171227): Simplify this when S has a real version.
-        int sdk = Build.VERSION.SDK_INT;
-        return sdk > Build.VERSION_CODES.R
-                || (sdk == Build.VERSION_CODES.R && Build.VERSION.PREVIEW_SDK_INT != 0);
-    }
-
     // TODO(b/181171227): This actually requires S, but we don't have a version for S yet.
     @RequiresApi(Build.VERSION_CODES.R)
     private static class EdgeEffectCompatApi31 {
         private EdgeEffectCompatApi31() {}
 
         public static EdgeEffect create(Context context, AttributeSet attrs) {
-            return new EdgeEffect(context, attrs);
+            try {
+                return new EdgeEffect(context, attrs);
+            } catch (Throwable t) {
+                return new EdgeEffect(context); // Old preview release
+            }
         }
 
         public static float onPullDistance(
@@ -358,19 +356,36 @@ public final class EdgeEffectCompat {
                 float deltaDistance,
                 float displacement
         ) {
-            return edgeEffect.onPullDistance(deltaDistance, displacement);
+            try {
+                return edgeEffect.onPullDistance(deltaDistance, displacement);
+            } catch (Throwable t) {
+                edgeEffect.onPull(deltaDistance, displacement); // Old preview release
+                return 0;
+            }
         }
 
         public static float getDistance(EdgeEffect edgeEffect) {
-            return edgeEffect.getDistance();
+            try {
+                return edgeEffect.getDistance();
+            } catch (Throwable t) {
+                return 0; // Old preview release
+            }
         }
 
         public static int getType(EdgeEffect edgeEffect) {
-            return edgeEffect.getType();
+            try {
+                return edgeEffect.getType();
+            } catch (Throwable t) {
+                return TYPE_GLOW; // Old preview release
+            }
         }
 
         public static void setType(EdgeEffect edgeEffect, int type) {
-            edgeEffect.setType(type);
+            try {
+                edgeEffect.setType(type);
+            } catch (Throwable t) {
+                // do nothing for old preview releases
+            }
         }
     }
 }
