@@ -79,7 +79,12 @@ public class WatchFaceControlService : Service() {
     }
 }
 
-/** Factory for use by on watch face editors to create [IWatchFaceControlService]. */
+/**
+ * Factory for use by on watch face editors to create [IWatchFaceControlService].
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(27)
 public class WatchFaceControlServiceFactory {
     public companion object {

@@ -283,17 +283,3 @@ package androidx.wear.watchface {
 
 }
 
-package androidx.wear.watchface.control {
-
-  @RequiresApi(27) public final class WatchFaceControlServiceFactory {
-    ctor public WatchFaceControlServiceFactory();
-    method public static androidx.wear.watchface.control.IWatchFaceControlService createWatchFaceControlService(android.content.Context context, android.os.Handler uiThreadHandler);
-    field public static final androidx.wear.watchface.control.WatchFaceControlServiceFactory.Companion Companion;
-  }
-
-  public static final class WatchFaceControlServiceFactory.Companion {
-    method public androidx.wear.watchface.control.IWatchFaceControlService createWatchFaceControlService(android.content.Context context, android.os.Handler uiThreadHandler);
-  }
-
-}
-
