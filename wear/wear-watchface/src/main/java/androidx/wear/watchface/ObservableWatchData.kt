@@ -21,7 +21,8 @@ import androidx.annotation.UiThread
 /**
  * An observable UI thread only data holder class (see [Observer]).
  *
- * @param T The type of data held by this instance
+ * @param T The type of data held by this instance.
+ * @param _value The initial value or `null` if there isn't an initial value.
  */
 public open class ObservableWatchData<T : Any> internal constructor(internal var _value: T?) {
 

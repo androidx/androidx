@@ -47,15 +47,18 @@ public interface WatchFaceControlClient : AutoCloseable {
         /**
          * Constructs a [WatchFaceControlClient] which attempts to connect to a watch face in the
          * android package [watchFacePackageName].
+         *
+         * @param context Calling application's [Context].
+         * @param watchFacePackageName The name of the package containing the watch face control
+         *     service to bind to.
+         * @return The [WatchFaceControlClient] if there is one.
          * @throws [ServiceNotBoundException] if the watch face control service can not be bound or
          * a [ServiceStartFailureException] if the watch face dies during startup.
          */
         @SuppressLint("NewApi") // For ACTION_WATCHFACE_CONTROL_SERVICE
         @JvmStatic
         public suspend fun createWatchFaceControlClient(
-            /** Calling application's [Context]. */
             context: Context,
-            /** The name of the package containing the watch face control service to bind to. */
             watchFacePackageName: String
         ): WatchFaceControlClient = createWatchFaceControlClientImpl(
             context,

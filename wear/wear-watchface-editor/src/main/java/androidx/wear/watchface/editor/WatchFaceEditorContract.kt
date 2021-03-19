@@ -33,22 +33,20 @@ internal const val COMPONENT_NAME_KEY: String = "COMPONENT_NAME_KEY"
 internal const val USER_STYLE_KEY: String = "USER_STYLE_KEY"
 internal const val USER_STYLE_VALUES: String = "USER_STYLE_VALUES"
 
-/** The request sent by [WatchFaceEditorContract.createIntent]. */
+/**
+ * The request sent by [WatchFaceEditorContract.createIntent].
+ *
+ * @param watchFaceComponentName The [ComponentName] of the watch face being edited.
+ * @param editorPackageName The package name of the watch face editor APK.
+ * @param watchFaceInstanceId Unique ID for the instance of the watch face being edited, only
+ *     defined for Android R and  beyond, it's `null` on Android P and earlier. Note each distinct
+ *     [ComponentName] can have multiple instances.
+ * @param initialUserStyle The initial [UserStyle], only required for a headless [EditorSession].
+ */
 public class EditorRequest(
-    /** The [ComponentName] of the watch face being edited. */
     public val watchFaceComponentName: ComponentName,
-
-    /** The package name of the watch face editor APK. */
     public val editorPackageName: String,
-
-    /**
-     * Unique ID for the instance of the watch face being edited, only defined for Android R and
-     * beyond, it's `null` on Android P and earlier. Note each distinct [ComponentName] can have
-     * multiple instances.
-     */
     public val watchFaceInstanceId: String?,
-
-    /** The initial [UserStyle], only required for a headless [EditorSession]. */
     public val initialUserStyle: Map<String, String>?
 ) {
     public companion object {

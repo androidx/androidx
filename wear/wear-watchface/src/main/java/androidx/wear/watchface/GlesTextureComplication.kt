@@ -28,23 +28,18 @@ import androidx.annotation.Px
 /**
  * Helper for rendering a [CanvasComplication] to a GLES20 texture. To use call [renderToTexture]
  * and then [bind] before drawing.
+ *
+ * @param canvasComplication The [CanvasComplication] to render to texture.
+ * @param textureWidth The width of the texture in pixels to create.
+ * @param textureHeight The height of the texture in pixels to create.
+ * @param textureType The texture type, e.g. [GLES20.GL_TEXTURE_2D].
+ * @param id The id of the associated [Complication].
  */
 public class GlesTextureComplication(
-    /** The [CanvasComplication] to render to texture. */
     public val canvasComplication: CanvasComplication,
-
-    /** The width of the texture to create. */
-    @Px
-    textureWidth: Int,
-
-    /** The height of the texture to create. */
-    @Px
-    textureHeight: Int,
-
-    /** The texture type, e.g. GLES20.GL_TEXTURE_2D */
+    @Px textureWidth: Int,
+    @Px textureHeight: Int,
     private val textureType: Int,
-
-    /** The id of the associated [Complication]. */
     public val id: Int
 ) {
     private val texture = createTexture(textureType)

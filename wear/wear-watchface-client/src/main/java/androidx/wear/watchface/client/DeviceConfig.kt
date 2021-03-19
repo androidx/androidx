@@ -16,23 +16,21 @@
 
 package androidx.wear.watchface.client
 
-/** Describes the hardware configuration of the device the watch face is running on. */
+/**
+ * Describes the hardware configuration of the device the watch face is running on.
+ *
+ * @param hasLowBitAmbient Whether or not the watch hardware supports low bit ambient support.
+ * @param hasBurnInProtection Whether or not the watch hardware supports burn in protection.
+ * @param analogPreviewReferenceTimeMillis UTC reference time for screenshots of analog watch faces
+ *     in milliseconds since the epoch.
+ * @param digitalPreviewReferenceTimeMillis UTC reference time for screenshots of digital watch
+ *     faces in milliseconds since the epoch.
+ */
 public class DeviceConfig(
-    /** Whether or not the watch hardware supports low bit ambient support. */
     @get:JvmName("hasLowBitAmbient")
     public val hasLowBitAmbient: Boolean,
-
-    /** Whether or not the watch hardware supports burn in protection. */
     @get:JvmName("hasBurnInProtection")
     public val hasBurnInProtection: Boolean,
-
-    /**
-     * UTC reference time for screenshots of analog watch faces in milliseconds since the epoch.
-     */
     public val analogPreviewReferenceTimeMillis: Long,
-
-    /**
-     * UTC reference time for screenshots of digital watch faces in milliseconds since the epoch.
-     */
     public val digitalPreviewReferenceTimeMillis: Long
 )

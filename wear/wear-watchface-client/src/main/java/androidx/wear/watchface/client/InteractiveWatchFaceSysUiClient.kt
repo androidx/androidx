@@ -87,15 +87,17 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
      */
     public fun sendTouchEvent(xPosition: Int, yPosition: Int, @TapType tapType: Int)
 
-    /** Describes regions of the watch face for use by a screen reader. */
+    /**
+     * Describes regions of the watch face for use by a screen reader.
+     *
+     * @param text Text associated with the region, to be read by the screen reader.
+     * @param bounds [Rect] describing the area of the feature on screen.
+     * @param tapAction [PendingIntent] to be used if the screen reader's user triggers a tap
+     *     action.
+     */
     public class ContentDescriptionLabel(
-        /** Text associated with the region, to be read by the screen reader. */
         private val text: TimeDependentText,
-
-        /** Area of the feature on screen. */
         public val bounds: Rect,
-
-        /** [PendingIntent] to be used if the screen reader's user triggers a tap action. */
         public val tapAction: PendingIntent?
     ) {
         /**
