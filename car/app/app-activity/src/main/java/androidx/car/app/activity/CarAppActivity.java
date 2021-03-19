@@ -43,7 +43,6 @@ import androidx.car.app.activity.renderer.IRendererCallback;
 import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.activity.renderer.surface.ISurfaceListener;
 import androidx.car.app.activity.renderer.surface.OnBackPressedListener;
-import androidx.car.app.activity.renderer.surface.RotaryEventCallback;
 import androidx.car.app.activity.renderer.surface.SurfaceHolderListener;
 import androidx.car.app.activity.renderer.surface.SurfaceWrapperProvider;
 import androidx.car.app.activity.renderer.surface.TemplateSurfaceView;
@@ -127,41 +126,6 @@ public final class CarAppActivity extends Activity {
         public void registerRendererCallback(@NonNull IRendererCallback callback) {
             requireNonNull(callback);
             ThreadUtils.runOnMain(() -> {
-                mSurfaceView.registerRotaryEventCallback(new RotaryEventCallback() {
-                    @Override
-                    public void onRotate(int steps, boolean isClockwise) {
-                        try {
-                            callback.onRotate(steps, isClockwise);
-                        } catch (RemoteException e) {
-                            onServiceConnectionError("Failed to send rotary onRotate event to "
-                                    + "renderer: " + e.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public boolean onNudge(int keyCode) {
-                        try {
-                            return callback.onNudge(keyCode);
-                        } catch (RemoteException e) {
-                            onServiceConnectionError("Failed to send rotary onNudge event to "
-                                    + "renderer: " + e.getMessage());
-                        }
-
-                        return false;
-                    }
-
-                    @Override
-                    public void onSelect() {
-                        try {
-                            callback.onSelect();
-                        } catch (RemoteException e) {
-                            onServiceConnectionError(
-                                    "Failed to send rotary onSelect event to renderer: "
-                                            + e.getMessage());
-                        }
-                    }
-                });
-
                 mSurfaceView.setOnCreateInputConnectionListener(editorInfo -> {
                     try {
                         return callback.onCreateInputConnection(editorInfo);
@@ -182,7 +146,6 @@ public final class CarAppActivity extends Activity {
                                         + e.getMessage());
                     }
                 };
-                mSurfaceView.setOnBackPressedListener(mOnBackPressedListener);
                 mActivityLifecycleDelegate.registerRendererCallback(callback);
             });
         }
