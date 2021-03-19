@@ -144,7 +144,7 @@ internal class WCSApi(
 
     override fun bringAttentionToComplication(id: Int) {
         uiThreadHandler.runOnHandlerWithTracing("WCSApi.bringAttentionToComplication") {
-            engine.watchFaceImpl.complicationsManager.bringAttentionToComplication(id)
+            engine.watchFaceImpl.complicationsManager.displayPressedAnimation(id)
         }
     }
 }

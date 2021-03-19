@@ -165,7 +165,7 @@ public class WatchFaceServiceTest {
                 complicationDrawableLeft,
                 watchState.asWatchState()
             ).apply {
-                setData(createComplicationData(), false)
+                loadData(createComplicationData(), false)
             },
             listOf(
                 ComplicationType.RANGED_VALUE,
@@ -186,7 +186,7 @@ public class WatchFaceServiceTest {
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
-                setData(createComplicationData(), false)
+                loadData(createComplicationData(), false)
             },
             listOf(
                 ComplicationType.RANGED_VALUE,
@@ -207,7 +207,7 @@ public class WatchFaceServiceTest {
                 complicationDrawableBackground,
                 watchState.asWatchState()
             ).apply {
-                setData(createComplicationData(), false)
+                loadData(createComplicationData(), false)
             },
             listOf(
                 ComplicationType.PHOTO_IMAGE
