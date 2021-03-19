@@ -18,6 +18,7 @@ package androidx.camera.extensions;
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
+import android.os.Build;
 import android.util.Pair;
 import android.util.Size;
 
@@ -301,7 +302,15 @@ public abstract class ImageCaptureExtender {
             if (mActive.get()) {
                 CaptureStageImpl captureStageImpl = mImpl.onPresetSession();
                 if (captureStageImpl != null) {
-                    return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
+                    } else {
+                        Logger.w(TAG, "The CaptureRequest parameters returned from "
+                                + "onPresetSession() will be passed to the camera device as part "
+                                + "of the capture session via "
+                                + "SessionConfiguration#setSessionParameters(CaptureRequest) "
+                                + "which only supported from API level 28!");
+                    }
                 }
             }
             return null;

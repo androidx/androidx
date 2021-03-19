@@ -229,6 +229,12 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
 
     @Override
     public CaptureStageImpl onPresetSession() {
+        // The CaptureRequest parameters will be set via SessionConfiguration#setSessionParameters
+        // (CaptureRequest) which only supported from API level 28.
+        if (Build.VERSION.SDK_INT < 28) {
+            return null;
+        }
+
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
         return captureStage;
     }
