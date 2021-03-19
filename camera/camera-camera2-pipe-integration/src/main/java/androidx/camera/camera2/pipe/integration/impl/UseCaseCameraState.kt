@@ -27,7 +27,6 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,7 +45,7 @@ import javax.inject.Inject
 @UseCaseCameraScope
 class UseCaseCameraState @Inject constructor(
     private val cameraGraph: CameraGraph,
-    private val coroutineScope: CoroutineScope
+    private val threads: UseCaseThreads
 ) {
     private val lock = Any()
 
@@ -158,7 +157,7 @@ class UseCaseCameraState @Inject constructor(
         // synchronously with the latest values. The setRepeating call happens outside of the
         // synchronized block to avoid holding a lock while updating the camera state.
 
-        coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+        threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
             val result: CompletableDeferred<Unit>?
             cameraGraph.acquireSession().use {
                 val request: Request
