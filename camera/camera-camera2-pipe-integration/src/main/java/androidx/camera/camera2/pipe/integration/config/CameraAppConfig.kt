@@ -23,6 +23,7 @@ import androidx.camera.core.impl.CameraFactory
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.runBlocking
 import javax.inject.Singleton
 
 /** Dependency bindings for adapting a [CameraFactory] instance to [CameraPipe] */
@@ -39,7 +40,7 @@ abstract class CameraAppModule {
 
         @Provides
         fun provideAvailableCameraIds(cameraPipe: CameraPipe): Set<String> {
-            return cameraPipe.cameras().findAll().map { it.value }.toSet()
+            return runBlocking { cameraPipe.cameras().ids().map { it.value }.toSet() }
         }
     }
 }

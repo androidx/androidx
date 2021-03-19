@@ -16,21 +16,21 @@
 
 package androidx.camera.camera2.pipe.config
 
-import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.compat.Camera2CameraController
+import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
 import androidx.camera.camera2.pipe.compat.Camera2RequestProcessorFactory
-import androidx.camera.camera2.pipe.graph.CameraGraphImpl
 import androidx.camera.camera2.pipe.compat.CameraController
+import androidx.camera.camera2.pipe.compat.SessionFactoryModule
+import androidx.camera.camera2.pipe.compat.StandardCamera2RequestProcessorFactory
+import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.camera2.pipe.graph.CameraGraphImpl
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphProcessor
 import androidx.camera.camera2.pipe.graph.GraphProcessorImpl
 import androidx.camera.camera2.pipe.graph.Listener3A
-import androidx.camera.camera2.pipe.compat.SessionFactoryModule
-import androidx.camera.camera2.pipe.compat.StandardCamera2RequestProcessorFactory
-import androidx.camera.camera2.pipe.core.Threads
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -89,14 +89,6 @@ internal abstract class CameraGraphModules {
             return CoroutineScope(threads.defaultDispatcher.plus(CoroutineName("CXCP-Graph")))
         }
 
-        @Provides
-        fun provideCameraMetadata(
-            graphConfig: CameraGraph.Config,
-            cameraDevices: CameraDevices
-        ): CameraMetadata {
-            return cameraDevices.awaitMetadata(graphConfig.camera)
-        }
-
         @CameraGraphScope
         @Provides
         @ForCameraGraph
@@ -130,4 +122,14 @@ internal abstract class Camera2CameraGraphModules {
 
     @Binds
     abstract fun bindGraphState(camera2CameraState: Camera2CameraController): CameraController
+
+    companion object {
+        @Provides
+        fun provideCamera2Metadata(
+            graphConfig: CameraGraph.Config,
+            metadataCache: Camera2MetadataCache
+        ): CameraMetadata {
+            return metadataCache.awaitMetadata(graphConfig.camera)
+        }
+    }
 }

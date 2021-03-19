@@ -22,7 +22,6 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
-import android.hardware.camera2.params.StreamConfigurationMap
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -91,10 +90,6 @@ public class FakeCameraMetadata(
     override val sessionKeys: Set<CaptureRequest.Key<*>> = emptySet()
     override val physicalCameraIds: Set<CameraId> = emptySet()
     override val physicalRequestKeys: Set<CaptureRequest.Key<*>> = emptySet()
-
-    override val streamMap: StreamConfigurationMap
-        /** @throws UnsupportedOperationException */
-        get() = throw UnsupportedOperationException("StreamConfigurationMap is not available.")
 
     /** @throws UnsupportedOperationException */
     override fun unwrap(): CameraCharacteristics? {
