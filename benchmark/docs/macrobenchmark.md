@@ -292,8 +292,9 @@ file).
 
 ![Studio Trace](macrobenchmark_images/studio_trace.png "Studio trace UI")
 
-NOTE: Android Studio does not yet support automatically pulling trace files off
-of the device, this step must be performed manually for now.
+NOTE: Android Studio [does not yet support](#studio-trace-access) automatically
+pulling trace files off of the device, this step must be performed manually for
+now.
 
 Currently, when running tests from Studio, you must manually pull profiling
 traces to inspect them after a benchmark run, e.g.:
@@ -465,6 +466,16 @@ benchmark` or `Error, different metrics observed in different iterations.` in a
 startup benchmark, these can be caused by the library failing to wait for
 Activity launch. As a temporary workaround, you can add a
 `Thread.sleep(5000/*ms*/)` at the end of your `measureRepeated {}` block.
+
+### Studio Trace Access {#studio-trace-access}
+
+Support for easy trace access is being added in Android Studio. Once available,
+you'll be able to click a result metric, or iteration index, and open the trace
+directly in Studio:
+
+![Studio Integration Results](macrobenchmark_images/studio_integ_results.png "Studio results with trace links")
+
+![Studio Integration Trace](macrobenchmark_images/studio_integ_trace.png "Studio, displaying macrobenchmark trace")
 
 ## Feedback
 
