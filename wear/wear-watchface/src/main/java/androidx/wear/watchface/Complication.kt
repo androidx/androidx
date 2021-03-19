@@ -23,6 +23,7 @@ import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.os.Bundle
+import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
 import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationBounds
@@ -36,60 +37,6 @@ import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 
-/** Interface for rendering complications onto a [Canvas]. */
-public interface CanvasComplication {
-    /**
-     * Called when the CanvasComplication attaches to a [Complication]. This will get called during
-     * [Complication] initialization and if [Complication.renderer] is assigned with this
-     * CanvasComplication.
-     */
-    @UiThread
-    public fun onAttach(complication: Complication)
-
-    /**
-     * Draws the complication defined by [getData] into the canvas with the specified bounds.
-     * This will usually be called by user watch face drawing code, but the system may also call it
-     * for complication selection UI rendering. The width and height will be the same as that
-     * computed by computeBounds but the translation and canvas size may differ.
-     *
-     * @param canvas The [Canvas] to render into
-     * @param bounds A [Rect] describing the bounds of the complication
-     * @param calendar The current [Calendar]
-     * @param renderParameters The current [RenderParameters]
-     * @param complicationId The Id of the parent [Complication]
-     */
-    @UiThread
-    public fun render(
-        canvas: Canvas,
-        bounds: Rect,
-        calendar: Calendar,
-        renderParameters: RenderParameters,
-        complicationId: Int
-    )
-
-    /**
-     * Whether the complication should be drawn highlighted. This is to provide visual feedback when
-     * the user taps on a complication.
-     */
-    @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
-    @get:JvmName("isHighlighted")
-    @set:JvmName("setIsHighlighted")
-    public var isHighlighted: Boolean
-
-    /** Returns the [ComplicationData] to render with. */
-    public fun getData(): ComplicationData?
-
-    /**
-     * Sets the [ComplicationData] to render with and loads any [Drawable]s contained within the
-     * ComplicationData. You can choose whether this is done synchronously or asynchronously via
-     * [loadDrawablesAsynchronous].
-     *
-     * @param complicationData The [ComplicationData] to render with
-     * @param loadDrawablesAsynchronous Whether or not any drawables should be loaded asynchronously
-     */
-    public fun loadData(complicationData: ComplicationData?, loadDrawablesAsynchronous: Boolean)
-}
-
 /**
  * A complication rendered with [ComplicationDrawable] which renders complications in a material
  * design style. This renderer can't be shared by multiple complications.
@@ -101,8 +48,7 @@ public interface CanvasComplication {
 public open class CanvasComplicationDrawable(
     _drawable: ComplicationDrawable,
     private val watchState: WatchState
-) : CanvasComplication {
-
+) {
     init {
         _drawable.callback = object :
             Drawable.Callback {
@@ -137,14 +83,31 @@ public open class CanvasComplicationDrawable(
 
     private var attachedComplication: Complication? = null
 
-    /** {@inheritDoc} */
-    override fun onAttach(complication: Complication) {
+    /**
+     * Called when the CanvasComplication attaches to a [Complication]. This will get called during
+     * [Complication] initialization and if [Complication.renderer] is assigned with this
+     * CanvasComplication.
+     */
+    @UiThread
+    public fun onAttach(complication: Complication) {
         attachedComplication = complication
         watchState.isAmbient.addObserver(isAmbientObserver)
     }
 
-    /** {@inheritDoc} */
-    override fun render(
+    /**
+     * Draws the complication defined by [getData] into the canvas with the specified bounds.
+     * This will usually be called by user watch face drawing code, but the system may also call it
+     * for complication selection UI rendering. The width and height will be the same as that
+     * computed by computeBounds but the translation and canvas size may differ.
+     *
+     * @param canvas The [Canvas] to render into
+     * @param bounds A [Rect] describing the bounds of the complication
+     * @param calendar The current [Calendar]
+     * @param renderParameters The current [RenderParameters]
+     * @param complicationId The Id of the parent [Complication]
+     */
+    @UiThread
+    public open fun render(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar,
@@ -194,15 +157,13 @@ public open class CanvasComplicationDrawable(
     }
 
     /**
-     * Whether or not the complication should be drawn highlighted. Used to provide visual feedback
-     * when the complication is tapped.
+     * Whether the complication should be drawn highlighted. This is to provide visual feedback when
+     * the user taps on a complication.
      */
-    override var isHighlighted: Boolean
-        @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
+    public var isHighlighted: Boolean
         @JvmName("isHighlighted")
         @UiThread
         get() = drawable.isHighlighted
-        @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
         @JvmName("setIsHighlighted")
         @UiThread
         set(value) {
@@ -211,9 +172,19 @@ public open class CanvasComplicationDrawable(
 
     private var _data: ComplicationData? = null
 
-    override fun getData(): ComplicationData? = _data
+    /** Returns the [ComplicationData] to render with. */
+    public fun getData(): ComplicationData? = _data
 
-    override fun loadData(
+    /**
+     * Sets the [ComplicationData] to render with and loads any [Drawable]s contained within the
+     * ComplicationData. You can choose whether this is done synchronously or asynchronously via
+     * [loadDrawablesAsynchronous].
+     *
+     * @param complicationData The [ComplicationData] to render with
+     * @param loadDrawablesAsynchronous Whether or not any drawables should be loaded asynchronously
+     */
+    @CallSuper
+    public open fun loadData(
         complicationData: ComplicationData?,
         loadDrawablesAsynchronous: Boolean
     ): Unit = TraceEvent("CanvasComplicationDrawable.setIdAndData").use {
@@ -233,7 +204,7 @@ public open class CanvasComplicationDrawable(
  * @param id The Watch Face's ID for the complication.
  * @param boundsType The [ComplicationBoundsType] of the complication.
  * @param bounds The complication's [ComplicationBounds].
- * @param renderer The [CanvasComplication] used to render the complication.
+ * @param renderer The [CanvasComplicationDrawable] used to render the complication.
  * @param supportedTypes The list of [ComplicationType]s accepted by this complication. Passed
  *     into [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
  *     configuration. This list should be non-empty.
@@ -254,7 +225,7 @@ public class Complication internal constructor(
     internal val id: Int,
     @ComplicationBoundsType public val boundsType: Int,
     bounds: ComplicationBounds,
-    public val renderer: CanvasComplication,
+    public val renderer: CanvasComplicationDrawable,
     supportedTypes: List<ComplicationType>,
     defaultProviderPolicy: DefaultComplicationProviderPolicy,
     defaultProviderType: ComplicationType,
@@ -275,8 +246,8 @@ public class Complication internal constructor(
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
          *     unique within the watch face.
-         * @param renderer The [CanvasComplication] to use for rendering. Note renderers should
-         *     not be shared between complications.
+         * @param renderer The [CanvasComplicationDrawable] to use for rendering. Note renderers
+         *     should not be shared between complications.
          * @param supportedTypes The types of complication supported by this Complication. Passed
          *     into [ComplicationHelperActivity.createProviderChooserHelperIntent] during
          *     complication configuration. This list should be non-empty.
@@ -287,7 +258,7 @@ public class Complication internal constructor(
         @JvmStatic
         public fun createRoundRectComplicationBuilder(
             id: Int,
-            renderer: CanvasComplication,
+            renderer: CanvasComplicationDrawable,
             supportedTypes: List<ComplicationType>,
             defaultProviderPolicy: DefaultComplicationProviderPolicy,
             bounds: ComplicationBounds
@@ -309,8 +280,8 @@ public class Complication internal constructor(
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
          *     unique within the watch face.
-         * @param renderer The [CanvasComplication] to use for rendering. Note renderers should
-         *     not be shared between complications.
+         * @param renderer The [CanvasComplicationDrawable] to use for rendering. Note renderers
+         *     should not be shared between complications.
          * @param supportedTypes The types of complication supported by this Complication. Passed
          *     into [ComplicationHelperActivity.createProviderChooserHelperIntent] during
          *     complication configuration. This list should be non-empty.
@@ -320,7 +291,7 @@ public class Complication internal constructor(
         @JvmStatic
         public fun createBackgroundComplicationBuilder(
             id: Int,
-            renderer: CanvasComplication,
+            renderer: CanvasComplicationDrawable,
             supportedTypes: List<ComplicationType>,
             defaultProviderPolicy: DefaultComplicationProviderPolicy
         ): Builder = Builder(
@@ -338,8 +309,8 @@ public class Complication internal constructor(
      *
      * @param id The watch face's ID for this complication. Can be any integer but should be unique
      *     within the watch face.
-     * @param renderer The [CanvasComplication] to use for rendering. Note renderers should not be
-     *     shared between complications.
+     * @param renderer The [CanvasComplicationDrawable] to use for rendering. Note renderers should
+     *     not be shared between complications.
      * @param supportedTypes The types of complication supported by this Complication. Passed into
      *     [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
      *     configuration. This list should be non-empty.
@@ -350,7 +321,7 @@ public class Complication internal constructor(
      */
     public class Builder internal constructor(
         private val id: Int,
-        private val renderer: CanvasComplication,
+        private val renderer: CanvasComplicationDrawable,
         private val supportedTypes: List<ComplicationType>,
         private val defaultProviderPolicy: DefaultComplicationProviderPolicy,
         @ComplicationBoundsType private val boundsType: Int,

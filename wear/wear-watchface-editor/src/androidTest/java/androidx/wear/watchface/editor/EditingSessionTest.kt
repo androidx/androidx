@@ -45,12 +45,14 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
-import androidx.wear.watchface.CanvasComplication
+import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.asApiEditorState
+import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.Layer
@@ -283,7 +285,9 @@ public class EditorSessionTest {
         listOf(Layer.TOP_LAYER)
     )
 
-    private val mockLeftCanvasComplication = Mockito.mock(CanvasComplication::class.java)
+    private val placeholderWatchState = MutableWatchState().asWatchState()
+    private val mockLeftCanvasComplication =
+        CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
     private val leftComplication =
         Complication.createRoundRectComplicationBuilder(
             LEFT_COMPLICATION_ID,
@@ -300,7 +304,8 @@ public class EditorSessionTest {
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
-    private val mockRightCanvasComplication = Mockito.mock(CanvasComplication::class.java)
+    private val mockRightCanvasComplication =
+        CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
     private val rightComplication =
         Complication.createRoundRectComplicationBuilder(
             RIGHT_COMPLICATION_ID,
@@ -322,7 +327,8 @@ public class EditorSessionTest {
             )
             .build()
 
-    private val mockBackgroundCanvasComplication = Mockito.mock(CanvasComplication::class.java)
+    private val mockBackgroundCanvasComplication =
+        CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
     private val backgroundComplication =
         Complication.createBackgroundComplicationBuilder(
             BACKGROUND_COMPLICATION_ID,
@@ -514,6 +520,8 @@ public class EditorSessionTest {
 
     @Test
     public fun fixedComplicationProvider() {
+        val mockLeftCanvasComplication =
+            CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
         val fixedLeftComplication =
             Complication.createRoundRectComplicationBuilder(
                 LEFT_COMPLICATION_ID,
