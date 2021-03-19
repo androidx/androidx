@@ -18,6 +18,7 @@ package androidx.core.google.shortcuts;
 
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.core.google.shortcuts.ShortcutUtils.CAPABILITY_PARAM_SEPARATOR;
 import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_DESCRIPTION_KEY;
 import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_LABEL_KEY;
 import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
@@ -180,13 +181,14 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
                 }
 
                 if (shortcut.getExtras() == null
-                        || shortcut.getExtras().getStringArray(capability) == null) {
-                    // Shortcut has a capability binding without parameters.
+                        || shortcut.getExtras().getStringArray(capability) == null
+                        || shortcut.getExtras().getStringArray(capability).length == 0) {
+                    // Shortcut has a capability binding without any parameter binding.
                     partOfList.add(buildPartOfIndexable(capability, null));
                 } else {
                     String[] params = shortcut.getExtras().getStringArray(capability);
                     for (String param : params) {
-                        String capabilityParam = capability + "/" + param;
+                        String capabilityParam = capability + CAPABILITY_PARAM_SEPARATOR + param;
                         partOfList.add(buildPartOfIndexable(capabilityParam,
                                 shortcut.getExtras().getStringArray(capabilityParam)));
                     }
