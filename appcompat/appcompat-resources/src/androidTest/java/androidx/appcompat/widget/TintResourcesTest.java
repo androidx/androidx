@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -37,16 +38,11 @@ public class TintResourcesTest {
     public final androidx.test.rule.ActivityTestRule<Activity> mActivityTestRule =
             new androidx.test.rule.ActivityTestRule<>(Activity.class);
 
-    /**
-     * Ensures that TintResources delegates calls to the wrapped Resources object.
-     */
     @Test
     public void testTintResourcesDelegateBackToOriginalResources() {
         final TestResources testResources =
                 new TestResources(mActivityTestRule.getActivity().getResources());
-
         // First make sure that the flag is false
-        testResources.resetGetDrawableCalled();
         assertFalse(testResources.wasGetDrawableCalled());
 
         // Now wrap in a TintResources instance and get a Drawable
@@ -57,4 +53,26 @@ public class TintResourcesTest {
         // ...and assert that the flag was flipped
         assertTrue(testResources.wasGetDrawableCalled());
     }
+
+    /**
+     * Special Resources class which returns a known Drawable instance from a special ID
+     */
+    private static class TestResources extends Resources {
+        private boolean mGetDrawableCalled;
+
+        private TestResources(Resources res) {
+            super(res.getAssets(), res.getDisplayMetrics(), res.getConfiguration());
+        }
+
+        @Override
+        public Drawable getDrawable(int id) throws NotFoundException {
+            mGetDrawableCalled = true;
+            return super.getDrawable(id);
+        }
+
+        public boolean wasGetDrawableCalled() {
+            return mGetDrawableCalled;
+        }
+    }
+
 }
