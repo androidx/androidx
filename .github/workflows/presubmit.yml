@@ -41,11 +41,28 @@ jobs:
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
+      - name: "Compute actions/checkout arguments"
+        id: checkout-args
+        run: |
+          set -x
+
+          REF=${{ github.event.pull_request.head.ref }}
+          if [ -z "$REF" ]; then
+            REF=${{ github.event.ref }}
+          fi
+          echo "::set-output name=ref::$REF"
+
+          REPOSITORY=${{ github.event.pull_request.head.repo.full_name }}
+          if [ -z "$REPOSITORY" ]; then
+            REPOSITORY=${{ github.repository }}
+          fi
+          echo "::set-output name=repository::$REPOSITORY"
+
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
         with:
-          ref: ${{github.event.pull_request.head.ref}}
-          repository: ${{github.event.pull_request.head.repo.full_name}}
+          ref: ${{ steps.checkout-args.outputs.ref }}
+          repository: ${{ steps.checkout-args.outputs.repository }}
           fetch-depth: 0 # Need full depth for changed-files-action
 
       - name: "Get changed files in push or pull_request"
