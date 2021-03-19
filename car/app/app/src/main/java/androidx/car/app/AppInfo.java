@@ -58,7 +58,7 @@ import androidx.car.app.versioning.CarAppApiLevels;
  */
 public final class AppInfo {
     // TODO(b/174803562): Automatically update the this version using Gradle
-    private static final String LIBRARY_VERSION = "1.0.0-beta02";
+    private static final String LIBRARY_VERSION = "1.1.0-alpha01";
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY)
