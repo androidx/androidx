@@ -122,7 +122,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
 
     @Keep
     @Nullable
-    private final CarText mPrompt;
+    private final CarText mHint;
     @Keep
     @Nullable
     private final CarText mDefaultValue;
@@ -131,7 +131,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     private final int mInputType;
     @Keep
     @Nullable
-    private final CarText mMessage;
+    private final CarText mErrorMessage;
     @Keep
     @KeyboardType
     private final int mKeyboardType;
@@ -143,13 +143,13 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
 
     /**
      * Returns the text explaining to the user what should be entered in this input box or
-     * {@code null} if no prompt is provided.
+     * {@code null} if no hint is provided.
      *
-     * @see Builder#setPrompt(CharSequence)
+     * @see Builder#setHint(CharSequence)
      */
     @Nullable
-    public CarText getPrompt() {
-        return mPrompt;
+    public CarText getHint() {
+        return mHint;
     }
 
     /**
@@ -174,16 +174,16 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     }
 
     /**
-     * Returns a message associated with the user input.
+     * Returns an error message associated with the user input.
      *
      * <p>For example, this can be used to indicate formatting errors, wrong username or
-     * password, or any other situation related to the user input.
+     * password, or any other problem related to the user input.
      *
-     * @see Builder#setMessage(CharSequence)
+     * @see Builder#setErrorMessage(CharSequence)
      */
     @Nullable
-    public CarText getMessage() {
-        return mMessage;
+    public CarText getErrorMessage() {
+        return mErrorMessage;
     }
 
     /**
@@ -234,22 +234,22 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
         return mInputType == that.mInputType
                 && mKeyboardType == that.mKeyboardType
                 && mShowKeyboardByDefault == that.mShowKeyboardByDefault
-                && Objects.equals(mPrompt, that.mPrompt)
+                && Objects.equals(mHint, that.mHint)
                 && Objects.equals(mDefaultValue, that.mDefaultValue)
-                && Objects.equals(mMessage, that.mMessage);
+                && Objects.equals(mErrorMessage, that.mErrorMessage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mPrompt, mDefaultValue, mInputType, mMessage, mKeyboardType,
+        return Objects.hash(mHint, mDefaultValue, mInputType, mErrorMessage, mKeyboardType,
                 mShowKeyboardByDefault);
     }
 
     InputSignInMethod(Builder builder) {
-        mPrompt = builder.mPrompt;
+        mHint = builder.mHint;
         mDefaultValue = builder.mDefaultValue;
         mInputType = builder.mInputType;
-        mMessage = builder.mMessage;
+        mErrorMessage = builder.mErrorMessage;
         mKeyboardType = builder.mKeyboardType;
         mOnInputCompletedDelegate = builder.mOnInputCompletedDelegate;
         mShowKeyboardByDefault = builder.mShowKeyboardByDefault;
@@ -257,10 +257,10 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
 
     /** Constructs an empty instance, used by serialization code. */
     private InputSignInMethod() {
-        mPrompt = null;
+        mHint = null;
         mDefaultValue = null;
         mInputType = INPUT_TYPE_DEFAULT;
-        mMessage = null;
+        mErrorMessage = null;
         mKeyboardType = KEYBOARD_DEFAULT;
         mOnInputCompletedDelegate = null;
         mShowKeyboardByDefault = false;
@@ -270,28 +270,28 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     public static final class Builder {
         final OnInputCompletedDelegate mOnInputCompletedDelegate;
         @Nullable
-        CarText mPrompt;
+        CarText mHint;
         @Nullable
         CarText mDefaultValue;
         int mInputType = INPUT_TYPE_DEFAULT;
         @Nullable
-        CarText mMessage;
+        CarText mErrorMessage;
         int mKeyboardType = KEYBOARD_DEFAULT;
         boolean mShowKeyboardByDefault;
 
         /**
          * Sets the text explaining to the user what should be entered in this input box.
          *
-         * <p>Unless set with this method, the sign-in method will not show any prompt.
+         * <p>Unless set with this method, the sign-in method will not show any hint.
          *
          * <p>Spans are supported in the input string.
          *
-         * @throws NullPointerException if {@code prompt} is {@code null}
+         * @throws NullPointerException if {@code hint} is {@code null}
          */
         // TODO(b/181569051): document supported span types.
         @NonNull
-        public Builder setPrompt(@NonNull CharSequence instructions) {
-            mPrompt = CarText.create(requireNonNull(instructions));
+        public Builder setHint(@NonNull CharSequence hint) {
+            mHint = CarText.create(requireNonNull(hint));
             return this;
         }
 
@@ -330,24 +330,23 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
         }
 
         /**
-         * Sets the message associated with this input box.
+         * Sets the error message associated with this input box.
          *
          * <p>For example, this can be used to indicate formatting errors, wrong username or
-         * password or any other situation related to the user input.
+         * password or any other problem related to the user input.
          *
          * <h4>Requirements</h4>
          *
-         * Messages can have only up to 2 lines of text, amd additional texts beyond the
+         * Error messages can have only up to 2 lines of text, amd additional texts beyond the
          * second line may be truncated.
          *
-         * <p>Spans are supported in the input string.
+         * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code message} is {@code null}
          */
-        // TODO(b/181569051): document supported span types.
         @NonNull
-        public Builder setMessage(@NonNull CharSequence message) {
-            mMessage = CarText.create(requireNonNull(message));
+        public Builder setErrorMessage(@NonNull CharSequence message) {
+            mErrorMessage = CarText.create(requireNonNull(message));
             return this;
         }
 
