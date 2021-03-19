@@ -18,6 +18,8 @@ package androidx.work.integration.testapp;
 
 import static androidx.work.ExistingWorkPolicy.KEEP;
 import static androidx.work.ExistingWorkPolicy.REPLACE;
+import static androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_CLASS_NAME;
+import static androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_PACKAGE_NAME;
 
 import android.app.PendingIntent;
 import android.app.job.JobInfo;
@@ -35,6 +37,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -52,6 +55,7 @@ import androidx.work.impl.background.systemjob.SystemJobService;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
+import androidx.work.multiprocess.RemoteWorkerService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +66,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class MainActivity extends AppCompatActivity {
 
+    private static final String PACKAGE_NAME = "androidx.work.integration.testapp";
     private static final String TAG = "MainActivity";
     private static final String CONSTRAINT_TRACKING_TAG = "ConstraintTrackingWorker";
     private static final String UNIQUE_WORK_NAME = "importantUniqueWork";
@@ -504,6 +509,36 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        findViewById(R.id.enqueue_remote_worker_1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String serviceName = RemoteWorkerService.class.getName();
+                ComponentName componentName = new ComponentName(PACKAGE_NAME, serviceName);
+                OneTimeWorkRequest request = buildOneTimeWorkRemoteWorkRequest(componentName);
+                WorkManager.getInstance(MainActivity.this)
+                        .enqueue(request);
+            }
+        });
+
+        findViewById(R.id.enqueue_remote_worker_2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String serviceName = RemoteWorkerService2.class.getName();
+                ComponentName componentName = new ComponentName(PACKAGE_NAME, serviceName);
+                OneTimeWorkRequest request = buildOneTimeWorkRemoteWorkRequest(componentName);
+                WorkManager.getInstance(MainActivity.this)
+                        .enqueue(request);
+            }
+        });
+
+        findViewById(R.id.cancel_remote_workers).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WorkManager.getInstance(MainActivity.this)
+                        .cancelAllWorkByTag(RemoteWorker.class.getName());
+            }
+        });
+
         findViewById(R.id.crash_app).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -540,6 +575,17 @@ public class MainActivity extends AppCompatActivity {
         } else {
             hundredJobExceptionButton.setVisibility(View.GONE);
         }
+    }
 
+    @NonNull
+    OneTimeWorkRequest buildOneTimeWorkRemoteWorkRequest(@NonNull ComponentName componentName) {
+        Data data = new Data.Builder()
+                .putString(ARGUMENT_PACKAGE_NAME, componentName.getPackageName())
+                .putString(ARGUMENT_CLASS_NAME, componentName.getClassName())
+                .build();
+
+        return new OneTimeWorkRequest.Builder(RemoteWorker.class)
+                .setInputData(data)
+                .build();
     }
 }

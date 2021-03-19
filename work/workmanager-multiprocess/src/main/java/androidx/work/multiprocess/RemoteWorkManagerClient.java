@@ -19,6 +19,8 @@ package androidx.work.multiprocess;
 import static android.content.Context.BIND_AUTO_CREATE;
 
 import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.failureCallback;
+import static androidx.work.multiprocess.RemoteClientUtils.map;
+import static androidx.work.multiprocess.RemoteClientUtils.sVoidMapper;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
@@ -77,6 +79,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
 
     private Session mSession;
 
+    @SuppressLint("BanKeepAnnotation")
     @Keep
     public RemoteWorkManagerClient(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
         mContext = context.getApplicationContext();
@@ -95,7 +98,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> enqueue(@NonNull final List<WorkRequest> requests) {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(
                     @NonNull IWorkManagerImpl iWorkManagerImpl,
@@ -150,7 +153,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> enqueue(@NonNull final WorkContinuation continuation) {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
@@ -166,7 +169,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> cancelWorkById(@NonNull final UUID id) {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
@@ -179,7 +182,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> cancelAllWorkByTag(@NonNull final String tag) {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
@@ -192,7 +195,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> cancelUniqueWork(@NonNull final String uniqueWorkName) {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
@@ -205,7 +208,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> cancelAllWork() {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
@@ -218,7 +221,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<List<WorkInfo>> getWorkInfos(@NonNull final WorkQuery workQuery) {
-        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
             @Override
             public void execute(
                     @NonNull IWorkManagerImpl iWorkManagerImpl,
@@ -244,7 +247,8 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
      * @return The {@link ListenableFuture} instance.
      */
     @NonNull
-    public ListenableFuture<byte[]> execute(@NonNull final RemoteDispatcher dispatcher) {
+    public ListenableFuture<byte[]> execute(
+            @NonNull final RemoteDispatcher<IWorkManagerImpl> dispatcher) {
         return execute(getSession(), dispatcher, new RemoteCallback());
     }
 
@@ -261,7 +265,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @VisibleForTesting
     ListenableFuture<byte[]> execute(
             @NonNull final ListenableFuture<IWorkManagerImpl> session,
-            @NonNull final RemoteDispatcher dispatcher,
+            @NonNull final RemoteDispatcher<IWorkManagerImpl> dispatcher,
             @NonNull final RemoteCallback callback) {
         session.addListener(new Runnable() {
             @Override
@@ -332,53 +336,6 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
      */
     private static Intent newIntent(@NonNull Context context) {
         return new Intent(context, RemoteWorkManagerService.class);
-    }
-
-    /**
-     * A mapper that essentially drops the byte[].
-     */
-    private static final Function<byte[], Void> sVoidMapper = new Function<byte[], Void>() {
-        @Override
-        public Void apply(byte[] input) {
-            return null;
-        }
-    };
-
-    private static <I, O> ListenableFuture<O> map(
-            @NonNull final ListenableFuture<I> input,
-            @NonNull final Function<I, O> transformation,
-            @NonNull Executor executor) {
-
-        final SettableFuture<O> output = SettableFuture.create();
-        input.addListener(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    I in = input.get();
-                    O out = transformation.apply(in);
-                    output.set(out);
-                } catch (Throwable throwable) {
-                    Throwable cause = throwable.getCause();
-                    cause = cause == null ? throwable : cause;
-                    output.setException(cause);
-                }
-            }
-        }, executor);
-        return output;
-    }
-
-    /**
-     * @hide
-     */
-    @SuppressLint("LambdaLast")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public interface RemoteDispatcher {
-        /**
-         * Perform the actual work given an instance of {@link IWorkManagerImpl} and the
-         * {@link IWorkManagerImplCallback} callback.
-         */
-        void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
-                @NonNull IWorkManagerImplCallback callback) throws Throwable;
     }
 
     /**

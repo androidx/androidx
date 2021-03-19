@@ -34,6 +34,9 @@
     <string name="cancel_work_tag_multiprocess">Cancel Work By Tag (Multi-process)</string>
     <string name="cancel_all_work_multiprocess">Cancel All Work (Multi-process)</string>
     <string name="query_work_multiprocess">Query Work (Multi-process)</string>
+    <string name="run_remote_worker_1">Run Remote Worker 1</string>
+    <string name="run_remote_worker_2">Run Remote Worker 2</string>
+    <string name="cancel_remote_workers">Cancel Remote Workers</string>
     <string name="crash_app">Crash App</string>
     <string name="create_hundred_job_exception">Create 100 Job Exception</string>
     <string name="keep">Use KEEP</string>

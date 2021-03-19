@@ -16,6 +16,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="androidx.work.integration.testapp">
+
     <application
         android:name=".TestApplication"
         android:allowBackup="true"
@@ -37,14 +38,26 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".RemoteService"
-            android:exported="false"
-            android:process=":remote" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove" />
+
+        <service
+            android:name="androidx.work.multiprocess.RemoteWorkerService"
+            android:exported="false"
+            android:process=":worker1" />
+
+        <service
+            android:name=".RemoteWorkerService2"
+            android:exported="false"
+            android:process=":worker2" />
+
+        <service
+            android:name=".RemoteService"
+            android:exported="false"
+            android:process=":remote" />
     </application>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 </manifest>
