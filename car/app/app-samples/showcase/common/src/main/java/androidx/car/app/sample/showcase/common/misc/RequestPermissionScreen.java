@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app.sample.navigation.common.car;
+package androidx.car.app.sample.showcase.common.misc;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -34,21 +34,12 @@ import androidx.car.app.model.Template;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Screen for asking the user to grant location permission. */
+/**
+ * A screen to show a request for a runtime permission from the user.
+ */
 public class RequestPermissionScreen extends Screen {
-
-    /** Callback called when the location permission is granted. */
-    public interface LocationPermissionCheckCallback {
-        /** Callback called when the location permission is granted. */
-        void onPermissionGranted();
-    }
-
-    LocationPermissionCheckCallback mLocationPermissionCheckCallback;
-
-    public RequestPermissionScreen(
-            @NonNull CarContext carContext, @NonNull LocationPermissionCheckCallback callback) {
+    public RequestPermissionScreen(@NonNull CarContext carContext) {
         super(carContext);
-        mLocationPermissionCheckCallback = callback;
     }
 
     @OptIn(markerClass = ExperimentalCarApi.class)
@@ -60,23 +51,19 @@ public class RequestPermissionScreen extends Screen {
 
         String message = "This app needs access to location in order to navigate";
 
-        OnClickListener listener = ParkedOnlyOnClickListener.create(() ->
-                getCarContext().requestPermissions(
-                        permissions,
-                        (approved, rejected) -> {
-                            CarToast.makeText(
-                                    getCarContext(),
-                                    String.format("Approved: %s Rejected: %s", approved, rejected),
-                                    CarToast.LENGTH_LONG).show();
-                            if (!approved.isEmpty()) {
-                                mLocationPermissionCheckCallback.onPermissionGranted();
-                                finish();
-                            }
-                        }));
+        OnClickListener listener = ParkedOnlyOnClickListener.create(() -> {
+            getCarContext().requestPermissions(
+                    permissions,
+                    (approved, rejected) -> CarToast.makeText(
+                            getCarContext(),
+                            String.format("Approved: %s Rejected: %s", approved, rejected),
+                            CarToast.LENGTH_LONG).show());
+            finish();
+        });
 
         Action action = new Action.Builder()
                 .setTitle("Grant Permission")
-                .setBackgroundColor(CarColor.GREEN)
+                .setBackgroundColor(CarColor.BLUE)
                 .setOnClickListener(listener)
                 .build();
 

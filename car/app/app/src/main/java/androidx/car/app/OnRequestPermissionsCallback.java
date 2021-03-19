@@ -1,5 +1,3 @@
-import static androidx.build.dependencies.DependenciesKt.getKOTLIN_STDLIB
-
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -16,21 +14,22 @@ import static androidx.build.dependencies.DependenciesKt.getKOTLIN_STDLIB
  * limitations under the License.
  */
 
-plugins {
-    id("AndroidXPlugin")
-    id("com.android.library")
-}
+package androidx.car.app;
 
-android {
-    defaultConfig {
-        minSdkVersion 23
-    }
-}
+import androidx.annotation.NonNull;
 
-dependencies {
-    implementation(project(":car:app:app"))
+import java.util.List;
 
-    api(KOTLIN_STDLIB)
-    implementation("androidx.core:core:1.5.0-alpha01")
-    implementation project(path: ':annotation:annotation-experimental')
+/**
+ * A callback with the results from a permissions request.
+ */
+public interface OnRequestPermissionsCallback {
+    /**
+     * Provides which permissions were approved and which were rejected by the user.
+     *
+     * @param grantedPermissions  the permissions that the user granted
+     * @param rejectedPermissions the permissions that the user rejected
+     */
+    void onRequestPermissionsResult(@NonNull List<String> grantedPermissions,
+            @NonNull List<String> rejectedPermissions);
 }

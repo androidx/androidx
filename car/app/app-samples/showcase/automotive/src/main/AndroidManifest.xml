@@ -54,7 +54,7 @@
         <category android:name="androidx.car.app.category.NAVIGATION"/>
       </intent-filter>
       <meta-data android:name="androidx.car.app.CAR_APP_ACTIVITY"
-          android:value="androidx.car.app.sample.showcase.Showcase" />
+          android:value="androidx.car.app.sample.showcase.common.Showcase" />
     </service>
 
     <service
