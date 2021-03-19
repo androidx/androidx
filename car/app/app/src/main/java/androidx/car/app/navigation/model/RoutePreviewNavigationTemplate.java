@@ -279,6 +279,8 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * <p>This should not be {@code null} if the template is not in a loading state (see
          * #setIsLoading}), and the {@link Action}'s title must be set.
          *
+         * <p>Any background colors or spans set on the action will be ignored.
+         *
          * @throws NullPointerException     if {@code navigateAction} is {@code null}
          * @throws IllegalArgumentException if {@code navigateAction}'s title is {@code null} or
          *                                  empty
