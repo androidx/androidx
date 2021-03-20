@@ -18,7 +18,7 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.model.CarColor.DEFAULT;
-import static androidx.car.app.model.constraints.CarColorConstraints.STANDARD_ONLY;
+import static androidx.car.app.model.constraints.CarColorConstraints.UNCONSTRAINED;
 
 import static java.util.Objects.requireNonNull;
 
@@ -282,7 +282,9 @@ public final class Action {
         /**
          * Sets the title to display in the action.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>{@link ForegroundCarColorSpan}s are supported in the input string. See the
+         * documentation on where the {@link Action} is added for more details on any
+         * other restriction(s) that might apply.
          *
          * @throws NullPointerException if {@code title} is {@code null}
          * @see CarText
@@ -296,7 +298,9 @@ public final class Action {
         /**
          * Sets the title to display in the action.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>{@link ForegroundCarColorSpan}s are supported in the input string. See the
+         * documentation on where the {@link Action} is added for more details on any
+         * other restriction(s) that might apply.
          *
          * @throws NullPointerException if {@code title} is {@code null}
          * @see CarText
@@ -354,19 +358,16 @@ public final class Action {
          * <h4>Requirements</h4>
          *
          * <p>The host may ignore this color and use the default instead if the color does not
-         * pass the contrast requirements.
-         *
-         * <p>Note the color of the text cannot be specified. Host implementations may pick the
-         * dark or light versions of the given background color as needed.
+         * pass the contrast requirements. See the documentation on where the {@link Action} is
+         * added for more details on any other restriction(s) that might apply.
          *
          * @param backgroundColor the {@link CarColor} to set as background. Use {@link
          *                        CarColor#DEFAULT} to let the host pick a default
-         * @throws IllegalArgumentException if {@code backgroundColor} is not a standard color
          * @throws NullPointerException     if {@code backgroundColor} is {@code null}
          */
         @NonNull
         public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
-            STANDARD_ONLY.validateOrThrow(requireNonNull(backgroundColor));
+            UNCONSTRAINED.validateOrThrow(requireNonNull(backgroundColor));
             mBackgroundColor = backgroundColor;
             return this;
         }

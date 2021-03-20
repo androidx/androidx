@@ -74,18 +74,6 @@ public class ActionTest {
     }
 
     @Test
-    public void create_throws_customBackgroundColor() {
-        OnClickListener onClickListener = mock(OnClickListener.class);
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Action.Builder()
-                        .setTitle("foo")
-                        .setOnClickListener(onClickListener)
-                        .setBackgroundColor(CarColor.createCustom(0xdead, 0xbeef))
-                        .build());
-    }
-
-    @Test
     public void create_noTitleDefault() {
         OnClickListener onClickListener = mock(OnClickListener.class);
         Action action = new Action.Builder()
