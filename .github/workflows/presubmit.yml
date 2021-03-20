@@ -69,7 +69,7 @@ jobs:
         id: changed-files
         # Temporary workaround for failing on force-push
         continue-on-error: true
-        uses: dlam/changed-files-action@main
+        uses: androidx/changed-files-action@main
 
       - name: Check invalid suppressions
         run: |
