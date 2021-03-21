@@ -161,9 +161,13 @@ public final class TransformFragment extends Fragment {
         // Loop through the y plane and get the sum of the luminance for each tile.
         byte[] bytes = new byte[image.getPlanes()[0].getBuffer().remaining()];
         image.getPlanes()[0].getBuffer().get(bytes);
+        int tileX;
+        int tileY;
         for (int x = 0; x < cropRect.width(); x++) {
             for (int y = 0; y < cropRect.height(); y++) {
-                tiles[x / tileWidth][y / tileHeight] +=
+                tileX = Math.min(x / tileWidth, TILE_COUNT - 1);
+                tileY = Math.min(y / tileHeight, TILE_COUNT - 1);
+                tiles[tileX][tileY] +=
                         bytes[(y + cropRect.top) * image.getWidth() + cropRect.left + x] & 0xFF;
             }
         }
