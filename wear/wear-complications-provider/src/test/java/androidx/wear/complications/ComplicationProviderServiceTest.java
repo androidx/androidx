@@ -71,7 +71,7 @@ public class ComplicationProviderServiceTest {
         public void onComplicationUpdate(
                 int complicationId,
                 @NonNull ComplicationType type,
-                @NonNull ComplicationUpdateCallback callback) {
+                @NonNull ComplicationUpdateListener callback) {
             try {
                 callback.onUpdateComplication(
                         new LongTextComplicationData.Builder(
@@ -101,7 +101,7 @@ public class ComplicationProviderServiceTest {
         public void onComplicationUpdate(
                 int complicationId,
                 @NonNull ComplicationType type,
-                @NonNull ComplicationUpdateCallback callback) {
+                @NonNull ComplicationUpdateListener callback) {
             try {
                 // Null means no update required.
                 callback.onUpdateComplication(null);
