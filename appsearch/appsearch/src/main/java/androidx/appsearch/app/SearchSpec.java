@@ -63,6 +63,8 @@ public final class SearchSpec {
     static final String SNIPPET_COUNT_PER_PROPERTY_FIELD = "snippetCountPerProperty";
     static final String MAX_SNIPPET_FIELD = "maxSnippet";
     static final String PROJECTION_TYPE_PROPERTY_PATHS_FIELD = "projectionTypeFieldMasks";
+    static final String RESULT_GROUPING_TYPE_FLAGS = "resultGroupingTypeFlags";
+    static final String RESULT_GROUPING_LIMIT = "resultGroupingLimit";
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -77,6 +79,7 @@ public final class SearchSpec {
 
     /**
      * Term Match Type for the query.
+     *
      * @hide
      */
     // NOTE: The integer values of these constants must match the proto enum constants in
@@ -86,7 +89,8 @@ public final class SearchSpec {
             TERM_MATCH_PREFIX
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface TermMatch {}
+    public @interface TermMatch {
+    }
 
     /**
      * Query terms will only match exact tokens in the index.
@@ -101,6 +105,7 @@ public final class SearchSpec {
 
     /**
      * Ranking Strategy for query result.
+     *
      * @hide
      */
     // NOTE: The integer values of these constants must match the proto enum constants in
@@ -114,9 +119,10 @@ public final class SearchSpec {
             RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface RankingStrategy {}
+    public @interface RankingStrategy {
+    }
 
-    /** No Ranking, results are returned in arbitrary order.*/
+    /** No Ranking, results are returned in arbitrary order. */
     public static final int RANKING_STRATEGY_NONE = 0;
     /** Ranked by app-provided document scores. */
     public static final int RANKING_STRATEGY_DOCUMENT_SCORE = 1;
@@ -131,6 +137,7 @@ public final class SearchSpec {
 
     /**
      * Order for query result.
+     *
      * @hide
      */
     // NOTE: The integer values of these constants must match the proto enum constants in
@@ -140,12 +147,38 @@ public final class SearchSpec {
             ORDER_ASCENDING
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Order {}
+    public @interface Order {
+    }
 
     /** Search results will be returned in a descending order. */
     public static final int ORDER_DESCENDING = 0;
     /** Search results will be returned in an ascending order. */
     public static final int ORDER_ASCENDING = 1;
+
+    /**
+     * Grouping type for result limits.
+     *
+     * @hide
+     */
+    @IntDef(flag = true, value = {
+            GROUPING_TYPE_PER_PACKAGE,
+            GROUPING_TYPE_PER_NAMESPACE
+    })
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface GroupingType {
+    }
+
+    /**
+     * Results should be grouped together by package for the purpose of enforcing a limit on the
+     * number of results returned per package.
+     */
+    public static final int GROUPING_TYPE_PER_PACKAGE = 0b01;
+    /**
+     * Results should be grouped together by namespace for the purpose of enforcing a limit on the
+     * number of results returned per namespace.
+     */
+    public static final int GROUPING_TYPE_PER_NAMESPACE = 0b10;
 
     private final Bundle mBundle;
 
@@ -158,6 +191,7 @@ public final class SearchSpec {
 
     /**
      * Returns the {@link Bundle} populated by this builder.
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -266,6 +300,24 @@ public final class SearchSpec {
         return typePropertyPathsMap;
     }
 
+    /**
+     * Get the type of grouping limit to apply, or 0 if {@link Builder#setResultGrouping} was not
+     * called.
+     */
+    public @GroupingType int getResultGroupingTypeFlags() {
+        return mBundle.getInt(RESULT_GROUPING_TYPE_FLAGS);
+    }
+
+    /**
+     * Get the maximum number of results to return for each group.
+     *
+     * @return the maximum number of results to return for each group or Integer.MAX_VALUE if
+     * {@link Builder#setResultGrouping(int, int)} was not called.
+     */
+    public int getResultGroupingLimit() {
+        return mBundle.getInt(RESULT_GROUPING_LIMIT, Integer.MAX_VALUE);
+    }
+
     /** Builder for {@link SearchSpec objects}. */
     public static final class Builder {
 
@@ -322,6 +374,7 @@ public final class SearchSpec {
         }
 
 // @exportToFramework:startStrip()
+
         /**
          * Adds the Schema names of given document classes to the Schema type filter of
          * {@link SearchSpec} Entry. Only search for documents that have the specified schema types.
@@ -349,6 +402,7 @@ public final class SearchSpec {
 // @exportToFramework:endStrip()
 
 // @exportToFramework:startStrip()
+
         /**
          * Adds the Schema names of given document classes to the Schema type filter of
          * {@link SearchSpec} Entry. Only search for documents that have the specified schema types.
@@ -437,7 +491,7 @@ public final class SearchSpec {
             return this;
         }
 
-        /** Sets ranking strategy for AppSearch results.*/
+        /** Sets ranking strategy for AppSearch results. */
         @NonNull
         public Builder setRankingStrategy(@RankingStrategy int rankingStrategy) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
@@ -590,6 +644,34 @@ public final class SearchSpec {
                 propertyPathsArrayList.add(propertyPath);
             }
             mProjectionTypePropertyMasks.putStringArrayList(schema, propertyPathsArrayList);
+            return this;
+        }
+
+        /**
+         * Set the maximum number of results to return for each group, where groups are defined
+         * by grouping type.
+         *
+         * <p>Calling this method will override any previous calls. So calling
+         * setResultGrouping(GROUPING_TYPE_PER_PACKAGE, 7) and then calling
+         * setResultGrouping(GROUPING_TYPE_PER_PACKAGE, 2) will result in only the latter, a
+         * limit of two results per package, being applied. Or calling setResultGrouping
+         * (GROUPING_TYPE_PER_PACKAGE, 1) and then calling setResultGrouping
+         * (GROUPING_TYPE_PER_PACKAGE | GROUPING_PER_NAMESPACE, 5) will result in five results
+         * per package per namespace.
+         *
+         * @param groupingTypeFlags One or more combination of grouping types.
+         * @param limit             Number of results to return per {@code groupingTypeFlags}.
+         * @throws IllegalArgumentException if groupingTypeFlags is zero.
+         */
+        // Individual parameters available from getResultGroupingTypeFlags and
+        // getResultGroupingLimit
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder setResultGrouping(@GroupingType int groupingTypeFlags, int limit) {
+            Preconditions.checkState(groupingTypeFlags != 0,
+                    "Result grouping type cannot be zero.");
+            mBundle.putInt(RESULT_GROUPING_TYPE_FLAGS, groupingTypeFlags);
+            mBundle.putInt(RESULT_GROUPING_LIMIT, limit);
             return this;
         }
 

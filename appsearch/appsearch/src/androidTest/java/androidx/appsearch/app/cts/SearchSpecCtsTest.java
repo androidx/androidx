@@ -46,6 +46,8 @@ public class SearchSpecCtsTest {
                 .setResultCountPerPage(42)
                 .setOrder(SearchSpec.ORDER_ASCENDING)
                 .setRankingStrategy(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE)
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_NAMESPACE
+                        | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*limit=*/ 37)
                 .build();
 
         assertThat(searchSpec.getTermMatch()).isEqualTo(SearchSpec.TERM_MATCH_PREFIX);
@@ -62,5 +64,9 @@ public class SearchSpecCtsTest {
         assertThat(searchSpec.getOrder()).isEqualTo(SearchSpec.ORDER_ASCENDING);
         assertThat(searchSpec.getRankingStrategy())
                 .isEqualTo(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE);
+        assertThat(searchSpec.getResultGroupingTypeFlags())
+                .isEqualTo(SearchSpec.GROUPING_TYPE_PER_NAMESPACE
+                        | SearchSpec.GROUPING_TYPE_PER_PACKAGE);
+        assertThat(searchSpec.getResultGroupingLimit()).isEqualTo(37);
     }
 }
