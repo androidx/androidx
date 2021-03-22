@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
@@ -192,8 +193,6 @@ public final class PlaceListNavigationTemplate implements Template {
         /**
          * Sets the title of the template.
          *
-         * <p>Unless set with this method, the template will not have a title.
-         *
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code title} is null
@@ -202,6 +201,21 @@ public final class PlaceListNavigationTemplate implements Template {
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            return this;
+        }
+
+        /**
+         * Sets the title of the template.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code title} is null
+         * @see CarText
+         */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder setTitle(@NonNull CarText title) {
+            mTitle = requireNonNull(title);
             return this;
         }
 

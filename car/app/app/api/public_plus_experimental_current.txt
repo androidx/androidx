@@ -538,6 +538,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setItemList(androidx.car.app.model.ItemList);
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setLoading(boolean);
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setTitle(CharSequence);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.PlaceListMapTemplate.Builder setTitle(androidx.car.app.model.CarText);
   }
 
   public final class PlaceMarker {
@@ -926,6 +927,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setLoading(boolean);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(CharSequence);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(androidx.car.app.model.CarText);
   }
 
   public final class RoutePreviewNavigationTemplate implements androidx.car.app.model.Template {
@@ -946,6 +948,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setLoading(boolean);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setNavigateAction(androidx.car.app.model.Action);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(CharSequence);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(androidx.car.app.model.CarText);
   }
 
   public final class RoutingInfo implements androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo {
