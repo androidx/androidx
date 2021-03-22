@@ -28,6 +28,7 @@ import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaResponse;
+import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.collection.ArrayMap;
@@ -875,6 +876,161 @@ public class AppSearchImplTest {
     }
 
     @Test
+    public void testGetStorageInfoForPackage_nonexistentPackage() throws Exception {
+        // "package2" doesn't exist yet, so it shouldn't have any storage size
+        StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForPackage("nonexistent.package");
+        assertThat(storageInfo.getSizeBytes()).isEqualTo(0);
+        assertThat(storageInfo.getAliveDocumentsCount()).isEqualTo(0);
+        assertThat(storageInfo.getAliveNamespacesCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetStorageInfoForPackage_withoutDocument() throws Exception {
+        // Insert schema for "package1"
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        mAppSearchImpl.setSchema("package1", "database", schemas, /*schemasNotPlatformSurfaceable=*/
+                Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Since "package1" doesn't have a document, it get any space attributed to it.
+        StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForPackage("package1");
+        assertThat(storageInfo.getSizeBytes()).isEqualTo(0);
+        assertThat(storageInfo.getAliveDocumentsCount()).isEqualTo(0);
+        assertThat(storageInfo.getAliveNamespacesCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetStorageInfoForPackage_proportionalToDocuments() throws Exception {
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+
+        // Insert schema for "package1"
+        mAppSearchImpl.setSchema("package1", "database", schemas, /*schemasNotPlatformSurfaceable=*/
+                Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Insert document for "package1"
+        GenericDocument document =
+                new GenericDocument.Builder<>("namespace", "uri1", "type").build();
+        mAppSearchImpl.putDocument("package1", "database", document, /*logger=*/ null);
+
+        // Insert schema for "package2"
+        mAppSearchImpl.setSchema("package2", "database", schemas, /*schemasNotPlatformSurfaceable=*/
+                Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Insert two documents for "package2"
+        document = new GenericDocument.Builder<>("namespace", "uri1", "type").build();
+        mAppSearchImpl.putDocument("package2", "database", document, /*logger=*/ null);
+        document = new GenericDocument.Builder<>("namespace", "uri2", "type").build();
+        mAppSearchImpl.putDocument("package2", "database", document, /*logger=*/ null);
+
+        StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForPackage("package1");
+        long size1 = storageInfo.getSizeBytes();
+        assertThat(size1).isGreaterThan(0);
+        assertThat(storageInfo.getAliveDocumentsCount()).isEqualTo(1);
+        assertThat(storageInfo.getAliveNamespacesCount()).isEqualTo(1);
+
+        storageInfo = mAppSearchImpl.getStorageInfoForPackage("package2");
+        long size2 = storageInfo.getSizeBytes();
+        assertThat(size2).isGreaterThan(0);
+        assertThat(storageInfo.getAliveDocumentsCount()).isEqualTo(2);
+        assertThat(storageInfo.getAliveNamespacesCount()).isEqualTo(1);
+
+        // Size is proportional to number of documents. Since "package2" has twice as many
+        // documents as "package1", its size is twice as much too.
+        assertThat(size2).isEqualTo(2 * size1);
+    }
+
+    @Test
+    public void testGetStorageInfoForDatabase_nonexistentPackage() throws Exception {
+        // "package2" doesn't exist yet, so it shouldn't have any storage size
+        StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForDatabase("nonexistent.package",
+                "nonexistentDatabase");
+        assertThat(storageInfo.getSizeBytes()).isEqualTo(0);
+        assertThat(storageInfo.getAliveDocumentsCount()).isEqualTo(0);
+        assertThat(storageInfo.getAliveNamespacesCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetStorageInfoForDatabase_nonexistentDatabase() throws Exception {
+        // Insert schema for "package1"
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        mAppSearchImpl.setSchema("package1", "database", schemas, /*schemasNotPlatformSurfaceable=*/
+                Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // "package2" doesn't exist yet, so it shouldn't have any storage size
+        StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForDatabase("package1",
+                "nonexistentDatabase");
+        assertThat(storageInfo.getSizeBytes()).isEqualTo(0);
+        assertThat(storageInfo.getAliveDocumentsCount()).isEqualTo(0);
+        assertThat(storageInfo.getAliveNamespacesCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetStorageInfoForDatabase_withoutDocument() throws Exception {
+        // Insert schema for "package1"
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        mAppSearchImpl.setSchema("package1", "database1", schemas,
+                /*schemasNotPlatformSurfaceable=*/
+                Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Since "package1", "database1" doesn't have a document, it get any space attributed to it.
+        StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForDatabase("package1", "database1");
+        assertThat(storageInfo.getSizeBytes()).isEqualTo(0);
+        assertThat(storageInfo.getAliveDocumentsCount()).isEqualTo(0);
+        assertThat(storageInfo.getAliveNamespacesCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetStorageInfoForDatabase_proportionalToDocuments() throws Exception {
+        // Insert schema for "package1", "database1" and "database2"
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        mAppSearchImpl.setSchema("package1", "database1", schemas,
+                /*schemasNotPlatformSurfaceable=*/
+                Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+        mAppSearchImpl.setSchema("package1", "database2", schemas,
+                /*schemasNotPlatformSurfaceable=*/
+                Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Add a document for "package1", "database1"
+        GenericDocument document =
+                new GenericDocument.Builder<>("namespace1", "uri1", "type").build();
+        mAppSearchImpl.putDocument("package1", "database1", document, /*logger=*/ null);
+
+        // Add two documents for "package1", "database2"
+        document = new GenericDocument.Builder<>("namespace1", "uri1", "type").build();
+        mAppSearchImpl.putDocument("package1", "database2", document, /*logger=*/ null);
+        document = new GenericDocument.Builder<>("namespace1", "uri2", "type").build();
+        mAppSearchImpl.putDocument("package1", "database2", document, /*logger=*/ null);
+
+
+        StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForDatabase("package1", "database1");
+        long size1 = storageInfo.getSizeBytes();
+        assertThat(size1).isGreaterThan(0);
+        assertThat(storageInfo.getAliveDocumentsCount()).isEqualTo(1);
+        assertThat(storageInfo.getAliveNamespacesCount()).isEqualTo(1);
+
+        storageInfo = mAppSearchImpl.getStorageInfoForDatabase("package1", "database2");
+        long size2 = storageInfo.getSizeBytes();
+        assertThat(size2).isGreaterThan(0);
+        assertThat(storageInfo.getAliveDocumentsCount()).isEqualTo(2);
+        assertThat(storageInfo.getAliveNamespacesCount()).isEqualTo(1);
+
+        // Size is proportional to number of documents. Since "database2" has twice as many
+        // documents as "database1", its size is twice as much too.
+        assertThat(size2).isEqualTo(2 * size1);
+    }
+
+    @Test
     public void testThrowsExceptionIfClosed() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
@@ -945,6 +1101,14 @@ public class AppSearchImplTest {
         assertThrows(IllegalStateException.class, () -> {
             appSearchImpl.removeByQuery("package", "database", "query",
                     new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build());
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.getStorageInfoForPackage("package");
+        });
+
+        assertThrows(IllegalStateException.class, () -> {
+            appSearchImpl.getStorageInfoForDatabase("package", "database");
         });
 
         assertThrows(IllegalStateException.class, () -> {

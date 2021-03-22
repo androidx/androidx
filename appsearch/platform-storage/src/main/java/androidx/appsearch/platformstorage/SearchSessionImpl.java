@@ -33,6 +33,7 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
+import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.GenericDocumentToPlatformConverter;
@@ -193,6 +194,15 @@ class SearchSessionImpl implements AppSearchSession {
                 mExecutorService,
                 result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
                         result, future));
+        return future;
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<StorageInfo> getStorageInfo() {
+        ResolvableFuture<StorageInfo> future = ResolvableFuture.create();
+        // TODO(b/182909475): Implement this if we decide to expose an API on platform.
+        future.set(new StorageInfo.Builder().build());
         return future;
     }
 

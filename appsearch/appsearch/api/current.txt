@@ -156,6 +156,7 @@ package androidx.appsearch.app {
     method public void close();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByUri(androidx.appsearch.app.GetByUriRequest);
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Set<androidx.appsearch.app.AppSearchSchema!>!> getSchema();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.StorageInfo!> getStorageInfo();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> maybeFlush();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> put(androidx.appsearch.app.PutDocumentsRequest);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> remove(androidx.appsearch.app.RemoveByUriRequest);
@@ -445,6 +446,20 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure.Builder setNamespace(String);
     method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure.Builder setSchemaType(String);
     method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure.Builder setUri(String);
+  }
+
+  public class StorageInfo {
+    method public int getAliveDocumentsCount();
+    method public int getAliveNamespacesCount();
+    method public long getSizeBytes();
+  }
+
+  public static final class StorageInfo.Builder {
+    ctor public StorageInfo.Builder();
+    method public androidx.appsearch.app.StorageInfo build();
+    method public androidx.appsearch.app.StorageInfo.Builder setAliveDocumentsCount(int);
+    method public androidx.appsearch.app.StorageInfo.Builder setAliveNamespacesCount(int);
+    method public androidx.appsearch.app.StorageInfo.Builder setSizeBytes(long);
   }
 
 }

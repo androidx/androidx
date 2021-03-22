@@ -45,6 +45,7 @@ import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.cts.customer.EmailDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.test.core.app.ApplicationProvider;
@@ -2398,6 +2399,33 @@ public abstract class AppSearchSessionCtsTestBase {
                         .build()));
         // TODO(b/182958600) Check the score for usage timestamp once b/182958600 is fixed.
         assertThat(documents).containsExactly(email2, email1).inOrder();
+    }
+
+    @Test
+    public void testGetStorageInfo() throws Exception {
+        StorageInfo storageInfo = mDb1.getStorageInfo().get();
+        assertThat(storageInfo.getSizeBytes()).isEqualTo(0);
+
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        // Still no storage space attributed with just a schema
+        storageInfo = mDb1.getStorageInfo().get();
+        assertThat(storageInfo.getSizeBytes()).isEqualTo(0);
+
+        // Index two documents.
+        AppSearchEmail email1 = new AppSearchEmail.Builder("namespace1", "uri1").build();
+        AppSearchEmail email2 = new AppSearchEmail.Builder("namespace1", "uri2").build();
+        AppSearchEmail email3 = new AppSearchEmail.Builder("namespace2", "uri1").build();
+        checkIsBatchResultSuccess(mDb1.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(email1, email2,
+                        email3).build()));
+
+        // Non-zero size now
+        storageInfo = mDb1.getStorageInfo().get();
+        assertThat(storageInfo.getSizeBytes()).isGreaterThan(0);
+        assertThat(storageInfo.getAliveDocumentsCount()).isEqualTo(3);
+        assertThat(storageInfo.getAliveNamespacesCount()).isEqualTo(2);
     }
 
     @Test

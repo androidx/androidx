@@ -37,6 +37,7 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
+import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.appsearch.util.SchemaMigrationUtil;
@@ -324,6 +325,13 @@ class SearchSessionImpl implements AppSearchSession {
         });
         checkForOptimize();
         return future;
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<StorageInfo> getStorageInfo() {
+        Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
+        return execute(() -> mAppSearchImpl.getStorageInfoForDatabase(mPackageName, mDatabaseName));
     }
 
     @NonNull

@@ -35,6 +35,7 @@ import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaResponse;
+import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.appsearch.localstorage.converter.ResultCodeToProtoConverter;
@@ -52,6 +53,7 @@ import com.google.android.icing.IcingSearchEngine;
 import com.google.android.icing.proto.DeleteByQueryResultProto;
 import com.google.android.icing.proto.DeleteResultProto;
 import com.google.android.icing.proto.DocumentProto;
+import com.google.android.icing.proto.DocumentStorageInfoProto;
 import com.google.android.icing.proto.GetAllNamespacesResultProto;
 import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 import com.google.android.icing.proto.GetResultProto;
@@ -59,6 +61,7 @@ import com.google.android.icing.proto.GetResultSpecProto;
 import com.google.android.icing.proto.GetSchemaResultProto;
 import com.google.android.icing.proto.IcingSearchEngineOptions;
 import com.google.android.icing.proto.InitializeResultProto;
+import com.google.android.icing.proto.NamespaceStorageInfoProto;
 import com.google.android.icing.proto.OptimizeResultProto;
 import com.google.android.icing.proto.PersistToDiskResultProto;
 import com.google.android.icing.proto.PersistType;
@@ -75,6 +78,7 @@ import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.SetSchemaResultProto;
 import com.google.android.icing.proto.StatusProto;
+import com.google.android.icing.proto.StorageInfoResultProto;
 import com.google.android.icing.proto.TypePropertyMask;
 import com.google.android.icing.proto.UsageReport;
 
@@ -295,12 +299,11 @@ public final class AppSearchImpl implements Closeable {
      * @param forceOverride                 Whether to force-apply the schema even if it is
      *                                      incompatible. Documents
      *                                      which do not comply with the new schema will be deleted.
-     *
-     * @throws AppSearchException           On IcingSearchEngine error. If the status code is
-     *                                      FAILED_PRECONDITION for the incompatible change, the
-     *                                      exception will be converted to the SetSchemaResponse.
      * @return The response contains deleted schema types and incompatible schema types of this
-     *         call.
+     * call.
+     * @throws AppSearchException On IcingSearchEngine error. If the status code is
+     *                            FAILED_PRECONDITION for the incompatible change, the
+     *                            exception will be converted to the SetSchemaResponse.
      */
     @NonNull
     public SetSchemaResponse setSchema(
@@ -891,6 +894,125 @@ public final class AppSearchImpl implements Closeable {
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
+    }
+
+    /** Estimates the storage usage info for a specific package. */
+    @NonNull
+    public StorageInfo getStorageInfoForPackage(@NonNull String packageName)
+            throws AppSearchException {
+        mReadWriteLock.readLock().lock();
+        try {
+            throwIfClosedLocked();
+
+            Map<String, Set<String>> packageToDatabases = getPackageToDatabases();
+            Set<String> databases = packageToDatabases.get(packageName);
+            if (databases == null) {
+                // Package doesn't exist, no storage info to report
+                return new StorageInfo.Builder().build();
+            }
+
+            // Accumulate all the namespaces we're interested in.
+            Set<String> wantedPrefixedNamespaces = new ArraySet<>();
+            for (String database : databases) {
+                Set<String> prefixedNamespaces = mNamespaceMapLocked.get(createPrefix(packageName,
+                        database));
+                if (prefixedNamespaces != null) {
+                    wantedPrefixedNamespaces.addAll(prefixedNamespaces);
+                }
+            }
+            if (wantedPrefixedNamespaces.isEmpty()) {
+                return new StorageInfo.Builder().build();
+            }
+
+            return getStorageInfoForNamespacesLocked(wantedPrefixedNamespaces);
+        } finally {
+            mReadWriteLock.readLock().unlock();
+        }
+    }
+
+    /** Estimates the storage usage info for a specific database in a package. */
+    @NonNull
+    public StorageInfo getStorageInfoForDatabase(@NonNull String packageName,
+            @NonNull String databaseName)
+            throws AppSearchException {
+        mReadWriteLock.readLock().lock();
+        try {
+            throwIfClosedLocked();
+
+            Map<String, Set<String>> packageToDatabases = getPackageToDatabases();
+            Set<String> databases = packageToDatabases.get(packageName);
+            if (databases == null) {
+                // Package doesn't exist, no storage info to report
+                return new StorageInfo.Builder().build();
+            }
+            if (!databases.contains(databaseName)) {
+                // Database doesn't exist, no storage info to report
+                return new StorageInfo.Builder().build();
+            }
+
+            Set<String> wantedPrefixedNamespaces =
+                    mNamespaceMapLocked.get(createPrefix(packageName, databaseName));
+            if (wantedPrefixedNamespaces == null || wantedPrefixedNamespaces.isEmpty()) {
+                return new StorageInfo.Builder().build();
+            }
+
+            return getStorageInfoForNamespacesLocked(wantedPrefixedNamespaces);
+        } finally {
+            mReadWriteLock.readLock().unlock();
+        }
+    }
+
+    @GuardedBy("mReadWriteLock")
+    @NonNull
+    private StorageInfo getStorageInfoForNamespacesLocked(@NonNull Set<String> prefixedNamespaces)
+            throws AppSearchException {
+        StorageInfoResultProto storageInfoResult = mIcingSearchEngineLocked.getStorageInfo();
+        checkSuccess(storageInfoResult.getStatus());
+        if (!storageInfoResult.hasStorageInfo()
+                || !storageInfoResult.getStorageInfo().hasDocumentStorageInfo()) {
+            return new StorageInfo.Builder().build();
+        }
+        long totalStorageSize = storageInfoResult.getStorageInfo().getTotalStorageSize();
+
+        DocumentStorageInfoProto documentStorageInfo =
+                storageInfoResult.getStorageInfo().getDocumentStorageInfo();
+        int totalDocuments =
+                documentStorageInfo.getNumAliveDocuments()
+                        + documentStorageInfo.getNumExpiredDocuments();
+
+        if (totalStorageSize == 0 || totalDocuments == 0) {
+            // Maybe we can exit early and also avoid a divide by 0 error.
+            return new StorageInfo.Builder().build();
+        }
+
+        // Accumulate stats across the package's namespaces.
+        int aliveDocuments = 0;
+        int expiredDocuments = 0;
+        int aliveNamespaces = 0;
+        List<NamespaceStorageInfoProto> namespaceStorageInfos =
+                documentStorageInfo.getNamespaceStorageInfoList();
+        for (int i = 0; i < namespaceStorageInfos.size(); i++) {
+            NamespaceStorageInfoProto namespaceStorageInfo = namespaceStorageInfos.get(i);
+            // The namespace from icing lib is already the prefixed format
+            if (prefixedNamespaces.contains(namespaceStorageInfo.getNamespace())) {
+                if (namespaceStorageInfo.getNumAliveDocuments() > 0) {
+                    aliveNamespaces++;
+                    aliveDocuments += namespaceStorageInfo.getNumAliveDocuments();
+                }
+                expiredDocuments += namespaceStorageInfo.getNumExpiredDocuments();
+            }
+        }
+        int namespaceDocuments = aliveDocuments + expiredDocuments;
+
+        // Since we don't have the exact size of all the documents, we do an estimation. Note
+        // that while the total storage takes into account schema, index, etc. in addition to
+        // documents, we'll only calculate the percentage based on number of documents a
+        // client has.
+        return new StorageInfo.Builder()
+                .setSizeBytes((long) (namespaceDocuments * 1.0 / totalDocuments * totalStorageSize))
+                .setAliveDocumentsCount(aliveDocuments)
+                .setAliveNamespacesCount(aliveNamespaces)
+                .build();
     }
 
     /**
