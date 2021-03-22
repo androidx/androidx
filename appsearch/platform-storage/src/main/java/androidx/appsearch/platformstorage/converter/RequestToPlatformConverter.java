@@ -42,6 +42,7 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
+@SuppressWarnings("deprecation") // TODO(b/181887768): Port to new API and remove this
 public final class RequestToPlatformConverter {
     private RequestToPlatformConverter() {}
 
@@ -60,7 +61,7 @@ public final class RequestToPlatformConverter {
         }
         for (String schemaNotDisplayedBySystem : jetpackRequest.getSchemasNotDisplayedBySystem()) {
             platformBuilder.setSchemaTypeVisibilityForSystemUi(
-                    schemaNotDisplayedBySystem, /*visible=*/ false);
+                    schemaNotDisplayedBySystem, /*displayed=*/ false);
         }
         for (Map.Entry<String, Set<PackageIdentifier>> jetpackSchemaVisibleToPackage :
                 jetpackRequest.getSchemasVisibleToPackagesInternal().entrySet()) {
