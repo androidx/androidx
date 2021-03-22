@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -49,6 +50,7 @@ import androidx.wear.watchface.client.EditorListener
 import androidx.wear.watchface.client.EditorServiceClient
 import androidx.wear.watchface.client.EditorState
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
+import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
@@ -76,7 +78,8 @@ public abstract class EditorSession : AutoCloseable {
      * beyond, it's `null` on Android P and earlier. Note each distinct [ComponentName] can have
      * multiple instances.
      */
-    public abstract val instanceId: String?
+    @get:RequiresApi(Build.VERSION_CODES.R)
+    public abstract val watchFaceId: WatchFaceId
 
     /** The current [UserStyle]. Assigning to this will cause the style to update. */
     public abstract var userStyle: UserStyle
@@ -191,7 +194,7 @@ public abstract class EditorSession : AutoCloseable {
                 val session = OnWatchFaceEditorSessionImpl(
                     activity,
                     editorRequest.watchFaceComponentName,
-                    editorRequest.watchFaceInstanceId,
+                    editorRequest.watchFaceId,
                     editorRequest.initialUserStyle,
                     providerInfoRetrieverProvider,
                     coroutineScope
@@ -233,7 +236,7 @@ public abstract class EditorSession : AutoCloseable {
                     activity,
                     headlessWatchFaceClient,
                     it.watchFaceComponentName,
-                    it.watchFaceInstanceId,
+                    it.watchFaceId,
                     it.initialUserStyle!!,
                     object : ProviderInfoRetrieverProvider {
                         override fun getProviderInfoRetriever() = ProviderInfoRetriever(activity)
@@ -326,7 +329,7 @@ public abstract class BaseEditorSession internal constructor(
         pendingComplicationProviderChooserResult = CompletableDeferred<Boolean>()
         pendingComplicationProviderId = complicationId
         chooseComplicationProvider.launch(
-            ComplicationProviderChooserRequest(this, complicationId, instanceId)
+            ComplicationProviderChooserRequest(this, complicationId, watchFaceId.id)
         )
         return pendingComplicationProviderChooserResult!!.await()
     }
@@ -434,7 +437,7 @@ public abstract class BaseEditorSession internal constructor(
         EditorService.globalEditorService.removeCloseCallback(closeCallback)
         coroutineScope.launchWithTracing("BaseEditorSession.close") {
             val editorState = EditorStateWireFormat(
-                instanceId,
+                watchFaceId.id,
                 userStyle.toWireFormat(),
                 getComplicationPreviewData().map {
                     IdAndComplicationDataWireFormat(
@@ -475,7 +478,7 @@ public abstract class BaseEditorSession internal constructor(
 internal class OnWatchFaceEditorSessionImpl(
     activity: ComponentActivity,
     override val watchFaceComponentName: ComponentName,
-    override val instanceId: String?,
+    override val watchFaceId: WatchFaceId,
     private val initialEditorUserStyle: Map<String, String>?,
     providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
     coroutineScope: CoroutineScope
@@ -570,7 +573,7 @@ internal class HeadlessEditorSession(
     activity: ComponentActivity,
     private val headlessWatchFaceClient: HeadlessWatchFaceClient,
     override val watchFaceComponentName: ComponentName,
-    override val instanceId: String?,
+    override val watchFaceId: WatchFaceId,
     initialUserStyle: Map<String, String>,
     providerInfoRetrieverProvider: ProviderInfoRetrieverProvider,
     coroutineScope: CoroutineScope,

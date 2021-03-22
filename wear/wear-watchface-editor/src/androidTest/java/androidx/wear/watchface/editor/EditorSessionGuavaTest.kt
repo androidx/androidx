@@ -35,6 +35,7 @@ import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
@@ -54,7 +55,7 @@ private const val TIMEOUT_MS = 500L
 public class EditorSessionGuavaTest {
     private val testComponentName = ComponentName("test.package", "test.class")
     private val testEditorPackageName = "test.package"
-    private val testInstanceId = "TEST_INSTANCE_ID"
+    private val testInstanceId = WatchFaceId("TEST_INSTANCE_ID")
     private var editorDelegate = Mockito.mock(WatchFace.EditorDelegate::class.java)
     private val screenBounds = Rect(0, 0, 400, 400)
 
@@ -98,7 +99,7 @@ public class EditorSessionGuavaTest {
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
         complications: List<Complication>,
-        instanceId: String? = testInstanceId,
+        watchFaceId: WatchFaceId = testInstanceId,
         previewReferenceTimeMillis: Long = 12345
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = UserStyleRepository(UserStyleSchema(userStyleSettings))
@@ -113,9 +114,9 @@ public class EditorSessionGuavaTest {
             .thenReturn(previewReferenceTimeMillis)
 
         return ActivityScenario.launch(
-            WatchFaceEditorContractForTest().createIntent(
+            WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorPackageName, instanceId, null)
+                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId)
             ).apply {
                 component = ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),

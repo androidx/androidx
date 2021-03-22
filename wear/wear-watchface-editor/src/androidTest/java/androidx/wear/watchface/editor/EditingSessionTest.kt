@@ -51,6 +51,7 @@ import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.client.asApiEditorState
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
@@ -229,17 +230,12 @@ public class TestComplicationHelperActivity : Activity() {
     }
 }
 
-// Disables the requirement that watchFaceInstanceId has to be non-null on R and above.
-public class WatchFaceEditorContractForTest : WatchFaceEditorContract() {
-    override fun nullWatchFaceInstanceIdOK() = true
-}
-
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 public class EditorSessionTest {
     private val testComponentName = ComponentName("test.package", "test.class")
     private val testEditorPackageName = "test.package"
-    private val testInstanceId = "TEST_INSTANCE_ID"
+    private val testInstanceId = WatchFaceId("TEST_INSTANCE_ID")
     private lateinit var editorDelegate: WatchFace.EditorDelegate
     private val screenBounds = Rect(0, 0, 400, 400)
 
@@ -361,7 +357,7 @@ public class EditorSessionTest {
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
         complications: List<Complication>,
-        instanceId: String? = testInstanceId,
+        watchFaceId: WatchFaceId = testInstanceId,
         previewReferenceTimeMillis: Long = 12345
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = UserStyleRepository(UserStyleSchema(userStyleSettings))
@@ -391,9 +387,9 @@ public class EditorSessionTest {
         WatchFace.registerEditorDelegate(testComponentName, editorDelegate)
 
         return ActivityScenario.launch(
-            WatchFaceEditorContractForTest().createIntent(
+            WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorPackageName, instanceId, null)
+                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId)
             ).apply {
                 component = ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),
@@ -415,7 +411,7 @@ public class EditorSessionTest {
     public fun instanceId() {
         val scenario = createOnWatchFaceEditingTestActivity(emptyList(), emptyList())
         scenario.onActivity {
-            assertThat(it.editorSession.instanceId).isEqualTo(testInstanceId)
+            assertThat(it.editorSession.watchFaceId.id).isEqualTo(testInstanceId.id)
         }
     }
 
@@ -775,7 +771,7 @@ public class EditorSessionTest {
                 TestComplicationHelperActivity.lastIntent?.extras?.getString(
                     ProviderChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID
                 )
-            ).isEqualTo(testInstanceId)
+            ).isEqualTo(testInstanceId.id)
         }
     }
 
@@ -864,7 +860,7 @@ public class EditorSessionTest {
 
         assertThat(result.userStyle[colorStyleSetting.id]).isEqualTo(blueStyleOption.id)
         assertThat(result.userStyle[watchHandStyleSetting.id]).isEqualTo(gothicStyleOption.id)
-        assertThat(result.watchFaceInstanceId).isEqualTo(testInstanceId)
+        assertThat(result.watchFaceId.id).isEqualTo(testInstanceId.id)
         assertTrue(result.commitChanges)
 
         // The style change should also have been applied to the watchface
@@ -895,11 +891,11 @@ public class EditorSessionTest {
     }
 
     @Test
-    public fun nullInstanceId() {
+    public fun emptyInstanceId() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),
             emptyList(),
-            instanceId = null
+            watchFaceId = WatchFaceId("")
         )
 
         val editorObserver = TestEditorObserver()
@@ -907,7 +903,7 @@ public class EditorSessionTest {
 
         scenario.onActivity { activity ->
             runBlocking {
-                assertThat(activity.editorSession.instanceId).isNull()
+                assertThat(activity.editorSession.watchFaceId.id).isEmpty()
                 activity.editorSession.close()
                 activity.finish()
             }
@@ -917,7 +913,7 @@ public class EditorSessionTest {
             TIMEOUT_MILLIS,
             TimeUnit.MILLISECONDS
         ).asApiEditorState()
-        assertThat(result.watchFaceInstanceId).isEmpty()
+        assertThat(result.watchFaceId.id).isEmpty()
 
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
@@ -994,7 +990,7 @@ public class EditorSessionTest {
         runBlocking {
             val intent = WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorPackageName, testInstanceId, null)
+                EditorRequest(testComponentName, testEditorPackageName, null, testInstanceId)
             )
             assertThat(intent.getPackage()).isEqualTo(testEditorPackageName)
 
@@ -1002,7 +998,7 @@ public class EditorSessionTest {
             assertThat(editorRequest.editorPackageName).isEqualTo(testEditorPackageName)
             assertThat(editorRequest.initialUserStyle).isNull()
             assertThat(editorRequest.watchFaceComponentName).isEqualTo(testComponentName)
-            assertThat(editorRequest.watchFaceInstanceId).isEqualTo(testInstanceId)
+            assertThat(editorRequest.watchFaceId.id).isEqualTo(testInstanceId.id)
         }
     }
 
@@ -1044,9 +1040,14 @@ public class EditorSessionTest {
     @Test
     public fun closeEditorSessionBeforeWatchFaceDelegateCreated() {
         val session: ActivityScenario<OnWatchFaceEditingTestActivity> = ActivityScenario.launch(
-            WatchFaceEditorContractForTest().createIntent(
+            WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorPackageName, "instanceId", null)
+                EditorRequest(
+                    testComponentName,
+                    testEditorPackageName,
+                    null,
+                    WatchFaceId("instanceId")
+                )
             ).apply {
                 component = ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),
