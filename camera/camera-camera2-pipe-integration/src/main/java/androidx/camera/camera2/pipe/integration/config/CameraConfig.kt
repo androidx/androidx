@@ -61,7 +61,7 @@ abstract class CameraModule {
 
         @CameraScope
         @Provides
-        fun provideCameraThreadConfig(
+        fun provideUseCaseThreads(
             cameraConfig: CameraConfig,
             cameraThreadConfig: CameraThreadConfig
         ): UseCaseThreads {
@@ -72,7 +72,7 @@ abstract class CameraModule {
             val cameraScope = CoroutineScope(
                 Job() +
                     dispatcher +
-                    CoroutineName("CXCP-Camera-${cameraConfig.cameraId.value}")
+                    CoroutineName("CXCP-UseCase-${cameraConfig.cameraId.value}")
             )
 
             return UseCaseThreads(
