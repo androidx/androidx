@@ -25,33 +25,22 @@ import java.util.concurrent.Executor
 /** Client for the watchface editor service. */
 public interface EditorServiceClient {
     /**
-     * Starts listening to [androidx.wear.watchface.editor.EditorSession] events, with the callback
-     * executed by an immediate executor on an undefined thread.
-     */
-    public fun registerObserver(
-        editorObserverListener: EditorObserverListener
-    )
-
-    /**
      * Starts listening to [androidx.wear.watchface.editor.EditorSession] events with the callback
-     * run on the specified [Executor] by an immediate executor, on an undefined thread if `null`.
+     * run on the specified [listenerExecutor].
      */
-    public fun registerObserver(
-        observerCallbackExecutor: Executor? = null,
-        editorObserverListener: EditorObserverListener
-    )
+    public fun addListener(editorListener: EditorListener, listenerExecutor: Executor)
 
-    /** Unregisters an [EditorObserverListener] previously registered via [registerObserver].  */
-    public fun unregisterObserver(editorObserverListener: EditorObserverListener)
+    /** Unregisters an [EditorListener] previously registered via [addListener].  */
+    public fun removeListener(editorListener: EditorListener)
 
     /** Instructs any open editor to close. */
     public fun closeEditor()
 }
 
 /** Observes state changes in [androidx.wear.watchface.editor.EditorSession]. */
-public interface EditorObserverListener {
+public interface EditorListener {
     /** Called in response to [androidx.wear.watchface.editor.EditorSession.close] .*/
-    public fun onEditorStateChange(editorState: EditorState)
+    public fun onEditorStateChanged(editorState: EditorState)
 }
 
 /** @hide */
@@ -60,28 +49,18 @@ public class EditorServiceClientImpl(
     private val iEditorService: IEditorService
 ) : EditorServiceClient {
     private val lock = Any()
-    private val editorMap = HashMap<EditorObserverListener, Int>()
+    private val editorMap = HashMap<EditorListener, Int>()
 
-    override fun registerObserver(editorObserverListener: EditorObserverListener) {
-        registerObserver(null, editorObserverListener)
-    }
-
-    override fun registerObserver(
-        observerCallbackExecutor: Executor?,
-        editorObserverListener: EditorObserverListener
+    override fun addListener(
+        editorListener: EditorListener,
+        listenerExecutor: Executor
     ) {
-        val executor = observerCallbackExecutor ?: object : Executor {
-            override fun execute(runnable: Runnable) {
-                runnable.run()
-            }
-        }
-
         val observer = object : IEditorObserver.Stub() {
             override fun getApiVersion() = IEditorObserver.API_VERSION
 
             override fun onEditorStateChange(editorStateWireFormat: EditorStateWireFormat) {
-                executor.execute {
-                    editorObserverListener.onEditorStateChange(
+                listenerExecutor.execute {
+                    editorListener.onEditorStateChanged(
                         editorStateWireFormat.asApiEditorState()
                     )
                 }
@@ -89,15 +68,15 @@ public class EditorServiceClientImpl(
         }
 
         synchronized(lock) {
-            editorMap[editorObserverListener] = iEditorService.registerObserver(observer)
+            editorMap[editorListener] = iEditorService.registerObserver(observer)
         }
     }
 
-    override fun unregisterObserver(editorObserverListener: EditorObserverListener) {
+    override fun removeListener(editorListener: EditorListener) {
         synchronized(lock) {
-            editorMap[editorObserverListener]?.let {
+            editorMap[editorListener]?.let {
                 iEditorService.unregisterObserver(it)
-                editorMap.remove(editorObserverListener)
+                editorMap.remove(editorListener)
             }
         }
     }

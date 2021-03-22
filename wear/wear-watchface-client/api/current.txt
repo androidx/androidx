@@ -37,15 +37,14 @@ package androidx.wear.watchface.client {
     property public final boolean hasLowBitAmbient;
   }
 
-  public interface EditorObserverListener {
-    method public void onEditorStateChange(androidx.wear.watchface.client.EditorState editorState);
+  public interface EditorListener {
+    method public void onEditorStateChanged(androidx.wear.watchface.client.EditorState editorState);
   }
 
   public interface EditorServiceClient {
+    method public void addListener(androidx.wear.watchface.client.EditorListener editorListener, java.util.concurrent.Executor listenerExecutor);
     method public void closeEditor();
-    method public void registerObserver(androidx.wear.watchface.client.EditorObserverListener editorObserverListener);
-    method public void registerObserver(optional java.util.concurrent.Executor? observerCallbackExecutor, androidx.wear.watchface.client.EditorObserverListener editorObserverListener);
-    method public void unregisterObserver(androidx.wear.watchface.client.EditorObserverListener editorObserverListener);
+    method public void removeListener(androidx.wear.watchface.client.EditorListener editorListener);
   }
 
   public final class EditorState {
