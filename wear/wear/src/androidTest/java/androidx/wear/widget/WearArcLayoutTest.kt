@@ -45,7 +45,6 @@ import androidx.test.espresso.action.Tap
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
@@ -708,7 +707,6 @@ class WearArcLayoutTest(private val testHeight: Int) {
         testEventsFast("touch_fast_screenshot", views)
     }
 
-    @FlakyTest // b/182268136
     @Test(timeout = 10000)
     fun testMarginTouch() {
         val views = createTwoArcsWithMargin()
