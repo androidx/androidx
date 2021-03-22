@@ -35,7 +35,7 @@ import java.lang.ref.WeakReference;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
-public class VectorEnabledTintResources extends ResourcesWrapper {
+public class VectorEnabledTintResources extends Resources {
     private static boolean sCompatVectorFromResourcesEnabled = false;
 
     public static boolean shouldBeUsed() {
@@ -53,7 +53,7 @@ public class VectorEnabledTintResources extends ResourcesWrapper {
     @SuppressWarnings("deprecation")
     public VectorEnabledTintResources(@NonNull final Context context,
             @NonNull final Resources res) {
-        super(res);
+        super(res.getAssets(), res.getDisplayMetrics(), res.getConfiguration());
         mContextRef = new WeakReference<>(context);
     }
 
