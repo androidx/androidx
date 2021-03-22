@@ -105,7 +105,7 @@ package androidx.wear.watchface.client {
   }
 
   public interface InteractiveWatchFaceWcsClient extends java.lang.AutoCloseable {
-    method public void bringAttentionToComplication(int complicationId);
+    method public void displayPressedAnimation(int complicationId);
     method public default Integer? getComplicationIdAt(@Px int x, @Px int y);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationsState();
     method public String getInstanceId();

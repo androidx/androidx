@@ -22,6 +22,7 @@ import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.TraceEvent
+import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
@@ -111,10 +112,9 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
         }?.key
 
     /**
-     * Requests the specified complication is highlighted for a short period to bring attention to
-     * it.
+     * Requests that [ComplicationsManager.displayPressedAnimation] is called for [complicationId].
      */
-    public fun bringAttentionToComplication(complicationId: Int)
+    public fun displayPressedAnimation(complicationId: Int)
 }
 
 /** Controls a stateful remote interactive watch face with an interface tailored for WCS. */
@@ -187,7 +187,7 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
         iInteractiveWatchFaceWcs.release()
     }
 
-    override fun bringAttentionToComplication(complicationId: Int) = TraceEvent(
+    override fun displayPressedAnimation(complicationId: Int) = TraceEvent(
         "InteractiveWatchFaceWcsClientImpl.bringAttentionToComplication"
     ).use {
         iInteractiveWatchFaceWcs.bringAttentionToComplication(complicationId)
