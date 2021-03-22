@@ -87,7 +87,7 @@ package androidx.wear.watchface.client {
     method public String getInstanceId();
     method public long getPreviewReferenceTimeMillis();
     method public void performAmbientTick();
-    method public void sendTouchEvent(int xPosition, int yPosition, int tapType);
+    method public void sendTouchEvent(@Px int xPosition, @Px int yPosition, int tapType);
     method public void setSystemState(androidx.wear.watchface.client.SystemState systemState);
     method @RequiresApi(27) public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idAndComplicationData);
     property public abstract java.util.List<androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.ContentDescriptionLabel> contentDescriptionLabels;
@@ -148,7 +148,7 @@ package androidx.wear.watchface.client {
   }
 
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {
-    method public androidx.wear.watchface.client.HeadlessWatchFaceClient? createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, int surfaceWidth, int surfaceHeight);
+    method public androidx.wear.watchface.client.HeadlessWatchFaceClient? createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, @Px int surfaceWidth, @Px int surfaceHeight);
     method public default static suspend Object? createWatchFaceControlClient(android.content.Context p, String context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> watchFacePackageName);
     method public androidx.wear.watchface.client.EditorServiceClient getEditorServiceClient();
     method public androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient? getInteractiveWatchFaceSysUiClientInstance(String instanceId);
