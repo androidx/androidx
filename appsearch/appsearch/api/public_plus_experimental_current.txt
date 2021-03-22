@@ -68,7 +68,7 @@ package androidx.appsearch.app {
   public final class AppSearchSchema {
     method public java.util.List<androidx.appsearch.app.AppSearchSchema.PropertyConfig!> getProperties();
     method public String getSchemaType();
-    method @IntRange(from=0) public int getVersion();
+    method @Deprecated @IntRange(from=0) public int getVersion();
   }
 
   public static final class AppSearchSchema.BooleanPropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
@@ -84,7 +84,7 @@ package androidx.appsearch.app {
     ctor public AppSearchSchema.Builder(String);
     method public androidx.appsearch.app.AppSearchSchema.Builder addProperty(androidx.appsearch.app.AppSearchSchema.PropertyConfig);
     method public androidx.appsearch.app.AppSearchSchema build();
-    method public androidx.appsearch.app.AppSearchSchema.Builder setVersion(@IntRange(from=0) int);
+    method @Deprecated public androidx.appsearch.app.AppSearchSchema.Builder setVersion(@IntRange(from=0) int);
   }
 
   public static final class AppSearchSchema.BytesPropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
@@ -157,7 +157,7 @@ package androidx.appsearch.app {
     method public void close();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByUri(androidx.appsearch.app.GetByUriRequest);
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Set<java.lang.String!>!> getNamespaces();
-    method public com.google.common.util.concurrent.ListenableFuture<java.util.Set<androidx.appsearch.app.AppSearchSchema!>!> getSchema();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchema();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.StorageInfo!> getStorageInfo();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> maybeFlush();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> put(androidx.appsearch.app.PutDocumentsRequest);
@@ -236,6 +236,18 @@ package androidx.appsearch.app {
     method @Deprecated public androidx.appsearch.app.GetByUriRequest.Builder setNamespace(String);
   }
 
+  public class GetSchemaResponse extends java.util.HashSet<androidx.appsearch.app.AppSearchSchema> {
+    method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
+    method @IntRange(from=0) public int getVersion();
+  }
+
+  public static final class GetSchemaResponse.Builder {
+    ctor public GetSchemaResponse.Builder();
+    method public androidx.appsearch.app.GetSchemaResponse.Builder addSchema(androidx.appsearch.app.AppSearchSchema);
+    method public androidx.appsearch.app.GetSchemaResponse build();
+    method public androidx.appsearch.app.GetSchemaResponse.Builder setVersion(@IntRange(from=0) int);
+  }
+
   public interface GlobalSearchSession extends java.io.Closeable {
     method public void close();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportSystemUsage(androidx.appsearch.app.ReportSystemUsageRequest);
@@ -244,9 +256,9 @@ package androidx.appsearch.app {
 
   public abstract class Migrator {
     ctor public Migrator();
-    ctor public Migrator(int);
     method @WorkerThread public abstract androidx.appsearch.app.GenericDocument onDowngrade(int, int, androidx.appsearch.app.GenericDocument);
     method @WorkerThread public abstract androidx.appsearch.app.GenericDocument onUpgrade(int, int, androidx.appsearch.app.GenericDocument);
+    method public abstract boolean shouldMigrate(int, int);
   }
 
   public class PackageIdentifier {
@@ -419,6 +431,7 @@ package androidx.appsearch.app {
     method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
     method public java.util.Set<java.lang.String!> getSchemasNotDisplayedBySystem();
     method public java.util.Map<java.lang.String!,java.util.Set<androidx.appsearch.app.PackageIdentifier!>!> getSchemasVisibleToPackages();
+    method @IntRange(from=1) public int getVersion();
     method public boolean isForceOverride();
   }
 
@@ -433,8 +446,10 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SetSchemaRequest.Builder setDocumentClassVisibilityForPackage(Class<?>, boolean, androidx.appsearch.app.PackageIdentifier) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SetSchemaRequest.Builder setForceOverride(boolean);
     method public androidx.appsearch.app.SetSchemaRequest.Builder setMigrator(String, androidx.appsearch.app.Migrator);
+    method public androidx.appsearch.app.SetSchemaRequest.Builder setMigrators(java.util.Map<java.lang.String!,androidx.appsearch.app.Migrator!>);
     method public androidx.appsearch.app.SetSchemaRequest.Builder setSchemaTypeDisplayedBySystem(String, boolean);
     method public androidx.appsearch.app.SetSchemaRequest.Builder setSchemaTypeVisibilityForPackage(String, boolean, androidx.appsearch.app.PackageIdentifier);
+    method public androidx.appsearch.app.SetSchemaRequest.Builder setVersion(@IntRange(from=1) int);
   }
 
   public class SetSchemaResponse {

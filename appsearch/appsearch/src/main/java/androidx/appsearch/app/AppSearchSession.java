@@ -54,12 +54,12 @@ public interface AppSearchSession extends Closeable {
     /**
      * Retrieves the schema most recently successfully provided to {@link #setSchema}.
      *
-     * @return The pending result of performing this operation.
+     * @return The pending {@link GetSchemaResponse} of performing this operation.
      */
     // This call hits disk; async API prevents us from treating these calls as properties.
     @SuppressLint("KotlinPropertyAccess")
     @NonNull
-    ListenableFuture<Set<AppSearchSchema>> getSchema();
+    ListenableFuture<GetSchemaResponse> getSchema();
 
     /**
      * Retrieves the set of all namespaces in the current database with at least one document.

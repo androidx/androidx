@@ -18,6 +18,7 @@ package androidx.appsearch.app;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -84,17 +85,20 @@ public final class SetSchemaRequest {
     private final Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages;
     private final Map<String, Migrator> mMigrators;
     private final boolean mForceOverride;
+    private final int mVersion;
 
     SetSchemaRequest(@NonNull Set<AppSearchSchema> schemas,
             @NonNull Set<String> schemasNotDisplayedBySystem,
             @NonNull Map<String, Set<PackageIdentifier>> schemasVisibleToPackages,
             @NonNull Map<String, Migrator> migrators,
-            boolean forceOverride) {
+            boolean forceOverride,
+            int version) {
         mSchemas = Preconditions.checkNotNull(schemas);
         mSchemasNotDisplayedBySystem = Preconditions.checkNotNull(schemasNotDisplayedBySystem);
         mSchemasVisibleToPackages = Preconditions.checkNotNull(schemasVisibleToPackages);
         mMigrators = Preconditions.checkNotNull(migrators);
         mForceOverride = forceOverride;
+        mVersion = version;
     }
 
     /** Returns the {@link AppSearchSchema} types that are part of this request. */
@@ -157,6 +161,12 @@ public final class SetSchemaRequest {
         return mForceOverride;
     }
 
+    /** Returns the database overall schema version. */
+    @IntRange(from = 1)
+    public int getVersion() {
+        return mVersion;
+    }
+
     /**
      * Builder for {@link SetSchemaRequest} objects.
      *
@@ -169,6 +179,7 @@ public final class SetSchemaRequest {
                 new ArrayMap<>();
         private final Map<String, Migrator> mMigrators = new ArrayMap<>();
         private boolean mForceOverride = false;
+        private int mVersion = 1;
         private boolean mBuilt = false;
 
         /**
@@ -346,6 +357,19 @@ public final class SetSchemaRequest {
             return this;
         }
 
+        /**
+         * Sets {@link Migrator}s.
+         *
+         * @param migrators  A {@link Map} of migrators that translate a document from its old
+         *                   version to a new incompatible version.
+         */
+        @NonNull
+        public Builder setMigrators(@NonNull Map<String, Migrator> migrators) {
+            Preconditions.checkNotNull(migrators);
+            mMigrators.putAll(migrators);
+            return this;
+        }
+
 // @exportToFramework:startStrip()
 
         /**
@@ -437,6 +461,39 @@ public final class SetSchemaRequest {
         }
 
         /**
+         * Sets the version number of the overall {@link AppSearchSchema} in the database.
+         *
+         * <p>The {@link AppSearchSession} database can only ever hold documents for one version
+         * at a time.
+         *
+         * <p>Setting a version number that is different from the version number  currently stored
+         * in AppSearch will result in AppSearch calling the {@link Migrator}s provided to
+         * {@link AppSearchSession#setSchema} to migrate the documents already in AppSearch from
+         * the previous version to the one set in this request. The version number can be
+         * updated without any other changes to the set of schemas.
+         *
+         * <p>The version number can stay the same, increase, or decrease relative to the current
+         * version number that is already stored in the {@link AppSearchSession} database.
+         *
+         * @param version A positive integer representing the version of the entire set of
+         *                schemas represents the version of the whole schema in the
+         *                {@link AppSearchSession} database, default version is 1.
+         *
+         * @throws IllegalStateException if the version is negative or the builder has already been
+         *                               used.
+         *
+         * @see AppSearchSession#setSchema
+         * @see Migrator
+         * @see SetSchemaRequest.Builder#setMigrator
+         */
+        @NonNull
+        public Builder setVersion(@IntRange(from = 1) int version) {
+            Preconditions.checkArgument(version >= 1, "Version must be a positive number.");
+            mVersion = version;
+            return this;
+        }
+
+        /**
          * Builds a new {@link SetSchemaRequest} object.
          *
          * @throws IllegalArgumentException if schema types were referenced, but the
@@ -466,7 +523,7 @@ public final class SetSchemaRequest {
             }
 
             return new SetSchemaRequest(mSchemas, mSchemasNotDisplayedBySystem,
-                    mSchemasVisibleToPackages, mMigrators, mForceOverride);
+                    mSchemasVisibleToPackages, mMigrators, mForceOverride, mVersion);
         }
     }
 }

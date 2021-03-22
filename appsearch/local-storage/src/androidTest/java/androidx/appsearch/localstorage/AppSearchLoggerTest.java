@@ -123,7 +123,7 @@ public class AppSearchLoggerTest {
         mAppSearchImpl.setSchema(testPackageName, testDatabase, schemas,
                 /*schemasNotPlatformSurfaceable=*/
                 Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
-                /*forceOverride=*/ false);
+                /*forceOverride=*/ false, /*version=*/ 0);
         GenericDocument document =
                 new GenericDocument.Builder<>("namespace", "uri", "type").build();
 

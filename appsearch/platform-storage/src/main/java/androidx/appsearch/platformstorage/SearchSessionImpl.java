@@ -16,16 +16,15 @@
 package androidx.appsearch.platformstorage;
 
 import android.os.Build;
-import android.util.ArraySet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBatchResult;
-import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByUriRequest;
 import androidx.appsearch.app.ReportUsageRequest;
@@ -90,22 +89,28 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<Set<AppSearchSchema>> getSchema() {
-        ResolvableFuture<Set<AppSearchSchema>> future = ResolvableFuture.create();
+    public ListenableFuture<GetSchemaResponse> getSchema() {
+        ResolvableFuture<GetSchemaResponse> future = ResolvableFuture.create();
         mPlatformSession.getSchema(
                 mExecutorService,
                 result -> {
                     if (result.isSuccess()) {
                         Set<android.app.appsearch.AppSearchSchema> platformSchemas =
                                 result.getResultValue();
-                        Set<AppSearchSchema> jetpackSchemas =
-                                new ArraySet<>(platformSchemas.size());
+                        // TODO(b/182620003) convert GetSchemaResponse from platform to jetpack
+                        //  once its ready.
+                        GetSchemaResponse.Builder jetpackResponseBuilder =
+                                new GetSchemaResponse.Builder();
                         for (android.app.appsearch.AppSearchSchema platformSchema :
                                 platformSchemas) {
-                            jetpackSchemas.add(
+                            jetpackResponseBuilder.addSchema(
                                     SchemaToPlatformConverter.toJetpackSchema(platformSchema));
                         }
-                        future.set(jetpackSchemas);
+                        if (!platformSchemas.isEmpty()) {
+                            jetpackResponseBuilder.setVersion(
+                                    platformSchemas.iterator().next().getVersion());
+                        }
+                        future.set(jetpackResponseBuilder.build());
                     } else {
                         handleFailedPlatformResult(result, future);
                     }
