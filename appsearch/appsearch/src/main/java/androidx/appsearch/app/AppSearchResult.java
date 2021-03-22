@@ -48,6 +48,7 @@ public final class AppSearchResult<ValueType> {
             RESULT_OUT_OF_SPACE,
             RESULT_NOT_FOUND,
             RESULT_INVALID_SCHEMA,
+            RESULT_SECURITY_ERROR,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ResultCode {}
@@ -87,6 +88,9 @@ public final class AppSearchResult<ValueType> {
 
     /** The caller supplied a schema which is invalid or incompatible with the previous schema. */
     public static final int RESULT_INVALID_SCHEMA = 7;
+
+    /** The caller requested an operation it does not have privileges for. */
+    public static final int RESULT_SECURITY_ERROR = 8;
 
     private final @ResultCode int mResultCode;
     @Nullable private final ValueType mResultValue;

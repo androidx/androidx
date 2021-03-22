@@ -876,6 +876,80 @@ public class AppSearchImplTest {
     }
 
     @Test
+    public void testReportUsage() throws Exception {
+        // Insert schema
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        mAppSearchImpl.setSchema("package", "database", schemas, /*schemasNotPlatformSurfaceable=*/
+                Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false);
+
+        // Insert two docs
+        GenericDocument document1 =
+                new GenericDocument.Builder<>("namespace", "uri1", "type").build();
+        GenericDocument document2 =
+                new GenericDocument.Builder<>("namespace", "uri2", "type").build();
+        mAppSearchImpl.putDocument("package", "database", document1, /*logger=*/ null);
+        mAppSearchImpl.putDocument("package", "database", document2, /*logger=*/ null);
+
+        // Report some usages. uri1 has 2 app and 1 system usage, uri2 has 1 app and 2 system usage.
+        mAppSearchImpl.reportUsage("package", "database", "namespace",
+                "uri1", /*usageTimestampMillis=*/ 10, /*systemUsage=*/ false);
+        mAppSearchImpl.reportUsage("package", "database", "namespace",
+                "uri1", /*usageTimestampMillis=*/ 20, /*systemUsage=*/ false);
+        mAppSearchImpl.reportUsage("package", "database", "namespace",
+                "uri1", /*usageTimestampMillis=*/ 1000, /*systemUsage=*/ true);
+
+        mAppSearchImpl.reportUsage("package", "database", "namespace",
+                "uri2", /*usageTimestampMillis=*/ 100, /*systemUsage=*/ false);
+        mAppSearchImpl.reportUsage("package", "database", "namespace",
+                "uri2", /*usageTimestampMillis=*/ 200, /*systemUsage=*/ true);
+        mAppSearchImpl.reportUsage("package", "database", "namespace",
+                "uri2", /*usageTimestampMillis=*/ 150, /*systemUsage=*/ true);
+
+        // Sort by app usage count: uri1 should win
+        List<SearchResult> page = mAppSearchImpl.query("package", "database", "",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_USAGE_COUNT)
+                        .build()).getResults();
+        assertThat(page).hasSize(2);
+        assertThat(page.get(0).getGenericDocument().getUri()).isEqualTo("uri1");
+        assertThat(page.get(1).getGenericDocument().getUri()).isEqualTo("uri2");
+
+        // Sort by app usage timestamp: uri2 should win
+        page = mAppSearchImpl.query("package", "database", "",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP)
+                        .build()).getResults();
+        assertThat(page).hasSize(2);
+        assertThat(page.get(0).getGenericDocument().getUri()).isEqualTo("uri2");
+        assertThat(page.get(1).getGenericDocument().getUri()).isEqualTo("uri1");
+
+        // Sort by system usage count: uri2 should win
+        page = mAppSearchImpl.query("package", "database", "",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_SYSTEM_USAGE_COUNT)
+                        .build()).getResults();
+        assertThat(page).hasSize(2);
+        assertThat(page.get(0).getGenericDocument().getUri()).isEqualTo("uri2");
+        assertThat(page.get(1).getGenericDocument().getUri()).isEqualTo("uri1");
+
+        // Sort by system usage timestamp: uri1 should win
+        page = mAppSearchImpl.query("package", "database", "",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .setRankingStrategy(
+                                SearchSpec.RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP)
+                        .build()).getResults();
+        assertThat(page).hasSize(2);
+        assertThat(page.get(0).getGenericDocument().getUri()).isEqualTo("uri1");
+        assertThat(page.get(1).getGenericDocument().getUri()).isEqualTo("uri2");
+    }
+
+    @Test
     public void testGetStorageInfoForPackage_nonexistentPackage() throws Exception {
         // "package2" doesn't exist yet, so it shouldn't have any storage size
         StorageInfo storageInfo = mAppSearchImpl.getStorageInfoForPackage("nonexistent.package");
@@ -1091,7 +1165,7 @@ public class AppSearchImplTest {
 
         assertThrows(IllegalStateException.class, () -> {
             appSearchImpl.reportUsage("package", "database", "namespace", "uri",
-                    /*usageTimestampMillis=*/ 1000L);
+                    /*usageTimestampMillis=*/ 1000L, /*systemUsage=*/ false);
         });
 
         assertThrows(IllegalStateException.class, () -> {

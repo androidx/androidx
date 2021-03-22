@@ -61,6 +61,7 @@ package androidx.appsearch.app {
     field public static final int RESULT_NOT_FOUND = 6; // 0x6
     field public static final int RESULT_OK = 0; // 0x0
     field public static final int RESULT_OUT_OF_SPACE = 5; // 0x5
+    field public static final int RESULT_SECURITY_ERROR = 8; // 0x8
     field public static final int RESULT_UNKNOWN_ERROR = 1; // 0x1
   }
 
@@ -236,6 +237,7 @@ package androidx.appsearch.app {
 
   public interface GlobalSearchSession extends java.io.Closeable {
     method public void close();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportSystemUsage(androidx.appsearch.app.ReportSystemUsageRequest);
     method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);
   }
 
@@ -277,6 +279,21 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.RemoveByUriRequest.Builder addUris(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.RemoveByUriRequest build();
     method @Deprecated public androidx.appsearch.app.RemoveByUriRequest.Builder setNamespace(String);
+  }
+
+  public final class ReportSystemUsageRequest {
+    method public String getDatabaseName();
+    method public String getNamespace();
+    method public String getPackageName();
+    method public String getUri();
+    method public long getUsageTimeMillis();
+  }
+
+  public static final class ReportSystemUsageRequest.Builder {
+    ctor public ReportSystemUsageRequest.Builder(String, String, String);
+    method public androidx.appsearch.app.ReportSystemUsageRequest build();
+    method public androidx.appsearch.app.ReportSystemUsageRequest.Builder setUri(String);
+    method public androidx.appsearch.app.ReportSystemUsageRequest.Builder setUsageTimeMillis(long);
   }
 
   public final class ReportUsageRequest {
@@ -366,6 +383,8 @@ package androidx.appsearch.app {
     field public static final int RANKING_STRATEGY_DOCUMENT_SCORE = 1; // 0x1
     field public static final int RANKING_STRATEGY_NONE = 0; // 0x0
     field public static final int RANKING_STRATEGY_RELEVANCE_SCORE = 3; // 0x3
+    field public static final int RANKING_STRATEGY_SYSTEM_USAGE_COUNT = 6; // 0x6
+    field public static final int RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP = 7; // 0x7
     field public static final int RANKING_STRATEGY_USAGE_COUNT = 4; // 0x4
     field public static final int RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP = 5; // 0x5
     field public static final int TERM_MATCH_EXACT_ONLY = 1; // 0x1

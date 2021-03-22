@@ -21,10 +21,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GlobalSearchSession;
+import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverter;
 import androidx.core.util.Preconditions;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutorService;
 
@@ -58,6 +61,14 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                         queryExpression,
                         SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec));
         return new SearchResultsImpl(platformSearchResults, mExecutorService);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request) {
+        Preconditions.checkNotNull(request);
+        // TODO(b/183031844): Call system reportSystemUsage API when it's created
+        throw new UnsupportedOperationException();
     }
 
     @Override

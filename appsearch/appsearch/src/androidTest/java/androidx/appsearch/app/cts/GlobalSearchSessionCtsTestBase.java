@@ -21,20 +21,25 @@ import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResult
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchEmail;
+import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.PutDocumentsRequest;
+import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
@@ -47,6 +52,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public abstract class GlobalSearchSessionCtsTestBase {
     private AppSearchSession mDb1;
@@ -695,5 +701,47 @@ public abstract class GlobalSearchSessionCtsTestBase {
                                         | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 1)
                         .build());
         assertThat(documents).containsExactly(inEmail4, inEmail3);
+    }
+
+    @Test
+    public void testReportSystemUsage_ForbiddenFromNonSystem() throws Exception {
+        // Index a document
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("namespace", "uri1")
+                        .setCreationTimestampMillis(1000)
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(
+                mDb1.put(new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
+
+        // Query
+        List<SearchResult> page;
+        try (SearchResults results = mGlobalAppSearchManager.search("", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .addFilterSchemas(AppSearchEmail.SCHEMA_TYPE)
+                .build())) {
+            page = results.getNextPage().get();
+        }
+        assertThat(page).isNotEmpty();
+        SearchResult firstResult = page.get(0);
+
+        ExecutionException exception = assertThrows(
+                ExecutionException.class, () -> mGlobalAppSearchManager.reportSystemUsage(
+                        new ReportSystemUsageRequest.Builder(
+                                firstResult.getPackageName(),
+                                firstResult.getDatabaseName(),
+                                firstResult.getGenericDocument().getNamespace())
+                                .setUri(firstResult.getGenericDocument().getUri())
+                                .build()).get());
+        assertThat(exception).hasCauseThat().isInstanceOf(AppSearchException.class);
+        AppSearchException ase = (AppSearchException) exception.getCause();
+        assertThat(ase.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
+        assertThat(ase).hasMessageThat().contains(
+                "androidx.appsearch.test does not have access to report system usage");
     }
 }

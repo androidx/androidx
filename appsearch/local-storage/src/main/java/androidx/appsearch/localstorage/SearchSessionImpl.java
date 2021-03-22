@@ -281,7 +281,8 @@ class SearchSessionImpl implements AppSearchSession {
                     mDatabaseName,
                     request.getNamespace(),
                     request.getUri(),
-                    request.getUsageTimeMillis());
+                    request.getUsageTimeMillis(),
+                    /*systemUsage=*/ false);
             mIsMutated = true;
             return null;
         });
