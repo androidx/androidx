@@ -16,6 +16,7 @@
 
 package androidx.wear.tiles.renderer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -64,6 +65,7 @@ public class InlineResourceAccessor implements ResourceAccessors.InlineImageReso
 
     @Override
     @NonNull
+    @SuppressLint("RestrictedApi") // TODO(b/183006740): Remove when prefix check is fixed.
     public ListenableFuture<Drawable> getDrawable(@NonNull InlineImageResource inlineImage) {
         Config config = imageFormatToBitmapConfig(inlineImage.getFormat());
         ResolvableFuture<Drawable> future = ResolvableFuture.create();
