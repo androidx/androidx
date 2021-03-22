@@ -18,7 +18,7 @@ package androidx.wear.watchface.client.test
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.wear.watchface.client.EditorObserverCallback
+import androidx.wear.watchface.client.EditorObserverListener
 import androidx.wear.watchface.client.EditorServiceClientImpl
 import androidx.wear.watchface.client.EditorState
 import androidx.wear.watchface.editor.EditorService
@@ -37,7 +37,7 @@ class EditorServiceClientTest {
     @Test
     fun registerObserver() {
         lateinit var observedEditorState: EditorState
-        val observer = object : EditorObserverCallback {
+        val observer = object : EditorObserverListener {
             override fun onEditorStateChange(editorState: EditorState) {
                 observedEditorState = editorState
             }

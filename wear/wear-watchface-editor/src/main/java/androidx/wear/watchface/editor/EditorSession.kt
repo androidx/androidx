@@ -45,7 +45,7 @@ import androidx.wear.utility.launchWithTracing
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.ComplicationState
-import androidx.wear.watchface.client.EditorObserverCallback
+import androidx.wear.watchface.client.EditorObserverListener
 import androidx.wear.watchface.client.EditorServiceClient
 import androidx.wear.watchface.client.EditorState
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
@@ -65,7 +65,7 @@ import kotlinx.coroutines.launch
  * Interface for manipulating watch face state during an editing session for a watch face editing
  * session. The editor should adjust [userStyle] and call [launchComplicationProviderChooser] to
  * configure the watch face and call [close] when done. This reports the updated [EditorState] to
- * the [EditorObserverCallback]s registered via [EditorServiceClient.registerObserver].
+ * the [EditorObserverListener]s registered via [EditorServiceClient.registerObserver].
  */
 public abstract class EditorSession : AutoCloseable {
     /** The [ComponentName] of the watch face being edited. */
