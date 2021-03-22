@@ -1057,7 +1057,7 @@ class NavDeepLinkTest {
 
         val id = 2
         val matchArgs = deepLink.getMatchingArguments(
-            Uri.parse("${DEEP_LINK_EXACT_HTTPS.toUpperCase()}/users/${id}/posts"),
+            Uri.parse("${DEEP_LINK_EXACT_HTTPS.toUpperCase()}/users/$id/posts"),
             mapOf("id" to intArgument())
         )
         assertWithMessage("Args should not be null")
@@ -1075,9 +1075,10 @@ class NavDeepLinkTest {
 
         val id = 2
         val matchArgs = deepLink.getMatchingArguments(
-            Uri.parse(deepLinkArgument
-                .replace("{id}", id.toString())
-                .replace("users", "Users")
+            Uri.parse(
+                deepLinkArgument
+                    .replace("{id}", id.toString())
+                    .replace("users", "Users")
             ),
             mapOf("id" to intArgument())
         )
@@ -1098,8 +1099,10 @@ class NavDeepLinkTest {
         val deepLinkUpper = deepLinkString
             .replace("myParam", "MYPARAM")
             .replace("{param}", param.toString())
-        val matchArgs = deepLink.getMatchingArguments(Uri.parse(deepLinkUpper),
-            mapOf("param" to intArgument()))
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(deepLinkUpper),
+            mapOf("param" to intArgument())
+        )
 
         assertWithMessage("Args should be not be null")
             .that(matchArgs)
