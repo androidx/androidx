@@ -372,7 +372,8 @@ public final class CarAppActivity extends Activity {
             //TODO("b/177083268: Multiple hosts support is not implemented")
         }
 
-        if (!bindService(rendererIntent, mServiceConnectionImpl, Context.BIND_AUTO_CREATE)) {
+        if (!bindService(rendererIntent, mServiceConnectionImpl,
+                Context.BIND_AUTO_CREATE | Context.BIND_INCLUDE_CAPABILITIES)) {
             onServiceConnectionError(
                     "Cannot bind to the renderer host with intent: " + rendererIntent);
         }
