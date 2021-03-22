@@ -841,17 +841,20 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String databaseName,
             @NonNull String namespace,
             @NonNull String uri,
-            long usageTimestampMillis) throws AppSearchException {
+            long usageTimestampMillis,
+            boolean systemUsage) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
 
             String prefixedNamespace = createPrefix(packageName, databaseName) + namespace;
+            UsageReport.UsageType usageType = systemUsage
+                    ? UsageReport.UsageType.USAGE_TYPE2 : UsageReport.UsageType.USAGE_TYPE1;
             UsageReport report = UsageReport.newBuilder()
                     .setDocumentNamespace(prefixedNamespace)
                     .setDocumentUri(uri)
                     .setUsageTimestampMs(usageTimestampMillis)
-                    .setUsageType(UsageReport.UsageType.USAGE_TYPE1)
+                    .setUsageType(usageType)
                     .build();
 
             ReportUsageResultProto result = mIcingSearchEngineLocked.reportUsage(report);

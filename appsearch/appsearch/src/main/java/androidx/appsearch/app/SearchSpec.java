@@ -116,7 +116,9 @@ public final class SearchSpec {
             RANKING_STRATEGY_CREATION_TIMESTAMP,
             RANKING_STRATEGY_RELEVANCE_SCORE,
             RANKING_STRATEGY_USAGE_COUNT,
-            RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP
+            RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP,
+            RANKING_STRATEGY_SYSTEM_USAGE_COUNT,
+            RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface RankingStrategy {
@@ -130,10 +132,14 @@ public final class SearchSpec {
     public static final int RANKING_STRATEGY_CREATION_TIMESTAMP = 2;
     /** Ranked by document relevance score. */
     public static final int RANKING_STRATEGY_RELEVANCE_SCORE = 3;
-    /** Ranked by number of usages. */
+    /** Ranked by number of usages, as reported by the app. */
     public static final int RANKING_STRATEGY_USAGE_COUNT = 4;
-    /** Ranked by timestamp of last usage. */
+    /** Ranked by timestamp of last usage, as reported by the app. */
     public static final int RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP = 5;
+    /** Ranked by number of usages from a system UI surface. */
+    public static final int RANKING_STRATEGY_SYSTEM_USAGE_COUNT = 6;
+    /** Ranked by timestamp of last usage from a system UI surface. */
+    public static final int RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP = 7;
 
     /**
      * Order for query result.
@@ -496,7 +502,7 @@ public final class SearchSpec {
         public Builder setRankingStrategy(@RankingStrategy int rankingStrategy) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkArgumentInRange(rankingStrategy, RANKING_STRATEGY_NONE,
-                    RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP, "Result ranking strategy");
+                    RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP, "Result ranking strategy");
             mBundle.putInt(RANKING_STRATEGY_FIELD, rankingStrategy);
             return this;
         }

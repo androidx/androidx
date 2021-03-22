@@ -19,10 +19,16 @@ package androidx.appsearch.localstorage;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.GlobalSearchSession;
+import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.core.util.Preconditions;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 
@@ -36,8 +42,9 @@ import java.util.concurrent.Executor;
 class GlobalSearchSessionImpl implements GlobalSearchSession {
     private final AppSearchImpl mAppSearchImpl;
     private final Executor mExecutor;
-    private boolean mIsClosed = false;
     private final Context mContext;
+
+    private boolean mIsClosed = false;
 
     GlobalSearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
@@ -62,6 +69,24 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                 /*databaseName=*/ null,
                 queryExpression,
                 searchSpec);
+    }
+
+    /**
+     * Reporting system usage is not supported in the local backend, so this method does nothing
+     * and always completes the return value with an
+     * {@link androidx.appsearch.exceptions.AppSearchException} having a result code of
+     * {@link AppSearchResult#RESULT_SECURITY_ERROR}.
+     */
+    @NonNull
+    @Override
+    public ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request) {
+        Preconditions.checkNotNull(request);
+        Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
+        return FutureUtil.execute(mExecutor, () -> {
+            throw new AppSearchException(
+                    AppSearchResult.RESULT_SECURITY_ERROR,
+                    mContext.getPackageName() + " does not have access to report system usage");
+        });
     }
 
     @Override
