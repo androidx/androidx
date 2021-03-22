@@ -25,6 +25,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.ExperimentalCarApi;
 
 import java.util.Collections;
 import java.util.List;
@@ -258,8 +259,6 @@ public final class PlaceListMapTemplate implements Template {
         /**
          * Sets the title of the template.
          *
-         * <p>Unless set with this method, the template will not have a title.
-         *
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code title} is {@code null}
@@ -268,6 +267,21 @@ public final class PlaceListMapTemplate implements Template {
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            return this;
+        }
+
+        /**
+         * Sets the title of the template.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code title} is {@code null}
+         * @see CarText
+         */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder setTitle(@NonNull CarText title) {
+            mTitle = requireNonNull(title);
             return this;
         }
 
