@@ -37,7 +37,6 @@ import androidx.wear.tiles.connection.TilesConnection
 import androidx.wear.tiles.proto.DeviceParametersProto
 import androidx.wear.tiles.proto.RequestProto
 import androidx.wear.tiles.proto.StateProto
-import androidx.wear.tiles.renderer.StandardResourceAccessors
 import androidx.wear.tiles.renderer.TileRenderer
 import androidx.wear.tiles.timeline.TilesTimelineManager
 import kotlinx.coroutines.CoroutineScope
@@ -184,9 +183,9 @@ public class TileManager(
         val renderer = TileRenderer(
             context,
             layout,
-            StandardResourceAccessors.forLocalApp(context, tileResources!!).build(),
+            tileResources!!,
             ContextCompat.getMainExecutor(context),
-            { state -> coroutineScope.launch { requestTile(state) } }
+            { state -> coroutineScope.launch { requestTile(state.toProto()) } }
         )
         renderer.inflate(parentView)?.apply {
             (layoutParams as FrameLayout.LayoutParams).gravity = Gravity.CENTER

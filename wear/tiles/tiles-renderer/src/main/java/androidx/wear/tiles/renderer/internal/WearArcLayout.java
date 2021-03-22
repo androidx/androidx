@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.renderer;
+package androidx.wear.tiles.renderer.internal;
 
 import static java.lang.Math.asin;
 import static java.lang.Math.max;
@@ -36,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
+import androidx.wear.tiles.renderer.R;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -70,13 +71,10 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>An example of a widget which implements this interface is {@link WearCurvedTextView}, which
  * will lay itself out along the arc.
- *
- * @hide
  */
 // TODO(b/174649543): Replace this with the actual androidx.wear.widget.WearArcLayout when
 // we've reconciled the two.
 @UiThread
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class WearArcLayout extends ViewGroup {
 
     /**

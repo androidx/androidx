@@ -16,20 +16,15 @@
 
 package androidx.wear.tiles.timeline;
 
-import static java.lang.Math.max;
-
 import android.app.AlarmManager;
-import android.app.AlarmManager.OnAlarmListener;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.wear.tiles.builders.LayoutElementBuilders;
 import androidx.wear.tiles.builders.TimelineBuilders;
+import androidx.wear.tiles.timeline.internal.TilesTimelineManagerInternal;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Manager for a single Wear Tiles timeline.
@@ -38,9 +33,9 @@ import java.util.concurrent.TimeUnit;
  * correct alarms to detect when a layout should be updated, and dispatch it to its listener.
  */
 public class TilesTimelineManager {
-    // 1 minute min delay between tiles.
     @VisibleForTesting
-    static final long MIN_TILE_UPDATE_DELAY_MILLIS = TimeUnit.MINUTES.toMillis(1);
+    static final long MIN_TILE_UPDATE_DELAY_MILLIS =
+            TilesTimelineManagerInternal.MIN_TILE_UPDATE_DELAY_MILLIS;
 
     /** Interface so this manager can retrieve the current time. */
     public interface Clock {
@@ -60,15 +55,7 @@ public class TilesTimelineManager {
         void onLayoutUpdate(int token, @NonNull LayoutElementBuilders.Layout layout);
     }
 
-    private static final String TAG = "TimelineManager";
-
-    private final AlarmManager mAlarmManager;
-    private final Clock mClock;
-    private final TilesTimelineCache mCache;
-    private final Executor mListenerExecutor;
-    private final Listener mListener;
-    private final int mToken;
-    @Nullable private OnAlarmListener mAlarmListener = null;
+    private final TilesTimelineManagerInternal mManager;
 
     /**
      * Default constructor.
@@ -86,13 +73,17 @@ public class TilesTimelineManager {
             @NonNull TimelineBuilders.Timeline timeline,
             int token,
             @NonNull Executor listenerExecutor,
-            @NonNull Listener listener) {
-        this.mAlarmManager = alarmManager;
-        this.mClock = clock;
-        this.mCache = new TilesTimelineCache(timeline);
-        this.mToken = token;
-        this.mListenerExecutor = listenerExecutor;
-        this.mListener = listener;
+            @NonNull Listener listener
+    ) {
+        mManager = new TilesTimelineManagerInternal(
+                alarmManager,
+                () -> clock.getCurrentTimeMillis(),
+                timeline.toProto(),
+                token,
+                listenerExecutor,
+                (t, entry) -> listener.onLayoutUpdate(t,
+                        LayoutElementBuilders.Layout.fromProto(entry.getLayout()))
+        );
     }
 
     /**
@@ -100,63 +91,11 @@ public class TilesTimelineManager {
      * layout, and set its first alarm.
      */
     public void init() {
-        dispatchNextLayout();
+        mManager.init();
     }
 
     /** Tears down this Timeline Manager. This will ensure any set alarms are cleared up. */
     public void deInit() {
-        if (mAlarmListener != null) {
-            mAlarmManager.cancel(mAlarmListener);
-            mAlarmListener = null;
-        }
-    }
-
-    void dispatchNextLayout() {
-        if (mAlarmListener != null) {
-            mAlarmManager.cancel(mAlarmListener);
-            mAlarmListener = null;
-        }
-
-        long now = mClock.getCurrentTimeMillis();
-        TimelineBuilders.TimelineEntry entry = mCache.findTimelineEntryForTime(now);
-
-        if (entry == null) {
-            Log.d(TAG, "Could not find absolute timeline entry for time " + now);
-
-            entry = mCache.findClosestTimelineEntry(now);
-
-            if (entry == null) {
-                Log.w(TAG, "Could not find any timeline entry for time " + now);
-                return;
-            }
-        }
-
-        // Find when this entry should expire, and set a rollover alarm.
-        long expiryTime = mCache.findCurrentTimelineEntryExpiry(entry, now);
-
-        expiryTime = max(expiryTime, now + MIN_TILE_UPDATE_DELAY_MILLIS);
-
-        if (expiryTime != Long.MAX_VALUE) {
-            // This **has** to be an instantiation like this, in order for AlarmManager#cancel to
-            // work
-            // correctly (it doesn't work on method references).
-            mAlarmListener =
-                    new OnAlarmListener() {
-                        @Override
-                        public void onAlarm() {
-                            dispatchNextLayout();
-                        }
-                    };
-
-            // Run on the main thread (targetHandler = null). The update has to be on the main
-            // thread so
-            // it can mutate the layout, so we might as well just do everything there.
-            mAlarmManager.set(
-                    AlarmManager.RTC, expiryTime, TAG, mAlarmListener, /* targetHandler= */ null);
-        }
-
-        final LayoutElementBuilders.Layout layout = LayoutElementBuilders.Layout.fromProto(
-                entry.toProto().getLayout());
-        mListenerExecutor.execute(() -> mListener.onLayoutUpdate(mToken, layout));
+        mManager.deInit();
     }
 }

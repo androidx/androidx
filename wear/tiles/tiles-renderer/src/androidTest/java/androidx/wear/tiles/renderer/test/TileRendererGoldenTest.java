@@ -40,7 +40,6 @@ import androidx.wear.tiles.proto.ResourceProto.ImageResource;
 import androidx.wear.tiles.proto.ResourceProto.InlineImageResource;
 import androidx.wear.tiles.proto.ResourceProto.Resources;
 import androidx.wear.tiles.protobuf.ByteString;
-import androidx.wear.tiles.renderer.StandardResourceAccessors;
 import androidx.wear.tiles.renderer.TileRenderer;
 
 import com.google.protobuf.TextFormat;
@@ -238,10 +237,7 @@ public class TileRendererGoldenTest {
                         appContext,
                         LayoutElementBuilders.Layout.fromProto(
                                 Layout.newBuilder().setRoot(rootElement).build()),
-                        StandardResourceAccessors.forLocalApp(
-                                        appContext,
-                                        ResourceBuilders.Resources.fromProto(generateResources()))
-                                .build(),
+                        ResourceBuilders.Resources.fromProto(generateResources()),
                         ContextCompat.getMainExecutor(getApplicationContext()),
                         i -> {});
 
