@@ -18,6 +18,7 @@ package androidx.camera.integration.core
 import android.Manifest
 import android.app.Instrumentation
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraX
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.lifecycle.Lifecycle.State.CREATED
@@ -35,12 +36,14 @@ import androidx.testutils.withActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
+import java.util.concurrent.TimeUnit
 
 private const val HOME_TIMEOUT_MS = 3000L
 private const val ROTATE_TIMEOUT_MS = 2000L
@@ -61,6 +64,14 @@ class ExistingActivityLifecycleTest {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO
         )
+
+    companion object {
+        @AfterClass
+        @JvmStatic
+        fun shutdownCameraX() {
+            CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        }
+    }
 
     @Before
     fun setup() {
