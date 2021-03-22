@@ -7,7 +7,7 @@ package androidx.wear.complications {
     method public android.os.IBinder? onBind(android.content.Intent);
     method @UiThread public void onComplicationActivated(int, int);
     method @UiThread public void onComplicationDeactivated(int);
-    method @UiThread public abstract void onComplicationUpdate(int, androidx.wear.complications.data.ComplicationType, androidx.wear.complications.ComplicationProviderService.ComplicationUpdateCallback);
+    method @UiThread public abstract void onComplicationUpdate(int, androidx.wear.complications.data.ComplicationType, androidx.wear.complications.ComplicationProviderService.ComplicationUpdateListener);
     field public static final String ACTION_COMPLICATION_UPDATE_REQUEST = "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST";
     field public static final String CATEGORY_PROVIDER_CONFIG = "android.support.wearable.complications.category.PROVIDER_CONFIG";
     field public static final String EXTRA_CONFIG_COMPLICATION_ID = "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_ID";
@@ -19,7 +19,7 @@ package androidx.wear.complications {
     field public static final String METADATA_KEY_UPDATE_PERIOD_SECONDS = "android.support.wearable.complications.UPDATE_PERIOD_SECONDS";
   }
 
-  public static interface ComplicationProviderService.ComplicationUpdateCallback {
+  public static interface ComplicationProviderService.ComplicationUpdateListener {
     method public void onUpdateComplication(androidx.wear.complications.data.ComplicationData?) throws android.os.RemoteException;
   }
 
