@@ -17,7 +17,6 @@
 package androidx.wear.watchface.client
 
 import android.graphics.Bitmap
-import android.os.IBinder
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
@@ -49,13 +48,6 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * change, typically in response to styling.
      */
     public val complicationState: Map<Int, ComplicationState>
-
-    public companion object {
-        /** Constructs a [HeadlessWatchFaceClient] from an [IBinder]. */
-        @JvmStatic
-        public fun createFromBinder(binder: IBinder): HeadlessWatchFaceClient =
-            HeadlessWatchFaceClientImpl(binder)
-    }
 
     /**
      * Requests a shared memory backed [Bitmap] containing a screenshot of the watch face with the
@@ -97,16 +89,11 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
         complicationData: ComplicationData,
         userStyle: UserStyle?,
     ): Bitmap?
-
-    /** Returns the associated [IBinder]. Allows this interface to be passed over AIDL. */
-    public fun asBinder(): IBinder
 }
 
 internal class HeadlessWatchFaceClientImpl internal constructor(
     private val iHeadlessWatchFace: IHeadlessWatchFace
 ) : HeadlessWatchFaceClient {
-
-    constructor(binder: IBinder) : this(IHeadlessWatchFace.Stub.asInterface(binder))
 
     override val previewReferenceTimeMillis: Long
         get() = iHeadlessWatchFace.previewReferenceTimeMillis
@@ -168,6 +155,4 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
     override fun close() = TraceEvent("HeadlessWatchFaceClientImpl.close").use {
         iHeadlessWatchFace.release()
     }
-
-    override fun asBinder(): IBinder = iHeadlessWatchFace.asBinder()
 }
