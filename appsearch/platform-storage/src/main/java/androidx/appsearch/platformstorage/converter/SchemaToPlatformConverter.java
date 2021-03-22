@@ -33,6 +33,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
+@SuppressWarnings("deprecation") // TODO(b/181887768): Port to new API and remove this
 public final class SchemaToPlatformConverter {
     private SchemaToPlatformConverter() {}
 
@@ -169,7 +170,8 @@ public final class SchemaToPlatformConverter {
                     .build();
         } else {
             throw new IllegalArgumentException(
-                    "Invalid dataType: " + platformProperty.getDataType());
+                    "Invalid property type " + platformProperty.getClass()
+                            + ": " + platformProperty);
         }
     }
 }

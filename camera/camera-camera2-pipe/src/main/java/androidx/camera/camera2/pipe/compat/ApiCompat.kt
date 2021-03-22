@@ -33,6 +33,7 @@ internal object Api24Compat {
 }
 
 @RequiresApi(Build.VERSION_CODES.P)
+@Suppress("DEPRECATION")
 internal object Api28Compat {
     @JvmStatic
     fun getAvailablePhysicalCameraRequestKeys(
