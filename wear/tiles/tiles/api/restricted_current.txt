@@ -1,54 +1,10 @@
 // Signature format: 4.0
 package androidx.wear.tiles {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class ProtoParcelable implements android.os.Parcelable {
-    ctor protected ProtoParcelable(byte[], int);
-    method public int describeContents();
-    method public byte[] getContents();
-    method public int getVersion();
-    method public void writeToParcel(android.os.Parcel, int);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ResourcesData extends androidx.wear.tiles.ProtoParcelable {
-    ctor public ResourcesData(byte[], int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.ResourcesData!>! CREATOR;
-    field public static final int VERSION_PROTOBUF = 1; // 0x1
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ResourcesRequestData extends androidx.wear.tiles.ProtoParcelable {
-    ctor public ResourcesRequestData(byte[], int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.ResourcesRequestData!>! CREATOR;
-    field public static final int VERSION_PROTOBUF = 1; // 0x1
-  }
-
   public class SysUiTileUpdateRequester implements androidx.wear.tiles.TileUpdateRequester {
     ctor public SysUiTileUpdateRequester(android.content.Context);
     method public void requestUpdate(Class<? extends android.app.Service>);
     field public static final String ACTION_BIND_UPDATE_REQUESTER = "androidx.wear.tiles.action.BIND_UPDATE_REQUESTER";
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileAddEventData extends androidx.wear.tiles.ProtoParcelable {
-    ctor public TileAddEventData(byte[], int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileAddEventData!>! CREATOR;
-    field public static final int VERSION_PROTOBUF = 1; // 0x1
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileData extends androidx.wear.tiles.ProtoParcelable {
-    ctor public TileData(byte[], int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileData!>! CREATOR;
-    field public static final int VERSION_PROTOBUF = 1; // 0x1
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileEnterEventData extends androidx.wear.tiles.ProtoParcelable {
-    ctor public TileEnterEventData(byte[], int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileEnterEventData!>! CREATOR;
-    field public static final int VERSION_PROTOBUF = 1; // 0x1
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileLeaveEventData extends androidx.wear.tiles.ProtoParcelable {
-    ctor public TileLeaveEventData(byte[], int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileLeaveEventData!>! CREATOR;
-    field public static final int VERSION_PROTOBUF = 1; // 0x1
   }
 
   public abstract class TileProviderService extends android.app.Service {
@@ -64,24 +20,6 @@ package androidx.wear.tiles {
     field public static final String ACTION_BIND_TILE_PROVIDER = "androidx.wear.tiles.action.BIND_TILE_PROVIDER";
     field public static final String EXTRA_CLICKABLE_ID = "androidx.wear.tiles.extra.CLICKABLE_ID";
     field public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileRemoveEventData extends androidx.wear.tiles.ProtoParcelable {
-    ctor public TileRemoveEventData(byte[], int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileRemoveEventData!>! CREATOR;
-    field public static final int VERSION_PROTOBUF = 1; // 0x1
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileRequestData extends androidx.wear.tiles.ProtoParcelable {
-    ctor public TileRequestData(byte[], int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileRequestData!>! CREATOR;
-    field public static final int VERSION_PROTOBUF = 1; // 0x1
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TileUpdateRequestData extends androidx.wear.tiles.ProtoParcelable {
-    ctor public TileUpdateRequestData();
-    field public static final android.os.Parcelable.Creator<androidx.wear.tiles.TileUpdateRequestData!>! CREATOR;
-    field public static final int VERSION_PLACEHOLDER = 1; // 0x1
   }
 
   public interface TileUpdateRequester {
@@ -102,7 +40,6 @@ package androidx.wear.tiles.builders {
   }
 
   public static interface ActionBuilders.Action {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ActionProto.Action toActionProto();
   }
 
   public static interface ActionBuilders.Action.Builder {
@@ -111,8 +48,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ActionBuilders.AndroidActivity {
     method public static androidx.wear.tiles.builders.ActionBuilders.AndroidActivity.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ActionBuilders.AndroidActivity fromProto(androidx.wear.tiles.proto.ActionProto.AndroidActivity);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ActionProto.AndroidActivity toProto();
   }
 
   public static final class ActionBuilders.AndroidActivity.Builder {
@@ -123,8 +58,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ActionBuilders.LaunchAction implements androidx.wear.tiles.builders.ActionBuilders.Action {
     method public static androidx.wear.tiles.builders.ActionBuilders.LaunchAction.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ActionBuilders.LaunchAction fromProto(androidx.wear.tiles.proto.ActionProto.LaunchAction);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ActionProto.Action toActionProto();
   }
 
   public static final class ActionBuilders.LaunchAction.Builder implements androidx.wear.tiles.builders.ActionBuilders.Action.Builder {
@@ -135,8 +68,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ActionBuilders.LoadAction implements androidx.wear.tiles.builders.ActionBuilders.Action {
     method public static androidx.wear.tiles.builders.ActionBuilders.LoadAction.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ActionBuilders.LoadAction fromProto(androidx.wear.tiles.proto.ActionProto.LoadAction);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ActionProto.Action toActionProto();
   }
 
   public static final class ActionBuilders.LoadAction.Builder implements androidx.wear.tiles.builders.ActionBuilders.Action.Builder {
@@ -151,8 +82,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ColorBuilders.ColorProp {
     method public static androidx.wear.tiles.builders.ColorBuilders.ColorProp.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ColorBuilders.ColorProp fromProto(androidx.wear.tiles.proto.ColorProto.ColorProp);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ColorProto.ColorProp toProto();
   }
 
   public static final class ColorBuilders.ColorProp.Builder {
@@ -170,7 +99,6 @@ package androidx.wear.tiles.builders {
   }
 
   public static interface DimensionBuilders.ContainerDimension {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.ContainerDimension toContainerDimensionProto();
   }
 
   public static interface DimensionBuilders.ContainerDimension.Builder {
@@ -179,8 +107,6 @@ package androidx.wear.tiles.builders {
 
   public static final class DimensionBuilders.DegreesProp {
     method public static androidx.wear.tiles.builders.DimensionBuilders.DegreesProp.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.DimensionBuilders.DegreesProp fromProto(androidx.wear.tiles.proto.DimensionProto.DegreesProp);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.DegreesProp toProto();
   }
 
   public static final class DimensionBuilders.DegreesProp.Builder {
@@ -190,10 +116,6 @@ package androidx.wear.tiles.builders {
 
   public static final class DimensionBuilders.DpProp implements androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension androidx.wear.tiles.builders.DimensionBuilders.ImageDimension androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension {
     method public static androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.DimensionBuilders.DpProp fromProto(androidx.wear.tiles.proto.DimensionProto.DpProp);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.ContainerDimension toContainerDimensionProto();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.ImageDimension toImageDimensionProto();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.SpacerDimension toSpacerDimensionProto();
   }
 
   public static final class DimensionBuilders.DpProp.Builder implements androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension.Builder androidx.wear.tiles.builders.DimensionBuilders.ImageDimension.Builder androidx.wear.tiles.builders.DimensionBuilders.SpacerDimension.Builder {
@@ -203,8 +125,6 @@ package androidx.wear.tiles.builders {
 
   public static final class DimensionBuilders.EmProp {
     method public static androidx.wear.tiles.builders.DimensionBuilders.EmProp.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.DimensionBuilders.EmProp fromProto(androidx.wear.tiles.proto.DimensionProto.EmProp);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.EmProp toProto();
   }
 
   public static final class DimensionBuilders.EmProp.Builder {
@@ -214,9 +134,6 @@ package androidx.wear.tiles.builders {
 
   public static final class DimensionBuilders.ExpandedDimensionProp implements androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension androidx.wear.tiles.builders.DimensionBuilders.ImageDimension {
     method public static androidx.wear.tiles.builders.DimensionBuilders.ExpandedDimensionProp.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.DimensionBuilders.ExpandedDimensionProp fromProto(androidx.wear.tiles.proto.DimensionProto.ExpandedDimensionProp);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.ContainerDimension toContainerDimensionProto();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.ImageDimension toImageDimensionProto();
   }
 
   public static final class DimensionBuilders.ExpandedDimensionProp.Builder implements androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension.Builder androidx.wear.tiles.builders.DimensionBuilders.ImageDimension.Builder {
@@ -224,7 +141,6 @@ package androidx.wear.tiles.builders {
   }
 
   public static interface DimensionBuilders.ImageDimension {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.ImageDimension toImageDimensionProto();
   }
 
   public static interface DimensionBuilders.ImageDimension.Builder {
@@ -233,8 +149,6 @@ package androidx.wear.tiles.builders {
 
   public static final class DimensionBuilders.ProportionalDimensionProp implements androidx.wear.tiles.builders.DimensionBuilders.ImageDimension {
     method public static androidx.wear.tiles.builders.DimensionBuilders.ProportionalDimensionProp.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.DimensionBuilders.ProportionalDimensionProp fromProto(androidx.wear.tiles.proto.DimensionProto.ProportionalDimensionProp);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.ImageDimension toImageDimensionProto();
   }
 
   public static final class DimensionBuilders.ProportionalDimensionProp.Builder implements androidx.wear.tiles.builders.DimensionBuilders.ImageDimension.Builder {
@@ -245,8 +159,6 @@ package androidx.wear.tiles.builders {
 
   public static final class DimensionBuilders.SpProp {
     method public static androidx.wear.tiles.builders.DimensionBuilders.SpProp.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.DimensionBuilders.SpProp fromProto(androidx.wear.tiles.proto.DimensionProto.SpProp);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.SpProp toProto();
   }
 
   public static final class DimensionBuilders.SpProp.Builder {
@@ -255,7 +167,6 @@ package androidx.wear.tiles.builders {
   }
 
   public static interface DimensionBuilders.SpacerDimension {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.SpacerDimension toSpacerDimensionProto();
   }
 
   public static interface DimensionBuilders.SpacerDimension.Builder {
@@ -264,8 +175,6 @@ package androidx.wear.tiles.builders {
 
   public static final class DimensionBuilders.WrappedDimensionProp implements androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension {
     method public static androidx.wear.tiles.builders.DimensionBuilders.WrappedDimensionProp.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.DimensionBuilders.WrappedDimensionProp fromProto(androidx.wear.tiles.proto.DimensionProto.WrappedDimensionProp);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.DimensionProto.ContainerDimension toContainerDimensionProto();
   }
 
   public static final class DimensionBuilders.WrappedDimensionProp.Builder implements androidx.wear.tiles.builders.DimensionBuilders.ContainerDimension.Builder {
@@ -305,8 +214,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.Arc implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.Arc.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.Arc fromProto(androidx.wear.tiles.proto.LayoutElementProto.Arc);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.LayoutElement toLayoutElementProto();
   }
 
   public static final class LayoutElementBuilders.Arc.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
@@ -323,8 +230,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.ArcAdapter implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcAdapter.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcAdapter fromProto(androidx.wear.tiles.proto.LayoutElementProto.ArcAdapter);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.ArcLayoutElement toArcLayoutElementProto();
   }
 
   public static final class LayoutElementBuilders.ArcAdapter.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement.Builder {
@@ -335,7 +240,6 @@ package androidx.wear.tiles.builders {
   }
 
   public static interface LayoutElementBuilders.ArcLayoutElement {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.ArcLayoutElement toArcLayoutElementProto();
   }
 
   public static interface LayoutElementBuilders.ArcLayoutElement.Builder {
@@ -344,8 +248,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.ArcLine implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcLine.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcLine fromProto(androidx.wear.tiles.proto.LayoutElementProto.ArcLine);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.ArcLayoutElement toArcLayoutElementProto();
   }
 
   public static final class LayoutElementBuilders.ArcLine.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement.Builder {
@@ -362,8 +264,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.ArcSpacer implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcSpacer.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcSpacer fromProto(androidx.wear.tiles.proto.LayoutElementProto.ArcSpacer);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.ArcLayoutElement toArcLayoutElementProto();
   }
 
   public static final class LayoutElementBuilders.ArcSpacer.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement.Builder {
@@ -378,8 +278,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.ArcText implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcText.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.ArcText fromProto(androidx.wear.tiles.proto.LayoutElementProto.ArcText);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.ArcLayoutElement toArcLayoutElementProto();
   }
 
   public static final class LayoutElementBuilders.ArcText.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.ArcLayoutElement.Builder {
@@ -393,8 +291,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.Box implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.Box.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.Box fromProto(androidx.wear.tiles.proto.LayoutElementProto.Box);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.LayoutElement toLayoutElementProto();
   }
 
   public static final class LayoutElementBuilders.Box.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
@@ -413,8 +309,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.Column implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.Column.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.Column fromProto(androidx.wear.tiles.proto.LayoutElementProto.Column);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.LayoutElement toLayoutElementProto();
   }
 
   public static final class LayoutElementBuilders.Column.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
@@ -432,8 +326,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.FontStyle {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.FontStyle fromProto(androidx.wear.tiles.proto.LayoutElementProto.FontStyle);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.FontStyle toProto();
   }
 
   public static final class LayoutElementBuilders.FontStyle.Builder {
@@ -466,8 +358,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.Image implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.Image.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.Image fromProto(androidx.wear.tiles.proto.LayoutElementProto.Image);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.LayoutElement toLayoutElementProto();
   }
 
   public static final class LayoutElementBuilders.Image.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
@@ -484,8 +374,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.Layout {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.Layout.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.Layout fromProto(androidx.wear.tiles.proto.LayoutElementProto.Layout);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.Layout toProto();
   }
 
   public static final class LayoutElementBuilders.Layout.Builder {
@@ -495,7 +383,6 @@ package androidx.wear.tiles.builders {
   }
 
   public static interface LayoutElementBuilders.LayoutElement {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.LayoutElement toLayoutElementProto();
   }
 
   public static interface LayoutElementBuilders.LayoutElement.Builder {
@@ -504,8 +391,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.Row implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.Row.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.Row fromProto(androidx.wear.tiles.proto.LayoutElementProto.Row);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.LayoutElement toLayoutElementProto();
   }
 
   public static final class LayoutElementBuilders.Row.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
@@ -523,8 +408,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.Spacer implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.Spacer.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.Spacer fromProto(androidx.wear.tiles.proto.LayoutElementProto.Spacer);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.LayoutElement toLayoutElementProto();
   }
 
   public static final class LayoutElementBuilders.Spacer.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
@@ -538,7 +421,6 @@ package androidx.wear.tiles.builders {
   }
 
   public static interface LayoutElementBuilders.Span {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.Span toSpanProto();
   }
 
   public static interface LayoutElementBuilders.Span.Builder {
@@ -547,8 +429,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.SpanImage implements androidx.wear.tiles.builders.LayoutElementBuilders.Span {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.SpanImage fromProto(androidx.wear.tiles.proto.LayoutElementProto.SpanImage);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.Span toSpanProto();
   }
 
   public static final class LayoutElementBuilders.SpanImage.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.Span.Builder {
@@ -564,8 +444,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.SpanText implements androidx.wear.tiles.builders.LayoutElementBuilders.Span {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.SpanText.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.SpanText fromProto(androidx.wear.tiles.proto.LayoutElementProto.SpanText);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.Span toSpanProto();
   }
 
   public static final class LayoutElementBuilders.SpanText.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.Span.Builder {
@@ -579,8 +457,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.Spannable implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.Spannable.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.Spannable fromProto(androidx.wear.tiles.proto.LayoutElementProto.Spannable);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.LayoutElement toLayoutElementProto();
   }
 
   public static final class LayoutElementBuilders.Spannable.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
@@ -598,8 +474,6 @@ package androidx.wear.tiles.builders {
 
   public static final class LayoutElementBuilders.Text implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.builders.LayoutElementBuilders.Text.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.LayoutElementBuilders.Text fromProto(androidx.wear.tiles.proto.LayoutElementProto.Text);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.LayoutElement toLayoutElementProto();
   }
 
   public static final class LayoutElementBuilders.Text.Builder implements androidx.wear.tiles.builders.LayoutElementBuilders.LayoutElement.Builder {
@@ -621,8 +495,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ModifiersBuilders.ArcModifiers {
     method public static androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ModifiersBuilders.ArcModifiers fromProto(androidx.wear.tiles.proto.ModifiersProto.ArcModifiers);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ModifiersProto.ArcModifiers toProto();
   }
 
   public static final class ModifiersBuilders.ArcModifiers.Builder {
@@ -635,8 +507,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ModifiersBuilders.Background {
     method public static androidx.wear.tiles.builders.ModifiersBuilders.Background.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ModifiersBuilders.Background fromProto(androidx.wear.tiles.proto.ModifiersProto.Background);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ModifiersProto.Background toProto();
   }
 
   public static final class ModifiersBuilders.Background.Builder {
@@ -649,8 +519,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ModifiersBuilders.Border {
     method public static androidx.wear.tiles.builders.ModifiersBuilders.Border.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ModifiersBuilders.Border fromProto(androidx.wear.tiles.proto.ModifiersProto.Border);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ModifiersProto.Border toProto();
   }
 
   public static final class ModifiersBuilders.Border.Builder {
@@ -663,8 +531,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ModifiersBuilders.Clickable {
     method public static androidx.wear.tiles.builders.ModifiersBuilders.Clickable.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ModifiersBuilders.Clickable fromProto(androidx.wear.tiles.proto.ModifiersProto.Clickable);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ModifiersProto.Clickable toProto();
   }
 
   public static final class ModifiersBuilders.Clickable.Builder {
@@ -676,8 +542,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ModifiersBuilders.Corner {
     method public static androidx.wear.tiles.builders.ModifiersBuilders.Corner.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ModifiersBuilders.Corner fromProto(androidx.wear.tiles.proto.ModifiersProto.Corner);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ModifiersProto.Corner toProto();
   }
 
   public static final class ModifiersBuilders.Corner.Builder {
@@ -688,8 +552,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ModifiersBuilders.Modifiers {
     method public static androidx.wear.tiles.builders.ModifiersBuilders.Modifiers.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ModifiersBuilders.Modifiers fromProto(androidx.wear.tiles.proto.ModifiersProto.Modifiers);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ModifiersProto.Modifiers toProto();
   }
 
   public static final class ModifiersBuilders.Modifiers.Builder {
@@ -708,8 +570,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ModifiersBuilders.Padding {
     method public static androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ModifiersBuilders.Padding fromProto(androidx.wear.tiles.proto.ModifiersProto.Padding);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ModifiersProto.Padding toProto();
   }
 
   public static final class ModifiersBuilders.Padding.Builder {
@@ -727,8 +587,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ModifiersBuilders.Semantics {
     method public static androidx.wear.tiles.builders.ModifiersBuilders.Semantics.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ModifiersBuilders.Semantics fromProto(androidx.wear.tiles.proto.ModifiersProto.Semantics);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ModifiersProto.Semantics toProto();
   }
 
   public static final class ModifiersBuilders.Semantics.Builder {
@@ -738,8 +596,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ModifiersBuilders.SpanModifiers {
     method public static androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ModifiersBuilders.SpanModifiers fromProto(androidx.wear.tiles.proto.ModifiersProto.SpanModifiers);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ModifiersProto.SpanModifiers toProto();
   }
 
   public static final class ModifiersBuilders.SpanModifiers.Builder {
@@ -755,8 +611,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ResourceBuilders.AndroidImageResourceByResId {
     method public static androidx.wear.tiles.builders.ResourceBuilders.AndroidImageResourceByResId.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ResourceBuilders.AndroidImageResourceByResId fromProto(androidx.wear.tiles.proto.ResourceProto.AndroidImageResourceByResId);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ResourceProto.AndroidImageResourceByResId toProto();
   }
 
   public static final class ResourceBuilders.AndroidImageResourceByResId.Builder {
@@ -766,8 +620,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ResourceBuilders.ImageResource {
     method public static androidx.wear.tiles.builders.ResourceBuilders.ImageResource.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ResourceBuilders.ImageResource fromProto(androidx.wear.tiles.proto.ResourceProto.ImageResource);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ResourceProto.ImageResource toProto();
   }
 
   public static final class ResourceBuilders.ImageResource.Builder {
@@ -780,8 +632,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ResourceBuilders.InlineImageResource {
     method public static androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ResourceBuilders.InlineImageResource fromProto(androidx.wear.tiles.proto.ResourceProto.InlineImageResource);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ResourceProto.InlineImageResource toProto();
   }
 
   public static final class ResourceBuilders.InlineImageResource.Builder {
@@ -794,8 +644,6 @@ package androidx.wear.tiles.builders {
 
   public static final class ResourceBuilders.Resources {
     method public static androidx.wear.tiles.builders.ResourceBuilders.Resources.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.ResourceBuilders.Resources fromProto(androidx.wear.tiles.proto.ResourceProto.Resources);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.ResourceProto.Resources toProto();
   }
 
   public static final class ResourceBuilders.Resources.Builder {
@@ -810,9 +658,7 @@ package androidx.wear.tiles.builders {
 
   public static final class StateBuilders.State {
     method public static androidx.wear.tiles.builders.StateBuilders.State.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.StateBuilders.State fromProto(androidx.wear.tiles.proto.StateProto.State);
     method public String getLastClickableId();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.StateProto.State toProto();
   }
 
   public static final class StateBuilders.State.Builder {
@@ -825,8 +671,6 @@ package androidx.wear.tiles.builders {
 
   public static final class TileBuilders.Tile {
     method public static androidx.wear.tiles.builders.TileBuilders.Tile.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.TileBuilders.Tile fromProto(androidx.wear.tiles.proto.TileProto.Tile);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.TileProto.Tile toProto();
   }
 
   public static final class TileBuilders.Tile.Builder {
@@ -842,8 +686,6 @@ package androidx.wear.tiles.builders {
 
   public static final class TimelineBuilders.TimeInterval {
     method public static androidx.wear.tiles.builders.TimelineBuilders.TimeInterval.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.TimelineBuilders.TimeInterval fromProto(androidx.wear.tiles.proto.TimelineProto.TimeInterval);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.TimelineProto.TimeInterval toProto();
   }
 
   public static final class TimelineBuilders.TimeInterval.Builder {
@@ -854,8 +696,6 @@ package androidx.wear.tiles.builders {
 
   public static final class TimelineBuilders.Timeline {
     method public static androidx.wear.tiles.builders.TimelineBuilders.Timeline.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.TimelineBuilders.Timeline fromProto(androidx.wear.tiles.proto.TimelineProto.Timeline);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.TimelineProto.Timeline toProto();
   }
 
   public static final class TimelineBuilders.Timeline.Builder {
@@ -866,8 +706,6 @@ package androidx.wear.tiles.builders {
 
   public static final class TimelineBuilders.TimelineEntry {
     method public static androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry.Builder builder();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.tiles.builders.TimelineBuilders.TimelineEntry fromProto(androidx.wear.tiles.proto.TimelineProto.TimelineEntry);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.TimelineProto.TimelineEntry toProto();
   }
 
   public static final class TimelineBuilders.TimelineEntry.Builder {

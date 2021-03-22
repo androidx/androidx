@@ -83,6 +83,7 @@ public class ResourceAccessors {
 
     /** Get the drawable corresponding to the given resource ID. */
     @NonNull
+    @SuppressLint("RestrictedApi") // TODO(b/183006740): Remove when prefix check is fixed.
     public ListenableFuture<Drawable> getDrawable(@NonNull String protoResourceId) {
         ResolvableFuture<Drawable> errorFuture = ResolvableFuture.create();
         ResourceProto.ImageResource imageResource =

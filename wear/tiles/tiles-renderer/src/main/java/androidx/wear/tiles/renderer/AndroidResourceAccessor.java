@@ -16,6 +16,7 @@
 
 package androidx.wear.tiles.renderer;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 import android.graphics.drawable.Drawable;
@@ -49,6 +50,7 @@ public class AndroidResourceAccessor
 
     @Override
     @NonNull
+    @SuppressLint("RestrictedApi") // TODO(b/183006740): Remove when prefix check is fixed.
     public ListenableFuture<Drawable> getDrawable(@NonNull AndroidImageResourceByResId resource) {
         ResolvableFuture<Drawable> future = ResolvableFuture.create();
         try {
