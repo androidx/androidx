@@ -96,12 +96,12 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
      * Map of complication ids to [ComplicationState] for each complication slot. Note
      * this can change, typically in response to styling.
      */
-    public val complicationState: Map<Int, ComplicationState>
+    public val complicationsState: Map<Int, ComplicationState>
 
     /** Returns the ID of the complication at the given coordinates or `null` if there isn't one.*/
     @SuppressWarnings("AutoBoxing")
     public fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? =
-        complicationState.asSequence().firstOrNull {
+        complicationsState.asSequence().firstOrNull {
             it.value.isEnabled && when (it.value.boundsType) {
                 ComplicationBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
                 ComplicationBoundsType.BACKGROUND -> false
@@ -177,7 +177,7 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
     override val userStyleSchema: UserStyleSchema
         get() = UserStyleSchema(iInteractiveWatchFaceWcs.userStyleSchema)
 
-    override val complicationState: Map<Int, ComplicationState>
+    override val complicationsState: Map<Int, ComplicationState>
         get() = iInteractiveWatchFaceWcs.complicationDetails.associateBy(
             { it.id },
             { ComplicationState(it.complicationState) }

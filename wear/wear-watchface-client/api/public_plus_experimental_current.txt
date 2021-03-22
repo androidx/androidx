@@ -62,12 +62,12 @@ package androidx.wear.watchface.client {
   }
 
   public interface HeadlessWatchFaceClient extends java.lang.AutoCloseable {
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationsState();
     method public long getPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method @RequiresApi(27) public android.graphics.Bitmap? takeComplicationScreenshot(int complicationId, androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.complications.data.ComplicationData complicationData, androidx.wear.watchface.style.UserStyle? userStyle);
     method @RequiresApi(27) public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
-    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationState;
+    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationsState;
     property public abstract long previewReferenceTimeMillis;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
   }
@@ -107,7 +107,7 @@ package androidx.wear.watchface.client {
   public interface InteractiveWatchFaceWcsClient extends java.lang.AutoCloseable {
     method public void bringAttentionToComplication(int complicationId);
     method public default Integer? getComplicationIdAt(@Px int x, @Px int y);
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationsState();
     method public String getInstanceId();
     method public long getPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
@@ -115,7 +115,7 @@ package androidx.wear.watchface.client {
     method public void updateComplicationData(java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData> idToComplicationData);
     method public void updateInstance(String newInstanceId, androidx.wear.watchface.style.UserStyle userStyle);
     method public void updateInstance(String newInstanceId, java.util.Map<java.lang.String,java.lang.String> userStyle);
-    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationState;
+    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationsState;
     property public abstract String instanceId;
     property public abstract long previewReferenceTimeMillis;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;

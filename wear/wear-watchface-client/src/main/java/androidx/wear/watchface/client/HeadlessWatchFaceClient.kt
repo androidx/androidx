@@ -47,7 +47,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * Map of complication ids to [ComplicationState] for each complication slot. Note this can
      * change, typically in response to styling.
      */
-    public val complicationState: Map<Int, ComplicationState>
+    public val complicationsState: Map<Int, ComplicationState>
 
     /**
      * Requests a shared memory backed [Bitmap] containing a screenshot of the watch face with the
@@ -101,7 +101,7 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
     override val userStyleSchema: UserStyleSchema
         get() = UserStyleSchema(iHeadlessWatchFace.userStyleSchema)
 
-    override val complicationState: Map<Int, ComplicationState>
+    override val complicationsState: Map<Int, ComplicationState>
         get() = iHeadlessWatchFace.complicationState.associateBy(
             { it.id },
             { ComplicationState(it.complicationState) }
