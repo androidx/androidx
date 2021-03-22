@@ -160,4 +160,28 @@ public class FragmentStrictModeTest {
         StrictFragment().userVisibleHint = true
         assertThat(violation).isInstanceOf(SetUserVisibleHintViolation::class.java)
     }
+
+    @Test
+    public fun detectTargetFragmentUsage() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectTargetFragmentUsage()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        @Suppress("DEPRECATION")
+        StrictFragment().setTargetFragment(StrictFragment(), 1)
+        assertThat(violation).isInstanceOf(TargetFragmentUsageViolation::class.java)
+
+        violation = null
+        @Suppress("DEPRECATION")
+        StrictFragment().targetFragment
+        assertThat(violation).isInstanceOf(TargetFragmentUsageViolation::class.java)
+
+        violation = null
+        @Suppress("DEPRECATION")
+        StrictFragment().targetRequestCode
+        assertThat(violation).isInstanceOf(TargetFragmentUsageViolation::class.java)
+    }
 }
