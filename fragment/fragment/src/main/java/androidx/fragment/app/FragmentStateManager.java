@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.R;
+import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 class FragmentStateManager {
@@ -478,6 +479,9 @@ class FragmentStateManager {
             }
             FragmentContainer fragmentContainer = mFragment.mFragmentManager.getContainer();
             container = (ViewGroup) fragmentContainer.onFindViewById(mFragment.mContainerId);
+            if (!(container instanceof FragmentContainerView)) {
+                FragmentStrictMode.onWrongFragmentContainer(mFragment);
+            }
             if (container == null && !mFragment.mRestored) {
                 String resName;
                 try {
