@@ -27,6 +27,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.model.OnInputCompletedDelegate;
+import androidx.car.app.model.OnInputCompletedListener;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,7 +47,7 @@ public class InputSignInMethodTest {
     public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock
-    InputSignInMethod.OnInputCompletedListener mListener;
+    OnInputCompletedListener mListener;
 
     @Test
     public void create_defaultValues() {

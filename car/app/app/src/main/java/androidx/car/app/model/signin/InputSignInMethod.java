@@ -31,6 +31,9 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarText;
+import androidx.car.app.model.OnInputCompletedDelegate;
+import androidx.car.app.model.OnInputCompletedDelegateImpl;
+import androidx.car.app.model.OnInputCompletedListener;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -45,19 +48,6 @@ import java.util.Objects;
 @ExperimentalCarApi
 @RequiresCarApi(2)
 public final class InputSignInMethod implements SignInTemplate.SignInMethod {
-    /** A listener for handling text input completion event. */
-    public interface OnInputCompletedListener {
-        /**
-         * Notifies when the user finished entering text in an input box.
-         *
-         * <p>This event is sent when the user finishes typing in the keyboard and pressed enter.
-         * If the user simply stops typing and closes the keyboard, this event will not be sent.
-         *
-         * @param text the text that was entered, or an empty string if no text was typed.
-         */
-        void onInputCompleted(@NonNull String text);
-    }
-
     /**
      * The type of input represented by the {@link InputSignInMethod} instance.
      *

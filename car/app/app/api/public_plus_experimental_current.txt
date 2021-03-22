@@ -481,6 +481,14 @@ package androidx.car.app.model {
     method public void onClick();
   }
 
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public interface OnInputCompletedDelegate {
+    method public void sendInputCompleted(String, androidx.car.app.OnDoneCallback);
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public interface OnInputCompletedListener {
+    method public void onInputCompleted(String);
+  }
+
   public interface OnItemVisibilityChangedDelegate {
     method public void sendItemVisibilityChanged(int, int, androidx.car.app.OnDoneCallback);
   }
@@ -694,7 +702,7 @@ package androidx.car.app.model.signin {
     method public androidx.car.app.model.CarText? getHint();
     method public int getInputType();
     method public int getKeyboardType();
-    method public androidx.car.app.model.signin.OnInputCompletedDelegate getOnInputCompletedDelegate();
+    method public androidx.car.app.model.OnInputCompletedDelegate getOnInputCompletedDelegate();
     method public boolean isShowKeyboardByDefault();
     field public static final int INPUT_TYPE_DEFAULT = 1; // 0x1
     field public static final int INPUT_TYPE_PASSWORD = 2; // 0x2
@@ -705,7 +713,7 @@ package androidx.car.app.model.signin {
   }
 
   public static final class InputSignInMethod.Builder {
-    ctor public InputSignInMethod.Builder(androidx.car.app.model.signin.InputSignInMethod.OnInputCompletedListener);
+    ctor public InputSignInMethod.Builder(androidx.car.app.model.OnInputCompletedListener);
     method public androidx.car.app.model.signin.InputSignInMethod build();
     method public androidx.car.app.model.signin.InputSignInMethod.Builder setDefaultValue(String);
     method public androidx.car.app.model.signin.InputSignInMethod.Builder setErrorMessage(CharSequence);
@@ -713,14 +721,6 @@ package androidx.car.app.model.signin {
     method public androidx.car.app.model.signin.InputSignInMethod.Builder setInputType(int);
     method public androidx.car.app.model.signin.InputSignInMethod.Builder setKeyboardType(int);
     method public androidx.car.app.model.signin.InputSignInMethod.Builder setShowKeyboardByDefault(boolean);
-  }
-
-  public static interface InputSignInMethod.OnInputCompletedListener {
-    method public void onInputCompleted(String);
-  }
-
-  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public interface OnInputCompletedDelegate {
-    method public void sendInputCompleted(String, androidx.car.app.OnDoneCallback);
   }
 
   @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public final class PinSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {

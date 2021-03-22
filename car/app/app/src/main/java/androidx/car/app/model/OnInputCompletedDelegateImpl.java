@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app.model.signin;
+package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
@@ -30,7 +30,6 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.ExperimentalCarApi;
-import androidx.car.app.model.signin.InputSignInMethod.OnInputCompletedListener;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
@@ -57,10 +56,11 @@ public class OnInputCompletedDelegateImpl implements OnInputCompletedDelegate {
         }
     }
 
+    /** Creates an instance of {@link OnInputCompletedDelegateImpl}. */
     // This mirrors the AIDL class and is not supposed to support an executor as an input.
     @SuppressLint("ExecutorRegistration")
     @NonNull
-    static OnInputCompletedDelegate create(@NonNull OnInputCompletedListener listener) {
+    public static OnInputCompletedDelegate create(@NonNull OnInputCompletedListener listener) {
         return new OnInputCompletedDelegateImpl(requireNonNull(listener));
     }
 
