@@ -418,6 +418,23 @@ package androidx.car.app.model {
     method public androidx.car.app.model.ListTemplate.Builder setTitle(CharSequence);
   }
 
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public final class LongMessageTemplate implements androidx.car.app.model.Template {
+    method public androidx.car.app.model.ActionStrip? getActionStrip();
+    method public java.util.List<androidx.car.app.model.Action!> getActions();
+    method public androidx.car.app.model.Action? getHeaderAction();
+    method public androidx.car.app.model.CarText getMessage();
+    method public androidx.car.app.model.CarText? getTitle();
+  }
+
+  public static final class LongMessageTemplate.Builder {
+    ctor public LongMessageTemplate.Builder(CharSequence);
+    method public androidx.car.app.model.LongMessageTemplate.Builder addAction(androidx.car.app.model.Action);
+    method public androidx.car.app.model.LongMessageTemplate build();
+    method public androidx.car.app.model.LongMessageTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method public androidx.car.app.model.LongMessageTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
+    method public androidx.car.app.model.LongMessageTemplate.Builder setTitle(CharSequence);
+  }
+
   public final class MessageTemplate implements androidx.car.app.model.Template {
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.CarText? getDebugMessage();
