@@ -1275,6 +1275,13 @@ public open class NavController(
         onBackPressedCallback.remove()
         // Then add it to the new dispatcher
         dispatcher.addCallback(lifecycleOwner!!, onBackPressedCallback)
+
+        // Make sure that listener for updating the NavBackStackEntry lifecycles comes after
+        // the dispatcher
+        lifecycleOwner!!.lifecycle.apply {
+            removeObserver(lifecycleObserver)
+            addObserver(lifecycleObserver)
+        }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
