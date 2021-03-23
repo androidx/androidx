@@ -26,6 +26,7 @@ plugins {
 
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
+    implementation(AUTO_COMMON)
     implementation(JAVAPOET)
 
     // For testing, add in the compiled classes from appsearch to get access to annotations.
