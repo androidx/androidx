@@ -27,6 +27,9 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.support.wearable.authentication.IAuthenticationRequestCallback
 import android.support.wearable.authentication.IAuthenticationRequestService
+import androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion.KEY_ERROR_CODE
+import androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion.KEY_PACKAGE_NAME
+import androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion.KEY_RESPONSE_URL
 import java.security.SecureRandom
 
 /**
@@ -79,7 +82,7 @@ public abstract class RemoteAuthService : Service() {
     public companion object {
         @JvmStatic
         private val callbacksByPackageNameAndRequestID:
-            MutableMap<Pair<String, Int>, RemoteAuthClient.RequestCallback> = HashMap()
+            MutableMap<Pair<String, Int>, IAuthenticationRequestCallback> = HashMap()
 
         /**
          * To be called by the child class to invoke the callback with Response
@@ -91,7 +94,9 @@ public abstract class RemoteAuthService : Service() {
             packageNameAndRequestId: Pair<String, Int>
         ) {
             try {
-                callbacksByPackageNameAndRequestID[packageNameAndRequestId]?.onResult(response)
+                callbacksByPackageNameAndRequestID[packageNameAndRequestId]?.onResult(
+                    buildBundleFromResponse(response, packageNameAndRequestId.first)
+                )
                 callbacksByPackageNameAndRequestID.remove(packageNameAndRequestId)
             } catch (e: RemoteException) {
                 throw e.cause!!
@@ -99,8 +104,15 @@ public abstract class RemoteAuthService : Service() {
         }
 
         internal fun getCallback(packageNameAndRequestId: Pair<String, Int>):
-            RemoteAuthClient.RequestCallback? =
+            IAuthenticationRequestCallback? =
                 callbacksByPackageNameAndRequestID[packageNameAndRequestId]
+
+        internal fun buildBundleFromResponse(response: OAuthResponse, packageName: String): Bundle =
+            Bundle().apply {
+                putParcelable(KEY_RESPONSE_URL, response.getResponseUrl())
+                putInt(KEY_ERROR_CODE, response.getErrorCode())
+                putString(KEY_PACKAGE_NAME, packageName)
+            }
     }
 
     private val secureRandom: SecureRandom = SecureRandom()
@@ -151,15 +163,15 @@ public abstract class RemoteAuthService : Service() {
             request: Bundle,
             authenticationRequestCallback: IAuthenticationRequestCallback
         ) {
+            val packageName = request.getString(RemoteAuthClient.KEY_PACKAGE_NAME)
             if (remoteAuthRequestHandler.isAuthSupported()) {
-                val packageName = request.getString(RemoteAuthClient.KEY_PACKAGE_NAME)
                 if (!verifyPackageName(context, packageName)) {
                     throw SecurityException("Failed to verify the Requester's package name")
                 }
 
                 val packageNameAndRequestId = Pair(packageName!!, secureRandom.nextInt())
                 callbacksByPackageNameAndRequestID[packageNameAndRequestId] =
-                    authenticationRequestCallback as RemoteAuthClient.RequestCallback
+                    authenticationRequestCallback
 
                 val requestUrl: Uri? = request.getParcelable(RemoteAuthClient.KEY_REQUEST_URL)
                 remoteAuthRequestHandler.sendAuthRequest(
@@ -167,9 +179,8 @@ public abstract class RemoteAuthService : Service() {
                     packageNameAndRequestId
                 )
             } else {
-                (authenticationRequestCallback as RemoteAuthClient.RequestCallback).onResult(
-                    OAuthResponse.Builder()
-                        .setErrorCode(RemoteAuthClient.ERROR_UNSUPPORTED).build()
+                authenticationRequestCallback.onResult(
+                    Bundle().apply { putInt(KEY_ERROR_CODE, RemoteAuthClient.ERROR_UNSUPPORTED) }
                 )
             }
         }
