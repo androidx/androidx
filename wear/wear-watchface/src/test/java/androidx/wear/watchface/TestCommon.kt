@@ -179,6 +179,10 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
             watchFaceComplicationId, providers, fallbackSystemProvider, type
         )
     }
+
+    override fun reserved8() {
+        iWatchFaceService.reserved8()
+    }
 }
 
 open class TestRenderer(
