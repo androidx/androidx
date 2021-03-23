@@ -134,13 +134,13 @@ public class RemoteAuthClient internal constructor(
             "android.support.wearable.authentication.action.OAUTH"
 
         /** Indicates 3p authentication is finished without error  */
-        public const val NO_ERROR: Int = 0
+        public const val NO_ERROR: Int = -1
 
         /** Indicates 3p authentication isn't supported by Wear OS  */
-        public const val ERROR_UNSUPPORTED: Int = 1
+        public const val ERROR_UNSUPPORTED: Int = 0
 
         /** Indicates no phone is connected, or the phone connected doesn't support 3p auth */
-        public const val ERROR_PHONE_UNAVAILABLE: Int = 2
+        public const val ERROR_PHONE_UNAVAILABLE: Int = 1
 
         /** Errors returned in [.Callback.onAuthorizationError].  */
         @Retention(AnnotationRetention.SOURCE)
@@ -339,7 +339,7 @@ public class RemoteAuthClient internal constructor(
         }
 
         @SuppressLint("SyntheticAccessor")
-        internal fun onResult(response: OAuthResponse) {
+        private fun onResult(response: OAuthResponse) {
             @ErrorCode val error = response.getErrorCode()
             uiThreadExecutor.execute(
                 Runnable {
