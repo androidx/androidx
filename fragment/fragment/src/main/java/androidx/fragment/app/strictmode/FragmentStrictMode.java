@@ -51,6 +51,7 @@ public final class FragmentStrictMode {
         PENALTY_LOG,
         PENALTY_DEATH,
 
+        DETECT_FRAGMENT_REUSE,
         DETECT_FRAGMENT_TAG_USAGE,
         DETECT_RETAIN_INSTANCE_USAGE,
         DETECT_SET_USER_VISIBLE_HINT,
@@ -145,6 +146,17 @@ public final class FragmentStrictMode {
                 return this;
             }
 
+            /**
+             * Detects cases, where a #{@link Fragment} instance is reused, after it was previously
+             * removed from a #{@link FragmentManager}.
+             */
+            @NonNull
+            @SuppressLint("BuilderSetStyle")
+            public Builder detectFragmentReuse() {
+                flags.add(Flag.DETECT_FRAGMENT_REUSE);
+                return this;
+            }
+
             /** Detects usage of the &lt;fragment&gt; tag inside XML layouts. */
             @NonNull
             @SuppressLint("BuilderSetStyle")
@@ -226,6 +238,14 @@ public final class FragmentStrictMode {
             fragment = fragment.getParentFragment();
         }
         return defaultPolicy;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onFragmentReuse(@NonNull Fragment fragment) {
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.flags.contains(Flag.DETECT_FRAGMENT_REUSE)) {
+            handlePolicyViolation(fragment, policy, new FragmentReuseViolation());
+        }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
