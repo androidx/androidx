@@ -130,14 +130,14 @@ public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
                                     "ProviderApp1",
                                     "Provider1",
                                     providerIcon1,
-                                    ComplicationType.SHORT_TEXT.asWireComplicationType(),
+                                    ComplicationType.SHORT_TEXT.toWireComplicationType(),
                                     provider1
                                 ),
                                 RIGHT_COMPLICATION_ID to ComplicationProviderInfo(
                                     "ProviderApp2",
                                     "Provider2",
                                     providerIcon2,
-                                    ComplicationType.LONG_TEXT.asWireComplicationType(),
+                                    ComplicationType.LONG_TEXT.toWireComplicationType(),
                                     provider2
                                 )
                             ),
@@ -220,7 +220,7 @@ public class TestComplicationHelperActivity : Activity() {
                         Icon.createWithBitmap(
                             Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
                         ),
-                        ComplicationType.LONG_TEXT.asWireComplicationType(),
+                        ComplicationType.LONG_TEXT.toWireComplicationType(),
                         provider3
                     )
                 )

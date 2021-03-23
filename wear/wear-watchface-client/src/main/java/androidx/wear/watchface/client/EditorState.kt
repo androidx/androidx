@@ -20,7 +20,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.complications.data.asApiComplicationData
+import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.UserStyle
 
@@ -71,7 +71,7 @@ public fun EditorStateWireFormat.asApiEditorState(): EditorState {
         userStyle.mUserStyle,
         previewComplicationData.associateBy(
             { it.id },
-            { it.complicationData.asApiComplicationData() }
+            { it.complicationData.toApiComplicationData() }
         ),
         commitChanges
     )
