@@ -69,11 +69,9 @@ internal object CpuInfo {
             )
         } ?: emptyList()
 
-        @Suppress("DEPRECATION")
-        // TODO: Rename `max`->`maxOrNull` when all of androidx (not just compose) uses Kotlin 1.4
         maxFreqHz = coreDirs
             .filter { it.maxFreqKhz != -1L }
-            .maxBy { it.maxFreqKhz }
+            .maxByOrNull { it.maxFreqKhz }
             ?.maxFreqKhz?.times(1000) ?: -1
 
         locked = isCpuLocked(coreDirs)
@@ -85,9 +83,10 @@ internal object CpuInfo {
     fun isCpuLocked(coreDirs: List<CoreDir>): Boolean {
         val onlineCores = coreDirs.filter { it.online }
 
-        @Suppress("DEPRECATION")
-        // TODO: Rename `max`->`maxOrNull` when all of androidx (not just compose) uses Kotlin 1.4
-        if (onlineCores.any { it.availableFreqs.max() != onlineCores[0].availableFreqs.max() }) {
+        if (onlineCores.any {
+            it.availableFreqs.maxOrNull() != onlineCores[0].availableFreqs.maxOrNull()
+        }
+        ) {
             Log.d(TAG, "Clocks not locked: cores with different max frequencies")
             return false
         }
@@ -97,9 +96,7 @@ internal object CpuInfo {
             return false
         }
 
-        @Suppress("DEPRECATION")
-        // TODO: Rename `min`->`minOrNull` when all of androidx (not just compose) uses Kotlin 1.4
-        if (onlineCores.any { it.availableFreqs.min() == it.currentMinFreq }) {
+        if (onlineCores.any { it.availableFreqs.minOrNull() == it.currentMinFreq }) {
             Log.d(TAG, "Clocks not locked: online cores with min freq == min avail freq")
             return false
         }

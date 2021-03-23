@@ -19,11 +19,11 @@ dexmaker = "2.25.0"
 espresso = "3.3.0"
 hilt = "2.35"
 incap = "0.2"
-kotlin = "1.4.32"
+kotlin = "1.5.0"
 kotlinCompileTesting = "1.3.6"
 kotlinCoroutines = "1.4.3"
 kotlinPoet = "1.4.0"
-ksp = "1.4.32-1.0.0-alpha08"
+ksp = "1.5.0-1.0.0-alpha09"
 leakcanary = "2.2"
 mockito = "2.25.0"
 sqldelight = "1.3.0"
@@ -103,6 +103,7 @@ kotlinPoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinPoet" }
 kotlinPoetMetadata = { module = "com.squareup:kotlinpoet-metadata", version.ref = "kotlinPoet" }
 kotlinPoetMetadataSpecs = { module = "com.squareup:kotlinpoet-metadata-specs", version.ref = "kotlinPoet" }
 kotlinPoetClassinspector = { module = "com.squareup:kotlinpoet-classinspector-elements", version.ref = "kotlinPoet" }
+kgpLeakPatcher = { module = "dev.zacsweers:kgp-150-leak-patcher", version="1.1.0" }
 ksp = { module = "com.google.devtools.ksp:symbol-processing", version.ref = "ksp" }
 kspApi = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 kspGradlePlugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }

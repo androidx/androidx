@@ -34,6 +34,7 @@ class NavArgumentResolverTest {
     private fun id(id: String) = ResReference("a.b", "id", id)
 
     private fun createTemplateDestination(name: String) =
+        @Suppress("DEPRECATION") // b/187985877
         Destination(
             id(name), ClassName.get("foo", "Fragment${name.capitalize()}"), "test",
             listOf(

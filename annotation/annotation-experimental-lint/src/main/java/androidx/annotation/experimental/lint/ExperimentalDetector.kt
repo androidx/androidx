@@ -233,7 +233,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         const val JAVA_OPT_IN_ANNOTATION =
             "androidx.annotation.OptIn"
 
-        @Suppress("DefaultLocale")
+        @Suppress("DefaultLocale", "DEPRECATION") // b/187985877
         private fun issueForLevel(level: String, severity: Severity): Issue = Issue.create(
             id = "UnsafeOptInUsage${level.capitalize()}",
             briefDescription = "Unsafe opt-in usage intended to be $level-level severity",

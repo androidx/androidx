@@ -28,6 +28,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-espresso"))
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-common"))
+    androidTestImplementation(MULTIDEX)
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
@@ -45,6 +46,7 @@ android {
     }
 
     defaultConfig {
+        multiDexEnabled = true
         testInstrumentationRunner "androidx.testutils.ActivityRecyclingAndroidJUnitRunner"
     }
 }

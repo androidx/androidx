@@ -42,11 +42,11 @@ class ProjectionExpander(
 
     private class IdentifierMap<V> : HashMap<String, V>() {
         override fun put(key: String, value: V): V? {
-            return super.put(key.toLowerCase(Locale.ENGLISH), value)
+            return super.put(key.lowercase(Locale.ENGLISH), value)
         }
 
         override fun get(key: String): V? {
-            return super.get(key.toLowerCase(Locale.ENGLISH))
+            return super.get(key.lowercase(Locale.ENGLISH))
         }
     }
 
@@ -116,7 +116,7 @@ class ProjectionExpander(
             .map { (name, alias) -> alias to name }
             .toMap(IdentifierMap())
         val nameToAlias = query.tables
-            .groupBy { it.name.toLowerCase(Locale.ENGLISH) }
+            .groupBy { it.name.lowercase(Locale.ENGLISH) }
             .filter { (_, pairs) -> pairs.size == 1 }
             .map { (name, pairs) -> name to pairs.first().alias }
             .toMap(IdentifierMap())
@@ -195,7 +195,7 @@ class ProjectionExpander(
             }.map { field ->
                 if (table != null && table is Entity) {
                     // Should not happen when defining a view
-                    val tableAlias = nameToAlias[table.tableName.toLowerCase(Locale.ENGLISH)]
+                    val tableAlias = nameToAlias[table.tableName.lowercase(Locale.ENGLISH)]
                         ?: table.tableName
                     "`$tableAlias`.`${field.columnName}` AS `${field.columnName}`"
                 } else {

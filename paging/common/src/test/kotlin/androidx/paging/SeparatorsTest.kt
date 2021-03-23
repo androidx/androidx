@@ -2090,7 +2090,7 @@ class SeparatorsTest {
             if (after == null) {
                 "END"
             } else if (before == null || before.first() != after.first()) {
-                after.first().toUpperCase().toString()
+                after.first().uppercaseChar().toString()
             } else null
         }
     }

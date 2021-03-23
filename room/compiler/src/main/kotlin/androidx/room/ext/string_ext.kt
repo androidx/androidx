@@ -51,14 +51,14 @@ fun String.stripNonJava(): String {
 
 // TODO: Replace this with the function from the Kotlin stdlib once the API becomes stable
 fun String.capitalize(locale: Locale): String = if (isNotEmpty() && this[0].isLowerCase()) {
-    substring(0, 1).toUpperCase(locale) + substring(1)
+    substring(0, 1).uppercase(locale) + substring(1)
 } else {
     this
 }
 
 // TODO: Replace this with the function from the Kotlin stdlib once the API becomes stable
 fun String.decapitalize(locale: Locale): String = if (isNotEmpty() && this[0].isUpperCase()) {
-    substring(0, 1).toLowerCase(locale) + substring(1)
+    substring(0, 1).lowercase(locale) + substring(1)
 } else {
     this
 }
