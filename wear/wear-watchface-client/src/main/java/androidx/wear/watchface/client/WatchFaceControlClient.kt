@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import androidx.annotation.Px
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
@@ -134,8 +135,8 @@ public interface WatchFaceControlClient : AutoCloseable {
     public fun createHeadlessWatchFaceClient(
         watchFaceName: ComponentName,
         deviceConfig: DeviceConfig,
-        surfaceWidth: Int,
-        surfaceHeight: Int
+        @Px surfaceWidth: Int,
+        @Px surfaceHeight: Int
     ): HeadlessWatchFaceClient?
 
     /**
