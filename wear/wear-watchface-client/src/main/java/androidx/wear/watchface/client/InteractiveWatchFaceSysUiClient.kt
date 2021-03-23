@@ -40,9 +40,9 @@ import java.util.Objects
  * @hide
  */
 @IntDef(
-    InteractiveWatchFaceSysUiClient.TAP_TYPE_TOUCH,
-    InteractiveWatchFaceSysUiClient.TAP_TYPE_TOUCH_CANCEL,
-    InteractiveWatchFaceSysUiClient.TAP_TYPE_TAP
+    InteractiveWatchFaceSysUiClient.TAP_TYPE_DOWN,
+    InteractiveWatchFaceSysUiClient.TAP_TYPE_CANCEL,
+    InteractiveWatchFaceSysUiClient.TAP_TYPE_UP
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public annotation class TapType
@@ -57,21 +57,20 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
 
     public companion object {
         /** Indicates a "down" touch event on the watch face. */
-        public const val TAP_TYPE_TOUCH: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH
+        public const val TAP_TYPE_DOWN: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_DOWN
 
         /**
-         * Indicates that a previous TAP_TYPE_TOUCH event has been canceled. This generally happens
+         * Indicates that a previous [TAP_TYPE_DOWN] event has been canceled. This generally happens
          * when the watch face is touched but then a move or long press occurs.
          */
-        public const val TAP_TYPE_TOUCH_CANCEL: Int =
-            IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH_CANCEL
+        public const val TAP_TYPE_CANCEL: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_CANCEL
 
         /**
          * Indicates that an "up" event on the watch face has occurred that has not been consumed by
-         * another activity. A TAP_TYPE_TOUCH always occur first. This event will not occur if a
-         * TAP_TYPE_TOUCH_CANCEL is sent.
+         * another activity. A [TAP_TYPE_DOWN] always occur first. This event will not occur if a
+         * [TAP_TYPE_CANCEL] is sent.
          */
-        public const val TAP_TYPE_TAP: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_TAP
+        public const val TAP_TYPE_UP: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_UP
     }
 
     /**

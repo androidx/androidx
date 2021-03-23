@@ -93,29 +93,31 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
 /** @hide */
 @IntDef(
     value = [
-        TapType.TOUCH,
-        TapType.TOUCH_CANCEL,
-        TapType.TAP
+        TapType.DOWN,
+        TapType.UP,
+        TapType.CANCEL
     ]
 )
 public annotation class TapType {
     public companion object {
-        /** Used in [WatchFaceImpl#onTapCommand] to indicate a "down" touch event on the watch face. */
-        public const val TOUCH: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH
+        /**
+         * Used in [WatchFaceImpl#onTapCommand] to indicate a "down" touch event on the watch face.
+         */
+        public const val DOWN: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_DOWN
 
         /**
-         * Used in [WatchFaceImpl#onTapCommand] to indicate that a previous TapType.TOUCH touch event
-         * has been canceled. This generally happens when the watch face is touched but then a
+         * Used in [WatchFaceImpl#onTapCommand] to indicate that a previous [TapType.DOWN] touch
+         * event has been canceled. This generally happens when the watch face is touched but then a
          * move or long press occurs.
          */
-        public const val TOUCH_CANCEL: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH_CANCEL
+        public const val CANCEL: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_CANCEL
 
         /**
          * Used in [WatchFaceImpl#onTapCommand] to indicate that an "up" event on the watch face has
-         * occurred that has not been consumed by another activity. A TapType.TOUCH will always
-         * occur first. This event will not occur if a TapType.TOUCH_CANCEL is sent.
+         * occurred that has not been consumed by another activity. A [TapType.DOWN] will always
+         * occur first. This event will not occur if a [TapType.CANCEL] is sent.
          */
-        public const val TAP: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_TAP
+        public const val UP: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_UP
     }
 }
 
@@ -827,15 +829,15 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 Constants.COMMAND_TAP ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_TAP") {
-                        sendTouchEvent(x, y, TapType.TAP)
+                        sendTouchEvent(x, y, TapType.UP)
                     }
                 Constants.COMMAND_TOUCH ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_TOUCH") {
-                        sendTouchEvent(x, y, TapType.TOUCH)
+                        sendTouchEvent(x, y, TapType.DOWN)
                     }
                 Constants.COMMAND_TOUCH_CANCEL ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_TOUCH_CANCEL") {
-                        sendTouchEvent(x, y, TapType.TOUCH_CANCEL)
+                        sendTouchEvent(x, y, TapType.CANCEL)
                     }
                 else -> {
                 }
