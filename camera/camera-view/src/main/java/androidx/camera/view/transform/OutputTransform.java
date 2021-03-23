@@ -16,6 +16,8 @@
 
 package androidx.camera.view.transform;
 
+import static androidx.camera.view.TransformUtils.NORMALIZED_RECT;
+
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -40,9 +42,6 @@ import androidx.camera.view.TransformExperimental;
 @TransformExperimental
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class OutputTransform {
-
-    // Normalized space that maps to the viewport rect.
-    private static final RectF NORMALIZED_RECT = new RectF(0, 0, 1, 1);
 
     @NonNull
     final Matrix mMatrix;
