@@ -59,7 +59,8 @@ interface IInteractiveWatchFaceWCS {
      *
      * @since API version 1.
      */
-    oneway void updateComplicationData(in List<IdAndComplicationDataWireFormat> complicationData) = 4;
+    oneway void updateComplicationData(
+            in List<IdAndComplicationDataWireFormat> complicationData) = 4;
 
     /**
      * Renames this instance to newInstanceId, sets the current user style
@@ -68,7 +69,8 @@ interface IInteractiveWatchFaceWCS {
      *
      * @since API version 1.
      */
-    oneway void updateInstance(in String newInstanceId, in UserStyleWireFormat userStyle) = 5;
+    oneway void updateWatchfaceInstance(
+            in String newInstanceId, in UserStyleWireFormat userStyle) = 5;
 
     /**
      * Returns the reference preview time for this watch face in milliseconds since the epoch.

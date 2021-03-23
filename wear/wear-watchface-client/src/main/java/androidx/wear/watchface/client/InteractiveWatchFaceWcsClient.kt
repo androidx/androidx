@@ -75,7 +75,7 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
      * any complication data. Setting the new UserStyle may have a side effect of enabling or
      * disabling complications, which will be visible via [ComplicationState.isEnabled].
      */
-    public fun updateInstance(newInstanceId: String, userStyle: UserStyle)
+    public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyle)
 
     /**
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
@@ -84,7 +84,7 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
      * a side effect of enabling or disabling complications, which will be visible via
      * [ComplicationState.isEnabled].
      */
-    public fun updateInstance(newInstanceId: String, userStyle: Map<String, String>)
+    public fun updateWatchFaceInstance(newInstanceId: String, userStyle: Map<String, String>)
 
     /** Returns the ID of this watch face instance. */
     public val instanceId: String
@@ -158,16 +158,22 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
     override val previewReferenceTimeMillis: Long
         get() = iInteractiveWatchFaceWcs.previewReferenceTimeMillis
 
-    override fun updateInstance(newInstanceId: String, userStyle: UserStyle) = TraceEvent(
+    override fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyle) = TraceEvent(
         "InteractiveWatchFaceWcsClientImpl.updateInstance"
     ).use {
-        iInteractiveWatchFaceWcs.updateInstance(newInstanceId, userStyle.toWireFormat())
+        iInteractiveWatchFaceWcs.updateWatchfaceInstance(newInstanceId, userStyle.toWireFormat())
     }
 
-    override fun updateInstance(newInstanceId: String, userStyle: Map<String, String>) = TraceEvent(
+    override fun updateWatchFaceInstance(
+        newInstanceId: String,
+        userStyle: Map<String, String>
+    ) = TraceEvent(
         "InteractiveWatchFaceWcsClientImpl.updateInstance"
     ).use {
-        iInteractiveWatchFaceWcs.updateInstance(newInstanceId, UserStyleWireFormat(userStyle))
+        iInteractiveWatchFaceWcs.updateWatchfaceInstance(
+            newInstanceId,
+            UserStyleWireFormat(userStyle)
+        )
     }
 
     override val instanceId: String
