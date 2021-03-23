@@ -265,6 +265,12 @@ public interface WorkSpecDao {
     List<String> getAllUnfinishedWork();
 
     /**
+     * @return {@code true} if there is pending work.
+     */
+    @Query("SELECT COUNT(*) > 0 FROM workspec WHERE state NOT IN " + COMPLETED_STATES + " LIMIT 1")
+    boolean hasUnfinishedWork();
+
+    /**
      * Marks a {@link WorkSpec} as scheduled.
      *
      * @param id        The identifier for the {@link WorkSpec}
