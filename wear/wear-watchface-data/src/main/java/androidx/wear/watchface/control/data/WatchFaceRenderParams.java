@@ -19,7 +19,6 @@ package androidx.wear.watchface.control.data;
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.wearable.complications.ComplicationData;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,67 +27,58 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.RenderParametersWireFormat;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
+import java.util.List;
+
 /**
- * Parameters for the various AIDL takeComplicationScreenshot commands.
+ * Parameters for the various takeWatchfaceScreenshot AIDL methods.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
-public class ComplicationScreenshotParams implements VersionedParcelable, Parcelable {
-
-    /** ID of the complication we want to take a screen short of. */
-    @ParcelField(1)
-    int mComplicationId;
-
+public class WatchFaceRenderParams implements VersionedParcelable, Parcelable {
     /** The {@link RenderParametersWireFormat} to render with. */
-    @ParcelField(2)
+    @ParcelField(1)
     @NonNull
     RenderParametersWireFormat mRenderParametersWireFormats;
 
     /** The UTC time in milliseconds since the epoch to render with. */
-    @ParcelField(4)
+    @ParcelField(3)
     long mCalendarTimeMillis;
 
     /**
-     * The {@link ComplicationData} to render with. If null then interactive watch faces will
-     * display the current complications, and headless watch faces will display an empty
-     * complication.
+     * The {@link UserStyleWireFormat} to render with. If null then the current style is used
+     * instead.
      */
     @ParcelField(5)
     @Nullable
-    ComplicationData mComplicationData;
-
-    /**
-     * The {@link UserStyleWireFormat} to render with. If null then interactive watch faces will
-     * render with the current style, and headless watch faces will render with the default style.
-     */
-    @ParcelField(6)
-    @Nullable
     UserStyleWireFormat mUserStyle;
 
-    /** Used by VersionedParcelable. */
-    ComplicationScreenshotParams() {}
+    /**
+     * The complications to render with. If null then the current complication data is used
+     * instead.
+     */
+    @ParcelField(100)
+    @Nullable
+    List<IdAndComplicationDataWireFormat> mIdAndComplicationDatumWireFormats;
 
-    public ComplicationScreenshotParams(
-            int complicationId,
+    /** Used by VersionedParcelable. */
+    WatchFaceRenderParams() {}
+
+    public WatchFaceRenderParams(
             @NonNull RenderParametersWireFormat renderParametersWireFormats,
             long calendarTimeMillis,
-            @Nullable ComplicationData complicationData,
-            @Nullable UserStyleWireFormat userStyle) {
-        mComplicationId = complicationId;
+            @Nullable UserStyleWireFormat userStyle,
+            @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDatumWireFormats) {
         mRenderParametersWireFormats = renderParametersWireFormats;
         mCalendarTimeMillis = calendarTimeMillis;
-        mComplicationData = complicationData;
         mUserStyle = userStyle;
-    }
-
-    public int getComplicationId() {
-        return mComplicationId;
+        mIdAndComplicationDatumWireFormats = idAndComplicationDatumWireFormats;
     }
 
     @NonNull
@@ -102,16 +92,16 @@ public class ComplicationScreenshotParams implements VersionedParcelable, Parcel
     }
 
     @Nullable
-    public ComplicationData getComplicationData() {
-        return mComplicationData;
-    }
-
-    @Nullable
     public UserStyleWireFormat getUserStyle() {
         return mUserStyle;
     }
 
-    /** Serializes this ComplicationScreenshotParams to the specified {@link Parcel}. */
+    @Nullable
+    public List<IdAndComplicationDataWireFormat> getIdAndComplicationDatumWireFormats() {
+        return mIdAndComplicationDatumWireFormats;
+    }
+
+    /** Serializes this WatchfaceScreenshotParams to the specified {@link Parcel}. */
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
         parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);
@@ -122,17 +112,17 @@ public class ComplicationScreenshotParams implements VersionedParcelable, Parcel
         return 0;
     }
 
-    public static final Parcelable.Creator<ComplicationScreenshotParams> CREATOR =
-            new Parcelable.Creator<ComplicationScreenshotParams>() {
+    public static final Parcelable.Creator<WatchFaceRenderParams> CREATOR =
+            new Parcelable.Creator<WatchFaceRenderParams>() {
                 @Override
-                public ComplicationScreenshotParams createFromParcel(Parcel source) {
+                public WatchFaceRenderParams createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(
                             source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override
-                public ComplicationScreenshotParams[] newArray(int size) {
-                    return new ComplicationScreenshotParams[size];
+                public WatchFaceRenderParams[] newArray(int size) {
+                    return new WatchFaceRenderParams[size];
                 }
             };
 }

@@ -56,10 +56,10 @@ import androidx.wear.watchface.control.HeadlessWatchFaceImpl
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.InteractiveWatchFaceImpl
-import androidx.wear.watchface.control.data.ComplicationScreenshotParams
+import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
-import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
+import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
@@ -605,9 +605,9 @@ public abstract class WatchFaceService : WallpaperService() {
 
         @UiThread
         @RequiresApi(27)
-        fun takeWatchFaceScreenshot(
-            params: WatchfaceScreenshotParams
-        ): Bundle = TraceEvent("EngineWrapper.takeWatchFaceScreenshot").use {
+        fun renderWatchFaceToBitmap(
+            params: WatchFaceRenderParams
+        ): Bundle = TraceEvent("EngineWrapper.renderWatchFaceToBitmap").use {
             val oldStyle = HashMap(watchFaceImpl.userStyleRepository.userStyle.selectedOptions)
             params.userStyle?.let {
                 watchFaceImpl.onSetStyleInternal(
@@ -651,9 +651,9 @@ public abstract class WatchFaceService : WallpaperService() {
 
         @UiThread
         @RequiresApi(27)
-        fun takeComplicationScreenshot(
-            params: ComplicationScreenshotParams
-        ): Bundle? = TraceEvent("EngineWrapper.takeComplicationScreenshot").use {
+        fun renderComplicationToBitmap(
+            params: ComplicationRenderParams
+        ): Bundle? = TraceEvent("EngineWrapper.renderComplicationToBitmap").use {
             val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
                 timeInMillis = params.calendarTimeMillis
             }

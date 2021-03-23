@@ -49,7 +49,7 @@ import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.IPendingInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
-import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
+import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.SystemState
@@ -328,8 +328,8 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
-                    WatchfaceScreenshotParams(
+                interactiveWatchFaceInstanceWCS.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.AMBIENT,
                             RenderParameters.DRAW_ALL_LAYERS,
@@ -361,8 +361,8 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
-                    WatchfaceScreenshotParams(
+                interactiveWatchFaceInstanceWCS.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.INTERACTIVE,
                             RenderParameters.DRAW_ALL_LAYERS,
@@ -411,8 +411,8 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
-                    WatchfaceScreenshotParams(
+                interactiveWatchFaceInstanceWCS.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.INTERACTIVE,
                             mapOf(
@@ -448,8 +448,8 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
-                    WatchfaceScreenshotParams(
+                interactiveWatchFaceInstanceWCS.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.INTERACTIVE,
                             mapOf(
@@ -503,8 +503,8 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
-                    WatchfaceScreenshotParams(
+                interactiveWatchFaceInstanceWCS.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.INTERACTIVE,
                             RenderParameters.DRAW_ALL_LAYERS,

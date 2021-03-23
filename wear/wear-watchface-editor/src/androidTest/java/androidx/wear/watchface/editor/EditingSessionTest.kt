@@ -374,7 +374,7 @@ public class EditorSessionTest {
             override val screenBounds = this@EditorSessionTest.screenBounds
             override val previewReferenceTimeMillis = previewReferenceTimeMillis
 
-            override fun takeScreenshot(
+            override fun renderWatchFaceToBitmap(
                 renderParameters: RenderParameters,
                 calendarTimeMillis: Long,
                 idToComplicationData: Map<Int, androidx.wear.complications.data.ComplicationData>?
@@ -816,12 +816,12 @@ public class EditorSessionTest {
     }
 
     @Test
-    public fun takeWatchFaceScreenshot() {
+    public fun renderWatchFaceToBitmap() {
         val scenario = createOnWatchFaceEditingTestActivity(emptyList(), emptyList())
 
         scenario.onActivity {
             assertThat(
-                it.editorSession.takeWatchFaceScreenshot(
+                it.editorSession.renderWatchFaceToBitmap(
                     RenderParameters.DEFAULT_INTERACTIVE,
                     1234L,
                     null

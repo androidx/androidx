@@ -220,8 +220,8 @@ public class WatchFace @JvmOverloads constructor(
         /** The UTC reference time to use for previews in milliseconds since the epoch. */
         public val previewReferenceTimeMillis: Long
 
-        /** Takes a screenshot with the [UserStyleRepository]'s [UserStyle]. */
-        public fun takeScreenshot(
+        /** Renders the watchface to a [Bitmap] with the [UserStyleRepository]'s [UserStyle]. */
+        public fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,
             calendarTimeMillis: Long,
             idToComplicationData: Map<Int, ComplicationData>?
@@ -647,7 +647,7 @@ internal class WatchFaceImpl(
         override val previewReferenceTimeMillis
             get() = this@WatchFaceImpl.previewReferenceTimeMillis
 
-        override fun takeScreenshot(
+        override fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,
             calendarTimeMillis: Long,
             idToComplicationData: Map<Int, ComplicationData>?
