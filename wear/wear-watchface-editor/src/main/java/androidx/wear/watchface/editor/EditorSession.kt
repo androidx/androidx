@@ -114,7 +114,7 @@ public abstract class EditorSession : AutoCloseable {
      * Returns a map of complication ids to preview [ComplicationData] suitable for use in rendering
      * the watch face. Note if a slot is configured to be empty then it will not appear in the map,
      * however disabled complications are included. Note also unlike live data this is static per
-     * provider, but it may change (on the UIThread) as a result of
+     * provider, but it may update (on the UiThread) as a result of
      * [launchComplicationProviderChooser].
      */
     @UiThread
@@ -145,7 +145,8 @@ public abstract class EditorSession : AutoCloseable {
 
     /**
      * Launches the complication provider chooser and returns `true` if the user made a selection or
-     * `false` if the activity was canceled.
+     * `false` if the activity was canceled. If the complication provider was changed then the map
+     * returned by [getComplicationPreviewData] is updated (on the UiThread).
      */
     @UiThread
     public abstract suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean
