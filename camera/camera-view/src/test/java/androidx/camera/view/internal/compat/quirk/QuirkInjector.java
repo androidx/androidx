@@ -23,30 +23,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Loads all device specific quirks required for the current device
+ * Inject quirks for unit tests.
+ *
+ * <p> Used with the test version of {@link DeviceQuirks} to test the behavior of quirks.
  */
-public class DeviceQuirksLoader {
+public class QuirkInjector {
 
-    private DeviceQuirksLoader() {
+    static final List<Quirk> INJECTED_QUIRKS = new ArrayList<>();
+
+    /**
+     * Inject a quirk. The injected quirk will be loaded by {@link DeviceQuirks}.
+     */
+    public static void inject(@NonNull Quirk quirk) {
+        INJECTED_QUIRKS.add(quirk);
     }
 
     /**
-     * Goes through all defined device-specific quirks, and returns those that should be loaded
-     * on the current device.
+     * Clears all injected quirks.
      */
-    @NonNull
-    static List<Quirk> loadQuirks() {
-        final List<Quirk> quirks = new ArrayList<>();
-
-        // Load all device specific quirks
-        if (PreviewStretchedQuirk.load()) {
-            quirks.add(new PreviewStretchedQuirk());
-        }
-
-        if (SurfaceViewStretchedQuirk.load()) {
-            quirks.add(new SurfaceViewStretchedQuirk());
-        }
-
-        return quirks;
+    public static void clear() {
+        INJECTED_QUIRKS.clear();
     }
 }
