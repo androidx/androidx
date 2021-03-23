@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.ObjectsCompat;
+import androidx.core.util.Preconditions;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -188,6 +189,21 @@ public final class AppSearchResult<ValueType> {
     public static <ValueType> AppSearchResult<ValueType> newFailedResult(
             @ResultCode int resultCode, @Nullable String errorMessage) {
         return new AppSearchResult<>(resultCode, /*resultValue=*/ null, errorMessage);
+    }
+
+    /**
+     * Creates a new failed {@link AppSearchResult} by a AppSearchResult in another type.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public static <ValueType> AppSearchResult<ValueType> newFailedResult(
+            @NonNull AppSearchResult<?> otherFailedResult) {
+        Preconditions.checkState(!otherFailedResult.isSuccess(),
+                "Cannot convert a success result to a failed result");
+        return AppSearchResult.newFailedResult(
+                otherFailedResult.getResultCode(), otherFailedResult.getErrorMessage());
     }
 
     /** @hide */
