@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-/** The response class of {@link AppSearchSession#getSchema()} */
+/** The response class of {@link AppSearchSession#getSchema} */
 //TODO(b/181887768) extends only for dogfooder transition. */
 public class GetSchemaResponse extends HashSet<AppSearchSchema> {
     private static final String VERSION_FIELD = "version";

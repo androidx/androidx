@@ -304,6 +304,7 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(mDb2.getNamespaces().get()).containsExactly("namespace_db2");
     }
 
+    @Test
     public void testGetSchema_emptyDB() throws Exception {
         GetSchemaResponse getSchemaResponse = mDb1.getSchema().get();
         assertThat(getSchemaResponse.getVersion()).isEqualTo(0);
