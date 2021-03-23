@@ -24,6 +24,7 @@ import android.os.IBinder
 import android.support.wearable.complications.TimeDependentText
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntDef
+import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.data.ComplicationData
@@ -85,7 +86,7 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
     /**
      * Sends a tap event to the watch face for processing.
      */
-    public fun sendTouchEvent(xPosition: Int, yPosition: Int, @TapType tapType: Int)
+    public fun sendTouchEvent(@Px xPosition: Int, @Px yPosition: Int, @TapType tapType: Int)
 
     /**
      * Describes regions of the watch face for use by a screen reader.
