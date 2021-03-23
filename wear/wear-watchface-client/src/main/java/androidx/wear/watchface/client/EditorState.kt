@@ -44,7 +44,13 @@ public class EditorState internal constructor(
     public val previewComplicationData: Map<Int, ComplicationData>,
     @get:JvmName("hasCommitChanges")
     public val commitChanges: Boolean
-)
+) {
+    override fun toString(): String =
+        "{watchFaceInstanceId: $watchFaceInstanceId, userStyle: $userStyle" +
+            ", previewComplicationData: [" +
+            previewComplicationData.map { "${it.key} -> ${it.value}" }.joinToString() +
+            "], commitChanges: $commitChanges}"
+}
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
