@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app.model.signin;
+package androidx.car.app.model;
 
 import android.annotation.SuppressLint;
 
