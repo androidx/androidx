@@ -86,15 +86,15 @@ package androidx.wear.watchface.client {
     property public abstract String instanceId;
     property public abstract long previewReferenceTimeMillis;
     field public static final androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.Companion Companion;
-    field public static final int TAP_TYPE_TAP = 2; // 0x2
-    field public static final int TAP_TYPE_TOUCH = 0; // 0x0
-    field public static final int TAP_TYPE_TOUCH_CANCEL = 1; // 0x1
+    field public static final int TAP_TYPE_CANCEL = 1; // 0x1
+    field public static final int TAP_TYPE_DOWN = 0; // 0x0
+    field public static final int TAP_TYPE_UP = 2; // 0x2
   }
 
   public static final class InteractiveWatchFaceSysUiClient.Companion {
-    field public static final int TAP_TYPE_TAP = 2; // 0x2
-    field public static final int TAP_TYPE_TOUCH = 0; // 0x0
-    field public static final int TAP_TYPE_TOUCH_CANCEL = 1; // 0x1
+    field public static final int TAP_TYPE_CANCEL = 1; // 0x1
+    field public static final int TAP_TYPE_DOWN = 0; // 0x0
+    field public static final int TAP_TYPE_UP = 2; // 0x2
   }
 
   public static final class InteractiveWatchFaceSysUiClient.ContentDescriptionLabel {
@@ -131,7 +131,7 @@ package androidx.wear.watchface.client {
     property public final int interruptionFilter;
   }
 
-  @IntDef({androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.TAP_TYPE_TOUCH, androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.TAP_TYPE_TOUCH_CANCEL, androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.TAP_TYPE_TAP}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public @interface TapType {
+  @IntDef({androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.TAP_TYPE_DOWN, androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.TAP_TYPE_CANCEL, androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.TAP_TYPE_UP}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public @interface TapType {
   }
 
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {
