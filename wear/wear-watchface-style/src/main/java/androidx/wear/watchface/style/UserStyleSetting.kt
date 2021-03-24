@@ -19,11 +19,8 @@ package androidx.wear.watchface.style
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.ComplicationBounds
-import androidx.wear.watchface.style.UserStyleSetting.Companion.maxIdLength
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
-import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
-import androidx.wear.watchface.style.UserStyleSetting.Option.Companion.maxIdLength
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
@@ -65,7 +62,7 @@ import java.security.InvalidParameterException
  *     Companion).
  * @param defaultOptionIndex The default option index, used if nothing has been selected within the
  *     [options] list.
- * @param affectsLayers Used by the style configuration UI. Describes which rendering layers this
+ * @param affectedLayers Used by the style configuration UI. Describes which rendering layers this
  *     style affects.
  */
 public sealed class UserStyleSetting(
@@ -75,7 +72,7 @@ public sealed class UserStyleSetting(
     public val icon: Icon?,
     public val options: List<Option>,
     public val defaultOptionIndex: Int,
-    public val affectsLayers: Collection<Layer>
+    public val affectedLayers: Collection<Layer>
 ) {
     public companion object {
         /** Maximum length of the [id] field. */
@@ -305,7 +302,7 @@ public sealed class UserStyleSetting(
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectsLayers.map { it.ordinal }
+                affectedLayers.map { it.ordinal }
             )
 
         /** Returns the default value. */
@@ -465,7 +462,7 @@ public sealed class UserStyleSetting(
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectsLayers.map { it.ordinal }
+                affectedLayers.map { it.ordinal }
             )
 
         /** Represents an override to the initial complication configuration. */
@@ -603,7 +600,7 @@ public sealed class UserStyleSetting(
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectsLayers.map { it.ordinal }
+                affectedLayers.map { it.ordinal }
             )
 
         /** Represents an option as a [Double] in the range [minimumValue .. maximumValue]. */
@@ -710,7 +707,7 @@ public sealed class UserStyleSetting(
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectsLayers.map { it.ordinal }
+                affectedLayers.map { it.ordinal }
             )
 
         /**
@@ -835,7 +832,7 @@ public sealed class UserStyleSetting(
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectsLayers.map { it.ordinal }
+                affectedLayers.map { it.ordinal }
             )
 
         /**
@@ -944,7 +941,7 @@ public sealed class UserStyleSetting(
                 description,
                 icon,
                 getWireFormatOptionsList(),
-                affectsLayers.map { it.ordinal }
+                affectedLayers.map { it.ordinal }
             )
 
         /**
