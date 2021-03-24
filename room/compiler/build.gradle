@@ -104,8 +104,7 @@ dependencies {
     implementation(project(":room:room-migration"))
     implementation(project(":room:room-compiler-processing"))
     implementation(KOTLIN_STDLIB)
-    // TODO(183520279): Upgrade auto-common dependency to newest version 0.11.
-    implementation("com.google.auto:auto-common:0.10")
+    implementation(AUTO_COMMON)
     implementation(AUTO_VALUE_ANNOTATIONS)
     implementation(JAVAPOET)
     implementation(KOTLIN_KSP_API)

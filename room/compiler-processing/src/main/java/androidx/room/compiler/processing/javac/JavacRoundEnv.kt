@@ -37,8 +37,10 @@ internal class JavacRoundEnv(
     }
 
     // TODO this is only for tests but we may need to support more types of elements
-    override fun getTypeElementsAnnotatedWith(klass: Class<out Annotation>): Set<XTypeElement> {
-        val result = delegate.getElementsAnnotatedWith(klass)
+    override fun getTypeElementsAnnotatedWith(annotationQualifiedName: String): Set<XTypeElement> {
+        val element = env.elementUtils.getTypeElement(annotationQualifiedName)
+            ?: error("Cannot find TypeElement: $annotationQualifiedName")
+        val result = delegate.getElementsAnnotatedWith(element)
         return result.filter {
             MoreElements.isType(it)
         }.map {

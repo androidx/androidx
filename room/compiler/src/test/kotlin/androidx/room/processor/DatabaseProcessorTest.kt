@@ -1164,7 +1164,7 @@ class DatabaseProcessorTest {
                     .nextRunHandler { invocation ->
                         val database = invocation.roundEnv
                             .getTypeElementsAnnotatedWith(
-                                androidx.room.Database::class.java
+                                androidx.room.Database::class.qualifiedName!!
                             )
                             .first()
                         val processor = DatabaseProcessor(
@@ -1237,7 +1237,7 @@ class DatabaseProcessorTest {
                     .nextRunHandler { invocation ->
                         val entity = invocation.roundEnv
                             .getTypeElementsAnnotatedWith(
-                                androidx.room.Database::class.java
+                                androidx.room.Database::class.qualifiedName!!
                             )
                             .first()
                         val parser = DatabaseProcessor(

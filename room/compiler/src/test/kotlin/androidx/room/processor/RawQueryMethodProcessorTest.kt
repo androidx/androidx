@@ -343,7 +343,7 @@ class RawQueryMethodProcessorTest {
                     )
                     .nextRunHandler { invocation ->
                         val (owner, methods) = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Dao::class.java)
+                            .getTypeElementsAnnotatedWith(Dao::class.qualifiedName!!)
                             .map {
                                 Pair(
                                     it,

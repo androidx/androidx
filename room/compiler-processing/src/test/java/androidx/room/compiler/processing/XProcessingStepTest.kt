@@ -54,23 +54,26 @@ class XProcessingStepTest {
         val processingStep = object : XProcessingStep {
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<KClass<out Annotation>, List<XTypeElement>>
+                elementsByAnnotation: Map<String, List<XTypeElement>>
             ): Set<XTypeElement> {
-                elementsByAnnotation[OtherAnnotation::class]?.forEach {
+                elementsByAnnotation[OtherAnnotation::class.qualifiedName]?.forEach {
                     annotatedElements[OtherAnnotation::class] = it.qualifiedName
                 }
-                elementsByAnnotation[MainAnnotation::class]?.forEach {
+                elementsByAnnotation[MainAnnotation::class.qualifiedName]?.forEach {
                     annotatedElements[MainAnnotation::class] = it.qualifiedName
                 }
                 return emptySet()
             }
 
-            override fun annotations(): Set<KClass<out Annotation>> {
-                return setOf(OtherAnnotation::class, MainAnnotation::class)
+            override fun annotations(): Set<String> {
+                return setOf(
+                    OtherAnnotation::class.qualifiedName!!,
+                    MainAnnotation::class.qualifiedName!!
+                )
             }
         }
         val mainProcessor = object : BasicAnnotationProcessor() {
-            override fun initSteps(): Iterable<ProcessingStep> {
+            override fun steps(): Iterable<Step> {
                 return listOf(
                     processingStep.asAutoCommonProcessor(processingEnv)
                 )
@@ -123,11 +126,11 @@ class XProcessingStepTest {
         val processingStep = object : XProcessingStep {
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<KClass<out Annotation>, List<XTypeElement>>
+                elementsByAnnotation: Map<String, List<XTypeElement>>
             ): Set<XTypeElement> {
                 // for each element annotated with Main annotation, create a class with Other
                 // annotation to trigger another round
-                elementsByAnnotation[MainAnnotation::class]?.forEach {
+                elementsByAnnotation[MainAnnotation::class.qualifiedName]?.forEach {
                     val className = ClassName.get(it.packageName, "${it.name}_Impl")
                     val spec = TypeSpec.classBuilder(className)
                         .addAnnotation(
@@ -140,14 +143,17 @@ class XProcessingStepTest {
                         .build()
                         .writeTo(env.filer)
                 }
-                elementsByAnnotation[OtherAnnotation::class]?.forEach {
+                elementsByAnnotation[OtherAnnotation::class.qualifiedName]?.forEach {
                     otherAnnotatedElements.add(it.type.typeName)
                 }
                 return emptySet()
             }
 
-            override fun annotations(): Set<KClass<out Annotation>> {
-                return setOf(OtherAnnotation::class, MainAnnotation::class)
+            override fun annotations(): Set<String> {
+                return setOf(
+                    OtherAnnotation::class.qualifiedName!!,
+                    MainAnnotation::class.qualifiedName!!
+                )
             }
         }
         val main = JavaFileObjects.forSourceString(
@@ -171,16 +177,16 @@ class XProcessingStepTest {
             listOf(main)
         ).processedWith(
             object : BasicAnnotationProcessor() {
-                override fun initSteps(): Iterable<ProcessingStep> {
+                override fun steps(): Iterable<Step> {
                     return listOf(
                         processingStep.asAutoCommonProcessor(processingEnv)
                     )
                 }
 
-                override fun getSupportedOptions(): MutableSet<String> {
-                    return mutableSetOf(
-                        MainAnnotation::class.java.canonicalName,
-                        OtherAnnotation::class.java.canonicalName
+                override fun getSupportedOptions(): Set<String> {
+                    return setOf(
+                        MainAnnotation::class.qualifiedName!!,
+                        OtherAnnotation::class.qualifiedName!!
                     )
                 }
             }
@@ -198,14 +204,14 @@ class XProcessingStepTest {
             var roundCounter = 0
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<KClass<out Annotation>, List<XTypeElement>>
+                elementsByAnnotation: Map<String, List<XTypeElement>>
             ): Set<XTypeElement> {
                 elementPerRound[roundCounter++] = listOf(
                     env.requireTypeElement("foo.bar.Main"),
                     env.requireTypeElement("foo.bar.Main")
                 )
                 // trigger another round
-                elementsByAnnotation[MainAnnotation::class]?.forEach {
+                elementsByAnnotation[MainAnnotation::class.qualifiedName]?.forEach {
                     val className = ClassName.get(it.packageName, "${it.name}_Impl")
                     val spec = TypeSpec.classBuilder(className)
                         .addAnnotation(
@@ -221,8 +227,11 @@ class XProcessingStepTest {
                 return emptySet()
             }
 
-            override fun annotations(): Set<KClass<out Annotation>> {
-                return setOf(OtherAnnotation::class, MainAnnotation::class)
+            override fun annotations(): Set<String> {
+                return setOf(
+                    OtherAnnotation::class.qualifiedName!!,
+                    MainAnnotation::class.qualifiedName!!
+                )
             }
         }
         val main = JavaFileObjects.forSourceString(
@@ -246,16 +255,16 @@ class XProcessingStepTest {
             listOf(main)
         ).processedWith(
             object : BasicAnnotationProcessor() {
-                override fun initSteps(): Iterable<ProcessingStep> {
+                override fun steps(): Iterable<Step> {
                     return listOf(
                         processingStep.asAutoCommonProcessor(processingEnv)
                     )
                 }
 
-                override fun getSupportedOptions(): MutableSet<String> {
-                    return mutableSetOf(
-                        MainAnnotation::class.java.canonicalName,
-                        OtherAnnotation::class.java.canonicalName
+                override fun getSupportedOptions(): Set<String> {
+                    return setOf(
+                        MainAnnotation::class.qualifiedName!!,
+                        OtherAnnotation::class.qualifiedName!!
                     )
                 }
             }
@@ -278,15 +287,15 @@ class XProcessingStepTest {
         val processingStep = object : XProcessingStep {
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<KClass<out Annotation>, List<XTypeElement>>
+                elementsByAnnotation: Map<String, List<XTypeElement>>
             ): Set<XTypeElement> {
                 return elementsByAnnotation.values
                     .flatten()
                     .toSet()
             }
 
-            override fun annotations(): Set<KClass<out Annotation>> {
-                return setOf(OtherAnnotation::class)
+            override fun annotations(): Set<String> {
+                return setOf(OtherAnnotation::class.qualifiedName!!)
             }
         }
         var returned: List<KSAnnotated>? = null

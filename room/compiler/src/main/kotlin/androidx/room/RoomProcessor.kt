@@ -38,7 +38,7 @@ class RoomProcessor : BasicAnnotationProcessor() {
     /** Helper variable to avoid reporting the warning twice. */
     private var jdkVersionHasBugReported = false
 
-    override fun initSteps(): MutableIterable<ProcessingStep> {
+    override fun steps(): MutableIterable<Step> {
         return mutableListOf(
             DatabaseProcessingStep().asAutoCommonProcessor(processingEnv)
         )
