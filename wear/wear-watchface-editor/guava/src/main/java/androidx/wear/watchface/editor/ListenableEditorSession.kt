@@ -19,6 +19,7 @@ package androidx.wear.watchface.editor
 import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
@@ -27,6 +28,7 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.ComplicationState
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
+import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.util.concurrent.ListenableFuture
@@ -105,7 +107,9 @@ public class ListenableEditorSession(
 
     override val watchFaceComponentName: ComponentName = wrappedEditorSession.watchFaceComponentName
 
-    override val instanceId: String? = wrappedEditorSession.instanceId
+    @get:RequiresApi(Build.VERSION_CODES.R)
+    @RequiresApi(Build.VERSION_CODES.R)
+    override val watchFaceId: WatchFaceId = wrappedEditorSession.watchFaceId
 
     override var userStyle: UserStyle
         get() = wrappedEditorSession.userStyle
