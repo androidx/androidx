@@ -598,7 +598,7 @@ class WatchFaceServiceImageTest {
             interactiveWatchFaceInstanceSysUi.sendTouchEvent(
                 85,
                 165,
-                TapType.TAP
+                TapType.UP
             )
             interactiveWatchFaceInstanceSysUi.release()
         }

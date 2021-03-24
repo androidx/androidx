@@ -639,8 +639,8 @@ public class WatchFaceServiceTest {
 
     private fun tapAt(x: Int, y: Int) {
         // The eventTime is ignored.
-        watchFaceImpl.onTapCommand(TapType.TOUCH, x, y)
-        watchFaceImpl.onTapCommand(TapType.TAP, x, y)
+        watchFaceImpl.onTapCommand(TapType.DOWN, x, y)
+        watchFaceImpl.onTapCommand(TapType.UP, x, y)
     }
 
     private fun doubleTapAt(x: Int, y: Int, delayMillis: Long) {
@@ -658,8 +658,8 @@ public class WatchFaceServiceTest {
     }
 
     private fun tapCancelAt(x: Int, y: Int) {
-        watchFaceImpl.onTapCommand(TapType.TOUCH, x, y)
-        watchFaceImpl.onTapCommand(TapType.TOUCH_CANCEL, x, y)
+        watchFaceImpl.onTapCommand(TapType.DOWN, x, y)
+        watchFaceImpl.onTapCommand(TapType.CANCEL, x, y)
     }
 
     @Test
@@ -792,13 +792,13 @@ public class WatchFaceServiceTest {
 
         testWatchFaceService.reset()
         // Tap down left Complication
-        watchFaceImpl.onTapCommand(TapType.TOUCH, 30, 50)
+        watchFaceImpl.onTapCommand(TapType.DOWN, 30, 50)
 
         // Tap down at right complication
-        watchFaceImpl.onTapCommand(TapType.TOUCH, 70, 50)
+        watchFaceImpl.onTapCommand(TapType.DOWN, 70, 50)
 
         // Now Tap cancel at the second position
-        watchFaceImpl.onTapCommand(TapType.TOUCH_CANCEL, 70, 50)
+        watchFaceImpl.onTapCommand(TapType.CANCEL, 70, 50)
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
         assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(testWatchFaceService.singleTapCount).isEqualTo(1)
@@ -814,9 +814,9 @@ public class WatchFaceServiceTest {
 
         testWatchFaceService.reset()
         // Tap down at a position in left Complication
-        watchFaceImpl.onTapCommand(TapType.TOUCH, 30, 50)
+        watchFaceImpl.onTapCommand(TapType.DOWN, 30, 50)
         // Tap cancel at different position stillin left Complication
-        watchFaceImpl.onTapCommand(TapType.TOUCH_CANCEL, 32, 50)
+        watchFaceImpl.onTapCommand(TapType.CANCEL, 32, 50)
 
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
         assertThat(testWatchFaceService.complicationSingleTapped).isNull()
@@ -860,8 +860,8 @@ public class WatchFaceServiceTest {
         // Tap on nothing.
         tapAt(1, 1)
 
-        verify(tapListener).onTap(TapType.TOUCH, 1, 1)
-        verify(tapListener).onTap(TapType.TAP, 1, 1)
+        verify(tapListener).onTap(TapType.DOWN, 1, 1)
+        verify(tapListener).onTap(TapType.UP, 1, 1)
     }
 
     @Test
@@ -876,8 +876,8 @@ public class WatchFaceServiceTest {
         // Tap right complication.
         tapAt(70, 50)
 
-        verify(tapListener, times(0)).onTap(TapType.TOUCH, 70, 50)
-        verify(tapListener, times(0)).onTap(TapType.TAP, 70, 50)
+        verify(tapListener, times(0)).onTap(TapType.DOWN, 70, 50)
+        verify(tapListener, times(0)).onTap(TapType.UP, 70, 50)
     }
 
     @Test

@@ -84,15 +84,15 @@ package androidx.wear.watchface.client {
     property public abstract String instanceId;
     property public abstract long previewReferenceTimeMillis;
     field public static final androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.Companion Companion;
-    field public static final int TAP_TYPE_TAP = 2; // 0x2
-    field public static final int TAP_TYPE_TOUCH = 0; // 0x0
-    field public static final int TAP_TYPE_TOUCH_CANCEL = 1; // 0x1
+    field public static final int TAP_TYPE_CANCEL = 1; // 0x1
+    field public static final int TAP_TYPE_DOWN = 0; // 0x0
+    field public static final int TAP_TYPE_UP = 2; // 0x2
   }
 
   public static final class InteractiveWatchFaceSysUiClient.Companion {
-    field public static final int TAP_TYPE_TAP = 2; // 0x2
-    field public static final int TAP_TYPE_TOUCH = 0; // 0x0
-    field public static final int TAP_TYPE_TOUCH_CANCEL = 1; // 0x1
+    field public static final int TAP_TYPE_CANCEL = 1; // 0x1
+    field public static final int TAP_TYPE_DOWN = 0; // 0x0
+    field public static final int TAP_TYPE_UP = 2; // 0x2
   }
 
   public static final class InteractiveWatchFaceSysUiClient.ContentDescriptionLabel {

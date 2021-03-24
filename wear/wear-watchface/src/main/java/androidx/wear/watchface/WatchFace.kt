@@ -266,9 +266,9 @@ public class WatchFace @JvmOverloads constructor(
      *          only the vertical gravity is respected.
      * @param tapEventsAccepted Controls whether this watch face accepts tap events. Watchfaces
      *     that set this {@code true} are indicating they are prepared to receive
-     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH],
-     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH_CANCEL], and
-     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_TAP] events.
+     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_DOWN],
+     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_CANCEL], and
+     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_UP] events.
      * @param accentColor The accent color which will be used when drawing the unread notification
      *     indicator. Default color is white.
      * @throws IllegalArgumentException if [viewProtectionMode] has an unexpected value
@@ -899,13 +899,13 @@ internal class WatchFaceImpl(
         // TODO(alexclarke): Revisit this
         var tapType = originalTapType
         when (tapType) {
-            TapType.TOUCH -> {
+            TapType.DOWN -> {
                 lastTappedPosition = Point(x, y)
             }
-            TapType.TOUCH_CANCEL -> {
+            TapType.CANCEL -> {
                 lastTappedPosition?.let { safeLastTappedPosition ->
                     if ((safeLastTappedPosition.x == x) && (safeLastTappedPosition.y == y)) {
-                        tapType = TapType.TAP
+                        tapType = TapType.UP
                     }
                 }
                 lastTappedPosition = null
@@ -913,7 +913,7 @@ internal class WatchFaceImpl(
         }
 
         when (tapType) {
-            TapType.TAP -> {
+            TapType.UP -> {
                 if (tappedComplication.id != lastTappedComplicationId &&
                     lastTappedComplicationId != null
                 ) {
@@ -938,7 +938,7 @@ internal class WatchFaceImpl(
                     }
                 }
             }
-            TapType.TOUCH -> {
+            TapType.DOWN -> {
                 // Make sure the user isn't doing a swipe.
                 if (tappedComplication.id != lastTappedComplicationId &&
                     lastTappedComplicationId != null
