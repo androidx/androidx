@@ -87,10 +87,6 @@ class SchemaCodeGenerator {
         CodeBlock.Builder codeBlock = CodeBlock.builder()
                 .add("new $T(SCHEMA_NAME)", mHelper.getAppSearchClass("AppSearchSchema", "Builder"))
                 .indent();
-        int version = mModel.getSchemaVersion();
-        if (version != 0) {
-            codeBlock.add("\n.setVersion($L)", version);
-        }
         for (VariableElement property : mModel.getPropertyFields().values()) {
             codeBlock.add("\n.addProperty($L)", createPropertySchema(property));
         }
