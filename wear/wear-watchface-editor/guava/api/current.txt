@@ -18,8 +18,8 @@ package androidx.wear.watchface.editor {
     method public suspend Object? launchComplicationProviderChooser(int complicationId, kotlin.coroutines.Continuation<? super java.lang.Boolean> p);
     method @UiThread public static com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.editor.ListenableEditorSession> listenableCreateOnWatchEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Boolean> listenableLaunchComplicationProviderChooser(int complicationId);
+    method public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
     method public void setUserStyle(androidx.wear.watchface.style.UserStyle value);
-    method public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
     property public Integer? backgroundComplicationId;
     property public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationsState;
     property public long previewReferenceTimeMillis;

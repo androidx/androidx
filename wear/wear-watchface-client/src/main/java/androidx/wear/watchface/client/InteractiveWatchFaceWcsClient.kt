@@ -22,9 +22,10 @@ import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.TraceEvent
+import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
-import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
+import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
@@ -47,8 +48,7 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
     public fun updateComplicationData(idToComplicationData: Map<Int, ComplicationData>)
 
     /**
-     * Requests a shared memory backed [Bitmap] containing a screenshot of the watch face with the
-     * given settings.
+     * Renders the watchface to a shared memory backed [Bitmap] with the given settings.
      *
      * @param renderParameters The [RenderParameters] to draw with.
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with.
@@ -59,7 +59,7 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
      *     given settings.
      */
     @RequiresApi(27)
-    public fun takeWatchFaceScreenshot(
+    public fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
@@ -111,10 +111,9 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
         }?.key
 
     /**
-     * Requests the specified complication is highlighted for a short period to bring attention to
-     * it.
+     * Requests that [ComplicationsManager.displayPressedAnimation] is called for [complicationId].
      */
-    public fun bringAttentionToComplication(complicationId: Int)
+    public fun displayPressedAnimation(complicationId: Int)
 }
 
 /** Controls a stateful remote interactive watch face with an interface tailored for WCS. */
@@ -133,15 +132,15 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
     }
 
     @RequiresApi(27)
-    override fun takeWatchFaceScreenshot(
+    override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = TraceEvent("InteractiveWatchFaceWcsClientImpl.takeWatchFaceScreenshot").use {
+    ): Bitmap = TraceEvent("InteractiveWatchFaceWcsClientImpl.renderWatchFaceToBitmap").use {
         SharedMemoryImage.ashmemReadImageBundle(
-            iInteractiveWatchFaceWcs.takeWatchFaceScreenshot(
-                WatchfaceScreenshotParams(
+            iInteractiveWatchFaceWcs.renderWatchFaceToBitmap(
+                WatchFaceRenderParams(
                     renderParameters.toWireFormat(),
                     calendarTimeMillis,
                     userStyle?.toWireFormat(),
@@ -187,7 +186,7 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
         iInteractiveWatchFaceWcs.release()
     }
 
-    override fun bringAttentionToComplication(complicationId: Int) = TraceEvent(
+    override fun displayPressedAnimation(complicationId: Int) = TraceEvent(
         "InteractiveWatchFaceWcsClientImpl.bringAttentionToComplication"
     ).use {
         iInteractiveWatchFaceWcs.bringAttentionToComplication(complicationId)

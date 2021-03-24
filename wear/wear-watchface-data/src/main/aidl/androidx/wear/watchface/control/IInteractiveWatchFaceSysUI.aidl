@@ -17,7 +17,7 @@
 package androidx.wear.watchface.control;
 
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
-import androidx.wear.watchface.control.data.WatchfaceScreenshotParams;
+import androidx.wear.watchface.control.data.WatchFaceRenderParams;
 import androidx.wear.watchface.data.SystemState;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
@@ -108,12 +108,12 @@ interface IInteractiveWatchFaceSysUI {
      * calendarTimeMillis.
      *
      * @since API version 1.
-     * @param params The {@link WatchfaceScreenshotParams} for this screenshot.
+     * @param params The {@link WatchFaceRenderParams} for this screenshot.
      * @return A bundle containing a compressed shared memory backed {@link Bitmap} of the watch
      *     face with the requested settings
      * TODO(alexclarke): Refactor to return a parcelable rather than a bundle.
      */
-    Bundle takeWatchFaceScreenshot(in WatchfaceScreenshotParams params) = 7;
+    Bundle renderWatchFaceToBitmap(in WatchFaceRenderParams params) = 7;
 
     /**
      * Gets the labels to be read aloud by screen readers. The results will change depending on the

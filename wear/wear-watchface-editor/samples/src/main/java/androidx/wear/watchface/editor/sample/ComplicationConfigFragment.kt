@@ -209,7 +209,7 @@ internal class ConfigView(
 
     override fun onDraw(canvas: Canvas) {
         val editingSession = watchFaceConfigActivity.editorSession
-        val bitmap = editingSession.takeWatchFaceScreenshot(
+        val bitmap = editingSession.renderWatchFaceToBitmap(
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 mapOf(

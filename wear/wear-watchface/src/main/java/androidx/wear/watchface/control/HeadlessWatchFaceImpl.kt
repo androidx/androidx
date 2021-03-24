@@ -21,8 +21,8 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.control.data.ComplicationScreenshotParams
-import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
+import androidx.wear.watchface.control.data.ComplicationRenderParams
+import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.runOnHandlerWithTracing
 
 /**
@@ -63,9 +63,9 @@ internal class HeadlessWatchFaceImpl(
 
     override fun getApiVersion() = IHeadlessWatchFace.API_VERSION
 
-    override fun takeWatchFaceScreenshot(params: WatchfaceScreenshotParams) =
-        uiThreadHandler.runOnHandlerWithTracing("HeadlessWatchFaceImpl.takeWatchFaceScreenshot") {
-            engine!!.takeWatchFaceScreenshot(params)
+    override fun renderWatchFaceToBitmap(params: WatchFaceRenderParams) =
+        uiThreadHandler.runOnHandlerWithTracing("HeadlessWatchFaceImpl.renderWatchFaceToBitmap") {
+            engine!!.renderWatchFaceToBitmap(params)
         }
 
     override fun getPreviewReferenceTimeMillis() = engine!!.watchFaceImpl.previewReferenceTimeMillis
@@ -75,11 +75,11 @@ internal class HeadlessWatchFaceImpl(
             engine!!.getComplicationState()
         }
 
-    override fun takeComplicationScreenshot(params: ComplicationScreenshotParams) =
+    override fun renderComplicationToBitmap(params: ComplicationRenderParams) =
         uiThreadHandler.runOnHandlerWithTracing(
-            "HeadlessWatchFaceImpl.takeComplicationScreenshot"
+            "HeadlessWatchFaceImpl.renderComplicationToBitmap"
         ) {
-            engine!!.takeComplicationScreenshot(params)
+            engine!!.renderComplicationToBitmap(params)
         }
 
     override fun getUserStyleSchema() =

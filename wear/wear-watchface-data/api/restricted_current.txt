@@ -123,8 +123,8 @@ package android.support.wearable.watchface.accessibility {
 
 package androidx.wear.watchface.control.data {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class ComplicationScreenshotParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationScreenshotParams(int, androidx.wear.watchface.data.RenderParametersWireFormat, long, android.support.wearable.complications.ComplicationData?, androidx.wear.watchface.style.data.UserStyleWireFormat?);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class ComplicationRenderParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public ComplicationRenderParams(int, androidx.wear.watchface.data.RenderParametersWireFormat, long, android.support.wearable.complications.ComplicationData?, androidx.wear.watchface.style.data.UserStyleWireFormat?);
     method public int describeContents();
     method public long getCalendarTimeMillis();
     method public android.support.wearable.complications.ComplicationData? getComplicationData();
@@ -132,7 +132,7 @@ package androidx.wear.watchface.control.data {
     method public androidx.wear.watchface.data.RenderParametersWireFormat getRenderParametersWireFormat();
     method public androidx.wear.watchface.style.data.UserStyleWireFormat? getUserStyle();
     method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.ComplicationScreenshotParams!>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.ComplicationRenderParams!>! CREATOR;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class HeadlessWatchFaceInstanceParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
@@ -160,15 +160,15 @@ package androidx.wear.watchface.control.data {
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams!>! CREATOR;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class WatchfaceScreenshotParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public WatchfaceScreenshotParams(androidx.wear.watchface.data.RenderParametersWireFormat, long, androidx.wear.watchface.style.data.UserStyleWireFormat?, java.util.List<androidx.wear.watchface.data.IdAndComplicationDataWireFormat!>?);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class WatchFaceRenderParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public WatchFaceRenderParams(androidx.wear.watchface.data.RenderParametersWireFormat, long, androidx.wear.watchface.style.data.UserStyleWireFormat?, java.util.List<androidx.wear.watchface.data.IdAndComplicationDataWireFormat!>?);
     method public int describeContents();
     method public long getCalendarTimeMillis();
     method public java.util.List<androidx.wear.watchface.data.IdAndComplicationDataWireFormat!>? getIdAndComplicationDatumWireFormats();
     method public androidx.wear.watchface.data.RenderParametersWireFormat getRenderParametersWireFormat();
     method public androidx.wear.watchface.style.data.UserStyleWireFormat? getUserStyle();
     method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.WatchfaceScreenshotParams!>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.WatchFaceRenderParams!>! CREATOR;
   }
 
 }

@@ -33,9 +33,9 @@ import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.IWatchFaceControlService
 import androidx.wear.watchface.control.WatchFaceControlService
-import androidx.wear.watchface.control.data.ComplicationScreenshotParams
+import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
-import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
+import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
@@ -112,8 +112,8 @@ class WatchFaceControlServiceTest {
     fun createHeadlessWatchFaceInstance() {
         val instance = createInstance(100, 100)
         val bitmap = SharedMemoryImage.ashmemReadImageBundle(
-            instance.takeWatchFaceScreenshot(
-                WatchfaceScreenshotParams(
+            instance.renderWatchFaceToBitmap(
+                WatchFaceRenderParams(
                     RenderParameters(
                         DrawMode.INTERACTIVE,
                         RenderParameters.DRAW_ALL_LAYERS,
@@ -155,8 +155,8 @@ class WatchFaceControlServiceTest {
     fun createHeadlessOpenglWatchFaceInstance() {
         val instance = createOpenGlInstance(400, 400)
         val bitmap = SharedMemoryImage.ashmemReadImageBundle(
-            instance.takeWatchFaceScreenshot(
-                WatchfaceScreenshotParams(
+            instance.renderWatchFaceToBitmap(
+                WatchFaceRenderParams(
                     RenderParameters(
                         DrawMode.INTERACTIVE,
                         RenderParameters.DRAW_ALL_LAYERS,
@@ -189,8 +189,8 @@ class WatchFaceControlServiceTest {
     fun testCommandTakeComplicationScreenShot() {
         val instance = createInstance(400, 400)
         val bitmap = SharedMemoryImage.ashmemReadImageBundle(
-            instance.takeComplicationScreenshot(
-                ComplicationScreenshotParams(
+            instance.renderComplicationToBitmap(
+                ComplicationRenderParams(
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                     RenderParameters(
                         DrawMode.AMBIENT,

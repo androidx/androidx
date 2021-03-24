@@ -30,7 +30,7 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
-import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
+import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import java.util.Objects
@@ -123,8 +123,7 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
     public val contentDescriptionLabels: List<ContentDescriptionLabel>
 
     /**
-     * Requests a shared memory backed [Bitmap] containing a screenshot of the watch face with the
-     * given settings.
+     * Renders the watchface to a shared memory backed [Bitmap] with the given settings.
      *
      * @param renderParameters The [RenderParameters] to draw with.
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with.
@@ -135,7 +134,7 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
      *     given settings.
      */
     @RequiresApi(27)
-    public fun takeWatchFaceScreenshot(
+    public fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
@@ -178,15 +177,15 @@ internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
             }
 
     @RequiresApi(27)
-    override fun takeWatchFaceScreenshot(
+    override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = TraceEvent("InteractiveWatchFaceSysUiClientImpl.takeWatchFaceScreenshot").use {
+    ): Bitmap = TraceEvent("InteractiveWatchFaceSysUiClientImpl.renderWatchFaceToBitmap").use {
         SharedMemoryImage.ashmemReadImageBundle(
-            iInteractiveWatchFaceSysUI.takeWatchFaceScreenshot(
-                WatchfaceScreenshotParams(
+            iInteractiveWatchFaceSysUI.renderWatchFaceToBitmap(
+                WatchFaceRenderParams(
                     renderParameters.toWireFormat(),
                     calendarTimeMillis,
                     userStyle?.toWireFormat(),

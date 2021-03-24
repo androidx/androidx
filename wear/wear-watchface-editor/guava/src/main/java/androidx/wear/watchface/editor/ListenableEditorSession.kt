@@ -150,11 +150,11 @@ public class ListenableEditorSession(
     override fun getComplicationIdAt(x: Int, y: Int): Int? =
         wrappedEditorSession.getComplicationIdAt(x, y)
 
-    override fun takeWatchFaceScreenshot(
+    override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         idToComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = wrappedEditorSession.takeWatchFaceScreenshot(
+    ): Bitmap = wrappedEditorSession.renderWatchFaceToBitmap(
         renderParameters,
         calendarTimeMillis,
         idToComplicationData
