@@ -110,7 +110,7 @@ internal class WCSApi(
 
     override fun getPreviewReferenceTimeMillis() = engine.watchFaceImpl.previewReferenceTimeMillis
 
-    override fun updateInstance(
+    override fun updateWatchfaceInstance(
         newInstanceId: String,
         userStyle: UserStyleWireFormat
     ) {
