@@ -142,19 +142,19 @@ public class CurrentUserStyleRepository(
     public val schema: UserStyleSchema
 ) {
     /** A listener for observing [UserStyle] changes. */
-    public interface UserStyleListener {
+    public interface UserStyleChangeListener {
         /** Called whenever the [UserStyle] changes. */
         @UiThread
         public fun onUserStyleChanged(userStyle: UserStyle)
     }
 
-    private val styleListeners = HashSet<UserStyleListener>()
+    private val styleListeners = HashSet<UserStyleChangeListener>()
 
     private val idToStyleSetting = schema.userStyleSettings.associateBy { it.id }
 
     /**
-     * The current [UserStyle]. Assigning to this property triggers immediate [UserStyleListener]
-     * callbacks if if any options have changed.
+     * The current [UserStyle]. Assigning to this property triggers immediate
+     * [UserStyleChangeListener] callbacks if if any options have changed.
      */
     public var userStyle: UserStyle = UserStyle(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
@@ -190,19 +190,19 @@ public class CurrentUserStyleRepository(
         }
 
     /**
-     * Adds a [UserStyleListener] which is called immediately and whenever the style changes.
+     * Adds a [UserStyleChangeListener] which is called immediately and whenever the style changes.
      */
     @UiThread
     @SuppressLint("ExecutorRegistration")
-    public fun addUserStyleListener(userStyleListener: UserStyleListener) {
-        styleListeners.add(userStyleListener)
-        userStyleListener.onUserStyleChanged(userStyle)
+    public fun addUserStyleChangeListener(userStyleChangeListener: UserStyleChangeListener) {
+        styleListeners.add(userStyleChangeListener)
+        userStyleChangeListener.onUserStyleChanged(userStyle)
     }
 
-    /** Removes a [UserStyleListener] previously added by [addUserStyleListener]. */
+    /** Removes a [UserStyleChangeListener] previously added by [addUserStyleChangeListener]. */
     @UiThread
     @SuppressLint("ExecutorRegistration")
-    public fun removeUserStyleListener(userStyleListener: UserStyleListener) {
-        styleListeners.remove(userStyleListener)
+    public fun removeUserStyleChangeListener(userStyleChangeListener: UserStyleChangeListener) {
+        styleListeners.remove(userStyleChangeListener)
     }
 }

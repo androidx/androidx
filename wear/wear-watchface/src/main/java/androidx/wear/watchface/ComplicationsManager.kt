@@ -131,8 +131,8 @@ public class ComplicationsManager(
         if (complicationsStyleCategory != null) {
             // Ensure we apply any initial StyleCategoryOption overlay by initializing with null.
             var previousOption: ComplicationsUserStyleSetting.ComplicationsOption? = null
-            currentUserStyleRepository.addUserStyleListener(
-                object : CurrentUserStyleRepository.UserStyleListener {
+            currentUserStyleRepository.addUserStyleChangeListener(
+                object : CurrentUserStyleRepository.UserStyleChangeListener {
                     override fun onUserStyleChanged(userStyle: UserStyle) {
                         val newlySelectedOption =
                             userStyle[complicationsStyleCategory]?.toComplicationsOption()!!
