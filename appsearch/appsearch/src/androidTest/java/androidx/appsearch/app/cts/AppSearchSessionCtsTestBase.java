@@ -179,6 +179,38 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(getSchemaResponse.getVersion()).isEqualTo(2);
     }
 
+    @Test
+    public void testSetSchema_checkVersion() throws Exception {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("subject")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("body")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+
+        // set different version number to different database.
+        mDb1.setSchema(new SetSchemaRequest.Builder().addSchemas(schema)
+                .setVersion(135).build()).get();
+        mDb2.setSchema(new SetSchemaRequest.Builder().addSchemas(schema)
+                .setVersion(246).build()).get();
+
+
+        // check the version has been set correctly.
+        GetSchemaResponse getSchemaResponse = mDb1.getSchema().get();
+        assertThat(getSchemaResponse.getSchemas()).containsExactly(schema);
+        assertThat(getSchemaResponse.getVersion()).isEqualTo(135);
+
+        getSchemaResponse = mDb2.getSchema().get();
+        assertThat(getSchemaResponse.getSchemas()).containsExactly(schema);
+        assertThat(getSchemaResponse.getVersion()).isEqualTo(246);
+    }
+
 // @exportToFramework:startStrip()
 
     @Test
