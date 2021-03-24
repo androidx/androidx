@@ -53,7 +53,7 @@ import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
-import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
+import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.InteractiveWatchFaceImpl
 import androidx.wear.watchface.control.data.ComplicationRenderParams
@@ -103,21 +103,21 @@ public annotation class TapType {
         /**
          * Used in [WatchFaceImpl#onTapCommand] to indicate a "down" touch event on the watch face.
          */
-        public const val DOWN: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_DOWN
+        public const val DOWN: Int = IInteractiveWatchFace.TAP_TYPE_DOWN
 
         /**
          * Used in [WatchFaceImpl#onTapCommand] to indicate that a previous [TapType.DOWN] touch
          * event has been canceled. This generally happens when the watch face is touched but then a
          * move or long press occurs.
          */
-        public const val CANCEL: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_CANCEL
+        public const val CANCEL: Int = IInteractiveWatchFace.TAP_TYPE_CANCEL
 
         /**
          * Used in [WatchFaceImpl#onTapCommand] to indicate that an "up" event on the watch face has
          * occurred that has not been consumed by another activity. A [TapType.DOWN] will always
          * occur first. This event will not occur if a [TapType.CANCEL] is sent.
          */
-        public const val UP: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_UP
+        public const val UP: Int = IInteractiveWatchFace.TAP_TYPE_UP
     }
 }
 
@@ -405,7 +405,7 @@ public abstract class WatchFaceService : WallpaperService() {
                             createInteractiveInstance(
                                 directBootParams!!,
                                 "DirectBoot"
-                            ).createWCSApi()
+                            )
                             asyncTraceEvent.close()
                         }
                     }
@@ -423,11 +423,11 @@ public abstract class WatchFaceService : WallpaperService() {
                 // workaround the workaround...
                 ignoreNextOnVisibilityChanged = true
                 coroutineScope.launch {
-                    pendingWallpaperInstance.callback.onInteractiveWatchFaceWcsCreated(
+                    pendingWallpaperInstance.callback.onInteractiveWatchFaceCreated(
                         createInteractiveInstance(
                             pendingWallpaperInstance.params,
                             "Boot with pendingWallpaperInstance"
-                        ).createWCSApi()
+                        )
                     )
                     asyncTraceEvent.close()
                     val params = pendingWallpaperInstance.params
@@ -1017,7 +1017,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     "Miss match between pendingWallpaperInstance id $it.params.instanceId and " +
                         "constructed instance id $params.instanceId"
                 }
-                it.callback.onInteractiveWatchFaceWcsCreated(instance.createWCSApi())
+                it.callback.onInteractiveWatchFaceCreated(instance)
             }
 
             return instance

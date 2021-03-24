@@ -16,14 +16,14 @@
 
 package androidx.wear.watchface.control;
 
-import androidx.wear.watchface.control.IInteractiveWatchFaceWCS;
+import androidx.wear.watchface.control.IInteractiveWatchFace;
 
 /**
  * Callback issued when {@link IInteractiveWatchFaceWcs} has been created.
  *
  * @hide
  */
-interface IPendingInteractiveWatchFaceWCS {
+interface IPendingInteractiveWatchFace {
    // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
    // in the future to remain binary backwards compatible.
    // Next Id: 8
@@ -42,6 +42,5 @@ interface IPendingInteractiveWatchFaceWCS {
    int getApiVersion() = 1;
 
    /** Called by the watchface when {@link IInteractiveWatchFaceWcs} has been created. */
-   oneway void onInteractiveWatchFaceWcsCreated(
-         in IInteractiveWatchFaceWCS iInteractiveWatchFaceWcs) = 2;
+   oneway void onInteractiveWatchFaceCreated(in IInteractiveWatchFace iInteractiveWatchFace) = 2;
 }

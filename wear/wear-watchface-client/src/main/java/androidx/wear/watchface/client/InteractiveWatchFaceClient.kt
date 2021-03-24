@@ -16,16 +16,21 @@
 
 package androidx.wear.watchface.client
 
+import android.app.PendingIntent
+import android.content.res.Resources
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.RenderParameters
-import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
+import androidx.wear.watchface.TapType
+import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
@@ -33,15 +38,15 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import java.util.Objects
 
 /**
- * Controls a stateful remote interactive watch face with an interface tailored for WCS the
- * WearOS system server responsible for watch face management. Typically this will be used for
- * the current active watch face.
+ * Controls a stateful remote interactive watch face. Typically this will be used for the current
+ * active watch face.
  *
  * Note clients should call [close] when finished.
  */
-public interface InteractiveWatchFaceWcsClient : AutoCloseable {
+public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
      * Sends new ComplicationData to the watch face. Note this doesn't have to be a full update,
      * it's possible to update just one complication at a time, but doing so may result in a less
@@ -118,17 +123,89 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
      * Requests that [ComplicationsManager.displayPressedAnimation] is called for [complicationId].
      */
     public fun displayPressedAnimation(complicationId: Int)
+
+    public companion object {
+        /** Indicates a "down" touch event on the watch face. */
+        public const val TAP_TYPE_DOWN: Int = IInteractiveWatchFace.TAP_TYPE_DOWN
+
+        /**
+         * Indicates that a previous [TAP_TYPE_DOWN] event has been canceled. This generally happens
+         * when the watch face is touched but then a move or long press occurs.
+         */
+        public const val TAP_TYPE_CANCEL: Int = IInteractiveWatchFace.TAP_TYPE_CANCEL
+
+        /**
+         * Indicates that an "up" event on the watch face has occurred that has not been consumed by
+         * another activity. A [TAP_TYPE_DOWN] always occur first. This event will not occur if a
+         * [TAP_TYPE_CANCEL] is sent.
+         */
+        public const val TAP_TYPE_UP: Int = IInteractiveWatchFace.TAP_TYPE_UP
+    }
+
+    /**
+     * Sends a tap event to the watch face for processing.
+     */
+    public fun sendTouchEvent(@Px xPosition: Int, @Px yPosition: Int, @TapType tapType: Int)
+
+    /**
+     * Describes regions of the watch face for use by a screen reader.
+     *
+     * @param text [ComplicationText] associated with the region, to be read by the screen reader.
+     * @param bounds [Rect] describing the area of the feature on screen.
+     * @param tapAction [PendingIntent] to be used if the screen reader's user triggers a tap
+     *     action.
+     */
+    public class ContentDescriptionLabel(
+        private val text: ComplicationText,
+        public val bounds: Rect,
+        public val tapAction: PendingIntent?
+    ) {
+        /**
+         * Returns the text that should be displayed for the given timestamp.
+         *
+         * @param resources [Resources] from the current [android.content.Context]
+         * @param dateTimeMillis milliseconds since epoch, e.g. from [System.currentTimeMillis]
+         */
+        public fun getTextAt(resources: Resources, dateTimeMillis: Long): CharSequence =
+            text.getTextAt(resources, dateTimeMillis)
+
+        override fun equals(other: Any?): Boolean =
+            other is ContentDescriptionLabel &&
+                text == other.text &&
+                bounds == other.bounds &&
+                tapAction == other.tapAction
+
+        override fun hashCode(): Int {
+            return Objects.hash(
+                text,
+                bounds,
+                tapAction
+            )
+        }
+    }
+
+    /**
+     * Returns the [ContentDescriptionLabel]s describing the watch face, for the use by screen
+     * readers.
+     */
+    public val contentDescriptionLabels: List<ContentDescriptionLabel>
+
+    /** Updates the watch faces [SystemState]. */
+    public fun setSystemState(systemState: SystemState)
+
+    /** Triggers watch face rendering into the surface when in ambient mode. */
+    public fun performAmbientTick()
 }
 
-/** Controls a stateful remote interactive watch face with an interface tailored for WCS. */
-internal class InteractiveWatchFaceWcsClientImpl internal constructor(
-    private val iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS
-) : InteractiveWatchFaceWcsClient {
+/** Controls a stateful remote interactive watch face. */
+internal class InteractiveWatchFaceClientImpl internal constructor(
+    private val iInteractiveWatchFace: IInteractiveWatchFace
+) : InteractiveWatchFaceClient {
 
     override fun updateComplicationData(
         idToComplicationData: Map<Int, ComplicationData>
-    ) = TraceEvent("InteractiveWatchFaceWcsClientImpl.updateComplicationData").use {
-        iInteractiveWatchFaceWcs.updateComplicationData(
+    ) = TraceEvent("InteractiveWatchFaceClientImpl.updateComplicationData").use {
+        iInteractiveWatchFace.updateComplicationData(
             idToComplicationData.map {
                 IdAndComplicationDataWireFormat(it.key, it.value.asWireComplicationData())
             }
@@ -141,9 +218,9 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = TraceEvent("InteractiveWatchFaceWcsClientImpl.renderWatchFaceToBitmap").use {
+    ): Bitmap = TraceEvent("InteractiveWatchFaceClientImpl.renderWatchFaceToBitmap").use {
         SharedMemoryImage.ashmemReadImageBundle(
-            iInteractiveWatchFaceWcs.renderWatchFaceToBitmap(
+            iInteractiveWatchFace.renderWatchFaceToBitmap(
                 WatchFaceRenderParams(
                     renderParameters.toWireFormat(),
                     calendarTimeMillis,
@@ -160,45 +237,79 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
     }
 
     override val previewReferenceTimeMillis: Long
-        get() = iInteractiveWatchFaceWcs.previewReferenceTimeMillis
+        get() = iInteractiveWatchFace.previewReferenceTimeMillis
 
     override fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyle) = TraceEvent(
-        "InteractiveWatchFaceWcsClientImpl.updateInstance"
+        "InteractiveWatchFaceClientImpl.updateInstance"
     ).use {
-        iInteractiveWatchFaceWcs.updateWatchfaceInstance(newInstanceId, userStyle.toWireFormat())
+        iInteractiveWatchFace.updateWatchfaceInstance(newInstanceId, userStyle.toWireFormat())
     }
 
     override fun updateWatchFaceInstance(
         newInstanceId: String,
         userStyle: Map<String, String>
     ) = TraceEvent(
-        "InteractiveWatchFaceWcsClientImpl.updateInstance"
+        "InteractiveWatchFaceClientImpl.updateInstance"
     ).use {
-        iInteractiveWatchFaceWcs.updateWatchfaceInstance(
+        iInteractiveWatchFace.updateWatchfaceInstance(
             newInstanceId,
             UserStyleWireFormat(userStyle)
         )
     }
 
     override val instanceId: String
-        get() = iInteractiveWatchFaceWcs.instanceId
+        get() = iInteractiveWatchFace.instanceId
 
     override val userStyleSchema: UserStyleSchema
-        get() = UserStyleSchema(iInteractiveWatchFaceWcs.userStyleSchema)
+        get() = UserStyleSchema(iInteractiveWatchFace.userStyleSchema)
 
     override val complicationsState: Map<Int, ComplicationState>
-        get() = iInteractiveWatchFaceWcs.complicationDetails.associateBy(
+        get() = iInteractiveWatchFace.complicationDetails.associateBy(
             { it.id },
             { ComplicationState(it.complicationState) }
         )
 
-    override fun close() = TraceEvent("InteractiveWatchFaceWcsClientImpl.close").use {
-        iInteractiveWatchFaceWcs.release()
+    override fun close() = TraceEvent("InteractiveWatchFaceClientImpl.close").use {
+        iInteractiveWatchFace.release()
     }
 
     override fun displayPressedAnimation(complicationId: Int) = TraceEvent(
-        "InteractiveWatchFaceWcsClientImpl.bringAttentionToComplication"
+        "InteractiveWatchFaceClientImpl.bringAttentionToComplication"
     ).use {
-        iInteractiveWatchFaceWcs.bringAttentionToComplication(complicationId)
+        iInteractiveWatchFace.bringAttentionToComplication(complicationId)
+    }
+
+    override fun sendTouchEvent(
+        xPosition: Int,
+        yPosition: Int,
+        @TapType tapType: Int
+    ) = TraceEvent("InteractiveWatchFaceClientImpl.sendTouchEvent").use {
+        iInteractiveWatchFace.sendTouchEvent(xPosition, yPosition, tapType)
+    }
+
+    override val contentDescriptionLabels: List<InteractiveWatchFaceClient.ContentDescriptionLabel>
+        get() = iInteractiveWatchFace.contentDescriptionLabels.map {
+            InteractiveWatchFaceClient.ContentDescriptionLabel(
+                it.text.toApiComplicationText(),
+                it.bounds,
+                it.tapAction
+            )
+        }
+
+    override fun setSystemState(systemState: SystemState) = TraceEvent(
+        "InteractiveWatchFaceClientImpl.setSystemState"
+    ).use {
+        iInteractiveWatchFace.setSystemState(
+            androidx.wear.watchface.data.SystemState(
+                systemState.inAmbientMode,
+                systemState.interruptionFilter
+            )
+        )
+    }
+
+    override fun performAmbientTick() = TraceEvent(
+        "InteractiveWatchFaceClientImpl.performAmbientTick"
+    ).use {
+        iInteractiveWatchFace.ambientTickUpdate()
     }
 }

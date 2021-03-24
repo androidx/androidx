@@ -271,7 +271,7 @@ public class ListenableWatchFaceControlClientTest {
             context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
-        assertNull(client.getInteractiveWatchFaceSysUiClientInstance("I do not exist"))
+        assertNull(client.getInteractiveWatchFaceClientInstance("I do not exist"))
     }
 }
 
