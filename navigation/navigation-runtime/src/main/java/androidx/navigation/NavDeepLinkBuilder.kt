@@ -52,7 +52,7 @@ public class NavDeepLinkBuilder
  * default activity to launch, if available.
  *
  * @param context Context used to create deep links
- * @see .setComponentName
+ * @see NavDeepLinkBuilder.setComponentName
  */
 constructor(private val context: Context) {
     private class DeepLinkDestination constructor(
