@@ -55,9 +55,9 @@ package androidx.wear.watchface.editor {
     method @RequiresApi(android.os.Build.VERSION_CODES.R) public abstract androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
     method @UiThread public final boolean isCommitChangesOnClose();
     method @UiThread public abstract suspend Object? launchComplicationProviderChooser(int complicationId, kotlin.coroutines.Continuation<? super java.lang.Boolean> p);
+    method @UiThread public abstract android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
     method @UiThread public final void setCommitChangesOnClose(boolean p);
     method public abstract void setUserStyle(androidx.wear.watchface.style.UserStyle p);
-    method @UiThread public abstract android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
     property public abstract Integer? backgroundComplicationId;
     property @UiThread public final boolean commitChangesOnClose;
     property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationsState;

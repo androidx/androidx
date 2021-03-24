@@ -23,8 +23,8 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IHeadlessWatchFace
-import androidx.wear.watchface.control.data.ComplicationScreenshotParams
-import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
+import androidx.wear.watchface.control.data.ComplicationRenderParams
+import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
@@ -50,8 +50,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
     public val complicationsState: Map<Int, ComplicationState>
 
     /**
-     * Requests a shared memory backed [Bitmap] containing a screenshot of the watch face with the
-     * given settings.
+     * Renders the watchface to a shared memory backed [Bitmap] with the given settings.
      *
      * @param renderParameters The [RenderParameters] to draw with.
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with.
@@ -62,7 +61,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      *     given settings.
      */
     @RequiresApi(27)
-    public fun takeWatchFaceScreenshot(
+    public fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
@@ -70,8 +69,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
     ): Bitmap
 
     /**
-     * Requests a shared memory backed [Bitmap] containing a screenshot of the complication with the
-     * given settings.
+     * Renders the complication to a shared memory backed [Bitmap] with the given settings.
      *
      * @param complicationId The id of the complication to render
      * @param renderParameters The [RenderParameters] to draw with
@@ -82,7 +80,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      *     given settings, or `null` if [complicationId] is unrecognized.
      */
     @RequiresApi(27)
-    public fun takeComplicationScreenshot(
+    public fun renderComplicationToBitmap(
         complicationId: Int,
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
@@ -108,15 +106,15 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
         )
 
     @RequiresApi(27)
-    override fun takeWatchFaceScreenshot(
+    override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idToComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = TraceEvent("HeadlessWatchFaceClientImpl.takeWatchFaceScreenshot").use {
+    ): Bitmap = TraceEvent("HeadlessWatchFaceClientImpl.renderWatchFaceToBitmap").use {
         SharedMemoryImage.ashmemReadImageBundle(
-            iHeadlessWatchFace.takeWatchFaceScreenshot(
-                WatchfaceScreenshotParams(
+            iHeadlessWatchFace.renderWatchFaceToBitmap(
+                WatchFaceRenderParams(
                     renderParameters.toWireFormat(),
                     calendarTimeMillis,
                     userStyle?.toWireFormat(),
@@ -132,15 +130,15 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
     }
 
     @RequiresApi(27)
-    override fun takeComplicationScreenshot(
+    override fun renderComplicationToBitmap(
         complicationId: Int,
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         complicationData: ComplicationData,
         userStyle: UserStyle?,
-    ): Bitmap? = TraceEvent("HeadlessWatchFaceClientImpl.takeComplicationScreenshot").use {
-        iHeadlessWatchFace.takeComplicationScreenshot(
-            ComplicationScreenshotParams(
+    ): Bitmap? = TraceEvent("HeadlessWatchFaceClientImpl.renderComplicationToBitmap").use {
+        iHeadlessWatchFace.renderComplicationToBitmap(
+            ComplicationRenderParams(
                 complicationId,
                 renderParameters.toWireFormat(),
                 calendarTimeMillis,

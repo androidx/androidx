@@ -119,7 +119,7 @@ public interface WatchFaceControlClient : AutoCloseable {
 
     /**
      * Creates a [HeadlessWatchFaceClient] with the specified [DeviceConfig]. Screenshots made with
-     * [HeadlessWatchFaceClient.takeWatchFaceScreenshot] will be `surfaceWidth` x `surfaceHeight` in
+     * [HeadlessWatchFaceClient.renderWatchFaceToBitmap] will be `surfaceWidth` x `surfaceHeight` in
      * size.
      *
      * When finished call [HeadlessWatchFaceClient.close] to release resources.

@@ -20,7 +20,7 @@ import android.os.Handler
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
+import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.runOnHandlerWithTracing
@@ -58,9 +58,9 @@ internal class SysUiApi(
             engine.watchFaceImpl.complicationsManager.getContentDescriptionLabels()
         }
 
-    override fun takeWatchFaceScreenshot(params: WatchfaceScreenshotParams) =
-        uiThreadHandler.runOnHandlerWithTracing("SysUiApi.takeWatchFaceScreenshot") {
-            engine.takeWatchFaceScreenshot(params)
+    override fun renderWatchFaceToBitmap(params: WatchFaceRenderParams) =
+        uiThreadHandler.runOnHandlerWithTracing("SysUiApi.renderWatchFaceToBitmap") {
+            engine.renderWatchFaceToBitmap(params)
         }
 
     override fun getPreviewReferenceTimeMillis() = engine.watchFaceImpl.previewReferenceTimeMillis
@@ -103,9 +103,9 @@ internal class WCSApi(
         }
     }
 
-    override fun takeWatchFaceScreenshot(params: WatchfaceScreenshotParams) =
-        uiThreadHandler.runOnHandlerWithTracing("WCSApi.takeWatchFaceScreenshot") {
-            engine.takeWatchFaceScreenshot(params)
+    override fun renderWatchFaceToBitmap(params: WatchFaceRenderParams) =
+        uiThreadHandler.runOnHandlerWithTracing("WCSApi.renderWatchFaceToBitmap") {
+            engine.renderWatchFaceToBitmap(params)
         }
 
     override fun getPreviewReferenceTimeMillis() = engine.watchFaceImpl.previewReferenceTimeMillis

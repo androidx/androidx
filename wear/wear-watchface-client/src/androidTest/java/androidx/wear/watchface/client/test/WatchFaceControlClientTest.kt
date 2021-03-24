@@ -172,7 +172,7 @@ class WatchFaceControlClientTest {
             400,
             400
         )!!
-        val bitmap = headlessInstance.takeWatchFaceScreenshot(
+        val bitmap = headlessInstance.renderWatchFaceToBitmap(
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 RenderParameters.DRAW_ALL_LAYERS,
@@ -205,7 +205,7 @@ class WatchFaceControlClientTest {
             400,
             400
         )!!
-        val bitmap = headlessInstance.takeWatchFaceScreenshot(
+        val bitmap = headlessInstance.renderWatchFaceToBitmap(
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 mapOf(
@@ -327,7 +327,7 @@ class WatchFaceControlClientTest {
                 }
             }
 
-        val bitmap = interactiveInstance.takeWatchFaceScreenshot(
+        val bitmap = interactiveInstance.renderWatchFaceToBitmap(
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 RenderParameters.DRAW_ALL_LAYERS,
@@ -372,7 +372,7 @@ class WatchFaceControlClientTest {
                 }
             }
 
-        val bitmap = interactiveInstance.takeWatchFaceScreenshot(
+        val bitmap = interactiveInstance.renderWatchFaceToBitmap(
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 RenderParameters.DRAW_ALL_LAYERS,
@@ -662,7 +662,7 @@ class WatchFaceControlClientTest {
         sysUiInterface?.close()
 
         interactiveInstance.updateComplicationData(complications)
-        val bitmap = interactiveInstance.takeWatchFaceScreenshot(
+        val bitmap = interactiveInstance.renderWatchFaceToBitmap(
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 RenderParameters.DRAW_ALL_LAYERS,

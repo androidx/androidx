@@ -17,4 +17,4 @@
 package androidx.wear.watchface.control.data;
 
 /** @hide */
-parcelable ComplicationScreenshotParams;
+parcelable WatchFaceRenderParams;

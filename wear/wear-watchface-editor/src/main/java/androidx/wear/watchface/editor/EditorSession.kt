@@ -133,14 +133,14 @@ public abstract class EditorSession : AutoCloseable {
     public abstract fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int?
 
     /**
-     * Takes a screen shot of the watch face using the current [userStyle].
+     * Renders the watch face to a [Bitmap] using the current [userStyle].
      *
      * @param renderParameters The [RenderParameters] to render with
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with
      * @param idToComplicationData The [ComplicationData] for each complication to render with
      */
     @UiThread
-    public abstract fun takeWatchFaceScreenshot(
+    public abstract fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         idToComplicationData: Map<Int, ComplicationData>?
@@ -529,13 +529,13 @@ internal class OnWatchFaceEditorSessionImpl(
 
     private lateinit var previousWatchFaceUserStyle: UserStyle
 
-    override fun takeWatchFaceScreenshot(
+    override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         idToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap {
         requireNotClosed()
-        return editorDelegate.takeScreenshot(
+        return editorDelegate.renderWatchFaceToBitmap(
             renderParameters,
             calendarTimeMillis,
             idToComplicationData
@@ -586,13 +586,13 @@ internal class HeadlessEditorSession(
 
     override val complicationsState = headlessWatchFaceClient.complicationsState
 
-    override fun takeWatchFaceScreenshot(
+    override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         calendarTimeMillis: Long,
         idToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap {
         requireNotClosed()
-        return headlessWatchFaceClient.takeWatchFaceScreenshot(
+        return headlessWatchFaceClient.renderWatchFaceToBitmap(
             renderParameters,
             calendarTimeMillis,
             userStyle,
