@@ -427,7 +427,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { invocation: XTestInvocation ->
             val dao = invocation.roundEnv
                 .getTypeElementsAnnotatedWith(
-                    androidx.room.Dao::class.java
+                    androidx.room.Dao::class.qualifiedName!!
                 )
                 .first()
             check(dao.isTypeElement())

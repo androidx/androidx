@@ -520,7 +520,7 @@ class ProjectionExpanderTest {
             options = listOf("-Aroom.expandProjection=true")
         ) { invocation ->
             val entities = invocation.roundEnv
-                .getTypeElementsAnnotatedWith(androidx.room.Entity::class.java)
+                .getTypeElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
                 .map { element ->
                     TableEntityProcessor(
                         invocation.context,
@@ -623,7 +623,7 @@ class ProjectionExpanderTest {
             options = listOf("-Aroom.expandProjection=true")
         ) { invocation ->
             val entities = invocation.roundEnv
-                .getTypeElementsAnnotatedWith(androidx.room.Entity::class.java)
+                .getTypeElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
                 .map { element ->
                     TableEntityProcessor(
                         invocation.context,
