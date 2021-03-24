@@ -622,7 +622,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             renderer.oldBounds.set(0, 0, 0, 0)
         }
         return WatchFace(
-            WatchFaceType.ANALOG,
+            WatchFaceType.DIGITAL,
             userStyleRepository,
             renderer,
             complicationsManager
@@ -649,6 +649,7 @@ class ExampleDigitalWatchCanvasRenderer(
 
     private fun getBaseDigitPaint() = Paint().apply {
         typeface = Typeface.create(DIGITAL_TYPE_FACE, Typeface.NORMAL)
+        isAntiAlias = true
     }
 
     private val digitTextHoursPaint = getBaseDigitPaint()
@@ -777,6 +778,10 @@ class ExampleDigitalWatchCanvasRenderer(
 
             // Trigger recomputation of bounds.
             oldBounds.set(0, 0, 0, 0)
+            val antiAlias = !(it && watchState.hasLowBitAmbient)
+            digitTextHoursPaint.setAntiAlias(antiAlias)
+            digitTextMinutesPaint.setAntiAlias(antiAlias)
+            digitTextSecondsPaint.setAntiAlias(antiAlias)
         }
     }
 
