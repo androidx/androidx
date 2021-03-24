@@ -58,11 +58,11 @@ class EditorServiceClientTest {
 
         assertThat(observedEditorState.watchFaceId.id).isEqualTo(watchFaceInstanceId)
         assertThat(observedEditorState.userStyle.toString()).isEqualTo("{color=red, size=small}")
-        assertTrue(observedEditorState.commitChanges)
+        assertTrue(observedEditorState.shouldCommitChanges)
 
         val editorStateString = observedEditorState.toString()
         assertThat(editorStateString).contains("watchFaceId: $watchFaceInstanceId")
         assertThat(editorStateString).contains("{color=red, size=small}")
-        assertThat(editorStateString).contains("commitChanges: true")
+        assertThat(editorStateString).contains("shouldCommitChanges: true")
     }
 }

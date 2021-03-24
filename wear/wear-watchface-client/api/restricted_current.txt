@@ -52,9 +52,9 @@ package androidx.wear.watchface.client {
     method public java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> getPreviewComplicationsData();
     method public java.util.Map<java.lang.String,java.lang.String> getUserStyle();
     method public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
-    method public boolean hasCommitChanges();
-    property public final boolean commitChanges;
+    method public boolean shouldCommitChanges();
     property public final java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> previewComplicationsData;
+    property public final boolean shouldCommitChanges;
     property public final java.util.Map<java.lang.String,java.lang.String> userStyle;
     property public final androidx.wear.watchface.client.WatchFaceId watchFaceId;
   }
