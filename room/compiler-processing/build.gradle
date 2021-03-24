@@ -31,7 +31,8 @@ dependencies {
     api(KOTLINPOET)
     implementation("androidx.annotation:annotation:1.1.0")
     implementation(GUAVA)
-    implementation(AUTO_COMMON)
+    // TODO(183520279): Upgrade auto-common dependency to newest version 0.11.
+    implementation("com.google.auto:auto-common:0.10")
     implementation(AUTO_VALUE_ANNOTATIONS)
 
     implementation(KOTLIN_METADATA_JVM)
