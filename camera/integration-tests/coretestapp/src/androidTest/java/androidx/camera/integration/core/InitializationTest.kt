@@ -17,6 +17,7 @@
 package androidx.camera.integration.core
 
 import android.content.Context
+import androidx.camera.core.CameraX
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.concurrent.futures.await
@@ -32,6 +33,7 @@ import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -39,6 +41,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -69,6 +72,12 @@ class InitializationTest(private val config: TestConfig) {
                 .map { orientation ->
                     TestConfig(orientation)
                 }
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun shutdownCameraX() {
+            CameraX.shutdown().get(10, TimeUnit.SECONDS)
         }
     }
 
