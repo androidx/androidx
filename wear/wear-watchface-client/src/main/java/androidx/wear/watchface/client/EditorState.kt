@@ -25,10 +25,21 @@ import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.UserStyle
 
 /**
+ * The system is responsible for the management and generation of these ids and they have no
+ * context outside of an instance of an EditorState and should not be stored or saved for later
+ * use by the WatchFace provider.
+ *
+ * @param id The system's id for a watch face being edited. This is passed in from
+ *     [androidx.wear.watchface.EditorRequest.watchFaceId].
+ */
+public class WatchFaceId(public val id: String)
+
+/**
  * The state of the editing session. See [androidx.wear.watchface.editor.EditorSession].
  *
- * @param watchFaceInstanceId Unique ID for the instance of the watch face being edited, only
- *     defined for Android R and beyond.
+ * @param watchFaceId Unique ID for the instance of the watch face being edited (see
+ *     [androidx.wear.watchface.editor.EditorRequest.watchFaceId]), only defined for
+ *     Android R and beyond.
  * @param userStyle The current [UserStyle] encoded as a Map<String, String>.
  * @param previewComplicationData Preview [ComplicationData] needed for taking screenshots without
  *     live complication data.
@@ -39,14 +50,14 @@ import androidx.wear.watchface.style.UserStyle
  */
 public class EditorState internal constructor(
     @RequiresApi(Build.VERSION_CODES.R)
-    public val watchFaceInstanceId: String,
+    public val watchFaceId: WatchFaceId,
     public val userStyle: Map<String, String>,
     public val previewComplicationData: Map<Int, ComplicationData>,
     @get:JvmName("hasCommitChanges")
     public val commitChanges: Boolean
 ) {
     override fun toString(): String =
-        "{watchFaceInstanceId: $watchFaceInstanceId, userStyle: $userStyle" +
+        "{watchFaceId: ${watchFaceId.id}, userStyle: $userStyle" +
             ", previewComplicationData: [" +
             previewComplicationData.map { "${it.key} -> ${it.value}" }.joinToString() +
             "], commitChanges: $commitChanges}"
@@ -56,7 +67,7 @@ public class EditorState internal constructor(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun EditorStateWireFormat.asApiEditorState(): EditorState {
     return EditorState(
-        watchFaceInstanceId ?: "",
+        WatchFaceId(watchFaceInstanceId ?: ""),
         userStyle.mUserStyle,
         previewComplicationData.associateBy(
             { it.id },

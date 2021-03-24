@@ -51,12 +51,12 @@ package androidx.wear.watchface.client {
   public final class EditorState {
     method public java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> getPreviewComplicationData();
     method public java.util.Map<java.lang.String,java.lang.String> getUserStyle();
-    method public String getWatchFaceInstanceId();
+    method public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
     method public boolean hasCommitChanges();
     property public final boolean commitChanges;
     property public final java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> previewComplicationData;
     property public final java.util.Map<java.lang.String,java.lang.String> userStyle;
-    property public final String watchFaceInstanceId;
+    property public final androidx.wear.watchface.client.WatchFaceId watchFaceId;
   }
 
   public final class EditorStateKt {
@@ -153,6 +153,12 @@ package androidx.wear.watchface.client {
 
   public static final class WatchFaceControlClient.ServiceStartFailureException extends java.lang.Exception {
     ctor public WatchFaceControlClient.ServiceStartFailureException();
+  }
+
+  public final class WatchFaceId {
+    ctor public WatchFaceId(String id);
+    method public String getId();
+    property public final String id;
   }
 
 }
