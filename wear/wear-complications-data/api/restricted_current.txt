@@ -259,11 +259,11 @@ package androidx.wear.complications.data {
   }
 
   public interface ComplicationText {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationText asWireComplicationText();
     method public long getNextChangeTime(long fromDateTimeMillis);
     method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);
     method public boolean isAlwaysEmpty();
     method public boolean returnsSameText(long firstDateTimeMillis, long secondDateTimeMillis);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationText toWireComplicationText();
   }
 
   public enum ComplicationType {
@@ -301,7 +301,7 @@ package androidx.wear.complications.data {
   }
 
   public final class DataKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.complications.data.ComplicationData asApiComplicationData(android.support.wearable.complications.ComplicationData);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.complications.data.ComplicationData toApiComplicationData(android.support.wearable.complications.ComplicationData);
   }
 
   public final class EmptyComplicationData extends androidx.wear.complications.data.ComplicationData {
@@ -535,6 +535,7 @@ package androidx.wear.complications.data {
   }
 
   public final class TextKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.complications.data.ComplicationText toApiComplicationText(android.support.wearable.complications.TimeDependentText);
   }
 
   public final class TimeDifferenceComplicationText implements androidx.wear.complications.data.ComplicationText {
@@ -594,8 +595,8 @@ package androidx.wear.complications.data {
   }
 
   public final class TypeKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.complications.data.ComplicationType![] asApiComplicationTypes(int[]);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static int[] asWireTypes(java.util.Collection<? extends androidx.wear.complications.data.ComplicationType>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.complications.data.ComplicationType![] toApiComplicationTypes(int[]);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static int[] toWireTypes(java.util.Collection<? extends androidx.wear.complications.data.ComplicationType>);
   }
 
 }

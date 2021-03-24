@@ -20,13 +20,14 @@ import android.app.PendingIntent
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Rect
-import android.support.wearable.complications.TimeDependentText
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntDef
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.ComplicationText
+import androidx.wear.complications.data.toApiComplicationText
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
@@ -81,13 +82,13 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
     /**
      * Describes regions of the watch face for use by a screen reader.
      *
-     * @param text Text associated with the region, to be read by the screen reader.
+     * @param text [ComplicationText] associated with the region, to be read by the screen reader.
      * @param bounds [Rect] describing the area of the feature on screen.
      * @param tapAction [PendingIntent] to be used if the screen reader's user triggers a tap
      *     action.
      */
     public class ContentDescriptionLabel(
-        private val text: TimeDependentText,
+        private val text: ComplicationText,
         public val bounds: Rect,
         public val tapAction: PendingIntent?
     ) {
@@ -169,7 +170,7 @@ internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
         List<InteractiveWatchFaceSysUiClient.ContentDescriptionLabel>
             get() = iInteractiveWatchFaceSysUI.contentDescriptionLabels.map {
                 InteractiveWatchFaceSysUiClient.ContentDescriptionLabel(
-                    it.text,
+                    it.text.toApiComplicationText(),
                     it.bounds,
                     it.tapAction
                 )

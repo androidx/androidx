@@ -177,7 +177,7 @@ public class AsWireComplicationDataTest {
     private fun testRoundTripConversions(data: ComplicationData) {
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
-                data.asWireComplicationData().asApiComplicationData().asWireComplicationData()
+                data.asWireComplicationData().toApiComplicationData().asWireComplicationData()
             )
     }
 }
@@ -294,7 +294,7 @@ public class FromWireComplicationDataTest {
     }
 
     private fun assertRoundtrip(wireData: WireComplicationData, type: ComplicationType) {
-        val data = wireData.asApiComplicationData()
+        val data = wireData.toApiComplicationData()
         assertThat(data.type).isEqualTo(type)
         ParcelableSubject.assertThat(data.asWireComplicationData()).hasSameSerializationAs(wireData)
     }

@@ -98,7 +98,7 @@ package androidx.wear.watchface.client {
   }
 
   public static final class InteractiveWatchFaceSysUiClient.ContentDescriptionLabel {
-    ctor public InteractiveWatchFaceSysUiClient.ContentDescriptionLabel(android.support.wearable.complications.TimeDependentText text, android.graphics.Rect bounds, android.app.PendingIntent? tapAction);
+    ctor public InteractiveWatchFaceSysUiClient.ContentDescriptionLabel(androidx.wear.complications.data.ComplicationText text, android.graphics.Rect bounds, android.app.PendingIntent? tapAction);
     method public android.graphics.Rect getBounds();
     method public android.app.PendingIntent? getTapAction();
     method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);

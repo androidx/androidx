@@ -230,7 +230,7 @@ public class ComplicationsManager(
                         complication.id,
                         complication.defaultProviderPolicy.providersAsList(),
                         complication.defaultProviderPolicy.systemProviderFallback,
-                        complication.defaultProviderType.asWireComplicationType()
+                        complication.defaultProviderType.toWireComplicationType()
                     )
                 }
 
