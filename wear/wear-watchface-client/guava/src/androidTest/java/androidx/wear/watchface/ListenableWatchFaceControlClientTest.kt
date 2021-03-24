@@ -56,7 +56,7 @@ public class ListenableWatchFaceControlClientTest {
     private lateinit var surface: Surface
 
     @Before
-    fun setUp() {
+    public fun setUp() {
         MockitoAnnotations.initMocks(this)
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
@@ -126,7 +126,7 @@ public class ListenableWatchFaceControlClientTest {
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         val interactiveInstanceFuture =
-            client.listenableGetOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
+            client.listenableGetOrCreateInteractiveWatchFaceClient(
                 "listenableTestId",
                 DeviceConfig(
                     false,
@@ -221,7 +221,7 @@ public class ListenableWatchFaceControlClientTest {
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         val interactiveInstanceFuture =
-            client.listenableGetOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
+            client.listenableGetOrCreateInteractiveWatchFaceClient(
                 "listenableTestId",
                 DeviceConfig(
                     false,
