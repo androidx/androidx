@@ -15,7 +15,7 @@
    limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="android.support.v7.appcompat.test">
+    package="androidx.appcompat.test">
 
     <application
         android:name="androidx.multidex.MultiDexApplication"

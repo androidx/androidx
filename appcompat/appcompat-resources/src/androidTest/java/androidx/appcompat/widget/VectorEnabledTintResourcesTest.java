@@ -17,7 +17,6 @@
 package androidx.appcompat.widget;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
@@ -28,6 +27,7 @@ import android.graphics.drawable.LayerDrawable;
 import androidx.appcompat.resources.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,16 +36,16 @@ import org.junit.runner.RunWith;
 @SuppressWarnings("deprecation")
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class TintResourcesTest {
+public class VectorEnabledTintResourcesTest {
     @Rule
     public final androidx.test.rule.ActivityTestRule<Activity> mActivityTestRule =
             new androidx.test.rule.ActivityTestRule<>(Activity.class);
 
     /**
-     * Ensures that TintResources delegates calls to the wrapped Resources object.
+     * Ensures that VectorEnabledTintResources delegates calls to the wrapped Resources object.
      */
     @Test
-    public void testTintResourcesDelegateBackToOriginalResources() {
+    public void testVectorEnabledTintResourcesDelegateBackToOriginalResources() {
         final TestResources testResources =
                 new TestResources(mActivityTestRule.getActivity().getResources());
 
@@ -54,8 +54,8 @@ public class TintResourcesTest {
         assertFalse(testResources.wasGetDrawableCalled());
 
         // Now wrap in a TintResources instance and get a Drawable
-        final TintResources tintResources =
-                new TintResources(mActivityTestRule.getActivity(), testResources);
+        final VectorEnabledTintResources tintResources =
+                new VectorEnabledTintResources(mActivityTestRule.getActivity(), testResources);
         tintResources.getDrawable(android.R.drawable.ic_delete);
 
         // We can't delegate to the wrapped Resource object's getDrawable() because it will break
@@ -68,14 +68,14 @@ public class TintResourcesTest {
         assertTrue(testResources.wasGetStringCalled());
     }
 
-    public void testNestedTintResources() {
-        Resources tintResources = new TintResources(mActivityTestRule.getActivity(),
+    public void testNestedVectorEnabledTintResources() {
+        Resources tintResources = new VectorEnabledTintResources(mActivityTestRule.getActivity(),
                         mActivityTestRule.getActivity().getResources());
-        Drawable d = tintResources.getDrawable(R.drawable.tint_nested);
+        Drawable d = tintResources.getDrawable(R.drawable.vector_nested);
         assertTrue(d instanceof LayerDrawable);
 
-        // Color filter is applied to nested drawable.
+        // Nested drawable is loaded using VectorEnabledTintResources.
         LayerDrawable ld = (LayerDrawable) d;
-        assertNotNull(ld.getDrawable(0).getColorFilter());
+        assertTrue(ld.getDrawable(0) instanceof VectorDrawableCompat);
     }
 }
