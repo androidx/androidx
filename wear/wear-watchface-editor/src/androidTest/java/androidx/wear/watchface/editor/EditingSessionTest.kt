@@ -757,7 +757,7 @@ public class EditorSessionTest {
 
             // This should update the preview data to point to the updated provider3 data.
             val previewComplication =
-                editorSession.getComplicationPreviewData()[LEFT_COMPLICATION_ID]
+                editorSession.getComplicationsPreviewData()[LEFT_COMPLICATION_ID]
                     as LongTextComplicationData
 
             assertThat(
@@ -868,8 +868,8 @@ public class EditorSessionTest {
         assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id)
             .isEqualTo(gothicStyleOption.id)
 
-        assertThat(result.previewComplicationData.size).isEqualTo(2)
-        val leftComplicationData = result.previewComplicationData[LEFT_COMPLICATION_ID] as
+        assertThat(result.previewComplicationsData.size).isEqualTo(2)
+        val leftComplicationData = result.previewComplicationsData[LEFT_COMPLICATION_ID] as
             ShortTextComplicationData
         assertThat(
             leftComplicationData.text.getTextAt(
@@ -878,7 +878,7 @@ public class EditorSessionTest {
             )
         ).isEqualTo("Left")
 
-        val rightComplicationData = result.previewComplicationData[RIGHT_COMPLICATION_ID] as
+        val rightComplicationData = result.previewComplicationsData[RIGHT_COMPLICATION_ID] as
             LongTextComplicationData
         assertThat(
             rightComplicationData.text.getTextAt(
@@ -934,7 +934,7 @@ public class EditorSessionTest {
             TIMEOUT_MILLIS,
             TimeUnit.MILLISECONDS
         ).asApiEditorState()
-        assertThat(result.previewComplicationData).isEmpty()
+        assertThat(result.previewComplicationsData).isEmpty()
 
         EditorService.globalEditorService.unregisterObserver(observerId)
     }

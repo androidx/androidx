@@ -97,7 +97,7 @@ internal class ConfigView(
     init {
         watchFaceConfigActivity.coroutineScope.launch {
             previewComplicationData =
-                watchFaceConfigActivity.editorSession.getComplicationPreviewData()
+                watchFaceConfigActivity.editorSession.getComplicationsPreviewData()
             setWillNotDraw(false)
         }
     }

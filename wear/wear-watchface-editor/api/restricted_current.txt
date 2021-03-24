@@ -7,7 +7,7 @@ package androidx.wear.watchface.editor {
     method public Integer? getBackgroundComplicationId();
     method protected final boolean getClosed();
     method public Integer? getComplicationIdAt(@Px int x, @Px int y);
-    method public suspend Object? getComplicationPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> $completion);
+    method public suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> $completion);
     method public final kotlinx.coroutines.CoroutineScope getCoroutineScope();
     method protected final boolean getForceClosed();
     method public suspend Object? launchComplicationProviderChooser(int p, kotlin.coroutines.Continuation<? super java.lang.Boolean> $completion);
@@ -46,7 +46,7 @@ package androidx.wear.watchface.editor {
     method @UiThread public static final kotlinx.coroutines.Deferred<androidx.wear.watchface.editor.EditorSession> createOnWatchEditingSessionAsync(androidx.activity.ComponentActivity activity, android.content.Intent editIntent);
     method public abstract Integer? getBackgroundComplicationId();
     method @UiThread public abstract Integer? getComplicationIdAt(@Px int x, @Px int y);
-    method @UiThread public abstract suspend Object? getComplicationPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> p);
+    method @UiThread public abstract suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> p);
     method public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationsState();
     method public abstract long getPreviewReferenceTimeMillis();
     method public abstract androidx.wear.watchface.style.UserStyle getUserStyle();
