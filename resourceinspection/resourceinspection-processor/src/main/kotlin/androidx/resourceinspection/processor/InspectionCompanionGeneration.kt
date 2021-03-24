@@ -16,8 +16,6 @@
 
 package androidx.resourceinspection.processor
 
-import androidx.annotation.NonNull
-import androidx.annotation.RequiresApi
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -219,13 +217,15 @@ private val SET = className("java.util", "Set")
 private val HASH_SET = className("java.util", "HashSet")
 
 private val NON_NULL: AnnotationSpec =
-    AnnotationSpec.builder(NonNull::class.java).build()
+    AnnotationSpec.builder(ClassName.get("androidx.annotation", "NonNull")).build()
 
 private val OVERRIDE: AnnotationSpec =
-    AnnotationSpec.builder(Override::class.java).build()
+    AnnotationSpec.builder(ClassName.get("java.lang", "Override")).build()
 
 /** Minimum SDK version that supports the view inspection API. */
 private const val MIN_SDK = 29
 
 private val REQUIRES_API: AnnotationSpec =
-    AnnotationSpec.builder(RequiresApi::class.java).addMember("value", "\$L", MIN_SDK).build()
+    AnnotationSpec.builder(ClassName.get("androidx.annotation", "RequiresApi"))
+        .addMember("value", "\$L", MIN_SDK)
+        .build()
