@@ -64,7 +64,7 @@ import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
-import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -368,7 +368,7 @@ public abstract class WatchFaceService : WallpaperService() {
         // Only valid after onSetBinder has been called.
         private var systemApiVersion = -1
 
-        internal var firstSetSystemState = true
+        internal var firstSetWatchUiState = true
         internal var immutableSystemStateDone = false
         private var ignoreNextOnVisibilityChanged = false
 
@@ -477,20 +477,20 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         @UiThread
-        fun setSystemState(systemState: SystemState) {
-            if (firstSetSystemState ||
-                systemState.inAmbientMode != mutableWatchState.isAmbient.value
+        fun setWatchUiState(watchUiState: WatchUiState) {
+            if (firstSetWatchUiState ||
+                watchUiState.inAmbientMode != mutableWatchState.isAmbient.value
             ) {
-                mutableWatchState.isAmbient.value = systemState.inAmbientMode
+                mutableWatchState.isAmbient.value = watchUiState.inAmbientMode
             }
 
-            if (firstSetSystemState ||
-                systemState.interruptionFilter != mutableWatchState.interruptionFilter.value
+            if (firstSetWatchUiState ||
+                watchUiState.interruptionFilter != mutableWatchState.interruptionFilter.value
             ) {
-                mutableWatchState.interruptionFilter.value = systemState.interruptionFilter
+                mutableWatchState.interruptionFilter.value = watchUiState.interruptionFilter
             }
 
-            firstSetSystemState = false
+            firstSetWatchUiState = false
         }
 
         @UiThread
@@ -854,8 +854,8 @@ public abstract class WatchFaceService : WallpaperService() {
                 return
             }
 
-            setSystemState(
-                SystemState(
+            setWatchUiState(
+                WatchUiState(
                     extras.getBoolean(
                         Constants.EXTRA_AMBIENT_MODE,
                         mutableWatchState.isAmbient.getValueOr(false)
@@ -985,7 +985,7 @@ public abstract class WatchFaceService : WallpaperService() {
             require(!mutableWatchState.isHeadless)
 
             setImmutableSystemState(params.deviceConfig)
-            setSystemState(params.systemState)
+            setWatchUiState(params.watchUiState)
             initialUserStyle = params.userStyle
 
             val watchState = mutableWatchState.asWatchState()

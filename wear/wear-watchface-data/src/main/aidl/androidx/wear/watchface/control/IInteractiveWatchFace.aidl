@@ -18,7 +18,7 @@ package androidx.wear.watchface.control;
 
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
 import androidx.wear.watchface.control.data.WatchFaceRenderParams;
-import androidx.wear.watchface.data.SystemState;
+import androidx.wear.watchface.data.WatchUiState;
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
@@ -161,11 +161,11 @@ interface IInteractiveWatchFace {
     oneway void ambientTickUpdate() = 14;
 
     /**
-     * Sends the current system state to the Watch Face.
+     * Sends the current {@link WatchUiState} to the Watch Face.
      *
      * @since API version 1.
      */
-    oneway void setSystemState(in SystemState systemState) = 15;
+    oneway void setWatchUiState(in WatchUiState watchUiState) = 15;
 
     /**
      * Gets the labels to be read aloud by screen readers. The results will change depending on the

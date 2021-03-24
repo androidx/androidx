@@ -33,6 +33,7 @@ import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
+import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
@@ -148,7 +149,7 @@ public interface WatchFaceControlClient : AutoCloseable {
      *
      * @param id The ID for the requested [InteractiveWatchFaceClient].
      * @param deviceConfig The [DeviceConfig] for the wearable.
-     * @param systemState The initial [SystemState] for the wearable.
+     * @param watchUiState The initial [WatchUiState] for the wearable.
      * @param userStyle The initial style map (see [UserStyle]), or null if the default should be
      *     used.
      * @param idToComplicationData The initial complication data, or null if unavailable.
@@ -158,7 +159,7 @@ public interface WatchFaceControlClient : AutoCloseable {
     public fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
         id: String,
         deviceConfig: DeviceConfig,
-        systemState: SystemState,
+        watchUiState: androidx.wear.watchface.client.WatchUiState,
         userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): Deferred<InteractiveWatchFaceClient>
@@ -208,7 +209,7 @@ internal class WatchFaceControlClientImpl internal constructor(
     override fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
         id: String,
         deviceConfig: DeviceConfig,
-        systemState: SystemState,
+        watchUiState: androidx.wear.watchface.client.WatchUiState,
         userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): Deferred<InteractiveWatchFaceClient> {
@@ -239,9 +240,9 @@ internal class WatchFaceControlClientImpl internal constructor(
                     deviceConfig.analogPreviewReferenceTimeMillis,
                     deviceConfig.digitalPreviewReferenceTimeMillis
                 ),
-                androidx.wear.watchface.data.SystemState(
-                    systemState.inAmbientMode,
-                    systemState.interruptionFilter
+                WatchUiState(
+                    watchUiState.inAmbientMode,
+                    watchUiState.interruptionFilter
                 ),
                 UserStyleWireFormat(userStyle ?: emptyMap()),
                 idToComplicationData?.map {

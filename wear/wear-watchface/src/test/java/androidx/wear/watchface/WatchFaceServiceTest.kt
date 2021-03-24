@@ -49,7 +49,7 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
-import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -1125,7 +1125,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(
                     hashMapOf(
                         colorStyleSetting to blueStyleOption,
@@ -1161,7 +1161,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(hashMapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
                 null
             )
@@ -1215,7 +1215,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(hashMapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
                 null
             )
@@ -1518,7 +1518,7 @@ public class WatchFaceServiceTest {
                 1000,
                 2000,
             ),
-            SystemState(false, 0),
+            WatchUiState(false, 0),
             UserStyle(
                 hashMapOf(
                     colorStyleSetting to blueStyleOption,
@@ -1548,7 +1548,7 @@ public class WatchFaceServiceTest {
                 1000,
                 2000,
             ),
-            SystemState(false, 0),
+            WatchUiState(false, 0),
             UserStyle(
                 hashMapOf(
                     colorStyleSetting to blueStyleOption,
@@ -1841,7 +1841,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null
             )
@@ -1895,7 +1895,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null
             )
@@ -1961,7 +1961,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null
             )
@@ -2007,7 +2007,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null
             )
@@ -2033,7 +2033,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null
             )
@@ -2120,7 +2120,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(hashMapOf(colorStyleSetting to blueStyleOption)).toWireFormat(),
                 null
             )
@@ -2207,7 +2207,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 listOf(
                     IdAndComplicationDataWireFormat(
@@ -2268,7 +2268,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(
                     hashMapOf(
                         colorStyleSetting to blueStyleOption,
@@ -2319,7 +2319,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(
                     hashMapOf(
                         colorStyleSetting to blueStyleOption,
@@ -2352,7 +2352,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 listOf(
                     IdAndComplicationDataWireFormat(

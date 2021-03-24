@@ -40,7 +40,7 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.DeviceConfig
-import androidx.wear.watchface.client.SystemState
+import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.data.ComplicationBoundsType
@@ -129,7 +129,7 @@ class WatchFaceControlClientTest {
         0
     )
 
-    private val systemState = SystemState(false, 0)
+    private val systemState = WatchUiState(false, 0)
 
     private val complications = mapOf(
         EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to

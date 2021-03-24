@@ -22,7 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
-import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.runOnHandlerWithTracing
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
@@ -58,9 +58,9 @@ internal class InteractiveWatchFaceImpl(
 
     override fun getPreviewReferenceTimeMillis() = engine.watchFaceImpl.previewReferenceTimeMillis
 
-    override fun setSystemState(systemState: SystemState) {
+    override fun setWatchUiState(watchUiState: WatchUiState) {
         uiThreadHandler.runOnHandlerWithTracing("InteractiveWatchFaceImpl.setSystemState") {
-            engine.setSystemState(systemState)
+            engine.setWatchUiState(watchUiState)
         }
     }
 

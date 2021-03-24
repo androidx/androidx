@@ -109,14 +109,14 @@ public open class ListenableWatchFaceControlClient(
     public open fun listenableGetOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
         id: String,
         deviceConfig: DeviceConfig,
-        systemState: SystemState,
+        watchUiState: WatchUiState,
         userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): ListenableFuture<InteractiveWatchFaceClient> =
         watchFaceControlClient.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
             id,
             deviceConfig,
-            systemState,
+            watchUiState,
             userStyle,
             idToComplicationData
         ).asListenableFuture()
@@ -124,14 +124,14 @@ public open class ListenableWatchFaceControlClient(
     override fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
         id: String,
         deviceConfig: DeviceConfig,
-        systemState: SystemState,
+        watchUiState: WatchUiState,
         userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): Deferred<InteractiveWatchFaceClient> =
         watchFaceControlClient.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
             id,
             deviceConfig,
-            systemState,
+            watchUiState,
             userStyle,
             idToComplicationData
         )

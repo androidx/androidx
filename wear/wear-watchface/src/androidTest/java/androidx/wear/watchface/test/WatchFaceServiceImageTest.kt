@@ -52,7 +52,7 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
-import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
@@ -240,7 +240,7 @@ class WatchFaceServiceImageTest {
                             0,
                             0
                         ),
-                        SystemState(false, 0),
+                        WatchUiState(false, 0),
                         UserStyleWireFormat(emptyMap()),
                         null
                     ),
@@ -283,7 +283,12 @@ class WatchFaceServiceImageTest {
                 interactiveWatchFaceInstance.instanceId
             )!!
 
-        interactiveWatchFaceInstance.setSystemState(SystemState(ambient, 0))
+        interactiveWatchFaceInstance.setWatchUiState(
+            WatchUiState(
+                ambient,
+                0
+            )
+        )
         interactiveWatchFaceInstance.release()
     }
 
@@ -559,7 +564,7 @@ class WatchFaceServiceImageTest {
                         0,
                         0
                     ),
-                    SystemState(false, 0),
+                    WatchUiState(false, 0),
                     UserStyleWireFormat(
                         mapOf(COLOR_STYLE_SETTING to GREEN_STYLE)
                     ),

@@ -85,7 +85,7 @@ package androidx.wear.watchface.client {
     method public void performAmbientTick();
     method @RequiresApi(27) public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idAndComplicationData);
     method public void sendTouchEvent(@Px int xPosition, @Px int yPosition, @androidx.wear.watchface.TapType int tapType);
-    method public void setSystemState(androidx.wear.watchface.client.SystemState systemState);
+    method public void setWatchUiState(androidx.wear.watchface.client.WatchUiState watchUiState);
     method public void updateComplicationData(java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData> idToComplicationData);
     method public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyle userStyle);
     method public void updateWatchFaceInstance(String newInstanceId, java.util.Map<java.lang.String,java.lang.String> userStyle);
@@ -115,20 +115,12 @@ package androidx.wear.watchface.client {
     property public final android.app.PendingIntent? tapAction;
   }
 
-  public final class SystemState {
-    ctor public SystemState(boolean inAmbientMode, int interruptionFilter);
-    method public int getInterruptionFilter();
-    method public boolean inAmbientMode();
-    property public final boolean inAmbientMode;
-    property public final int interruptionFilter;
-  }
-
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {
     method public androidx.wear.watchface.client.HeadlessWatchFaceClient? createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, @Px int surfaceWidth, @Px int surfaceHeight);
     method public default static suspend Object? createWatchFaceControlClient(android.content.Context p, String context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> watchFacePackageName);
     method public androidx.wear.watchface.client.EditorServiceClient getEditorServiceClient();
     method public androidx.wear.watchface.client.InteractiveWatchFaceClient? getInteractiveWatchFaceClientInstance(String instanceId);
-    method public kotlinx.coroutines.Deferred<androidx.wear.watchface.client.InteractiveWatchFaceClient> getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.SystemState systemState, java.util.Map<java.lang.String,java.lang.String>? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
+    method public kotlinx.coroutines.Deferred<androidx.wear.watchface.client.InteractiveWatchFaceClient> getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.WatchUiState watchUiState, java.util.Map<java.lang.String,java.lang.String>? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
     field public static final androidx.wear.watchface.client.WatchFaceControlClient.Companion Companion;
   }
 
@@ -148,6 +140,14 @@ package androidx.wear.watchface.client {
     ctor public WatchFaceId(String id);
     method public String getId();
     property public final String id;
+  }
+
+  public final class WatchUiState {
+    ctor public WatchUiState(boolean inAmbientMode, int interruptionFilter);
+    method public int getInterruptionFilter();
+    method public boolean inAmbientMode();
+    property public final boolean inAmbientMode;
+    property public final int interruptionFilter;
   }
 
 }

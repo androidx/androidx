@@ -26,7 +26,7 @@ import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.DeviceConfig
-import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
@@ -103,7 +103,7 @@ public class AsyncWatchFaceInitTest {
             0,
             0
         ),
-        SystemState(false, 0),
+        WatchUiState(false, 0),
         UserStyle(emptyMap()).toWireFormat(),
         null
     )

@@ -25,6 +25,7 @@ import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationText
+import androidx.wear.complications.data.toApiComplicationText
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
@@ -34,6 +35,7 @@ import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
+import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
@@ -190,8 +192,8 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      */
     public val contentDescriptionLabels: List<ContentDescriptionLabel>
 
-    /** Updates the watch faces [SystemState]. */
-    public fun setSystemState(systemState: SystemState)
+    /** Updates the watch faces [WatchUiState]. */
+    public fun setWatchUiState(watchUiState: androidx.wear.watchface.client.WatchUiState)
 
     /** Triggers watch face rendering into the surface when in ambient mode. */
     public fun performAmbientTick()
@@ -296,13 +298,15 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
             )
         }
 
-    override fun setSystemState(systemState: SystemState) = TraceEvent(
+    override fun setWatchUiState(
+        watchUiState: androidx.wear.watchface.client.WatchUiState
+    ) = TraceEvent(
         "InteractiveWatchFaceClientImpl.setSystemState"
     ).use {
-        iInteractiveWatchFace.setSystemState(
-            androidx.wear.watchface.data.SystemState(
-                systemState.inAmbientMode,
-                systemState.interruptionFilter
+        iInteractiveWatchFace.setWatchUiState(
+            WatchUiState(
+                watchUiState.inAmbientMode,
+                watchUiState.interruptionFilter
             )
         )
     }
