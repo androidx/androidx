@@ -90,7 +90,7 @@ public class EditorRequest(
  * by SysUI and the normal activity result isn't used for returning [EditorState] because
  * [Activity.onStop] isn't guaranteed to be called when SysUI UX needs it to. Instead [EditorState]
  * is broadcast by the editor using[EditorSession.close], to observe these broadcasts use
- * [WatchFaceControlClient.getEditorServiceClient] and [EditorServiceClient.registerObserver].
+ * [WatchFaceControlClient.getEditorServiceClient] and [EditorServiceClient.addListener].
  */
 public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest, Unit>() {
 
