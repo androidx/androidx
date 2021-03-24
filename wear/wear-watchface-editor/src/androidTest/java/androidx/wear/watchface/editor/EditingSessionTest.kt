@@ -861,7 +861,7 @@ public class EditorSessionTest {
         assertThat(result.userStyle[colorStyleSetting.id]).isEqualTo(blueStyleOption.id)
         assertThat(result.userStyle[watchHandStyleSetting.id]).isEqualTo(gothicStyleOption.id)
         assertThat(result.watchFaceId.id).isEqualTo(testInstanceId.id)
-        assertTrue(result.commitChanges)
+        assertTrue(result.shouldCommitChanges)
 
         // The style change should also have been applied to the watchface
         assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id).isEqualTo(blueStyleOption.id)
@@ -974,7 +974,7 @@ public class EditorSessionTest {
         ).asApiEditorState()
         assertThat(result.userStyle[colorStyleSetting.id]).isEqualTo(blueStyleOption.id)
         assertThat(result.userStyle[watchHandStyleSetting.id]).isEqualTo(gothicStyleOption.id)
-        assertFalse(result.commitChanges)
+        assertFalse(result.shouldCommitChanges)
 
         // The original style should be applied to the watch face however because
         // commitChangesOnClose is false.

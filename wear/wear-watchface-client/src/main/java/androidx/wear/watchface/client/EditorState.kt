@@ -43,8 +43,8 @@ public class WatchFaceId(public val id: String)
  * @param userStyle The current [UserStyle] encoded as a Map<String, String>.
  * @param previewComplicationsData Preview [ComplicationData] needed for taking screenshots without
  *     live complication data.
- * @param commitChanges Whether or not this state should be committed (i.e. the user aborted the
- *     session). If it's not committed then any changes (E.g. complication provider changes)
+ * @param shouldCommitChanges Whether or not this state should be committed (i.e. the user aborted
+ *     the session). If it's not committed then any changes (E.g. complication provider changes)
  *     should be abandoned. There's no need to resend the style to the watchface because the
  *     library will have restored the previous style.
  */
@@ -53,14 +53,14 @@ public class EditorState internal constructor(
     public val watchFaceId: WatchFaceId,
     public val userStyle: Map<String, String>,
     public val previewComplicationsData: Map<Int, ComplicationData>,
-    @get:JvmName("hasCommitChanges")
-    public val commitChanges: Boolean
+    @get:JvmName("shouldCommitChanges")
+    public val shouldCommitChanges: Boolean
 ) {
     override fun toString(): String =
         "{watchFaceId: ${watchFaceId.id}, userStyle: $userStyle" +
-            ", previewComplicationData: [" +
+            ", previewComplicationsData: [" +
             previewComplicationsData.map { "${it.key} -> ${it.value}" }.joinToString() +
-            "], commitChanges: $commitChanges}"
+            "], shouldCommitChanges: $shouldCommitChanges}"
 }
 
 /** @hide */
