@@ -40,7 +40,7 @@ import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 
@@ -52,7 +52,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             surfaceHolder: SurfaceHolder,
             watchState: WatchState
         ): WatchFace {
-            val userStyleRepository = UserStyleRepository(
+            val userStyleRepository = CurrentUserStyleRepository(
                 UserStyleSchema(
                     listOf(
                         ListUserStyleSetting(
@@ -151,7 +151,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             ) {
                 init {
                     userStyleRepository.addUserStyleListener(
-                        object : UserStyleRepository.UserStyleListener {
+                        object : CurrentUserStyleRepository.UserStyleListener {
                             override fun onUserStyleChanged(userStyle: UserStyle) {
                                 // `userStyle` will contain two userStyle categories with options
                                 // from the lists above. ...

@@ -27,7 +27,7 @@ import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
@@ -41,10 +41,10 @@ private const val REFERENCE_PREVIEW_TIME = 123456L
 private class FakeRenderer(
     surfaceHolder: SurfaceHolder,
     watchState: WatchState,
-    userStyleRepository: UserStyleRepository
+    currentUserStyleRepository: CurrentUserStyleRepository
 ) : Renderer.CanvasRenderer(
     surfaceHolder,
-    userStyleRepository,
+    currentUserStyleRepository,
     watchState,
     CanvasType.SOFTWARE,
     16
@@ -60,7 +60,7 @@ private class TestAsyncListenableWatchFaceService(private val handler: Handler) 
         watchState: WatchState
     ): ListenableFuture<WatchFace> {
         val future = SettableFuture.create<WatchFace>()
-        val userStyleRepository = UserStyleRepository(
+        val userStyleRepository = CurrentUserStyleRepository(
             UserStyleSchema(emptyList())
         )
         // Post a task to resolve the future.

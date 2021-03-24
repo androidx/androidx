@@ -39,7 +39,7 @@ import androidx.annotation.UiThread
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.Renderer.CanvasRenderer
 import androidx.wear.watchface.Renderer.GlesRenderer
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import java.nio.ByteBuffer
 
 /**
@@ -92,7 +92,7 @@ internal val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
  * The base class for [CanvasRenderer] and [GlesRenderer].
  *
  * @param surfaceHolder The [SurfaceHolder] that [renderInternal] will draw into.
- * @param userStyleRepository The associated [UserStyleRepository].
+ * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
  * @param watchState The associated [WatchState].
  * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
  *     interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
@@ -103,7 +103,7 @@ internal val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
  */
 public sealed class Renderer(
     public val surfaceHolder: SurfaceHolder,
-    private val userStyleRepository: UserStyleRepository,
+    private val currentUserStyleRepository: CurrentUserStyleRepository,
     internal val watchState: WatchState,
     @IntRange(from = 0, to = 60000)
     public var interactiveDrawModeUpdateDelayMillis: Long,
@@ -169,7 +169,7 @@ public sealed class Renderer(
 
     /**
      * Renders the watch face into the [surfaceHolder] using the current [renderParameters]
-     * with the user style specified by the [userStyleRepository].
+     * with the user style specified by the [currentUserStyleRepository].
      *
      * @param calendar The Calendar to use when rendering the watch face
      * @return A [Bitmap] containing a screenshot of the watch face
@@ -180,7 +180,7 @@ public sealed class Renderer(
 
     /**
      * Renders the watch face into a Bitmap with the user style specified by the
-     * [userStyleRepository].
+     * [currentUserStyleRepository].
      *
      * @param calendar The Calendar to use when rendering the watch face
      * @param renderParameters The [RenderParameters] to use when rendering the watch face
@@ -265,7 +265,7 @@ public sealed class Renderer(
      *
      * @param surfaceHolder The [SurfaceHolder] from which a [Canvas] to will be obtained and passed
      *     into [render].
-     * @param userStyleRepository The watch face's associated [UserStyleRepository].
+     * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
      * @param canvasType The type of canvas to request.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
@@ -277,14 +277,14 @@ public sealed class Renderer(
      */
     public abstract class CanvasRenderer(
         surfaceHolder: SurfaceHolder,
-        userStyleRepository: UserStyleRepository,
+        currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
         @CanvasType private val canvasType: Int,
         @IntRange(from = 0, to = 60000)
         interactiveDrawModeUpdateDelayMillis: Long
     ) : Renderer(
         surfaceHolder,
-        userStyleRepository,
+        currentUserStyleRepository,
         watchState,
         interactiveDrawModeUpdateDelayMillis
     ) {
@@ -364,7 +364,7 @@ public sealed class Renderer(
      *
      * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
      *     into.
-     * @param userStyleRepository The associated [UserStyleRepository].
+     * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
      * @param watchState The associated [WatchState].
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
      *     interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the
@@ -379,7 +379,7 @@ public sealed class Renderer(
      */
     public abstract class GlesRenderer @JvmOverloads constructor(
         surfaceHolder: SurfaceHolder,
-        userStyleRepository: UserStyleRepository,
+        currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
         @IntRange(from = 0, to = 60000)
         interactiveDrawModeUpdateDelayMillis: Long,
@@ -387,7 +387,7 @@ public sealed class Renderer(
         private val eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST
     ) : Renderer(
         surfaceHolder,
-        userStyleRepository,
+        currentUserStyleRepository,
         watchState,
         interactiveDrawModeUpdateDelayMillis
     ) {

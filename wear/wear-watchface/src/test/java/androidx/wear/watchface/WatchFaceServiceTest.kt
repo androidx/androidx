@@ -52,7 +52,7 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
@@ -276,7 +276,7 @@ public class WatchFaceServiceTest {
 
     private lateinit var renderer: TestRenderer
     private lateinit var complicationsManager: ComplicationsManager
-    private lateinit var userStyleRepository: UserStyleRepository
+    private lateinit var currentUserStyleRepository: CurrentUserStyleRepository
     private lateinit var watchFaceImpl: WatchFaceImpl
     private lateinit var testWatchFaceService: TestWatchFaceService
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
@@ -320,11 +320,11 @@ public class WatchFaceServiceTest {
         hasBurnInProtection: Boolean = false,
         tapListener: WatchFace.TapListener? = null
     ) {
-        userStyleRepository = UserStyleRepository(userStyleSchema)
-        complicationsManager = ComplicationsManager(complications, userStyleRepository)
+        currentUserStyleRepository = CurrentUserStyleRepository(userStyleSchema)
+        complicationsManager = ComplicationsManager(complications, currentUserStyleRepository)
         renderer = TestRenderer(
             surfaceHolder,
-            userStyleRepository,
+            currentUserStyleRepository,
             watchState.asWatchState(),
             INTERACTIVE_UPDATE_RATE_MS
         )
@@ -332,7 +332,7 @@ public class WatchFaceServiceTest {
             watchFaceType,
             complicationsManager,
             renderer,
-            userStyleRepository,
+            currentUserStyleRepository,
             watchState,
             handler,
             tapListener,
@@ -358,11 +358,11 @@ public class WatchFaceServiceTest {
         userStyleSchema: UserStyleSchema,
         wallpaperInteractiveWatchFaceInstanceParams: WallpaperInteractiveWatchFaceInstanceParams
     ) {
-        userStyleRepository = UserStyleRepository(userStyleSchema)
-        complicationsManager = ComplicationsManager(complications, userStyleRepository)
+        currentUserStyleRepository = CurrentUserStyleRepository(userStyleSchema)
+        complicationsManager = ComplicationsManager(complications, currentUserStyleRepository)
         renderer = TestRenderer(
             surfaceHolder,
-            userStyleRepository,
+            currentUserStyleRepository,
             watchState.asWatchState(),
             INTERACTIVE_UPDATE_RATE_MS
         )
@@ -370,7 +370,7 @@ public class WatchFaceServiceTest {
             watchFaceType,
             complicationsManager,
             renderer,
-            userStyleRepository,
+            currentUserStyleRepository,
             watchState,
             handler,
             null,
@@ -1062,7 +1062,7 @@ public class WatchFaceServiceTest {
         )
 
         // This should get persisted.
-        userStyleRepository.userStyle = UserStyle(
+        currentUserStyleRepository.userStyle = UserStyle(
             hashMapOf(
                 colorStyleSetting to blueStyleOption,
                 watchHandStyleSetting to gothicStyleOption
@@ -1070,7 +1070,7 @@ public class WatchFaceServiceTest {
         )
         engineWrapper.onDestroy()
 
-        val userStyleRepository2 = UserStyleRepository(
+        val userStyleRepository2 = CurrentUserStyleRepository(
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting))
         )
 
@@ -1137,11 +1137,11 @@ public class WatchFaceServiceTest {
         )
 
         // The style option above should get applied during watch face creation.
-        assertThat(userStyleRepository.userStyle.selectedOptions[colorStyleSetting]!!.id)
+        assertThat(currentUserStyleRepository.userStyle.selectedOptions[colorStyleSetting]!!.id)
             .isEqualTo(
                 blueStyleOption.id
             )
-        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleSetting]!!.id)
+        assertThat(currentUserStyleRepository.userStyle.selectedOptions[watchHandStyleSetting]!!.id)
             .isEqualTo(
                 gothicStyleOption.id
             )
@@ -1167,7 +1167,7 @@ public class WatchFaceServiceTest {
             )
         )
 
-        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleSetting])
+        assertThat(currentUserStyleRepository.userStyle.selectedOptions[watchHandStyleSetting])
             .isEqualTo(watchHandStyleList.first())
     }
 
@@ -1406,7 +1406,7 @@ public class WatchFaceServiceTest {
     @Test
     public fun requestStyleBeforeSetBinder() {
         var userStyleRepository =
-            UserStyleRepository(UserStyleSchema(emptyList()))
+            CurrentUserStyleRepository(UserStyleSchema(emptyList()))
         var testRenderer = TestRenderer(
             surfaceHolder,
             userStyleRepository,
@@ -1420,7 +1420,7 @@ public class WatchFaceServiceTest {
                 userStyleRepository
             ),
             testRenderer,
-            UserStyleRepository(UserStyleSchema(emptyList())),
+            CurrentUserStyleRepository(UserStyleSchema(emptyList())),
             watchState,
             handler,
             null,
@@ -1626,7 +1626,7 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun shouldAnimateOverrideControlsEnteringAmbientMode() {
-        var userStyleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
+        var userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(emptyList()))
         var testRenderer = object : TestRenderer(
             surfaceHolder,
             userStyleRepository,
@@ -1640,7 +1640,7 @@ public class WatchFaceServiceTest {
             WatchFaceType.ANALOG,
             ComplicationsManager(emptyList(), userStyleRepository),
             testRenderer,
-            UserStyleRepository(UserStyleSchema(emptyList())),
+            CurrentUserStyleRepository(UserStyleSchema(emptyList())),
             watchState,
             handler,
             null,
@@ -1679,9 +1679,9 @@ public class WatchFaceServiceTest {
         )
 
         // Select a new style which turns off both complications.
-        val newStyleA = HashMap(userStyleRepository.userStyle.selectedOptions)
+        val newStyleA = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
         newStyleA[complicationsStyleSetting] = noComplicationsOption
-        userStyleRepository.userStyle = UserStyle(newStyleA)
+        currentUserStyleRepository.userStyle = UserStyle(newStyleA)
 
         runPostedTasksFor(0)
 
@@ -1697,9 +1697,9 @@ public class WatchFaceServiceTest {
         reset(iWatchFaceService)
 
         // Select a new style which turns on only the left complication.
-        val newStyleB = HashMap(userStyleRepository.userStyle.selectedOptions)
+        val newStyleB = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
         newStyleB[complicationsStyleSetting] = leftComplicationsOption
-        userStyleRepository.userStyle = UserStyle(newStyleB)
+        currentUserStyleRepository.userStyle = UserStyle(newStyleB)
 
         runPostedTasksFor(0)
 
@@ -1759,9 +1759,9 @@ public class WatchFaceServiceTest {
         assertTrue(rightComplication.enabled)
 
         // Select left complication only.
-        val newStyleA = HashMap(userStyleRepository.userStyle.selectedOptions)
+        val newStyleA = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
         newStyleA[complicationsStyleSetting] = leftOnlyComplicationsOption
-        userStyleRepository.userStyle = UserStyle(newStyleA)
+        currentUserStyleRepository.userStyle = UserStyle(newStyleA)
 
         runPostedTasksFor(0)
 
@@ -1769,9 +1769,9 @@ public class WatchFaceServiceTest {
         assertFalse(rightComplication.enabled)
 
         // Select right complication only.
-        val newStyleB = HashMap(userStyleRepository.userStyle.selectedOptions)
+        val newStyleB = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
         newStyleB[complicationsStyleSetting] = rightOnlyComplicationsOption
-        userStyleRepository.userStyle = UserStyle(newStyleB)
+        currentUserStyleRepository.userStyle = UserStyle(newStyleB)
 
         runPostedTasksFor(0)
 
@@ -1779,9 +1779,9 @@ public class WatchFaceServiceTest {
         assertTrue(rightComplication.enabled)
 
         // Select both complications.
-        val newStyleC = HashMap(userStyleRepository.userStyle.selectedOptions)
+        val newStyleC = HashMap(currentUserStyleRepository.userStyle.selectedOptions)
         newStyleC[complicationsStyleSetting] = bothComplicationsOption
-        userStyleRepository.userStyle = UserStyle(newStyleC)
+        currentUserStyleRepository.userStyle = UserStyle(newStyleC)
 
         runPostedTasksFor(0)
 
@@ -1984,7 +1984,7 @@ public class WatchFaceServiceTest {
     public fun invalidateRendererBeforeFullInit() {
         renderer = TestRenderer(
             surfaceHolder,
-            UserStyleRepository(UserStyleSchema(emptyList())),
+            CurrentUserStyleRepository(UserStyleSchema(emptyList())),
             watchState.asWatchState(),
             INTERACTIVE_UPDATE_RATE_MS
         )
@@ -2075,11 +2075,11 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun isAmbientInitalisedEvenWithoutPropertiesSent() {
-        userStyleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
-        complicationsManager = ComplicationsManager(emptyList(), userStyleRepository)
+        currentUserStyleRepository = CurrentUserStyleRepository(UserStyleSchema(emptyList()))
+        complicationsManager = ComplicationsManager(emptyList(), currentUserStyleRepository)
         renderer = TestRenderer(
             surfaceHolder,
-            userStyleRepository,
+            currentUserStyleRepository,
             watchState.asWatchState(),
             INTERACTIVE_UPDATE_RATE_MS
         )
@@ -2087,7 +2087,7 @@ public class WatchFaceServiceTest {
             WatchFaceType.ANALOG,
             complicationsManager,
             renderer,
-            userStyleRepository,
+            currentUserStyleRepository,
             watchState,
             handler,
             tapListener,
@@ -2241,7 +2241,7 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun directBoot() {
-        val userStyleRepository = UserStyleRepository(
+        val userStyleRepository = CurrentUserStyleRepository(
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting))
         )
         val testRenderer = TestRenderer(
@@ -2294,7 +2294,7 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun headlessFlagPreventsDirectBoot() {
-        val userStyleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
+        val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(emptyList()))
         val testRenderer = TestRenderer(
             surfaceHolder,
             userStyleRepository,

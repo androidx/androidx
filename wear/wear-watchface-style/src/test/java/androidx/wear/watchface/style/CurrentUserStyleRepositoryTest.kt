@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito
 
 @RunWith(StyleTestRunner::class)
-class UserStyleRepositoryTest {
+class CurrentUserStyleRepositoryTest {
     private val redStyleOption =
         ListUserStyleSetting.ListOption("red_style", "Red", icon = null)
 
@@ -79,12 +79,15 @@ class UserStyleRepositoryTest {
             0.75
         )
 
-    private val mockListener1 = Mockito.mock(UserStyleRepository.UserStyleListener::class.java)
-    private val mockListener2 = Mockito.mock(UserStyleRepository.UserStyleListener::class.java)
-    private val mockListener3 = Mockito.mock(UserStyleRepository.UserStyleListener::class.java)
+    private val mockListener1 =
+        Mockito.mock(CurrentUserStyleRepository.UserStyleListener::class.java)
+    private val mockListener2 =
+        Mockito.mock(CurrentUserStyleRepository.UserStyleListener::class.java)
+    private val mockListener3 =
+        Mockito.mock(CurrentUserStyleRepository.UserStyleListener::class.java)
 
     private val userStyleRepository =
-        UserStyleRepository(
+        CurrentUserStyleRepository(
             UserStyleSchema(
                 listOf(colorStyleSetting, watchHandStyleSetting, watchHandLengthStyleSetting)
             )
@@ -230,7 +233,7 @@ class UserStyleRepositoryTest {
             "default"
         )
 
-        val userStyleRepository = UserStyleRepository(
+        val userStyleRepository = CurrentUserStyleRepository(
             UserStyleSchema(
                 listOf(customStyleSetting)
             )
@@ -279,7 +282,7 @@ class UserStyleRepositoryTest {
             "default"
         )
 
-        val userStyleRepository = UserStyleRepository(
+        val userStyleRepository = CurrentUserStyleRepository(
             UserStyleSchema(
                 listOf(customStyleSetting)
             )

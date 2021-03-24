@@ -34,7 +34,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
@@ -43,7 +43,7 @@ internal class TestWatchFaceService(
     @WatchFaceType private val watchFaceType: Int,
     private val complicationsManager: ComplicationsManager,
     private val renderer: TestRenderer,
-    private val userStyleRepository: UserStyleRepository,
+    private val currentUserStyleRepository: CurrentUserStyleRepository,
     private val watchState: MutableWatchState,
     private val handler: Handler,
     private val tapListener: WatchFace.TapListener?,
@@ -57,8 +57,8 @@ internal class TestWatchFaceService(
     var lastUserStyle: UserStyle? = null
 
     init {
-        userStyleRepository.addUserStyleListener(
-            object : UserStyleRepository.UserStyleListener {
+        currentUserStyleRepository.addUserStyleListener(
+            object : CurrentUserStyleRepository.UserStyleListener {
                 override fun onUserStyleChanged(userStyle: UserStyle) {
                     lastUserStyle = userStyle
                 }
@@ -94,7 +94,7 @@ internal class TestWatchFaceService(
         watchState: WatchState
     ) = WatchFace(
         watchFaceType,
-        userStyleRepository,
+        currentUserStyleRepository,
         renderer,
         complicationsManager
     ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
@@ -187,12 +187,12 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
 
 open class TestRenderer(
     surfaceHolder: SurfaceHolder,
-    userStyleRepository: UserStyleRepository,
+    currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState,
     interactiveFrameRateMs: Long
 ) : Renderer.CanvasRenderer(
     surfaceHolder,
-    userStyleRepository,
+    currentUserStyleRepository,
     watchState,
     CanvasType.HARDWARE,
     interactiveFrameRateMs

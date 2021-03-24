@@ -28,7 +28,7 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
@@ -94,7 +94,7 @@ public class AsyncWatchFaceInitTest {
     private val surfaceHolder = mock<SurfaceHolder>()
     private var looperTimeMillis = 0L
     private val pendingTasks = PriorityQueue<Task>()
-    private val userStyleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
+    private val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(emptyList()))
     private val initParams = WallpaperInteractiveWatchFaceInstanceParams(
         "instanceId",
         DeviceConfig(

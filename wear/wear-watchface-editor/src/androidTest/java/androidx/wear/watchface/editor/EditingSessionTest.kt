@@ -58,7 +58,7 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth.assertThat
@@ -360,7 +360,7 @@ public class EditorSessionTest {
         watchFaceId: WatchFaceId = testInstanceId,
         previewReferenceTimeMillis: Long = 12345
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
-        val userStyleRepository = UserStyleRepository(UserStyleSchema(userStyleSettings))
+        val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
         val complicationsManager = ComplicationsManager(complications, userStyleRepository)
 
         // Mocking getters and setters with mockito at the same time is hard so we do this instead.
