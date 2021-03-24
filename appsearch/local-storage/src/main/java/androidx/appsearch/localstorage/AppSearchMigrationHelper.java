@@ -34,6 +34,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
+import com.google.android.icing.proto.PersistType;
 import com.google.android.icing.protobuf.CodedInputStream;
 import com.google.android.icing.protobuf.CodedOutputStream;
 
@@ -177,7 +178,7 @@ class AppSearchMigrationHelper implements Closeable {
                                     .build());
                 }
             }
-            mAppSearchImpl.persistToDisk();
+            mAppSearchImpl.persistToDisk(PersistType.Code.FULL);
         }
         return responseBuilder.build();
     }

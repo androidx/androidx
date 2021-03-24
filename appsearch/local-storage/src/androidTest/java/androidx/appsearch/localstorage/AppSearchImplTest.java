@@ -37,6 +37,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.GetOptimizeInfoResultProto;
+import com.google.android.icing.proto.PersistType;
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.PropertyProto;
 import com.google.android.icing.proto.SchemaProto;
@@ -53,6 +54,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -1232,7 +1234,164 @@ public class AppSearchImplTest {
         });
 
         assertThrows(IllegalStateException.class, () -> {
-            appSearchImpl.persistToDisk();
+            appSearchImpl.persistToDisk(PersistType.Code.FULL);
         });
+    }
+
+    @Test
+    public void testPutPersistsWithLiteFlush() throws Exception {
+        // Setup the index
+        Context context = ApplicationProvider.getApplicationContext();
+        File appsearchDir = mTemporaryFolder.newFolder();
+        AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        appSearchImpl.setSchema("package", "database", schemas,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false, /*version=*/ 0);
+
+        // Add a document and persist it.
+        GenericDocument document =
+                new GenericDocument.Builder<>("namespace1", "uri1", "type").build();
+        appSearchImpl.putDocument("package", "database", document, /*logger=*/null);
+        appSearchImpl.persistToDisk(PersistType.Code.LITE);
+
+        GenericDocument getResult = appSearchImpl.getDocument("package", "database", "namespace1",
+                "uri1",
+                Collections.emptyMap());
+        assertThat(getResult).isEqualTo(document);
+
+        // That document should be visible even from another instance.
+        AppSearchImpl appSearchImpl2 = AppSearchImpl.create(appsearchDir,
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+        getResult = appSearchImpl2.getDocument("package", "database", "namespace1",
+                "uri1",
+                Collections.emptyMap());
+        assertThat(getResult).isEqualTo(document);
+    }
+
+    @Test
+    public void testDeletePersistsWithLiteFlush() throws Exception {
+        // Setup the index
+        Context context = ApplicationProvider.getApplicationContext();
+        File appsearchDir = mTemporaryFolder.newFolder();
+        AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        appSearchImpl.setSchema("package", "database", schemas,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false, /*version=*/ 0);
+
+        // Add two documents and persist them.
+        GenericDocument document1 =
+                new GenericDocument.Builder<>("namespace1", "uri1", "type").build();
+        appSearchImpl.putDocument("package", "database", document1, /*logger=*/null);
+        GenericDocument document2 =
+                new GenericDocument.Builder<>("namespace1", "uri2", "type").build();
+        appSearchImpl.putDocument("package", "database", document2, /*logger=*/null);
+        appSearchImpl.persistToDisk(PersistType.Code.LITE);
+
+        GenericDocument getResult = appSearchImpl.getDocument("package", "database", "namespace1",
+                "uri1",
+                Collections.emptyMap());
+        assertThat(getResult).isEqualTo(document1);
+        getResult = appSearchImpl.getDocument("package", "database", "namespace1",
+                "uri2",
+                Collections.emptyMap());
+        assertThat(getResult).isEqualTo(document2);
+
+        // Delete the first document
+        appSearchImpl.remove("package", "database", "namespace1", "uri1");
+        appSearchImpl.persistToDisk(PersistType.Code.LITE);
+        assertThrows(AppSearchException.class, () -> appSearchImpl.getDocument("package",
+                "database",
+                "namespace1",
+                "uri1",
+                Collections.emptyMap()));
+        getResult = appSearchImpl.getDocument("package", "database", "namespace1",
+                "uri2",
+                Collections.emptyMap());
+        assertThat(getResult).isEqualTo(document2);
+
+        // Only the second document should be retrievable from another instance.
+        AppSearchImpl appSearchImpl2 = AppSearchImpl.create(appsearchDir,
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+        assertThrows(AppSearchException.class, () -> appSearchImpl2.getDocument("package",
+                "database",
+                "namespace1",
+                "uri1",
+                Collections.emptyMap()));
+        getResult = appSearchImpl2.getDocument("package", "database", "namespace1",
+                "uri2",
+                Collections.emptyMap());
+        assertThat(getResult).isEqualTo(document2);
+    }
+
+    @Test
+    public void testDeleteByQueryPersistsWithLiteFlush() throws Exception {
+        // Setup the index
+        Context context = ApplicationProvider.getApplicationContext();
+        File appsearchDir = mTemporaryFolder.newFolder();
+        AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        appSearchImpl.setSchema("package", "database", schemas,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false, /*version=*/ 0);
+
+        // Add two documents and persist them.
+        GenericDocument document1 =
+                new GenericDocument.Builder<>("namespace1", "uri1", "type").build();
+        appSearchImpl.putDocument("package", "database", document1, /*logger=*/null);
+        GenericDocument document2 =
+                new GenericDocument.Builder<>("namespace2", "uri2", "type").build();
+        appSearchImpl.putDocument("package", "database", document2, /*logger=*/null);
+        appSearchImpl.persistToDisk(PersistType.Code.LITE);
+
+        GenericDocument getResult = appSearchImpl.getDocument("package", "database", "namespace1",
+                "uri1",
+                Collections.emptyMap());
+        assertThat(getResult).isEqualTo(document1);
+        getResult = appSearchImpl.getDocument("package", "database", "namespace2",
+                "uri2",
+                Collections.emptyMap());
+        assertThat(getResult).isEqualTo(document2);
+
+        // Delete the first document
+        appSearchImpl.removeByQuery("package", "database", "",
+                new SearchSpec.Builder().addFilterNamespaces("namespace1").setTermMatch(
+                        SearchSpec.TERM_MATCH_EXACT_ONLY).build());
+        appSearchImpl.persistToDisk(PersistType.Code.LITE);
+        assertThrows(AppSearchException.class, () -> appSearchImpl.getDocument("package",
+                "database",
+                "namespace1",
+                "uri1",
+                Collections.emptyMap()));
+        getResult = appSearchImpl.getDocument("package", "database", "namespace2",
+                "uri2",
+                Collections.emptyMap());
+        assertThat(getResult).isEqualTo(document2);
+
+        // Only the second document should be retrievable from another instance.
+        AppSearchImpl appSearchImpl2 = AppSearchImpl.create(appsearchDir,
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+        assertThrows(AppSearchException.class, () -> appSearchImpl2.getDocument("package",
+                "database",
+                "namespace1",
+                "uri1",
+                Collections.emptyMap()));
+        getResult = appSearchImpl2.getDocument("package", "database", "namespace2",
+                "uri2",
+                Collections.emptyMap());
+        assertThat(getResult).isEqualTo(document2);
     }
 }
