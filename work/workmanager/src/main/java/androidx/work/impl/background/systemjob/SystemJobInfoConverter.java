@@ -18,9 +18,12 @@ package androidx.work.impl.background.systemjob;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 
+import android.annotation.SuppressLint;
 import android.app.job.JobInfo;
 import android.content.ComponentName;
 import android.content.Context;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.PersistableBundle;
 
@@ -68,15 +71,15 @@ class SystemJobInfoConverter {
      */
     JobInfo convert(WorkSpec workSpec, int jobId) {
         Constraints constraints = workSpec.constraints;
-        int jobInfoNetworkType = convertNetworkType(constraints.getRequiredNetworkType());
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRA_WORK_SPEC_ID, workSpec.id);
         extras.putBoolean(EXTRA_IS_PERIODIC, workSpec.isPeriodic());
         JobInfo.Builder builder = new JobInfo.Builder(jobId, mWorkServiceComponent)
-                .setRequiredNetworkType(jobInfoNetworkType)
                 .setRequiresCharging(constraints.requiresCharging())
                 .setRequiresDeviceIdle(constraints.requiresDeviceIdle())
                 .setExtras(extras);
+
+        setRequiredNetwork(builder, constraints.getRequiredNetworkType());
 
         if (!constraints.requiresDeviceIdle()) {
             // Device Idle and Backoff Criteria cannot be set together
@@ -131,11 +134,34 @@ class SystemJobInfoConverter {
     }
 
     /**
+     * Adds the required network capabilities on the {@link JobInfo.Builder} instance.
+     *
+     * @param builder     The instance of {@link JobInfo.Builder}.
+     * @param networkType The {@link NetworkType} instance.
+     */
+    @SuppressLint("UnsafeNewApiCall")
+    static void setRequiredNetwork(
+            @NonNull JobInfo.Builder builder,
+            @NonNull NetworkType networkType) {
+
+        if (Build.VERSION.SDK_INT >= 30 && networkType == NetworkType.TEMPORARILY_UNMETERED) {
+            NetworkRequest networkRequest = new NetworkRequest.Builder()
+                    .addCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)
+                    .build();
+
+            builder.setRequiredNetwork(networkRequest);
+        } else {
+            builder.setRequiredNetworkType(convertNetworkType(networkType));
+        }
+    }
+
+    /**
      * Converts {@link NetworkType} into {@link JobInfo}'s network values.
      *
      * @param networkType The {@link NetworkType} network type
      * @return The {@link JobInfo} network type
      */
+    @SuppressWarnings("MissingCasesInEnumSwitch")
     static int convertNetworkType(NetworkType networkType) {
         switch(networkType) {
             case NOT_REQUIRED:
