@@ -58,10 +58,10 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Interface for manipulating watch face state during an editing session for a watch face editing
@@ -168,10 +168,10 @@ public abstract class EditorSession : AutoCloseable {
         @SuppressWarnings("ExecutorRegistration")
         @JvmStatic
         @UiThread
-        public fun createOnWatchEditingSessionAsync(
+        public suspend fun createOnWatchEditingSession(
             activity: ComponentActivity,
             editIntent: Intent
-        ): Deferred<EditorSession?> = createOnWatchEditingSessionAsyncImpl(
+        ): EditorSession? = createOnWatchEditingSessionImpl(
             activity,
             editIntent,
             object : ProviderInfoRetrieverProvider {
@@ -180,11 +180,11 @@ public abstract class EditorSession : AutoCloseable {
         )
 
         // Used by tests.
-        internal fun createOnWatchEditingSessionAsyncImpl(
+        internal suspend fun createOnWatchEditingSessionImpl(
             activity: ComponentActivity,
             editIntent: Intent,
             providerInfoRetrieverProvider: ProviderInfoRetrieverProvider
-        ): Deferred<EditorSession?> = TraceEvent(
+        ): EditorSession? = TraceEvent(
             "EditorSession.createOnWatchEditingSessionAsyncImpl"
         ).use {
             val coroutineScope =
@@ -202,17 +202,18 @@ public abstract class EditorSession : AutoCloseable {
 
                 // But full initialization has to be deferred because
                 // [WatchFace.getOrCreateEditorDelegate] is async.
-                coroutineScope.async {
+                // Resolve only after init has been completed.
+                withContext(coroutineScope.coroutineContext) {
                     session.setEditorDelegate(
                         WatchFace.getOrCreateEditorDelegate(
                             editorRequest.watchFaceComponentName
                         ).await()!!
                     )
 
-                    // Resolve the Deferred<EditorSession?> only after init has been completed.
+                    // Resolve only after init has been completed.
                     session
                 }
-            } ?: CompletableDeferred(null)
+            }
         }
 
         /**
