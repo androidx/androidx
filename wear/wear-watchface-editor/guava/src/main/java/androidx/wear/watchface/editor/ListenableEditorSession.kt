@@ -125,13 +125,13 @@ public class ListenableEditorSession(
     override val complicationsState: Map<Int, ComplicationState>
         get() = wrappedEditorSession.complicationsState
 
-    /** [ListenableFuture] wrapper around [EditorSession.getComplicationPreviewData]. */
+    /** [ListenableFuture] wrapper around [EditorSession.getComplicationsPreviewData]. */
     public fun getListenableComplicationPreviewData():
         ListenableFuture<Map<Int, ComplicationData>> {
             val future = ResolvableFuture.create<Map<Int, ComplicationData>>()
             getCoroutineScope().launch {
                 try {
-                    future.set(wrappedEditorSession.getComplicationPreviewData())
+                    future.set(wrappedEditorSession.getComplicationsPreviewData())
                 } catch (e: Exception) {
                     future.setException(e)
                 }
@@ -139,8 +139,8 @@ public class ListenableEditorSession(
             return future
         }
 
-    override suspend fun getComplicationPreviewData(): Map<Int, ComplicationData> =
-        wrappedEditorSession.getComplicationPreviewData()
+    override suspend fun getComplicationsPreviewData(): Map<Int, ComplicationData> =
+        wrappedEditorSession.getComplicationsPreviewData()
 
     @get:SuppressWarnings("AutoBoxing")
     override val backgroundComplicationId: Int?

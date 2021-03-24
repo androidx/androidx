@@ -41,7 +41,7 @@ public class WatchFaceId(public val id: String)
  *     [androidx.wear.watchface.editor.EditorRequest.watchFaceId]), only defined for
  *     Android R and beyond.
  * @param userStyle The current [UserStyle] encoded as a Map<String, String>.
- * @param previewComplicationData Preview [ComplicationData] needed for taking screenshots without
+ * @param previewComplicationsData Preview [ComplicationData] needed for taking screenshots without
  *     live complication data.
  * @param commitChanges Whether or not this state should be committed (i.e. the user aborted the
  *     session). If it's not committed then any changes (E.g. complication provider changes)
@@ -52,14 +52,14 @@ public class EditorState internal constructor(
     @RequiresApi(Build.VERSION_CODES.R)
     public val watchFaceId: WatchFaceId,
     public val userStyle: Map<String, String>,
-    public val previewComplicationData: Map<Int, ComplicationData>,
+    public val previewComplicationsData: Map<Int, ComplicationData>,
     @get:JvmName("hasCommitChanges")
     public val commitChanges: Boolean
 ) {
     override fun toString(): String =
         "{watchFaceId: ${watchFaceId.id}, userStyle: $userStyle" +
             ", previewComplicationData: [" +
-            previewComplicationData.map { "${it.key} -> ${it.value}" }.joinToString() +
+            previewComplicationsData.map { "${it.key} -> ${it.value}" }.joinToString() +
             "], commitChanges: $commitChanges}"
 }
 

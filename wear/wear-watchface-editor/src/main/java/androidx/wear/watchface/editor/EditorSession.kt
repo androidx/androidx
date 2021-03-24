@@ -121,7 +121,7 @@ public abstract class EditorSession : AutoCloseable {
      * [launchComplicationProviderChooser].
      */
     @UiThread
-    public abstract suspend fun getComplicationPreviewData(): Map<Int, ComplicationData>
+    public abstract suspend fun getComplicationsPreviewData(): Map<Int, ComplicationData>
 
     /** The ID of the background complication or `null` if there isn't one. */
     @get:SuppressWarnings("AutoBoxing")
@@ -149,7 +149,7 @@ public abstract class EditorSession : AutoCloseable {
     /**
      * Launches the complication provider chooser and returns `true` if the user made a selection or
      * `false` if the activity was canceled. If the complication provider was changed then the map
-     * returned by [getComplicationPreviewData] is updated (on the UiThread).
+     * returned by [getComplicationsPreviewData] is updated (on the UiThread).
      */
     @UiThread
     public abstract suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean
@@ -283,7 +283,7 @@ public abstract class BaseEditorSession internal constructor(
     private val deferredComplicationPreviewDataMap =
         CompletableDeferred<MutableMap<Int, ComplicationData>>()
 
-    override suspend fun getComplicationPreviewData(): Map<Int, ComplicationData> {
+    override suspend fun getComplicationsPreviewData(): Map<Int, ComplicationData> {
         return deferredComplicationPreviewDataMap.await()
     }
 
@@ -439,7 +439,7 @@ public abstract class BaseEditorSession internal constructor(
             val editorState = EditorStateWireFormat(
                 watchFaceId.id,
                 userStyle.toWireFormat(),
-                getComplicationPreviewData().map {
+                getComplicationsPreviewData().map {
                     IdAndComplicationDataWireFormat(
                         it.key,
                         it.value.asWireComplicationData()
