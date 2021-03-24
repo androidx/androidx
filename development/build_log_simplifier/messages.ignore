@@ -215,6 +215,7 @@ OUT_DIR=\$OUT_DIR
 DIST_DIR=\$DIST_DIR
 CHECKOUT=\$CHECKOUT
 GRADLE_USER_HOME=\$GRADLE_USER_HOME
+Starting a Gradle Daemon \(subsequent builds will be faster\)
 Downloading file\:\$SUPPORT\/gradle\/wrapper\/\.\.\/\.\.\/\.\.\/\.\.\/tools\/external\/gradle\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\.zip
 \.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%
 Welcome to Gradle [0-9]+\.[0-9]+\.[0-9]+\!
@@ -553,6 +554,7 @@ Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTO
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitHorizontalTouchSlopOrCancellation\-jO[0-9]+t[0-9]+\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TransformGestureDetectorKt\$detectTransformGestures\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 Type information in locals\-table is inconsistent\. Cannot constrain type: INT for value: v[0-9]+\(index\$iv\$iv\) by constraint FLOAT\.
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.TapGestureDetectorKt\.translatePointerEventsToChannel\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, kotlinx\.coroutines\.CoroutineScope, kotlinx\.coroutines\.channels\.SendChannel, androidx\.compose\.runtime\.State, androidx\.compose\.runtime\.MutableState, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.foundation\.gestures\.TapGestureDetectorKt\.waitForUpOrCancellation\(androidx\.compose\.ui\.input\.pointer\.AwaitPointerEventScope, kotlin\.coroutines\.Continuation\)
 # > Task :preference:preference:compileDebugAndroidTestKotlin
 w\: \$SUPPORT\/preference\/preference\/src\/androidTest\/java\/androidx\/preference\/tests\/PreferenceDialogFragmentCompatTest\.kt\: \([0-9]+\, [0-9]+\)\: \'setTargetFragment\(Fragment\?\, Int\)\: Unit\' is deprecated\. Deprecated in Java
