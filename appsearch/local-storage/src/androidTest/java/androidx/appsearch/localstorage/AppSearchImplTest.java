@@ -1020,7 +1020,7 @@ public class AppSearchImplTest {
 
         // Size is proportional to number of documents. Since "package2" has twice as many
         // documents as "package1", its size is twice as much too.
-        assertThat(size2).isEqualTo(2 * size1);
+        assertThat(size2).isAtLeast(2 * size1);
     }
 
     @Test
@@ -1107,7 +1107,7 @@ public class AppSearchImplTest {
 
         // Size is proportional to number of documents. Since "database2" has twice as many
         // documents as "database1", its size is twice as much too.
-        assertThat(size2).isEqualTo(2 * size1);
+        assertThat(size2).isAtLeast(2 * size1);
     }
 
     @Test
