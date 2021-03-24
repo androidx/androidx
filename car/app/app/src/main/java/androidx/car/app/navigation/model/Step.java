@@ -187,6 +187,8 @@ public final class Step {
          * <p>Some cluster displays do not support UTF-8 encoded characters, in which case
          * unsupported characters will not be displayed properly.
          *
+         * <p>See {@link Builder#setCue} for details on span support in the input string.
+         *
          * @throws NullPointerException if {@code cue} is {@code null}
          * @see Builder#setCue(CharSequence)
          */
@@ -195,7 +197,10 @@ public final class Step {
         }
 
         /**
-         * Constructs a new builder of {@link Step} with a cue.
+         * Constructs a new builder of {@link Step} with a cue, with support for multiple length
+         * variants.
+         *
+         * <p>See {@link Builder#setCue} for details on span support in the input string.
          *
          * @throws NullPointerException if {@code cue} is {@code null}
          * @see Builder#Builder(CharSequence)
@@ -271,7 +276,8 @@ public final class Step {
          * the left lane"
          *
          * <p>The {@code cue} string can contain images that replace spans of text by using {@link
-         * androidx.car.app.model.CarIconSpan}.
+         * androidx.car.app.model.CarIconSpan}. All other spans types are not supported and will be
+         * ignored.
          *
          * <p>In the following example, the "520" text is replaced with an icon:
          *
@@ -313,7 +319,7 @@ public final class Step {
          *
          * <p>For example, a {@link Step} for a left turn might provide "State Street" for the road.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code destinations} is {@code null}
          * @see CarText

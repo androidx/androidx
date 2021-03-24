@@ -298,6 +298,8 @@ public final class Row implements Item {
         /**
          * Sets the title of the row.
          *
+         * <p>Spans are not supported in the input string and will be ignored.
+         *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} is empty
          */
@@ -312,7 +314,9 @@ public final class Row implements Item {
         }
 
         /**
-         * Sets the title of the row.
+         * Sets the title of the row, with support for multiple length variants.
+         *
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws IllegalArgumentException if {@code title} is {@code null} or empty
          */
@@ -398,7 +402,7 @@ public final class Row implements Item {
         }
 
         /**
-         * Adds a text string to the row below the title.
+         * Adds a text string to the row below the title, with support for multiple length variants.
          *
          * @throws NullPointerException if {@code text} is {@code null}
          * @see Builder#addText(CharSequence)

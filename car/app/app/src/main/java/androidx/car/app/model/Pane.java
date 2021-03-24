@@ -149,6 +149,9 @@ public final class Pane {
          *
          * <p>By default, no actions are displayed.
          *
+         * <p>The action's title color can be customized with {@link ForegroundCarColorSpan}
+         * instances, any other spans will be ignored by the host.
+         *
          * @throws NullPointerException if {@code action} is {@code null}
          */
         @NonNull

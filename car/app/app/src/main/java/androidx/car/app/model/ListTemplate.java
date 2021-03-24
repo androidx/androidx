@@ -241,7 +241,7 @@ public final class ListTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the title of the action and will be ignored.
          *
          * @throws NullPointerException if {@code title} is null
          */

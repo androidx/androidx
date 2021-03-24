@@ -129,7 +129,7 @@ public final class Destination {
         /**
          * Sets the destination name formatted for the user's current locale.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code name} is {@code null}
          * @see CarText
@@ -143,7 +143,7 @@ public final class Destination {
         /**
          * Sets the destination address formatted for the user's current locale.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code address} is {@code null}
          * @see CarText

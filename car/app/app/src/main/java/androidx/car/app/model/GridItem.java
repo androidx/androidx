@@ -232,7 +232,7 @@ public final class GridItem implements Item {
         /**
          * Sets the title of the {@link GridItem}.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} is empty
@@ -248,9 +248,9 @@ public final class GridItem implements Item {
         }
 
         /**
-         * Sets the title of the {@link GridItem}.
+         * Sets the title of the {@link GridItem}, with support for multiple length variants.,
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} is empty
@@ -284,7 +284,8 @@ public final class GridItem implements Item {
         }
 
         /**
-         * Sets a secondary text string to the grid item that is displayed below the title.
+         * Sets a secondary text string to the grid item that is displayed below the title, with
+         * support for multiple length variants.
          *
          * <p>The text's color can be customized with {@link ForegroundCarColorSpan} instances, any
          * other spans will be ignored by the host.

@@ -295,7 +295,7 @@ public final class ItemList {
          * <p>If the list is empty and the app does not explicitly set the message with this
          * method, the host will show a default message.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code noItemsMessage} is {@code null}
          */
