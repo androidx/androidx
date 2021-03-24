@@ -175,7 +175,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
         if (hasBackgroundComplication) {
             topLevelOptionCount++
         }
-        val numComplications = editorSession.complicationState.size
+        val numComplications = editorSession.complicationsState.size
         val hasNonBackgroundComplication =
             numComplications > (if (hasBackgroundComplication) 1 else 0)
         if (hasNonBackgroundComplication) {
@@ -189,7 +189,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
 
             // For a single complication go directly to the provider selector.
             numComplications == 1 -> {
-                val onlyComplication = editorSession.complicationState.entries.first()
+                val onlyComplication = editorSession.complicationsState.entries.first()
                 coroutineScope.launch {
                     fragmentController.showComplicationConfig(onlyComplication.key)
                 }

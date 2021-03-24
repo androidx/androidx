@@ -118,8 +118,8 @@ public class ListenableEditorSession(
     override val userStyleSchema: UserStyleSchema
         get() = wrappedEditorSession.userStyleSchema
 
-    override val complicationState: Map<Int, ComplicationState>
-        get() = wrappedEditorSession.complicationState
+    override val complicationsState: Map<Int, ComplicationState>
+        get() = wrappedEditorSession.complicationsState
 
     /** [ListenableFuture] wrapper around [EditorSession.getComplicationPreviewData]. */
     public fun getListenableComplicationPreviewData():

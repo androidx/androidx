@@ -91,7 +91,7 @@ public abstract class EditorSession : AutoCloseable {
      * Map of complication ids to [ComplicationState] for each complication slot. Note
      * [ComplicationState] can change, typically in response to styling.
      */
-    public abstract val complicationState: Map<Int, ComplicationState>
+    public abstract val complicationsState: Map<Int, ComplicationState>
 
     /**
      * Whether any changes should be committed when the session is closed (defaults to `true`).
@@ -320,7 +320,7 @@ public abstract class BaseEditorSession internal constructor(
         "BaseEditorSession.launchComplicationProviderChooser $complicationId"
     ).use {
         requireNotClosed()
-        require(!complicationState[complicationId]!!.fixedComplicationProvider) {
+        require(!complicationsState[complicationId]!!.fixedComplicationProvider) {
             "Can't configure fixed complication ID $complicationId"
         }
         pendingComplicationProviderChooserResult = CompletableDeferred<Boolean>()
@@ -333,14 +333,14 @@ public abstract class BaseEditorSession internal constructor(
 
     override val backgroundComplicationId: Int? by lazy {
         requireNotClosed()
-        complicationState.entries.firstOrNull {
+        complicationsState.entries.firstOrNull {
             it.value.boundsType == ComplicationBoundsType.BACKGROUND
         }?.key
     }
 
     override fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? {
         requireNotClosed()
-        return complicationState.entries.firstOrNull {
+        return complicationsState.entries.firstOrNull {
             it.value.isEnabled && when (it.value.boundsType) {
                 ComplicationBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
                 ComplicationBoundsType.BACKGROUND -> false
@@ -406,7 +406,7 @@ public abstract class BaseEditorSession internal constructor(
             // better to crash and start over.
             val providerInfoArray = providerInfoRetriever.retrieveProviderInfo(
                 watchFaceComponentName,
-                complicationState.keys.toIntArray()
+                complicationsState.keys.toIntArray()
             )
             deferredComplicationPreviewDataMap.complete(
                 // Parallel fetch preview ComplicationData.
@@ -489,7 +489,7 @@ internal class OnWatchFaceEditorSessionImpl(
 
     override val previewReferenceTimeMillis by lazy { editorDelegate.previewReferenceTimeMillis }
 
-    override val complicationState
+    override val complicationsState
         get() = editorDelegate.complicationsManager.complications.mapValues {
             requireNotClosed()
             ComplicationState(
@@ -581,7 +581,7 @@ internal class HeadlessEditorSession(
 
     override val previewReferenceTimeMillis = headlessWatchFaceClient.previewReferenceTimeMillis
 
-    override val complicationState = headlessWatchFaceClient.complicationState
+    override val complicationsState = headlessWatchFaceClient.complicationsState
 
     override fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
@@ -631,10 +631,10 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
             context,
             input.editorSession.watchFaceComponentName,
             input.complicationId,
-            input.editorSession.complicationState[input.complicationId]!!.supportedTypes,
+            input.editorSession.complicationsState[input.complicationId]!!.supportedTypes,
             input.instanceId
         )
-        val complicationState = input.editorSession.complicationState[input.complicationId]!!
+        val complicationState = input.editorSession.complicationsState[input.complicationId]!!
         intent.replaceExtras(
             Bundle(complicationState.complicationConfigExtras).apply { putAll(intent.extras!!) }
         )

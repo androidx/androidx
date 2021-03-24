@@ -17,7 +17,6 @@
 package androidx.wear.watchface.client
 
 import android.graphics.Bitmap
-import android.os.IBinder
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
@@ -40,16 +39,6 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
  * Note clients should call [close] when finished.
  */
 public interface InteractiveWatchFaceWcsClient : AutoCloseable {
-
-    public companion object {
-        /**
-         * Constructs an [InteractiveWatchFaceWcsClient] from the [IBinder] returned by [asBinder].
-         */
-        @JvmStatic
-        public fun createFromBinder(binder: IBinder): InteractiveWatchFaceWcsClient =
-            InteractiveWatchFaceWcsClientImpl(binder)
-    }
-
     /**
      * Sends new ComplicationData to the watch face. Note this doesn't have to be a full update,
      * it's possible to update just one complication at a time, but doing so may result in a less
@@ -107,15 +96,12 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
      * Map of complication ids to [ComplicationState] for each complication slot. Note
      * this can change, typically in response to styling.
      */
-    public val complicationState: Map<Int, ComplicationState>
-
-    /** Returns the associated [IBinder]. Allows this interface to be passed over AIDL. */
-    public fun asBinder(): IBinder
+    public val complicationsState: Map<Int, ComplicationState>
 
     /** Returns the ID of the complication at the given coordinates or `null` if there isn't one.*/
     @SuppressWarnings("AutoBoxing")
     public fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? =
-        complicationState.asSequence().firstOrNull {
+        complicationsState.asSequence().firstOrNull {
             it.value.isEnabled && when (it.value.boundsType) {
                 ComplicationBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
                 ComplicationBoundsType.BACKGROUND -> false
@@ -135,8 +121,6 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
 internal class InteractiveWatchFaceWcsClientImpl internal constructor(
     private val iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS
 ) : InteractiveWatchFaceWcsClient {
-
-    constructor(binder: IBinder) : this(IInteractiveWatchFaceWCS.Stub.asInterface(binder))
 
     override fun updateComplicationData(
         idToComplicationData: Map<Int, ComplicationData>
@@ -193,7 +177,7 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
     override val userStyleSchema: UserStyleSchema
         get() = UserStyleSchema(iInteractiveWatchFaceWcs.userStyleSchema)
 
-    override val complicationState: Map<Int, ComplicationState>
+    override val complicationsState: Map<Int, ComplicationState>
         get() = iInteractiveWatchFaceWcs.complicationDetails.associateBy(
             { it.id },
             { ComplicationState(it.complicationState) }
@@ -202,8 +186,6 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
     override fun close() = TraceEvent("InteractiveWatchFaceWcsClientImpl.close").use {
         iInteractiveWatchFaceWcs.release()
     }
-
-    override fun asBinder(): IBinder = iInteractiveWatchFaceWcs.asBinder()
 
     override fun bringAttentionToComplication(complicationId: Int) = TraceEvent(
         "InteractiveWatchFaceWcsClientImpl.bringAttentionToComplication"

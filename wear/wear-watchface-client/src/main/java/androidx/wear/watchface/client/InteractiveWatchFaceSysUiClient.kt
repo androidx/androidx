@@ -20,7 +20,6 @@ import android.app.PendingIntent
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Rect
-import android.os.IBinder
 import android.support.wearable.complications.TimeDependentText
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntDef
@@ -73,14 +72,6 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
          * TAP_TYPE_TOUCH_CANCEL is sent.
          */
         public const val TAP_TYPE_TAP: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_TAP
-
-        /**
-         * Constructs an [InteractiveWatchFaceSysUiClient] from the [IBinder] returned by
-         * [asBinder].
-         */
-        @JvmStatic
-        public fun createFromBinder(binder: IBinder): InteractiveWatchFaceSysUiClient =
-            InteractiveWatchFaceSysUiClientImpl(binder)
     }
 
     /**
@@ -162,16 +153,11 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
 
     /** Triggers watch face rendering into the surface when in ambient mode. */
     public fun performAmbientTick()
-
-    /** Returns the associated [IBinder]. Allows this interface to be passed over AIDL. */
-    public fun asBinder(): IBinder
 }
 
 internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
     private val iInteractiveWatchFaceSysUI: IInteractiveWatchFaceSysUI
 ) : InteractiveWatchFaceSysUiClient {
-
-    constructor(binder: IBinder) : this(IInteractiveWatchFaceSysUI.Stub.asInterface(binder))
 
     override fun sendTouchEvent(
         xPosition: Int,
@@ -241,6 +227,4 @@ internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
     override fun close() = TraceEvent("InteractiveWatchFaceSysUiClientImpl.close").use {
         iInteractiveWatchFaceSysUI.release()
     }
-
-    override fun asBinder(): IBinder = iInteractiveWatchFaceSysUI.asBinder()
 }

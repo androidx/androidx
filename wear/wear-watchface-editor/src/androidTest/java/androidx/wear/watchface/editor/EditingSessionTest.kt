@@ -478,40 +478,42 @@ public class EditorSessionTest {
             listOf(leftComplication, rightComplication, backgroundComplication)
         )
         scenario.onActivity {
-            assertThat(it.editorSession.complicationState.size).isEqualTo(3)
-            assertThat(it.editorSession.complicationState[LEFT_COMPLICATION_ID]!!.bounds)
+            assertThat(it.editorSession.complicationsState.size).isEqualTo(3)
+            assertThat(it.editorSession.complicationsState[LEFT_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(Rect(80, 160, 160, 240))
-            assertThat(it.editorSession.complicationState[LEFT_COMPLICATION_ID]!!.boundsType)
+            assertThat(it.editorSession.complicationsState[LEFT_COMPLICATION_ID]!!.boundsType)
                 .isEqualTo(ComplicationBoundsType.ROUND_RECT)
             assertFalse(
-                it.editorSession.complicationState[LEFT_COMPLICATION_ID]!!.fixedComplicationProvider
+                it.editorSession.complicationsState[
+                    LEFT_COMPLICATION_ID
+                ]!!.fixedComplicationProvider
             )
             assertTrue(
-                it.editorSession.complicationState[LEFT_COMPLICATION_ID]!!.isInitiallyEnabled
+                it.editorSession.complicationsState[LEFT_COMPLICATION_ID]!!.isInitiallyEnabled
             )
 
-            assertThat(it.editorSession.complicationState[RIGHT_COMPLICATION_ID]!!.bounds)
+            assertThat(it.editorSession.complicationsState[RIGHT_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(Rect(240, 160, 320, 240))
-            assertThat(it.editorSession.complicationState[RIGHT_COMPLICATION_ID]!!.boundsType)
+            assertThat(it.editorSession.complicationsState[RIGHT_COMPLICATION_ID]!!.boundsType)
                 .isEqualTo(ComplicationBoundsType.ROUND_RECT)
             assertFalse(
-                it.editorSession.complicationState[RIGHT_COMPLICATION_ID]!!
+                it.editorSession.complicationsState[RIGHT_COMPLICATION_ID]!!
                     .fixedComplicationProvider
             )
             assertTrue(
-                it.editorSession.complicationState[RIGHT_COMPLICATION_ID]!!.isInitiallyEnabled
+                it.editorSession.complicationsState[RIGHT_COMPLICATION_ID]!!.isInitiallyEnabled
             )
 
-            assertThat(it.editorSession.complicationState[BACKGROUND_COMPLICATION_ID]!!.bounds)
+            assertThat(it.editorSession.complicationsState[BACKGROUND_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(screenBounds)
-            assertThat(it.editorSession.complicationState[BACKGROUND_COMPLICATION_ID]!!.boundsType)
+            assertThat(it.editorSession.complicationsState[BACKGROUND_COMPLICATION_ID]!!.boundsType)
                 .isEqualTo(ComplicationBoundsType.BACKGROUND)
             assertFalse(
-                it.editorSession.complicationState[BACKGROUND_COMPLICATION_ID]!!
+                it.editorSession.complicationsState[BACKGROUND_COMPLICATION_ID]!!
                     .fixedComplicationProvider
             )
             assertFalse(
-                it.editorSession.complicationState[BACKGROUND_COMPLICATION_ID]!!.isInitiallyEnabled
+                it.editorSession.complicationsState[BACKGROUND_COMPLICATION_ID]!!.isInitiallyEnabled
             )
             // We could test more state but this should be enough.
         }
@@ -544,7 +546,9 @@ public class EditorSessionTest {
         )
         scenario.onActivity {
             assertTrue(
-                it.editorSession.complicationState[LEFT_COMPLICATION_ID]!!.fixedComplicationProvider
+                it.editorSession.complicationsState[
+                    LEFT_COMPLICATION_ID
+                ]!!.fixedComplicationProvider
             )
 
             try {

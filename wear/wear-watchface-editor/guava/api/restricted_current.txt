@@ -8,7 +8,7 @@ package androidx.wear.watchface.editor {
     method public Integer? getBackgroundComplicationId();
     method public Integer? getComplicationIdAt(int x, int y);
     method public suspend Object? getComplicationPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> p);
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationsState();
     method public String? getInstanceId();
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData>> getListenableComplicationPreviewData();
     method public long getPreviewReferenceTimeMillis();
@@ -21,7 +21,7 @@ package androidx.wear.watchface.editor {
     method public void setUserStyle(androidx.wear.watchface.style.UserStyle value);
     method public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
     property public Integer? backgroundComplicationId;
-    property public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationState;
+    property public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationsState;
     property public String? instanceId;
     property public long previewReferenceTimeMillis;
     property public androidx.wear.watchface.style.UserStyle userStyle;
