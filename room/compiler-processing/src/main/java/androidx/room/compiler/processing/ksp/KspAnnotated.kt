@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.InternalXAnnotated
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XAnnotationBox
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
@@ -25,20 +26,40 @@ import kotlin.reflect.KClass
 
 internal sealed class KspAnnotated(
     val env: KspProcessingEnv
-) : XAnnotated {
+) : InternalXAnnotated {
     abstract fun annotations(): Sequence<KSAnnotation>
 
-    override fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>? {
-        return annotations().firstOrNull {
+    private fun <T : Annotation> findAnnotations(annotation: KClass<T>): Sequence<KSAnnotation> {
+        return annotations().filter {
             val qName = it.annotationType.resolve().declaration.qualifiedName?.asString()
             qName == annotation.qualifiedName
-        }?.let {
+        }
+    }
+
+    override fun <T : Annotation> getAnnotations(
+        annotation: KClass<T>,
+        containerAnnotation: KClass<out Annotation>?
+    ): List<XAnnotationBox<T>> {
+        // we'll try both because it can be the container or the annotation itself.
+        // try container first
+        if (containerAnnotation != null) {
+            // if container also repeats, this won't work but we don't have that use case
+            findAnnotations(containerAnnotation).firstOrNull()?.let {
+                return KspAnnotationBox(
+                    env = env,
+                    annotation = it,
+                    annotationClass = containerAnnotation.java,
+                ).getAsAnnotationBoxArray<T>("value").toList()
+            }
+        }
+        // didn't find anything with the container, try the annotation class
+        return findAnnotations(annotation).map {
             KspAnnotationBox(
                 env = env,
                 annotationClass = annotation.java,
                 annotation = it
             )
-        }
+        }.toList()
     }
 
     override fun hasAnnotationWithPackage(pkg: String): Boolean {
@@ -47,10 +68,14 @@ internal sealed class KspAnnotated(
         }
     }
 
-    override fun hasAnnotation(annotation: KClass<out Annotation>): Boolean {
+    override fun hasAnnotation(
+        annotation: KClass<out Annotation>,
+        containerAnnotation: KClass<out Annotation>?
+    ): Boolean {
         return annotations().any {
             val qName = it.annotationType.resolve().declaration.qualifiedName?.asString()
-            qName == annotation.qualifiedName
+            qName == annotation.qualifiedName ||
+                (containerAnnotation != null && qName == containerAnnotation.qualifiedName)
         }
     }
 

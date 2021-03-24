@@ -72,7 +72,7 @@ class RawQueryMethodProcessor(
     }
 
     private fun processObservedTables(): Set<String> {
-        val annotation = executableElement.toAnnotationBox(RawQuery::class)
+        val annotation = executableElement.getAnnotation(RawQuery::class)
         return annotation?.getAsTypeList("observedEntities")
             ?.mapNotNull {
                 it.typeElement.also { typeElement ->
