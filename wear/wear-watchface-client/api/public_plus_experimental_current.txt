@@ -62,26 +62,17 @@ package androidx.wear.watchface.client {
   }
 
   public interface HeadlessWatchFaceClient extends java.lang.AutoCloseable {
-    method public android.os.IBinder asBinder();
-    method public default static androidx.wear.watchface.client.HeadlessWatchFaceClient createFromBinder(android.os.IBinder binder);
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationsState();
     method public long getPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method @RequiresApi(27) public android.graphics.Bitmap? takeComplicationScreenshot(int complicationId, androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.complications.data.ComplicationData complicationData, androidx.wear.watchface.style.UserStyle? userStyle);
     method @RequiresApi(27) public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
-    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationState;
+    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationsState;
     property public abstract long previewReferenceTimeMillis;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
-    field public static final androidx.wear.watchface.client.HeadlessWatchFaceClient.Companion Companion;
-  }
-
-  public static final class HeadlessWatchFaceClient.Companion {
-    method public androidx.wear.watchface.client.HeadlessWatchFaceClient createFromBinder(android.os.IBinder binder);
   }
 
   public interface InteractiveWatchFaceSysUiClient extends java.lang.AutoCloseable {
-    method public android.os.IBinder asBinder();
-    method public default static androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient createFromBinder(android.os.IBinder binder);
     method public java.util.List<androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.ContentDescriptionLabel> getContentDescriptionLabels();
     method public String getInstanceId();
     method public long getPreviewReferenceTimeMillis();
@@ -99,7 +90,6 @@ package androidx.wear.watchface.client {
   }
 
   public static final class InteractiveWatchFaceSysUiClient.Companion {
-    method public androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient createFromBinder(android.os.IBinder binder);
     field public static final int TAP_TYPE_TAP = 2; // 0x2
     field public static final int TAP_TYPE_TOUCH = 0; // 0x0
     field public static final int TAP_TYPE_TOUCH_CANCEL = 1; // 0x1
@@ -115,11 +105,9 @@ package androidx.wear.watchface.client {
   }
 
   public interface InteractiveWatchFaceWcsClient extends java.lang.AutoCloseable {
-    method public android.os.IBinder asBinder();
     method public void bringAttentionToComplication(int complicationId);
-    method public default static androidx.wear.watchface.client.InteractiveWatchFaceWcsClient createFromBinder(android.os.IBinder binder);
     method public default Integer? getComplicationIdAt(@Px int x, @Px int y);
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationsState();
     method public String getInstanceId();
     method public long getPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
@@ -127,15 +115,10 @@ package androidx.wear.watchface.client {
     method public void updateComplicationData(java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData> idToComplicationData);
     method public void updateInstance(String newInstanceId, androidx.wear.watchface.style.UserStyle userStyle);
     method public void updateInstance(String newInstanceId, java.util.Map<java.lang.String,java.lang.String> userStyle);
-    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationState;
+    property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationsState;
     property public abstract String instanceId;
     property public abstract long previewReferenceTimeMillis;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
-    field public static final androidx.wear.watchface.client.InteractiveWatchFaceWcsClient.Companion Companion;
-  }
-
-  public static final class InteractiveWatchFaceWcsClient.Companion {
-    method public androidx.wear.watchface.client.InteractiveWatchFaceWcsClient createFromBinder(android.os.IBinder binder);
   }
 
   public final class SystemState {

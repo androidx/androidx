@@ -159,7 +159,7 @@ internal class ConfigView(
         // Silently do nothing if the complication is fixed. Note the user is given a visual clue
         // that the complication is not editable in [Complication.drawOutline] so this is OK.
         val complicationState =
-            watchFaceConfigActivity.editorSession.complicationState[complicationId]!!
+            watchFaceConfigActivity.editorSession.complicationsState[complicationId]!!
         if (complicationState.fixedComplicationProvider) {
             return true
         }
