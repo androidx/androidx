@@ -195,9 +195,9 @@ constructor(
      *
      * @param deepLink to the destination reachable from the current NavGraph
      * @return True if the deepLink exists for the destination.
-     * @see .addDeepLink
+     * @see NavDestination.addDeepLink
      * @see NavController.navigate
-     * @see .hasDeepLink
+     * @see NavDestination.hasDeepLink
      */
     public open fun hasDeepLink(deepLink: Uri): Boolean {
         return hasDeepLink(NavDeepLinkRequest(deepLink, null, null))
@@ -214,7 +214,7 @@ constructor(
      *
      * @param deepLinkRequest to the destination reachable from the current NavGraph
      * @return True if the deepLink exists for the destination.
-     * @see .addDeepLink
+     * @see NavDestination.addDeepLink
      * @see NavController.navigate
      */
     public open fun hasDeepLink(deepLinkRequest: NavDeepLinkRequest): Boolean {
@@ -249,7 +249,7 @@ constructor(
      * @param uriPattern The uri pattern to add as a deep link
      * @see NavController.handleDeepLink
      * @see NavController.navigate
-     * @see .addDeepLink
+     * @see NavDestination.addDeepLink
      */
     public fun addDeepLink(uriPattern: String) {
         addDeepLink(NavDeepLink.Builder().setUriPattern(uriPattern).build())
@@ -367,7 +367,7 @@ constructor(
 
     /**
      * @return Whether this NavDestination supports outgoing actions
-     * @see .putAction
+     * @see NavDestination.putAction
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun supportsActions(): Boolean {

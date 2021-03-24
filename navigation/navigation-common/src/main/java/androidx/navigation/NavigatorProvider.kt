@@ -41,7 +41,7 @@ public open class NavigatorProvider {
      * [Navigator.Name annotation][Navigator.Name]
      * @throws IllegalStateException if the Navigator has not been added
      *
-     * @see .addNavigator
+     * @see NavigatorProvider.addNavigator
      */
     public fun <T : Navigator<*>> getNavigator(navigatorClass: Class<T>): T {
         val name = getNameForNavigator(navigatorClass)
@@ -56,7 +56,7 @@ public open class NavigatorProvider {
      *
      * @throws IllegalStateException if the Navigator has not been added
      *
-     * @see .addNavigator
+     * @see NavigatorProvider.addNavigator
      */
     @Suppress("UNCHECKED_CAST")
     @CallSuper
