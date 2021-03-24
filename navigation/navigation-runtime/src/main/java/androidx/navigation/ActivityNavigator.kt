@@ -235,7 +235,7 @@ public open class ActivityNavigator(
          * @param dataPattern A URI pattern with segments in the form of `{argName}` that
          * will be replaced with URI encoded versions of the Strings in the
          * arguments Bundle.
-         * @see .setData
+         * @see Destination.setData
          *
          * @return this [Destination]
          */
@@ -371,7 +371,7 @@ public open class ActivityNavigator(
          * present.
          *
          * @param data A static URI that should always be used.
-         * @see .setDataPattern
+         * @see Destination.setDataPattern
          * @return this [Destination]
          */
         public fun setData(data: Uri?): Destination {
