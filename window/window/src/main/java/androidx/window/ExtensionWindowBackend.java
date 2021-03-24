@@ -21,7 +21,6 @@ import static androidx.window.ExtensionCompat.DEBUG;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
@@ -93,45 +92,6 @@ final class ExtensionWindowBackend implements WindowBackend {
             }
         }
         return sInstance;
-    }
-
-    @Override
-    public void registerLayoutChangeCallback(@NonNull Context context, @NonNull Executor executor,
-            @NonNull Consumer<WindowLayoutInfo> callback) {
-        registerLayoutChangeCallback(assertActivityContext(context), executor, callback);
-    }
-
-    /**
-     * Unwraps the hierarchy of {@link ContextWrapper}-s until {@link Activity} is reached.
-     * @return Base {@link Activity} context or {@code null} if not available.
-     * @deprecated added temporarily to make migration easier. Will be removed in next relesae.
-     */
-    @Nullable
-    @Deprecated // TODO(b/173739071) remove
-    private static Activity getActivityFromContext(Context context) {
-        while (context instanceof ContextWrapper) {
-            if (context instanceof Activity) {
-                return (Activity) context;
-            }
-            context = ((ContextWrapper) context).getBaseContext();
-        }
-        return null;
-    }
-
-    /**
-     * @deprecated added temporarily to make migration easier. Will be removed in next release.
-     * @param context any {@link Context}
-     * @return {@link Activity} if associated with {@link Context} throw
-     * {@link IllegalArgumentException} otherwise.
-     */
-    @Deprecated
-    private Activity assertActivityContext(Context context) {
-        Activity activity = getActivityFromContext(context);
-        if (activity == null) {
-            throw new IllegalArgumentException("Used non-visual Context with WindowManager. "
-                    + "Please use an Activity or a ContextWrapper around an Activity instead.");
-        }
-        return activity;
     }
 
     @Override
@@ -209,55 +169,6 @@ final class ExtensionWindowBackend implements WindowBackend {
         }
         // No registered callbacks left for the activity - report to extension.
         mWindowExtension.onWindowLayoutChangeListenerRemoved(activity);
-    }
-
-    @Override
-    public void registerDeviceStateChangeCallback(@NonNull Executor executor,
-            @NonNull Consumer<DeviceState> callback) {
-        synchronized (sLock) {
-            final DeviceStateChangeCallbackWrapper callbackWrapper =
-                    new DeviceStateChangeCallbackWrapper(executor, callback);
-            if (mWindowExtension == null) {
-                if (DEBUG) {
-                    Log.d(TAG, "Extension not loaded, skipping callback registration.");
-                }
-                callback.accept(new DeviceState(DeviceState.POSTURE_UNKNOWN));
-                return;
-            }
-
-            if (mDeviceStateChangeCallbacks.isEmpty()) {
-                mWindowExtension.onDeviceStateListenersChanged(false /* isEmpty */);
-            }
-
-            mDeviceStateChangeCallbacks.add(callbackWrapper);
-            if (mLastReportedDeviceState != null) {
-                callbackWrapper.accept(mLastReportedDeviceState);
-            }
-        }
-    }
-
-    @Override
-    public void unregisterDeviceStateChangeCallback(@NonNull Consumer<DeviceState> callback) {
-        synchronized (sLock) {
-            if (mWindowExtension == null) {
-                if (DEBUG) {
-                    Log.d(TAG, "Extension not loaded, skipping callback un-registration.");
-                }
-                return;
-            }
-
-            for (DeviceStateChangeCallbackWrapper callbackWrapper : mDeviceStateChangeCallbacks) {
-                if (callbackWrapper.mCallback.equals(callback)) {
-                    mDeviceStateChangeCallbacks.remove(callbackWrapper);
-                    if (mDeviceStateChangeCallbacks.isEmpty()) {
-                        mWindowExtension.onDeviceStateListenersChanged(true /* isEmpty */);
-                        // Clear device state so we do not replay stale data.
-                        mLastReportedDeviceState = null;
-                    }
-                    return;
-                }
-            }
-        }
     }
 
     @VisibleForTesting

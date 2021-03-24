@@ -20,7 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 
@@ -77,20 +76,6 @@ public final class WindowBackendTest extends WindowTestBase {
             mWindowLayoutInfo = windowLayoutInfo;
         }
 
-        /**
-         * Throws an exception if used.
-         * @deprecated will be removed in next alpha
-         * @param context any {@link Activity}
-         * @param executor any {@link Executor}
-         * @param callback any {@link Consumer}
-         */
-        @Override
-        @Deprecated // TODO(b/173739071) Remove in next alpha.
-        public void registerLayoutChangeCallback(@NonNull Context context,
-                @NonNull Executor executor, @NonNull Consumer<WindowLayoutInfo> callback) {
-            throw new RuntimeException("Deprecated method");
-        }
-
         @Override
         public void registerLayoutChangeCallback(@NonNull Activity activity,
                 @NonNull Executor executor, @NonNull Consumer<WindowLayoutInfo> callback) {
@@ -102,15 +87,5 @@ public final class WindowBackendTest extends WindowTestBase {
             // Empty
         }
 
-        @Override
-        public void registerDeviceStateChangeCallback(@NonNull Executor executor,
-                @NonNull Consumer<DeviceState> callback) {
-            throw new UnsupportedOperationException("Deprecated method");
-        }
-
-        @Override
-        public void unregisterDeviceStateChangeCallback(@NonNull Consumer<DeviceState> callback) {
-            throw new UnsupportedOperationException("Deprecated method");
-        }
     }
 }

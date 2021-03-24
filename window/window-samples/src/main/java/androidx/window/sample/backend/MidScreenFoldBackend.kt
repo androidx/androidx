@@ -19,11 +19,9 @@
 package androidx.window.sample.backend
 
 import android.app.Activity
-import android.content.Context
 import android.graphics.Point
 import android.graphics.Rect
 import androidx.core.util.Consumer
-import androidx.window.DeviceState
 import androidx.window.DisplayFeature
 import androidx.window.FoldingFeature
 import androidx.window.WindowBackend
@@ -76,14 +74,6 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
         return WindowLayoutInfo.Builder().setDisplayFeatures(featureList).build()
     }
 
-    @Deprecated("Added for compatibility with WindowBackend in sample")
-    override fun registerLayoutChangeCallback(
-        context: Context,
-        executor: Executor,
-        callback: Consumer<WindowLayoutInfo>
-    ) {
-    }
-
     private fun foldRect(windowSize: Point): Rect {
         return when (foldAxis) {
             FoldAxis.LONG_DIMENSION -> longDimensionFold(windowSize)
@@ -105,15 +95,6 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
         } else { // Portrait
             Rect(windowSize.x / 2, 0, windowSize.x / 2, windowSize.y)
         }
-    }
-
-    override fun registerDeviceStateChangeCallback(
-        executor: Executor,
-        callback: Consumer<DeviceState>
-    ) {
-    }
-
-    override fun unregisterDeviceStateChangeCallback(callback: Consumer<DeviceState>) {
     }
 
     override fun registerLayoutChangeCallback(
