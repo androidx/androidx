@@ -22,11 +22,16 @@ import androidx.wear.watchface.editor.IEditorService
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import java.util.concurrent.Executor
 
-/** Client for the watchface editor service. */
+/**
+ * Client for the watchface editor service, which observes
+ * [androidx.wear.watchface.editor.EditorSession]. This client can be reused to observe multiple
+ * editor sessions.
+ */
 public interface EditorServiceClient {
     /**
-     * Starts listening to [androidx.wear.watchface.editor.EditorSession] events with the callback
-     * run on the specified [listenerExecutor].
+     * Starts listening for [EditorState] which is sent when
+     * [androidx.wear.watchface.editor.EditorSession] closes. The
+     * [EditorListener.onEditorStateChanged] callback is run on the specified [listenerExecutor].
      */
     public fun addListener(editorListener: EditorListener, listenerExecutor: Executor)
 
