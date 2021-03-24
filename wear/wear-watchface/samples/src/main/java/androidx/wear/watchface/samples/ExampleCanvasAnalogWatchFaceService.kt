@@ -131,14 +131,14 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
                 Icon.createWithResource(context, R.drawable.blue_style)
             )
         ),
-        listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
+        listOf(Layer.BASE, Layer.COMPLICATIONS, Layer.COMPLICATIONS_OVERLAY)
     )
     val drawHourPipsStyleSetting = BooleanUserStyleSetting(
         DRAW_HOUR_PIPS_STYLE_SETTING,
         context.getString(R.string.watchface_pips_setting),
         context.getString(R.string.watchface_pips_setting_description),
         null,
-        listOf(Layer.BASE_LAYER),
+        listOf(Layer.BASE),
         true
     )
     val watchHandLengthStyleSetting = DoubleRangeUserStyleSetting(
@@ -148,7 +148,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
         null,
         0.25,
         1.0,
-        listOf(Layer.TOP_LAYER),
+        listOf(Layer.COMPLICATIONS_OVERLAY),
         0.75
     )
     // These are style overrides applied on top of the complications passed into
@@ -355,12 +355,12 @@ class ExampleAnalogWatchCanvasRenderer(
         // CanvasComplicationDrawable already obeys rendererParameters.
         drawComplications(canvas, calendar)
 
-        if (renderParameters.layerParameters[Layer.TOP_LAYER] != LayerMode.HIDE) {
+        if (renderParameters.layerParameters[Layer.COMPLICATIONS_OVERLAY] != LayerMode.HIDE) {
             drawClockHands(canvas, bounds, calendar, style)
         }
 
         if (renderParameters.drawMode != DrawMode.AMBIENT &&
-            renderParameters.layerParameters[Layer.BASE_LAYER] != LayerMode.HIDE &&
+            renderParameters.layerParameters[Layer.BASE] != LayerMode.HIDE &&
             drawHourPips
         ) {
             drawNumberStyleOuterElement(canvas, bounds, style)

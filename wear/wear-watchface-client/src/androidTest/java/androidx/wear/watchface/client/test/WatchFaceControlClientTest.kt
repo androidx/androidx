@@ -209,9 +209,9 @@ class WatchFaceControlClientTest {
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 mapOf(
-                    Layer.BASE_LAYER to LayerMode.DRAW,
+                    Layer.BASE to LayerMode.DRAW,
                     Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
-                    Layer.TOP_LAYER to LayerMode.DRAW
+                    Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
                 ),
                 null,
                 Color.YELLOW

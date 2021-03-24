@@ -17,9 +17,9 @@ package androidx.wear.watchface.style {
   }
 
   public enum Layer {
-    enum_constant public static final androidx.wear.watchface.style.Layer BASE_LAYER;
+    enum_constant public static final androidx.wear.watchface.style.Layer BASE;
     enum_constant public static final androidx.wear.watchface.style.Layer COMPLICATIONS;
-    enum_constant public static final androidx.wear.watchface.style.Layer TOP_LAYER;
+    enum_constant public static final androidx.wear.watchface.style.Layer COMPLICATIONS_OVERLAY;
   }
 
   public final class UserStyle {

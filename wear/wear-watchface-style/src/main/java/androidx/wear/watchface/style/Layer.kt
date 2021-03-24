@@ -18,7 +18,12 @@ package androidx.wear.watchface.style
 
 /** Describes part of watchface. Used as a parameter for rendering. */
 public enum class Layer {
-    BASE_LAYER,
+    /** The watch excluding complications and anything that may render on top of complications. */
+    BASE,
+
+    /** The watch face complications. */
     COMPLICATIONS,
-    TOP_LAYER
+
+    /** Anything that may render on top of complications, e.g. watch hands. */
+    COMPLICATIONS_OVERLAY
 }

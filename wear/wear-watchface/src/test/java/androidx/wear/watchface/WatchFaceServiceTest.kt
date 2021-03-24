@@ -131,7 +131,7 @@ public class WatchFaceServiceTest {
         "Watchface colorization", /* icon = */
         null,
         colorStyleList,
-        listOf(Layer.BASE_LAYER)
+        listOf(Layer.BASE)
     )
 
     private val classicStyleOption =
@@ -152,7 +152,7 @@ public class WatchFaceServiceTest {
         "Hand visual look", /* icon = */
         null,
         watchHandStyleList,
-        listOf(Layer.TOP_LAYER)
+        listOf(Layer.COMPLICATIONS_OVERLAY)
     )
 
     private val badStyleOption =
@@ -2135,9 +2135,9 @@ public class WatchFaceServiceTest {
         val params = RenderParameters(
             DrawMode.INTERACTIVE,
             mapOf(
-                Layer.BASE_LAYER to LayerMode.DRAW,
+                Layer.BASE to LayerMode.DRAW,
                 Layer.COMPLICATIONS to LayerMode.DRAW,
-                Layer.TOP_LAYER to LayerMode.DRAW
+                Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
             ),
             null
         )
@@ -2153,9 +2153,9 @@ public class WatchFaceServiceTest {
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 mapOf(
-                    Layer.BASE_LAYER to LayerMode.DRAW,
+                    Layer.BASE to LayerMode.DRAW,
                     Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
-                    Layer.TOP_LAYER to LayerMode.DRAW
+                    Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
                 ),
                 null
             )

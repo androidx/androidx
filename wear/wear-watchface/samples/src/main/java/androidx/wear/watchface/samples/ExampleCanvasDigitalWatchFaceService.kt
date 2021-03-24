@@ -492,7 +492,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
             ),
-            listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
+            listOf(Layer.BASE, Layer.COMPLICATIONS, Layer.COMPLICATIONS_OVERLAY)
         )
         val userStyleRepository = CurrentUserStyleRepository(
             UserStyleSchema(listOf(colorStyleSetting))
@@ -826,13 +826,13 @@ class ExampleDigitalWatchCanvasRenderer(
 
         applyColorStyleAndDrawMode(renderParameters.drawMode)
 
-        if (renderParameters.layerParameters[Layer.BASE_LAYER] != LayerMode.HIDE) {
+        if (renderParameters.layerParameters[Layer.BASE] != LayerMode.HIDE) {
             drawBackground(canvas)
         }
 
         drawComplications(canvas, calendar)
 
-        if (renderParameters.layerParameters[Layer.BASE_LAYER] != LayerMode.HIDE) {
+        if (renderParameters.layerParameters[Layer.BASE] != LayerMode.HIDE) {
             val is24Hour: Boolean = DateFormat.is24HourFormat(context)
 
             nextSecondTime.timeInMillis = calendar.timeInMillis

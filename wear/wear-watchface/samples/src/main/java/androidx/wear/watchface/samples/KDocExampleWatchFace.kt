@@ -77,7 +77,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                     icon = null
                                 )
                             ),
-                            listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
+                            listOf(Layer.BASE, Layer.COMPLICATIONS, Layer.COMPLICATIONS_OVERLAY)
                         ),
                         ListUserStyleSetting(
                             "hand_style_setting",
@@ -97,7 +97,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                     icon = null
                                 )
                             ),
-                            listOf(Layer.TOP_LAYER)
+                            listOf(Layer.COMPLICATIONS_OVERLAY)
                         )
                     )
                 )
