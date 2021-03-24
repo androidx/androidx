@@ -186,6 +186,7 @@ package androidx.work {
     enum_constant public static final androidx.work.NetworkType METERED;
     enum_constant public static final androidx.work.NetworkType NOT_REQUIRED;
     enum_constant public static final androidx.work.NetworkType NOT_ROAMING;
+    enum_constant @RequiresApi(30) public static final androidx.work.NetworkType TEMPORARILY_UNMETERED;
     enum_constant public static final androidx.work.NetworkType UNMETERED;
   }
 
