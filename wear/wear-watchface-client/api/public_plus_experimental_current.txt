@@ -113,8 +113,8 @@ package androidx.wear.watchface.client {
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method @RequiresApi(27) public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idAndComplicationData);
     method public void updateComplicationData(java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData> idToComplicationData);
-    method public void updateInstance(String newInstanceId, androidx.wear.watchface.style.UserStyle userStyle);
-    method public void updateInstance(String newInstanceId, java.util.Map<java.lang.String,java.lang.String> userStyle);
+    method public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyle userStyle);
+    method public void updateWatchFaceInstance(String newInstanceId, java.util.Map<java.lang.String,java.lang.String> userStyle);
     property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationsState;
     property public abstract String instanceId;
     property public abstract long previewReferenceTimeMillis;

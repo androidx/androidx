@@ -637,7 +637,7 @@ class WatchFaceControlClientTest {
 
         // Note this map doesn't include all the categories, which is fine the others will be set
         // to their defaults.
-        interactiveInstance.updateInstance(
+        interactiveInstance.updateWatchFaceInstance(
             "testId2",
             mapOf(
                 COLOR_STYLE_SETTING to BLUE_STYLE,
