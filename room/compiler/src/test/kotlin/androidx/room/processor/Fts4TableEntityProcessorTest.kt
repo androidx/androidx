@@ -89,7 +89,8 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 """
             )
         ) { invocation ->
-            val entity = invocation.roundEnv.getTypeElementsAnnotatedWith(Fts4::class.java)
+            val entity = invocation.roundEnv
+                .getTypeElementsAnnotatedWith(Fts4::class.qualifiedName!!)
                 .first { it.toString() == "foo.bar.MyEntity" }
             FtsTableEntityProcessor(invocation.context, entity)
                 .process()

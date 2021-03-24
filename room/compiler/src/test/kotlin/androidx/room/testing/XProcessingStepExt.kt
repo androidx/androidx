@@ -27,7 +27,7 @@ fun XProcessingStep.asTestInvocationHandler(
     delegate: (XTestInvocation) -> Unit
 ): (XTestInvocation) -> Unit = { invocation ->
     val elementsByAnnotation = annotations().associateWith {
-        invocation.roundEnv.getTypeElementsAnnotatedWith(it.java).toList()
+        invocation.roundEnv.getTypeElementsAnnotatedWith(it).toList()
     }
     this.process(
         env = invocation.processingEnv,

@@ -278,26 +278,26 @@ fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVer
 }
 
 fun XTestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
-    return roundEnv.getTypeElementsAnnotatedWith(DatabaseView::class.java).map {
+    return roundEnv.getTypeElementsAnnotatedWith(DatabaseView::class.qualifiedName!!).map {
         DatabaseViewProcessor(context, it).process()
     }
 }
 
 fun XTestInvocation.getEntities(): List<androidx.room.vo.Entity> {
-    val entities = roundEnv.getTypeElementsAnnotatedWith(Entity::class.java).map {
+    val entities = roundEnv.getTypeElementsAnnotatedWith(Entity::class.qualifiedName!!).map {
         TableEntityProcessor(context, it).process()
     }
     return entities
 }
 
 fun TestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
-    return roundEnv.getTypeElementsAnnotatedWith(DatabaseView::class.java).map {
+    return roundEnv.getTypeElementsAnnotatedWith(DatabaseView::class.qualifiedName!!).map {
         DatabaseViewProcessor(context, it).process()
     }
 }
 
 fun TestInvocation.getEntities(): List<androidx.room.vo.Entity> {
-    val entities = roundEnv.getTypeElementsAnnotatedWith(Entity::class.java).map {
+    val entities = roundEnv.getTypeElementsAnnotatedWith(Entity::class.qualifiedName!!).map {
         TableEntityProcessor(context, it).process()
     }
     return entities

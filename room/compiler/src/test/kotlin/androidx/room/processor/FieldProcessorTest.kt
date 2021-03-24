@@ -602,7 +602,7 @@ class FieldProcessorTest {
                         .forAnnotations(androidx.room.Entity::class)
                         .nextRunHandler { invocation ->
                             val (owner, fieldElement) = invocation.roundEnv
-                                .getTypeElementsAnnotatedWith(Entity::class.java)
+                                .getTypeElementsAnnotatedWith(Entity::class.qualifiedName!!)
                                 .map {
                                     Pair(
                                         it,

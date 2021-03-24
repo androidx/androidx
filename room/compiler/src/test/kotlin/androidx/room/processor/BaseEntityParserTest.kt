@@ -68,7 +68,7 @@ abstract class BaseEntityParserTest {
         ) { invocation ->
             val entity = invocation.roundEnv
                 .getTypeElementsAnnotatedWith(
-                    androidx.room.Entity::class.java
+                    androidx.room.Entity::class.qualifiedName!!
                 ).first {
                     it.qualifiedName == "foo.bar.MyEntity"
                 }

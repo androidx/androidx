@@ -214,7 +214,7 @@ class SQLiteOpenHelperWriterTest {
             sources = sources + databaseCode
         ) { invocation ->
             val db = invocation.roundEnv
-                .getTypeElementsAnnotatedWith(androidx.room.Database::class.java)
+                .getTypeElementsAnnotatedWith(androidx.room.Database::class.qualifiedName!!)
                 .first()
             handler(DatabaseProcessor(invocation.context, db).process(), invocation)
         }
