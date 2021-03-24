@@ -1058,6 +1058,7 @@ package androidx.core.content {
     ctor protected ContextCompat();
     method public static int checkSelfPermission(android.content.Context, String);
     method public static android.content.Context? createDeviceProtectedStorageContext(android.content.Context);
+    method public static String? getAttributionTag(android.content.Context);
     method public static java.io.File! getCodeCacheDir(android.content.Context);
     method @ColorInt public static int getColor(android.content.Context, @ColorRes int);
     method public static android.content.res.ColorStateList? getColorStateList(android.content.Context, @ColorRes int);
@@ -1936,6 +1937,10 @@ package androidx.core.os {
     method @Deprecated public static void endSection();
     method @Deprecated public static boolean isEnabled();
     method @Deprecated public static void setCounter(String, int);
+  }
+
+  @RequiresApi(17) public class UserHandleCompat {
+    method public static android.os.UserHandle getUserHandleForUid(int);
   }
 
   public class UserManagerCompat {
