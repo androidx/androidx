@@ -38,8 +38,14 @@ public annotation class InterruptionFilter
  * Describes the system state of the watch face.
  *
  * @param inAmbientMode Whether the device is is ambient mode or not.
- * @param interruptionFilter The current user interruption settings. @see [NotificationManager]
- *     for details.
+ * @param interruptionFilter The interruption filter defines which notifications are allowed to
+ *     interrupt the user. For watch faces this value is one of:
+ *     [NotificationManager.INTERRUPTION_FILTER_ALARMS],
+ *     [NotificationManager.INTERRUPTION_FILTER_ALL],
+ *     [NotificationManager.INTERRUPTION_FILTER_NONE],
+ *     [NotificationManager.INTERRUPTION_FILTER_PRIORITY],
+ *     [NotificationManager.INTERRUPTION_FILTER_UNKNOWN]. @see [NotificationManager] for more
+ *     details.
  */
 public class SystemState(
     @get:JvmName("inAmbientMode")

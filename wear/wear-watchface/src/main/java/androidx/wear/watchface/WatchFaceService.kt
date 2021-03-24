@@ -49,7 +49,7 @@ import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.complications.SystemProviders.ProviderId
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.complications.data.asApiComplicationData
+import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
@@ -552,11 +552,11 @@ public abstract class WatchFaceService : WallpaperService() {
                             ComplicationType.toWireTypes(it.value.supportedTypes),
                             it.value.defaultProviderPolicy.providersAsList(),
                             it.value.defaultProviderPolicy.systemProviderFallback,
-                            it.value.defaultProviderType.asWireComplicationType(),
+                            it.value.defaultProviderType.toWireComplicationType(),
                             it.value.enabled,
                             it.value.initiallyEnabled,
-                            it.value.renderer.getData()?.type?.asWireComplicationType()
-                                ?: ComplicationType.NO_DATA.asWireComplicationType(),
+                            it.value.renderer.getData()?.type?.toWireComplicationType()
+                                ?: ComplicationType.NO_DATA.toWireComplicationType(),
                             it.value.fixedComplicationProvider,
                             it.value.configExtras
                         )
@@ -572,7 +572,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 for (idAndComplicationData in complicationDatumWireFormats) {
                     watchFaceImpl.onComplicationDataUpdate(
                         idAndComplicationData.id,
-                        idAndComplicationData.complicationData.asApiComplicationData()
+                        idAndComplicationData.complicationData.toApiComplicationData()
                     )
                 }
             } else {
@@ -580,7 +580,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     pendingComplicationDataUpdates.add(
                         PendingComplicationData(
                             idAndComplicationData.id,
-                            idAndComplicationData.complicationData.asApiComplicationData()
+                            idAndComplicationData.complicationData.toApiComplicationData()
                         )
                     )
                 }
@@ -626,7 +626,7 @@ public abstract class WatchFaceService : WallpaperService() {
             params.idAndComplicationDatumWireFormats?.let {
                 for (idAndData in it) {
                     watchFaceImpl.complicationsManager[idAndData.id]!!.renderer
-                        .loadData(idAndData.complicationData.asApiComplicationData(), false)
+                        .loadData(idAndData.complicationData.toApiComplicationData(), false)
                 }
             }
 
@@ -680,7 +680,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 if (screenshotComplicationData != null) {
                     prevData = it.renderer.getData()
                     it.renderer.loadData(
-                        screenshotComplicationData.asApiComplicationData(),
+                        screenshotComplicationData.toApiComplicationData(),
                         false
                     )
                 }
@@ -1180,7 +1180,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 extras.getParcelable(Constants.EXTRA_COMPLICATION_DATA)!!
             setComplicationData(
                 extras.getInt(Constants.EXTRA_COMPLICATION_ID),
-                complicationData.asApiComplicationData()
+                complicationData.toApiComplicationData()
             )
         }
 

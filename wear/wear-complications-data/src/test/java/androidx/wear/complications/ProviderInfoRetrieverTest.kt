@@ -75,7 +75,7 @@ public class ProviderInfoRetrieverTest {
                 true
             }.`when`(mockService).requestPreviewComplicationData(
                 eq(component),
-                eq(type.asWireComplicationType()),
+                eq(type.toWireComplicationType()),
                 any()
             )
 
@@ -104,7 +104,7 @@ public class ProviderInfoRetrieverTest {
                 true
             }.`when`(mockService).requestPreviewComplicationData(
                 eq(component),
-                eq(type.asWireComplicationType()),
+                eq(type.toWireComplicationType()),
                 any()
             )
 
@@ -137,7 +137,7 @@ public class ProviderInfoRetrieverTest {
                 false
             }.`when`(mockService).requestPreviewComplicationData(
                 eq(component),
-                eq(type.asWireComplicationType()),
+                eq(type.toWireComplicationType()),
                 any()
             )
 

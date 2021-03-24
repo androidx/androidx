@@ -135,7 +135,7 @@ public class ComplicationProviderServiceTest {
     public void testOnComplicationUpdate() throws Exception {
         int id = 123;
         mComplicationProvider.onUpdate(
-                id, ComplicationType.LONG_TEXT.asWireComplicationType(), mLocalManager);
+                id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager);
         ShadowLooper.runUiThreadTasks();
 
         ArgumentCaptor<android.support.wearable.complications.ComplicationData> data =
@@ -151,7 +151,7 @@ public class ComplicationProviderServiceTest {
     public void testOnComplicationUpdateNoUpdateRequired() throws Exception {
         int id = 123;
         mNoUpdateComplicationProvider.onUpdate(
-                id, ComplicationType.LONG_TEXT.asWireComplicationType(), mLocalManager);
+                id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager);
         ShadowLooper.runUiThreadTasks();
 
         ArgumentCaptor<android.support.wearable.complications.ComplicationData> data =
@@ -164,7 +164,7 @@ public class ComplicationProviderServiceTest {
     @Test
     public void testGetComplicationPreviewData() throws Exception {
         assertThat(mComplicationProvider.getComplicationPreviewData(
-                ComplicationType.LONG_TEXT.asWireComplicationType()
+                ComplicationType.LONG_TEXT.toWireComplicationType()
         ).getLongText().getTextAt(null, 0)).isEqualTo("hello preview");
     }
 
@@ -172,7 +172,7 @@ public class ComplicationProviderServiceTest {
     public void testGetComplicationPreviewDataReturnsNull() throws Exception {
         // The ComplicationProvider doesn't support PHOTO_IMAGE so null should be returned.
         assertNull(mComplicationProvider.getComplicationPreviewData(
-                ComplicationType.PHOTO_IMAGE.asWireComplicationType())
+                ComplicationType.PHOTO_IMAGE.toWireComplicationType())
         );
     }
 }

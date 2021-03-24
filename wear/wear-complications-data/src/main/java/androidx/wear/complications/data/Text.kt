@@ -30,6 +30,8 @@ private typealias WireComplicationTextTimeDifferenceBuilder =
 private typealias WireComplicationTextTimeFormatBuilder =
     android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 
+private typealias WireTimeDependentText = android.support.wearable.complications.TimeDependentText
+
 /**
  * The text within a complication.
  *
@@ -69,7 +71,7 @@ public interface ComplicationText {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun asWireComplicationText(): WireComplicationText
+    public fun toWireComplicationText(): WireComplicationText
 }
 
 /** A [ComplicationText] that contains plain text. */
@@ -351,13 +353,42 @@ private class DelegatingComplicationText(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationText() = delegate
+    override fun toWireComplicationText() = delegate
 }
 
 /** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
-internal fun WireComplicationText.asApiComplicationText(): ComplicationText =
+internal fun WireComplicationText.toApiComplicationText(): ComplicationText =
     DelegatingComplicationText(this)
 
 /** Converts a [TimeZone] into an equivalent [java.util.TimeZone]. */
 internal fun TimeZone.asJavaTimeZone(): java.util.TimeZone =
     java.util.TimeZone.getTimeZone(this.id)
+
+/** [ComplicationText] implementation that delegates to a [WireTimeDependentText] instance. */
+private class DelegatingTimeDependentText(
+    private val delegate: WireTimeDependentText
+) : ComplicationText {
+    override fun getTextAt(resources: Resources, dateTimeMillis: Long) =
+        delegate.getTextAt(resources, dateTimeMillis)
+
+    override fun returnsSameText(firstDateTimeMillis: Long, secondDateTimeMillis: Long) =
+        delegate.returnsSameText(firstDateTimeMillis, secondDateTimeMillis)
+
+    override fun getNextChangeTime(fromDateTimeMillis: Long) =
+        delegate.getNextChangeTime(fromDateTimeMillis)
+
+    override fun isAlwaysEmpty() = false
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toWireComplicationText(): WireComplicationText {
+        throw UnsupportedOperationException(
+            "DelegatingTimeDependentText doesn't support asWireComplicationText"
+        )
+    }
+}
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
+    DelegatingTimeDependentText(this)

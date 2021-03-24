@@ -30,7 +30,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.complications.data.asApiComplicationData
+import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.TraceEvent
 import kotlinx.coroutines.CompletableDeferred
 
@@ -152,13 +152,13 @@ public class ProviderInfoRetriever : AutoCloseable {
         service.asBinder().linkToDeath(deathObserver, 0)
         if (!service.requestPreviewComplicationData(
                 providerComponent,
-                complicationType.asWireComplicationType(),
+                complicationType.toWireComplicationType(),
                 object : IPreviewComplicationDataCallback.Stub() {
                     override fun updateComplicationData(
                         data: android.support.wearable.complications.ComplicationData?
                     ) {
                         service.asBinder().unlinkToDeath(deathObserver, 0)
-                        result.complete(data?.asApiComplicationData())
+                        result.complete(data?.toApiComplicationData())
                     }
                 }
             )
