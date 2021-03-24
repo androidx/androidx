@@ -546,10 +546,10 @@ public class EditorSessionTest {
 
             try {
                 runBlocking {
-                    it.editorSession.launchComplicationProviderChooser(LEFT_COMPLICATION_ID)
+                    it.editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID)
 
                     fail(
-                        "launchComplicationProviderChooser should fail for a fixed complication " +
+                        "openComplicationProviderChooser should fail for a fixed complication " +
                             "provider"
                     )
                 }
@@ -750,7 +750,7 @@ public class EditorSessionTest {
              * Invoke [TestComplicationHelperActivity] which will change the provider (and hence
              * the preview data) for [LEFT_COMPLICATION_ID].
              */
-            assertTrue(editorSession.launchComplicationProviderChooser(LEFT_COMPLICATION_ID))
+            assertTrue(editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID))
 
             // This should update the preview data to point to the updated provider3 data.
             val previewComplication =
@@ -787,7 +787,7 @@ public class EditorSessionTest {
         }
 
         runBlocking {
-            assertTrue(editorSession.launchComplicationProviderChooser(RIGHT_COMPLICATION_ID))
+            assertTrue(editorSession.openComplicationProviderChooser(RIGHT_COMPLICATION_ID))
 
             assertThat(
                 TestComplicationHelperActivity.lastIntent?.extras?.getString(

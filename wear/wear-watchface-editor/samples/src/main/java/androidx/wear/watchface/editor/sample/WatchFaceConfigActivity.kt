@@ -117,7 +117,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                     @SuppressWarnings("deprecation")
                     override suspend fun showComplicationConfig(
                         complicationId: Int
-                    ) = editorSession.launchComplicationProviderChooser(complicationId)
+                    ) = editorSession.openComplicationProviderChooser(complicationId)
                 }
             )
         }
