@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.util
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import org.jetbrains.kotlin.config.JvmTarget
 import java.io.File
 import java.io.OutputStream
 import java.net.URLClassLoader
@@ -43,7 +44,7 @@ internal object KotlinCompilationUtil {
         // workaround for https://github.com/tschuchortdev/kotlin-compile-testing/issues/105
         compilation.kotlincArguments += "-Xjava-source-roots=${javaSrcRoot.absolutePath}"
         compilation.jvmDefault = "enable"
-        compilation.jvmTarget = "1.8"
+        compilation.jvmTarget = JvmTarget.JVM_1_8.description
         compilation.inheritClassPath = false
         compilation.verbose = false
         compilation.classpaths = Classpaths.inheritedClasspath + classpaths

@@ -58,7 +58,7 @@ class TableEntityProcessor internal constructor(
             element, androidx.room.Entity::class,
             ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY
         )
-        val annotationBox = element.toAnnotationBox(androidx.room.Entity::class)
+        val annotationBox = element.getAnnotation(androidx.room.Entity::class)
         val tableName: String
         val entityIndices: List<IndexInput>
         val foreignKeyInputs: List<ForeignKeyInput>
@@ -232,7 +232,7 @@ class TableEntityProcessor internal constructor(
                 context.logger.e(element, ProcessorErrors.FOREIGN_KEY_CANNOT_FIND_PARENT)
                 return@map null
             }
-            val parentAnnotation = parentElement.toAnnotationBox(androidx.room.Entity::class)
+            val parentAnnotation = parentElement.getAnnotation(androidx.room.Entity::class)
             if (parentAnnotation == null) {
                 context.logger.e(
                     element,
@@ -328,7 +328,7 @@ class TableEntityProcessor internal constructor(
      */
     private fun collectPrimaryKeysFromPrimaryKeyAnnotations(fields: List<Field>): List<PrimaryKey> {
         return fields.mapNotNull { field ->
-            field.element.toAnnotationBox(androidx.room.PrimaryKey::class)?.let {
+            field.element.getAnnotation(androidx.room.PrimaryKey::class)?.let {
                 if (field.parent != null) {
                     // the field in the entity that contains this error.
                     val grandParentField = field.parent.mRootParent.field.element
@@ -359,7 +359,7 @@ class TableEntityProcessor internal constructor(
         typeElement: XTypeElement,
         availableFields: List<Field>
     ): List<PrimaryKey> {
-        val myPkeys = typeElement.toAnnotationBox(androidx.room.Entity::class)?.let {
+        val myPkeys = typeElement.getAnnotation(androidx.room.Entity::class)?.let {
             val primaryKeyColumns = it.value.primaryKeys
             if (primaryKeyColumns.isEmpty()) {
                 emptyList()
@@ -402,7 +402,7 @@ class TableEntityProcessor internal constructor(
         embeddedFields: List<EmbeddedField>
     ): List<PrimaryKey> {
         return embeddedFields.mapNotNull { embeddedField ->
-            embeddedField.field.element.toAnnotationBox(androidx.room.PrimaryKey::class)?.let {
+            embeddedField.field.element.getAnnotation(androidx.room.PrimaryKey::class)?.let {
                 context.checker.check(
                     !it.value.autoGenerate || embeddedField.pojo.fields.size == 1,
                     embeddedField.field.element,
@@ -494,7 +494,7 @@ class TableEntityProcessor internal constructor(
         // see if any embedded field is an entity with indices, if so, report a warning
         pojo.embeddedFields.forEach { embedded ->
             val embeddedElement = embedded.pojo.element
-            embeddedElement.toAnnotationBox(androidx.room.Entity::class)?.let {
+            embeddedElement.getAnnotation(androidx.room.Entity::class)?.let {
                 val subIndices = extractIndices(it, "")
                 if (subIndices.isNotEmpty()) {
                     context.logger.w(
@@ -528,7 +528,7 @@ class TableEntityProcessor internal constructor(
             return emptyList()
         }
         val myIndices = parentTypeElement
-            .toAnnotationBox(androidx.room.Entity::class)?.let { annotation ->
+            .getAnnotation(androidx.room.Entity::class)?.let { annotation ->
                 val indices = extractIndices(annotation, tableName = "super")
                 if (indices.isEmpty()) {
                     emptyList()

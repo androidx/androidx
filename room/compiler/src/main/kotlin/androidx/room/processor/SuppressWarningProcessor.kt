@@ -25,7 +25,7 @@ import androidx.room.vo.Warning
 object SuppressWarningProcessor {
 
     fun getSuppressedWarnings(element: XElement): Set<Warning> {
-        val annotation = element.toAnnotationBox(SuppressWarnings::class)?.value
+        val annotation = element.getAnnotation(SuppressWarnings::class)?.value
         return if (annotation == null) {
             emptySet()
         } else {
