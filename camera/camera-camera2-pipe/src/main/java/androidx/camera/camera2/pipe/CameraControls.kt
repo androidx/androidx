@@ -17,6 +17,8 @@
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.CaptureResult
+import android.hardware.camera2.TotalCaptureResult
 
 // Public controls and enums used to interact with a CameraGraph.
 
@@ -130,11 +132,14 @@ public enum class Lock3ABehavior {
 /**
  * Return type for a 3A method.
  *
- * @param frameNumber the latest [FrameNumber] at which the method succeeded or was aborted.
  * @param status [Status] of the 3A operation at the time of return.
+ * @param frameMetadata [FrameMetadata] of the latest frame at which the method succeeded or was
+ * aborted. The metadata reflects CaptureResult or TotalCaptureResult for that frame. It can so
+ * happen that the [CaptureResult] itself has all the key-value pairs needed to determine the
+ * completion of the method, in that case this frameMetadata may not contain all the kay value pairs
+ * associated with the final result i.e [TotalCaptureResult] of this frame.
  */
-public data class Result3A(val frameNumber: FrameNumber, val status: Status) {
-
+public data class Result3A(val status: Status, val frameMetadata: FrameMetadata? = null) {
     /**
      * Enum to know the status of 3A operation in case the method returns before the desired
      * operation is complete. The reason could be that the operation was talking a lot longer and an
