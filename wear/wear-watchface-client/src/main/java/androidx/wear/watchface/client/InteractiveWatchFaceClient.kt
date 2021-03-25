@@ -21,6 +21,7 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.support.wearable.watchface.SharedMemoryImage
+import androidx.annotation.AnyThread
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
@@ -41,6 +42,7 @@ import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import java.util.Objects
+import java.util.concurrent.Executor
 
 /**
  * Controls a stateful remote interactive watch face. Typically this will be used for the current
@@ -197,12 +199,58 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
 
     /** Triggers watch face rendering into the surface when in ambient mode. */
     public fun performAmbientTick()
+
+    /** Callback that observes when the client disconnects. */
+    public interface ClientDisconnectListener {
+        /**
+         * The client disconnected, typically due to the server side crashing. Note this is not
+         * called in response to [close] being called on [InteractiveWatchFaceClient].
+         */
+        public fun onClientDisconnected()
+    }
+
+    /** Registers a [ClientDisconnectListener]. */
+    @AnyThread
+    public fun addClientDisconnectListener(listener: ClientDisconnectListener, executor: Executor)
+
+    /**
+     * Removes a [ClientDisconnectListener] previously registered by [addClientDisconnectListener].
+     */
+    @AnyThread
+    public fun removeClientDisconnectListener(listener: ClientDisconnectListener)
+
+    /** Returns true if the connection to the server side is alive. */
+    @AnyThread
+    public fun isConnectionAlive(): Boolean
 }
 
 /** Controls a stateful remote interactive watch face. */
 internal class InteractiveWatchFaceClientImpl internal constructor(
     private val iInteractiveWatchFace: IInteractiveWatchFace
 ) : InteractiveWatchFaceClient {
+
+    private val lock = Any()
+    private val listeners = HashMap<InteractiveWatchFaceClient.ClientDisconnectListener, Executor>()
+
+    init {
+        iInteractiveWatchFace.asBinder().linkToDeath(
+            {
+                var listenerCopy:
+                    HashMap<InteractiveWatchFaceClient.ClientDisconnectListener, Executor>
+
+                synchronized(lock) {
+                    listenerCopy = HashMap(listeners)
+                }
+
+                for ((listener, executor) in listenerCopy) {
+                    executor.execute {
+                        listener.onClientDisconnected()
+                    }
+                }
+            },
+            0
+        )
+    }
 
     override fun updateComplicationData(
         idToComplicationData: Map<Int, ComplicationData>
@@ -316,4 +364,26 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     ).use {
         iInteractiveWatchFace.ambientTickUpdate()
     }
+
+    override fun addClientDisconnectListener(
+        listener: InteractiveWatchFaceClient.ClientDisconnectListener,
+        executor: Executor
+    ) {
+        synchronized(lock) {
+            require(!listeners.contains(listener)) {
+                "Don't call addClientDisconnectListener multiple times for the same listener"
+            }
+            listeners.put(listener, executor)
+        }
+    }
+
+    override fun removeClientDisconnectListener(
+        listener: InteractiveWatchFaceClient.ClientDisconnectListener
+    ) {
+        synchronized(lock) {
+            listeners.remove(listener)
+        }
+    }
+
+    override fun isConnectionAlive() = iInteractiveWatchFace.asBinder().isBinderAlive
 }
