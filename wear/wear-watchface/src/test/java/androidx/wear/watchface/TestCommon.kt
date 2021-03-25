@@ -57,8 +57,8 @@ internal class TestWatchFaceService(
     var lastUserStyle: UserStyle? = null
 
     init {
-        currentUserStyleRepository.addUserStyleListener(
-            object : CurrentUserStyleRepository.UserStyleListener {
+        currentUserStyleRepository.addUserStyleChangeListener(
+            object : CurrentUserStyleRepository.UserStyleChangeListener {
                 override fun onUserStyleChanged(userStyle: UserStyle) {
                     lastUserStyle = userStyle
                 }

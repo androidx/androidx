@@ -150,8 +150,8 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 /* interactiveUpdateRateMillis */ 16,
             ) {
                 init {
-                    userStyleRepository.addUserStyleListener(
-                        object : CurrentUserStyleRepository.UserStyleListener {
+                    userStyleRepository.addUserStyleChangeListener(
+                        object : CurrentUserStyleRepository.UserStyleChangeListener {
                             override fun onUserStyleChanged(userStyle: UserStyle) {
                                 // `userStyle` will contain two userStyle categories with options
                                 // from the lists above. ...
