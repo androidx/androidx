@@ -83,8 +83,8 @@ public class ParcelableWorkerParameters implements Parcelable {
         String id = in.readString();
         mId = UUID.fromString(id);
         // inputData
-        byte[] inputData = in.createByteArray();
-        mData = Data.fromByteArray(inputData);
+        ParcelableData parcelableInputData = new ParcelableData(in);
+        mData = parcelableInputData.getData();
         // tags
         mTags = new HashSet<>(in.createStringArrayList());
         // runtimeExtras
@@ -104,8 +104,8 @@ public class ParcelableWorkerParameters implements Parcelable {
         // id
         parcel.writeString(mId.toString());
         // inputData
-        byte[] inputData = mData.toByteArray();
-        parcel.writeByteArray(inputData);
+        ParcelableData parcelableInputData = new ParcelableData(mData);
+        parcelableInputData.writeToParcel(parcel, flags);
         // tags
         List<String> tags = new ArrayList<>(mTags);
         parcel.writeStringList(tags);

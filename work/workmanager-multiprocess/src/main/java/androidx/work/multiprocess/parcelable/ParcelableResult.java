@@ -43,9 +43,8 @@ public class ParcelableResult implements Parcelable {
         // resultType
         int resultType = in.readInt();
         // outputData
-        byte[] output = in.createByteArray();
-        Data outputData = Data.fromByteArray(output);
-        mResult = intToResultType(resultType, outputData);
+        ParcelableData parcelableOutputData = new ParcelableData(in);
+        mResult = intToResultType(resultType, parcelableOutputData.getData());
     }
 
     public static final Creator<ParcelableResult> CREATOR =
@@ -74,8 +73,8 @@ public class ParcelableResult implements Parcelable {
         parcel.writeInt(resultType);
         // outputData
         Data outputData = mResult.getOutputData();
-        byte[] output = outputData.toByteArray();
-        parcel.writeByteArray(output);
+        ParcelableData parcelableOutputData = new ParcelableData(outputData);
+        parcelableOutputData.writeToParcel(parcel, flags);
     }
 
     @NonNull
