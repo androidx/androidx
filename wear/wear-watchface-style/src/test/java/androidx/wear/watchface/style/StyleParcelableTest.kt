@@ -76,8 +76,8 @@ class StyleParcelableTest {
         assertThat(unparceled.displayName).isEqualTo("displayName")
         assertThat(unparceled.description).isEqualTo("description")
         assertThat(unparceled.icon!!.uri.toString()).isEqualTo("settingIcon")
-        assertThat(unparceled.affectsLayers.size).isEqualTo(1)
-        assertThat(unparceled.affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
+        assertThat(unparceled.affectedLayers.size).isEqualTo(1)
+        assertThat(unparceled.affectedLayers.first()).isEqualTo(Layer.BASE_LAYER)
         val optionArray =
             unparceled.options.filterIsInstance<ListUserStyleSetting.ListOption>()
                 .toTypedArray()
@@ -173,8 +173,8 @@ class StyleParcelableTest {
         assertThat(schema.userStyleSettings[0].displayName).isEqualTo("displayName1")
         assertThat(schema.userStyleSettings[0].description).isEqualTo("description1")
         assertThat(schema.userStyleSettings[0].icon!!.uri.toString()).isEqualTo("settingIcon1")
-        assertThat(schema.userStyleSettings[0].affectsLayers.size).isEqualTo(1)
-        assertThat(schema.userStyleSettings[0].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
+        assertThat(schema.userStyleSettings[0].affectedLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[0].affectedLayers.first()).isEqualTo(Layer.BASE_LAYER)
         val optionArray1 =
             schema.userStyleSettings[0].options.filterIsInstance<ListUserStyleSetting.ListOption>()
                 .toTypedArray()
@@ -191,8 +191,8 @@ class StyleParcelableTest {
         assertThat(schema.userStyleSettings[1].displayName).isEqualTo("displayName2")
         assertThat(schema.userStyleSettings[1].description).isEqualTo("description2")
         assertThat(schema.userStyleSettings[1].icon!!.uri.toString()).isEqualTo("settingIcon2")
-        assertThat(schema.userStyleSettings[1].affectsLayers.size).isEqualTo(1)
-        assertThat(schema.userStyleSettings[1].affectsLayers.first()).isEqualTo(Layer.TOP_LAYER)
+        assertThat(schema.userStyleSettings[1].affectedLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[1].affectedLayers.first()).isEqualTo(Layer.TOP_LAYER)
         val optionArray2 =
             schema.userStyleSettings[1].options.filterIsInstance<ListUserStyleSetting.ListOption>()
                 .toTypedArray()
@@ -209,13 +209,13 @@ class StyleParcelableTest {
         assertThat(schema.userStyleSettings[2].displayName).isEqualTo("displayName3")
         assertThat(schema.userStyleSettings[2].description).isEqualTo("description3")
         assertThat(schema.userStyleSettings[2].icon).isEqualTo(null)
-        assertThat(schema.userStyleSettings[2].affectsLayers.size).isEqualTo(1)
-        assertThat(schema.userStyleSettings[2].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
+        assertThat(schema.userStyleSettings[2].affectedLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[2].affectedLayers.first()).isEqualTo(Layer.BASE_LAYER)
 
         assert(schema.userStyleSettings[3] is CustomValueUserStyleSetting)
         assertThat(schema.userStyleSettings[3].getDefaultOption().id).isEqualTo("default")
-        assertThat(schema.userStyleSettings[3].affectsLayers.size).isEqualTo(1)
-        assertThat(schema.userStyleSettings[3].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
+        assertThat(schema.userStyleSettings[3].affectedLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[3].affectedLayers.first()).isEqualTo(Layer.BASE_LAYER)
     }
 
     @Test
