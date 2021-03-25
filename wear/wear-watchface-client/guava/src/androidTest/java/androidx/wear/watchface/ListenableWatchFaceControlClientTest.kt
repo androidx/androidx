@@ -31,7 +31,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.ListenableWatchFaceControlClient
-import androidx.wear.watchface.client.SystemState
+import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.control.WatchFaceControlServiceFactory
 import androidx.wear.watchface.samples.createExampleCanvasAnalogWatchFaceBuilder
 import com.google.common.truth.Truth.assertThat
@@ -134,7 +134,7 @@ public class ListenableWatchFaceControlClientTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 null,
                 null
             )
@@ -229,7 +229,7 @@ public class ListenableWatchFaceControlClientTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 null,
                 null
             )
@@ -271,7 +271,7 @@ public class ListenableWatchFaceControlClientTest {
             context.packageName
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
-        assertNull(client.getInteractiveWatchFaceSysUiClientInstance("I do not exist"))
+        assertNull(client.getInteractiveWatchFaceClientInstance("I do not exist"))
     }
 }
 

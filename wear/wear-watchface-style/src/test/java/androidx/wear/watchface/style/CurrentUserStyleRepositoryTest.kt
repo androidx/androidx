@@ -44,7 +44,7 @@ class CurrentUserStyleRepositoryTest {
         "Watchface colorization", /* icon = */
         null,
         colorStyleList,
-        listOf(Layer.BASE_LAYER)
+        listOf(Layer.BASE)
     )
 
     private val classicStyleOption =
@@ -65,7 +65,7 @@ class CurrentUserStyleRepositoryTest {
         "Hand visual look", /* icon = */
         null,
         watchHandStyleList,
-        listOf(Layer.TOP_LAYER)
+        listOf(Layer.COMPLICATIONS_OVERLAY)
     )
     private val watchHandLengthStyleSetting =
         DoubleRangeUserStyleSetting(
@@ -75,7 +75,7 @@ class CurrentUserStyleRepositoryTest {
             null,
             0.25,
             1.0,
-            listOf(Layer.TOP_LAYER),
+            listOf(Layer.COMPLICATIONS_OVERLAY),
             0.75
         )
 
@@ -151,7 +151,7 @@ class CurrentUserStyleRepositoryTest {
             "Watchface colorization", /* icon = */
             null,
             colorStyleList,
-            listOf(Layer.BASE_LAYER)
+            listOf(Layer.BASE)
         )
         val watchHandStyleSetting2 = ListUserStyleSetting(
             "hand_style_setting",
@@ -159,7 +159,7 @@ class CurrentUserStyleRepositoryTest {
             "Hand visual look", /* icon = */
             null,
             watchHandStyleList,
-            listOf(Layer.TOP_LAYER)
+            listOf(Layer.COMPLICATIONS_OVERLAY)
         )
 
         val newStyle = UserStyle(
@@ -229,7 +229,7 @@ class CurrentUserStyleRepositoryTest {
     @Test
     fun userStyle_mapConstructor_customValueUserStyleSetting() {
         val customStyleSetting = CustomValueUserStyleSetting(
-            listOf(Layer.BASE_LAYER),
+            listOf(Layer.BASE),
             "default"
         )
 
@@ -254,11 +254,11 @@ class CurrentUserStyleRepositoryTest {
     @Test
     fun userStyle_multiple_CustomValueUserStyleSettings_notAllowed() {
         val customStyleSetting1 = CustomValueUserStyleSetting(
-            listOf(Layer.BASE_LAYER),
+            listOf(Layer.BASE),
             "default"
         )
         val customStyleSetting2 = CustomValueUserStyleSetting(
-            listOf(Layer.BASE_LAYER),
+            listOf(Layer.BASE),
             "default"
         )
 
@@ -278,7 +278,7 @@ class CurrentUserStyleRepositoryTest {
     @Test
     fun setAndGetCustomStyleSetting() {
         val customStyleSetting = CustomValueUserStyleSetting(
-            listOf(Layer.BASE_LAYER),
+            listOf(Layer.BASE),
             "default"
         )
 

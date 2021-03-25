@@ -36,7 +36,7 @@ class UserStyleSettingTest {
                 null,
                 0.0,
                 1.0,
-                listOf(Layer.BASE_LAYER),
+                listOf(Layer.BASE),
                 defaultValue
             )
 
@@ -61,7 +61,7 @@ class UserStyleSettingTest {
                 null,
                 0.0,
                 1.0,
-                listOf(Layer.BASE_LAYER),
+                listOf(Layer.BASE),
                 defaultValue
             )
 

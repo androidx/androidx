@@ -53,7 +53,7 @@ import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
-import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
+import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.InteractiveWatchFaceImpl
 import androidx.wear.watchface.control.data.ComplicationRenderParams
@@ -64,7 +64,7 @@ import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
-import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -103,21 +103,21 @@ public annotation class TapType {
         /**
          * Used in [WatchFaceImpl#onTapCommand] to indicate a "down" touch event on the watch face.
          */
-        public const val DOWN: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_DOWN
+        public const val DOWN: Int = IInteractiveWatchFace.TAP_TYPE_DOWN
 
         /**
          * Used in [WatchFaceImpl#onTapCommand] to indicate that a previous [TapType.DOWN] touch
          * event has been canceled. This generally happens when the watch face is touched but then a
          * move or long press occurs.
          */
-        public const val CANCEL: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_CANCEL
+        public const val CANCEL: Int = IInteractiveWatchFace.TAP_TYPE_CANCEL
 
         /**
          * Used in [WatchFaceImpl#onTapCommand] to indicate that an "up" event on the watch face has
          * occurred that has not been consumed by another activity. A [TapType.DOWN] will always
          * occur first. This event will not occur if a [TapType.CANCEL] is sent.
          */
-        public const val UP: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_UP
+        public const val UP: Int = IInteractiveWatchFace.TAP_TYPE_UP
     }
 }
 
@@ -368,7 +368,7 @@ public abstract class WatchFaceService : WallpaperService() {
         // Only valid after onSetBinder has been called.
         private var systemApiVersion = -1
 
-        internal var firstSetSystemState = true
+        internal var firstSetWatchUiState = true
         internal var immutableSystemStateDone = false
         private var ignoreNextOnVisibilityChanged = false
 
@@ -405,7 +405,7 @@ public abstract class WatchFaceService : WallpaperService() {
                             createInteractiveInstance(
                                 directBootParams!!,
                                 "DirectBoot"
-                            ).createWCSApi()
+                            )
                             asyncTraceEvent.close()
                         }
                     }
@@ -423,11 +423,11 @@ public abstract class WatchFaceService : WallpaperService() {
                 // workaround the workaround...
                 ignoreNextOnVisibilityChanged = true
                 coroutineScope.launch {
-                    pendingWallpaperInstance.callback.onInteractiveWatchFaceWcsCreated(
+                    pendingWallpaperInstance.callback.onInteractiveWatchFaceCreated(
                         createInteractiveInstance(
                             pendingWallpaperInstance.params,
                             "Boot with pendingWallpaperInstance"
-                        ).createWCSApi()
+                        )
                     )
                     asyncTraceEvent.close()
                     val params = pendingWallpaperInstance.params
@@ -477,20 +477,20 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         @UiThread
-        fun setSystemState(systemState: SystemState) {
-            if (firstSetSystemState ||
-                systemState.inAmbientMode != mutableWatchState.isAmbient.value
+        fun setWatchUiState(watchUiState: WatchUiState) {
+            if (firstSetWatchUiState ||
+                watchUiState.inAmbientMode != mutableWatchState.isAmbient.value
             ) {
-                mutableWatchState.isAmbient.value = systemState.inAmbientMode
+                mutableWatchState.isAmbient.value = watchUiState.inAmbientMode
             }
 
-            if (firstSetSystemState ||
-                systemState.interruptionFilter != mutableWatchState.interruptionFilter.value
+            if (firstSetWatchUiState ||
+                watchUiState.interruptionFilter != mutableWatchState.interruptionFilter.value
             ) {
-                mutableWatchState.interruptionFilter.value = systemState.interruptionFilter
+                mutableWatchState.interruptionFilter.value = watchUiState.interruptionFilter
             }
 
-            firstSetSystemState = false
+            firstSetWatchUiState = false
         }
 
         @UiThread
@@ -854,8 +854,8 @@ public abstract class WatchFaceService : WallpaperService() {
                 return
             }
 
-            setSystemState(
-                SystemState(
+            setWatchUiState(
+                WatchUiState(
                     extras.getBoolean(
                         Constants.EXTRA_AMBIENT_MODE,
                         mutableWatchState.isAmbient.getValueOr(false)
@@ -985,7 +985,7 @@ public abstract class WatchFaceService : WallpaperService() {
             require(!mutableWatchState.isHeadless)
 
             setImmutableSystemState(params.deviceConfig)
-            setSystemState(params.systemState)
+            setWatchUiState(params.watchUiState)
             initialUserStyle = params.userStyle
 
             val watchState = mutableWatchState.asWatchState()
@@ -1017,7 +1017,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     "Miss match between pendingWallpaperInstance id $it.params.instanceId and " +
                         "constructed instance id $params.instanceId"
                 }
-                it.callback.onInteractiveWatchFaceWcsCreated(instance.createWCSApi())
+                it.callback.onInteractiveWatchFaceCreated(instance)
             }
 
             return instance

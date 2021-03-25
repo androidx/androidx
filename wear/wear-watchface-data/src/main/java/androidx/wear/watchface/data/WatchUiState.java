@@ -28,14 +28,14 @@ import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /**
- * Data sent over AIDL for {@link IWatchFaceCommand#setSystemState}.
+ * Data sent over AIDL for {@link IWatchFaceCommand#setWatchUiState}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize(allowSerialization = true)
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
-public final class SystemState implements VersionedParcelable, Parcelable {
+public final class WatchUiState implements VersionedParcelable, Parcelable {
     @ParcelField(1)
     boolean mInAmbientMode;
 
@@ -43,9 +43,9 @@ public final class SystemState implements VersionedParcelable, Parcelable {
     int mInterruptionFilter;
 
     /** Used by VersionedParcelable. */
-    SystemState() {}
+    WatchUiState() {}
 
-    public SystemState(
+    public WatchUiState(
             boolean inAmbientMode,
             int interruptionFilter) {
         mInAmbientMode = inAmbientMode;
@@ -60,7 +60,7 @@ public final class SystemState implements VersionedParcelable, Parcelable {
         return mInterruptionFilter;
     }
 
-    /** Serializes this SystemState to the specified {@link Parcel}. */
+    /** Serializes this WatchUiState to the specified {@link Parcel}. */
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
         parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);
@@ -71,17 +71,17 @@ public final class SystemState implements VersionedParcelable, Parcelable {
         return 0;
     }
 
-    public static final Parcelable.Creator<SystemState> CREATOR =
-            new Parcelable.Creator<SystemState>() {
+    public static final Parcelable.Creator<WatchUiState> CREATOR =
+            new Parcelable.Creator<WatchUiState>() {
                 @Override
-                public SystemState createFromParcel(Parcel source) {
+                public WatchUiState createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(
                             source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override
-                public SystemState[] newArray(int size) {
-                    return new SystemState[size];
+                public WatchUiState[] newArray(int size) {
+                    return new WatchUiState[size];
                 }
             };
 }
