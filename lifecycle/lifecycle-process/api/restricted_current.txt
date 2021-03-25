@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.lifecycle {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ProcessLifecycleInitializer implements androidx.startup.Initializer<androidx.lifecycle.LifecycleOwner> {
+  public final class ProcessLifecycleInitializer implements androidx.startup.Initializer<androidx.lifecycle.LifecycleOwner> {
     ctor public ProcessLifecycleInitializer();
     method public androidx.lifecycle.LifecycleOwner create(android.content.Context);
     method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> dependencies();
