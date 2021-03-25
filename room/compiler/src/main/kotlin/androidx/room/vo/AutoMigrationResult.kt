@@ -49,8 +49,7 @@ data class AutoMigrationResult(
      */
     data class ChangedColumn(
         val tableName: String,
-        val originalFieldBundle: FieldBundle,
-        val newFieldBundle: FieldBundle
+        val fieldBundle: FieldBundle
     )
 
     /**
@@ -67,6 +66,25 @@ data class AutoMigrationResult(
      * Stores the table that was added to a database in a newer version.
      */
     data class AddedTable(val entityBundle: EntityBundle)
+
+    /**
+     * Stores the table name that contains a change in the primary key, foreign key(s) or index(es)
+     * in a newer version. Explicitly provides information on whether a foreign key change and/or
+     * an index change has occurred.
+     *
+     * As it is possible to have a table with only simple (non-complex) changes, which will be
+     * categorized as "AddedColumn" or "RemovedColumn" changes, all other
+     * changes at the table level are categorized as "complex" changes, using the category
+     * "ComplexChangedTable".
+     *
+     * At the column level, any change that is not a column add or a
+     * removal will be categorized as "ChangedColumn".
+     */
+    data class ComplexChangedTable(
+        val tableName: String,
+        val foreignKeyChanged: Boolean,
+        val indexChanged: Boolean
+    )
 
     /**
      * Stores the table that was present in the old version of a database but is not present in a

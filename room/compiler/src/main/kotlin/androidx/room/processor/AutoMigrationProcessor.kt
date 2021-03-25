@@ -26,6 +26,9 @@ import androidx.room.util.SchemaDiffer
 import androidx.room.vo.AutoMigrationResult
 import java.io.File
 
+// TODO: (b/183435544) Support downgrades in AutoMigrations.
+// TODO: (b/183007590) Use the callback in the AutoMigration annotation while end-to-end
+//  testing, when column/table rename/deletes are supported
 class AutoMigrationProcessor(
     val context: Context,
     val element: XTypeElement,
@@ -101,18 +104,18 @@ class AutoMigrationProcessor(
             return null
         }
 
+        // TODO: (b/183434667) Update the automigration result data object to handle complex
+        //  schema changes' presence when writer code is introduced
         return AutoMigrationResult(
             element = element,
             from = fromSchemaBundle.version,
             to = toSchemaBundle.version,
-            addedColumns = schemaDiff.addedColumn,
-            addedTables = schemaDiff.addedTable
+            addedColumns = schemaDiff.addedColumns,
+            addedTables = schemaDiff.addedTables
         )
     }
 
-    // TODO: File bug for not supporting downgrades.
-    // TODO: (b/180389433) If the files don't exist the getSchemaFile() method should return
-    //  null and before calling process
+    // TODO: (b/180389433) Verify automigration schemas before calling the AutoMigrationProcessor
     private fun getValidatedSchemaFile(version: Int): File? {
         val schemaFile = File(
             context.schemaOutFolder,
