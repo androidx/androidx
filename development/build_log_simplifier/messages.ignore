@@ -329,8 +329,8 @@ In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/inte
 # > Task :support-preference-demos:compileDebugJavaWithJavac
 # > Task :startup:integration-tests:first-library:processDebugManifest
 \$SUPPORT/startup/integration\-tests/first\-library/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-meta\-data\#androidx\.work\.impl\.WorkManagerInitializer was tagged at AndroidManifest\.xml\:[0-9]+ to remove other declarations but no other declaration present
-provider\#androidx\.work\.impl\.WorkManagerInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
+meta\-data\#androidx\.work\.WorkManagerInitializer was tagged at AndroidManifest\.xml\:[0-9]+ to remove other declarations but no other declaration present
+provider\#androidx\.work\.WorkManagerInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
 # > Task :camera:integration-tests:camera-testapp-extensions:compileDebugJavaWithJavac
 # > Task :camera:integration-tests:camera-testapp-core:compileDebugJavaWithJavac
 # > Task :room:integration-tests:room-testapp:processDebugMainManifest
