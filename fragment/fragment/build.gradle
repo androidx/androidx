@@ -29,6 +29,10 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+
+    defaultConfig {
+        multiDexEnabled true
+    }
 }
 
 dependencies {
@@ -57,6 +61,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(MULTIDEX)
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.fragment", module: "fragment"
     })
