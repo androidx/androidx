@@ -16,8 +16,8 @@
 
 package androidx.work.multiprocess;
 
-import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.failureCallback;
-import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.successCallback;
+import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.reportFailure;
+import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.reportSuccess;
 
 import android.content.Context;
 
@@ -105,12 +105,12 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
                         ListenableWorker.Result result = futureResult.get();
                         ParcelableResult parcelableResult = new ParcelableResult(result);
                         byte[] response = ParcelConverters.marshall(parcelableResult);
-                        successCallback(callback, response);
+                        reportSuccess(callback, response);
                     } catch (ExecutionException | InterruptedException exception) {
-                        failureCallback(callback, exception);
+                        reportFailure(callback, exception);
                     } catch (CancellationException cancellationException) {
                         Logger.get().debug(TAG, String.format("Worker (%s) was cancelled", id));
-                        failureCallback(callback, cancellationException);
+                        reportFailure(callback, cancellationException);
                     } finally {
                         synchronized (sLock) {
                             mFutureMap.remove(id);
@@ -119,7 +119,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
                 }
             }, mTaskExecutor.getBackgroundExecutor());
         } catch (Throwable throwable) {
-            failureCallback(callback, throwable);
+            reportFailure(callback, throwable);
         }
     }
 
@@ -143,15 +143,15 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
                             @Override
                             public void run() {
                                 future.cancel(true);
-                                successCallback(callback, sEMPTY);
+                                reportSuccess(callback, sEMPTY);
                             }
                         });
             } else {
                 // Nothing to do.
-                successCallback(callback, sEMPTY);
+                reportSuccess(callback, sEMPTY);
             }
         } catch (Throwable throwable) {
-            failureCallback(callback, throwable);
+            reportFailure(callback, throwable);
         }
     }
 
