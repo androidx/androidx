@@ -36,5 +36,5 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     implementation 'com.google.guava:guava:28.1-jre'
 
-    implementation "androidx.car.app:app:1.0.0-beta01"
+    implementation "androidx.car.app:app:1.0.0-rc01"
 }
