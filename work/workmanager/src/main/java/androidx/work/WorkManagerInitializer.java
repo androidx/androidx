@@ -14,27 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.work.impl;
+package androidx.work;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.startup.Initializer;
-import androidx.work.Configuration;
-import androidx.work.Logger;
-import androidx.work.WorkManager;
 
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Initializes {@link androidx.work.WorkManager} using {@code androidx.startup}.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WorkManagerInitializer implements Initializer<WorkManager> {
+public final class WorkManagerInitializer implements Initializer<WorkManager> {
 
     private static final String TAG = Logger.tagWithPrefix("WrkMgrInitializer");
 

@@ -46,7 +46,7 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
 
     companion object {
 
-        private const val DESCRIPTION = "Remove androidx.work.impl.WorkManagerInitializer from " +
+        private const val DESCRIPTION = "Remove androidx.work.WorkManagerInitializer from " +
             "your AndroidManifest.xml when using on-demand initialization."
 
         val ISSUE = Issue.create(
@@ -105,7 +105,7 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
         val metadataElements = element.getElementsByTagName("meta-data")
         val metadata = metadataElements.find { node ->
             val name = node.attributes.getNamedItemNS(ANDROID_URI, ATTR_NAME)?.textContent
-            name == "androidx.work.impl.WorkManagerInitializer"
+            name == "androidx.work.WorkManagerInitializer"
         }
         if (metadata != null && !removedDefaultInitializer) {
             location = context.getLocation(metadata)

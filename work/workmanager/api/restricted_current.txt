@@ -301,6 +301,12 @@ package androidx.work {
     method public abstract androidx.work.Operation pruneWork();
   }
 
+  public final class WorkManagerInitializer implements androidx.startup.Initializer<androidx.work.WorkManager> {
+    ctor public WorkManagerInitializer();
+    method public androidx.work.WorkManager create(android.content.Context);
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> dependencies();
+  }
+
   public final class WorkQuery {
     method public java.util.List<java.util.UUID!> getIds();
     method public java.util.List<androidx.work.WorkInfo.State!> getStates();
