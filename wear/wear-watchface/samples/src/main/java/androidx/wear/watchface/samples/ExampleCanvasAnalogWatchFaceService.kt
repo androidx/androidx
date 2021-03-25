@@ -43,7 +43,7 @@ import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
@@ -207,7 +207,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
         ),
         listOf(Layer.COMPLICATIONS)
     )
-    val userStyleRepository = UserStyleRepository(
+    val userStyleRepository = CurrentUserStyleRepository(
         UserStyleSchema(
             listOf(
                 colorStyleSetting,
@@ -272,7 +272,7 @@ class ExampleAnalogWatchCanvasRenderer(
     surfaceHolder: SurfaceHolder,
     private val context: Context,
     private var watchFaceColorStyle: WatchFaceColorStyle,
-    userStyleRepository: UserStyleRepository,
+    currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState,
     private val colorStyleSetting: ListUserStyleSetting,
     private val drawPipsStyleSetting: BooleanUserStyleSetting,
@@ -280,7 +280,7 @@ class ExampleAnalogWatchCanvasRenderer(
     private val complicationsManager: ComplicationsManager
 ) : Renderer.CanvasRenderer(
     surfaceHolder,
-    userStyleRepository,
+    currentUserStyleRepository,
     watchState,
     CanvasType.HARDWARE,
     FRAME_PERIOD_MS
@@ -315,8 +315,8 @@ class ExampleAnalogWatchCanvasRenderer(
     private var watchHandScale = 1.0f
 
     init {
-        userStyleRepository.addUserStyleListener(
-            object : UserStyleRepository.UserStyleListener {
+        currentUserStyleRepository.addUserStyleListener(
+            object : CurrentUserStyleRepository.UserStyleListener {
                 @SuppressLint("SyntheticAccessor")
                 override fun onUserStyleChanged(userStyle: UserStyle) {
                     watchFaceColorStyle =

@@ -27,7 +27,7 @@ import android.view.SurfaceHolder;
 import androidx.wear.watchface.CanvasType;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchState;
-import androidx.wear.watchface.style.UserStyleRepository;
+import androidx.wear.watchface.style.CurrentUserStyleRepository;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -47,9 +47,9 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
 
     public WatchFaceRenderer(
             @NotNull SurfaceHolder surfaceHolder,
-            @NotNull UserStyleRepository userStyleRepository,
+            @NotNull CurrentUserStyleRepository currentUserStyleRepository,
             @NotNull WatchState watchState) {
-        super(surfaceHolder, userStyleRepository, watchState, CanvasType.HARDWARE,
+        super(surfaceHolder, currentUserStyleRepository, watchState, CanvasType.HARDWARE,
                 UPDATE_DELAY_MILLIS);
         mPaint = new Paint();
         mPaint.setTextAlign(Align.CENTER);

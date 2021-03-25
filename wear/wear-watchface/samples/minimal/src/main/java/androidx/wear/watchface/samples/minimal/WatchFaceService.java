@@ -25,7 +25,7 @@ import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
 import androidx.wear.watchface.WatchFaceType;
 import androidx.wear.watchface.WatchState;
-import androidx.wear.watchface.style.UserStyleRepository;
+import androidx.wear.watchface.style.CurrentUserStyleRepository;
 import androidx.wear.watchface.style.UserStyleSchema;
 import androidx.wear.watchface.style.UserStyleSetting;
 
@@ -43,15 +43,16 @@ public class WatchFaceService extends ListenableWatchFaceService {
     @Override
     protected ListenableFuture<WatchFace> createWatchFaceFuture(
             @NotNull SurfaceHolder surfaceHolder, @NotNull WatchState watchState) {
-        UserStyleRepository userStyleRepository =
-                new UserStyleRepository(
+        CurrentUserStyleRepository currentUserStyleRepository =
+                new CurrentUserStyleRepository(
                         new UserStyleSchema(Collections.<UserStyleSetting>emptyList()));
         ComplicationsManager complicationManager =
                 new ComplicationsManager(Collections.<Complication>emptyList(),
-                        userStyleRepository);
-        Renderer renderer = new WatchFaceRenderer(surfaceHolder, userStyleRepository, watchState);
+                        currentUserStyleRepository);
+        Renderer renderer =
+                new WatchFaceRenderer(surfaceHolder, currentUserStyleRepository, watchState);
         return Futures.immediateFuture(
-                new WatchFace(WatchFaceType.DIGITAL, userStyleRepository, renderer,
+                new WatchFace(WatchFaceType.DIGITAL, currentUserStyleRepository, renderer,
                         complicationManager));
     }
 }

@@ -1,6 +1,21 @@
 // Signature format: 4.0
 package androidx.wear.watchface.style {
 
+  public final class CurrentUserStyleRepository {
+    ctor public CurrentUserStyleRepository(androidx.wear.watchface.style.UserStyleSchema schema);
+    method @UiThread public void addUserStyleListener(androidx.wear.watchface.style.CurrentUserStyleRepository.UserStyleListener userStyleListener);
+    method public androidx.wear.watchface.style.UserStyleSchema getSchema();
+    method @UiThread public androidx.wear.watchface.style.UserStyle getUserStyle();
+    method @UiThread public void removeUserStyleListener(androidx.wear.watchface.style.CurrentUserStyleRepository.UserStyleListener userStyleListener);
+    method @UiThread public void setUserStyle(androidx.wear.watchface.style.UserStyle style);
+    property public final androidx.wear.watchface.style.UserStyleSchema schema;
+    property @UiThread public final androidx.wear.watchface.style.UserStyle userStyle;
+  }
+
+  public static interface CurrentUserStyleRepository.UserStyleListener {
+    method @UiThread public void onUserStyleChanged(androidx.wear.watchface.style.UserStyle userStyle);
+  }
+
   public enum Layer {
     enum_constant public static final androidx.wear.watchface.style.Layer BASE_LAYER;
     enum_constant public static final androidx.wear.watchface.style.Layer COMPLICATIONS;
@@ -15,21 +30,6 @@ package androidx.wear.watchface.style {
     method public java.util.Map<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option> getSelectedOptions();
     method public java.util.Map<java.lang.String,java.lang.String> toMap();
     property public final java.util.Map<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option> selectedOptions;
-  }
-
-  public final class UserStyleRepository {
-    ctor public UserStyleRepository(androidx.wear.watchface.style.UserStyleSchema schema);
-    method @UiThread public void addUserStyleListener(androidx.wear.watchface.style.UserStyleRepository.UserStyleListener userStyleListener);
-    method public androidx.wear.watchface.style.UserStyleSchema getSchema();
-    method @UiThread public androidx.wear.watchface.style.UserStyle getUserStyle();
-    method @UiThread public void removeUserStyleListener(androidx.wear.watchface.style.UserStyleRepository.UserStyleListener userStyleListener);
-    method @UiThread public void setUserStyle(androidx.wear.watchface.style.UserStyle style);
-    property public final androidx.wear.watchface.style.UserStyleSchema schema;
-    property @UiThread public final androidx.wear.watchface.style.UserStyle userStyle;
-  }
-
-  public static interface UserStyleRepository.UserStyleListener {
-    method @UiThread public void onUserStyleChanged(androidx.wear.watchface.style.UserStyle userStyle);
   }
 
   public final class UserStyleSchema {
