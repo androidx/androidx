@@ -59,6 +59,7 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.Option
 import kotlin.math.max
 import kotlin.math.min
 
@@ -471,23 +472,23 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
     ): WatchFace {
         val watchFaceStyle = WatchFaceColorStyle.create(this, RED_STYLE)
         val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
-            COLOR_STYLE_SETTING,
+            UserStyleSetting.Id(COLOR_STYLE_SETTING),
             getString(R.string.colors_style_setting),
             getString(R.string.colors_style_setting_description),
             icon = null,
             options = listOf(
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    RED_STYLE,
+                    Option.Id(RED_STYLE),
                     getString(R.string.colors_style_red),
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    GREEN_STYLE,
+                    Option.Id(GREEN_STYLE),
                     getString(R.string.colors_style_green),
                     Icon.createWithResource(this, R.drawable.green_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    BLUE_STYLE,
+                    Option.Id(BLUE_STYLE),
                     getString(R.string.colors_style_blue),
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
@@ -754,7 +755,7 @@ class ExampleDigitalWatchCanvasRenderer(
                     watchFaceColorStyle =
                         WatchFaceColorStyle.create(
                             context,
-                            userStyle[colorStyleSetting]!!.id
+                            userStyle[colorStyleSetting]!!.id.value
                         )
 
                     // Apply the userStyle to the complications. ComplicationDrawables for each of

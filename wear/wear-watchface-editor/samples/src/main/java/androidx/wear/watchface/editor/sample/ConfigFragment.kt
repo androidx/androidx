@@ -113,7 +113,7 @@ internal class ConfigFragment : Fragment() {
         for (styleCategory in editingSession.userStyleSchema.userStyleSettings) {
             configOptions.add(
                 ConfigOption(
-                    id = styleCategory.id,
+                    id = styleCategory.id.value,
                     icon = styleCategory.icon,
                     title = styleCategory.displayName.toString(),
                     summary = styleCategory.description.toString()

@@ -202,7 +202,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 // There should only be a single userStyle setting if we get here.
                 val onlyStyleSetting = editorSession.userStyleSchema.userStyleSettings.first()
                 fragmentController.showStyleConfigFragment(
-                    onlyStyleSetting.id,
+                    onlyStyleSetting.id.value,
                     editorSession.userStyleSchema,
                     editorSession.userStyle
                 )
