@@ -21,6 +21,8 @@ import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.TraceEvent
+import androidx.wear.watchface.Complication
+import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.data.ComplicationRenderParams
@@ -28,6 +30,7 @@ import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 
 /**
  * Controls a stateless remote headless watch face.  This is mostly intended for use by watch face
@@ -44,8 +47,11 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
     public val userStyleSchema: UserStyleSchema
 
     /**
-     * Map of complication ids to [ComplicationState] for each complication slot. Note this can
-     * change, typically in response to styling.
+     * Map of complication ids to [ComplicationState] for each [Complication] registered with the
+     * watch face's [ComplicationsManager]. The ComplicationState is based on the initial state of
+     * each Complication plus any overrides from the default style's
+     * [ComplicationsUserStyleSetting]. Because the style can't change, ComplicationState is
+     * immutable for a headless watch face.
      */
     public val complicationsState: Map<Int, ComplicationState>
 
