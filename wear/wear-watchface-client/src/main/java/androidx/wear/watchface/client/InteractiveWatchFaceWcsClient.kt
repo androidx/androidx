@@ -22,6 +22,7 @@ import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.TraceEvent
+import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
@@ -30,6 +31,7 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
@@ -93,8 +95,10 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
     public val userStyleSchema: UserStyleSchema
 
     /**
-     * Map of complication ids to [ComplicationState] for each complication slot. Note
-     * this can change, typically in response to styling.
+     * Map of complication ids to [ComplicationState] for each [Complication] registered with the
+     * watch face's [ComplicationsManager]. The ComplicationState is based on the initial state of
+     * each Complication plus any overrides from a [ComplicationsUserStyleSetting]. As a
+     * consequence ComplicationState may update based on style changes.
      */
     public val complicationsState: Map<Int, ComplicationState>
 
