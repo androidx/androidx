@@ -19,7 +19,9 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CaptureResult
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
@@ -179,5 +181,24 @@ class CameraControlAdapter @Inject constructor(
 
     override fun submitCaptureRequests(captureConfigs: MutableList<CaptureConfig>) {
         warn { "TODO: submitCaptureRequests is not yet supported" }
+    }
+
+    /**
+     * Give whether auto focus trigger was desired, this method transforms a [Result3A] into
+     * [FocusMeteringResult] by checking if the auto focus was locked in a focused state.
+     *
+     * TODO(sushilnath): Move this to an adapter class specific to 3A operations.
+     */
+    private fun Result3A.toFocusMeteringResult(shouldTriggerAf: Boolean): FocusMeteringResult {
+        if (this.status != Result3A.Status.OK) {
+            return FocusMeteringResult.create(false)
+        }
+        val isFocusSuccessful =
+            if (shouldTriggerAf)
+                this.frameMetadata?.get(CaptureResult.CONTROL_AF_STATE) ==
+                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+            else true
+
+        return FocusMeteringResult.create(isFocusSuccessful)
     }
 }
