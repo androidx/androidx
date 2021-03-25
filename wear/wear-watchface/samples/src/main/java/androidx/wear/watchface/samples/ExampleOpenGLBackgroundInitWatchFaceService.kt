@@ -30,7 +30,7 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.asCoroutineDispatcher
@@ -56,7 +56,7 @@ class ExampleOpenGLBackgroundInitWatchFaceService() : WatchFaceService() {
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
     ): WatchFace {
-        val styleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
+        val styleRepository = CurrentUserStyleRepository(UserStyleSchema(emptyList()))
 
         // Create the renderer on the main thread. It's EGLContext is bound to this thread.
         val renderer = MainThreadRenderer(surfaceHolder, styleRepository, watchState)
@@ -154,9 +154,9 @@ class ExampleOpenGLBackgroundInitWatchFaceService() : WatchFaceService() {
 
 internal class MainThreadRenderer(
     surfaceHolder: SurfaceHolder,
-    userStyleRepository: UserStyleRepository,
+    currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState
-) : Renderer.GlesRenderer(surfaceHolder, userStyleRepository, watchState, FRAME_PERIOD_MS) {
+) : Renderer.GlesRenderer(surfaceHolder, currentUserStyleRepository, watchState, FRAME_PERIOD_MS) {
 
     internal var watchBodyTexture: Int = -1
     internal var watchHandTexture: Int = -1

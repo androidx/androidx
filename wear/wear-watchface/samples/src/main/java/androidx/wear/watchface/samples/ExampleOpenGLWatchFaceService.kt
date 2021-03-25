@@ -43,7 +43,7 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import java.nio.ByteBuffer
@@ -110,7 +110,7 @@ fun createExampleOpenGLWatchFaceBuilder(
         ),
         listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
     )
-    val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
+    val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
     val complicationsManager = ComplicationsManager(
         listOf(
             Complication.createRoundRectComplicationBuilder(
@@ -154,11 +154,11 @@ fun createExampleOpenGLWatchFaceBuilder(
 
 class ExampleOpenGLRenderer(
     surfaceHolder: SurfaceHolder,
-    private val userStyleRepository: UserStyleRepository,
+    private val currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState,
     private val colorStyleSetting: ListUserStyleSetting,
     private val complication: Complication
-) : Renderer.GlesRenderer(surfaceHolder, userStyleRepository, watchState, FRAME_PERIOD_MS) {
+) : Renderer.GlesRenderer(surfaceHolder, currentUserStyleRepository, watchState, FRAME_PERIOD_MS) {
 
     /** Projection transformation matrix. Converts from 3D to 2D.  */
     private val projectionMatrix = FloatArray(16)
@@ -576,7 +576,7 @@ class ExampleOpenGLRenderer(
             GLES20.glClearColor(0f, 0f, 0f, 1f)
             ambientVpMatrix
         } else {
-            when (userStyleRepository.userStyle[colorStyleSetting]!!.id) {
+            when (currentUserStyleRepository.userStyle[colorStyleSetting]!!.id) {
                 "red_style" -> GLES20.glClearColor(0.5f, 0.2f, 0.2f, 1f)
                 "green_style" -> GLES20.glClearColor(0.2f, 0.5f, 0.2f, 1f)
             }
@@ -643,7 +643,7 @@ class ExampleOpenGLRenderer(
                     0
                 )
                 secondHandTriangleMap[
-                    userStyleRepository.userStyle[colorStyleSetting]!!.id
+                    currentUserStyleRepository.userStyle[colorStyleSetting]!!.id
                 ]
                     ?.draw(mvpMatrix)
             }

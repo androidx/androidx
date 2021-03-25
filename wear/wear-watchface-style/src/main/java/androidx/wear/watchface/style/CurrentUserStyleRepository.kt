@@ -131,14 +131,14 @@ public class UserStyleSchema(
 }
 
 /**
- * An in memory storage for user style choices represented as [UserStyle], listeners can be
- * registered to observe style changes. The UserStyleRepository is initialized with a
+ * In memory storage for the current user style choices represented as [UserStyle], listeners can be
+ * registered to observe style changes. The CurrentUserStyleRepository is initialized with a
  * [UserStyleSchema].
  *
- * @param schema The [UserStyleSchema] for this UserStyleRepository which describes the available
- *     style categories.
+ * @param schema The [UserStyleSchema] for this CurrentUserStyleRepository which describes the
+ *     available style categories.
  */
-public class UserStyleRepository(
+public class CurrentUserStyleRepository(
     public val schema: UserStyleSchema
 ) {
     /** A listener for observing [UserStyle] changes. */

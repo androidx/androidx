@@ -33,7 +33,7 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import java.lang.ref.WeakReference
 
@@ -47,12 +47,12 @@ private fun getComponentName(context: Context) = ComponentName(
  * supported, however complications can be enabled and disabled by [ComplicationsUserStyleSetting].
  *
  * @param complicationCollection The complications associated with the watch face, may be empty.
- * @param userStyleRepository The [UserStyleRepository] used to listen for
+ * @param currentUserStyleRepository The [CurrentUserStyleRepository] used to listen for
  *     [ComplicationsUserStyleSetting] changes and apply them.
  */
 public class ComplicationsManager(
     complicationCollection: Collection<Complication>,
-    private val userStyleRepository: UserStyleRepository
+    private val currentUserStyleRepository: CurrentUserStyleRepository
 ) {
     /**
      * Interface used to report user taps on the complication. See [addTapListener] and
@@ -100,9 +100,9 @@ public class ComplicationsManager(
     @VisibleForTesting
     internal constructor(
         complicationCollection: Collection<Complication>,
-        userStyleRepository: UserStyleRepository,
+        currentUserStyleRepository: CurrentUserStyleRepository,
         renderer: Renderer
-    ) : this(complicationCollection, userStyleRepository) {
+    ) : this(complicationCollection, currentUserStyleRepository) {
         this.renderer = renderer
     }
 
@@ -122,7 +122,7 @@ public class ComplicationsManager(
         }
 
         val complicationsStyleCategory =
-            userStyleRepository.schema.userStyleSettings.firstOrNull {
+            currentUserStyleRepository.schema.userStyleSettings.firstOrNull {
                 it is ComplicationsUserStyleSetting
             }
 
@@ -131,8 +131,8 @@ public class ComplicationsManager(
         if (complicationsStyleCategory != null) {
             // Ensure we apply any initial StyleCategoryOption overlay by initializing with null.
             var previousOption: ComplicationsUserStyleSetting.ComplicationsOption? = null
-            userStyleRepository.addUserStyleListener(
-                object : UserStyleRepository.UserStyleListener {
+            currentUserStyleRepository.addUserStyleListener(
+                object : CurrentUserStyleRepository.UserStyleListener {
                     override fun onUserStyleChanged(userStyle: UserStyle) {
                         val newlySelectedOption =
                             userStyle[complicationsStyleCategory]?.toComplicationsOption()!!

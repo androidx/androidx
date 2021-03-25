@@ -67,7 +67,7 @@ import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CoroutineScope
@@ -138,7 +138,7 @@ private class PendingComplicationData(val complicationId: Int, val data: Complic
  *
  * Watch face styling (color and visual look of watch face elements such as numeric fonts, watch
  * hands and ticks, etc...) is directly supported via [UserStyleSetting] and
- * [UserStyleRepository].
+ * [CurrentUserStyleRepository].
  *
  * To aid debugging watch face animations, WatchFaceService allows you to speed up or slow down
  * time, and to loop between two instants.  This is controlled by MOCK_TIME_INTENT intents
