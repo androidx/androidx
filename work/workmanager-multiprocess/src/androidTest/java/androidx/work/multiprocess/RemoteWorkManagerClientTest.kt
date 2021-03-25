@@ -94,9 +94,11 @@ public class RemoteWorkManagerClientTest {
 
     @Test
     @MediumTest
+    @Suppress("UNCHECKED_CAST")
     public fun cleanUpWhenDispatcherFails() {
         val binder = mock(IBinder::class.java)
-        val remoteDispatcher = mock(RemoteWorkManagerClient.RemoteDispatcher::class.java)
+        val remoteDispatcher =
+            mock(RemoteDispatcher::class.java) as RemoteDispatcher<IWorkManagerImpl>
         val remoteStub = mock(IWorkManagerImpl::class.java)
         val callback = spy(RemoteCallback())
         val message = "Something bad happened"
@@ -117,8 +119,10 @@ public class RemoteWorkManagerClientTest {
 
     @Test
     @MediumTest
+    @Suppress("UNCHECKED_CAST")
     public fun cleanUpWhenSessionIsInvalid() {
-        val remoteDispatcher = mock(RemoteWorkManagerClient.RemoteDispatcher::class.java)
+        val remoteDispatcher =
+            mock(RemoteDispatcher::class.java) as RemoteDispatcher<IWorkManagerImpl>
         val callback = spy(RemoteCallback())
         val session = SettableFuture.create<IWorkManagerImpl>()
         session.setException(RuntimeException("Something bad happened"))
@@ -137,7 +141,7 @@ public class RemoteWorkManagerClientTest {
     @MediumTest
     public fun cleanUpOnSuccessfulDispatch() {
         val binder = mock(IBinder::class.java)
-        val remoteDispatcher = RemoteWorkManagerClient.RemoteDispatcher { _, callback ->
+        val remoteDispatcher = RemoteDispatcher<IWorkManagerImpl> { _, callback ->
             callback.onSuccess(ByteArray(0))
         }
         val remoteStub = mock(IWorkManagerImpl::class.java)

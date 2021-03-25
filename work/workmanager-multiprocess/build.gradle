@@ -41,6 +41,7 @@ android {
 
 dependencies {
     api project(":work:work-runtime")
+    implementation("androidx.room:room-runtime:2.2.5")
     api(GUAVA_LISTENABLE_FUTURE)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
