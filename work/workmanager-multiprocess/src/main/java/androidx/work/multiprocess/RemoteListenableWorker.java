@@ -18,7 +18,7 @@ package androidx.work.multiprocess;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
-import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.failureCallback;
+import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.reportFailure;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
@@ -273,14 +273,14 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
                                 dispatcher.execute(iListenableWorker, callback);
                             } catch (Throwable innerThrowable) {
                                 Logger.get().error(TAG, "Unable to execute", innerThrowable);
-                                failureCallback(callback, innerThrowable);
+                                reportFailure(callback, innerThrowable);
                             }
                         }
                     });
                 } catch (ExecutionException | InterruptedException exception) {
                     String message = "Unable to bind to service";
                     Logger.get().error(TAG, message, exception);
-                    failureCallback(callback, exception);
+                    reportFailure(callback, exception);
                 }
             }
         }, mExecutor);

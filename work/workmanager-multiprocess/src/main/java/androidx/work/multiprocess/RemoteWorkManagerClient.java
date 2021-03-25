@@ -18,7 +18,7 @@ package androidx.work.multiprocess;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
-import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.failureCallback;
+import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.reportFailure;
 import static androidx.work.multiprocess.RemoteClientUtils.map;
 import static androidx.work.multiprocess.RemoteClientUtils.sVoidMapper;
 
@@ -281,13 +281,13 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
                                 dispatcher.execute(iWorkManager, callback);
                             } catch (Throwable innerThrowable) {
                                 Logger.get().error(TAG, "Unable to execute", innerThrowable);
-                                failureCallback(callback, innerThrowable);
+                                reportFailure(callback, innerThrowable);
                             }
                         }
                     });
                 } catch (ExecutionException | InterruptedException exception) {
                     Logger.get().error(TAG, "Unable to bind to service");
-                    failureCallback(callback, new RuntimeException("Unable to bind to service"));
+                    reportFailure(callback, new RuntimeException("Unable to bind to service"));
                     cleanUp();
                 }
             }
