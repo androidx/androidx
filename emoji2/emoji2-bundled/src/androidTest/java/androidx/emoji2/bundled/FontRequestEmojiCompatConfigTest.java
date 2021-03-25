@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.emoji2.text;
+package androidx.emoji2.bundled;
 
 import static android.content.res.AssetManager.ACCESS_BUFFER;
 
@@ -53,6 +53,9 @@ import androidx.annotation.Nullable;
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.provider.FontsContractCompat.FontInfo;
+import androidx.emoji2.text.EmojiCompat;
+import androidx.emoji2.text.FontRequestEmojiCompatConfig;
+import androidx.emoji2.text.MetadataRepo;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -68,7 +71,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -84,17 +86,19 @@ public class FontRequestEmojiCompatConfigTest {
     public void setup() {
         mContext = ApplicationProvider.getApplicationContext();
         mFontRequest = new FontRequest("authority", "package", "query",
-                new ArrayList<List<byte[]>>());
+                new ArrayList<>());
         mFontProviderHelper = mock(FontRequestEmojiCompatConfig.FontProviderHelper.class);
     }
 
     @Test(expected = NullPointerException.class)
     public void testConstructor_withNullContext() {
+        //noinspection ConstantConditions
         new FontRequestEmojiCompatConfig(null, mFontRequest);
     }
 
     @Test(expected = NullPointerException.class)
     public void testConstructor_withNullFontRequest() {
+        //noinspection ConstantConditions
         new FontRequestEmojiCompatConfig(mContext, null);
     }
 
@@ -105,10 +109,10 @@ public class FontRequestEmojiCompatConfigTest {
         doThrow(exception).when(mFontProviderHelper).fetchFonts(
                 any(Context.class), any(FontRequest.class));
         final WaitingLoaderCallback callback = spy(new WaitingLoaderCallback());
-        final EmojiCompat.Config config = new FontRequestEmojiCompatConfig(mContext, mFontRequest,
-                mFontProviderHelper);
+        final TestFontRequestEmojiCompatConfig config =
+                new TestFontRequestEmojiCompatConfig(mContext, mFontRequest, mFontProviderHelper);
 
-        config.getMetadataRepoLoader().load(callback);
+        config.loadForTests(callback);
         callback.await(DEFAULT_TIMEOUT_MILLIS);
         verify(callback, times(1)).onFailed(same(exception));
     }
@@ -119,15 +123,16 @@ public class FontRequestEmojiCompatConfigTest {
         doThrow(new NameNotFoundException()).when(mFontProviderHelper).fetchFonts(
                 any(Context.class), any(FontRequest.class));
         final WaitingLoaderCallback callback = spy(new WaitingLoaderCallback());
-        final EmojiCompat.Config config = new FontRequestEmojiCompatConfig(mContext,
-                mFontRequest, mFontProviderHelper);
+        final TestFontRequestEmojiCompatConfig config =
+                new TestFontRequestEmojiCompatConfig(mContext, mFontRequest, mFontProviderHelper);
 
-        config.getMetadataRepoLoader().load(callback);
+        config.loadForTests(callback);
         callback.await(DEFAULT_TIMEOUT_MILLIS);
 
         final ArgumentCaptor<Throwable> argumentCaptor = ArgumentCaptor.forClass(Throwable.class);
         verify(callback, times(1)).onFailed(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getMessage(), containsString("provider not found"));
+        assertThat(argumentCaptor.getValue().getMessage(),
+                containsString("provider not found"));
     }
 
     @Test
@@ -195,10 +200,10 @@ public class FontRequestEmojiCompatConfigTest {
         doReturn(new FontFamilyResult(STATUS_OK, fonts)).when(mFontProviderHelper).fetchFonts(
                 any(Context.class), any(FontRequest.class));
         final WaitingLoaderCallback callback = spy(new WaitingLoaderCallback());
-        final EmojiCompat.Config config = new FontRequestEmojiCompatConfig(mContext,
-                mFontRequest, mFontProviderHelper);
+        final TestFontRequestEmojiCompatConfig config =
+                new TestFontRequestEmojiCompatConfig(mContext, mFontRequest, mFontProviderHelper);
 
-        config.getMetadataRepoLoader().load(callback);
+        config.loadForTests(callback);
         callback.await(DEFAULT_TIMEOUT_MILLIS);
         verify(callback, times(1)).onLoaded(any(MetadataRepo.class));
     }
@@ -215,10 +220,11 @@ public class FontRequestEmojiCompatConfigTest {
                 any(Context.class), any(FontRequest.class));
         final WaitingLoaderCallback callback = spy(new WaitingLoaderCallback());
         final WaitingRetryPolicy retryPolicy = spy(new WaitingRetryPolicy(-1, 1));
-        final EmojiCompat.Config config = new FontRequestEmojiCompatConfig(mContext,
-                mFontRequest, mFontProviderHelper).setRetryPolicy(retryPolicy);
+        final TestFontRequestEmojiCompatConfig config =
+                new TestFontRequestEmojiCompatConfig(mContext, mFontRequest, mFontProviderHelper);
+        config.setRetryPolicy(retryPolicy);
 
-        config.getMetadataRepoLoader().load(callback);
+        config.loadForTests(callback);
         callback.await(DEFAULT_TIMEOUT_MILLIS);
         verify(callback, never()).onLoaded(any(MetadataRepo.class));
         verify(callback, times(1)).onFailed(any(Throwable.class));
@@ -237,10 +243,11 @@ public class FontRequestEmojiCompatConfigTest {
                 any(Context.class), any(FontRequest.class));
         final WaitingLoaderCallback callback = spy(new WaitingLoaderCallback());
         final WaitingRetryPolicy retryPolicy = spy(new WaitingRetryPolicy(500, 1));
-        final EmojiCompat.Config config = new FontRequestEmojiCompatConfig(mContext,
-                mFontRequest, mFontProviderHelper).setRetryPolicy(retryPolicy);
+        final TestFontRequestEmojiCompatConfig config =
+                new TestFontRequestEmojiCompatConfig(mContext, mFontRequest, mFontProviderHelper);
+        config.setRetryPolicy(retryPolicy);
 
-        config.getMetadataRepoLoader().load(callback);
+        config.loadForTests(callback);
         retryPolicy.await(DEFAULT_TIMEOUT_MILLIS);
         verify(callback, never()).onLoaded(any(MetadataRepo.class));
         verify(callback, never()).onFailed(any(Throwable.class));
@@ -271,11 +278,11 @@ public class FontRequestEmojiCompatConfigTest {
         try {
             Handler handler = new Handler(thread.getLooper());
 
-            final EmojiCompat.Config config = new FontRequestEmojiCompatConfig(mContext,
-                    mFontRequest, mFontProviderHelper).setHandler(handler)
-                    .setRetryPolicy(retryPolicy);
+            final TestFontRequestEmojiCompatConfig config = new TestFontRequestEmojiCompatConfig(
+                    mContext, mFontRequest, mFontProviderHelper);
+            config.setHandler(handler).setRetryPolicy(retryPolicy);
 
-            config.getMetadataRepoLoader().load(callback);
+            config.loadForTests(callback);
             retryPolicy.await(DEFAULT_TIMEOUT_MILLIS);
             verify(callback, never()).onLoaded(any(MetadataRepo.class));
             verify(callback, never()).onFailed(any(Throwable.class));
@@ -328,11 +335,11 @@ public class FontRequestEmojiCompatConfigTest {
         try {
             Handler handler = new Handler(thread.getLooper());
 
-            final EmojiCompat.Config config = new FontRequestEmojiCompatConfig(mContext,
-                    mFontRequest, mFontProviderHelper).setHandler(handler)
-                    .setRetryPolicy(retryPolicy);
+            final TestFontRequestEmojiCompatConfig config = new TestFontRequestEmojiCompatConfig(
+                    mContext, mFontRequest, mFontProviderHelper);
+            config.setHandler(handler).setRetryPolicy(retryPolicy);
 
-            config.getMetadataRepoLoader().load(callback);
+            config.loadForTests(callback);
             retryPolicy.await(DEFAULT_TIMEOUT_MILLIS);
             verify(callback, never()).onLoaded(any(MetadataRepo.class));
             verify(callback, never()).onFailed(any(Throwable.class));
@@ -383,14 +390,14 @@ public class FontRequestEmojiCompatConfigTest {
         thread.start();
         try {
             Handler handler = new Handler(thread.getLooper());
-            final EmojiCompat.Config config = new FontRequestEmojiCompatConfig(mContext,
-                    mFontRequest, mFontProviderHelper).setHandler(handler)
-                    .setRetryPolicy(retryPolicy);
+            final TestFontRequestEmojiCompatConfig config = new TestFontRequestEmojiCompatConfig(
+                    mContext, mFontRequest, mFontProviderHelper);
+            config.setHandler(handler).setRetryPolicy(retryPolicy);
 
             ArgumentCaptor<ContentObserver> observerCaptor =
                     ArgumentCaptor.forClass(ContentObserver.class);
 
-            config.getMetadataRepoLoader().load(callback);
+            config.loadForTests(callback);
             retryPolicy.await(DEFAULT_TIMEOUT_MILLIS);
             verify(callback, never()).onLoaded(any(MetadataRepo.class));
             verify(callback, never()).onFailed(any(Throwable.class));
@@ -439,14 +446,14 @@ public class FontRequestEmojiCompatConfigTest {
         thread.start();
         try {
             Handler handler = new Handler(thread.getLooper());
-            final EmojiCompat.Config config = new FontRequestEmojiCompatConfig(mContext,
-                    mFontRequest, mFontProviderHelper).setHandler(handler)
-                    .setRetryPolicy(retryPolicy);
+            final TestFontRequestEmojiCompatConfig config = new TestFontRequestEmojiCompatConfig(
+                    mContext, mFontRequest, mFontProviderHelper);
+            config.setRetryPolicy(retryPolicy).setHandler(handler);
 
             ArgumentCaptor<ContentObserver> observerCaptor =
                     ArgumentCaptor.forClass(ContentObserver.class);
 
-            config.getMetadataRepoLoader().load(callback);
+            config.loadForTests(callback);
             retryPolicy.await(DEFAULT_TIMEOUT_MILLIS);
             verify(callback, never()).onLoaded(any(MetadataRepo.class));
             verify(callback, never()).onFailed(any(Throwable.class));
@@ -482,10 +489,10 @@ public class FontRequestEmojiCompatConfigTest {
         doReturn(new FontFamilyResult(statusCode, fonts)).when(mFontProviderHelper).fetchFonts(
                 any(Context.class), any(FontRequest.class));
         final WaitingLoaderCallback callback = spy(new WaitingLoaderCallback());
-        final EmojiCompat.Config config = new FontRequestEmojiCompatConfig(mContext, mFontRequest,
-                mFontProviderHelper);
+        final TestFontRequestEmojiCompatConfig config = new TestFontRequestEmojiCompatConfig(
+                mContext, mFontRequest, mFontProviderHelper);
 
-        config.getMetadataRepoLoader().load(callback);
+        config.loadForTests(callback);
         callback.await(DEFAULT_TIMEOUT_MILLIS);
 
         final ArgumentCaptor<Throwable> argumentCaptor = ArgumentCaptor.forClass(Throwable.class);
@@ -581,5 +588,29 @@ public class FontRequestEmojiCompatConfigTest {
     private FontInfo[] getTestFontInfoWithInvalidPath(int resultCode) {
         return new FontInfo[] { new FontInfo(Uri.parse("file:///some/placeholder/file"),
                 0 /* ttc index */, 400 /* weight */, false /* italic */, resultCode) };
+    }
+
+    /**
+     * This class exists since the test suite is in another package and we need to call the
+     * `protected` method `getMetadataRepoLoader` in these tests.
+     */
+    private static class TestFontRequestEmojiCompatConfig extends FontRequestEmojiCompatConfig {
+
+        TestFontRequestEmojiCompatConfig(
+                @NonNull Context context,
+                @NonNull FontRequest request) {
+            super(context, request);
+        }
+
+        TestFontRequestEmojiCompatConfig(
+                @NonNull Context context,
+                @NonNull FontRequest request,
+                @NonNull FontRequestEmojiCompatConfig.FontProviderHelper fontProviderHelper) {
+            super(context, request, fontProviderHelper);
+        }
+
+        public void loadForTests(EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+            getMetadataRepoLoader().load(loaderCallback);
+        }
     }
 }

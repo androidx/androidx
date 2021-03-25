@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.emoji2.text;
+package androidx.emoji2.bundled;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -23,8 +23,11 @@ import android.graphics.Paint;
 import android.text.Spanned;
 
 import androidx.core.graphics.PaintCompat;
-import androidx.emoji2.util.EmojiMatcher;
-import androidx.emoji2.util.TestString;
+import androidx.emoji2.bundled.util.EmojiMatcher;
+import androidx.emoji2.bundled.util.TestString;
+import androidx.emoji2.text.EmojiCompat;
+import androidx.emoji2.text.EmojiMetadata;
+import androidx.emoji2.text.EmojiSpan;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;

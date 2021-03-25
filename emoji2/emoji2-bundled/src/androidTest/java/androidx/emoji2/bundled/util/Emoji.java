@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.emoji2.util;
+package androidx.emoji2.bundled.util;
 
 import androidx.annotation.NonNull;
 

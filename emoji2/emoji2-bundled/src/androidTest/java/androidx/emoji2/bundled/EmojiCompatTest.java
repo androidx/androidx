@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.emoji2.text;
+package androidx.emoji2.bundled;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
@@ -46,10 +46,12 @@ import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
-import androidx.emoji2.util.Emoji;
-import androidx.emoji2.util.EmojiMatcher;
-import androidx.emoji2.util.KeyboardUtil;
-import androidx.emoji2.util.TestString;
+import androidx.emoji2.bundled.util.Emoji;
+import androidx.emoji2.bundled.util.EmojiMatcher;
+import androidx.emoji2.bundled.util.KeyboardUtil;
+import androidx.emoji2.bundled.util.TestString;
+import androidx.emoji2.text.EmojiCompat;
+import androidx.emoji2.text.EmojiSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -703,8 +705,8 @@ public class EmojiCompatTest {
     @Test
     @SdkSuppress(maxSdkVersion = 18)
     public void testLoad_pre19() {
-        final EmojiCompat.MetadataRepoLoader loader = Mockito.spy(new TestConfigBuilder
-                .TestEmojiDataLoader());
+        final EmojiCompat.MetadataRepoLoader loader =
+                Mockito.spy(new TestConfigBuilder.TestEmojiDataLoader());
         final EmojiCompat.Config config = new TestConfigBuilder.TestConfig(loader)
                 .setMetadataLoadStrategy(EmojiCompat.LOAD_STRATEGY_MANUAL);
 
@@ -720,8 +722,8 @@ public class EmojiCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testLoad_startsLoading() {
-        final EmojiCompat.MetadataRepoLoader loader = Mockito.spy(new TestConfigBuilder
-                .TestEmojiDataLoader());
+        final EmojiCompat.MetadataRepoLoader loader =
+                Mockito.spy(new TestConfigBuilder.TestEmojiDataLoader());
         final EmojiCompat.Config config = new TestConfigBuilder.TestConfig(loader)
                 .setMetadataLoadStrategy(EmojiCompat.LOAD_STRATEGY_MANUAL);
 
@@ -738,8 +740,8 @@ public class EmojiCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testLoad_onceSuccessDoesNotStartLoading() {
-        final EmojiCompat.MetadataRepoLoader loader = Mockito.spy(new TestConfigBuilder
-                .TestEmojiDataLoader());
+        final EmojiCompat.MetadataRepoLoader loader =
+                Mockito.spy(new TestConfigBuilder.TestEmojiDataLoader());
         final EmojiCompat.Config config = new TestConfigBuilder.TestConfig(loader)
                 .setMetadataLoadStrategy(EmojiCompat.LOAD_STRATEGY_MANUAL);
 
