@@ -108,7 +108,7 @@ fun createExampleOpenGLWatchFaceBuilder(
                 Icon.createWithResource(context, R.drawable.green_style)
             )
         ),
-        listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
+        listOf(Layer.BASE, Layer.COMPLICATIONS_OVERLAY)
     )
     val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
     val complicationsManager = ComplicationsManager(
@@ -612,7 +612,7 @@ class ExampleOpenGLRenderer(
         val hoursIndex = (hours / 12f * 360f).toInt()
 
         // Render hands.
-        if (renderParameters.layerParameters[Layer.TOP_LAYER] != LayerMode.HIDE) {
+        if (renderParameters.layerParameters[Layer.COMPLICATIONS_OVERLAY] != LayerMode.HIDE) {
             Matrix.multiplyMM(
                 mvpMatrix,
                 0,
@@ -649,7 +649,7 @@ class ExampleOpenGLRenderer(
             }
         }
 
-        if (renderParameters.layerParameters[Layer.BASE_LAYER] != LayerMode.HIDE) {
+        if (renderParameters.layerParameters[Layer.BASE] != LayerMode.HIDE) {
             majorTickTriangles.draw(vpMatrix)
             minorTickTriangles.draw(vpMatrix)
             coloredTriangleProgram.unbindAttribs()

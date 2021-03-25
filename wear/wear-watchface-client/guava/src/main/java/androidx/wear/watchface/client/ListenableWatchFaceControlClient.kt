@@ -38,10 +38,10 @@ import kotlin.coroutines.CoroutineContext
 public open class ListenableWatchFaceControlClient(
     private val watchFaceControlClient: WatchFaceControlClient
 ) : WatchFaceControlClient {
-    override fun getInteractiveWatchFaceSysUiClientInstance(
+    override fun getInteractiveWatchFaceClientInstance(
         instanceId: String
-    ): InteractiveWatchFaceSysUiClient? =
-        watchFaceControlClient.getInteractiveWatchFaceSysUiClientInstance(instanceId)
+    ): InteractiveWatchFaceClient? =
+        watchFaceControlClient.getInteractiveWatchFaceClientInstance(instanceId)
 
     public companion object {
         /**
@@ -103,35 +103,35 @@ public open class ListenableWatchFaceControlClient(
 
     /**
      * [ListenableFuture] wrapper around
-     * [WatchFaceControlClient.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync].
+     * [WatchFaceControlClient.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync].
      * This is open to allow mocking.
      */
     public open fun listenableGetOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
         id: String,
         deviceConfig: DeviceConfig,
-        systemState: SystemState,
+        watchUiState: WatchUiState,
         userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
-    ): ListenableFuture<InteractiveWatchFaceWcsClient> =
-        watchFaceControlClient.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(
+    ): ListenableFuture<InteractiveWatchFaceClient> =
+        watchFaceControlClient.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
             id,
             deviceConfig,
-            systemState,
+            watchUiState,
             userStyle,
             idToComplicationData
         ).asListenableFuture()
 
-    override fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(
+    override fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
         id: String,
         deviceConfig: DeviceConfig,
-        systemState: SystemState,
+        watchUiState: WatchUiState,
         userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
-    ): Deferred<InteractiveWatchFaceWcsClient> =
-        watchFaceControlClient.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClientAsync(
+    ): Deferred<InteractiveWatchFaceClient> =
+        watchFaceControlClient.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
             id,
             deviceConfig,
-            systemState,
+            watchUiState,
             userStyle,
             idToComplicationData
         )

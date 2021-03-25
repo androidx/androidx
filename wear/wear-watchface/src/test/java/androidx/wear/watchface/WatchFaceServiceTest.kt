@@ -42,14 +42,14 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
-import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
-import androidx.wear.watchface.control.IPendingInteractiveWatchFaceWCS
+import androidx.wear.watchface.control.IInteractiveWatchFace
+import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
-import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -131,7 +131,7 @@ public class WatchFaceServiceTest {
         "Watchface colorization", /* icon = */
         null,
         colorStyleList,
-        listOf(Layer.BASE_LAYER)
+        listOf(Layer.BASE)
     )
 
     private val classicStyleOption =
@@ -152,7 +152,7 @@ public class WatchFaceServiceTest {
         "Hand visual look", /* icon = */
         null,
         watchHandStyleList,
-        listOf(Layer.TOP_LAYER)
+        listOf(Layer.COMPLICATIONS_OVERLAY)
     )
 
     private val badStyleOption =
@@ -280,7 +280,7 @@ public class WatchFaceServiceTest {
     private lateinit var watchFaceImpl: WatchFaceImpl
     private lateinit var testWatchFaceService: TestWatchFaceService
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
-    private lateinit var interactiveWatchFaceInstanceWCS: IInteractiveWatchFaceWCS
+    private lateinit var interactiveWatchFaceInstance: IInteractiveWatchFace
 
     private class Task(val runTimeMillis: Long, val runnable: Runnable) : Comparable<Task> {
         override fun compareTo(other: Task) = runTimeMillis.compareTo(other.runTimeMillis)
@@ -382,14 +382,14 @@ public class WatchFaceServiceTest {
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     wallpaperInteractiveWatchFaceInstanceParams,
-                    object : IPendingInteractiveWatchFaceWCS.Stub() {
+                    object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
-                            IPendingInteractiveWatchFaceWCS.API_VERSION
+                            IPendingInteractiveWatchFace.API_VERSION
 
-                        override fun onInteractiveWatchFaceWcsCreated(
-                            iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
                         ) {
-                            interactiveWatchFaceInstanceWCS = iInteractiveWatchFaceWcs
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
                         }
                     }
                 )
@@ -499,8 +499,8 @@ public class WatchFaceServiceTest {
 
     @After
     public fun validate() {
-        if (this::interactiveWatchFaceInstanceWCS.isInitialized) {
-            interactiveWatchFaceInstanceWCS.release()
+        if (this::interactiveWatchFaceInstance.isInitialized) {
+            interactiveWatchFaceInstance.release()
         }
 
         if (this::engineWrapper.isInitialized && !engineWrapper.destroyed) {
@@ -1125,7 +1125,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(
                     hashMapOf(
                         colorStyleSetting to blueStyleOption,
@@ -1161,7 +1161,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(hashMapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
                 null
             )
@@ -1215,7 +1215,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(hashMapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
                 null
             )
@@ -1518,7 +1518,7 @@ public class WatchFaceServiceTest {
                 1000,
                 2000,
             ),
-            SystemState(false, 0),
+            WatchUiState(false, 0),
             UserStyle(
                 hashMapOf(
                     colorStyleSetting to blueStyleOption,
@@ -1548,7 +1548,7 @@ public class WatchFaceServiceTest {
                 1000,
                 2000,
             ),
-            SystemState(false, 0),
+            WatchUiState(false, 0),
             UserStyle(
                 hashMapOf(
                     colorStyleSetting to blueStyleOption,
@@ -1841,7 +1841,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null
             )
@@ -1858,7 +1858,7 @@ public class WatchFaceServiceTest {
             rightComplicationData = it.asWireComplicationData()
         }
 
-        interactiveWatchFaceInstanceWCS.updateComplicationData(
+        interactiveWatchFaceInstance.updateComplicationData(
             listOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
@@ -1895,13 +1895,13 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null
             )
         )
 
-        interactiveWatchFaceInstanceWCS.updateComplicationData(
+        interactiveWatchFaceInstance.updateComplicationData(
             listOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
@@ -1916,7 +1916,7 @@ public class WatchFaceServiceTest {
         assertThat(leftComplication.isActiveAt(0)).isTrue()
 
         // Send empty data.
-        interactiveWatchFaceInstanceWCS.updateComplicationData(
+        interactiveWatchFaceInstance.updateComplicationData(
             listOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
@@ -1928,7 +1928,7 @@ public class WatchFaceServiceTest {
         assertThat(leftComplication.isActiveAt(0)).isFalse()
 
         // Send a complication that is active for a time range.
-        interactiveWatchFaceInstanceWCS.updateComplicationData(
+        interactiveWatchFaceInstance.updateComplicationData(
             listOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
@@ -1961,14 +1961,14 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null
             )
         )
 
         // Send a complication with an invalid id - this should get ignored.
-        interactiveWatchFaceInstanceWCS.updateComplicationData(
+        interactiveWatchFaceInstance.updateComplicationData(
             listOf(
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
@@ -2007,7 +2007,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null
             )
@@ -2033,7 +2033,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 null
             )
@@ -2120,7 +2120,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(hashMapOf(colorStyleSetting to blueStyleOption)).toWireFormat(),
                 null
             )
@@ -2135,9 +2135,9 @@ public class WatchFaceServiceTest {
         val params = RenderParameters(
             DrawMode.INTERACTIVE,
             mapOf(
-                Layer.BASE_LAYER to LayerMode.DRAW,
+                Layer.BASE to LayerMode.DRAW,
                 Layer.COMPLICATIONS to LayerMode.DRAW,
-                Layer.TOP_LAYER to LayerMode.DRAW
+                Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
             ),
             null
         )
@@ -2153,9 +2153,9 @@ public class WatchFaceServiceTest {
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 mapOf(
-                    Layer.BASE_LAYER to LayerMode.DRAW,
+                    Layer.BASE to LayerMode.DRAW,
                     Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
-                    Layer.TOP_LAYER to LayerMode.DRAW
+                    Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
                 ),
                 null
             )
@@ -2207,7 +2207,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 listOf(
                     IdAndComplicationDataWireFormat(
@@ -2268,7 +2268,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(
                     hashMapOf(
                         colorStyleSetting to blueStyleOption,
@@ -2319,7 +2319,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(
                     hashMapOf(
                         colorStyleSetting to blueStyleOption,
@@ -2352,7 +2352,7 @@ public class WatchFaceServiceTest {
                     0,
                     0
                 ),
-                SystemState(false, 0),
+                WatchUiState(false, 0),
                 UserStyle(emptyMap()).toWireFormat(),
                 listOf(
                     IdAndComplicationDataWireFormat(

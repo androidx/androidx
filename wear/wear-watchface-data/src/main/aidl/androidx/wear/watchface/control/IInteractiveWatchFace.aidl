@@ -16,28 +16,45 @@
 
 package androidx.wear.watchface.control;
 
+import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
 import androidx.wear.watchface.control.data.WatchFaceRenderParams;
-import androidx.wear.watchface.data.SystemState;
+import androidx.wear.watchface.data.WatchUiState;
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
 /**
- * Interface for interacting with an interactive instance of a watch face from WCS. SysUI can also
- * control the same instance via {@link IInteractiveWatchFaceSysUI}.
+ * Interface for interacting with an interactive instance of a watch face.
  *
  * @hide
  */
-interface IInteractiveWatchFaceWCS {
+interface IInteractiveWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 13
+    // Next Id: 17
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
     const int API_VERSION = 1;
+
+    /** Indicates a "down" touch event on the watch face. */
+    const int TAP_TYPE_DOWN = 0;
+
+    /**
+     * Indicates that a previous {@link #TAP_TYPE_DOWN} event has been canceled. This generally
+     * happens when the watch face is touched but then a move or long press occurs.
+     */
+    const int TAP_TYPE_CANCEL = 1;
+
+    /**
+     * Indicates that an "up" event on the watch face has occurred that has not been consumed by
+     * another activity. A {@link #TAP_TYPE_DOWN} always occur first. This event will not occur if a
+     * {@link #TAP_TYPE_CANCEL} is sent.
+     *
+     */
+    const int TAP_TYPE_UP = 2;
 
     /**
      * Returns the version number for this API which the client can use to determine which methods
@@ -125,4 +142,37 @@ interface IInteractiveWatchFaceWCS {
      * @since API version 1.
      */
     oneway void bringAttentionToComplication(in int complicationId) = 12;
+
+    /**
+     * Forwards a touch event for the WatchFace to process.
+     *
+     * @param xPos X Coordinate of the touch event
+     * @param yPos Y Coordinate of the touch event
+     * @param tapType One of {@link #TAP_TYPE_DOWN}, {@link #TAP_TYPE_CANCEL}, {@link #TAP_TYPE_UP}
+     * @since API version 1.
+     */
+    oneway void sendTouchEvent(in int xPos, in int yPos, in int tapType) = 13;
+
+    /**
+     * Called periodically when the watch is in ambient mode to update the watchface.
+     *
+     * @since API version 1.
+     */
+    oneway void ambientTickUpdate() = 14;
+
+    /**
+     * Sends the current {@link WatchUiState} to the Watch Face.
+     *
+     * @since API version 1.
+     */
+    oneway void setWatchUiState(in WatchUiState watchUiState) = 15;
+
+    /**
+     * Gets the labels to be read aloud by screen readers. The results will change depending on the
+     * current style and complications.  Note the labes include the central time piece in addition
+     * to any complications.
+     *
+     * @since API version 1.
+     */
+    ContentDescriptionLabel[] getContentDescriptionLabels() = 16;
 }

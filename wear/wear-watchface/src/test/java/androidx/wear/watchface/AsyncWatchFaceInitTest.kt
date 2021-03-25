@@ -21,12 +21,12 @@ import android.os.Handler
 import android.os.Looper
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
-import androidx.wear.watchface.control.IPendingInteractiveWatchFaceWCS
+import androidx.wear.watchface.control.IInteractiveWatchFace
+import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.DeviceConfig
-import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
@@ -103,7 +103,7 @@ public class AsyncWatchFaceInitTest {
             0,
             0
         ),
-        SystemState(false, 0),
+        WatchUiState(false, 0),
         UserStyle(emptyMap()).toWireFormat(),
         null
     )
@@ -221,7 +221,7 @@ public class AsyncWatchFaceInitTest {
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         runPostedTasksFor(0)
 
-        var pendingInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS? = null
+        var pendingInteractiveWatchFaceWcs: IInteractiveWatchFace? = null
 
         // There shouldn't be an existing instance, so we expect null.
         assertNull(
@@ -229,12 +229,12 @@ public class AsyncWatchFaceInitTest {
                 .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                     InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                         initParams,
-                        object : IPendingInteractiveWatchFaceWCS.Stub() {
+                        object : IPendingInteractiveWatchFace.Stub() {
                             override fun getApiVersion() =
-                                IPendingInteractiveWatchFaceWCS.API_VERSION
+                                IPendingInteractiveWatchFace.API_VERSION
 
-                            override fun onInteractiveWatchFaceWcsCreated(
-                                iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS?
+                            override fun onInteractiveWatchFaceCreated(
+                                iInteractiveWatchFaceWcs: IInteractiveWatchFace?
                             ) {
                                 pendingInteractiveWatchFaceWcs = iInteractiveWatchFaceWcs
                             }

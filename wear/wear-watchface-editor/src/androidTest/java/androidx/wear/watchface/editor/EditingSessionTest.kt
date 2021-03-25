@@ -256,7 +256,7 @@ public class EditorSessionTest {
         "Watchface colorization", /* icon = */
         null,
         colorStyleList,
-        listOf(Layer.BASE_LAYER)
+        listOf(Layer.BASE)
     )
 
     private val classicStyleOption =
@@ -277,7 +277,7 @@ public class EditorSessionTest {
         "Hand visual look", /* icon = */
         null,
         watchHandStyleList,
-        listOf(Layer.TOP_LAYER)
+        listOf(Layer.COMPLICATIONS_OVERLAY)
     )
 
     private val placeholderWatchState = MutableWatchState().asWatchState()

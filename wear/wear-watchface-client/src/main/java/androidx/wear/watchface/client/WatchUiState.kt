@@ -35,7 +35,7 @@ import androidx.annotation.IntDef
 public annotation class InterruptionFilter
 
 /**
- * Describes the system state of the watch face.
+ * Describes the system state of the watch face ui.
  *
  * @param inAmbientMode Whether the device is is ambient mode or not.
  * @param interruptionFilter The interruption filter defines which notifications are allowed to
@@ -47,7 +47,7 @@ public annotation class InterruptionFilter
  *     [NotificationManager.INTERRUPTION_FILTER_UNKNOWN]. @see [NotificationManager] for more
  *     details.
  */
-public class SystemState(
+public class WatchUiState(
     @get:JvmName("inAmbientMode")
     public val inAmbientMode: Boolean,
 
