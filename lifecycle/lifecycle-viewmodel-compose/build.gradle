@@ -51,7 +51,7 @@ dependencies {
 androidx {
     name = "Lifecycle ViewModel Compose"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LIFECYCLE_COMPOSE
+    mavenVersion = LibraryVersions.LIFECYCLE_VIEWMODEL_COMPOSE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle ViewModel"
