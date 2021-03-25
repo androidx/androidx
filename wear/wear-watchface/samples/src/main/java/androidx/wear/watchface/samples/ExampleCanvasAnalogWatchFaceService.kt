@@ -315,8 +315,8 @@ class ExampleAnalogWatchCanvasRenderer(
     private var watchHandScale = 1.0f
 
     init {
-        currentUserStyleRepository.addUserStyleListener(
-            object : CurrentUserStyleRepository.UserStyleListener {
+        currentUserStyleRepository.addUserStyleChangeListener(
+            object : CurrentUserStyleRepository.UserStyleChangeListener {
                 @SuppressLint("SyntheticAccessor")
                 override fun onUserStyleChanged(userStyle: UserStyle) {
                     watchFaceColorStyle =

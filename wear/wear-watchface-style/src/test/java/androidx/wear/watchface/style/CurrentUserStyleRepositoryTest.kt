@@ -80,11 +80,11 @@ class CurrentUserStyleRepositoryTest {
         )
 
     private val mockListener1 =
-        Mockito.mock(CurrentUserStyleRepository.UserStyleListener::class.java)
+        Mockito.mock(CurrentUserStyleRepository.UserStyleChangeListener::class.java)
     private val mockListener2 =
-        Mockito.mock(CurrentUserStyleRepository.UserStyleListener::class.java)
+        Mockito.mock(CurrentUserStyleRepository.UserStyleChangeListener::class.java)
     private val mockListener3 =
-        Mockito.mock(CurrentUserStyleRepository.UserStyleListener::class.java)
+        Mockito.mock(CurrentUserStyleRepository.UserStyleChangeListener::class.java)
 
     private val userStyleRepository =
         CurrentUserStyleRepository(
@@ -95,15 +95,15 @@ class CurrentUserStyleRepositoryTest {
 
     @Test
     fun addUserStyleListener_firesImmediately() {
-        userStyleRepository.addUserStyleListener(mockListener1)
+        userStyleRepository.addUserStyleChangeListener(mockListener1)
         Mockito.verify(mockListener1).onUserStyleChanged(userStyleRepository.userStyle)
     }
 
     @Test
     fun assigning_userStyle_firesListeners() {
-        userStyleRepository.addUserStyleListener(mockListener1)
-        userStyleRepository.addUserStyleListener(mockListener2)
-        userStyleRepository.addUserStyleListener(mockListener3)
+        userStyleRepository.addUserStyleChangeListener(mockListener1)
+        userStyleRepository.addUserStyleChangeListener(mockListener2)
+        userStyleRepository.addUserStyleChangeListener(mockListener3)
 
         Mockito.verify(mockListener1).onUserStyleChanged(userStyleRepository.userStyle)
         Mockito.verify(mockListener2).onUserStyleChanged(userStyleRepository.userStyle)

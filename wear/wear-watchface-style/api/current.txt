@@ -3,16 +3,16 @@ package androidx.wear.watchface.style {
 
   public final class CurrentUserStyleRepository {
     ctor public CurrentUserStyleRepository(androidx.wear.watchface.style.UserStyleSchema schema);
-    method @UiThread public void addUserStyleListener(androidx.wear.watchface.style.CurrentUserStyleRepository.UserStyleListener userStyleListener);
+    method @UiThread public void addUserStyleChangeListener(androidx.wear.watchface.style.CurrentUserStyleRepository.UserStyleChangeListener userStyleChangeListener);
     method public androidx.wear.watchface.style.UserStyleSchema getSchema();
     method @UiThread public androidx.wear.watchface.style.UserStyle getUserStyle();
-    method @UiThread public void removeUserStyleListener(androidx.wear.watchface.style.CurrentUserStyleRepository.UserStyleListener userStyleListener);
+    method @UiThread public void removeUserStyleChangeListener(androidx.wear.watchface.style.CurrentUserStyleRepository.UserStyleChangeListener userStyleChangeListener);
     method @UiThread public void setUserStyle(androidx.wear.watchface.style.UserStyle style);
     property public final androidx.wear.watchface.style.UserStyleSchema schema;
     property @UiThread public final androidx.wear.watchface.style.UserStyle userStyle;
   }
 
-  public static interface CurrentUserStyleRepository.UserStyleListener {
+  public static interface CurrentUserStyleRepository.UserStyleChangeListener {
     method @UiThread public void onUserStyleChanged(androidx.wear.watchface.style.UserStyle userStyle);
   }
 

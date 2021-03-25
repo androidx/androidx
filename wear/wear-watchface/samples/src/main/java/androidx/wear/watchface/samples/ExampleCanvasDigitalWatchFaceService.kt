@@ -747,8 +747,8 @@ class ExampleDigitalWatchCanvasRenderer(
 
     init {
         // Listen for style changes.
-        currentUserStyleRepository.addUserStyleListener(
-            object : CurrentUserStyleRepository.UserStyleListener {
+        currentUserStyleRepository.addUserStyleChangeListener(
+            object : CurrentUserStyleRepository.UserStyleChangeListener {
                 @SuppressLint("SyntheticAccessor")
                 override fun onUserStyleChanged(userStyle: UserStyle) {
                     watchFaceColorStyle =

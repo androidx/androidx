@@ -519,8 +519,8 @@ internal class WatchFaceImpl(
                 userStyleRepository.schema
             )
 
-            userStyleRepository.addUserStyleListener(
-                object : CurrentUserStyleRepository.UserStyleListener {
+            userStyleRepository.addUserStyleChangeListener(
+                object : CurrentUserStyleRepository.UserStyleChangeListener {
                     @SuppressLint("SyntheticAccessor")
                     override fun onUserStyleChanged(userStyle: UserStyle) {
                         writePrefs(watchFaceHostApi.getContext(), preferencesFile, userStyle)
