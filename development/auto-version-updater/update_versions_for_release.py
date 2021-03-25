@@ -280,14 +280,14 @@ def update_versions_in_library_versions_kt(group_id, artifact_id, old_version):
 
 
 def commit_updates(release_date):
-    subprocess.check_call(['git', 'add', '.'])
+    subprocess.check_call(['git', 'add', FRAMEWORKS_SUPPORT_FP])
     # ensure that we've actually made a change:
     staged_changes = subprocess.check_output('git diff --cached', stderr=subprocess.STDOUT, shell=True)
     if not staged_changes:
         return
     msg = "Update versions for release id %s\n\nThis commit was generated from the command:\n%s\n\n%s" % (release_date, " ".join(sys.argv), 'Test: ./gradlew checkApi')
     subprocess.check_call(['git', 'commit', '-m', msg])
-    subprocess.check_call(['repo', 'upload', '--cbr', '--label', 'Presubmit-Ready+1'])
+    subprocess.check_call(['yes', '|', 'repo', 'upload', '--cbr', '--label', 'Presubmit-Ready+1'])
 
 
 def main(args):
