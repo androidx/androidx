@@ -91,13 +91,6 @@ public final class SearchResult {
     }
 // @exportToFramework:endStrip()
 
-    /** @deprecated TODO(b/181887768): This method exists only for dogfooder transition. */
-    @NonNull
-    @Deprecated
-    public GenericDocument getDocument() {
-        return getGenericDocument();
-    }
-
     /**
      * Contains the matching {@link GenericDocument}.
      *
@@ -163,17 +156,18 @@ public final class SearchResult {
      * <ul>
      * <li>{@link SearchSpec#RANKING_STRATEGY_NONE} - this value will be 0</li>
      * <li>{@link SearchSpec#RANKING_STRATEGY_DOCUMENT_SCORE} - the value returned by calling
-     * {@link GenericDocument#getScore()} on the document returned by {@link #getDocument()}</li>
+     * {@link GenericDocument#getScore()} on the document returned by
+     * {@link #getGenericDocument()}</li>
      * <li>{@link SearchSpec#RANKING_STRATEGY_CREATION_TIMESTAMP} - the value returned by calling
      * {@link GenericDocument#getCreationTimestampMillis()} on the document returned by
-     * {@link #getDocument()}</li>
+     * {@link #getGenericDocument()}</li>
      * <li>{@link SearchSpec#RANKING_STRATEGY_RELEVANCE_SCORE} - an arbitrary double value where
      * a higher value means more relevant</li>
      * <li>{@link SearchSpec#RANKING_STRATEGY_USAGE_COUNT} - the number of times usage has been
-     * reported for the document returned by {@link #getDocument()}</li>
+     * reported for the document returned by {@link #getGenericDocument()}</li>
      * <li>{@link SearchSpec#RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP} - the timestamp of the
      * most recent usage that has been reported for the document returned by
-     * {@link #getDocument()}</li>
+     * {@link #getGenericDocument()}</li>
      * </ul>
      *
      * @return Ranking signal of the document
@@ -375,13 +369,6 @@ public final class SearchResult {
             return mFullText;
         }
 
-        /** @deprecated TODO(b/181887768): This method exists only for dogfooder transition. */
-        @NonNull
-        @Deprecated
-        public MatchRange getExactMatchPosition() {
-            return getExactMatchRange();
-        }
-
         /**
          * Gets the exact {@link MatchRange} corresponding to the given entry.
          * <p>For class example 1 this returns [29, 32]
@@ -403,13 +390,6 @@ public final class SearchResult {
         @NonNull
         public CharSequence getExactMatch() {
             return getSubstring(getExactMatchRange());
-        }
-
-        /** @deprecated TODO(b/181887768): This method exists only for dogfooder transition. */
-        @NonNull
-        @Deprecated
-        public MatchRange getSnippetPosition() {
-            return getSnippetRange();
         }
 
         /**

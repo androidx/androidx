@@ -3,7 +3,6 @@ package androidx.appsearch.annotation {
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface Document {
     method public abstract String name() default "";
-    method public abstract int version() default 0;
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public static @interface Document.CreationTimestampMillis {
@@ -68,7 +67,6 @@ package androidx.appsearch.app {
   public final class AppSearchSchema {
     method public java.util.List<androidx.appsearch.app.AppSearchSchema.PropertyConfig!> getProperties();
     method public String getSchemaType();
-    method @Deprecated @IntRange(from=0) public int getVersion();
   }
 
   public static final class AppSearchSchema.BooleanPropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
@@ -84,7 +82,6 @@ package androidx.appsearch.app {
     ctor public AppSearchSchema.Builder(String);
     method public androidx.appsearch.app.AppSearchSchema.Builder addProperty(androidx.appsearch.app.AppSearchSchema.PropertyConfig);
     method public androidx.appsearch.app.AppSearchSchema build();
-    method @Deprecated public androidx.appsearch.app.AppSearchSchema.Builder setVersion(@IntRange(from=0) int);
   }
 
   public static final class AppSearchSchema.BytesPropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
@@ -200,15 +197,12 @@ package androidx.appsearch.app {
     method public long getTtlMillis();
     method public String getUri();
     method public <T> T toDocumentClass(Class<T!>) throws androidx.appsearch.exceptions.AppSearchException;
-    field @Deprecated public static final String DEFAULT_NAMESPACE = "";
   }
 
   public static class GenericDocument.Builder<BuilderType extends androidx.appsearch.app.GenericDocument.Builder> {
-    ctor @Deprecated public GenericDocument.Builder(String, String);
     ctor public GenericDocument.Builder(String, String, String);
     method public androidx.appsearch.app.GenericDocument build();
     method public BuilderType setCreationTimestampMillis(long);
-    method @Deprecated public BuilderType setNamespace(String);
     method public BuilderType setPropertyBoolean(String, boolean...);
     method public BuilderType setPropertyBytes(String, byte[]!...);
     method public BuilderType setPropertyDocument(String, androidx.appsearch.app.GenericDocument!...);
@@ -227,16 +221,14 @@ package androidx.appsearch.app {
   }
 
   public static final class GetByUriRequest.Builder {
-    ctor @Deprecated public GetByUriRequest.Builder();
     ctor public GetByUriRequest.Builder(String);
     method public androidx.appsearch.app.GetByUriRequest.Builder addProjection(String, java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.GetByUriRequest.Builder addUris(java.lang.String!...);
     method public androidx.appsearch.app.GetByUriRequest.Builder addUris(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.GetByUriRequest build();
-    method @Deprecated public androidx.appsearch.app.GetByUriRequest.Builder setNamespace(String);
   }
 
-  public class GetSchemaResponse extends java.util.HashSet<androidx.appsearch.app.AppSearchSchema> {
+  public class GetSchemaResponse {
     method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
     method @IntRange(from=0) public int getVersion();
   }
@@ -286,12 +278,10 @@ package androidx.appsearch.app {
   }
 
   public static final class RemoveByUriRequest.Builder {
-    ctor @Deprecated public RemoveByUriRequest.Builder();
     ctor public RemoveByUriRequest.Builder(String);
     method public androidx.appsearch.app.RemoveByUriRequest.Builder addUris(java.lang.String!...);
     method public androidx.appsearch.app.RemoveByUriRequest.Builder addUris(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.RemoveByUriRequest build();
-    method @Deprecated public androidx.appsearch.app.RemoveByUriRequest.Builder setNamespace(String);
   }
 
   public final class ReportSystemUsageRequest {
@@ -316,10 +306,8 @@ package androidx.appsearch.app {
   }
 
   public static final class ReportUsageRequest.Builder {
-    ctor @Deprecated public ReportUsageRequest.Builder();
     ctor public ReportUsageRequest.Builder(String);
     method public androidx.appsearch.app.ReportUsageRequest build();
-    method @Deprecated public androidx.appsearch.app.ReportUsageRequest.Builder setNamespace(String);
     method public androidx.appsearch.app.ReportUsageRequest.Builder setUri(String);
     method public androidx.appsearch.app.ReportUsageRequest.Builder setUsageTimeMillis(long);
   }
@@ -327,7 +315,6 @@ package androidx.appsearch.app {
   public final class SearchResult {
     method public String getDatabaseName();
     method public <T> T getDocument(Class<T!>) throws androidx.appsearch.exceptions.AppSearchException;
-    method @Deprecated public androidx.appsearch.app.GenericDocument getDocument();
     method public androidx.appsearch.app.GenericDocument getGenericDocument();
     method public java.util.List<androidx.appsearch.app.SearchResult.MatchInfo!> getMatches();
     method public String getPackageName();
@@ -345,12 +332,10 @@ package androidx.appsearch.app {
 
   public static final class SearchResult.MatchInfo {
     method public CharSequence getExactMatch();
-    method @Deprecated public androidx.appsearch.app.SearchResult.MatchRange getExactMatchPosition();
     method public androidx.appsearch.app.SearchResult.MatchRange getExactMatchRange();
     method public String getFullText();
     method public String getPropertyPath();
     method public CharSequence getSnippet();
-    method @Deprecated public androidx.appsearch.app.SearchResult.MatchRange getSnippetPosition();
     method public androidx.appsearch.app.SearchResult.MatchRange getSnippetRange();
   }
 

@@ -101,17 +101,13 @@ class DocumentModel {
 
     @NonNull
     public String getSchemaName() {
-        Map<String, Object> params = mIntrospectionHelper.getAnnotationParams(mDocumentAnnotation);
+        Map<String, Object> params =
+                mIntrospectionHelper.getAnnotationParams(mDocumentAnnotation);
         String name = params.get("name").toString();
         if (name.isEmpty()) {
             return mClass.getSimpleName().toString();
         }
         return name;
-    }
-
-    public int getSchemaVersion() {
-        Map<String, Object> params = mIntrospectionHelper.getAnnotationParams(mDocumentAnnotation);
-        return (Integer) params.get("version");
     }
 
     @NonNull
