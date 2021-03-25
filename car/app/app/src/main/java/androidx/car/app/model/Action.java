@@ -282,7 +282,7 @@ public final class Action {
         /**
          * Sets the title to display in the action.
          *
-         * <p>{@link ForegroundCarColorSpan}s are supported in the input string. See the
+         * <p>Custom {@link ForegroundCarColorSpan}s are supported in the input string. See the
          * documentation on where the {@link Action} is added for more details on any
          * other restriction(s) that might apply.
          *
