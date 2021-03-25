@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.core.view.ViewCompat;
+import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.Lifecycle;
 
 import java.lang.annotation.Retention;
@@ -253,6 +254,9 @@ public abstract class FragmentTransaction {
     }
 
     void doAddOp(int containerViewId, Fragment fragment, @Nullable String tag, int opcmd) {
+        if (fragment.mRemoved) {
+            FragmentStrictMode.onFragmentReuse(fragment);
+        }
         final Class<?> fragmentClass = fragment.getClass();
         final int modifiers = fragmentClass.getModifiers();
         if (fragmentClass.isAnonymousClass() || !Modifier.isPublic(modifiers)
