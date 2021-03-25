@@ -31,7 +31,6 @@ import androidx.core.util.Preconditions;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
-@SuppressWarnings("deprecation") // TODO(b/181887768): Port to new API and remove this
 public final class GenericDocumentToPlatformConverter {
     /**
      * Translates a jetpack {@link androidx.appsearch.app.GenericDocument} into a platform
@@ -44,9 +43,10 @@ public final class GenericDocumentToPlatformConverter {
         android.app.appsearch.GenericDocument.Builder<
                 android.app.appsearch.GenericDocument.Builder<?>> platformBuilder =
                 new android.app.appsearch.GenericDocument.Builder<>(
-                        jetpackDocument.getUri(), jetpackDocument.getSchemaType());
+                        jetpackDocument.getNamespace(),
+                        jetpackDocument.getUri(),
+                        jetpackDocument.getSchemaType());
         platformBuilder
-                .setNamespace(jetpackDocument.getNamespace())
                 .setScore(jetpackDocument.getScore())
                 .setTtlMillis(jetpackDocument.getTtlMillis())
                 .setCreationTimestampMillis(jetpackDocument.getCreationTimestampMillis());

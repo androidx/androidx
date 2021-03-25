@@ -42,7 +42,6 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
-@SuppressWarnings("deprecation") // TODO(b/181887768): Port to new API and remove this
 public final class RequestToPlatformConverter {
     private RequestToPlatformConverter() {}
 
@@ -60,7 +59,7 @@ public final class RequestToPlatformConverter {
             platformBuilder.addSchemas(SchemaToPlatformConverter.toPlatformSchema(jetpackSchema));
         }
         for (String schemaNotDisplayedBySystem : jetpackRequest.getSchemasNotDisplayedBySystem()) {
-            platformBuilder.setSchemaTypeVisibilityForSystemUi(
+            platformBuilder.setSchemaTypeDisplayedBySystem(
                     schemaNotDisplayedBySystem, /*displayed=*/ false);
         }
         for (Map.Entry<String, Set<PackageIdentifier>> jetpackSchemaVisibleToPackage :
@@ -130,8 +129,7 @@ public final class RequestToPlatformConverter {
             @NonNull GetByUriRequest jetpackRequest) {
         Preconditions.checkNotNull(jetpackRequest);
         android.app.appsearch.GetByUriRequest.Builder platformBuilder =
-                new android.app.appsearch.GetByUriRequest.Builder()
-                        .setNamespace(jetpackRequest.getNamespace())
+                new android.app.appsearch.GetByUriRequest.Builder(jetpackRequest.getNamespace())
                         .addUris(jetpackRequest.getUris());
         for (Map.Entry<String, List<String>> projection :
                 jetpackRequest.getProjectionsInternal().entrySet()) {
@@ -148,8 +146,7 @@ public final class RequestToPlatformConverter {
     public static android.app.appsearch.RemoveByUriRequest toPlatformRemoveByUriRequest(
             @NonNull RemoveByUriRequest jetpackRequest) {
         Preconditions.checkNotNull(jetpackRequest);
-        return new android.app.appsearch.RemoveByUriRequest.Builder()
-                .setNamespace(jetpackRequest.getNamespace())
+        return new android.app.appsearch.RemoveByUriRequest.Builder(jetpackRequest.getNamespace())
                 .addUris(jetpackRequest.getUris())
                 .build();
     }
@@ -162,8 +159,7 @@ public final class RequestToPlatformConverter {
     public static android.app.appsearch.ReportUsageRequest toPlatformReportUsageRequest(
             @NonNull ReportUsageRequest jetpackRequest) {
         Preconditions.checkNotNull(jetpackRequest);
-        return new android.app.appsearch.ReportUsageRequest.Builder()
-                .setNamespace(jetpackRequest.getNamespace())
+        return new android.app.appsearch.ReportUsageRequest.Builder(jetpackRequest.getNamespace())
                 .setUri(jetpackRequest.getUri())
                 .setUsageTimeMillis(jetpackRequest.getUsageTimeMillis())
                 .build();

@@ -95,21 +95,16 @@ class SearchSessionImpl implements AppSearchSession {
                 mExecutorService,
                 result -> {
                     if (result.isSuccess()) {
-                        Set<android.app.appsearch.AppSearchSchema> platformSchemas =
+                        android.app.appsearch.GetSchemaResponse platformGetResponse =
                                 result.getResultValue();
-                        // TODO(b/182620003) convert GetSchemaResponse from platform to jetpack
-                        //  once its ready.
                         GetSchemaResponse.Builder jetpackResponseBuilder =
                                 new GetSchemaResponse.Builder();
                         for (android.app.appsearch.AppSearchSchema platformSchema :
-                                platformSchemas) {
+                                platformGetResponse.getSchemas()) {
                             jetpackResponseBuilder.addSchema(
                                     SchemaToPlatformConverter.toJetpackSchema(platformSchema));
                         }
-                        if (!platformSchemas.isEmpty()) {
-                            jetpackResponseBuilder.setVersion(
-                                    platformSchemas.iterator().next().getVersion());
-                        }
+                        jetpackResponseBuilder.setVersion(platformGetResponse.getVersion());
                         future.set(jetpackResponseBuilder.build());
                     } else {
                         handleFailedPlatformResult(result, future);

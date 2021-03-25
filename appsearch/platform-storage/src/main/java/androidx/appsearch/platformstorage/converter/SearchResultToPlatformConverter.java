@@ -33,7 +33,6 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
-@SuppressWarnings("deprecation") // TODO(b/181887768): Port to new API and remove this
 public class SearchResultToPlatformConverter {
     private SearchResultToPlatformConverter() {}
 
@@ -43,7 +42,7 @@ public class SearchResultToPlatformConverter {
             @NonNull android.app.appsearch.SearchResult platformResult) {
         Preconditions.checkNotNull(platformResult);
         GenericDocument document = GenericDocumentToPlatformConverter.toJetpackGenericDocument(
-                platformResult.getDocument());
+                platformResult.getGenericDocument());
         SearchResult.Builder builder = new SearchResult.Builder(
                 platformResult.getPackageName(), platformResult.getDatabaseName())
                 .setGenericDocument(document);
@@ -64,12 +63,12 @@ public class SearchResultToPlatformConverter {
                 .setPropertyPath(platformMatchInfo.getPropertyPath())
                 .setExactMatchRange(
                         new SearchResult.MatchRange(
-                                platformMatchInfo.getExactMatchPosition().getStart(),
-                                platformMatchInfo.getExactMatchPosition().getEnd()))
+                                platformMatchInfo.getExactMatchRange().getStart(),
+                                platformMatchInfo.getExactMatchRange().getEnd()))
                 .setSnippetRange(
                         new SearchResult.MatchRange(
-                                platformMatchInfo.getSnippetPosition().getStart(),
-                                platformMatchInfo.getSnippetPosition().getEnd()))
+                                platformMatchInfo.getSnippetRange().getStart(),
+                                platformMatchInfo.getSnippetRange().getEnd()))
                 .build();
     }
 }
