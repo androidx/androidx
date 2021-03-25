@@ -33,7 +33,6 @@ import com.intellij.psi.PsiVariable
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNullableType
 import org.jetbrains.kotlin.psi.KtTypeReference
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
@@ -101,7 +100,7 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 // argument: `Boolean`
                 val expression = element.sourcePsi
                     ?.children
-                    ?.firstIsInstanceOrNull<KtCallExpression>()
+                    ?.firstOrNull { it is KtCallExpression } as? KtCallExpression
                 val argument = expression?.typeArguments?.singleOrNull()
                 return argument?.typeReference
             }
