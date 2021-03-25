@@ -403,7 +403,6 @@ public final class CarAppActivity extends Activity {
         } catch (RemoteException e) {
             // We are already unbinding (maybe because the host has already cut the connection)
             // Let's not log more errors unnecessarily.
-            //TODO(179506019): Revisit calls to unbindService()
         }
 
         unbindService(mServiceConnectionImpl);
