@@ -43,4 +43,5 @@ dependencies {
     implementation(project(":car:app:app"))
 
     implementation("androidx.core:core:1.5.0-alpha01")
+    implementation project(path: ':annotation:annotation-experimental')
 }
