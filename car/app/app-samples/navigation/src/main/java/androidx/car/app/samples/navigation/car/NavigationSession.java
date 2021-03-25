@@ -28,6 +28,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -111,6 +112,20 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
                 @Override
                 public void onLocationChanged(Location location) {
                     mNavigationCarSurface.updateLocationString(getLocationString(location));
+                }
+
+                /** @deprecated This callback will never be invoked on Android Q and above. */
+                @Override
+                @Deprecated
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                }
+
+                @Override
+                public void onProviderEnabled(String provider) {
+                }
+
+                @Override
+                public void onProviderDisabled(String provider) {
                 }
             };
 
