@@ -288,6 +288,7 @@ includeProject(":compose:runtime:runtime-rxjava2:runtime-rxjava2-samples", "comp
 includeProject(":compose:runtime:runtime-rxjava3", "compose/runtime/runtime-rxjava3", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-rxjava3:runtime-rxjava3-samples", "compose/runtime/runtime-rxjava3/samples", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-saveable", "compose/runtime/runtime-saveable", [BuildType.COMPOSE])
+includeProject(":compose:runtime:runtime-saveable-lint", "compose/runtime/runtime-saveable-lint", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-saveable:runtime-saveable-samples", "compose/runtime/runtime-saveable/samples", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime:benchmark", "compose/runtime/runtime/compose-runtime-benchmark", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime:integration-tests", "compose/runtime/runtime/integration-tests", [BuildType.COMPOSE])
