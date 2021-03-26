@@ -19,7 +19,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 29
     defaultConfig {
-        applicationId "androidx.car.app.samples.places"
+        applicationId "androidx.car.app.sample.places"
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1

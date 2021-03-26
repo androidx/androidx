@@ -20,7 +20,7 @@ android {
     compileSdkVersion 29
 
     defaultConfig {
-        applicationId "androidx.car.app.samples.navigation"
+        applicationId "androidx.car.app.sample.navigation"
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1

@@ -21,7 +21,7 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId "androidx.car.app.samples.showcase"
+        applicationId "androidx.car.app.sample.showcase"
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
