@@ -37,7 +37,7 @@ class LayoutIntrinsics(
      * Compute Android platform BoringLayout metrics. A null value means the provided CharSequence
      * cannot be laid out using a BoringLayout.
      */
-    val boringMetrics: BoringLayout.Metrics? by lazy {
+    val boringMetrics: BoringLayout.Metrics? by lazy(LazyThreadSafetyMode.NONE) {
         val frameworkTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
         BoringLayoutFactory.measure(charSequence, textPaint, frameworkTextDir)
     }
@@ -47,7 +47,7 @@ class LayoutIntrinsics(
      *
      * @see androidx.compose.ui.text.android.minIntrinsicWidth
      */
-    val minIntrinsicWidth: Float by lazy {
+    val minIntrinsicWidth: Float by lazy(LazyThreadSafetyMode.NONE) {
         minIntrinsicWidth(charSequence, textPaint)
     }
 
@@ -55,7 +55,7 @@ class LayoutIntrinsics(
      * Calculate maximum intrinsic width for the CharSequence. Maximum intrinsic width is the width
      * of text where no soft line breaks are applied.
      */
-    val maxIntrinsicWidth: Float by lazy {
+    val maxIntrinsicWidth: Float by lazy(LazyThreadSafetyMode.NONE) {
         boringMetrics?.width?.toFloat()
             ?: Layout.getDesiredWidth(charSequence, 0, charSequence.length, textPaint)
     }
