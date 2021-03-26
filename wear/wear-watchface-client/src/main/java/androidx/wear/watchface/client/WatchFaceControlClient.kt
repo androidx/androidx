@@ -37,7 +37,9 @@ import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Connects to a watch face's WatchFaceControlService which allows the user to control the watch
@@ -153,16 +155,16 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @param userStyle The initial style map (see [UserStyle]), or null if the default should be
      *     used.
      * @param idToComplicationData The initial complication data, or null if unavailable.
-     * @return A [Deferred] [InteractiveWatchFaceClient], or a [ServiceStartFailureException] if
-     *    the watchface dies during startup.
+     * @return The [InteractiveWatchFaceClient], this should be closed when finished.
+     * @throws [ServiceStartFailureException] if the watchface dies during startup.
      */
-    public fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
+    public suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
         watchUiState: androidx.wear.watchface.client.WatchUiState,
         userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
-    ): Deferred<InteractiveWatchFaceClient>
+    ): InteractiveWatchFaceClient
 
     public fun getEditorServiceClient(): EditorServiceClient
 }
@@ -206,74 +208,71 @@ internal class WatchFaceControlClientImpl internal constructor(
         }
     }
 
-    override fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
+    override suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
         watchUiState: androidx.wear.watchface.client.WatchUiState,
         userStyle: Map<String, String>?,
         idToComplicationData: Map<Int, ComplicationData>?
-    ): Deferred<InteractiveWatchFaceClient> {
+    ): InteractiveWatchFaceClient {
         requireNotClosed()
         val traceEvent = AsyncTraceEvent(
             "WatchFaceControlClientImpl" +
                 ".getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync"
         )
-        val deferredClient = CompletableDeferred<InteractiveWatchFaceClient>()
-
-        // [IWatchFaceControlService.getOrCreateInteractiveWatchFaceWCS] has an asynchronous
-        // callback and it's possible the watch face might crash during start up so we register
-        // a death observer.
-        val deathObserver = IBinder.DeathRecipient {
-            deferredClient.completeExceptionally(
-                WatchFaceControlClient.ServiceStartFailureException()
-            )
-        }
-        val serviceBinder = service.asBinder()
-        serviceBinder.linkToDeath(deathObserver, 0)
-
-        service.getOrCreateInteractiveWatchFace(
-            WallpaperInteractiveWatchFaceInstanceParams(
-                id,
-                androidx.wear.watchface.data.DeviceConfig(
-                    deviceConfig.hasLowBitAmbient,
-                    deviceConfig.hasBurnInProtection,
-                    deviceConfig.analogPreviewReferenceTimeMillis,
-                    deviceConfig.digitalPreviewReferenceTimeMillis
-                ),
-                WatchUiState(
-                    watchUiState.inAmbientMode,
-                    watchUiState.interruptionFilter
-                ),
-                UserStyleWireFormat(userStyle ?: emptyMap()),
-                idToComplicationData?.map {
-                    IdAndComplicationDataWireFormat(
-                        it.key,
-                        it.value.asWireComplicationData()
-                    )
-                }
-            ),
-            object : IPendingInteractiveWatchFace.Stub() {
-                override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
-
-                override fun onInteractiveWatchFaceCreated(
-                    iInteractiveWatchFace: IInteractiveWatchFace
-                ) {
-                    serviceBinder.unlinkToDeath(deathObserver, 0)
-                    traceEvent.close()
-                    deferredClient.complete(
-                        InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
-                    )
-                }
+        return suspendCoroutine { continuation ->
+            // [IWatchFaceControlService.getOrCreateInteractiveWatchFaceWCS] has an asynchronous
+            // callback and it's possible the watch face might crash during start up so we register
+            // a death observer.
+            val deathObserver = IBinder.DeathRecipient {
+                continuation.resumeWithException(
+                    WatchFaceControlClient.ServiceStartFailureException()
+                )
             }
-        )?.let {
-            // There was an existing watchface.onInteractiveWatchFaceCreated
-            serviceBinder.unlinkToDeath(deathObserver, 0)
-            traceEvent.close()
-            deferredClient.complete(InteractiveWatchFaceClientImpl(it))
-        }
+            val serviceBinder = service.asBinder()
+            serviceBinder.linkToDeath(deathObserver, 0)
 
-        // Wait for [watchFaceCreatedCallback] or [deathObserver] to fire.
-        return deferredClient
+            service.getOrCreateInteractiveWatchFace(
+                WallpaperInteractiveWatchFaceInstanceParams(
+                    id,
+                    androidx.wear.watchface.data.DeviceConfig(
+                        deviceConfig.hasLowBitAmbient,
+                        deviceConfig.hasBurnInProtection,
+                        deviceConfig.analogPreviewReferenceTimeMillis,
+                        deviceConfig.digitalPreviewReferenceTimeMillis
+                    ),
+                    WatchUiState(
+                        watchUiState.inAmbientMode,
+                        watchUiState.interruptionFilter
+                    ),
+                    UserStyleWireFormat(userStyle ?: emptyMap()),
+                    idToComplicationData?.map {
+                        IdAndComplicationDataWireFormat(
+                            it.key,
+                            it.value.asWireComplicationData()
+                        )
+                    }
+                ),
+                object : IPendingInteractiveWatchFace.Stub() {
+                    override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
+
+                    override fun onInteractiveWatchFaceCreated(
+                        iInteractiveWatchFace: IInteractiveWatchFace
+                    ) {
+                        serviceBinder.unlinkToDeath(deathObserver, 0)
+                        traceEvent.close()
+                        continuation.resume(
+                            InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
+                        )
+                    }
+                }
+            )?.let {
+                // There was an existing watchface.onInteractiveWatchFaceCreated
+                serviceBinder.unlinkToDeath(deathObserver, 0)
+                traceEvent.close()
+                continuation.resume(InteractiveWatchFaceClientImpl(it))
+            }
+        }
     }
 
     override fun getEditorServiceClient(): EditorServiceClient = TraceEvent(

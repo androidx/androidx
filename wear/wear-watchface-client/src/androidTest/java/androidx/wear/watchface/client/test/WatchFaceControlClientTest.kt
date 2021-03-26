@@ -40,8 +40,8 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.DeviceConfig
-import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.client.WatchFaceControlClient
+import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.samples.BLUE_STYLE
@@ -56,6 +56,7 @@ import androidx.wear.watchface.samples.NO_COMPLICATIONS
 import androidx.wear.watchface.samples.WATCH_HAND_LENGTH_STYLE_SETTING
 import androidx.wear.watchface.style.Layer
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -76,7 +77,7 @@ private const val CONNECT_TIMEOUT_MILLIS = 500L
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-class WatchFaceControlClientTest {
+public class WatchFaceControlClientTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val service = runBlocking {
         WatchFaceControlClient.createWatchFaceControlClientImpl(
@@ -89,6 +90,7 @@ class WatchFaceControlClientTest {
 
     @Mock
     private lateinit var surfaceHolder: SurfaceHolder
+
     @Mock
     private lateinit var surface: Surface
     private lateinit var engine: WallpaperService.Engine
@@ -97,7 +99,7 @@ class WatchFaceControlClientTest {
     private lateinit var wallpaperService: TestExampleCanvasAnalogWatchFaceService
 
     @Before
-    fun setUp() {
+    public fun setUp() {
         MockitoAnnotations.initMocks(this)
         wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
 
@@ -107,7 +109,7 @@ class WatchFaceControlClientTest {
     }
 
     @After
-    fun tearDown() {
+    public fun tearDown() {
         if (this::engine.isInitialized) {
             engine.onDestroy()
         }
@@ -115,7 +117,8 @@ class WatchFaceControlClientTest {
     }
 
     @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule("wear/wear-watchface-client")
+    public val screenshotRule: AndroidXScreenshotTestRule =
+        AndroidXScreenshotTestRule("wear/wear-watchface-client")
 
     private val exampleWatchFaceComponentName = ComponentName(
         "androidx.wear.watchface.samples.test",
@@ -157,7 +160,7 @@ class WatchFaceControlClientTest {
     }
 
     @Test
-    fun headlessScreenshot() {
+    public fun headlessScreenshot() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
             ComponentName(
                 "androidx.wear.watchface.samples.test",
@@ -190,7 +193,7 @@ class WatchFaceControlClientTest {
     }
 
     @Test
-    fun yellowComplicationHighlights() {
+    public fun yellowComplicationHighlights() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
             ComponentName(
                 "androidx.wear.watchface.samples.test",
@@ -227,7 +230,7 @@ class WatchFaceControlClientTest {
     }
 
     @Test
-    fun headlessComplicationDetails() {
+    public fun headlessComplicationDetails() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
             exampleWatchFaceComponentName,
             deviceConfig,
@@ -281,7 +284,7 @@ class WatchFaceControlClientTest {
     }
 
     @Test
-    fun headlessUserStyleSchema() {
+    public fun headlessUserStyleSchema() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
             exampleWatchFaceComponentName,
             deviceConfig,
@@ -307,25 +310,23 @@ class WatchFaceControlClientTest {
     }
 
     @Test
-    fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceClient() {
-        val deferredInteractiveInstance =
-            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
+    public fun getOrCreateInteractiveWatchFaceClient(): Unit = runBlocking {
+        val deferredInteractiveInstance = async {
+            service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
                 systemState,
                 null,
                 complications
             )
+        }
 
         // Create the engine which triggers creation of InteractiveWatchFaceClient.
-        createEngine()
+        async { createEngine() }
 
-        val interactiveInstance =
-            runBlocking {
-                withTimeout(CONNECT_TIMEOUT_MILLIS) {
-                    deferredInteractiveInstance.await()
-                }
-            }
+        val interactiveInstance = withTimeout(CONNECT_TIMEOUT_MILLIS) {
+            deferredInteractiveInstance.await()
+        }
 
         val bitmap = interactiveInstance.renderWatchFaceToBitmap(
             RenderParameters(
@@ -347,9 +348,9 @@ class WatchFaceControlClientTest {
     }
 
     @Test
-    fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceClient_initialStyle() {
-        val deferredInteractiveInstance =
-            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
+    public fun getOrCreateInteractiveWatchFaceClient_initialStyle(): Unit = runBlocking {
+        val deferredInteractiveInstance = async {
+            service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
                 systemState,
@@ -361,16 +362,14 @@ class WatchFaceControlClientTest {
                 ),
                 complications
             )
+        }
 
         // Create the engine which triggers creation of InteractiveWatchFaceClient.
-        createEngine()
+        async { createEngine() }
 
-        val interactiveInstance =
-            runBlocking {
-                withTimeout(CONNECT_TIMEOUT_MILLIS) {
-                    deferredInteractiveInstance.await()
-                }
-            }
+        val interactiveInstance = withTimeout(CONNECT_TIMEOUT_MILLIS) {
+            deferredInteractiveInstance.await()
+        }
 
         val bitmap = interactiveInstance.renderWatchFaceToBitmap(
             RenderParameters(
@@ -392,25 +391,23 @@ class WatchFaceControlClientTest {
     }
 
     @Test
-    fun wallpaperServiceBackedInteractiveWatchFaceClient_ComplicationDetails() {
-        val deferredInteractiveInstance =
-            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
+    public fun interactiveWatchFaceClient_ComplicationDetails(): Unit = runBlocking {
+        val deferredInteractiveInstance = async {
+            service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
                 systemState,
                 null,
                 complications
             )
+        }
 
         // Create the engine which triggers creation of InteractiveWatchFaceClient.
-        createEngine()
+        async { createEngine() }
 
-        val interactiveInstance =
-            runBlocking {
-                withTimeout(CONNECT_TIMEOUT_MILLIS) {
-                    deferredInteractiveInstance.await()
-                }
-            }
+        val interactiveInstance = withTimeout(CONNECT_TIMEOUT_MILLIS) {
+            deferredInteractiveInstance.await()
+        }
 
         interactiveInstance.updateComplicationData(
             mapOf(
@@ -477,72 +474,68 @@ class WatchFaceControlClientTest {
     }
 
     @Test
-    fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceClient_existingOpenInstance() {
-        val deferredInteractiveInstance =
-            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
+    public fun getOrCreateInteractiveWatchFaceClient_existingOpenInstance(): Unit = runBlocking {
+        val deferredInteractiveInstance = async {
+            service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
                 systemState,
                 null,
                 complications
             )
-
-        // Create the engine which triggers creation of InteractiveWatchFaceClient.
-        createEngine()
-
-        runBlocking {
-            withTimeout(CONNECT_TIMEOUT_MILLIS) {
-                deferredInteractiveInstance.await()
-            }
         }
 
-        val existingInstance =
-            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
+        // Create the engine which triggers creation of InteractiveWatchFaceClient.
+        async { createEngine() }
+
+        withTimeout(CONNECT_TIMEOUT_MILLIS) {
+            deferredInteractiveInstance.await()
+        }
+
+        withTimeout(CONNECT_TIMEOUT_MILLIS) {
+            service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
                 systemState,
                 null,
                 complications
             )
-
-        assertTrue(existingInstance.isCompleted)
+        }
     }
 
     @Test
-    fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceClient_existingClosedInstance() {
-        val deferredInteractiveInstance =
-            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
+    public fun getOrCreateInteractiveWatchFaceClient_existingClosedInstance(): Unit = runBlocking {
+        val deferredInteractiveInstance = async {
+            service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
                 systemState,
                 null,
                 complications
             )
+        }
 
         // Create the engine which triggers creation of InteractiveWatchFaceClient.
-        createEngine()
+        async { createEngine() }
 
         // Wait for the instance to be created.
-        val interactiveInstance =
-            runBlocking {
-                withTimeout(CONNECT_TIMEOUT_MILLIS) {
-                    deferredInteractiveInstance.await()
-                }
-            }
-
+        val interactiveInstance = withTimeout(CONNECT_TIMEOUT_MILLIS) {
+            deferredInteractiveInstance.await()
+        }
         // Closing this interface means the subsequent
-        // getOrCreateWallpaperServiceBackedInteractiveWatchFaceClient won't immediately return
+        // getOrCreateInteractiveWatchFaceClient won't immediately return
         // a resolved future.
         interactiveInstance.close()
 
-        val deferredExistingInstance =
-            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
+        val deferredExistingInstance = async {
+            service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
                 systemState,
                 null,
                 complications
             )
+        }
 
         assertFalse(deferredExistingInstance.isCompleted)
 
@@ -556,32 +549,30 @@ class WatchFaceControlClientTest {
                 surfaceHolder.surfaceFrame.height()
             )
         }
-        runBlocking {
-            withTimeout(CONNECT_TIMEOUT_MILLIS) {
-                deferredExistingInstance.await()
-            }
+
+        withTimeout(CONNECT_TIMEOUT_MILLIS) {
+            deferredExistingInstance.await()
         }
     }
 
     @Test
-    fun getInteractiveWatchFaceInstance() {
-        val deferredInteractiveInstance =
-            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
+    public fun getInteractiveWatchFaceInstance(): Unit = runBlocking {
+        val deferredInteractiveInstance = async {
+            service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
                 systemState,
                 null,
                 complications
             )
+        }
 
         // Create the engine which triggers creation of InteractiveWatchFaceClient.
-        createEngine()
+        async { createEngine() }
 
         // Wait for the instance to be created.
-        runBlocking {
-            withTimeout(CONNECT_TIMEOUT_MILLIS) {
-                deferredInteractiveInstance.await()
-            }
+        withTimeout(CONNECT_TIMEOUT_MILLIS) {
+            deferredInteractiveInstance.await()
         }
 
         val sysUiInterface =
@@ -608,9 +599,9 @@ class WatchFaceControlClientTest {
     }
 
     @Test
-    fun updateInstance() {
-        val deferredInteractiveInstance =
-            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
+    public fun updateInstance(): Unit = runBlocking {
+        val deferredInteractiveInstance = async {
+            service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
                 systemState,
@@ -622,9 +613,10 @@ class WatchFaceControlClientTest {
                 ),
                 complications
             )
+        }
 
         // Create the engine which triggers creation of InteractiveWatchFaceClient.
-        createEngine()
+        async { createEngine() }
 
         // Wait for the instance to be created.
         val interactiveInstance = runBlocking {
@@ -683,23 +675,22 @@ class WatchFaceControlClientTest {
     }
 
     @Test
-    fun getComplicationIdAt() {
-        val deferredInteractiveInstance =
-            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync(
+    public fun getComplicationIdAt(): Unit = runBlocking {
+        val deferredInteractiveInstance = async {
+            service.getOrCreateInteractiveWatchFaceClient(
                 "testId",
                 deviceConfig,
                 systemState,
                 null,
                 complications
             )
+        }
 
         // Create the engine which triggers creation of InteractiveWatchFaceClient.
-        createEngine()
+        async { createEngine() }
 
-        val interactiveInstance = runBlocking {
-            withTimeout(CONNECT_TIMEOUT_MILLIS) {
-                deferredInteractiveInstance.await()
-            }
+        val interactiveInstance = withTimeout(CONNECT_TIMEOUT_MILLIS) {
+            deferredInteractiveInstance.await()
         }
 
         assertNull(interactiveInstance.getComplicationIdAt(0, 0))
