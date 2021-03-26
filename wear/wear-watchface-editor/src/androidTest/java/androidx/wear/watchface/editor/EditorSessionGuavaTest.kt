@@ -156,7 +156,7 @@ public class EditorSessionGuavaTest {
     }
 
     @Test
-    public fun listenableLaunchComplicationProviderChooser() {
+    public fun listenableOpenComplicationProviderChooser() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
@@ -173,7 +173,7 @@ public class EditorSessionGuavaTest {
          * the preview data) for [LEFT_COMPLICATION_ID].
          */
         assertTrue(
-            listenableEditorSession.listenableLaunchComplicationProviderChooser(
+            listenableEditorSession.listenableOpenComplicationProviderChooser(
                 LEFT_COMPLICATION_ID
             ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         )

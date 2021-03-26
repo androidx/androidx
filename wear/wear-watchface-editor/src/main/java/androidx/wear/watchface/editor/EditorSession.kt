@@ -65,7 +65,7 @@ import kotlinx.coroutines.withContext
 
 /**
  * Interface for manipulating watch face state during an editing session for a watch face editing
- * session. The editor should adjust [userStyle] and call [launchComplicationProviderChooser] to
+ * session. The editor should adjust [userStyle] and call [openComplicationProviderChooser] to
  * configure the watch face and call [close] when done. This reports the updated [EditorState] to
  * the [EditorListener]s registered via [EditorServiceClient.addListener].
  */
@@ -118,7 +118,7 @@ public abstract class EditorSession : AutoCloseable {
      * the watch face. Note if a slot is configured to be empty then it will not appear in the map,
      * however disabled complications are included. Note also unlike live data this is static per
      * provider, but it may update (on the UiThread) as a result of
-     * [launchComplicationProviderChooser].
+     * [openComplicationProviderChooser].
      */
     @UiThread
     public abstract suspend fun getComplicationsPreviewData(): Map<Int, ComplicationData>
@@ -147,12 +147,12 @@ public abstract class EditorSession : AutoCloseable {
     ): Bitmap
 
     /**
-     * Launches the complication provider chooser and returns `true` if the user made a selection or
+     * Opens the complication provider chooser and returns `true` if the user made a selection or
      * `false` if the activity was canceled. If the complication provider was changed then the map
      * returned by [getComplicationsPreviewData] is updated (on the UiThread).
      */
     @UiThread
-    public abstract suspend fun launchComplicationProviderChooser(complicationId: Int): Boolean
+    public abstract suspend fun openComplicationProviderChooser(complicationId: Int): Boolean
 
     public companion object {
         /**
@@ -318,7 +318,7 @@ public abstract class BaseEditorSession internal constructor(
             }
         }
 
-    override suspend fun launchComplicationProviderChooser(
+    override suspend fun openComplicationProviderChooser(
         complicationId: Int
     ): Boolean = TraceEvent(
         "BaseEditorSession.launchComplicationProviderChooser $complicationId"
