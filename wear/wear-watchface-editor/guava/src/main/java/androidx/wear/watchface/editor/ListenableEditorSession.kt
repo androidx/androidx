@@ -69,10 +69,9 @@ public class ListenableEditorSession(
             coroutineScope.launch {
                 try {
                     result.set(
-                        EditorSession.createOnWatchEditingSessionAsync(
-                            activity,
-                            editIntent
-                        ).await()?.let { ListenableEditorSession(it) }
+                        createOnWatchEditingSession(activity, editIntent)?.let {
+                            ListenableEditorSession(it)
+                        }
                     )
                 } catch (e: Exception) {
                     result.setException(e)
