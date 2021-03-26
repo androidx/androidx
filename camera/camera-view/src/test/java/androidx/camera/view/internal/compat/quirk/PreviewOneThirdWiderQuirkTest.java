@@ -28,24 +28,36 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.util.ReflectionHelpers;
 
 /**
- * Unit tests for {@link PreviewStretchedQuirk}.
+ * Unit tests for {@link PreviewOneThirdWiderQuirk}.
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class PreviewStretchedQuirkTest {
+public class PreviewOneThirdWiderQuirkTest {
 
     @Test
     public void quirkExistsOnSamsungA3() {
-        // Arrange.
         ReflectionHelpers.setStaticField(Build.class, "DEVICE", "A3Y17LTE");
+        assertPreviewShouldBeCroppedBy25Percent();
+    }
 
-        // Act.
-        final PreviewStretchedQuirk quirk = DeviceQuirks.get(PreviewStretchedQuirk.class);
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.O)
+    public void quirkExistsOnSamsungJ5PrimeApi26AndAbove() {
+        ReflectionHelpers.setStaticField(Build.class, "DEVICE", "ON5XELTE");
+        assertPreviewShouldBeCroppedBy25Percent();
+    }
 
-        // Assert.
+    @Test
+    @Config(maxSdk = Build.VERSION_CODES.N_MR1)
+    public void quirkDoesNotExistOnSamsungJ5PrimeApi25AndBelow() {
+        ReflectionHelpers.setStaticField(Build.class, "DEVICE", "ON5XELTE");
+        assertThat(DeviceQuirks.get(PreviewOneThirdWiderQuirk.class)).isNull();
+    }
+
+    private void assertPreviewShouldBeCroppedBy25Percent() {
+        final PreviewOneThirdWiderQuirk quirk = DeviceQuirks.get(PreviewOneThirdWiderQuirk.class);
         assertThat(quirk).isNotNull();
         assertThat(quirk.getCropRectScaleX()).isEqualTo(0.75F);
-        assertThat(quirk.getCropRectScaleY()).isEqualTo(1F);
     }
 }

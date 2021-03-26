@@ -113,7 +113,7 @@ public class PreviewTransformationDeviceTest {
             SURFACE_SIZE,
             BACK_CAMERA
         )
-        return mPreviewTransform.isCropRectAspectRatioMatchPreviewView(PREVIEW_VIEW_SIZE)
+        return mPreviewTransform.isViewportAspectRatioMatchPreviewView(PREVIEW_VIEW_SIZE)
     }
 
     @Test
