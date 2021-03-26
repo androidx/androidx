@@ -210,7 +210,10 @@ public abstract class WatchFaceService : WallpaperService() {
         /** Whether to log every frame. */
         private const val LOG_VERBOSE = false
 
-        /** Whether to enable tracing for each call to [Engine.onDraw]. */
+        /**
+         * Whether to enable tracing for each call to [WatchFaceImpl.onDraw()] and
+         * [WatchFaceImpl.onSurfaceRedrawNeeded()]
+         */
         private const val TRACE_DRAW = false
 
         // Reference time for editor screenshots for analog watch faces.
