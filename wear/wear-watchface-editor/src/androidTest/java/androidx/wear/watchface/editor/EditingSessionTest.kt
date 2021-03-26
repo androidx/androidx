@@ -117,8 +117,8 @@ public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val deferredEditorSession =
-            EditorSession.createOnWatchEditingSessionAsyncImpl(
+        immediateCoroutineScope.launch {
+            editorSession = EditorSession.createOnWatchEditingSessionImpl(
                 this@OnWatchFaceEditingTestActivity,
                 intent!!,
                 object : ProviderInfoRetrieverProvider {
@@ -158,10 +158,7 @@ public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
                         )
                     )
                 }
-            )
-
-        immediateCoroutineScope.launch {
-            editorSession = deferredEditorSession.await()!!
+            )!!
         }
     }
 }

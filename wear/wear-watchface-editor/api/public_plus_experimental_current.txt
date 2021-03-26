@@ -23,7 +23,7 @@ package androidx.wear.watchface.editor {
   public abstract class EditorSession implements java.lang.AutoCloseable {
     ctor public EditorSession();
     method @RequiresApi(27) @UiThread public static final androidx.wear.watchface.editor.EditorSession? createHeadlessEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
-    method @UiThread public static final kotlinx.coroutines.Deferred<androidx.wear.watchface.editor.EditorSession> createOnWatchEditingSessionAsync(androidx.activity.ComponentActivity activity, android.content.Intent editIntent);
+    method @UiThread public static final suspend Object? createOnWatchEditingSession(androidx.activity.ComponentActivity p, android.content.Intent activity, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession> editIntent);
     method public abstract Integer? getBackgroundComplicationId();
     method @UiThread public abstract Integer? getComplicationIdAt(@Px int x, @Px int y);
     method @UiThread public abstract suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> p);
@@ -51,7 +51,7 @@ package androidx.wear.watchface.editor {
 
   public static final class EditorSession.Companion {
     method @RequiresApi(27) @UiThread public androidx.wear.watchface.editor.EditorSession? createHeadlessEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
-    method @UiThread public kotlinx.coroutines.Deferred<androidx.wear.watchface.editor.EditorSession> createOnWatchEditingSessionAsync(androidx.activity.ComponentActivity activity, android.content.Intent editIntent);
+    method @UiThread public suspend Object? createOnWatchEditingSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession> p);
   }
 
   public class WatchFaceEditorContract extends androidx.activity.result.contract.ActivityResultContract<androidx.wear.watchface.editor.EditorRequest,kotlin.Unit> {
