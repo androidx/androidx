@@ -2604,7 +2604,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     boolean saveBackStackState(@NonNull ArrayList<BackStackRecord> records,
             @NonNull ArrayList<Boolean> isRecordPop, @NonNull String name) {
-        int index = findBackStackIndex(name, -1, true);
+        final int index = findBackStackIndex(name, -1, true);
         if (index < 0) {
             return false;
         }
@@ -2680,11 +2680,37 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
 
         // Now actually record each save
+        final ArrayList<String> fragments = new ArrayList<>();
+        for (Fragment f : allFragments) {
+            fragments.add(f.mWho);
+        }
+        final ArrayList<BackStackRecordState> backStackRecordStates =
+                new ArrayList<>(mBackStack.size() - index);
+        // Add placeholders for each BackStackRecordState
+        for (int i = index; i < mBackStack.size(); i++) {
+            backStackRecordStates.add(null);
+        }
+        final BackStackState backStackState = new BackStackState(
+                fragments, backStackRecordStates);
         for (int i = mBackStack.size() - 1; i >= index; i--) {
-            // TODO: Pre-process each BackStackRecord so that they actually save state
-            records.add(mBackStack.remove(i));
+            final BackStackRecord record = mBackStack.remove(i);
+            record.mBeingSaved = true;
+            // Get a callback when the BackStackRecord is actually finished
+            final int currentIndex = i;
+            record.addOnCommitRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    // First collapse the record to remove expanded ops and get it ready to save
+                    record.collapseOps();
+                    // Then save the state
+                    BackStackRecordState state = new BackStackRecordState(record);
+                    backStackRecordStates.set(currentIndex - index, state);
+                }
+            });
+            records.add(record);
             isRecordPop.add(true);
         }
+        mBackStackStates.put(name, backStackState);
         return true;
     }
 

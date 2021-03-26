@@ -299,7 +299,9 @@ class FragmentStateManager {
                             if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                                 Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
                             }
-                            if (mFragment.mView != null) {
+                            if (mFragment.mBeingSaved) {
+                                saveState();
+                            } else if (mFragment.mView != null) {
                                 // Need to save the current view state if not done already
                                 // by saveInstanceState()
                                 if (mFragment.mSavedViewState == null) {
@@ -323,6 +325,10 @@ class FragmentStateManager {
                             mFragment.mState = Fragment.CREATED;
                             break;
                         case Fragment.ATTACHED:
+                            if (mFragment.mBeingSaved
+                                    && mFragmentStore.getSavedState(mFragment.mWho) == null) {
+                                saveState();
+                            }
                             destroy();
                             break;
                         case Fragment.INITIALIZING:
