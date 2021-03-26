@@ -41,7 +41,9 @@ import android.util.Log
 import android.view.Choreographer
 import android.view.Surface
 import android.view.SurfaceHolder
+import android.view.WindowInsets
 import androidx.annotation.IntDef
+import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
@@ -66,10 +68,10 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.editor.EditorService
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.UserStyleSetting
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
+import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.asCoroutineDispatcher
@@ -375,6 +377,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal var firstSetWatchUiState = true
         internal var immutableSystemStateDone = false
+        internal var immutableChinHeightDone = false
         private var ignoreNextOnVisibilityChanged = false
 
         internal var lastActiveComplications: IntArray? = null
@@ -774,6 +777,29 @@ public abstract class WatchFaceService : WallpaperService() {
                 maybeCreateWCSApi()
                 firstOnSurfaceChangedReceived = true
             }
+        }
+
+        override fun onApplyWindowInsets(insets: WindowInsets?) {
+            super.onApplyWindowInsets(insets)
+            @Px val chinHeight =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    ChinHeightApi30.extractFromWindowInsets(insets)
+                } else {
+                    ChinHeightApi25.extractFromWindowInsets(insets)
+                }
+            if (immutableChinHeightDone) {
+                // The chin size cannot change so this should be called only once.
+                if (mutableWatchState.chinHeight != chinHeight) {
+                    Log.w(
+                        TAG,
+                        "unexpected chin size change ignored: " +
+                            "${mutableWatchState.chinHeight} != $chinHeight"
+                    )
+                }
+                return
+            }
+            mutableWatchState.chinHeight = chinHeight
+            immutableChinHeightDone = true
         }
 
         override fun onDestroy(): Unit = TraceEvent("EngineWrapper.onDestroy").use {
@@ -1339,6 +1365,20 @@ public abstract class WatchFaceService : WallpaperService() {
         EditorService.globalEditorService.dump(indentingPrintWriter)
         HeadlessWatchFaceImpl.dump(indentingPrintWriter)
         indentingPrintWriter.flush()
+    }
+
+    private object ChinHeightApi25 {
+        @Suppress("DEPRECATION")
+        @Px
+        fun extractFromWindowInsets(insets: WindowInsets?) =
+            insets?.systemWindowInsetBottom ?: 0
+    }
+
+    @RequiresApi(30)
+    private object ChinHeightApi30 {
+        @Px
+        fun extractFromWindowInsets(insets: WindowInsets?) =
+            insets?.getInsets(WindowInsets.Type.systemBars())?.bottom ?: 0
     }
 }
 
