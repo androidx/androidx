@@ -617,8 +617,7 @@ class FragmentStateManager {
         mDispatcher.dispatchOnFragmentStopped(mFragment, false);
     }
 
-    @NonNull
-    FragmentState saveState() {
+    void saveState() {
         FragmentState fs = new FragmentState(mFragment);
 
         if (mFragment.mState > Fragment.INITIALIZING && fs.mSavedFragmentState == null) {
@@ -641,7 +640,7 @@ class FragmentStateManager {
         } else {
             fs.mSavedFragmentState = mFragment.mSavedFragmentState;
         }
-        return fs;
+        mFragmentStore.setSavedState(mFragment.mWho, fs);
     }
 
     @Nullable

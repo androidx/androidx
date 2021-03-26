@@ -2792,10 +2792,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mStateSaved = true;
         mNonConfig.setIsStateSaved(true);
 
-        // First collect all active fragments.
-        ArrayList<FragmentState> active = mFragmentStore.saveActiveFragments();
+        // First save all active fragments.
+        ArrayList<String> active = mFragmentStore.saveActiveFragments();
 
-        if (active.isEmpty()) {
+        // And grab all FragmentState objects
+        ArrayList<FragmentState> savedState = mFragmentStore.getAllSavedState();
+
+        if (savedState.isEmpty()) {
             if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "saveAllState: no fragments!");
             return null;
         }
@@ -2820,6 +2823,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
 
         FragmentManagerState fms = new FragmentManagerState();
+        fms.mSavedState = savedState;
         fms.mActive = active;
         fms.mAdded = added;
         fms.mBackStack = backStack;
@@ -2849,12 +2853,17 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // If there is no saved state at all, then there's nothing else to do
         if (state == null) return;
         FragmentManagerState fms = (FragmentManagerState) state;
-        if (fms.mActive == null) return;
+        if (fms.mSavedState == null) return;
+
+        // Restore the saved state of all fragments
+        mFragmentStore.restoreSaveState(fms.mSavedState);
 
         // Build the full list of active fragments, instantiating them from
         // their saved state.
         mFragmentStore.resetActiveFragments();
-        for (FragmentState fs : fms.mActive) {
+        for (String who : fms.mActive) {
+            // Retrieve any saved state, clearing it out for future calls
+            FragmentState fs = mFragmentStore.setSavedState(who, null);
             if (fs != null) {
                 FragmentStateManager fragmentStateManager;
                 Fragment retainedFragment = mNonConfig.findRetainedFragmentByWho(fs.mWho);
