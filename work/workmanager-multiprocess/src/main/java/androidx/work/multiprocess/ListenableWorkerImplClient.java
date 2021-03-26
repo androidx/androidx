@@ -44,10 +44,14 @@ import java.util.concurrent.Executor;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ListenableWorkerImplClient {
-    private static final String TAG = Logger.tagWithPrefix("ListenableWorkerImplClient");
+    // Synthetic access
+    static final String TAG = Logger.tagWithPrefix("ListenableWorkerImplClient");
 
-    private final Context mContext;
-    private final Executor mExecutor;
+    // Synthetic access
+    final Context mContext;
+
+    // Synthetic access
+    final Executor mExecutor;
 
     public ListenableWorkerImplClient(
             @NonNull Context context,

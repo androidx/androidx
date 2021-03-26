@@ -37,7 +37,6 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
@@ -53,14 +52,19 @@ public class ListenableWorkerImplClientTest {
 
     @Before
     public fun setUp() {
-        mContext = Mockito.mock(Context::class.java)
-        mWorkManager = Mockito.mock(WorkManagerImpl::class.java)
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
+        mContext = mock(Context::class.java)
+        mWorkManager = mock(WorkManagerImpl::class.java)
         `when`(mContext.applicationContext).thenReturn(mContext)
         mExecutor = Executor {
             it.run()
         }
 
-        val taskExecutor = Mockito.mock(TaskExecutor::class.java)
+        val taskExecutor = mock(TaskExecutor::class.java)
         `when`(taskExecutor.backgroundExecutor).thenReturn(SerialExecutor(mExecutor))
         `when`(mWorkManager.workTaskExecutor).thenReturn(taskExecutor)
         mClient = ListenableWorkerImplClient(mContext, mExecutor)
@@ -96,6 +100,11 @@ public class ListenableWorkerImplClientTest {
     @MediumTest
     @Suppress("UNCHECKED_CAST")
     public fun cleanUpWhenDispatcherFails() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val binder = mock(IBinder::class.java)
         val remoteDispatcher =
             mock(RemoteDispatcher::class.java) as RemoteDispatcher<IListenableWorkerImpl>
@@ -120,6 +129,11 @@ public class ListenableWorkerImplClientTest {
     @MediumTest
     @Suppress("UNCHECKED_CAST")
     public fun cleanUpWhenSessionIsInvalid() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val remoteDispatcher =
             mock(RemoteDispatcher::class.java) as RemoteDispatcher<IListenableWorkerImpl>
         val callback = spy(RemoteCallback())
@@ -138,6 +152,11 @@ public class ListenableWorkerImplClientTest {
     @Test
     @MediumTest
     public fun cleanUpOnSuccessfulDispatch() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val binder = mock(IBinder::class.java)
         val remoteDispatcher = RemoteDispatcher<IListenableWorkerImpl> { _, callback ->
             callback.onSuccess(ByteArray(0))
