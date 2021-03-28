@@ -72,6 +72,7 @@ import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.FileDescriptor
 import java.io.FileNotFoundException
@@ -773,6 +774,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         override fun onDestroy(): Unit = TraceEvent("EngineWrapper.onDestroy").use {
             destroyed = true
+            coroutineScope.cancel()
             uiThreadHandler.removeCallbacks(invalidateRunnable)
             if (this::choreographer.isInitialized) {
                 choreographer.removeFrameCallback(frameCallback)
