@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto">
+    <font app:fontStyle="normal" app:fontWeight="100" app:font="@font/w_100" />
+    <font app:fontStyle="italic" app:fontWeight="100" app:font="@font/w_100i" />
+    <font app:fontStyle="normal" app:fontWeight="400" app:font="@font/w_400" />
+    <font app:fontStyle="italic" app:fontWeight="400" app:font="@font/w_400i" />
+    <font app:fontStyle="normal" app:fontWeight="900" app:font="@font/w_900" />
+    <font app:fontStyle="italic" app:fontWeight="900" app:font="@font/w_900i" />
+</font-family>

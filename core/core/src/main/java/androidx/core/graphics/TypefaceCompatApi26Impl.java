@@ -351,4 +351,15 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
         m.setAccessible(true);
         return m;
     }
+
+    @NonNull
+    @Override
+    Typeface createWeightStyle(@NonNull Context context,
+            @NonNull Typeface base, int weight, boolean italic) {
+        Typeface out = WeightTypefaceApi26.createWeightStyle(base, weight, italic);
+        if (out == null) {
+            out = super.createWeightStyle(context, base, weight, italic);
+        }
+        return out;
+    }
 }

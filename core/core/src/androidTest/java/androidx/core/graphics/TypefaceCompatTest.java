@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.annotation.SuppressLint;
 import android.app.Instrumentation;
@@ -46,6 +47,8 @@ import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.google.common.truth.Truth;
 
 import org.junit.After;
 import org.junit.Before;
@@ -528,5 +531,75 @@ public class TypefaceCompatTest {
 
         final Typeface defaultTypeface = TypefaceCompat.create(mContext, null, Typeface.NORMAL);
         assertNotNull(defaultTypeface);
+    }
+
+    @Test
+    public void testTypeFaceCompatCreateWithExactStyle() {
+        final Typeface family = ResourcesCompat.getFont(mContext, R.font.weighttestfont);
+        assertNotNull(family);
+
+        final int[] weights = new int[]{0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+        final float[] widths = new float[weights.length];
+        final boolean[] italics = new boolean[weights.length];
+
+        Paint p = new Paint();
+        p.setTextSize(120);
+
+        // Normal font style
+        for (int i = 0, size = weights.length; i < size; i++) {
+            final int weight = weights[i];
+            final Typeface t = TypefaceCompat.create(mContext, family, weight, false);
+            p.setTypeface(t);
+            widths[i] = p.measureText("W");
+            italics[i] = t.isItalic();
+        }
+
+        Truth.assertThat(widths).usingTolerance(0.1)
+                .containsExactly(98, 98, 98, 106, 106, 106, 106, 115, 115, 115, 115);
+        Truth.assertThat(italics).asList()
+                .doesNotContain(true);
+
+        // Italic font style
+        for (int i = 0, size = weights.length; i < size; i++) {
+            final int weight = weights[i];
+            final Typeface t = TypefaceCompat.create(mContext, family, weight, true);
+            p.setTypeface(t);
+            widths[i] = p.measureText("W");
+            italics[i] = t.isItalic();
+        }
+
+        Truth.assertThat(widths).usingTolerance(0.1)
+                .containsExactly(97, 97, 97, 104, 104, 104, 104, 110, 110, 110, 110);
+        Truth.assertThat(italics).asList()
+                .doesNotContain(false);
+
+        // Fallback family
+        final Typeface defaultTypeface = TypefaceCompat.create(mContext, null, 400, false);
+        assertNotNull(defaultTypeface);
+
+        // Preconditions
+        try {
+            TypefaceCompat.create(null, null, 400, false);
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            Truth.assertThat(expected).hasMessageThat()
+                    .isEqualTo("Context cannot be null");
+        }
+
+        try {
+            TypefaceCompat.create(mContext, null, -1, false);
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            Truth.assertThat(expected).hasMessageThat()
+                    .isEqualTo("weight is out of range of [0, 1000] (too low)");
+        }
+
+        try {
+            TypefaceCompat.create(mContext, null, 1001, false);
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            Truth.assertThat(expected).hasMessageThat()
+                    .isEqualTo("weight is out of range of [0, 1000] (too high)");
+        }
     }
 }
