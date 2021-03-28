@@ -22,7 +22,7 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
 import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration;
@@ -91,7 +91,7 @@ public class CameraXViewModel extends AndroidViewModel {
         return mProcessCameraProviderLiveData;
     }
 
-    @UseExperimental(markerClass = ExperimentalCameraProviderConfiguration.class)
+    @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
     @MainThread
     private static void tryConfigureCameraProvider() {
         if (sConfiguredCameraXCameraImplementation == null) {
@@ -99,7 +99,7 @@ public class CameraXViewModel extends AndroidViewModel {
         }
     }
 
-    @UseExperimental(markerClass = ExperimentalCameraProviderConfiguration.class)
+    @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
     @MainThread
     static void configureCameraProvider(@NonNull String cameraImplementation) {
         if (!cameraImplementation.equals(sConfiguredCameraXCameraImplementation)) {

@@ -23,7 +23,7 @@ import android.util.Range;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
@@ -53,7 +53,7 @@ import java.util.concurrent.Executor;
  * The task will fails with {@link CameraControl.OperationCanceledException} if the camera is
  * closed.
  */
-@UseExperimental(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
+@OptIn(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
 public class ExposureControl {
 
     private static final int DEFAULT_EXPOSURE_COMPENSATION = 0;

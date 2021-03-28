@@ -26,8 +26,8 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresPermission;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -162,7 +162,7 @@ final class CameraXModule {
         }
     }
 
-    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @OptIn(markerClass = ExperimentalVideo.class)
     @RequiresPermission(permission.CAMERA)
     void bindToLifecycleAfterViewMeasured() {
         if (mNewLifecycle == null) {
@@ -270,7 +270,7 @@ final class CameraXModule {
                 "Explicit open/close of camera not yet supported. Use bindtoLifecycle() instead.");
     }
 
-    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @OptIn(markerClass = ExperimentalVideo.class)
     public void takePicture(Executor executor, OnImageCapturedCallback callback) {
         if (mImageCapture == null) {
             return;
@@ -287,7 +287,7 @@ final class CameraXModule {
         mImageCapture.takePicture(executor, callback);
     }
 
-    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @OptIn(markerClass = ExperimentalVideo.class)
     public void takePicture(@NonNull ImageCapture.OutputFileOptions outputFileOptions,
             @NonNull Executor executor, OnImageSavedCallback callback) {
         if (mImageCapture == null) {

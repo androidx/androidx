@@ -20,7 +20,7 @@ import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraFilter;
@@ -38,7 +38,7 @@ import java.util.List;
  * A filter that filters camera based on extender implementation. If the implementation is
  * unavailable, the camera will be considered available.
  */
-@UseExperimental(markerClass = ExperimentalCameraFilter.class)
+@OptIn(markerClass = ExperimentalCameraFilter.class)
 public final class ExtensionCameraFilter implements CameraFilter {
     private final PreviewExtenderImpl mPreviewExtenderImpl;
     private final ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
@@ -59,7 +59,7 @@ public final class ExtensionCameraFilter implements CameraFilter {
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
 
-    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @NonNull
     @Override
     public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {

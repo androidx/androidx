@@ -33,7 +33,7 @@ import android.os.HandlerThread;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
@@ -136,7 +136,7 @@ public class PreviewProcessorTimestampTest {
     }
 
     @Before
-    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public void setUp() throws Exception {
         mProcessingHandlerThread =
                 new HandlerThread("Processing");

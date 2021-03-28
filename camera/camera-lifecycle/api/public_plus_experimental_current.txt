@@ -1,10 +1,10 @@
 // Signature format: 4.0
 package androidx.camera.lifecycle {
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCameraProviderConfiguration {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCameraProviderConfiguration {
   }
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseGroupLifecycle {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseGroupLifecycle {
   }
 
   public final class ProcessCameraProvider implements androidx.camera.core.CameraProvider {

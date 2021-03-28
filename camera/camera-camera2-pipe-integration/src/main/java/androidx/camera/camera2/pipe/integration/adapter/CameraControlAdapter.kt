@@ -52,7 +52,7 @@ import javax.inject.Inject
  * well as providing access to other utility methods. The primary purpose of this class it to
  * forward these interactions to the currently configured [UseCaseCamera].
  */
-@SuppressLint("UnsafeExperimentalUsageError")
+@SuppressLint("UnsafeOptInUsageError")
 @CameraScope
 @OptIn(ExperimentalCoroutinesApi::class)
 class CameraControlAdapter @Inject constructor(
@@ -157,7 +157,7 @@ class CameraControlAdapter @Inject constructor(
         warn { "TODO: cancelAfAeTrigger is not yet supported" }
     }
 
-    @SuppressLint("UnsafeExperimentalUsageError")
+    @SuppressLint("UnsafeOptInUsageError")
     override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> {
         return threads.scope.async(start = CoroutineStart.UNDISPATCHED) {
             useCaseManager.camera?.let {

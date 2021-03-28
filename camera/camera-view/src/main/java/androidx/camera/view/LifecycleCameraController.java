@@ -26,9 +26,9 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
@@ -110,7 +110,7 @@ public final class LifecycleCameraController extends CameraController {
      *
      * @return null if failed to start camera.
      */
-    @UseExperimental(markerClass = ExperimentalUseCaseGroupLifecycle.class)
+    @OptIn(markerClass = ExperimentalUseCaseGroupLifecycle.class)
     @RequiresPermission(Manifest.permission.CAMERA)
     @Override
     @Nullable
