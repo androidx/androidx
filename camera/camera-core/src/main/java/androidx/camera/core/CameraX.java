@@ -29,9 +29,9 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
@@ -539,7 +539,7 @@ public final class CameraX {
     /**
      * Initializes camera stack on the given thread and retry recursively until timeout.
      */
-    @UseExperimental(markerClass = ExperimentalAvailableCamerasLimiter.class)
+    @OptIn(markerClass = ExperimentalAvailableCamerasLimiter.class)
     private void initAndRetryRecursively(
             @NonNull Executor cameraExecutor,
             long startMs,

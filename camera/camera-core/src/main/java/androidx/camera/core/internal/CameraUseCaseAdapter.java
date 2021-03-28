@@ -22,7 +22,7 @@ import android.util.Size;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraFilter;
@@ -175,7 +175,7 @@ public final class CameraUseCaseAdapter implements Camera {
      * @throws CameraException Thrown if the combination of newly added UseCases and the
      *                         currently added UseCases exceed the capability of the camera.
      */
-    @UseExperimental(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)
+    @OptIn(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)
     public void addUseCases(@NonNull Collection<UseCase> useCases) throws CameraException {
         synchronized (mLock) {
             List<UseCase> newUseCases = new ArrayList<>();
@@ -366,7 +366,7 @@ public final class CameraUseCaseAdapter implements Camera {
         return suggestedResolutions;
     }
 
-    @UseExperimental(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)
+    @OptIn(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)
     private void updateViewPort(@NonNull Map<UseCase, Size> suggestedResolutionsMap,
             @NonNull Collection<UseCase> useCases) {
         synchronized (mLock) {
@@ -492,7 +492,7 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     @Override
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @OptIn(markerClass = ExperimentalCameraFilter.class)
     public void setExtendedConfig(@Nullable CameraConfig cameraConfig) throws CameraException {
         synchronized (mLock) {
             CameraConfig newCameraConfig = cameraConfig == null ? CameraConfigs.emptyConfig() :

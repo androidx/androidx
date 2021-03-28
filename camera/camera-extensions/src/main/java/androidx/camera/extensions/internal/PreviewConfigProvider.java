@@ -20,7 +20,7 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
@@ -46,7 +46,7 @@ public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     @Extensions.ExtensionMode
     private int mEffectMode;
 
-    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public PreviewConfigProvider(@Extensions.ExtensionMode int mode,
             @NonNull CameraInfo cameraInfo, @NonNull Context context) {
         try {

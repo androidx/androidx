@@ -25,8 +25,8 @@ import android.util.Size;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
@@ -70,7 +70,7 @@ public abstract class ImageCaptureExtender {
     private int mEffectMode;
     private ExtensionCameraFilter mExtensionCameraFilter;
 
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @OptIn(markerClass = ExperimentalCameraFilter.class)
     void init(ImageCapture.Builder builder, ImageCaptureExtenderImpl implementation,
             @Extensions.ExtensionMode int effectMode) {
         mBuilder = builder;
@@ -94,7 +94,7 @@ public abstract class ImageCaptureExtender {
      * Returns the camera specified with the given camera selector and this extension, null if
      * there's no available can be found.
      */
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @OptIn(markerClass = ExperimentalCameraFilter.class)
     private String getCameraWithExtension(@NonNull CameraSelector cameraSelector) {
         CameraSelector.Builder extensionCameraSelectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
@@ -119,7 +119,7 @@ public abstract class ImageCaptureExtender {
      * @param cameraSelector The selector used to determine the camera for which to enable
      *                       extensions.
      */
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @OptIn(markerClass = ExperimentalCameraFilter.class)
     public void enableExtension(@NonNull CameraSelector cameraSelector) {
         String cameraId = getCameraWithExtension(cameraSelector);
         if (cameraId == null) {
@@ -268,7 +268,7 @@ public abstract class ImageCaptureExtender {
             mContext = context;
         }
 
-        @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+        @OptIn(markerClass = ExperimentalCamera2Interop.class)
         @Override
         public void onAttach(@NonNull CameraInfo cameraInfo) {
             if (mActive.get()) {

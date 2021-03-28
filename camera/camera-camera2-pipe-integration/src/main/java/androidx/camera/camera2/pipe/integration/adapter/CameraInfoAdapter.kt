@@ -43,7 +43,7 @@ internal val defaultQuirks = Quirks(emptyList())
  * Adapt the [CameraInfoInternal] interface to [CameraPipe].
  */
 @SuppressLint(
-    "UnsafeExperimentalUsageError" // Suppressed due to experimental ExposureState
+    "UnsafeOptInUsageError" // Suppressed due to experimental ExposureState
 )
 @CameraScope
 class CameraInfoAdapter @Inject constructor(
@@ -82,7 +82,7 @@ class CameraInfoAdapter @Inject constructor(
     override fun getZoomState(): LiveData<ZoomState> = cameraState.zoomStateLiveData
     override fun getTorchState(): LiveData<Int> = cameraState.torchStateLiveData
 
-    @SuppressLint("UnsafeExperimentalUsageError")
+    @SuppressLint("UnsafeOptInUsageError")
     override fun getExposureState(): ExposureState = cameraState.exposureStateLiveData.value!!
 
     override fun addSessionCaptureCallback(executor: Executor, callback: CameraCaptureCallback) =

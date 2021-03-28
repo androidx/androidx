@@ -55,7 +55,7 @@ package androidx.camera.camera2.interop {
     method public <ValueT> androidx.camera.camera2.interop.CaptureRequestOptions.Builder setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT!>, ValueT);
   }
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCamera2Interop {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCamera2Interop {
   }
 
 }

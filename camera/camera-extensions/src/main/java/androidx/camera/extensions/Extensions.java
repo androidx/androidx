@@ -20,8 +20,8 @@ import android.content.Context;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
@@ -133,7 +133,7 @@ public class Extensions {
      *                                  Camera can support the list of
      *                                  UseCases for the extension.
      */
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @OptIn(markerClass = ExperimentalCameraFilter.class)
     public void setExtension(@NonNull Camera camera, @ExtensionMode int mode) {
         if (!isExtensionAvailable(camera, mode)) {
             throw new IllegalArgumentException("Extension mode not supported on camera: " + mode);
@@ -189,7 +189,7 @@ public class Extensions {
      * @param camera The Camera to check if it supports the extension.
      * @param mode   The extension mode to check
      */
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @OptIn(markerClass = ExperimentalCameraFilter.class)
     public boolean isExtensionAvailable(@NonNull Camera camera, @ExtensionMode int mode) {
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().addCameraFilter(getFilter(mode)).build();
@@ -204,7 +204,7 @@ public class Extensions {
         return true;
     }
 
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @OptIn(markerClass = ExperimentalCameraFilter.class)
     private CameraFilter getFilter(@ExtensionMode int mode) {
         CameraFilter filter;
         try {

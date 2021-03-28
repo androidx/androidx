@@ -18,9 +18,9 @@ package androidx.camera.core;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.LensFacingCameraFilter;
 
@@ -94,7 +94,7 @@ public final class CameraSelector {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @OptIn(markerClass = ExperimentalCameraFilter.class)
     @NonNull
     public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {
         List<CameraInfo> input = new ArrayList<>(cameraInfos);
@@ -168,7 +168,7 @@ public final class CameraSelector {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @OptIn(markerClass = ExperimentalCameraFilter.class)
     @Nullable
     public Integer getLensFacing() {
         Integer currentLensFacing = null;
@@ -212,7 +212,7 @@ public final class CameraSelector {
          * <p>If lens facing is already set, this will add extra requirement for lens facing
          * instead of replacing the previous setting.
          */
-        @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+        @OptIn(markerClass = ExperimentalCameraFilter.class)
         @NonNull
         public Builder requireLensFacing(@LensFacing int lensFacing) {
             mCameraFilterSet.add(new LensFacingCameraFilter(lensFacing));
