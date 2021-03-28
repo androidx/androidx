@@ -36,7 +36,7 @@ limitations under the License.
     <string name="lb_playback_controls_more_actions" msgid="8730341244454469032">"פעולות נוספות"</string>
     <string name="lb_playback_controls_thumb_up" msgid="3458671378107738666">"ביטול בחירה בסימון \'אהבתי\'"</string>
     <string name="lb_playback_controls_thumb_up_outline" msgid="1385865732502550659">"בחירה בסימון \'אהבתי\'"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"ביטול בחירה בסימון \'לא אהבתי\'"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"ביטול הבחירה בסימון \'לא אהבתי\'"</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="8475278766138652105">"בחירה בסימון \'לא אהבתי\'"</string>
     <string name="lb_playback_controls_repeat_none" msgid="1614290959784265209">"אל תחזור על כלום"</string>
     <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"חזרה על הכל"</string>
