@@ -54,7 +54,6 @@ import androidx.appcompat.text.AllCapsTransformationMethod;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
-import androidx.resourceinspection.annotation.Attribute;
 
 /**
  * SwitchCompat is a complete backport of the core {@link android.widget.Switch} widget that
@@ -443,7 +442,6 @@ public class SwitchCompat extends CompoundButton {
      *
      * {@link androidx.appcompat.R.attr#switchPadding}
      */
-    @Attribute("androidx.appcompat:switchPadding")
     public int getSwitchPadding() {
         return mSwitchPadding;
     }
@@ -469,7 +467,6 @@ public class SwitchCompat extends CompoundButton {
      *
      * {@link androidx.appcompat.R.attr#switchMinWidth}
      */
-    @Attribute("androidx.appcompat:switchMinWidth")
     public int getSwitchMinWidth() {
         return mSwitchMinWidth;
     }
@@ -493,7 +490,6 @@ public class SwitchCompat extends CompoundButton {
      *
      * {@link androidx.appcompat.R.attr#thumbTextPadding}
      */
-    @Attribute("androidx.appcompat:thumbTextPadding")
     public int getThumbTextPadding() {
         return mThumbTextPadding;
     }
@@ -534,8 +530,6 @@ public class SwitchCompat extends CompoundButton {
      *
      * {@link androidx.appcompat.R.attr#track}
      */
-    @Attribute("androidx.appcompat:track")
-    @Nullable
     public Drawable getTrackDrawable() {
         return mTrackDrawable;
     }
@@ -565,7 +559,6 @@ public class SwitchCompat extends CompoundButton {
      * {@link androidx.appcompat.R.attr#trackTint}
      * @see #setTrackTintList(ColorStateList)
      */
-    @Attribute("androidx.appcompat:trackTint")
     @Nullable
     public ColorStateList getTrackTintList() {
         return mTrackTintList;
@@ -594,7 +587,6 @@ public class SwitchCompat extends CompoundButton {
      * {@link androidx.appcompat.R.attr#trackTintMode}
      * @see #setTrackTintMode(PorterDuff.Mode)
      */
-    @Attribute("androidx.appcompat:trackTintMode")
     @Nullable
     public PorterDuff.Mode getTrackTintMode() {
         return mTrackTintMode;
@@ -659,8 +651,6 @@ public class SwitchCompat extends CompoundButton {
      *
      * {@link android.R.attr#thumb}
      */
-    @Attribute("android:thumb")
-    @Nullable
     public Drawable getThumbDrawable() {
         return mThumbDrawable;
     }
@@ -691,7 +681,6 @@ public class SwitchCompat extends CompoundButton {
      * {@link androidx.appcompat.R.attr#thumbTint}
      * @see #setThumbTintList(ColorStateList)
      */
-    @Attribute("androidx.appcompat:thumbTint")
     @Nullable
     public ColorStateList getThumbTintList() {
         return mThumbTintList;
@@ -721,7 +710,6 @@ public class SwitchCompat extends CompoundButton {
      * {@link androidx.appcompat.R.attr#thumbTintMode}
      * @see #setThumbTintMode(PorterDuff.Mode)
      */
-    @Attribute("androidx.appcompat:thumbTintMode")
     @Nullable
     public PorterDuff.Mode getThumbTintMode() {
         return mThumbTintMode;
@@ -766,7 +754,6 @@ public class SwitchCompat extends CompoundButton {
      *
      * {@link androidx.appcompat.R.attr#splitTrack}
      */
-    @Attribute("androidx.appcompat:splitTrack")
     public boolean getSplitTrack() {
         return mSplitTrack;
     }
@@ -776,8 +763,6 @@ public class SwitchCompat extends CompoundButton {
      *
      * {@link android.R.attr#textOn}
      */
-    @Attribute("android:textOn")
-    @Nullable
     public CharSequence getTextOn() {
         return mTextOn;
     }
@@ -802,8 +787,6 @@ public class SwitchCompat extends CompoundButton {
      *
      * {@link android.R.attr#textOff}
      */
-    @Attribute("android:textOff")
-    @Nullable
     public CharSequence getTextOff() {
         return mTextOff;
     }
@@ -840,7 +823,6 @@ public class SwitchCompat extends CompoundButton {
      * @return whether the on/off text should be displayed
      * {@link androidx.appcompat.R.attr#showText}
      */
-    @Attribute("androidx.appcompat:showText")
     public boolean getShowText() {
         return mShowText;
     }
