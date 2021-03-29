@@ -32,9 +32,9 @@ import android.media.tv.TvContract;
 import android.net.Uri;
 import android.os.SystemClock;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.Suppress;
 import androidx.tvprovider.test.R;
 
 import org.junit.After;
@@ -42,7 +42,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@Suppress // Test is failing b/70905391
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class ChannelLogoUtilsTest {
@@ -54,6 +53,9 @@ public class ChannelLogoUtilsTest {
 
     @Before
     public void setUp() throws Exception {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
+            return;
+        }
         mContentResolver = getApplicationContext().getContentResolver();
         ContentValues contentValues = new Channel.Builder()
                 .setInputId(FAKE_INPUT_ID)
@@ -64,11 +66,17 @@ public class ChannelLogoUtilsTest {
 
     @After
     public void tearDown() throws Exception {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
+            return;
+        }
         mContentResolver.delete(mChannelUri, null, null);
     }
 
     @Test
     public void testStoreChannelLogo_fromBitmap() {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
+            return;
+        }
         assertNull(ChannelLogoUtils.loadChannelLogo(getApplicationContext(), mChannelId));
         Bitmap logo = BitmapFactory.decodeResource(getApplicationContext().getResources(),
                 R.drawable.test_icon);
@@ -82,6 +90,9 @@ public class ChannelLogoUtilsTest {
 
     @Test
     public void testStoreChannelLogo_fromResUri() {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
+            return;
+        }
         assertNull(ChannelLogoUtils.loadChannelLogo(getApplicationContext(), mChannelId));
         int resId = R.drawable.test_icon;
         Resources res = getApplicationContext().getResources();
