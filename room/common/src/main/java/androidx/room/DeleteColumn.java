@@ -19,38 +19,45 @@ package androidx.room;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 /**
- * Automatic migration strategy for Room databases.
+ * Repeatable annotation to be used by the user in specifying deleted columns in the new versions
+ * of one database.
  *
  * @hide
  */
+@Repeatable(DeleteColumn.Entries.class)
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public @interface AutoMigration {
+public @interface DeleteColumn {
     /**
-     * Version of the original database schema to migrate from.
+     * Name of the table in the previous version of the database the column was deleted from.
      *
-     * @return Version number of the original database schema.
+     * @return Name of the table
+     *
+     * @hide
      */
-    int from();
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    String tableName();
 
     /**
-     * Version of the new database schema to migrate to.
+     * Name of the column deleted in the new version of the database.
      *
-     * @return Version number of the new database schema.
+     * @return Name of the column.
+     *
+     * @hide
      */
-    int to();
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    String deletedColumnName();
 
-    /**
-     * User implemented custom AutoMigration callback interface.
-     *
-     * @return Null if the user has not implemented a callback
-     */
-    Class<?> callback() default Object.class;
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.CLASS)
+    @interface Entries {
+        DeleteColumn[] value();
+    }
 }

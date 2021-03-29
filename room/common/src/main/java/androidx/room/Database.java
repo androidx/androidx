@@ -63,7 +63,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
-public @interface Database {
+public @interface  Database {
     /**
      * The list of entities included in the database. Each entity turns into a table in the
      * database.
@@ -108,9 +108,9 @@ public @interface Database {
     /**
      * List of AutoMigrations that can be performed on this Database.
      *
-     * @return List of AutoMigrations.
+     * @return List of AutoMigration annotations.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    Class<?>[] autoMigrations() default {};
+    AutoMigration[] autoMigrations() default {};
 }

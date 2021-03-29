@@ -19,38 +19,46 @@ package androidx.room;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
 /**
- * Automatic migration strategy for Room databases.
+ * Repeatable annotation to be used by the user in specifying renamed tables between the old and
+ * new versions of one database.
  *
  * @hide
  */
+@Repeatable(RenameTable.Entries.class)
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public @interface AutoMigration {
+public @interface RenameTable {
     /**
-     * Version of the original database schema to migrate from.
+     * Name of the table in the previous version of the database.
      *
-     * @return Version number of the original database schema.
+     * @return Original name of the table.
+     *
+     * @hide
      */
-    int from();
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    String originalTableName();
 
     /**
-     * Version of the new database schema to migrate to.
+     * Name of the table in the new version of the database.
      *
-     * @return Version number of the new database schema.
+     * @return New name of the table.
+     *
+     * @hide
      */
-    int to();
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    String newTableName();
 
-    /**
-     * User implemented custom AutoMigration callback interface.
-     *
-     * @return Null if the user has not implemented a callback
-     */
-    Class<?> callback() default Object.class;
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.CLASS)
+    @interface Entries {
+        RenameTable[] value();
+    }
 }
