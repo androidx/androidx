@@ -848,11 +848,15 @@ public abstract class FragmentTransaction {
     @NonNull
     public FragmentTransaction runOnCommit(@NonNull Runnable runnable) {
         disallowAddToBackStack();
+        addOnCommitRunnable(runnable);
+        return this;
+    }
+
+    void addOnCommitRunnable(@NonNull Runnable runnable) {
         if (mCommitRunnables == null) {
             mCommitRunnables = new ArrayList<>();
         }
         mCommitRunnables.add(runnable);
-        return this;
     }
 
     /**
