@@ -101,7 +101,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
 
         when {
             booleanUserStyleSetting.isNotEmpty() -> {
-                booleanStyle.isChecked = userStyle[styleSetting]!!.id.toBoolean()
+                booleanStyle.isChecked = userStyle[styleSetting]!!.id.value.toBoolean()
                 booleanStyle.setOnCheckedChangeListener { _, isChecked ->
                     setUserStyleOption(styleSetting.getOptionForId(isChecked.toString()))
                 }
@@ -205,7 +205,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
             styleSchema
         )
 
-        styleSetting = styleSchema.userStyleSettings.first { it.id == settingId }
+        styleSetting = styleSchema.userStyleSettings.first { it.id.value == settingId }
     }
 
     internal fun setUserStyleOption(userStyleOption: UserStyleSetting.Option) {

@@ -83,7 +83,7 @@ public class ListenableWatchFaceControlClientTest {
             400
         )!!
 
-        assertThat(headlessInstance.userStyleSchema.userStyleSettings.map { it.id })
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings.map { it.id.value })
             .containsExactly(
                 "color_style_setting",
                 "draw_hour_pips_style_setting",
@@ -152,7 +152,7 @@ public class ListenableWatchFaceControlClientTest {
         )
 
         val interactiveInstance = interactiveInstanceFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
-        assertThat(interactiveInstance.userStyleSchema.userStyleSettings.map { it.id })
+        assertThat(interactiveInstance.userStyleSchema.userStyleSettings.map { it.id.value })
             .containsExactly(
                 "color_style_setting",
                 "draw_hour_pips_style_setting",

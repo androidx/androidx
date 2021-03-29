@@ -54,10 +54,12 @@ import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.Option
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
@@ -115,18 +117,18 @@ public class WatchFaceServiceTest {
     private val complicationDrawableBackground = ComplicationDrawable(context)
 
     private val redStyleOption =
-        ListUserStyleSetting.ListOption("red_style", "Red", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("red_style"), "Red", icon = null)
 
     private val greenStyleOption =
-        ListUserStyleSetting.ListOption("green_style", "Green", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("green_style"), "Green", icon = null)
 
     private val blueStyleOption =
-        ListUserStyleSetting.ListOption("bluestyle", "Blue", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("bluestyle"), "Blue", icon = null)
 
     private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 
     private val colorStyleSetting = ListUserStyleSetting(
-        "color_style_setting",
+        UserStyleSetting.Id("color_style_setting"),
         "Colors",
         "Watchface colorization", /* icon = */
         null,
@@ -135,19 +137,19 @@ public class WatchFaceServiceTest {
     )
 
     private val classicStyleOption =
-        ListUserStyleSetting.ListOption("classic_style", "Classic", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("classic_style"), "Classic", icon = null)
 
     private val modernStyleOption =
-        ListUserStyleSetting.ListOption("modern_style", "Modern", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("modern_style"), "Modern", icon = null)
 
     private val gothicStyleOption =
-        ListUserStyleSetting.ListOption("gothic_style", "Gothic", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("gothic_style"), "Gothic", icon = null)
 
     private val watchHandStyleList =
         listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
 
     private val watchHandStyleSetting = ListUserStyleSetting(
-        "hand_style_setting",
+        UserStyleSetting.Id("hand_style_setting"),
         "Hand Style",
         "Hand visual look", /* icon = */
         null,
@@ -156,7 +158,7 @@ public class WatchFaceServiceTest {
     )
 
     private val badStyleOption =
-        ListUserStyleSetting.ListOption("bad_option", "Bad", icon = null)
+        ListUserStyleSetting.ListOption(Option.Id("bad_option"), "Bad", icon = null)
 
     private val leftComplication =
         Complication.createRoundRectComplicationBuilder(
@@ -217,7 +219,7 @@ public class WatchFaceServiceTest {
             .build()
 
     private val leftAndRightComplicationsOption = ComplicationsOption(
-        LEFT_AND_RIGHT_COMPLICATIONS,
+        Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
         "Both",
         null,
         listOf(
@@ -228,7 +230,7 @@ public class WatchFaceServiceTest {
         )
     )
     private val noComplicationsOption = ComplicationsOption(
-        NO_COMPLICATIONS,
+        Option.Id(NO_COMPLICATIONS),
         "Both",
         null,
         listOf(
@@ -239,7 +241,7 @@ public class WatchFaceServiceTest {
         )
     )
     private val leftComplicationsOption = ComplicationsOption(
-        LEFT_COMPLICATION,
+        Option.Id(LEFT_COMPLICATION),
         "Left",
         null,
         listOf(
@@ -250,7 +252,7 @@ public class WatchFaceServiceTest {
         )
     )
     private val rightComplicationsOption = ComplicationsOption(
-        RIGHT_COMPLICATION,
+        Option.Id(RIGHT_COMPLICATION),
         "Right",
         null,
         listOf(
@@ -261,7 +263,7 @@ public class WatchFaceServiceTest {
         )
     )
     private val complicationsStyleSetting = ComplicationsUserStyleSetting(
-        "complications_style_setting",
+        UserStyleSetting.Id("complications_style_setting"),
         "Complications",
         "Number and position",
         icon = null,
@@ -1367,13 +1369,13 @@ public class WatchFaceServiceTest {
     @Test
     public fun getOptionForIdentifier_ListViewStyleSetting() {
         // Check the correct Options are returned for known option names.
-        assertThat(colorStyleSetting.getOptionForId(redStyleOption.id)).isEqualTo(
+        assertThat(colorStyleSetting.getOptionForId(redStyleOption.id.value)).isEqualTo(
             redStyleOption
         )
-        assertThat(colorStyleSetting.getOptionForId(greenStyleOption.id)).isEqualTo(
+        assertThat(colorStyleSetting.getOptionForId(greenStyleOption.id.value)).isEqualTo(
             greenStyleOption
         )
-        assertThat(colorStyleSetting.getOptionForId(blueStyleOption.id)).isEqualTo(
+        assertThat(colorStyleSetting.getOptionForId(blueStyleOption.id.value)).isEqualTo(
             blueStyleOption
         )
 
@@ -1717,26 +1719,26 @@ public class WatchFaceServiceTest {
     @Test
     public fun partialComplicationOverrides() {
         val bothComplicationsOption = ComplicationsOption(
-            LEFT_AND_RIGHT_COMPLICATIONS,
+            Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
             "Left And Right",
             null,
             // An empty list means use the initial config.
             emptyList()
         )
         val leftOnlyComplicationsOption = ComplicationsOption(
-            LEFT_COMPLICATION,
+            Option.Id(LEFT_COMPLICATION),
             "Left",
             null,
             listOf(ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID).setEnabled(false).build())
         )
         val rightOnlyComplicationsOption = ComplicationsOption(
-            RIGHT_COMPLICATION,
+            Option.Id(RIGHT_COMPLICATION),
             "Right",
             null,
             listOf(ComplicationOverlay.Builder(LEFT_COMPLICATION_ID).setEnabled(false).build())
         )
         val complicationsStyleSetting = ComplicationsUserStyleSetting(
-            "complications_style_setting",
+            UserStyleSetting.Id("complications_style_setting"),
             "Complications",
             "Number and position",
             icon = null,
@@ -1792,20 +1794,20 @@ public class WatchFaceServiceTest {
     @Test
     public fun partialComplicationOverrideAppliedToInitialStyle() {
         val bothComplicationsOption = ComplicationsOption(
-            LEFT_AND_RIGHT_COMPLICATIONS,
+            Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
             "Left And Right",
             null,
             // An empty list means use the initial config.
             emptyList()
         )
         val leftOnlyComplicationsOption = ComplicationsOption(
-            LEFT_COMPLICATION,
+            Option.Id(LEFT_COMPLICATION),
             "Left",
             null,
             listOf(ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID).setEnabled(false).build())
         )
         val complicationsStyleSetting = ComplicationsUserStyleSetting(
-            "complications_style_setting",
+            UserStyleSetting.Id("complications_style_setting"),
             "Complications",
             "Number and position",
             icon = null,

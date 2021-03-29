@@ -56,11 +56,13 @@ import androidx.wear.watchface.client.asApiEditorState
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
+import androidx.wear.watchface.style.UserStyleSetting.Option
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -236,19 +238,16 @@ public class EditorSessionTest {
     private lateinit var editorDelegate: WatchFace.EditorDelegate
     private val screenBounds = Rect(0, 0, 400, 400)
 
-    private val redStyleOption =
-        UserStyleSetting.ListUserStyleSetting.ListOption("red_style", "Red", icon = null)
+    private val redStyleOption = ListOption(Option.Id("red_style"), "Red", icon = null)
 
-    private val greenStyleOption =
-        UserStyleSetting.ListUserStyleSetting.ListOption("green_style", "Green", icon = null)
+    private val greenStyleOption = ListOption(Option.Id("green_style"), "Green", icon = null)
 
-    private val blueStyleOption =
-        UserStyleSetting.ListUserStyleSetting.ListOption("bluestyle", "Blue", icon = null)
+    private val blueStyleOption = ListOption(Option.Id("bluestyle"), "Blue", icon = null)
 
     private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 
     private val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
-        "color_style_setting",
+        UserStyleSetting.Id("color_style_setting"),
         "Colors",
         "Watchface colorization", /* icon = */
         null,
@@ -256,20 +255,17 @@ public class EditorSessionTest {
         listOf(Layer.BASE)
     )
 
-    private val classicStyleOption =
-        UserStyleSetting.ListUserStyleSetting.ListOption("classic_style", "Classic", icon = null)
+    private val classicStyleOption = ListOption(Option.Id("classic_style"), "Classic", icon = null)
 
-    private val modernStyleOption =
-        UserStyleSetting.ListUserStyleSetting.ListOption("modern_style", "Modern", icon = null)
+    private val modernStyleOption = ListOption(Option.Id("modern_style"), "Modern", icon = null)
 
-    private val gothicStyleOption =
-        UserStyleSetting.ListUserStyleSetting.ListOption("gothic_style", "Gothic", icon = null)
+    private val gothicStyleOption = ListOption(Option.Id("gothic_style"), "Gothic", icon = null)
 
     private val watchHandStyleList =
         listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
 
     private val watchHandStyleSetting = UserStyleSetting.ListUserStyleSetting(
-        "hand_style_setting",
+        UserStyleSetting.Id("hand_style_setting"),
         "Hand Style",
         "Hand visual look", /* icon = */
         null,
@@ -365,7 +361,9 @@ public class EditorSessionTest {
             override val userStyleSchema = userStyleRepository.schema
             override var userStyle: UserStyle
                 get() = userStyleRepository.userStyle
-                set(value) { userStyleRepository.userStyle = value }
+                set(value) {
+                    userStyleRepository.userStyle = value
+                }
 
             override val complicationsManager = complicationsManager
             override val screenBounds = this@EditorSessionTest.screenBounds
@@ -441,10 +439,12 @@ public class EditorSessionTest {
         scenario.onActivity {
             val userStyleSchema = it.editorSession.userStyleSchema
             assertThat(userStyleSchema.userStyleSettings.size).isEqualTo(2)
-            assertThat(userStyleSchema.userStyleSettings[0].id).isEqualTo(colorStyleSetting.id)
+            assertThat(userStyleSchema.userStyleSettings[0].id.value)
+                .isEqualTo(colorStyleSetting.id.value)
             assertThat(userStyleSchema.userStyleSettings[0].options.size)
                 .isEqualTo(colorStyleSetting.options.size)
-            assertThat(userStyleSchema.userStyleSettings[1].id).isEqualTo(watchHandStyleSetting.id)
+            assertThat(userStyleSchema.userStyleSettings[1].id.value)
+                .isEqualTo(watchHandStyleSetting.id.value)
             assertThat(userStyleSchema.userStyleSettings[1].options.size)
                 .isEqualTo(watchHandStyleSetting.options.size)
             // We could test more state but this should be enough.
@@ -855,15 +855,17 @@ public class EditorSessionTest {
             TimeUnit.MILLISECONDS
         ).asApiEditorState()
 
-        assertThat(result.userStyle[colorStyleSetting.id]).isEqualTo(blueStyleOption.id)
-        assertThat(result.userStyle[watchHandStyleSetting.id]).isEqualTo(gothicStyleOption.id)
+        assertThat(result.userStyle[colorStyleSetting.id.value]).isEqualTo(blueStyleOption.id.value)
+        assertThat(result.userStyle[watchHandStyleSetting.id.value])
+            .isEqualTo(gothicStyleOption.id.value)
         assertThat(result.watchFaceId.id).isEqualTo(testInstanceId.id)
         assertTrue(result.shouldCommitChanges)
 
         // The style change should also have been applied to the watchface
-        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id).isEqualTo(blueStyleOption.id)
-        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id)
-            .isEqualTo(gothicStyleOption.id)
+        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+            .isEqualTo(blueStyleOption.id.value)
+        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+            .isEqualTo(gothicStyleOption.id.value)
 
         assertThat(result.previewComplicationsData.size).isEqualTo(2)
         val leftComplicationData = result.previewComplicationsData[LEFT_COMPLICATION_ID] as
@@ -946,10 +948,10 @@ public class EditorSessionTest {
         val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
         scenario.onActivity { activity ->
             runBlocking {
-                assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id)
-                    .isEqualTo(redStyleOption.id)
-                assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id)
-                    .isEqualTo(classicStyleOption.id)
+                assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+                    .isEqualTo(redStyleOption.id.value)
+                assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+                    .isEqualTo(classicStyleOption.id.value)
 
                 // Select [blueStyleOption] and [gothicStyleOption].
                 val styleMap = activity.editorSession.userStyle.selectedOptions.toMutableMap()
@@ -969,15 +971,17 @@ public class EditorSessionTest {
             TIMEOUT_MILLIS,
             TimeUnit.MILLISECONDS
         ).asApiEditorState()
-        assertThat(result.userStyle[colorStyleSetting.id]).isEqualTo(blueStyleOption.id)
-        assertThat(result.userStyle[watchHandStyleSetting.id]).isEqualTo(gothicStyleOption.id)
+        assertThat(result.userStyle[colorStyleSetting.id.value]).isEqualTo(blueStyleOption.id.value)
+        assertThat(result.userStyle[watchHandStyleSetting.id.value])
+            .isEqualTo(gothicStyleOption.id.value)
         assertFalse(result.shouldCommitChanges)
 
         // The original style should be applied to the watch face however because
         // commitChangesOnClose is false.
-        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id).isEqualTo(redStyleOption.id)
-        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id)
-            .isEqualTo(classicStyleOption.id)
+        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+            .isEqualTo(redStyleOption.id.value)
+        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+            .isEqualTo(classicStyleOption.id.value)
 
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
@@ -1027,9 +1031,10 @@ public class EditorSessionTest {
         assertFalse(editorObserver.stateChangeObserved())
 
         // The style change should not have been applied to the watchface.
-        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id).isEqualTo(redStyleOption.id)
-        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id)
-            .isEqualTo(classicStyleOption.id)
+        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+            .isEqualTo(redStyleOption.id.value)
+        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+            .isEqualTo(classicStyleOption.id.value)
 
         EditorService.globalEditorService.unregisterObserver(observerId)
     }

@@ -293,16 +293,16 @@ public class WatchFaceControlClientTest {
         )!!
 
         assertThat(headlessInstance.userStyleSchema.userStyleSettings.size).isEqualTo(4)
-        assertThat(headlessInstance.userStyleSchema.userStyleSettings[0].id).isEqualTo(
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings[0].id.value).isEqualTo(
             "color_style_setting"
         )
-        assertThat(headlessInstance.userStyleSchema.userStyleSettings[1].id).isEqualTo(
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings[1].id.value).isEqualTo(
             "draw_hour_pips_style_setting"
         )
-        assertThat(headlessInstance.userStyleSchema.userStyleSettings[2].id).isEqualTo(
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings[2].id.value).isEqualTo(
             "watch_hand_length_style_setting"
         )
-        assertThat(headlessInstance.userStyleSchema.userStyleSettings[3].id).isEqualTo(
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings[3].id.value).isEqualTo(
             "complications_style_setting"
         )
 

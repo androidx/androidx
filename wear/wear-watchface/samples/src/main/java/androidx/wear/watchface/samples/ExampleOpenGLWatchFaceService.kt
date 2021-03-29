@@ -45,7 +45,9 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.Option
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -92,18 +94,18 @@ fun createExampleOpenGLWatchFaceBuilder(
 ): WatchFace {
     val watchFaceStyle = WatchFaceColorStyle.create(context, "white_style")
     val colorStyleSetting = ListUserStyleSetting(
-        "color_style_setting",
+        UserStyleSetting.Id("color_style_setting"),
         "Colors",
         "Watchface colorization",
         icon = null,
         options = listOf(
             ListUserStyleSetting.ListOption(
-                "red_style",
+                Option.Id("red_style"),
                 "Red",
                 Icon.createWithResource(context, R.drawable.red_style)
             ),
             ListUserStyleSetting.ListOption(
-                "green_style",
+                Option.Id("green_style"),
                 "Green",
                 Icon.createWithResource(context, R.drawable.green_style)
             )
@@ -576,7 +578,7 @@ class ExampleOpenGLRenderer(
             GLES20.glClearColor(0f, 0f, 0f, 1f)
             ambientVpMatrix
         } else {
-            when (currentUserStyleRepository.userStyle[colorStyleSetting]!!.id) {
+            when (currentUserStyleRepository.userStyle[colorStyleSetting]!!.id.value) {
                 "red_style" -> GLES20.glClearColor(0.5f, 0.2f, 0.2f, 1f)
                 "green_style" -> GLES20.glClearColor(0.2f, 0.5f, 0.2f, 1f)
             }
@@ -643,9 +645,8 @@ class ExampleOpenGLRenderer(
                     0
                 )
                 secondHandTriangleMap[
-                    currentUserStyleRepository.userStyle[colorStyleSetting]!!.id
-                ]
-                    ?.draw(mvpMatrix)
+                    currentUserStyleRepository.userStyle[colorStyleSetting]!!.id.value
+                ]?.draw(mvpMatrix)
             }
         }
 

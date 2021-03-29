@@ -102,9 +102,9 @@ private fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
 private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
     val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE).bufferedWriter()
     for ((key, value) in style.selectedOptions) {
-        writer.write(key.id)
+        writer.write(key.id.value)
         writer.newLine()
-        writer.write(value.id)
+        writer.write(value.id.value)
         writer.newLine()
     }
     writer.close()
