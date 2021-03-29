@@ -40,6 +40,7 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.DeviceConfig
+import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.control.WatchFaceControlService
@@ -307,6 +308,20 @@ public class WatchFaceControlClientTest {
         )
 
         headlessInstance.close()
+    }
+
+    @Test
+    public fun headlessToBundleAndCreateFromBundle() {
+        val headlessInstance = HeadlessWatchFaceClient.createFromBundle(
+            service.createHeadlessWatchFaceClient(
+                exampleWatchFaceComponentName,
+                deviceConfig,
+                400,
+                400
+            )!!.toBundle()
+        )
+
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings.size).isEqualTo(4)
     }
 
     @Test
