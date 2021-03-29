@@ -422,7 +422,7 @@ public class NavDeepLink internal constructor(
             // specifically escape any .* instances to ensure
             // they are still treated as wildcards in our final regex
             val finalRegex = uriRegex.toString().replace(".*", "\\E.*\\Q")
-            pattern = Pattern.compile(finalRegex)
+            pattern = Pattern.compile(finalRegex, Pattern.CASE_INSENSITIVE)
         }
         if (mimeType != null) {
             val mimeTypePattern = Pattern.compile("^[\\s\\S]+/[\\s\\S]+$")
