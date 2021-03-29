@@ -110,6 +110,12 @@ internal class CameraGraphSessionImpl(
     }
 
     override suspend fun lock3A(
+        aeMode: AeMode?,
+        afMode: AfMode?,
+        awbMode: AwbMode?,
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
         aeLockBehavior: Lock3ABehavior?,
         afLockBehavior: Lock3ABehavior?,
         awbLockBehavior: Lock3ABehavior?,
@@ -121,26 +127,15 @@ internal class CameraGraphSessionImpl(
         // ae, af and awb respectively. If not supported return an exception or return early with
         // the right status code.
         return controller3A.lock3A(
-            aeLockBehavior, afLockBehavior, awbLockBehavior, frameLimit,
+            aeRegions,
+            afRegions,
+            awbRegions,
+            aeLockBehavior,
+            afLockBehavior,
+            awbLockBehavior,
+            frameLimit,
             timeLimitNs
         )
-    }
-
-    override fun lock3A(
-        aeMode: AeMode?,
-        afMode: AfMode?,
-        awbMode: AwbMode?,
-        aeRegions: List<MeteringRectangle>?,
-        afRegions: List<MeteringRectangle>?,
-        awbRegions: List<MeteringRectangle>?,
-        aeLockBehavior: Lock3ABehavior?,
-        afLockBehavior: Lock3ABehavior?,
-        awbLockBehavior: Lock3ABehavior?,
-        frameLimit: Int,
-        timeLimitMs: Int
-    ): Deferred<Result3A> {
-        check(!closed.value) { "Cannot call lock3A on $this after close." }
-        TODO("Implement lock3A")
     }
 
     override fun unlock3A(ae: Boolean?, af: Boolean?, awb: Boolean?): Deferred<FrameNumber> {
