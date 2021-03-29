@@ -23,7 +23,6 @@ import static androidx.window.FoldingFeature.ORIENTATION_VERTICAL;
 import static androidx.window.FoldingFeature.OcclusionType;
 import static androidx.window.FoldingFeature.Orientation;
 import static androidx.window.FoldingFeature.STATE_FLAT;
-import static androidx.window.FoldingFeature.STATE_FLIPPED;
 import static androidx.window.FoldingFeature.STATE_HALF_OPENED;
 import static androidx.window.FoldingFeature.TYPE_FOLD;
 import static androidx.window.FoldingFeature.TYPE_HINGE;
@@ -61,22 +60,22 @@ public final class FoldingFeatureTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testHorizontalHingeWithNonZeroOrigin() {
-        new FoldingFeature(new Rect(1, 10, 20, 10), TYPE_HINGE, STATE_FLIPPED);
+        new FoldingFeature(new Rect(1, 10, 20, 10), TYPE_HINGE, STATE_HALF_OPENED);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testVerticalHingeWithNonZeroOrigin() {
-        new FoldingFeature(new Rect(10, 1, 19, 29), TYPE_HINGE, STATE_FLIPPED);
+        new FoldingFeature(new Rect(10, 1, 19, 29), TYPE_HINGE, STATE_HALF_OPENED);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testHorizontalFoldWithNonZeroOrigin() {
-        new FoldingFeature(new Rect(1, 10, 20, 10), TYPE_FOLD, STATE_FLIPPED);
+        new FoldingFeature(new Rect(1, 10, 20, 10), TYPE_FOLD, STATE_HALF_OPENED);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testVerticalFoldWithNonZeroOrigin() {
-        new FoldingFeature(new Rect(10, 1, 10, 20), TYPE_FOLD, STATE_FLIPPED);
+        new FoldingFeature(new Rect(10, 1, 10, 20), TYPE_FOLD, STATE_HALF_OPENED);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -145,7 +144,7 @@ public final class FoldingFeatureTest {
         Rect rect = new Rect(1, 0, 1, 10);
         int type = TYPE_FOLD;
         int originalState = STATE_FLAT;
-        int otherState = STATE_FLIPPED;
+        int otherState = STATE_HALF_OPENED;
 
         FoldingFeature original = new FoldingFeature(rect, type, originalState);
         FoldingFeature other = new FoldingFeature(rect, type, otherState);

@@ -17,7 +17,6 @@
 package androidx.window;
 
 import static androidx.window.FoldingFeature.STATE_FLAT;
-import static androidx.window.FoldingFeature.STATE_FLIPPED;
 import static androidx.window.FoldingFeature.STATE_HALF_OPENED;
 import static androidx.window.FoldingFeature.TYPE_FOLD;
 import static androidx.window.FoldingFeature.TYPE_HINGE;
@@ -93,7 +92,6 @@ final class TestFoldingFeatureUtil {
 
         states.add(new FoldingFeature(bounds, type, STATE_FLAT));
         states.add(new FoldingFeature(bounds, type, STATE_HALF_OPENED));
-        states.add(new FoldingFeature(bounds, type, STATE_FLIPPED));
 
         return states;
     }
