@@ -327,7 +327,7 @@ public abstract class CarAppService extends Service {
     @Nullable
     LifecycleRegistry getLifecycleIfValid() {
         Session session = getCurrentSession();
-        return session == null ? null : (LifecycleRegistry) session.getLifecycle();
+        return session == null ? null : (LifecycleRegistry) session.getLifecycleInternal();
     }
 
     @NonNull
