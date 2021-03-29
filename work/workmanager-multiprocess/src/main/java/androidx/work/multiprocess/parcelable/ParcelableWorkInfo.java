@@ -56,12 +56,14 @@ public class ParcelableWorkInfo implements Parcelable {
         // state
         WorkInfo.State state = intToState(parcel.readInt());
         // outputData
-        Data output = Data.fromByteArray(parcel.createByteArray());
+        ParcelableData parcelableOutputData = new ParcelableData(parcel);
+        Data output = parcelableOutputData.getData();
         // tags
         String[] tagsArray = parcel.createStringArray();
         List<String> tags = Arrays.asList(tagsArray);
         // progress
-        Data progress = Data.fromByteArray(parcel.createByteArray());
+        ParcelableData parcelableProgressData = new ParcelableData(parcel);
+        Data progress = parcelableProgressData.getData();
         // runAttemptCount
         int runAttemptCount = parcel.readInt();
         mWorkInfo = new WorkInfo(id, state, output, tags, progress, runAttemptCount);
@@ -97,15 +99,15 @@ public class ParcelableWorkInfo implements Parcelable {
         // state
         parcel.writeInt(stateToInt(mWorkInfo.getState()));
         // outputData
-        byte[] outputData = mWorkInfo.getOutputData().toByteArray();
-        parcel.writeByteArray(outputData);
+        ParcelableData parcelableOutputData = new ParcelableData(mWorkInfo.getOutputData());
+        parcelableOutputData.writeToParcel(parcel, flags);
         // tags
         // Note: converting to a String[] because that is faster.
         List<String> tags = new ArrayList<>(mWorkInfo.getTags());
         parcel.writeStringArray(tags.toArray(sEMPTY));
         // progress
-        byte[] progress = mWorkInfo.getProgress().toByteArray();
-        parcel.writeByteArray(progress);
+        ParcelableData parcelableProgress = new ParcelableData(mWorkInfo.getProgress());
+        parcelableProgress.writeToParcel(parcel, flags);
         // runAttemptCount
         parcel.writeInt(mWorkInfo.getRunAttemptCount());
     }
