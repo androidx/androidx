@@ -167,6 +167,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // If set this fragment is being removed from its activity.
     boolean mRemoving;
 
+    boolean mBeingSaved;
+
     // Set to true if this fragment was instantiated from a layout file.
     boolean mFromLayout;
 

@@ -28,17 +28,17 @@ import java.util.List;
 
 @SuppressLint("BanParcelableUsage")
 class BackStackState implements Parcelable {
-    final ArrayList<FragmentState> mFragments;
+    final ArrayList<String> mFragments;
     final ArrayList<BackStackRecordState> mTransactions;
 
-    BackStackState(List<FragmentState> fragments,
+    BackStackState(List<String> fragments,
             List<BackStackRecordState> transactions) {
         mFragments = new ArrayList<>(fragments);
         mTransactions = new ArrayList<>(transactions);
     }
 
     BackStackState(@NonNull Parcel in) {
-        mFragments = in.createTypedArrayList(FragmentState.CREATOR);
+        mFragments = in.createStringArrayList();
         mTransactions = in.createTypedArrayList(BackStackRecordState.CREATOR);
     }
 
@@ -47,10 +47,14 @@ class BackStackState implements Parcelable {
         // First instantiate the saved Fragments from state.
         // These will populate the transactions we instantiate.
         HashMap<String, Fragment> fragments = new HashMap<>(mFragments.size());
-        for (FragmentState fragmentState : mFragments) {
-            Fragment fragment = fragmentState.instantiate(fm.getFragmentFactory(),
-                    fm.getHost().getContext().getClassLoader());
-            fragments.put(fragment.mWho, fragment);
+        for (String fWho : mFragments) {
+            // Retrieve any saved state, clearing it out for future calls
+            FragmentState fragmentState = fm.getFragmentStore().setSavedState(fWho, null);
+            if (fragmentState != null) {
+                Fragment fragment = fragmentState.instantiate(fm.getFragmentFactory(),
+                        fm.getHost().getContext().getClassLoader());
+                fragments.put(fragment.mWho, fragment);
+            }
         }
 
         // Now instantiate all of the BackStackRecords
@@ -68,7 +72,7 @@ class BackStackState implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
-        dest.writeTypedList(mFragments);
+        dest.writeStringList(mFragments);
         dest.writeTypedList(mTransactions);
     }
 
