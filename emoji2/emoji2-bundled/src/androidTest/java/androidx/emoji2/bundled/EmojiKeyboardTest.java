@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.emoji2.text;
+package androidx.emoji2.bundled;
 
 import static org.junit.Assert.assertThat;
 
@@ -22,11 +22,12 @@ import android.text.Editable;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
-import androidx.emoji2.test.R;
-import androidx.emoji2.util.Emoji;
-import androidx.emoji2.util.EmojiMatcher;
-import androidx.emoji2.util.KeyboardUtil;
-import androidx.emoji2.util.TestString;
+import androidx.emoji2.bundled.test.R;
+import androidx.emoji2.bundled.util.Emoji;
+import androidx.emoji2.bundled.util.EmojiMatcher;
+import androidx.emoji2.bundled.util.KeyboardUtil;
+import androidx.emoji2.bundled.util.TestString;
+import androidx.emoji2.text.EmojiCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.Suppress;

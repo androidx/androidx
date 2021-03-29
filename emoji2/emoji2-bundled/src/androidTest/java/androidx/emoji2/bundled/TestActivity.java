@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.emoji2.text;
+package androidx.emoji2.bundled;
 
 import android.app.Activity;
 import android.os.Bundle;
 
-import androidx.emoji2.test.R;
+import androidx.emoji2.bundled.test.R;
 
 public class TestActivity extends Activity {
 
