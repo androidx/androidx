@@ -8,6 +8,8 @@ on:
 jobs:
   setup:
     runs-on: ubuntu-latest
+    outputs:
+      gradlew_flags: ${{ steps.global-constants.outputs.gradlew_flags }}
     steps:
       - name: "Start webhook"
         uses: androidx/github-workflow-webhook-action@main
@@ -15,6 +17,16 @@ jobs:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
           secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
           payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started"}'
+      - name: "Setup global constants"
+        id: global-constants
+        run: |
+          set -x
+          GRADLEW_FLAGS="-Dorg.gradle.internal.http.connectionTimeout=300000 \
+            -Dorg.gradle.internal.http.socketTimeout=300000                  \
+            -Dorg.gradle.internal.repository.max.retries=10                  \
+            -Dorg.gradle.internal.repository.initial.backoff=500             \
+            --stacktrace"
+          echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
 
   lint:
     runs-on: ubuntu-latest
@@ -94,7 +106,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} --stacktrace
+          arguments: -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: activity
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -143,7 +155,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer --stacktrace
+          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -200,7 +212,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer --stacktrace
+          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -257,7 +269,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer --stacktrace
+          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -314,7 +326,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer --stacktrace
+          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -371,7 +383,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer --stacktrace
+          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -428,7 +440,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer --stacktrace
+          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -485,7 +497,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer --stacktrace
+          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -542,7 +554,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer --stacktrace
+          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -600,7 +612,7 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer --stacktrace
+          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
