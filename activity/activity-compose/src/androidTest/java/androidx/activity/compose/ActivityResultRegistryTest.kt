@@ -73,7 +73,7 @@ class ActivityResultRegistryTest {
             CompositionLocalProvider(
                 LocalActivityResultRegistryOwner provides registryOwner
             ) {
-                launcher = registerForActivityResult(
+                launcher = rememberLauncherForActivityResult(
                     ActivityResultContracts.StartActivityForResult()
                 ) {}
             }
@@ -100,7 +100,7 @@ class ActivityResultRegistryTest {
                 CompositionLocalProvider(
                     LocalActivityResultRegistryOwner provides registryOwner
                 ) {
-                    launcher = registerForActivityResult(
+                    launcher = rememberLauncherForActivityResult(
                         ActivityResultContracts.StartActivityForResult()
                     ) {}
                 }
@@ -140,7 +140,7 @@ class ActivityResultRegistryTest {
             ) {
                 @Suppress("ControlFlowWithEmptyBody") // triggering recompose
                 if (recompose) { }
-                val launcher = registerForActivityResult(
+                val launcher = rememberLauncherForActivityResult(
                     ActivityResultContracts.StartActivityForResult()
                 ) {
                     counter++
@@ -187,7 +187,7 @@ class ActivityResultRegistryTest {
             ) {
                 @Suppress("ControlFlowWithEmptyBody") // triggering recompose
                 if (recompose) { }
-                val launcher = registerForActivityResult(contract) {
+                val launcher = rememberLauncherForActivityResult(contract) {
                     counter++
                 }
                 Button(
