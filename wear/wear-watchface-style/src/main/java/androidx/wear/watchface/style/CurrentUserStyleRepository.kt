@@ -54,7 +54,7 @@ public class UserStyle(
     ) : this(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
             for (styleSetting in styleSchema.userStyleSettings) {
-                val option = userStyle[styleSetting.id]
+                val option = userStyle[styleSetting.id.value]
                 if (option != null) {
                     this[styleSetting] = styleSetting.getSettingOptionForId(option)
                 } else {
@@ -76,9 +76,9 @@ public class UserStyle(
     public fun toWireFormat(): UserStyleWireFormat =
         UserStyleWireFormat(toMap())
 
-    /** Returns the style as a Map<String, String>. */
+    /** Returns the style as a [Map]<[String], [String]>. */
     public fun toMap(): Map<String, String> =
-        selectedOptions.entries.associate { it.key.id to it.value.id }
+        selectedOptions.entries.associate { it.key.id.value to it.value.id.value }
 
     /** Returns the [UserStyleSetting.Option] for [setting] if there is one or `null` otherwise. */
     public operator fun get(setting: UserStyleSetting): UserStyleSetting.Option? =
@@ -86,7 +86,7 @@ public class UserStyle(
 
     override fun toString(): String =
         "[" + selectedOptions.entries.joinToString(
-            transform = { it.key.id + " -> " + it.value.id }
+            transform = { it.key.id.value + " -> " + it.value.id.value }
         ) + "]"
 }
 
@@ -150,7 +150,7 @@ public class CurrentUserStyleRepository(
 
     private val styleListeners = HashSet<UserStyleChangeListener>()
 
-    private val idToStyleSetting = schema.userStyleSettings.associateBy { it.id }
+    private val idToStyleSetting = schema.userStyleSettings.associateBy { it.id.value }
 
     /**
      * The current [UserStyle]. Assigning to this property triggers immediate
@@ -172,9 +172,9 @@ public class CurrentUserStyleRepository(
                 field.selectedOptions as HashMap<UserStyleSetting, UserStyleSetting.Option>
             for ((setting, option) in style.selectedOptions) {
                 // Ignore an unrecognized setting.
-                val localSetting = idToStyleSetting[setting.id] ?: continue
+                val localSetting = idToStyleSetting[setting.id.value] ?: continue
                 val styleSetting = field.selectedOptions[localSetting] ?: continue
-                if (styleSetting.id != option.id) {
+                if (styleSetting.id.value != option.id.value) {
                     changed = true
                 }
                 hashmap[localSetting] = option
