@@ -16,15 +16,23 @@
 
 package androidx.wear.watchface.style
 
+import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.nio.ByteBuffer
 
 @RunWith(StyleTestRunner::class)
 public class UserStyleSettingTest {
+
+    private fun doubleToByteArray(value: Double) =
+        ByteArray(8).apply { ByteBuffer.wrap(this).putDouble(value) }
+
+    private fun byteArrayToDouble(value: ByteArray) = ByteBuffer.wrap(value).double
 
     @Test
     public fun rangedUserStyleSetting_getOptionForId_returns_default_for_bad_input() {
@@ -41,14 +49,28 @@ public class UserStyleSettingTest {
                 defaultValue
             )
 
-        assertThat(rangedUserStyleSetting.getOptionForId("not a number").id.value)
-            .isEqualTo(defaultValue.toString())
+        assertThat(
+            rangedUserStyleSetting.getOptionForId("not a number".encodeToByteArray())
+                .toDoubleRangeOption()!!.value
+        ).isEqualTo(defaultValue)
 
-        assertThat(rangedUserStyleSetting.getOptionForId("-1").id.value)
-            .isEqualTo(defaultValue.toString())
+        assertThat(
+            rangedUserStyleSetting.getOptionForId("-1".encodeToByteArray())
+                .toDoubleRangeOption()!!.value
+        ).isEqualTo(defaultValue)
 
-        assertThat(rangedUserStyleSetting.getOptionForId("10").id.value)
-            .isEqualTo(defaultValue.toString())
+        assertThat(
+            rangedUserStyleSetting.getOptionForId("10".encodeToByteArray())
+                .toDoubleRangeOption()!!.value
+        ).isEqualTo(defaultValue)
+    }
+
+    @Test
+    public fun byteArrayConversion() {
+        assertThat(BooleanUserStyleSetting.BooleanOption(true).value).isEqualTo(true)
+        assertThat(BooleanUserStyleSetting.BooleanOption(false).value).isEqualTo(false)
+        assertThat(DoubleRangeUserStyleSetting.DoubleRangeOption(123.4).value).isEqualTo(123.4)
+        assertThat(LongRangeUserStyleSetting.LongRangeOption(1234).value).isEqualTo(1234)
     }
 
     @Test
@@ -66,14 +88,23 @@ public class UserStyleSettingTest {
                 defaultValue
             )
 
-        assertThat(rangedUserStyleSetting.getOptionForId("0").id.value)
-            .isEqualTo("0.0")
+        assertThat(
+            byteArrayToDouble(
+                rangedUserStyleSetting.getOptionForId(doubleToByteArray(0.0)).id.value
+            )
+        ).isEqualTo(0.0)
 
-        assertThat(rangedUserStyleSetting.getOptionForId("0.5").id.value)
-            .isEqualTo("0.5")
+        assertThat(
+            byteArrayToDouble(
+                rangedUserStyleSetting.getOptionForId(doubleToByteArray(0.5)).id.value
+            )
+        ).isEqualTo(0.5)
 
-        assertThat(rangedUserStyleSetting.getOptionForId("1").id.value)
-            .isEqualTo("1.0")
+        assertThat(
+            byteArrayToDouble(
+                rangedUserStyleSetting.getOptionForId(doubleToByteArray(1.0)).id.value
+            )
+        ).isEqualTo(1.0)
     }
 
     @Test

@@ -31,6 +31,7 @@ import android.icu.util.TimeZone
 import android.os.BatteryManager
 import android.os.Build
 import android.support.wearable.watchface.WatchFaceStyle
+import android.util.Base64
 import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
 import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
@@ -47,6 +48,7 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
 import java.io.FileNotFoundException
@@ -84,13 +86,13 @@ public annotation class WatchFaceType {
 }
 
 private fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
-    val hashMap = HashMap<String, String>()
+    val hashMap = HashMap<String, ByteArray>()
     try {
         val reader = InputStreamReader(context.openFileInput(fileName)).buffered()
         while (true) {
             val key = reader.readLine() ?: break
             val value = reader.readLine() ?: break
-            hashMap[key] = value
+            hashMap[key] = Base64.decode(value, Base64.NO_WRAP)
         }
         reader.close()
     } catch (e: FileNotFoundException) {
@@ -104,7 +106,7 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
     for ((key, value) in style.selectedOptions) {
         writer.write(key.id.value)
         writer.newLine()
-        writer.write(value.id.value)
+        writer.write(Base64.encodeToString(value.id.value, Base64.NO_WRAP))
         writer.newLine()
     }
     writer.close()
@@ -508,14 +510,14 @@ internal class WatchFaceImpl(
         val storedUserStyle = watchFaceHostApi.getInitialUserStyle()
         if (storedUserStyle != null) {
             userStyleRepository.userStyle =
-                UserStyle(storedUserStyle, userStyleRepository.schema)
+                UserStyle(UserStyleData(storedUserStyle), userStyleRepository.schema)
         } else {
             // The system doesn't support preference persistence we need to do it ourselves.
             val preferencesFile =
                 "watchface_prefs_${watchFaceHostApi.getContext().javaClass.name}.txt"
 
             userStyleRepository.userStyle = UserStyle(
-                readPrefs(watchFaceHostApi.getContext(), preferencesFile),
+                UserStyleData(readPrefs(watchFaceHostApi.getContext(), preferencesFile)),
                 userStyleRepository.schema
             )
 

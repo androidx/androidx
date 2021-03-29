@@ -35,6 +35,7 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
 import kotlin.coroutines.resume
@@ -152,8 +153,8 @@ public interface WatchFaceControlClient : AutoCloseable {
      * @param id The ID for the requested [InteractiveWatchFaceClient].
      * @param deviceConfig The [DeviceConfig] for the wearable.
      * @param watchUiState The initial [WatchUiState] for the wearable.
-     * @param userStyle The initial style map (see [UserStyle]), or null if the default should be
-     *     used.
+     * @param userStyle The initial style map encoded as [UserStyleData] (see [UserStyle]),
+     *     or null if the default should be used.
      * @param idToComplicationData The initial complication data, or null if unavailable.
      * @return The [InteractiveWatchFaceClient], this should be closed when finished.
      * @throws [ServiceStartFailureException] if the watchface dies during startup.
@@ -162,7 +163,7 @@ public interface WatchFaceControlClient : AutoCloseable {
         id: String,
         deviceConfig: DeviceConfig,
         watchUiState: androidx.wear.watchface.client.WatchUiState,
-        userStyle: Map<String, String>?,
+        userStyle: UserStyleData?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): InteractiveWatchFaceClient
 
@@ -212,7 +213,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         id: String,
         deviceConfig: DeviceConfig,
         watchUiState: androidx.wear.watchface.client.WatchUiState,
-        userStyle: Map<String, String>?,
+        userStyle: UserStyleData?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): InteractiveWatchFaceClient {
         requireNotClosed()
@@ -245,7 +246,7 @@ internal class WatchFaceControlClientImpl internal constructor(
                         watchUiState.inAmbientMode,
                         watchUiState.interruptionFilter
                     ),
-                    UserStyleWireFormat(userStyle ?: emptyMap()),
+                    userStyle?.toWireFormat() ?: UserStyleWireFormat(emptyMap()),
                     idToComplicationData?.map {
                         IdAndComplicationDataWireFormat(
                             it.key,

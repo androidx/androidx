@@ -755,7 +755,7 @@ class ExampleDigitalWatchCanvasRenderer(
                     watchFaceColorStyle =
                         WatchFaceColorStyle.create(
                             context,
-                            userStyle[colorStyleSetting]!!.id.value
+                            userStyle[colorStyleSetting]!!.toString()
                         )
 
                     // Apply the userStyle to the complications. ComplicationDrawables for each of

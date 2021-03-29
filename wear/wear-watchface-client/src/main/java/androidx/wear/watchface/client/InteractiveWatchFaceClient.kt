@@ -40,7 +40,7 @@ import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
-import androidx.wear.watchface.style.data.UserStyleWireFormat
+import androidx.wear.watchface.style.UserStyleData
 import java.util.Objects
 import java.util.concurrent.Executor
 
@@ -91,11 +91,11 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
      * from the old ID but that's not a requirement). Sets the current [UserStyle] represented as a
-     * Map<String, String> and clears any complication data. Setting the new UserStyle may have
-     * a side effect of enabling or disabling complications, which will be visible via
+     * [UserStyleData> and clears any complication data. Setting the new UserStyle may have a
+     * side effect of enabling or disabling complications, which will be visible via
      * [ComplicationState.isEnabled].
      */
-    public fun updateWatchFaceInstance(newInstanceId: String, userStyle: Map<String, String>)
+    public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyleData)
 
     /** Returns the ID of this watch face instance. */
     public val instanceId: String
@@ -297,13 +297,13 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 
     override fun updateWatchFaceInstance(
         newInstanceId: String,
-        userStyle: Map<String, String>
+        userStyle: UserStyleData
     ) = TraceEvent(
         "InteractiveWatchFaceClientImpl.updateInstance"
     ).use {
         iInteractiveWatchFace.updateWatchfaceInstance(
             newInstanceId,
-            UserStyleWireFormat(userStyle)
+            userStyle.toWireFormat()
         )
     }
 
