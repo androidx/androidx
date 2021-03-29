@@ -2,11 +2,15 @@
 package androidx.wear.remote.interactions {
 
   @RequiresApi(android.os.Build.VERSION_CODES.N) public final class PlayStoreAvailability {
-    method public int getPlayStoreAvailabilityOnPhone(android.content.Context context);
-    field public static final androidx.wear.remote.interactions.PlayStoreAvailability INSTANCE;
+    method public static int getPlayStoreAvailabilityOnPhone(android.content.Context context);
+    field public static final androidx.wear.remote.interactions.PlayStoreAvailability.Companion Companion;
     field public static final int PLAY_STORE_AVAILABLE = 1; // 0x1
     field public static final int PLAY_STORE_ERROR_UNKNOWN = 0; // 0x0
     field public static final int PLAY_STORE_UNAVAILABLE = 2; // 0x2
+  }
+
+  public static final class PlayStoreAvailability.Companion {
+    method public int getPlayStoreAvailabilityOnPhone(android.content.Context context);
   }
 
   public final class WatchFaceConfigIntentHelper {
