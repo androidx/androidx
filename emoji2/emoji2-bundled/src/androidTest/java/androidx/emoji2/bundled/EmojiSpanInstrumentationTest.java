@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.emoji2.text;
+package androidx.emoji2.bundled;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,10 +27,12 @@ import android.text.style.RelativeSizeSpan;
 import android.util.TypedValue;
 import android.widget.TextView;
 
-import androidx.emoji2.test.R;
-import androidx.emoji2.util.Emoji;
-import androidx.emoji2.util.EmojiMatcher;
-import androidx.emoji2.util.TestString;
+import androidx.emoji2.bundled.test.R;
+import androidx.emoji2.bundled.util.Emoji;
+import androidx.emoji2.bundled.util.EmojiMatcher;
+import androidx.emoji2.bundled.util.TestString;
+import androidx.emoji2.text.EmojiCompat;
+import androidx.emoji2.text.EmojiSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.emoji2.text;
+package androidx.emoji2.bundled;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -24,8 +24,9 @@ import android.graphics.Typeface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.emoji2.text.EmojiCompat;
+import androidx.emoji2.text.MetadataRepo;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.text.emoji.flatbuffer.MetadataList;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -52,7 +53,7 @@ public class TestConfigBuilder {
             super(new TestEmojiDataLoader());
         }
 
-        TestConfig(final EmojiCompat.MetadataRepoLoader metadataLoader) {
+        TestConfig(@NonNull final EmojiCompat.MetadataRepoLoader metadataLoader) {
             super(metadataLoader);
         }
     }
@@ -88,8 +89,7 @@ public class TestConfigBuilder {
                     try {
                         mLoaderLatch.await();
                         if (mSuccess) {
-                            loaderCallback.onLoaded(MetadataRepo.create(mock(Typeface.class),
-                                    new MetadataList()));
+                            loaderCallback.onLoaded(MetadataRepo.create(mock(Typeface.class)));
                         } else {
                             loaderCallback.onFailed(null);
                         }

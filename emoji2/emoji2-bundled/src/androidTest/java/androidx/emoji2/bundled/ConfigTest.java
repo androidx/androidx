@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.emoji2.text;
+package androidx.emoji2.bundled;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,9 +31,10 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.graphics.Color;
 
-import androidx.emoji2.util.Emoji;
-import androidx.emoji2.util.EmojiMatcher;
-import androidx.emoji2.util.TestString;
+import androidx.emoji2.bundled.util.Emoji;
+import androidx.emoji2.bundled.util.EmojiMatcher;
+import androidx.emoji2.bundled.util.TestString;
+import androidx.emoji2.text.EmojiCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -58,16 +59,19 @@ public class ConfigTest {
 
     @Test(expected = NullPointerException.class)
     public void testConstructor_throwsExceptionIfMetadataLoaderNull() {
+        //noinspection ConstantConditions
         new TestConfigBuilder.TestConfig(null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testInitCallback_throwsExceptionIfNull() {
+        //noinspection ConstantConditions
         new ValidTestConfig().registerInitCallback(null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testUnregisterInitCallback_throwsExceptionIfNull() {
+        //noinspection ConstantConditions
         new ValidTestConfig().unregisterInitCallback(null);
     }
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.emoji2.util;
+package androidx.emoji2.bundled.util;
 
 import android.app.Instrumentation;
 import android.text.Selection;
