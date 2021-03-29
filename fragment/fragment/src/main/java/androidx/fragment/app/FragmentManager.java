@@ -680,6 +680,22 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     /**
+     * Restores the back stack previously saved via {@link #saveBackStack(String)}. This
+     * will result in all of the transactions that made up that back stack to be re-executed,
+     * thus re-adding any fragments that were added through those transactions. All state of
+     * those fragments will be restored as part of this process.
+     * <p>
+     * This function is asynchronous -- it enqueues the
+     * request to restore, but the action will not be performed until the application
+     * returns to its event loop.
+     *
+     * @param name The name of the back stack previously saved by {@link #saveBackStack(String)}.
+     */
+    public void restoreBackStack(@NonNull String name) {
+        enqueueAction(new RestoreBackStackState(name), false);
+    }
+
+    /**
      * Save the back stack. While this functions similarly to
      * {@link #popBackStack(String, int)}, it <strong>does not</strong> throw away the
      * state of any fragments that were added through those transactions. Instead, the
@@ -2187,6 +2203,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
         executeOps(records, isRecordPop, startIndex, endIndex);
 
+        for (int recordNum = startIndex; recordNum < endIndex; recordNum++) {
+            final BackStackRecord record = records.get(recordNum);
+            record.runOnExecuteRunnables();
+        }
+
         if (USE_STATE_MANAGER) {
             // The last operation determines the overall direction, this ensures that operations
             // such as push, push, pop, push are correctly considered a push
@@ -2602,6 +2623,21 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mBackStack.add(state);
     }
 
+    boolean restoreBackStackState(@NonNull ArrayList<BackStackRecord> records,
+            @NonNull ArrayList<Boolean> isRecordPop, @NonNull String name) {
+        BackStackState backStackState = mBackStackStates.get(name);
+        if (backStackState == null) {
+            return false;
+        }
+
+        List<BackStackRecord> backStackRecords = backStackState.instantiate(this);
+        for (BackStackRecord record : backStackRecords) {
+            records.add(record);
+            isRecordPop.add(false);
+        }
+        return true;
+    }
+
     boolean saveBackStackState(@NonNull ArrayList<BackStackRecord> records,
             @NonNull ArrayList<Boolean> isRecordPop, @NonNull String name) {
         final int index = findBackStackIndex(name, -1, true);
@@ -2697,7 +2733,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
             record.mBeingSaved = true;
             // Get a callback when the BackStackRecord is actually finished
             final int currentIndex = i;
-            record.addOnCommitRunnable(new Runnable() {
+            record.addOnExecuteRunnable(new Runnable() {
                 @Override
                 public void run() {
                     // First collapse the record to remove expanded ops and get it ready to save
@@ -3747,6 +3783,21 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 }
             }
             return popBackStackState(records, isRecordPop, mName, mId, mFlags);
+        }
+    }
+
+    private class RestoreBackStackState implements OpGenerator {
+
+        private final String mName;
+
+        RestoreBackStackState(@NonNull String name) {
+            mName = name;
+        }
+
+        @Override
+        public boolean generateOps(@NonNull ArrayList<BackStackRecord> records,
+                @NonNull ArrayList<Boolean> isRecordPop) {
+            return restoreBackStackState(records, isRecordPop, mName);
         }
     }
 

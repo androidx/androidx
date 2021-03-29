@@ -28,13 +28,13 @@ import java.util.List;
 
 @SuppressLint("BanParcelableUsage")
 class BackStackState implements Parcelable {
-    final ArrayList<String> mFragments;
-    final ArrayList<BackStackRecordState> mTransactions;
+    final List<String> mFragments;
+    final List<BackStackRecordState> mTransactions;
 
     BackStackState(List<String> fragments,
             List<BackStackRecordState> transactions) {
-        mFragments = new ArrayList<>(fragments);
-        mTransactions = new ArrayList<>(transactions);
+        mFragments = fragments;
+        mTransactions = transactions;
     }
 
     BackStackState(@NonNull Parcel in) {
@@ -43,7 +43,7 @@ class BackStackState implements Parcelable {
     }
 
     @NonNull
-    ArrayList<BackStackRecord> instantiate(@NonNull FragmentManager fm) {
+    List<BackStackRecord> instantiate(@NonNull FragmentManager fm) {
         // First instantiate the saved Fragments from state.
         // These will populate the transactions we instantiate.
         HashMap<String, Fragment> fragments = new HashMap<>(mFragments.size());

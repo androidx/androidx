@@ -281,6 +281,15 @@ final class BackStackRecord extends FragmentTransaction implements
         }
     }
 
+    void runOnExecuteRunnables() {
+        if (mExecuteRunnables != null) {
+            for (int i = 0; i < mExecuteRunnables.size(); i++) {
+                mExecuteRunnables.get(i).run();
+            }
+            mExecuteRunnables = null;
+        }
+    }
+
     public void runOnCommitRunnables() {
         if (mCommitRunnables != null) {
             for (int i = 0; i < mCommitRunnables.size(); i++) {
