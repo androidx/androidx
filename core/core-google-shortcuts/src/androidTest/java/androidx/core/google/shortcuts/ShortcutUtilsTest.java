@@ -16,6 +16,9 @@
 
 package androidx.core.google.shortcuts;
 
+import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_TAG_KEY;
+import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
@@ -24,8 +27,11 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+
+import com.google.crypto.tink.KeysetHandle;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,14 +57,33 @@ public class ShortcutUtilsTest {
 
     @Test
     @SmallTest
-    public void testGetIndexableShortcutUrl_returnsShortcutUrl() throws Exception {
+    public void testGetIndexableShortcutUrl_noKeysetHandle_returnsShortcutUrl() throws Exception {
         Context context = mock(Context.class);
         Intent intent = Intent.parseUri("http://www.google.com", 0);
 
-        String shortcutUrl = ShortcutUtils.getIndexableShortcutUrl(context, intent);
+        String shortcutUrl = ShortcutUtils.getIndexableShortcutUrl(context, intent, null);
 
         String expectedShortcutUrl = "http://www.google.com";
         assertThat(shortcutUrl).isEqualTo(expectedShortcutUrl);
+    }
+
+    @Test
+    @SmallTest
+    public void testGetIndexableShortcutUrl_withKeyset_returnsTrampolineIntent() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = Intent.parseUri("http://www.google.com", 0);
+
+        KeysetHandle keysetHandle = ShortcutUtils.getOrCreateShortcutKeysetHandle(context);
+        assertThat(keysetHandle).isNotNull();
+
+        String trampolineUrl = ShortcutUtils.getIndexableShortcutUrl(context, intent, keysetHandle);
+        Intent trampolineIntent = Intent.parseUri(trampolineUrl, Intent.URI_INTENT_SCHEME);
+
+        assertThat(trampolineIntent.getPackage()).isEqualTo(context.getPackageName());
+        assertThat(trampolineIntent.getStringExtra(SHORTCUT_TAG_KEY)).isNotEmpty();
+        String expectedShortcutUrl = "http://www.google.com";
+        assertThat(trampolineIntent.getStringExtra(SHORTCUT_URL_KEY))
+                .isEqualTo(expectedShortcutUrl);
     }
 
     @Test
@@ -71,5 +96,25 @@ public class ShortcutUtilsTest {
     @SmallTest
     public void testIsAppActionCapability_returnsFalse() {
         assertThat(ShortcutUtils.isAppActionCapability("ORDER_MENU_ITEM")).isFalse();
+    }
+
+    @Test
+    @SmallTest
+    public void testGetOrCreateShortcutKeysetHandle_returnsKeysetHandle() {
+        assertThat(ShortcutUtils.getOrCreateShortcutKeysetHandle(
+                ApplicationProvider.getApplicationContext())).isNotNull();
+    }
+
+    @Test
+    @SmallTest
+    public void testGetOrCreateShortcutKeysetHandle_multipleCalls_returnsSameKeyset() {
+        KeysetHandle keyset1 = ShortcutUtils.getOrCreateShortcutKeysetHandle(
+                ApplicationProvider.getApplicationContext());
+        KeysetHandle keyset2 = ShortcutUtils.getOrCreateShortcutKeysetHandle(
+                ApplicationProvider.getApplicationContext());
+
+        assertThat(keyset1).isNotNull();
+        assertThat(keyset2).isNotNull();
+        assertThat(keyset1.toString()).isEqualTo(keyset2.toString());
     }
 }
