@@ -16,14 +16,20 @@
 
 package androidx.activity.compose
 
+import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.addCallback
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -98,6 +104,43 @@ class BackHandlerTest {
         composeTestRule.onNodeWithText("Press Back").performClick()
         composeTestRule.runOnIdle {
             assertThat(results).isEqualTo(listOf("initial", "changed"))
+        }
+    }
+
+    /**
+     * Test to ensure that the callback from the BackHandler remains in the correct order though
+     * lifecycle changes
+     */
+    @Test
+    fun testBackHandlerLifecycle() {
+        var inteceptedBack = false
+        val lifecycleOwner = TestLifecycleOwner()
+
+        composeTestRule.setContent {
+            val dispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
+            val dispatcherOwner = object : OnBackPressedDispatcherOwner {
+                override fun getLifecycle() = lifecycleOwner.lifecycle
+
+                override fun getOnBackPressedDispatcher() = dispatcher
+            }
+            dispatcher.addCallback(lifecycleOwner) { }
+            CompositionLocalProvider(
+                LocalOnBackPressedDispatcherOwner provides dispatcherOwner,
+                LocalLifecycleOwner provides lifecycleOwner
+            ) {
+                BackHandler { inteceptedBack = true }
+            }
+            Button(onClick = { dispatcher.onBackPressed() }) {
+                Text(text = "Press Back")
+            }
+        }
+
+        lifecycleOwner.currentState = Lifecycle.State.CREATED
+        lifecycleOwner.currentState = Lifecycle.State.RESUMED
+
+        composeTestRule.onNodeWithText("Press Back").performClick()
+        composeTestRule.runOnIdle {
+            assertThat(inteceptedBack).isEqualTo(true)
         }
     }
 }
