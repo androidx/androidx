@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
@@ -639,6 +640,98 @@ internal class Controller3ALock3ATest {
             CaptureRequest.CONTROL_AF_TRIGGER_START
         )
         assertThat(request4.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
+            true
+        )
+    }
+
+    @Test
+    fun testLock3AWithRegions(): Unit = runBlocking {
+        initGraphProcessor()
+
+        val afMeteringRegion = MeteringRectangle(1, 1, 100, 100, 2)
+        val aeMeteringRegion = MeteringRectangle(10, 15, 140, 140, 3)
+        val result = controller3A.lock3A(
+            aeRegions = listOf(aeMeteringRegion),
+            afRegions = listOf(afMeteringRegion),
+            afLockBehavior = Lock3ABehavior.IMMEDIATE,
+            aeLockBehavior = Lock3ABehavior.IMMEDIATE
+        )
+        assertThat(result.isCompleted).isFalse()
+
+        // Since requirement of to lock both AE and AF immediately, the requests to lock AE and AF
+        // are sent right away. The result of lock3A call will complete once AE and AF have reached
+        // their desired states. In this response i.e cameraResponse1, AF is still scanning so the
+        // result won't be complete.
+        val cameraResponse = GlobalScope.async {
+            listener3A.onRequestSequenceCreated(
+                FakeRequestMetadata(
+                    requestNumber = RequestNumber(1)
+                )
+            )
+            listener3A.onPartialCaptureResult(
+                FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                FrameNumber(101L),
+                FakeFrameMetadata(
+                    frameNumber = FrameNumber(101L),
+                    resultMetadata = mapOf(
+                        CaptureResult.CONTROL_AF_STATE to CaptureResult
+                            .CONTROL_AF_STATE_PASSIVE_SCAN,
+                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
+                    )
+                )
+            )
+        }
+
+        cameraResponse.await()
+        assertThat(result.isCompleted).isFalse()
+
+        // One we we are notified that the AE and AF are in locked state, the result of lock3A call
+        // will complete.
+        GlobalScope.launch {
+            listener3A.onRequestSequenceCreated(
+                FakeRequestMetadata(
+                    requestNumber = RequestNumber(1)
+                )
+            )
+            listener3A.onPartialCaptureResult(
+                FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                FrameNumber(101L),
+                FakeFrameMetadata(
+                    frameNumber = FrameNumber(101L),
+                    resultMetadata = mapOf(
+                        CaptureResult.CONTROL_AF_STATE to CaptureResult
+                            .CONTROL_AF_STATE_FOCUSED_LOCKED,
+                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
+                    )
+                )
+            )
+        }
+
+        val result3A = result.await()
+        assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+
+        val aeRegions = graphState3A.aeRegions!!
+        assertThat(aeRegions.size).isEqualTo(1)
+        assertThat(aeRegions[0]).isEqualTo(aeMeteringRegion)
+
+        val afRegions = graphState3A.afRegions!!
+        assertThat(afRegions.size).isEqualTo(1)
+        assertThat(afRegions[0]).isEqualTo(afMeteringRegion)
+
+        // We not check if the correct sequence of requests were submitted by lock3A call. The
+        // request should be a repeating request to lock AE.
+        val request1 = requestProcessor.nextEvent().requestSequence
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
+            true
+        )
+
+        // The second request should be a single request to lock AF.
+        val request2 = requestProcessor.nextEvent().requestSequence
+        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
+            CaptureRequest.CONTROL_AF_TRIGGER_START
+        )
+        assertThat(request2.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
             true
         )
     }
