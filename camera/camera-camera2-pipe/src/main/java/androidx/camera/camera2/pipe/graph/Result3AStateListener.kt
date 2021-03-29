@@ -96,9 +96,7 @@ internal class Result3AStateListenerImpl(
             currentTimestampNs != null &&
             currentTimestampNs - timestampOfFirstUpdateNs > timeLimitNs
         ) {
-            _result.complete(
-                Result3A(frameMetadata.frameNumber, Result3A.Status.TIME_LIMIT_REACHED)
-            )
+            _result.complete(Result3A(Result3A.Status.TIME_LIMIT_REACHED, frameMetadata))
             return true
         }
 
@@ -110,9 +108,7 @@ internal class Result3AStateListenerImpl(
         if (frameNumberOfFirstUpdate != null && frameLimit != null &&
             currentFrameNumber.value - frameNumberOfFirstUpdate.value > frameLimit
         ) {
-            _result.complete(
-                Result3A(frameMetadata.frameNumber, Result3A.Status.FRAME_LIMIT_REACHED)
-            )
+            _result.complete(Result3A(Result3A.Status.FRAME_LIMIT_REACHED, frameMetadata))
             return true
         }
 
@@ -122,7 +118,7 @@ internal class Result3AStateListenerImpl(
                 return false
             }
         }
-        _result.complete(Result3A(frameMetadata.frameNumber, Result3A.Status.OK))
+        _result.complete(Result3A(Result3A.Status.OK, frameMetadata))
         return true
     }
 

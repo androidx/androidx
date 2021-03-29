@@ -33,7 +33,6 @@ import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
-import androidx.camera.camera2.pipe.CameraGraph.Constants3A.FRAME_NUMBER_INVALID
 import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
@@ -99,7 +98,7 @@ internal class Controller3A(
             CONTROL_AE_PRECAPTURE_TRIGGER to CONTROL_AE_PRECAPTURE_TRIGGER_START
         )
 
-        private val result3ASubmitFailed = Result3A(FRAME_NUMBER_INVALID, Status.SUBMIT_FAILED)
+        private val result3ASubmitFailed = Result3A(Status.SUBMIT_FAILED)
 
         private val aeUnlockedStateList = listOf(
             CaptureResult.CONTROL_AE_STATE_INACTIVE,
@@ -279,8 +278,8 @@ internal class Controller3A(
             }
             val result = listener.result.await()
             debug {
-                "lock3A - converged at frame number=${result.frameNumber.value}, status=${result
-                    .status}"
+                "lock3A - converged at frame number=${result.frameMetadata?.frameNumber?.value}, " +
+                    "status=${result.status}"
             }
             // Return immediately if we encounter an error when unlocking and waiting for
             // convergence.
