@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 
 /**
  * Provides a [OnBackPressedDispatcher] that can be used by Composables hosted in a
@@ -86,10 +87,10 @@ public fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
         backCallback.isEnabled = enabled
     }
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
-    // If `backDispatcher` changes, dispose and reset the effect
-    DisposableEffect(backDispatcher) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, backDispatcher) {
         // Add callback to the backDispatcher
-        backDispatcher.addCallback(backCallback)
+        backDispatcher.addCallback(lifecycleOwner, backCallback)
         // When the effect leaves the Composition, remove the callback
         onDispose {
             backCallback.remove()
