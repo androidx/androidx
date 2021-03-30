@@ -17,7 +17,7 @@
 package androidx.activity.compose.samples
 
 import android.graphics.Bitmap
-import androidx.activity.compose.registerForActivityResult
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.annotation.Sampled
@@ -33,9 +33,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 
 @Sampled
 @Composable
-fun RegisterForActivityResult() {
+fun RememberLauncherForActivityResult() {
     val result = remember { mutableStateOf<Bitmap?>(null) }
-    val launcher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) {
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
         result.value = it
     }
 
