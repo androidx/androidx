@@ -315,4 +315,33 @@ public class CurrentUserStyleRepositoryTest {
             ]?.toCustomValueOption()!!.customValue.decodeToString()
         ).isEqualTo("test")
     }
+
+    @Test
+    public fun userStyleData_equals() {
+        assertThat(UserStyleData(mapOf("A" to "a".encodeToByteArray()))).isEqualTo(
+            UserStyleData(mapOf("A" to "a".encodeToByteArray()))
+        )
+
+        assertThat(
+            UserStyleData(mapOf("A" to "a".encodeToByteArray(), "B" to "b".encodeToByteArray()))
+        ).isEqualTo(
+            UserStyleData(mapOf("A" to "a".encodeToByteArray(), "B" to "b".encodeToByteArray()))
+        )
+
+        assertThat(UserStyleData(mapOf("A" to "a".encodeToByteArray()))).isNotEqualTo(
+            UserStyleData(mapOf("A" to "b".encodeToByteArray()))
+        )
+
+        assertThat(UserStyleData(mapOf("A" to "a".encodeToByteArray()))).isNotEqualTo(
+            UserStyleData(mapOf("B" to "a".encodeToByteArray()))
+        )
+
+        assertThat(UserStyleData(mapOf("A" to "a".encodeToByteArray()))).isNotEqualTo(
+            UserStyleData(mapOf("A" to "a".encodeToByteArray(), "B" to "b".encodeToByteArray()))
+        )
+
+        assertThat(
+            UserStyleData(mapOf("A" to "a".encodeToByteArray(), "B" to "b".encodeToByteArray()))
+        ).isNotEqualTo(UserStyleData(mapOf("A" to "a".encodeToByteArray())))
+    }
 }

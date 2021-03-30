@@ -110,6 +110,30 @@ public class UserStyleData(
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public fun toWireFormat(): UserStyleWireFormat = UserStyleWireFormat(userStyleMap)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as UserStyleData
+
+        // Check if references are the same.
+        if (userStyleMap == other.userStyleMap) return true
+
+        // Check if contents are the same.
+        if (userStyleMap.size != other.userStyleMap.size) return false
+
+        for ((key, value) in userStyleMap) {
+            val otherValue = other.userStyleMap[key] ?: return false
+            if (!otherValue.contentEquals(value)) return false
+        }
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return userStyleMap.hashCode()
+    }
 }
 
 /**
