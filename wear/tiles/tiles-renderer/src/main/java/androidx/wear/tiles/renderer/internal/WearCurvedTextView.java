@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.renderer;
+package androidx.wear.tiles.renderer.internal;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.max;
@@ -45,16 +45,13 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
+import androidx.wear.tiles.renderer.R;
 
 /**
  * A WearCurvedTextView is a component allowing developers to easily write curved text following the
  * curvature of the largest circle that can be inscribed in the view. WearArcLayout could be used to
  * concatenate multiple curved texts, also layout together with other widgets such as icons.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 // TODO(b/174649543): Replace this with the actual androidx.wear.widget.WearCurvedTextView when
 // we've reconciled the two.
 public final class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutWidget {

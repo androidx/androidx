@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.renderer;
+package androidx.wear.tiles.renderer.internal;
 
 import static java.lang.Math.min;
 
@@ -32,7 +32,7 @@ import android.view.View;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.wear.tiles.renderer.R;
 
 /**
  * A line, drawn inside an arc.
@@ -40,10 +40,7 @@ import androidx.annotation.RestrictTo;
  * <p>This widget takes three parameters, the thickness of the line to draw, its sweep angle, and
  * the color to draw with. This widget will then draw an arc, with the specified thickness, around
  * its parent arc. The sweep angle is specified in degrees, clockwise.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class WearCurvedLineView extends View implements WearArcLayout.ArcLayoutWidget {
     private static final int DEFAULT_THICKNESS_PX = 0;
     private static final float DEFAULT_SWEEP_ANGLE_DEGREES = 0;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.renderer;
+package androidx.wear.tiles.renderer.internal;
 
 import android.content.Context;
 import android.content.res.Resources;

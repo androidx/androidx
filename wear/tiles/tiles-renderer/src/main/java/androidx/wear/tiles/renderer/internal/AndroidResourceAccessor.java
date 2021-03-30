@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.renderer;
+package androidx.wear.tiles.renderer.internal;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
@@ -22,7 +22,6 @@ import android.content.res.Resources.NotFoundException;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.wear.tiles.proto.ResourceProto.AndroidImageResourceByResId;
 
@@ -30,10 +29,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * Resource accessor for Android resources.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AndroidResourceAccessor
         implements ResourceAccessors.AndroidImageResourceByResIdAccessor {
     private final Resources mAndroidResources;
