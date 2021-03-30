@@ -49,7 +49,7 @@ class BackHandlerTest {
 
         composeTestRule.setContent {
             BackHandler { backCounter++ }
-            val dispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
+            val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             Button(onClick = { dispatcher.onBackPressed() }) {
                 Text(text = "Press Back")
             }
@@ -68,7 +68,7 @@ class BackHandlerTest {
 
         composeTestRule.setContent {
             BackHandler { parentBackCounter++ }
-            val dispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
+            val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             Button(onClick = { dispatcher.onBackPressed() }) {
                 BackHandler(false) { childBackCounter++ }
                 Text(text = "Press Back")
@@ -92,7 +92,7 @@ class BackHandlerTest {
         var handler by mutableStateOf({ results += "initial" })
         composeTestRule.setContent {
             BackHandler(onBack = handler)
-            val dispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
+            val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             Button(onClick = { dispatcher.onBackPressed() }) {
                 Text(text = "Press Back")
             }
@@ -117,7 +117,7 @@ class BackHandlerTest {
         val lifecycleOwner = TestLifecycleOwner()
 
         composeTestRule.setContent {
-            val dispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
+            val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             val dispatcherOwner = object : OnBackPressedDispatcherOwner {
                 override fun getLifecycle() = lifecycleOwner.lifecycle
 

@@ -83,7 +83,8 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "NavHost requires a ViewModelStoreOwner to be provided via LocalViewModelStoreOwner"
     }
-    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
+    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val onBackPressedDispatcher = onBackPressedDispatcherOwner?.onBackPressedDispatcher
     val rememberedGraph = remember { graph }
 
     // on successful recompose we setup the navController with proper inputs
@@ -91,7 +92,9 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
     DisposableEffect(navController, lifecycleOwner, viewModelStoreOwner, onBackPressedDispatcher) {
         navController.setLifecycleOwner(lifecycleOwner)
         navController.setViewModelStore(viewModelStoreOwner.viewModelStore)
-        navController.setOnBackPressedDispatcher(onBackPressedDispatcher)
+        if (onBackPressedDispatcher != null) {
+            navController.setOnBackPressedDispatcher(onBackPressedDispatcher)
+        }
 
         onDispose { }
     }
