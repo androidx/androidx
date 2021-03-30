@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.renderer;
+package androidx.wear.tiles.renderer.internal;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -23,16 +23,13 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.wear.tiles.renderer.R;
 
 /**
  * A lightweight curved widget that represents space between elements inside an Arc. This does no
  * rendering; it simply causes the parent {@link WearArcLayout} to advance by {@code
  * sweepAngleDegrees}.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class WearCurvedSpacer extends View implements WearArcLayout.ArcLayoutWidget {
 
     private static final float DEFAULT_SWEEP_ANGLE_DEGREES = 0f;

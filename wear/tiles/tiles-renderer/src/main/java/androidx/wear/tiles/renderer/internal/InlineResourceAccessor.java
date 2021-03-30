@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.renderer;
+package androidx.wear.tiles.renderer.internal;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -25,7 +25,6 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.wear.tiles.proto.ResourceProto.ImageFormat;
 import androidx.wear.tiles.proto.ResourceProto.InlineImageResource;
@@ -36,10 +35,7 @@ import java.nio.ByteBuffer;
 
 /**
  * Resource accessor for inline resources.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class InlineResourceAccessor implements ResourceAccessors.InlineImageResourceAccessor {
     private static final int RGB565_BYTES_PER_PX = 2;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.renderer;
+package androidx.wear.tiles.renderer.internal;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -24,7 +24,6 @@ import android.view.ViewGroup;
 import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 
 /**
@@ -43,10 +42,7 @@ import androidx.annotation.StyleRes;
  *
  * <p>Note that if both axes are exact, this container does nothing; it will simply size the child
  * and itself according to the exact MeasureSpecs.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RatioViewWrapper extends ViewGroup {
     /**
      * An undefined aspect ratio. If {@link #setAspectRatio} is called with this value, or never

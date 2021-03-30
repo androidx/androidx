@@ -20,19 +20,18 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.wear.tiles.builders.TimelineBuilders;
-import androidx.wear.tiles.proto.TimelineProto.TimeInterval;
-import androidx.wear.tiles.proto.TimelineProto.Timeline;
 import androidx.wear.tiles.proto.TimelineProto.TimelineEntry;
+import androidx.wear.tiles.timeline.internal.TilesTimelineCacheInternal;
 
 /**
  * Timeline cache for Wear Tiles. This will take in a full timeline, and return the appropriate
  * entry for the given time from {@code findTimelineEntryForTime}.
  */
 public final class TilesTimelineCache {
-    private final Timeline mTimeline;
+    private final TilesTimelineCacheInternal mCache;
 
-    public TilesTimelineCache(@NonNull TimelineBuilders.Timeline tile) {
-        this.mTimeline = tile.toProto();
+    public TilesTimelineCache(@NonNull TimelineBuilders.Timeline timeline) {
+        mCache = new TilesTimelineCacheInternal(timeline.toProto());
     }
 
     /**
@@ -48,41 +47,13 @@ public final class TilesTimelineCache {
     @MainThread
     @Nullable
     public TimelineBuilders.TimelineEntry findTimelineEntryForTime(long timeMillis) {
-        TimelineEntry currentEntry = null;
-        long currentEntryLength = Long.MAX_VALUE;
+        TimelineEntry entry = mCache.findTimelineEntryForTime(timeMillis);
 
-        // Iterate through, finding the _shortest_ valid timeline entry.
-        for (TimelineEntry entry : mTimeline.getTimelineEntriesList()) {
-            if (!entry.hasValidity()) {
-                // Only override a default if there's no more specific entry found.
-                if (currentEntryLength == Long.MAX_VALUE) {
-                    // Let's treat an entry with no validity as being a "default", as long as we
-                    // haven't found
-                    // any other valid entries
-                    currentEntry = entry;
-                }
-            } else {
-                TimeInterval validity = entry.getValidity();
-
-                long validityLength = validity.getEndMillis() - validity.getStartMillis();
-
-                if (validityLength > currentEntryLength) {
-                    continue;
-                }
-
-                if (validity.getStartMillis() <= timeMillis
-                        && timeMillis < validity.getEndMillis()) {
-                    currentEntry = entry;
-                    currentEntryLength = validityLength;
-                }
-            }
-        }
-
-        if (currentEntry == null) {
+        if (entry == null) {
             return null;
         }
 
-        return TimelineBuilders.TimelineEntry.fromProto(currentEntry);
+        return TimelineBuilders.TimelineEntry.fromProto(entry);
     }
 
     /**
@@ -101,47 +72,13 @@ public final class TilesTimelineCache {
     @MainThread
     @Nullable
     public TimelineBuilders.TimelineEntry findClosestTimelineEntry(long timeMillis) {
-        long currentEntryError = Long.MAX_VALUE;
-        TimelineEntry currentEntry = null;
+        TimelineEntry entry = mCache.findClosestTimelineEntry(timeMillis);
 
-        for (TimelineEntry entry : mTimeline.getTimelineEntriesList()) {
-            if (!entry.hasValidity()) {
-                // It's a default. This shouldn't happen if we've been called. Skip it.
-                continue;
-            }
-
-            TimeInterval validity = entry.getValidity();
-
-            if (!isTimeIntervalValid(validity)) {
-                continue;
-            }
-
-            // It's valid in this time interval. Shouldn't happen. Skip anyway.
-            if (validity.getStartMillis() <= timeMillis && timeMillis < validity.getEndMillis()) {
-                continue;
-            }
-
-            long error;
-
-            // It's in the future.
-            if (validity.getStartMillis() > timeMillis) {
-                error = validity.getStartMillis() - timeMillis;
-            } else {
-                // It's in the past.
-                error = timeMillis - validity.getEndMillis();
-            }
-
-            if (error < currentEntryError) {
-                currentEntry = entry;
-                currentEntryError = error;
-            }
-        }
-
-        if (currentEntry == null) {
+        if (entry == null) {
             return null;
         }
 
-        return TimelineBuilders.TimelineEntry.fromProto(currentEntry);
+        return TimelineBuilders.TimelineEntry.fromProto(entry);
     }
 
     /**
@@ -157,91 +94,6 @@ public final class TilesTimelineCache {
      */
     public long findCurrentTimelineEntryExpiry(
             @NonNull TimelineBuilders.TimelineEntry entry, long fromTimeMillis) {
-        long currentSmallestExpiry = Long.MAX_VALUE;
-        long entryValidityLength = Long.MAX_VALUE;
-
-        TimelineEntry protoEntry = entry.toProto();
-
-        if (protoEntry.hasValidity() && protoEntry.getValidity().getEndMillis() > fromTimeMillis) {
-            currentSmallestExpiry = protoEntry.getValidity().getEndMillis();
-            entryValidityLength =
-                    protoEntry.getValidity().getEndMillis()
-                            - protoEntry.getValidity().getStartMillis();
-        }
-
-        // Search for the starting edge of an overlapping period (i.e. one with startTime between
-        // entry.startTime and entry.endTime), with a validity period shorter than the one currently
-        // being considered.
-        for (TimelineEntry nextEntry : mTimeline.getTimelineEntriesList()) {
-            // The entry can't invalidate itself
-            if (nextEntry.equals(entry.toProto())) {
-                continue;
-            }
-
-            // Discard if nextEntry doesn't have a validity period. In this case, it's a default (so
-            // would potentially be used at entry.end_millis anyway).
-            if (!nextEntry.hasValidity()) {
-                continue;
-            }
-
-            TimeInterval nextEntryValidity = nextEntry.getValidity();
-
-            // Discard if the validity period is flat out invalid.
-            if (!isTimeIntervalValid(nextEntryValidity)) {
-                continue;
-            }
-
-            // Discard if the start time of nextEntry doesn't fall in the current period (it can't
-            // interrupt this entry, so this entry's expiry should be used).
-            if (protoEntry.hasValidity()) {
-                if (nextEntryValidity.getStartMillis() > protoEntry.getValidity().getEndMillis()
-                        || nextEntryValidity.getStartMillis()
-                                < protoEntry.getValidity().getStartMillis()) {
-                    continue;
-                }
-            }
-
-            // Discard if its start time is greater than the current smallest one we've found. In
-            // that
-            // case, the entry that gave us currentSmallestExpiry would be shown next.
-            if (nextEntryValidity.getStartMillis() > currentSmallestExpiry) {
-                continue;
-            }
-
-            // Discard if it's less than "fromTime". This prevents accidentally returning valid
-            // times in
-            // the past.
-            if (nextEntryValidity.getStartMillis() < fromTimeMillis) {
-                continue;
-            }
-
-            // Finally, consider whether the length of the validity period is shorter than the
-            // current
-            // one. If this doesn't hold, the current entry would be shown instead (the timeline
-            // entry
-            // with the shortest validity period is always shown if overlapping).
-            //
-            // We don't need to deal with the case of shortest validity between this entry, and an
-            // already
-            // chosen candidate time, as if we've got here, the start time of nextEntry is lower
-            // than
-            // the entry that is driving currentSmallestExpiry, so nextEntry would be shown
-            // regardless.
-            long nextEntryValidityLength =
-                    nextEntryValidity.getEndMillis() - nextEntryValidity.getStartMillis();
-
-            if (nextEntryValidityLength < entryValidityLength) {
-                // It's valid!
-                currentSmallestExpiry = nextEntryValidity.getStartMillis();
-            }
-        }
-
-        return currentSmallestExpiry;
-    }
-
-    private static boolean isTimeIntervalValid(TimeInterval timeInterval) {
-        // Zero-width (and "negative width") validity periods are not valid, and should never be
-        // considered.
-        return timeInterval.getEndMillis() > timeInterval.getStartMillis();
+        return mCache.findCurrentTimelineEntryExpiry(entry.toProto(), fromTimeMillis);
     }
 }

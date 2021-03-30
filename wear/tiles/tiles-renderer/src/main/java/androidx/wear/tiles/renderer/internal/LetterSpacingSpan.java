@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.wear.tiles.renderer;
+package androidx.wear.tiles.renderer.internal;
 
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * LetterSpacingSpan class used to apply custom spacing between letters.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class LetterSpacingSpan extends MetricAffectingSpan {
     private final float mLetterSpacingEm;
 
