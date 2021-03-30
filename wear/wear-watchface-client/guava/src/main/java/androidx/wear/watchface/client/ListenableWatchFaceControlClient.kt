@@ -23,6 +23,7 @@ import androidx.concurrent.futures.ResolvableFuture
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.watchface.client.WatchFaceControlClient.ServiceNotBoundException
+import androidx.wear.watchface.style.UserStyleData
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -113,7 +114,7 @@ public open class ListenableWatchFaceControlClient(
         id: String,
         deviceConfig: DeviceConfig,
         watchUiState: WatchUiState,
-        userStyle: Map<String, String>?,
+        userStyle: UserStyleData?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): ListenableFuture<InteractiveWatchFaceClient> = immediateCoroutineScope.async {
         watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
@@ -129,7 +130,7 @@ public open class ListenableWatchFaceControlClient(
         id: String,
         deviceConfig: DeviceConfig,
         watchUiState: WatchUiState,
-        userStyle: Map<String, String>?,
+        userStyle: UserStyleData?,
         idToComplicationData: Map<Int, ComplicationData>?
     ): InteractiveWatchFaceClient =
         watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(

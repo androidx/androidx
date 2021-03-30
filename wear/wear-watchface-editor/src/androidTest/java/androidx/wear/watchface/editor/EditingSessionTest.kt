@@ -855,8 +855,9 @@ public class EditorSessionTest {
             TimeUnit.MILLISECONDS
         ).asApiEditorState()
 
-        assertThat(result.userStyle[colorStyleSetting.id.value]).isEqualTo(blueStyleOption.id.value)
-        assertThat(result.userStyle[watchHandStyleSetting.id.value])
+        assertThat(result.userStyle.userStyleMap[colorStyleSetting.id.value])
+            .isEqualTo(blueStyleOption.id.value)
+        assertThat(result.userStyle.userStyleMap[watchHandStyleSetting.id.value])
             .isEqualTo(gothicStyleOption.id.value)
         assertThat(result.watchFaceId.id).isEqualTo(testInstanceId.id)
         assertTrue(result.shouldCommitChanges)
@@ -971,8 +972,9 @@ public class EditorSessionTest {
             TIMEOUT_MILLIS,
             TimeUnit.MILLISECONDS
         ).asApiEditorState()
-        assertThat(result.userStyle[colorStyleSetting.id.value]).isEqualTo(blueStyleOption.id.value)
-        assertThat(result.userStyle[watchHandStyleSetting.id.value])
+        assertThat(result.userStyle.userStyleMap[colorStyleSetting.id.value])
+            .isEqualTo(blueStyleOption.id.value)
+        assertThat(result.userStyle.userStyleMap[watchHandStyleSetting.id.value])
             .isEqualTo(gothicStyleOption.id.value)
         assertFalse(result.shouldCommitChanges)
 

@@ -25,11 +25,17 @@ package androidx.wear.watchface.style {
   public final class UserStyle {
     ctor public UserStyle(java.util.Map<androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option> selectedOptions);
     ctor public UserStyle(androidx.wear.watchface.style.UserStyle userStyle);
-    ctor public UserStyle(java.util.Map<java.lang.String,java.lang.String> userStyle, androidx.wear.watchface.style.UserStyleSchema styleSchema);
+    ctor public UserStyle(androidx.wear.watchface.style.UserStyleData userStyle, androidx.wear.watchface.style.UserStyleSchema styleSchema);
     method public operator androidx.wear.watchface.style.UserStyleSetting.Option? get(androidx.wear.watchface.style.UserStyleSetting setting);
     method public java.util.Map<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option> getSelectedOptions();
-    method public java.util.Map<java.lang.String,java.lang.String> toMap();
+    method public androidx.wear.watchface.style.UserStyleData toUserStyleData();
     property public final java.util.Map<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option> selectedOptions;
+  }
+
+  public final class UserStyleData {
+    ctor public UserStyleData(java.util.Map<java.lang.String,byte[]> userStyleMap);
+    method public java.util.Map<java.lang.String,byte[]> getUserStyleMap();
+    property public final java.util.Map<java.lang.String,byte[]> userStyleMap;
   }
 
   public final class UserStyleSchema {
@@ -46,7 +52,7 @@ package androidx.wear.watchface.style {
     method public final CharSequence getDisplayName();
     method public final android.graphics.drawable.Icon? getIcon();
     method public final androidx.wear.watchface.style.UserStyleSetting.Id getId();
-    method public androidx.wear.watchface.style.UserStyleSetting.Option getOptionForId(String optionId);
+    method public androidx.wear.watchface.style.UserStyleSetting.Option getOptionForId(byte[] optionId);
     method public final java.util.List<androidx.wear.watchface.style.UserStyleSetting.Option> getOptions();
     property public final java.util.Collection<androidx.wear.watchface.style.Layer> affectedLayers;
     property public final int defaultOptionIndex;
@@ -105,13 +111,13 @@ package androidx.wear.watchface.style {
   }
 
   public static final class UserStyleSetting.CustomValueUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
-    ctor public UserStyleSetting.CustomValueUserStyleSetting(java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers, String defaultValue);
+    ctor public UserStyleSetting.CustomValueUserStyleSetting(java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers, byte[] defaultValue);
   }
 
   public static final class UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
-    ctor public UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption(String customValue);
-    method public String getCustomValue();
-    property public final String customValue;
+    ctor public UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption(byte[] customValue);
+    method public byte[] getCustomValue();
+    property public final byte[] customValue;
   }
 
   public static final class UserStyleSetting.DoubleRangeUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
@@ -181,9 +187,10 @@ package androidx.wear.watchface.style {
   }
 
   public static final class UserStyleSetting.Option.Id {
+    ctor public UserStyleSetting.Option.Id(byte[] value);
     ctor public UserStyleSetting.Option.Id(String value);
-    method public String getValue();
-    property public final String value;
+    method public byte[] getValue();
+    property public final byte[] value;
     field public static final androidx.wear.watchface.style.UserStyleSetting.Option.Id.Companion Companion;
     field public static final int MAX_LENGTH = 1024; // 0x400
   }

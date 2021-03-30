@@ -40,11 +40,11 @@ public class UserStyleWireFormat implements VersionedParcelable, Parcelable {
     @ParcelField(1)
     @NonNull
     /** Map from user style setting id to user style option id. */
-    public Map<String, String> mUserStyle = new HashMap<>();
+    public Map<String, byte[]> mUserStyle = new HashMap<>();
 
     UserStyleWireFormat() {}
 
-    public UserStyleWireFormat(@NonNull Map<String, String> userStyle) {
+    public UserStyleWireFormat(@NonNull Map<String, byte[]> userStyle) {
         mUserStyle = userStyle;
     }
 

@@ -23,6 +23,7 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleData
 
 /**
  * The system is responsible for the management and generation of these ids and they have no
@@ -40,7 +41,7 @@ public class WatchFaceId(public val id: String)
  * @param watchFaceId Unique ID for the instance of the watch face being edited (see
  *     [androidx.wear.watchface.editor.EditorRequest.watchFaceId]), only defined for
  *     Android R and beyond.
- * @param userStyle The current [UserStyle] encoded as a Map<String, String>.
+ * @param userStyle The current [UserStyle] encoded as a [UserStyleData].
  * @param previewComplicationsData Preview [ComplicationData] needed for taking screenshots without
  *     live complication data.
  * @param shouldCommitChanges Whether or not this state should be committed (i.e. the user aborted
@@ -51,7 +52,7 @@ public class WatchFaceId(public val id: String)
 public class EditorState internal constructor(
     @RequiresApi(Build.VERSION_CODES.R)
     public val watchFaceId: WatchFaceId,
-    public val userStyle: Map<String, String>,
+    public val userStyle: UserStyleData,
     public val previewComplicationsData: Map<Int, ComplicationData>,
     @get:JvmName("shouldCommitChanges")
     public val shouldCommitChanges: Boolean
@@ -68,7 +69,7 @@ public class EditorState internal constructor(
 public fun EditorStateWireFormat.asApiEditorState(): EditorState {
     return EditorState(
         WatchFaceId(watchFaceInstanceId ?: ""),
-        userStyle.mUserStyle,
+        UserStyleData(userStyle.mUserStyle),
         previewComplicationData.associateBy(
             { it.id },
             { it.complicationData.toApiComplicationData() }

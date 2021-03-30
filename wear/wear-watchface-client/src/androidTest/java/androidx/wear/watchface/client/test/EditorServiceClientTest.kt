@@ -48,7 +48,12 @@ class EditorServiceClientTest {
         EditorService.globalEditorService.broadcastEditorState(
             EditorStateWireFormat(
                 watchFaceInstanceId,
-                UserStyleWireFormat(mapOf("color" to "red", "size" to "small")),
+                UserStyleWireFormat(
+                    mapOf(
+                        "color" to "red".encodeToByteArray(),
+                        "size" to "small".encodeToByteArray()
+                    )
+                ),
                 emptyList(),
                 true
             )

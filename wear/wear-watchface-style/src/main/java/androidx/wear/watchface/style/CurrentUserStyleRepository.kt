@@ -24,7 +24,9 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
  * The users style choices represented as a map of [UserStyleSetting] to
- * [UserStyleSetting.Option].
+ * [UserStyleSetting.Option]. This is intended for use by the WatchFace and the [selectedOptions]
+ * map keys are the same objects as in the [UserStyleSchema]. This means you can't serialize a
+ * UserStyle directly, instead you need to use a [UserStyleData] (see [toUserStyleData]).
  *
  * @param selectedOptions The [UserStyleSetting.Option] selected for each [UserStyleSetting]
  */
@@ -39,22 +41,21 @@ public class UserStyle(
     public constructor(userStyle: UserStyle) : this(HashMap(userStyle.selectedOptions))
 
     /**
-     * Constructs a [UserStyle] from a Map<String, String> and the [UserStyleSchema]. Unrecognized
+     * Constructs a [UserStyle] from a [UserStyleData] and the [UserStyleSchema]. Unrecognized
      * style settings will be ignored. Unlisted style settings will be initialized with that
      * settings default option.
      *
-     * @param userStyle The [UserStyle] represented as a Map<String, String> of
-     *     [UserStyleSetting.id] to [UserStyleSetting.Option.id]
-     * @param styleSchema The [UserStyleSchema] for this UserStyle, describes how we interpret
+     * @param userStyle The [UserStyle] represented as a [UserStyleData].
+     * @param styleSchema The  for this UserStyle, describes how we interpret
      *     [userStyle].
      */
     public constructor(
-        userStyle: Map<String, String>,
+        userStyle: UserStyleData,
         styleSchema: UserStyleSchema
     ) : this(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
             for (styleSetting in styleSchema.userStyleSettings) {
-                val option = userStyle[styleSetting.id.value]
+                val option = userStyle.userStyleMap[styleSetting.id.value]
                 if (option != null) {
                     this[styleSetting] = styleSetting.getSettingOptionForId(option)
                 } else {
@@ -66,18 +67,13 @@ public class UserStyle(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public constructor(
-        userStyle: UserStyleWireFormat,
-        styleSchema: UserStyleSchema
-    ) : this(userStyle.mUserStyle, styleSchema)
+    public fun toWireFormat(): UserStyleWireFormat = UserStyleWireFormat(toMap())
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public fun toWireFormat(): UserStyleWireFormat =
-        UserStyleWireFormat(toMap())
+    /** Returns the style as a [UserStyleData]. */
+    public fun toUserStyleData(): UserStyleData = UserStyleData(toMap())
 
-    /** Returns the style as a [Map]<[String], [String]>. */
-    public fun toMap(): Map<String, String> =
+    /** Returns the style as a [Map]<[String], [ByteArray]>. */
+    private fun toMap(): Map<String, ByteArray> =
         selectedOptions.entries.associate { it.key.id.value to it.value.id.value }
 
     /** Returns the [UserStyleSetting.Option] for [setting] if there is one or `null` otherwise. */
@@ -88,6 +84,32 @@ public class UserStyle(
         "[" + selectedOptions.entries.joinToString(
             transform = { it.key.id.value + " -> " + it.value.id.value }
         ) + "]"
+}
+
+/**
+ * A form of [UserStyle] which is easy to serialize. This is intended for use by the watch face
+ * clients and the editor where we can't practically use [UserStyle] due to it's limitations.
+ */
+public class UserStyleData(
+    public val userStyleMap: Map<String, ByteArray>
+) {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public constructor(
+        userStyle: UserStyleWireFormat
+    ) : this(userStyle.mUserStyle)
+
+    override fun toString(): String = "{" + userStyleMap.map {
+        try {
+            it.key + "=" + it.value.decodeToString()
+        } catch (e: Exception) {
+            it.key + "=" + it.value
+        }
+    }.joinToString() + "}"
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun toWireFormat(): UserStyleWireFormat = UserStyleWireFormat(userStyleMap)
 }
 
 /**

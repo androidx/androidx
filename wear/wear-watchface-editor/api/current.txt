@@ -2,15 +2,15 @@
 package androidx.wear.watchface.editor {
 
   public final class EditorRequest {
-    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, java.util.Map<java.lang.String,java.lang.String>? initialUserStyle, @RequiresApi(android.os.Build.VERSION_CODES.R) androidx.wear.watchface.client.WatchFaceId watchFaceId);
-    ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, java.util.Map<java.lang.String,java.lang.String>? initialUserStyle);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle, @RequiresApi(android.os.Build.VERSION_CODES.R) androidx.wear.watchface.client.WatchFaceId watchFaceId);
+    ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle);
     method public static androidx.wear.watchface.editor.EditorRequest? createFromIntent(android.content.Intent intent);
     method public String getEditorPackageName();
-    method public java.util.Map<java.lang.String,java.lang.String>? getInitialUserStyle();
+    method public androidx.wear.watchface.style.UserStyleData? getInitialUserStyle();
     method public android.content.ComponentName getWatchFaceComponentName();
     method @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
     property public final String editorPackageName;
-    property public final java.util.Map<java.lang.String,java.lang.String>? initialUserStyle;
+    property public final androidx.wear.watchface.style.UserStyleData? initialUserStyle;
     property public final android.content.ComponentName watchFaceComponentName;
     property @RequiresApi(android.os.Build.VERSION_CODES.R) public final androidx.wear.watchface.client.WatchFaceId watchFaceId;
     field public static final androidx.wear.watchface.editor.EditorRequest.Companion Companion;

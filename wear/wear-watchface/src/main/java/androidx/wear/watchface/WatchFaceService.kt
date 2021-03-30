@@ -69,6 +69,7 @@ import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting
+import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.asCoroutineDispatcher
@@ -502,7 +503,7 @@ public abstract class WatchFaceService : WallpaperService() {
             userStyle: UserStyleWireFormat
         ): Unit = TraceEvent("EngineWrapper.setUserStyle").use {
             watchFaceImpl.onSetStyleInternal(
-                UserStyle(userStyle, watchFaceImpl.userStyleRepository.schema)
+                UserStyle(UserStyleData(userStyle), watchFaceImpl.userStyleRepository.schema)
             )
             onUserStyleChanged()
         }
@@ -617,7 +618,7 @@ public abstract class WatchFaceService : WallpaperService() {
             val oldStyle = HashMap(watchFaceImpl.userStyleRepository.userStyle.selectedOptions)
             params.userStyle?.let {
                 watchFaceImpl.onSetStyleInternal(
-                    UserStyle(it, watchFaceImpl.userStyleRepository.schema)
+                    UserStyle(UserStyleData(it), watchFaceImpl.userStyleRepository.schema)
                 )
             }
 
@@ -668,7 +669,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 val newStyle = params.userStyle
                 if (newStyle != null) {
                     watchFaceImpl.onSetStyleInternal(
-                        UserStyle(newStyle, watchFaceImpl.userStyleRepository.schema)
+                        UserStyle(UserStyleData(newStyle), watchFaceImpl.userStyleRepository.schema)
                     )
                 }
 

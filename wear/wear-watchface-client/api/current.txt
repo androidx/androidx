@@ -49,12 +49,12 @@ package androidx.wear.watchface.client {
 
   public final class EditorState {
     method public java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> getPreviewComplicationsData();
-    method public java.util.Map<java.lang.String,java.lang.String> getUserStyle();
+    method public androidx.wear.watchface.style.UserStyleData getUserStyle();
     method public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
     method public boolean shouldCommitChanges();
     property public final java.util.Map<java.lang.Integer,androidx.wear.complications.data.ComplicationData> previewComplicationsData;
     property public final boolean shouldCommitChanges;
-    property public final java.util.Map<java.lang.String,java.lang.String> userStyle;
+    property public final androidx.wear.watchface.style.UserStyleData userStyle;
     property public final androidx.wear.watchface.client.WatchFaceId watchFaceId;
   }
 
@@ -104,7 +104,7 @@ package androidx.wear.watchface.client {
     method public void setWatchUiState(androidx.wear.watchface.client.WatchUiState watchUiState);
     method public void updateComplicationData(java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData> idToComplicationData);
     method public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyle userStyle);
-    method public void updateWatchFaceInstance(String newInstanceId, java.util.Map<java.lang.String,java.lang.String> userStyle);
+    method public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyleData userStyle);
     property public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationsState;
     property public abstract java.util.List<androidx.wear.watchface.client.InteractiveWatchFaceClient.ContentDescriptionLabel> contentDescriptionLabels;
     property public abstract String instanceId;
@@ -140,7 +140,7 @@ package androidx.wear.watchface.client {
     method public default static suspend Object? createWatchFaceControlClient(android.content.Context p, String context, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> watchFacePackageName);
     method public androidx.wear.watchface.client.EditorServiceClient getEditorServiceClient();
     method public androidx.wear.watchface.client.InteractiveWatchFaceClient? getInteractiveWatchFaceClientInstance(String instanceId);
-    method public suspend Object? getOrCreateInteractiveWatchFaceClient(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.WatchUiState watchUiState, java.util.Map<java.lang.String,java.lang.String>? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.InteractiveWatchFaceClient> p);
+    method public suspend Object? getOrCreateInteractiveWatchFaceClient(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.WatchUiState watchUiState, androidx.wear.watchface.style.UserStyleData? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.InteractiveWatchFaceClient> p);
     field public static final androidx.wear.watchface.client.WatchFaceControlClient.Companion Companion;
   }
 
