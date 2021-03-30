@@ -47,11 +47,11 @@ dependencies {
     implementation(project(":benchmark:benchmark-common"))
     implementation(ANDROIDX_TEST_CORE)
     implementation(ANDROIDX_TEST_UIAUTOMATOR)
-    implementation(ANDROIDX_TEST_RULES)
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(KOTLIN_TEST)
 }
