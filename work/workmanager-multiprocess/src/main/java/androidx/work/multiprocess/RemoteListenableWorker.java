@@ -201,4 +201,16 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
                     });
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NonNull
+    @Override
+    public ListenableFuture<Void> setProgressAsync(@NonNull Data data) {
+        // Delegate progress updates to the designated process.
+        RemoteWorkManager remoteWorkManager =
+                RemoteWorkManager.getInstance(getApplicationContext());
+        return remoteWorkManager.setProgress(getId(), data);
+    }
 }

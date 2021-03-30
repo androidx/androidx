@@ -35,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
+import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.Logger;
@@ -48,6 +49,7 @@ import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
+import androidx.work.multiprocess.parcelable.ParcelableUpdateRequest;
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl;
 import androidx.work.multiprocess.parcelable.ParcelableWorkInfos;
 import androidx.work.multiprocess.parcelable.ParcelableWorkQuery;
@@ -238,6 +240,21 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
                 return infos.getWorkInfos();
             }
         }, mExecutor);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> setProgress(@NonNull final UUID id, @NonNull final Data data) {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher<IWorkManagerImpl>() {
+            @Override
+            public void execute(
+                    @NonNull IWorkManagerImpl iWorkManagerImpl,
+                    @NonNull IWorkManagerImplCallback callback) throws Throwable {
+                byte[] request = ParcelConverters.marshall(new ParcelableUpdateRequest(id, data));
+                iWorkManagerImpl.setProgress(request, callback);
+            }
+        });
+        return map(result, sVoidMapper, mExecutor);
     }
 
     /**
