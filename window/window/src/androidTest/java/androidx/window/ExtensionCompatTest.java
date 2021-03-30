@@ -141,7 +141,7 @@ public final class ExtensionCompatTest extends WindowTestBase
         Rect bounds = new Rect(WINDOW_BOUNDS.left, WINDOW_BOUNDS.top, WINDOW_BOUNDS.width(), 1);
         ExtensionDisplayFeature extensionDisplayFeature =
                 new ExtensionFoldingFeature(bounds, ExtensionFoldingFeature.TYPE_HINGE,
-                        ExtensionFoldingFeature.STATE_FLIPPED);
+                        ExtensionFoldingFeature.STATE_HALF_OPENED);
         List<ExtensionDisplayFeature> displayFeatures = new ArrayList<>();
         displayFeatures.add(extensionDisplayFeature);
         ExtensionWindowLayoutInfo extensionWindowLayoutInfo =

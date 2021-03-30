@@ -21,7 +21,6 @@ package androidx.window.extensions {
     method public int getState();
     method public int getType();
     field public static final int STATE_FLAT = 1; // 0x1
-    field public static final int STATE_FLIPPED = 3; // 0x3
     field public static final int STATE_HALF_OPENED = 2; // 0x2
     field public static final int TYPE_FOLD = 1; // 0x1
     field public static final int TYPE_HINGE = 2; // 0x2

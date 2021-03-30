@@ -65,14 +65,6 @@ public class FoldingFeature implements DisplayFeature {
     public static final int STATE_HALF_OPENED = 2;
 
     /**
-     * The foldable device is flipped with the flexible screen parts or physical screens facing
-     * opposite directions. See the
-     * <a href="https://developer.android.com/guide/topics/ui/foldables#postures">Posture</a>
-     * section in the official documentation for visual samples and references.
-     */
-    public static final int STATE_FLIPPED = 3;
-
-    /**
      * The {@link FoldingFeature} does not occlude the content in any way. One example is a flat
      * continuous fold where content can stretch across the fold. Another example is a hinge that
      * has width or height equal to 0. In this case the content is physically split across both
@@ -116,7 +108,6 @@ public class FoldingFeature implements DisplayFeature {
     @IntDef({
             STATE_HALF_OPENED,
             STATE_FLAT,
-            STATE_FLIPPED,
     })
     @interface State {}
 
@@ -193,7 +184,7 @@ public class FoldingFeature implements DisplayFeature {
         if (mType == TYPE_HINGE) {
             return true;
         }
-        if (mType == TYPE_FOLD && (mState == STATE_FLIPPED || mState == STATE_HALF_OPENED)) {
+        if (mType == TYPE_FOLD && mState == STATE_HALF_OPENED) {
             return true;
         }
         return false;
@@ -260,14 +251,13 @@ public class FoldingFeature implements DisplayFeature {
     }
 
     /**
-     * Verifies the state is {@link FoldingFeature#STATE_FLAT},
-     * {@link FoldingFeature#STATE_HALF_OPENED} or {@link FoldingFeature#STATE_FLIPPED}.
+     * Verifies the state is {@link FoldingFeature#STATE_FLAT} or
+     * {@link FoldingFeature#STATE_HALF_OPENED}.
      */
     private static void validateState(int state) {
-        if (state != STATE_FLAT && state != STATE_HALF_OPENED && state != STATE_FLIPPED) {
+        if (state != STATE_FLAT && state != STATE_HALF_OPENED) {
             throw new IllegalArgumentException("State must be either " + stateToString(STATE_FLAT)
-                    + ", " + stateToString(STATE_HALF_OPENED) + ", or "
-                    + stateToString(STATE_FLIPPED));
+                    + " or " + stateToString(STATE_HALF_OPENED));
         }
     }
 
@@ -312,8 +302,6 @@ public class FoldingFeature implements DisplayFeature {
         switch (state) {
             case STATE_FLAT:
                 return "FLAT";
-            case STATE_FLIPPED:
-                return "FLIPPED";
             case STATE_HALF_OPENED:
                 return "HALF_OPENED";
             default:
