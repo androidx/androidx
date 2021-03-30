@@ -21,6 +21,7 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
+import java.io.File
 
 internal object DeviceInfo {
     val isEmulator = Build.FINGERPRINT.startsWith("generic") ||
@@ -33,6 +34,20 @@ internal object DeviceInfo {
         "google_sdk" == Build.PRODUCT
 
     val isEngBuild = Build.FINGERPRINT.contains(":eng/")
+
+    val isRooted =
+        arrayOf(
+            "/system/app/Superuser.apk",
+            "/sbin/su",
+            "/system/bin/su",
+            "/system/xbin/su",
+            "/data/local/xbin/su",
+            "/data/local/bin/su",
+            "/system/sd/xbin/su",
+            "/system/bin/failsafe/su",
+            "/data/local/su",
+            "/su/bin/su"
+        ).any { File(it).exists() }
 
     /**
      * Battery percentage required to avoid low battery warning.

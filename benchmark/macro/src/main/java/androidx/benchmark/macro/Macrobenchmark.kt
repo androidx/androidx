@@ -111,6 +111,9 @@ internal fun macrobenchmark(
         "Macrobenchmark currently requires Android 10 (API 29) or greater."
     }
 
+    // skip benchmark if not supported by vm settings
+    compilationMode.assumeSupportedWithVmSettings()
+
     val suppressionState = checkErrors(packageName)
     var warningMessage = suppressionState?.warningMessage ?: ""
 
