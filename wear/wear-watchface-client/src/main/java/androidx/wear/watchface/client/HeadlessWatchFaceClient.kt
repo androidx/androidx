@@ -18,6 +18,7 @@ package androidx.wear.watchface.client
 
 import android.graphics.Bitmap
 import android.support.wearable.watchface.SharedMemoryImage
+import androidx.annotation.AnyThread
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.utility.TraceEvent
@@ -31,6 +32,7 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import java.util.concurrent.Executor
 
 /**
  * Controls a stateless remote headless watch face.  This is mostly intended for use by watch face
@@ -93,11 +95,57 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
         complicationData: ComplicationData,
         userStyle: UserStyle?,
     ): Bitmap?
+
+    /** Callback that observes when the client disconnects. */
+    public interface ClientDisconnectListener {
+        /**
+         * The client disconnected, typically due to the server side crashing. Note this is not
+         * called in response to [close] being called on [HeadlessWatchFaceClient].
+         */
+        public fun onClientDisconnected()
+    }
+
+    /** Registers a [ClientDisconnectListener]. */
+    @AnyThread
+    public fun addClientDisconnectListener(listener: ClientDisconnectListener, executor: Executor)
+
+    /**
+     * Removes a [ClientDisconnectListener] previously registered by [addClientDisconnectListener].
+     */
+    @AnyThread
+    public fun removeClientDisconnectListener(listener: ClientDisconnectListener)
+
+    /** Returns true if the connection to the server side is alive. */
+    @AnyThread
+    public fun isConnectionAlive(): Boolean
 }
 
 internal class HeadlessWatchFaceClientImpl internal constructor(
     private val iHeadlessWatchFace: IHeadlessWatchFace
 ) : HeadlessWatchFaceClient {
+
+    private val lock = Any()
+    private val listeners = HashMap<HeadlessWatchFaceClient.ClientDisconnectListener, Executor>()
+
+    init {
+        iHeadlessWatchFace.asBinder().linkToDeath(
+            {
+                var listenerCopy:
+                    HashMap<HeadlessWatchFaceClient.ClientDisconnectListener, Executor>
+
+                synchronized(lock) {
+                    listenerCopy = HashMap(listeners)
+                }
+
+                for ((listener, executor) in listenerCopy) {
+                    executor.execute {
+                        listener.onClientDisconnected()
+                    }
+                }
+            },
+            0
+        )
+    }
 
     override val previewReferenceTimeMillis: Long
         get() = iHeadlessWatchFace.previewReferenceTimeMillis
@@ -155,6 +203,28 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
             SharedMemoryImage.ashmemReadImageBundle(it)
         }
     }
+
+    override fun addClientDisconnectListener(
+        listener: HeadlessWatchFaceClient.ClientDisconnectListener,
+        executor: Executor
+    ) {
+        synchronized(lock) {
+            require(!listeners.contains(listener)) {
+                "Don't call addClientDisconnectListener multiple times for the same listener"
+            }
+            listeners.put(listener, executor)
+        }
+    }
+
+    override fun removeClientDisconnectListener(
+        listener: HeadlessWatchFaceClient.ClientDisconnectListener
+    ) {
+        synchronized(lock) {
+            listeners.remove(listener)
+        }
+    }
+
+    override fun isConnectionAlive() = iHeadlessWatchFace.asBinder().isBinderAlive
 
     override fun close() = TraceEvent("HeadlessWatchFaceClientImpl.close").use {
         iHeadlessWatchFace.release()
