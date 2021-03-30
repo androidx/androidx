@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 
 import java.util.Collections;
@@ -56,6 +57,7 @@ public final class FragmentStrictMode {
         DETECT_RETAIN_INSTANCE_USAGE,
         DETECT_SET_USER_VISIBLE_HINT,
         DETECT_TARGET_FRAGMENT_USAGE,
+        DETECT_WRONG_FRAGMENT_CONTAINER,
     }
 
     private FragmentStrictMode() {}
@@ -196,6 +198,17 @@ public final class FragmentStrictMode {
             }
 
             /**
+             * Detects cases where a #{@link Fragment} is added to a container other than a
+             * #{@link FragmentContainerView}.
+             */
+            @NonNull
+            @SuppressLint("BuilderSetStyle")
+            public Builder detectWrongFragmentContainer() {
+                flags.add(Flag.DETECT_WRONG_FRAGMENT_CONTAINER);
+                return this;
+            }
+
+            /**
              * Construct the Policy instance.
              *
              * <p>Note: if no penalties are enabled before calling <code>build</code>, {@link
@@ -277,6 +290,14 @@ public final class FragmentStrictMode {
         Policy policy = getNearestPolicy(fragment);
         if (policy.flags.contains(Flag.DETECT_TARGET_FRAGMENT_USAGE)) {
             handlePolicyViolation(fragment, policy, new TargetFragmentUsageViolation());
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onWrongFragmentContainer(@NonNull Fragment fragment) {
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.flags.contains(Flag.DETECT_WRONG_FRAGMENT_CONTAINER)) {
+            handlePolicyViolation(fragment, policy, new WrongFragmentContainerViolation());
         }
     }
 

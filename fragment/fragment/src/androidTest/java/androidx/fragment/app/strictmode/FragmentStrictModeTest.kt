@@ -266,4 +266,31 @@ public class FragmentStrictModeTest {
         StrictFragment().targetRequestCode
         assertThat(violation).isInstanceOf(TargetFragmentUsageViolation::class.java)
     }
+
+    @Test
+    public fun detectWrongFragmentContainer() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectWrongFragmentContainer()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.setDefaultPolicy(policy)
+
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+
+            fragmentManager.beginTransaction()
+                .add(R.id.content, StrictFragment())
+                .commit()
+            executePendingTransactions()
+            assertThat(violation).isInstanceOf(WrongFragmentContainerViolation::class.java)
+
+            violation = null
+            fragmentManager.beginTransaction()
+                .replace(R.id.content, StrictFragment())
+                .commit()
+            executePendingTransactions()
+            assertThat(violation).isInstanceOf(WrongFragmentContainerViolation::class.java)
+        }
+    }
 }
