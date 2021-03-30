@@ -74,6 +74,7 @@ class SearchSessionImpl implements AppSearchSession {
         mPlatformSession.setSchema(
                 RequestToPlatformConverter.toPlatformSetSchemaRequest(request),
                 mExecutorService,
+                mExecutorService,
                 result -> {
                     if (result.isSuccess()) {
                         SetSchemaResponse jetpackResponse =
