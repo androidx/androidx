@@ -16,6 +16,7 @@
 
 package androidx.work.multiprocess
 
+import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.work.Data
@@ -31,6 +32,11 @@ public class ParcelableDataTest {
     @Test
     @SmallTest
     public fun testParcelableData() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val data = createData()
         val parcelableData = ParcelableData(data)
         val parcelled: ParcelableData =
