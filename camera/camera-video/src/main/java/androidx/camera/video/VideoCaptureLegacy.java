@@ -42,6 +42,7 @@ import static androidx.camera.video.impl.VideoCaptureLegacyConfig.OPTION_BIT_RAT
 import static androidx.camera.video.impl.VideoCaptureLegacyConfig.OPTION_INTRA_FRAME_INTERVAL;
 import static androidx.camera.video.impl.VideoCaptureLegacyConfig.OPTION_VIDEO_FRAME_RATE;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -72,6 +73,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
@@ -317,6 +319,7 @@ public final class VideoCaptureLegacy extends UseCase {
      * @hide
      */
     @Override
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
@@ -351,6 +354,7 @@ public final class VideoCaptureLegacy extends UseCase {
      * @param callback          Callback for when the recorded video saving completion or failure.
      */
     @SuppressWarnings("ObjectToString")
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public void startRecording(
             @NonNull OutputFileOptions outputFileOptions, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
@@ -593,6 +597,7 @@ public final class VideoCaptureLegacy extends UseCase {
      */
     @UiThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     void setupEncoder(@NonNull String cameraId, @NonNull Size resolution) {
         VideoCaptureLegacyConfig config = (VideoCaptureLegacyConfig) getCurrentConfig();
 
@@ -623,6 +628,7 @@ public final class VideoCaptureLegacy extends UseCase {
 
         sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
             @Override
+            @RequiresPermission(Manifest.permission.RECORD_AUDIO)
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
                 // Ensure the attached camera has not changed before calling setupEncoder.
@@ -932,7 +938,7 @@ public final class VideoCaptureLegacy extends UseCase {
     }
 
     /** Create a AudioRecord object to get raw data */
-    @SuppressLint("MissingPermission") // b/180321825
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     private AudioRecord autoConfigAudioRecordSource(VideoCaptureLegacyConfig config) {
         for (short audioFormat : sAudioEncoding) {
 
