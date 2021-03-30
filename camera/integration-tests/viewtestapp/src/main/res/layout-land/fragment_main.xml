@@ -56,8 +56,8 @@ limitations under the License.
                 style="?android:buttonBarButtonStyle"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginBottom="50dp"
-                android:layout_marginTop="50dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
                 android:layout_weight="1"
                 android:text="@string/btn_capture" />
 
