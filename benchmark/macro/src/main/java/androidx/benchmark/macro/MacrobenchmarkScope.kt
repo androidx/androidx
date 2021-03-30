@@ -46,9 +46,11 @@ public class MacrobenchmarkScope(
      * Start an activity, by default the default launch of the package, and wait until
      * its launch completes.
      *
+     * @throws IllegalStateException if unable to acquire intent for package.
+     *
      * @param block Allows customization of the intent used to launch the activity.
      */
-    fun startActivityAndWait(
+    public fun startActivityAndWait(
         block: (Intent) -> Unit = {}
     ) {
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)
@@ -63,7 +65,7 @@ public class MacrobenchmarkScope(
      *
      * @param intent Specifies which app/Activity should be launched.
      */
-    fun startActivityAndWait(intent: Intent) {
+    public fun startActivityAndWait(intent: Intent) {
         // Must launch with new task, as we're not launching from an existing task
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         if (launchWithClearTask) {
@@ -93,7 +95,7 @@ public class MacrobenchmarkScope(
      * Useful for resetting the test to a base condition in cases where the app isn't killed in
      * each iteration.
      */
-    fun pressHome(delayDurationMs: Long = 300) {
+    public fun pressHome(delayDurationMs: Long = 300) {
         device.pressHome()
         Thread.sleep(delayDurationMs)
     }
@@ -101,7 +103,7 @@ public class MacrobenchmarkScope(
     /**
      * Force-stop the process being measured.
      */
-    fun killProcess() {
+    public fun killProcess() {
         Log.d(TAG, "Killing process $packageName")
         device.executeShellCommand("am force-stop $packageName")
     }
@@ -112,7 +114,7 @@ public class MacrobenchmarkScope(
      * Enables measuring disk-based startup cost, without simply accessing cache of disk data
      * held in memory, such as during [cold startup](androidx.benchmark.macro.StartupMode.COLD).
      */
-    fun dropKernelPageCache() {
+    public fun dropKernelPageCache() {
         val result = device.executeShellScript(
             "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
         ).trim()
