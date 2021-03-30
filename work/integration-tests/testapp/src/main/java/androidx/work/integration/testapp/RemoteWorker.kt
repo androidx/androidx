@@ -20,7 +20,9 @@ import android.content.Context
 import android.util.Log
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.work.WorkerParameters
+import androidx.work.await
 import androidx.work.multiprocess.RemoteListenableWorker
+import androidx.work.workDataOf
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,10 +37,14 @@ class RemoteWorker(private val context: Context, private val parameters: WorkerP
         return CallbackToFutureAdapter.getFuture { completer ->
             Log.d(TAG, "Starting Remote Worker.")
             val scope = CoroutineScope(Dispatchers.Default)
-
             job = scope.launch {
-                delay(30 * 1000)
+                for (i in 1..30) {
+                    delay(1000)
+                    val progressData = workDataOf(PROGRESS_INFO to i)
+                    setProgressAsync(progressData).await()
+                }
             }
+
             job?.invokeOnCompletion {
                 Log.d(TAG, "Done.")
                 completer.set(Result.success())
@@ -51,6 +57,7 @@ class RemoteWorker(private val context: Context, private val parameters: WorkerP
     }
 
     companion object {
-        private const val TAG = "RemoteWorker"
+        private const val TAG = "WM-RemoteWorker"
+        private const val PROGRESS_INFO = "ProgressInformation"
     }
 }
