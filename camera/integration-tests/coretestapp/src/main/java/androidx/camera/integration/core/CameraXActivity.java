@@ -333,9 +333,14 @@ public class CameraXActivity extends AppCompatActivity {
             if (text.equals("Record") && !mVideoFileSaver.isSaving()) {
                 createDefaultVideoFolderIfNotExist();
 
-                getVideoCapture().startRecording(mVideoFileSaver.getNewVideoOutputFileOptions(
-                        getApplicationContext().getContentResolver()),
-                        ContextCompat.getMainExecutor(CameraXActivity.this), mVideoFileSaver);
+                try {
+                    getVideoCapture().startRecording(mVideoFileSaver.getNewVideoOutputFileOptions(
+                            getApplicationContext().getContentResolver()),
+                            ContextCompat.getMainExecutor(CameraXActivity.this), mVideoFileSaver);
+                } catch (SecurityException e) {
+                    Log.e(TAG, "Missing audio permission while setting up recording.");
+                    return;
+                }
 
                 mVideoFileSaver.setSaving();
                 mRecord.setText("Stop");

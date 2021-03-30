@@ -20,6 +20,7 @@ import static androidx.camera.video.internal.AudioSource.InternalState.CONFIGURE
 import static androidx.camera.video.internal.AudioSource.InternalState.RELEASED;
 import static androidx.camera.video.internal.AudioSource.InternalState.STARTED;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -28,6 +29,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.annotation.ExecutedBy;
@@ -91,6 +93,7 @@ public final class AudioSource {
     boolean mIsSendingAudio;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     AudioSource(@NonNull Executor executor,
             @NonNull BufferProvider<InputBuffer> bufferProvider,
             int audioSource,
@@ -408,6 +411,7 @@ public final class AudioSource {
         }
 
         /** Build the AudioSource. */
+        @RequiresPermission(Manifest.permission.RECORD_AUDIO)
         @NonNull
         public AudioSource build() throws AudioSourceAccessException {
             return new AudioSource(mExecutor,
