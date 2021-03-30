@@ -298,6 +298,7 @@ package androidx.fragment.app {
     method public void registerFragmentLifecycleCallbacks(androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks, boolean);
     method public void removeFragmentOnAttachListener(androidx.fragment.app.FragmentOnAttachListener);
     method public void removeOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
+    method public void restoreBackStack(String);
     method public void saveBackStack(String);
     method public androidx.fragment.app.Fragment.SavedState? saveFragmentInstanceState(androidx.fragment.app.Fragment);
     method public void setFragmentFactory(androidx.fragment.app.FragmentFactory);
