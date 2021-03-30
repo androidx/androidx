@@ -397,7 +397,7 @@ class WatchFaceServiceImageTest {
         handler.post {
             interactiveWatchFaceInstance.updateWatchfaceInstance(
                 "newId",
-                UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE))
+                UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray()))
             )
             sendComplications()
             engineWrapper.draw()
@@ -566,7 +566,7 @@ class WatchFaceServiceImageTest {
                     ),
                     WatchUiState(false, 0),
                     UserStyleWireFormat(
-                        mapOf(COLOR_STYLE_SETTING to GREEN_STYLE)
+                        mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray())
                     ),
                     null
                 )

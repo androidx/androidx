@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
-import androidx.wear.watchface.style.UserStyleSetting.Option.Id.Companion.MAX_LENGTH
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
@@ -37,6 +36,7 @@ import androidx.wear.watchface.style.data.LongRangeOptionWireFormat
 import androidx.wear.watchface.style.data.LongRangeUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.OptionWireFormat
 import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
+import java.nio.ByteBuffer
 import java.security.InvalidParameterException
 
 /**
@@ -124,7 +124,7 @@ public sealed class UserStyleSetting(
         }
     }
 
-    internal fun getSettingOptionForId(id: String?) =
+    internal fun getSettingOptionForId(id: ByteArray?) =
         if (id == null) {
             options[defaultOptionIndex]
         } else {
@@ -154,7 +154,7 @@ public sealed class UserStyleSetting(
     public fun getDefaultOption(): Option = options[defaultOptionIndex]
 
     override fun toString(): String = "{${id.value} : " +
-        options.joinToString(transform = { it.id.value }) + "}"
+        options.joinToString(transform = { it.toString() }) + "}"
 
     /**
      * Represents a choice within a style setting which can either be an option from the list or a
@@ -169,20 +169,31 @@ public sealed class UserStyleSetting(
          * Machine readable identifier for [Option]s. The length of this identifier may not exceed
          * [MAX_LENGTH].
          */
-        public class Id(public val value: String) {
+        public class Id(public val value: ByteArray) {
+            /**
+             * Constructs an [Id] with a [String] encoded to a [ByteArray] by
+             * [String.encodeToByteArray].
+             */
+            public constructor(value: String) : this(value.encodeToByteArray())
+
             public companion object {
                 /** Maximum length of the [value] field. */
                 public const val MAX_LENGTH: Int = 1024
             }
 
             init {
-                require(value.length <= MAX_LENGTH) {
-                    "Option.Id.value.length (${value.length}) must be less than MAX_LENGTH " +
+                require(value.size <= MAX_LENGTH) {
+                    "Option.Id.value.size (${value.size}) must be less than MAX_LENGTH " +
                         "($MAX_LENGTH)"
                 }
             }
 
-            override fun toString(): String = value
+            override fun toString(): String =
+                try {
+                    value.decodeToString()
+                } catch (e: Exception) {
+                    value.toString()
+                }
         }
 
         public companion object {
@@ -263,6 +274,13 @@ public sealed class UserStyleSetting(
             } else {
                 null
             }
+
+        override fun toString(): String =
+            try {
+                id.value.decodeToString()
+            } catch (e: Exception) {
+                id.value.toString()
+            }
     }
 
     /**
@@ -275,8 +293,8 @@ public sealed class UserStyleSetting(
      *     of the UserStyleSetting. If optionName is unrecognized then the default value for the
      *     setting should be returned.
      */
-    public open fun getOptionForId(optionId: String): Option =
-        options.find { it.id.value == optionId } ?: options[defaultOptionIndex]
+    public open fun getOptionForId(optionId: ByteArray): Option =
+        options.find { it.id.value.contentEquals(optionId) } ?: options[defaultOptionIndex]
 
     /** A BooleanUserStyleSetting represents a setting with a true and a false setting. */
     public class BooleanUserStyleSetting : UserStyleSetting {
@@ -335,20 +353,24 @@ public sealed class UserStyleSetting(
         public class BooleanOption : Option {
             public val value: Boolean
 
-            public constructor(value: Boolean) : super(Id(value.toString())) {
+            public constructor(value: Boolean) : super(
+                Id(ByteArray(1).apply { this[0] = if (value) 1 else 0 })
+            ) {
                 this.value = value
             }
 
             internal constructor(
                 wireFormat: BooleanOptionWireFormat
             ) : super(Id(wireFormat.mId)) {
-                value = wireFormat.mValue
+                value = wireFormat.mId[0] == 1.toByte()
             }
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): BooleanOptionWireFormat =
-                BooleanOptionWireFormat(id.value, value)
+                BooleanOptionWireFormat(id.value)
+
+            override fun toString(): String = if (id.value[0] == 1.toByte()) "true" else "false"
         }
     }
 
@@ -415,12 +437,9 @@ public sealed class UserStyleSetting(
             ) : this(
                 wireFormat.mComplicationId,
                 when (wireFormat.mEnabled) {
-                    ComplicationOverlayWireFormat
-                        .ENABLED_UNKNOWN -> null
-                    ComplicationOverlayWireFormat
-                        .ENABLED_YES -> true
-                    ComplicationOverlayWireFormat
-                        .ENABLED_NO -> false
+                    ComplicationOverlayWireFormat.ENABLED_UNKNOWN -> null
+                    ComplicationOverlayWireFormat.ENABLED_YES -> true
+                    ComplicationOverlayWireFormat.ENABLED_NO -> false
                     else -> throw InvalidParameterException(
                         "Unrecognised wireFormat.mEnabled " + wireFormat.mEnabled
                     )
@@ -636,23 +655,24 @@ public sealed class UserStyleSetting(
              *
              * @param value The value of this [DoubleRangeOption]
              */
-            public constructor(value: Double) : super(Id(value.toString())) {
+            public constructor(value: Double) : super(
+                Id(ByteArray(8).apply { ByteBuffer.wrap(this).putDouble(value) })
+            ) {
                 this.value = value
             }
 
             internal constructor(
                 wireFormat: DoubleRangeOptionWireFormat
             ) : super(Id(wireFormat.mId)) {
-                value = wireFormat.mValue
+                value = ByteBuffer.wrap(wireFormat.mId).double
             }
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): DoubleRangeOptionWireFormat =
-                DoubleRangeOptionWireFormat(
-                    id.value,
-                    value
-                )
+                DoubleRangeOptionWireFormat(id.value)
+
+            override fun toString(): String = value.toString()
         }
 
         /** Returns the minimum value. */
@@ -666,18 +686,18 @@ public sealed class UserStyleSetting(
             (options[defaultOptionIndex] as DoubleRangeOption).value
 
         /** We support all values in the range [min ... max] not just min & max. */
-        override fun getOptionForId(optionId: String): Option =
-            options.find { it.id.value == optionId } ?: checkedOptionForId(optionId)
+        override fun getOptionForId(optionId: ByteArray): Option =
+            options.find { it.id.value.contentEquals(optionId) } ?: checkedOptionForId(optionId)
 
-        private fun checkedOptionForId(optionId: String): DoubleRangeOption {
+        private fun checkedOptionForId(optionId: ByteArray): DoubleRangeOption {
             return try {
-                val value = optionId.toDouble()
+                val value = ByteBuffer.wrap(optionId).double
                 if (value < getMinimumValue() || value > getMaximumValue()) {
                     options[defaultOptionIndex] as DoubleRangeOption
                 } else {
                     DoubleRangeOption(value)
                 }
-            } catch (e: NumberFormatException) {
+            } catch (e: Exception) {
                 options[defaultOptionIndex] as DoubleRangeOption
             }
         }
@@ -870,23 +890,24 @@ public sealed class UserStyleSetting(
              *
              * @param value The value of this [LongRangeOption]
              */
-            public constructor(value: Long) : super(Id(value.toString())) {
+            public constructor(value: Long) : super(
+                Id(ByteArray(8).apply { ByteBuffer.wrap(this).putLong(value) })
+            ) {
                 this.value = value
             }
 
             internal constructor(
                 wireFormat: LongRangeOptionWireFormat
             ) : super(Id(wireFormat.mId)) {
-                value = wireFormat.mValue
+                value = ByteBuffer.wrap(wireFormat.mId).long
             }
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): LongRangeOptionWireFormat =
-                LongRangeOptionWireFormat(
-                    id.value,
-                    value
-                )
+                LongRangeOptionWireFormat(id.value)
+
+            override fun toString(): String = value.toString()
         }
 
         /**
@@ -907,18 +928,18 @@ public sealed class UserStyleSetting(
         /**
          * We support all values in the range [min ... max] not just min & max.
          */
-        override fun getOptionForId(optionId: String): Option =
-            options.find { it.id.value == optionId } ?: checkedOptionForId(optionId)
+        override fun getOptionForId(optionId: ByteArray): Option =
+            options.find { it.id.value.contentEquals(optionId) } ?: checkedOptionForId(optionId)
 
-        private fun checkedOptionForId(optionId: String): LongRangeOption {
+        private fun checkedOptionForId(optionId: ByteArray): LongRangeOption {
             return try {
-                val value = optionId.toLong()
+                val value = ByteBuffer.wrap(optionId).long
                 if (value < getMinimumValue() || value > getMaximumValue()) {
                     options[defaultOptionIndex] as LongRangeOption
                 } else {
                     LongRangeOption(value)
                 }
-            } catch (e: NumberFormatException) {
+            } catch (e: Exception) {
                 options[defaultOptionIndex] as LongRangeOption
             }
         }
@@ -938,11 +959,11 @@ public sealed class UserStyleSetting(
          *
          * @param affectsLayers Used by the style configuration UI. Describes which rendering layers
          *     this style affects.
-         * @param defaultValue The default value.
+         * @param defaultValue The default value [ByteArray].
          */
         public constructor (
             affectsLayers: Collection<Layer>,
-            defaultValue: String
+            defaultValue: ByteArray
         ) : super(
             Id(CUSTOM_VALUE_USER_STYLE_SETTING_ID),
             "",
@@ -972,17 +993,17 @@ public sealed class UserStyleSetting(
          * same as the [CustomValueOption.id].
          */
         public class CustomValueOption : Option {
-            /* The value for this option which is the same as the [id]. */
-            public val customValue: String
+            /* The [ByteArray] value for this option which is the same as the [id]. */
+            public val customValue: ByteArray
                 get() = id.value
 
             /**
              * Constructs a [CustomValueOption].
              *
-             * @param customValue The [id] and value of this [CustomValueOption]. This may not
-             *     exceed [Id.MAX_LENGTH].
+             * @param customValue The [ByteArray] [id] and value of this [CustomValueOption]. This
+             *     may not exceed [Id.MAX_LENGTH].
              */
-            public constructor(customValue: String) : super(Id(customValue))
+            public constructor(customValue: ByteArray) : super(Id(customValue))
 
             internal constructor(
                 wireFormat: CustomValueOptionWireFormat
@@ -994,7 +1015,7 @@ public sealed class UserStyleSetting(
                 CustomValueOptionWireFormat(id.value)
         }
 
-        override fun getOptionForId(optionId: String): Option =
-            options.find { it.id.value == optionId } ?: CustomValueOption(optionId)
+        override fun getOptionForId(optionId: ByteArray): Option =
+            options.find { it.id.value.contentEquals(optionId) } ?: CustomValueOption(optionId)
     }
 }

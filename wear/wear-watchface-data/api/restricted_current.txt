@@ -284,8 +284,7 @@ package androidx.wear.watchface.editor.data {
 package androidx.wear.watchface.style.data {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class BooleanOptionWireFormat extends androidx.wear.watchface.style.data.OptionWireFormat {
-    ctor public BooleanOptionWireFormat(String, boolean);
-    field @androidx.versionedparcelable.ParcelField(2) public boolean mValue;
+    ctor public BooleanOptionWireFormat(byte[]);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class BooleanUserStyleSettingWireFormat extends androidx.wear.watchface.style.data.UserStyleSettingWireFormat {
@@ -306,7 +305,7 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class ComplicationsOptionWireFormat extends androidx.wear.watchface.style.data.OptionWireFormat {
-    ctor public ComplicationsOptionWireFormat(String, CharSequence, android.graphics.drawable.Icon?, androidx.wear.watchface.style.data.ComplicationOverlayWireFormat![]);
+    ctor public ComplicationsOptionWireFormat(byte[], CharSequence, android.graphics.drawable.Icon?, androidx.wear.watchface.style.data.ComplicationOverlayWireFormat![]);
     field @androidx.versionedparcelable.ParcelField(100) public androidx.wear.watchface.style.data.ComplicationOverlayWireFormat![] mComplicationOverlays;
     field @androidx.versionedparcelable.ParcelField(2) public CharSequence mDisplayName;
     field @androidx.versionedparcelable.ParcelField(3) public android.graphics.drawable.Icon? mIcon;
@@ -317,7 +316,7 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class CustomValueOptionWireFormat extends androidx.wear.watchface.style.data.OptionWireFormat {
-    ctor public CustomValueOptionWireFormat(String);
+    ctor public CustomValueOptionWireFormat(byte[]);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class CustomValueUserStyleSettingWireFormat extends androidx.wear.watchface.style.data.UserStyleSettingWireFormat {
@@ -325,8 +324,7 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class DoubleRangeOptionWireFormat extends androidx.wear.watchface.style.data.OptionWireFormat {
-    ctor public DoubleRangeOptionWireFormat(String, double);
-    field @androidx.versionedparcelable.ParcelField(2) public double mValue;
+    ctor public DoubleRangeOptionWireFormat(byte[]);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class DoubleRangeUserStyleSettingWireFormat extends androidx.wear.watchface.style.data.UserStyleSettingWireFormat {
@@ -334,7 +332,7 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class ListOptionWireFormat extends androidx.wear.watchface.style.data.OptionWireFormat {
-    ctor public ListOptionWireFormat(String, CharSequence, android.graphics.drawable.Icon?);
+    ctor public ListOptionWireFormat(byte[], CharSequence, android.graphics.drawable.Icon?);
     field @androidx.versionedparcelable.ParcelField(2) public CharSequence mDisplayName;
     field @androidx.versionedparcelable.ParcelField(3) public android.graphics.drawable.Icon? mIcon;
   }
@@ -344,8 +342,7 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class LongRangeOptionWireFormat extends androidx.wear.watchface.style.data.OptionWireFormat {
-    ctor public LongRangeOptionWireFormat(String, long);
-    field @androidx.versionedparcelable.ParcelField(2) public long mValue;
+    ctor public LongRangeOptionWireFormat(byte[]);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class LongRangeUserStyleSettingWireFormat extends androidx.wear.watchface.style.data.UserStyleSettingWireFormat {
@@ -353,11 +350,11 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class OptionWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public OptionWireFormat(String);
+    ctor public OptionWireFormat(byte[]);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.style.data.OptionWireFormat!>! CREATOR;
-    field @androidx.versionedparcelable.ParcelField(1) public String mId;
+    field @androidx.versionedparcelable.ParcelField(1) public byte[] mId;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class UserStyleSchemaWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
@@ -383,11 +380,11 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true) public class UserStyleWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public UserStyleWireFormat(java.util.Map<java.lang.String!,java.lang.String!>);
+    ctor public UserStyleWireFormat(java.util.Map<java.lang.String!,byte[]!>);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.style.data.UserStyleWireFormat!>! CREATOR;
-    field @androidx.versionedparcelable.ParcelField(1) public java.util.Map<java.lang.String!,java.lang.String!> mUserStyle;
+    field @androidx.versionedparcelable.ParcelField(1) public java.util.Map<java.lang.String!,byte[]!> mUserStyle;
   }
 
 }

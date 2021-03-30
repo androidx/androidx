@@ -56,6 +56,9 @@ import androidx.wear.watchface.samples.GREEN_STYLE
 import androidx.wear.watchface.samples.NO_COMPLICATIONS
 import androidx.wear.watchface.samples.WATCH_HAND_LENGTH_STYLE_SETTING
 import androidx.wear.watchface.style.Layer
+import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
+import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
+import androidx.wear.watchface.style.UserStyleData
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -370,10 +373,12 @@ public class WatchFaceControlClientTest {
                 deviceConfig,
                 systemState,
                 // An incomplete map which is OK.
-                mapOf(
-                    "color_style_setting" to "green_style",
-                    "draw_hour_pips_style_setting" to "false",
-                    "watch_hand_length_style_setting" to "0.8"
+                UserStyleData(
+                    mapOf(
+                        "color_style_setting" to "green_style".encodeToByteArray(),
+                        "draw_hour_pips_style_setting" to BooleanOption(false).id.value,
+                        "watch_hand_length_style_setting" to DoubleRangeOption(0.8).id.value
+                    )
                 ),
                 complications
             )
@@ -620,11 +625,13 @@ public class WatchFaceControlClientTest {
                 "testId",
                 deviceConfig,
                 systemState,
-                mapOf(
-                    COLOR_STYLE_SETTING to GREEN_STYLE,
-                    WATCH_HAND_LENGTH_STYLE_SETTING to "0.25",
-                    DRAW_HOUR_PIPS_STYLE_SETTING to "false",
-                    COMPLICATIONS_STYLE_SETTING to NO_COMPLICATIONS
+                UserStyleData(
+                    mapOf(
+                        COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray(),
+                        WATCH_HAND_LENGTH_STYLE_SETTING to DoubleRangeOption(0.25).id.value,
+                        DRAW_HOUR_PIPS_STYLE_SETTING to BooleanOption(false).id.value,
+                        COMPLICATIONS_STYLE_SETTING to NO_COMPLICATIONS.encodeToByteArray()
+                    )
                 ),
                 complications
             )
@@ -646,9 +653,11 @@ public class WatchFaceControlClientTest {
         // to their defaults.
         interactiveInstance.updateWatchFaceInstance(
             "testId2",
-            mapOf(
-                COLOR_STYLE_SETTING to BLUE_STYLE,
-                WATCH_HAND_LENGTH_STYLE_SETTING to "0.9",
+            UserStyleData(
+                mapOf(
+                    COLOR_STYLE_SETTING to BLUE_STYLE.encodeToByteArray(),
+                    WATCH_HAND_LENGTH_STYLE_SETTING to DoubleRangeOption(0.9).id.value,
+                )
             )
         )
 

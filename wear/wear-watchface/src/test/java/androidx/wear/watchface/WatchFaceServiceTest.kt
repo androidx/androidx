@@ -1380,7 +1380,8 @@ public class WatchFaceServiceTest {
         )
 
         // For unknown option names the first element in the list should be returned.
-        assertThat(colorStyleSetting.getOptionForId("unknown")).isEqualTo(colorStyleList.first())
+        assertThat(colorStyleSetting.getOptionForId("unknown".encodeToByteArray()))
+            .isEqualTo(colorStyleList.first())
     }
 
     @Test
