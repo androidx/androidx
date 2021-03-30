@@ -65,16 +65,51 @@ public object LocalActivityResultRegistryOwner {
  *
  * This *must* be called unconditionally, as part of initialization path.
  *
- * @sample androidx.activity.compose.samples.RegisterForActivityResult
+ * You should *not* call [ActivityResultLauncher.unregister] on the returned
+ * [ActivityResultLauncher]. Attempting to do so will result in an [IllegalStateException].
+ *
+ * @sample androidx.activity.compose.samples.RememberLauncherForActivityResult
  *
  * @param contract the contract, specifying conversions to/from [Intent]s
  * @param onResult the callback to be called on the main thread when activity result
  *                 is available
  *
- * @return the launcher that can be used to start the activity or unregister the callback.
+ * @return the launcher that can be used to start the activity.
  */
+@Deprecated(
+    "This method has been renamed to rememberLauncherForActivityResult().",
+    ReplaceWith("rememberLauncherForActivityResult(contract, onResult)")
+)
 @Composable
 public fun <I, O> registerForActivityResult(
+    contract: ActivityResultContract<I, O>,
+    onResult: (O) -> Unit
+): ActivityResultLauncher<I> {
+    return rememberLauncherForActivityResult(contract, onResult)
+}
+
+/**
+ * Register a request to [Activity#startActivityForResult][start an activity for result],
+ * designated by the given [ActivityResultContract][contract].
+ *
+ * This creates a record in the [ActivityResultRegistry][registry] associated with this
+ * caller, managing request code, as well as conversions to/from [Intent] under the hood.
+ *
+ * This *must* be called unconditionally, as part of initialization path.
+ *
+ * You should *not* call [ActivityResultLauncher.unregister] on the returned
+ * [ActivityResultLauncher]. Attempting to do so will result in an [IllegalStateException].
+ *
+ * @sample androidx.activity.compose.samples.RememberLauncherForActivityResult
+ *
+ * @param contract the contract, specifying conversions to/from [Intent]s
+ * @param onResult the callback to be called on the main thread when activity result
+ *                 is available
+ *
+ * @return the launcher that can be used to start the activity.
+ */
+@Composable
+public fun <I, O> rememberLauncherForActivityResult(
     contract: ActivityResultContract<I, O>,
     onResult: (O) -> Unit
 ): ActivityResultLauncher<I> {
@@ -96,7 +131,7 @@ public fun <I, O> registerForActivityResult(
             }
 
             override fun unregister() {
-                realLauncher.unregister()
+                error("Registration is automatically handled by rememberLauncherForActivityResult")
             }
 
             @Suppress("UNCHECKED_CAST")
@@ -111,7 +146,7 @@ public fun <I, O> registerForActivityResult(
             currentOnResult.value(it)
         }
         onDispose {
-            returnedLauncher.unregister()
+            realLauncher.unregister()
         }
     }
     return returnedLauncher
