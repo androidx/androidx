@@ -98,7 +98,9 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 // Given the field `val liveDataField = MutableLiveData<Boolean>()`
                 // expression: `MutableLiveData<Boolean>()`
                 // argument: `Boolean`
-                val expression = element.sourcePsi?.children?.get(0) as? KtCallExpression
+                val expression = element.sourcePsi
+                    ?.children
+                    ?.firstOrNull { it is KtCallExpression } as? KtCallExpression
                 val argument = expression?.typeArguments?.singleOrNull()
                 return argument?.typeReference
             }
