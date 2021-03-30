@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import android.os.Bundle
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
@@ -225,6 +226,131 @@ class SaveRestoreBackStackTest {
                             "Found retained child fragment "
                     )
             }
+        }
+    }
+
+    @Test
+    fun restoreBackStack() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictFragment()
+            val fragmentReplacement = StateSaveFragment("saved", "unsaved")
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            fm.saveBackStack("replacement")
+            executePendingTransactions()
+
+            assertWithMessage("Saved Fragments should have their state saved")
+                .that(fragmentReplacement.calledOnSaveInstanceState)
+                .isTrue()
+
+            // Saved Fragments should be destroyed
+            assertWithMessage("Saved Fragments should be destroyed")
+                .that(fragmentReplacement.calledOnDestroy)
+                .isTrue()
+
+            fm.restoreBackStack("replacement")
+            executePendingTransactions()
+
+            val newFragmentReplacement = fm.findFragmentById(R.id.content)
+
+            assertThat(newFragmentReplacement).isInstanceOf(StateSaveFragment::class.java)
+
+            val stateSavedReplacement = newFragmentReplacement as StateSaveFragment
+
+            // Assert that restored fragment has its saved state restored
+            assertThat(stateSavedReplacement.savedState).isEqualTo("saved")
+            assertThat(stateSavedReplacement.unsavedState).isNull()
+        }
+    }
+
+    @Test
+    fun restoreBackStackAfterRecreate() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            var fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictFragment()
+            val fragmentReplacement = StateSaveFragment("saved", "unsaved")
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            fm.saveBackStack("replacement")
+            executePendingTransactions()
+
+            assertWithMessage("Saved Fragments should have their state saved")
+                .that(fragmentReplacement.calledOnSaveInstanceState)
+                .isTrue()
+
+            // Saved Fragments should be destroyed
+            assertWithMessage("Saved Fragments should be destroyed")
+                .that(fragmentReplacement.calledOnDestroy)
+                .isTrue()
+
+            // Now recreate the whole activity while the state of the back stack is saved
+            recreate()
+
+            fm = withActivity {
+                supportFragmentManager
+            }
+
+            fm.restoreBackStack("replacement")
+            executePendingTransactions()
+
+            val newFragmentReplacement = fm.findFragmentById(R.id.content)
+
+            assertThat(newFragmentReplacement).isInstanceOf(StateSaveFragment::class.java)
+
+            val stateSavedReplacement = newFragmentReplacement as StateSaveFragment
+
+            // Assert that restored fragment has its saved state restored
+            assertThat(stateSavedReplacement.savedState).isEqualTo("saved")
+            assertThat(stateSavedReplacement.unsavedState).isNull()
+        }
+    }
+
+    public class StateSaveFragment(
+        public var savedState: String? = null,
+        public val unsavedState: String? = null
+    ) : StrictFragment() {
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            if (savedInstanceState != null) {
+                savedState = savedInstanceState.getString(STATE_KEY)
+            }
+        }
+
+        override fun onSaveInstanceState(outState: Bundle) {
+            super.onSaveInstanceState(outState)
+            outState.putString(STATE_KEY, savedState)
+        }
+
+        private companion object {
+            private const val STATE_KEY = "state"
         }
     }
 }
