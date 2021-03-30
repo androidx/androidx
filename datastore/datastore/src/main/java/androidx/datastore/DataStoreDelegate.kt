@@ -59,7 +59,7 @@ import kotlin.reflect.KProperty
  *
  * @return a property delegate that manages a datastore as a singleton.
  */
-@JvmOverloads
+@Suppress("MissingJvmstatic")
 public fun <T> dataStore(
     fileName: String,
     serializer: Serializer<T>,
