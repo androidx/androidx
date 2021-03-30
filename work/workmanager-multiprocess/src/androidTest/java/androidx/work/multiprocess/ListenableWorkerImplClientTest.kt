@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package androidx.work.multiprocess
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
@@ -34,22 +35,20 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.`when`
-import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.never
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import java.util.concurrent.Executor
 
 @RunWith(AndroidJUnit4::class)
-public class RemoteWorkManagerClientTest {
-
+public class ListenableWorkerImplClientTest {
     private lateinit var mContext: Context
     private lateinit var mWorkManager: WorkManagerImpl
     private lateinit var mExecutor: Executor
-    private lateinit var mClient: RemoteWorkManagerClient
+    private lateinit var mClient: ListenableWorkerImplClient
 
     @Before
     public fun setUp() {
@@ -68,7 +67,7 @@ public class RemoteWorkManagerClientTest {
         val taskExecutor = mock(TaskExecutor::class.java)
         `when`(taskExecutor.backgroundExecutor).thenReturn(SerialExecutor(mExecutor))
         `when`(mWorkManager.workTaskExecutor).thenReturn(taskExecutor)
-        mClient = spy(RemoteWorkManagerClient(mContext, mWorkManager))
+        mClient = ListenableWorkerImplClient(mContext, mExecutor)
     }
 
     @Test
@@ -78,17 +77,17 @@ public class RemoteWorkManagerClientTest {
             // Exclude <= API 27, from tests because it causes a SIGSEGV.
             return
         }
-
         `when`(
             mContext.bindService(
-                any(Intent::class.java), any(ServiceConnection::class.java),
+                any(Intent::class.java),
+                any(ServiceConnection::class.java),
                 anyInt()
             )
         ).thenReturn(false)
-        val intent = mock(Intent::class.java)
+        val componentName = ComponentName("packageName", "className")
         var exception: Throwable? = null
         try {
-            mClient.getSession(intent).get()
+            mClient.getListenableWorkerImpl(componentName).get()
         } catch (throwable: Throwable) {
             exception = throwable
         }
@@ -108,13 +107,13 @@ public class RemoteWorkManagerClientTest {
 
         val binder = mock(IBinder::class.java)
         val remoteDispatcher =
-            mock(RemoteDispatcher::class.java) as RemoteDispatcher<IWorkManagerImpl>
-        val remoteStub = mock(IWorkManagerImpl::class.java)
+            mock(RemoteDispatcher::class.java) as RemoteDispatcher<IListenableWorkerImpl>
+        val remoteStub = mock(IListenableWorkerImpl::class.java)
         val callback = spy(RemoteCallback())
         val message = "Something bad happened"
         `when`(remoteDispatcher.execute(remoteStub, callback)).thenThrow(RuntimeException(message))
         `when`(remoteStub.asBinder()).thenReturn(binder)
-        val session = SettableFuture.create<IWorkManagerImpl>()
+        val session = SettableFuture.create<IListenableWorkerImpl>()
         session.set(remoteStub)
         var exception: Throwable? = null
         try {
@@ -124,7 +123,6 @@ public class RemoteWorkManagerClientTest {
         }
         assertNotNull(exception)
         verify(callback).onFailure(message)
-        verify(mClient, never()).cleanUp()
     }
 
     @Test
@@ -137,9 +135,9 @@ public class RemoteWorkManagerClientTest {
         }
 
         val remoteDispatcher =
-            mock(RemoteDispatcher::class.java) as RemoteDispatcher<IWorkManagerImpl>
+            mock(RemoteDispatcher::class.java) as RemoteDispatcher<IListenableWorkerImpl>
         val callback = spy(RemoteCallback())
-        val session = SettableFuture.create<IWorkManagerImpl>()
+        val session = SettableFuture.create<IListenableWorkerImpl>()
         session.setException(RuntimeException("Something bad happened"))
         var exception: Throwable? = null
         try {
@@ -149,7 +147,6 @@ public class RemoteWorkManagerClientTest {
         }
         assertNotNull(exception)
         verify(callback).onFailure(anyString())
-        verify(mClient).cleanUp()
     }
 
     @Test
@@ -161,13 +158,13 @@ public class RemoteWorkManagerClientTest {
         }
 
         val binder = mock(IBinder::class.java)
-        val remoteDispatcher = RemoteDispatcher<IWorkManagerImpl> { _, callback ->
+        val remoteDispatcher = RemoteDispatcher<IListenableWorkerImpl> { _, callback ->
             callback.onSuccess(ByteArray(0))
         }
-        val remoteStub = mock(IWorkManagerImpl::class.java)
+        val remoteStub = mock(IListenableWorkerImpl::class.java)
         val callback = spy(RemoteCallback())
         `when`(remoteStub.asBinder()).thenReturn(binder)
-        val session = SettableFuture.create<IWorkManagerImpl>()
+        val session = SettableFuture.create<IListenableWorkerImpl>()
         session.set(remoteStub)
         var exception: Throwable? = null
         try {
@@ -177,6 +174,5 @@ public class RemoteWorkManagerClientTest {
         }
         assertNull(exception)
         verify(callback).onSuccess(any())
-        verify(mClient, never()).cleanUp()
     }
 }
