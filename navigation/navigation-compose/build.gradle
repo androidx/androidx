@@ -32,6 +32,7 @@ dependencies {
     kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(KOTLIN_STDLIB)
+    implementation(projectOrArtifact(":compose:foundation:foundation-layout"))
     api(projectOrArtifact(":activity:activity-compose"))
     api(projectOrArtifact(":compose:runtime:runtime"))
     api(projectOrArtifact(":compose:runtime:runtime-saveable"))
