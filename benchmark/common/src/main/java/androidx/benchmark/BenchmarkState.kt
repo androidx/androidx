@@ -124,10 +124,7 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
 
     private fun checkState() {
         check(state != NOT_STARTED) {
-            "The benchmark wasn't started! Every test in a class " +
-                "with a BenchmarkRule must contain a benchmark. In Kotlin, call " +
-                "benchmarkRule.measureRepeated {}, or in Java, call " +
-                "benchmarkRule.getState().keepRunning() to run your benchmark."
+            "Attempting to interact with a benchmark that wasn't started!"
         }
         check(state == FINISHED) {
             "The benchmark hasn't finished! In Java, use " +
@@ -501,6 +498,10 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
         simpleClassName: String,
         methodName: String
     ) {
+        if (state == NOT_STARTED) {
+            return; // nothing to report, BenchmarkState wasn't used
+        }
+
         checkState() // this method is triggered externally
         val fullTestName = "$PREFIX$simpleClassName.$methodName"
         val bundle = getFullStatusReport(

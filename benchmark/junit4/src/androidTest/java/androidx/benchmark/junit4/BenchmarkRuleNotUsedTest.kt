@@ -17,30 +17,24 @@
 package androidx.benchmark.junit4
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
-import org.junit.Assert
+import androidx.test.filters.SmallTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
-@LargeTest
+@SmallTest
 @RunWith(AndroidJUnit4::class)
-public class BenchmarkRuleTest {
+public class BenchmarkRuleNotUsedTest {
     @get:Rule
-    public val benchmarkRule: BenchmarkRule = BenchmarkRule(enableReport = false)
+    public val benchmarkRule: BenchmarkRule = BenchmarkRule(enableReport = true)
 
+    /**
+     * Previously this test would fail, because BenchmarkState().report(...) used in the
+     * post-test BenchmarkRule logic would fail, due to not yet being initialized.
+     *
+     * Now, this test passes to enable other tests to be written without using the BenchmarkRule.
+     */
     @Test
-    public fun runWithTimingDisabled() {
-        benchmarkRule.measureRepeated {
-            runWithTimingDisabled {
-                Thread.sleep(5)
-            }
-        }
-        val min = benchmarkRule.getState().getMinTimeNanos()
-        Assert.assertTrue(
-            "minimum $min should be less than 1ms",
-            min < TimeUnit.MILLISECONDS.toNanos(1)
-        )
+    public fun testWithoutMeasurement() {
     }
 }

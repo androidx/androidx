@@ -229,7 +229,6 @@ public class BenchmarkStateTest {
         } catch (e: IllegalStateException) {
             assertEquals(initialPriority, ThreadPriority.get())
             assertTrue(e.message!!.contains("wasn't started"))
-            assertTrue(e.message!!.contains("benchmarkRule.measureRepeated {}"))
         }
     }
 
