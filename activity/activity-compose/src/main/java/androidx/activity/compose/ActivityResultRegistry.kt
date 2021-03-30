@@ -38,13 +38,13 @@ public object LocalActivityResultRegistryOwner {
     private val LocalComposition = compositionLocalOf<ActivityResultRegistryOwner?> { null }
 
     /**
-     * Returns current composition local value for the owner.
+     * Returns current composition local value for the owner or `null` if one has not
+     * been provided nor is one available by looking at the [LocalContext].
      */
-    public val current: ActivityResultRegistryOwner
+    public val current: ActivityResultRegistryOwner?
         @Composable
         get() = LocalComposition.current
             ?: findOwner<ActivityResultRegistryOwner>(LocalContext.current)
-            ?: error("No ActivityResultRegisterOwner has been provided")
 
     /**
      * Associates a [LocalActivityResultRegistryOwner] key to a value in a call to
@@ -85,7 +85,9 @@ public fun <I, O> registerForActivityResult(
     // and consistent across configuration changes
     val key = rememberSaveable { UUID.randomUUID().toString() }
 
-    val activityResultRegistry = LocalActivityResultRegistryOwner.current.activityResultRegistry
+    val activityResultRegistry = checkNotNull(LocalActivityResultRegistryOwner.current) {
+        "No ActivityResultRegistryOwner was provided via LocalActivityResultRegistryOwner"
+    }.activityResultRegistry
     val realLauncher = remember(contract) { ActivityResultLauncherHolder<I>() }
     val returnedLauncher = remember(contract) {
         object : ActivityResultLauncher<I>() {

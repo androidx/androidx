@@ -38,11 +38,14 @@ public object LocalOnBackPressedDispatcherOwner {
     private val LocalOnBackPressedDispatcherOwner =
         compositionLocalOf<OnBackPressedDispatcherOwner?> { null }
 
-    public val current: OnBackPressedDispatcherOwner
+    /**
+     * Returns current composition local value for the owner or `null` if one has not
+     * been provided nor is one available by looking at the [LocalContext].
+     */
+    public val current: OnBackPressedDispatcherOwner?
         @Composable
         get() = LocalOnBackPressedDispatcherOwner.current
             ?: findOwner<OnBackPressedDispatcherOwner>(LocalContext.current)
-            ?: error("No Back Dispatcher provided")
 
     /**
      * Associates a [LocalOnBackPressedDispatcherOwner] key to a value in a call to
@@ -86,7 +89,9 @@ public fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
     SideEffect {
         backCallback.isEnabled = enabled
     }
-    val backDispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
+    val backDispatcher = checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
+        "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"
+    }.onBackPressedDispatcher
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, backDispatcher) {
         // Add callback to the backDispatcher
