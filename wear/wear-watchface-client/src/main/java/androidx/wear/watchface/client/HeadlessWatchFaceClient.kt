@@ -17,6 +17,7 @@
 package androidx.wear.watchface.client
 
 import android.graphics.Bitmap
+import android.os.Bundle
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.AnyThread
 import androidx.annotation.RequiresApi
@@ -42,6 +43,14 @@ import java.util.concurrent.Executor
  * Note clients should call [close] when finished.
  */
 public interface HeadlessWatchFaceClient : AutoCloseable {
+    public companion object {
+        internal const val BINDER_KEY = "HeadlessWatchFaceClient"
+
+        @JvmStatic
+        public fun createFromBundle(bundle: Bundle): HeadlessWatchFaceClient =
+            HeadlessWatchFaceClientImpl(bundle.getBinder(BINDER_KEY) as IHeadlessWatchFace)
+    }
+
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
     public val previewReferenceTimeMillis: Long
 
@@ -118,6 +127,9 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
     /** Returns true if the connection to the server side is alive. */
     @AnyThread
     public fun isConnectionAlive(): Boolean
+
+    /** Stores the underlying connection in a [Bundle]. */
+    public fun toBundle(): Bundle
 }
 
 internal class HeadlessWatchFaceClientImpl internal constructor(
@@ -225,6 +237,10 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
     }
 
     override fun isConnectionAlive() = iHeadlessWatchFace.asBinder().isBinderAlive
+
+    override fun toBundle() = Bundle().apply {
+        this.putBinder(HeadlessWatchFaceClient.BINDER_KEY, iHeadlessWatchFace.asBinder())
+    }
 
     override fun close() = TraceEvent("HeadlessWatchFaceClientImpl.close").use {
         iHeadlessWatchFace.release()
