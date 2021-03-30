@@ -33,7 +33,7 @@ android {
 
 dependencies {
     api(KOTLIN_STDLIB)
-    api(project(":core:core"))
+    api("androidx.core:core:1.6.0-alpha01")
 
     implementation("com.google.firebase:firebase-appindexing:19.2.0")
 
