@@ -54,10 +54,6 @@ import com.google.common.truth.Truth.assertWithMessage
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,7 +78,8 @@ class NavControllerTest {
     fun testGetCurrentBackStackEntry() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_start_destination)
-        assertEquals(R.id.start_test, navController.currentBackStackEntry?.destination?.id ?: 0)
+        assertThat(navController.currentBackStackEntry?.destination?.id ?: 0)
+            .isEqualTo(R.id.start_test)
     }
 
     @UiThreadTest
@@ -98,7 +95,8 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         navController.navigate(R.id.second_test)
-        assertEquals(R.id.start_test, navController.previousBackStackEntry?.destination?.id ?: 0)
+        assertThat(navController.previousBackStackEntry?.destination?.id ?: 0)
+            .isEqualTo(R.id.start_test)
     }
 
     @UiThreadTest
@@ -114,7 +112,7 @@ class NavControllerTest {
     fun testStartDestination() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_start_destination)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
     }
 
     @UiThreadTest
@@ -145,11 +143,11 @@ class NavControllerTest {
         }
         navController.setGraph(R.navigation.nav_start_destination, args)
         val navigator = navController.navigatorProvider[TestNavigator::class]
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
         val foundArgs = navigator.current.second
-        assertNotNull(foundArgs)
-        assertEquals(TEST_ARG_VALUE, foundArgs?.getString(TEST_ARG))
+        assertThat(foundArgs).isNotNull()
+        assertThat(foundArgs?.getString(TEST_ARG)).isEqualTo(TEST_ARG_VALUE)
     }
 
     @UiThreadTest
@@ -177,11 +175,11 @@ class NavControllerTest {
         }
         navController.setGraph(navGraph, args)
         val navigator = navController.navigatorProvider[TestNavigator::class]
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
         val foundArgs = navigator.current.second
-        assertNotNull(foundArgs)
-        assertEquals(TEST_ARG_VALUE, foundArgs?.getString(TEST_ARG))
+        assertThat(foundArgs).isNotNull()
+        assertThat(foundArgs?.getString(TEST_ARG)).isEqualTo(TEST_ARG_VALUE)
     }
 
     @UiThreadTest
@@ -203,7 +201,7 @@ class NavControllerTest {
     fun testNestedStartDestination() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_nested_start_destination)
-        assertEquals(R.id.nested_test, navController.currentDestination?.id ?: 0)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.nested_test)
     }
 
     @UiThreadTest
@@ -212,8 +210,8 @@ class NavControllerTest {
         val navController = createNavController()
 
         navController.setGraph(R.navigation.nav_start_destination)
-        assertNotNull(navController.graph)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
+        assertThat(navController.graph).isNotNull()
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
     }
 
     @UiThreadTest
@@ -285,12 +283,12 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
 
         navController.navigate(R.id.second_test)
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
     @UiThreadTest
@@ -646,14 +644,14 @@ class NavControllerTest {
 
         // Restore state doesn't recreate any graph
         navController.restoreState(savedState)
-        assertNull(navController.currentDestination)
+        assertThat(navController.currentDestination).isNull()
 
         // Explicitly setting a graph then restores the state
         navController.setGraph(R.navigation.nav_simple)
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
         // Save state should be called on the navigator exactly once
-        assertEquals(1, navigator.saveStateCount)
+        assertThat(navigator.saveStateCount).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -672,7 +670,7 @@ class NavControllerTest {
 
         // Restore state doesn't recreate any graph
         navController.restoreState(savedState)
-        assertNull(navController.currentDestination)
+        assertThat(navController.currentDestination).isNull()
 
         var destinationChangedCount = 0
 
@@ -683,7 +681,7 @@ class NavControllerTest {
         // Explicitly setting a graph then restores the state
         navController.setGraph(R.navigation.nav_simple)
         // Save state should be called on the navigator exactly once
-        assertEquals(1, navigator.saveStateCount)
+        assertThat(navigator.saveStateCount).isEqualTo(1)
         // listener should have been fired again when state restored
         assertThat(destinationChangedCount).isEqualTo(1)
     }
@@ -706,12 +704,12 @@ class NavControllerTest {
 
         // Restore state doesn't recreate any graph
         navController.restoreState(savedState)
-        assertNull(navController.currentDestination)
+        assertThat(navController.currentDestination).isNull()
 
         // Explicitly setting a graph then restores the state
         navController.graph = graph
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
     @UiThreadTest
@@ -842,7 +840,7 @@ class NavControllerTest {
         val returnedArgs = navigateWithArgs(null)
 
         // Test that arguments without a default value aren't passed through at all
-        assertFalse(returnedArgs.containsKey("test_no_default_value"))
+        assertThat(returnedArgs.containsKey("test_no_default_value")).isFalse()
     }
 
     @UiThreadTest
@@ -851,7 +849,7 @@ class NavControllerTest {
         val returnedArgs = navigateWithArgs(null)
 
         // Test that default values are passed through
-        assertEquals("default", returnedArgs.getString("test_default_value"))
+        assertThat(returnedArgs.getString("test_default_value")).isEqualTo("default")
     }
 
     @UiThreadTest
@@ -862,7 +860,7 @@ class NavControllerTest {
         val returnedArgs = navigateWithArgs(args)
 
         // Test that programmatically constructed arguments are passed through
-        assertEquals(TEST_ARG_VALUE, returnedArgs.getString(TEST_ARG))
+        assertThat(returnedArgs.getString(TEST_ARG)).isEqualTo(TEST_ARG_VALUE)
     }
 
     @UiThreadTest
@@ -873,10 +871,8 @@ class NavControllerTest {
         val returnedArgs = navigateWithArgs(args)
 
         // Test that default values can be overridden by programmatic values
-        assertEquals(
-            TEST_OVERRIDDEN_VALUE_ARG_VALUE,
-            returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG)
-        )
+        assertThat(returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG))
+            .isEqualTo(TEST_OVERRIDDEN_VALUE_ARG_VALUE)
     }
 
     private fun navigateWithArgs(args: Bundle?): Bundle {
@@ -887,7 +883,7 @@ class NavControllerTest {
 
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         val returnedArgs = navigator.current.second
-        assertNotNull(returnedArgs)
+        assertThat(returnedArgs).isNotNull()
 
         return returnedArgs!!
     }
@@ -898,15 +894,15 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
 
         val success = navController.popBackStack()
         assertWithMessage("NavController should return false when popping the root")
             .that(success)
             .isFalse()
-        assertNull(navController.currentDestination)
-        assertEquals(0, navigator.backStack.size)
+        assertThat(navController.currentDestination).isNull()
+        assertThat(navigator.backStack.size).isEqualTo(0)
     }
 
     @UiThreadTest
@@ -915,15 +911,15 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
 
         val success = navController.popBackStack()
         assertWithMessage("NavController should return false when popping the root")
             .that(success)
             .isFalse()
-        assertNull(navController.currentDestination)
-        assertEquals(0, navigator.backStack.size)
+        assertThat(navController.currentDestination).isNull()
+        assertThat(navigator.backStack.size).isEqualTo(0)
 
         val popped = navController.popBackStack()
         assertWithMessage(
@@ -940,19 +936,19 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
 
         navController.navigate(R.id.second_test)
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
 
         val popped = navController.popBackStack()
         assertWithMessage("NavController should return true when popping a non-root destination")
             .that(popped)
             .isTrue()
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -961,19 +957,19 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
 
         navController.navigate(R.id.second_test)
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
 
         val popped = navController.popBackStack(UNKNOWN_DESTINATION_ID, false)
         assertWithMessage("Popping to an invalid destination should return false")
             .that(popped)
             .isFalse()
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
     @UiThreadTest
@@ -982,8 +978,8 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
 
         navController.navigate(
             R.id.second_test, null,
@@ -991,8 +987,8 @@ class NavControllerTest {
                 popUpTo(R.id.start_test) { inclusive = true }
             }
         )
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -1001,8 +997,8 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
 
         navController.navigate(
             R.id.second_test, null,
@@ -1010,8 +1006,8 @@ class NavControllerTest {
                 popUpTo(R.id.nav_root) { inclusive = true }
             }
         )
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -1020,19 +1016,19 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
 
         navController.navigate(R.id.second_test)
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
 
         // This should function identically to popBackStack()
         val success = navController.navigateUp()
         assertThat(success)
             .isTrue()
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -1041,23 +1037,24 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
 
         navController.navigate(R.id.second_test)
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
 
         navController.navigate(R.id.start_test_with_default_arg)
-        assertEquals(R.id.start_test_with_default_arg, navController.currentDestination?.id ?: 0)
-        assertEquals(3, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.start_test_with_default_arg)
+        assertThat(navigator.backStack.size).isEqualTo(3)
 
         // This should function identically to popBackStack()
         val success = navController.navigateUp()
         assertThat(success).isTrue()
         val destination = navController.currentDestination
-        assertEquals(R.id.second_test, destination?.id ?: 0)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(destination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
         assertThat(destination?.arguments?.get("defaultArg")?.defaultValue.toString())
             .isEqualTo("defaultValue")
     }
@@ -1067,13 +1064,13 @@ class NavControllerTest {
     fun testNavigateViaAction() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navigator.backStack.size).isEqualTo(1)
 
         navController.navigate(R.id.second)
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
     @UiThreadTest
@@ -1082,13 +1079,13 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         navController.navigate(R.id.second_test)
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navigator.backStack.size).isEqualTo(2)
 
         navController.navigate(R.id.self)
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
     @UiThreadTest
@@ -1245,13 +1242,13 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         navController.navigate(R.id.second_test)
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navigator.backStack.size).isEqualTo(2)
 
         navController.navigate(R.id.finish)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -1260,9 +1257,9 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         navController.navigate(R.id.second_test)
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navigator.backStack.size).isEqualTo(2)
 
         val navOptions = navOptions {
             popUpTo = R.id.start_test
@@ -1270,8 +1267,8 @@ class NavControllerTest {
         // the same as to call .navigate(R.id.finish)
         navController.navigate(0, null, navOptions)
 
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -1294,13 +1291,13 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         navController.navigate(R.id.second_test)
-        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertEquals(2, navigator.backStack.size)
+        assertThat(navigator.backStack.size).isEqualTo(2)
 
         navController.navigate(R.id.finish_self)
-        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
-        assertEquals(1, navigator.backStack.size)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -1316,24 +1313,20 @@ class NavControllerTest {
 
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         val returnedArgs = navigator.current.second
-        assertNotNull(returnedArgs)
+        assertThat(returnedArgs).isNotNull()
 
         // Test that arguments without a default value aren't passed through at all
-        assertFalse(returnedArgs!!.containsKey("test_no_default_value"))
+        assertThat(returnedArgs!!.containsKey("test_no_default_value")).isFalse()
         // Test that default values are passed through
-        assertEquals("default", returnedArgs.getString("test_default_value"))
+        assertThat(returnedArgs.getString("test_default_value")).isEqualTo("default")
         // Test that programmatically constructed arguments are passed through
-        assertEquals(TEST_ARG_VALUE, returnedArgs.getString(TEST_ARG))
+        assertThat(returnedArgs.getString(TEST_ARG)).isEqualTo(TEST_ARG_VALUE)
         // Test that default values can be overridden by programmatic values
-        assertEquals(
-            TEST_OVERRIDDEN_VALUE_ARG_VALUE,
-            returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG)
-        )
+        assertThat(returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG))
+            .isEqualTo(TEST_OVERRIDDEN_VALUE_ARG_VALUE)
         // Test that default values can be overridden by action default values
-        assertEquals(
-            TEST_OVERRIDDEN_VALUE_ARG_VALUE,
-            returnedArgs.getString(TEST_ACTION_OVERRIDDEN_VALUE_ARG)
-        )
+        assertThat(returnedArgs.getString(TEST_ACTION_OVERRIDDEN_VALUE_ARG))
+            .isEqualTo(TEST_OVERRIDDEN_VALUE_ARG_VALUE)
     }
 
     @UiThreadTest
@@ -1345,8 +1338,8 @@ class NavControllerTest {
         val taskStackBuilder = navController.createDeepLink()
             .setDestination(R.id.second_test)
             .createTaskStackBuilder()
-        assertNotNull(taskStackBuilder)
-        assertEquals(1, taskStackBuilder.intentCount)
+        assertThat(taskStackBuilder).isNotNull()
+        assertThat(taskStackBuilder.intentCount).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -1363,7 +1356,7 @@ class NavControllerTest {
             .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
-        assertNotNull(intent)
+        assertThat(intent).isNotNull()
         navController.handleDeepLink(intent)
 
         // The original Intent should be untouched and safely writable to a Parcel
@@ -1382,7 +1375,7 @@ class NavControllerTest {
             .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
-        assertNotNull(intent)
+        assertThat(intent).isNotNull()
         navController.handleDeepLink(intent)
 
         // The original Intent should be untouched and safely writable to a Parcel
@@ -1390,7 +1383,7 @@ class NavControllerTest {
         intent!!.writeToParcel(p, 0)
 
         val destination = navController.currentDestination
-        assertEquals(R.id.second_test, destination?.id ?: 0)
+        assertThat(destination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(destination?.arguments?.get("defaultArg")?.defaultValue.toString())
             .isEqualTo("defaultValue")
     }
@@ -1410,7 +1403,7 @@ class NavControllerTest {
             .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
-        assertNotNull(intent)
+        assertThat(intent).isNotNull()
         assertWithMessage("NavController should handle deep links to its own graph")
             .that(navController.handleDeepLink(intent))
             .isTrue()
@@ -1435,7 +1428,7 @@ class NavControllerTest {
             .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
-        assertNotNull(intent)
+        assertThat(intent).isNotNull()
         assertWithMessage("NavController should handle deep links to its own graph")
             .that(navController.handleDeepLink(intent))
             .isTrue()
@@ -1462,7 +1455,7 @@ class NavControllerTest {
             .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
-        assertNotNull(intent)
+        assertThat(intent).isNotNull()
         assertWithMessage("NavController should handle deep links to its own graph")
             .that(navController.handleDeepLink(intent))
             .isTrue()
@@ -1506,7 +1499,7 @@ class NavControllerTest {
             .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
-        assertNotNull(intent)
+        assertThat(intent).isNotNull()
         assertWithMessage("NavController should handle deep links to its own graph")
             .that(navController.handleDeepLink(intent))
             .isTrue()
@@ -1560,7 +1553,7 @@ class NavControllerTest {
             .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
-        assertNotNull(intent)
+        assertThat(intent).isNotNull()
         assertWithMessage("handleDeepLink should return false when passed an invalid deep link")
             .that(navController.handleDeepLink(intent))
             .isFalse()
@@ -1587,7 +1580,7 @@ class NavControllerTest {
             .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
-        assertNotNull(intent)
+        assertThat(intent).isNotNull()
         assertWithMessage("handleDeepLink should return false when passed an invalid deep link")
             .that(navController.handleDeepLink(intent))
             .isFalse()
@@ -1609,7 +1602,8 @@ class NavControllerTest {
 
         navController.setGraph(R.navigation.nav_simple)
         navController.navigate(R.id.second_test)
-        assertEquals(R.id.start_test, navController.previousBackStackEntry?.destination?.id ?: 0)
+        assertThat(navController.previousBackStackEntry?.destination?.id ?: 0)
+            .isEqualTo(R.id.start_test)
 
         dispatcher.addCallback(navController.currentBackStackEntry!!) {
             backPressedIntercepted = true
