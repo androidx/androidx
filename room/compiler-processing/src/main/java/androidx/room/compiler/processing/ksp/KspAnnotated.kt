@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.InternalXAnnotated
-import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XAnnotationBox
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -79,8 +78,6 @@ internal sealed class KspAnnotated(
         }
     }
 
-    operator fun plus(other: KspAnnotated): XAnnotated = Combined(env, this, other)
-
     private class KSAnnotatedDelegate(
         env: KspProcessingEnv,
         private val delegate: KSAnnotated,
@@ -96,16 +93,6 @@ internal sealed class KspAnnotated(
     private class NotAnnotated(env: KspProcessingEnv) : KspAnnotated(env) {
         override fun annotations(): Sequence<KSAnnotation> {
             return emptySequence()
-        }
-    }
-
-    private class Combined(
-        env: KspProcessingEnv,
-        private val first: KspAnnotated,
-        private val second: KspAnnotated
-    ) : KspAnnotated(env) {
-        override fun annotations(): Sequence<KSAnnotation> {
-            return first.annotations() + second.annotations()
         }
     }
 
@@ -125,35 +112,26 @@ internal sealed class KspAnnotated(
         fun accept(annotation: KSAnnotation): Boolean
 
         private class Impl(
-            val acceptNull: Boolean,
             val acceptedTarget: AnnotationUseSiteTarget
         ) : UseSiteFilter {
             override fun accept(annotation: KSAnnotation): Boolean {
                 val target = annotation.useSiteTarget
-                return if (target == null) {
-                    acceptNull
-                } else {
-                    acceptedTarget == target
-                }
+                return target == null || acceptedTarget == target
             }
         }
 
-        /**
-         * TODO: We should be able to remove use site filters once
-         * https://github.com/google/ksp/issues/355 is fixed.
-         */
         companion object {
-            val FIELD: UseSiteFilter = Impl(true, AnnotationUseSiteTarget.FIELD)
-            val PROPERTY_SETTER_PARAMETER: UseSiteFilter =
-                Impl(false, AnnotationUseSiteTarget.SETPARAM)
-            val METHOD_PARAMETER: UseSiteFilter = Impl(true, AnnotationUseSiteTarget.PARAM)
             val NO_USE_SITE = object : UseSiteFilter {
                 override fun accept(annotation: KSAnnotation): Boolean {
                     return annotation.useSiteTarget == null
                 }
             }
-            val NO_USE_SITE_OR_GETTER: UseSiteFilter = Impl(true, AnnotationUseSiteTarget.GET)
-            val NO_USE_SITE_OR_SETTER: UseSiteFilter = Impl(true, AnnotationUseSiteTarget.SET)
+            val NO_USE_SITE_OR_FIELD: UseSiteFilter = Impl(AnnotationUseSiteTarget.FIELD)
+            val NO_USE_SITE_OR_METHOD_PARAMETER: UseSiteFilter =
+                Impl(AnnotationUseSiteTarget.PARAM)
+            val NO_USE_SITE_OR_GETTER: UseSiteFilter = Impl(AnnotationUseSiteTarget.GET)
+            val NO_USE_SITE_OR_SETTER: UseSiteFilter = Impl(AnnotationUseSiteTarget.SET)
+            val NO_USE_SITE_OR_SET_PARAM: UseSiteFilter = Impl(AnnotationUseSiteTarget.SETPARAM)
         }
     }
 

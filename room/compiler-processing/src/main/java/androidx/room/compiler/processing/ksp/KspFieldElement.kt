@@ -21,7 +21,7 @@ import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.FIELD
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_FIELD
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 
 internal class KspFieldElement(
@@ -31,7 +31,7 @@ internal class KspFieldElement(
 ) : KspElement(env, declaration),
     XFieldElement,
     XHasModifiers by KspHasModifiers.create(declaration),
-    XAnnotated by KspAnnotated.create(env, declaration, FIELD) {
+    XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE_OR_FIELD) {
 
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(declaration, containing)
