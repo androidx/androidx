@@ -19,14 +19,17 @@ package androidx.room.vo
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FieldBundle
+import androidx.room.util.SchemaDiffResult
 import com.squareup.javapoet.ClassName
 
+/**
+ * Stores the changes detected in a database schema between the old and new versions.
+ */
 data class AutoMigrationResult(
     val element: XTypeElement,
     val from: Int?,
     val to: Int?,
-    val addedColumns: List<AddedColumn>,
-    val addedTables: List<AddedTable>
+    val schemaDiff: SchemaDiffResult
 ) {
 
     val implTypeName: ClassName by lazy {
@@ -43,16 +46,6 @@ data class AutoMigrationResult(
     data class AddedColumn(val tableName: String, val fieldBundle: FieldBundle)
 
     /**
-     * Stores the table name and the relevant field bundle of a column that was present in both
-     * the old and new version of the same database, but had a change in the field schema (e.g.
-     * change in affinity).
-     */
-    data class ChangedColumn(
-        val tableName: String,
-        val fieldBundle: FieldBundle
-    )
-
-    /**
      * Stores the table name and the relevant field bundle of a column that was present in the
      * old version of a database but is not present in a new version of the same database, either
      * because it was removed or renamed.
@@ -60,7 +53,7 @@ data class AutoMigrationResult(
      * In the current implementation, we cannot differ between whether the column was removed or
      * renamed.
      */
-    data class RemovedColumn(val tableName: String, val fieldBundle: FieldBundle)
+    data class RemovedOrRenamedColumn(val tableName: String, val fieldBundle: FieldBundle)
 
     /**
      * Stores the table that was added to a database in a newer version.
@@ -82,6 +75,9 @@ data class AutoMigrationResult(
      */
     data class ComplexChangedTable(
         val tableName: String,
+        val newTableName: String,
+        val oldVersionEntityBundle: EntityBundle,
+        val newVersionEntityBundle: EntityBundle,
         val foreignKeyChanged: Boolean,
         val indexChanged: Boolean
     )
@@ -93,5 +89,5 @@ data class AutoMigrationResult(
      * In the current implementation, we cannot differ between whether the table was removed or
      * renamed.
      */
-    data class RemovedTable(val entityBundle: EntityBundle)
+    data class RemovedOrRenamedTable(val entityBundle: EntityBundle)
 }

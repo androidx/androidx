@@ -104,14 +104,11 @@ class AutoMigrationProcessor(
             return null
         }
 
-        // TODO: (b/183434667) Update the automigration result data object to handle complex
-        //  schema changes' presence when writer code is introduced
         return AutoMigrationResult(
             element = element,
             from = fromSchemaBundle.version,
             to = toSchemaBundle.version,
-            addedColumns = schemaDiff.addedColumns,
-            addedTables = schemaDiff.addedTables
+            schemaDiff = schemaDiff
         )
     }
 
