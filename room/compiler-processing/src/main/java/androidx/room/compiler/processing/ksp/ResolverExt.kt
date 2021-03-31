@@ -113,8 +113,6 @@ internal fun Resolver.safeGetJvmName(
     declaration: KSFunctionDeclaration
 ): String {
     return try {
-        // https://github.com/google/ksp/commit/964e6f87a55e8ac159dbc37b4a70fc07a0b02e34
-        @Suppress("USELESS_ELVIS") // this will be nullable in alpha06
         getJvmName(declaration) ?: declaration.simpleName.asString()
     } catch (cannotFindDeclaration: IllegalStateException) {
         // TODO remove this catch once that issue is fixed.

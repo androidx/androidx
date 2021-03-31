@@ -25,10 +25,9 @@ import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated
-import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_GETTER
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_SETTER
-import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.PROPERTY_SETTER_PARAMETER
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_SET_PARAM
 import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
@@ -206,12 +205,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
         ) : XExecutableParameterElement,
             XAnnotated by KspAnnotated.create(
                 env = env,
-                delegate = origin.field.declaration,
-                filter = PROPERTY_SETTER_PARAMETER
-            ) + KspAnnotated.create(
-                env = env,
                 delegate = origin.field.declaration.setter?.parameter,
-                filter = NO_USE_SITE
+                filter = NO_USE_SITE_OR_SET_PARAM
             ) {
 
             override val name: String by lazy {
