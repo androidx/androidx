@@ -34,6 +34,7 @@ import androidx.core.content.pm.ShortcutInfoChangeListener;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
 
+import com.google.crypto.tink.KeysetHandle;
 import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
@@ -56,6 +57,7 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
     private final Context mContext;
     private final FirebaseAppIndex mFirebaseAppIndex;
     private final FirebaseUserActions mFirebaseUserActions;
+    @Nullable private final KeysetHandle mKeysetHandle;
 
     /**
      * Create an instance of {@link ShortcutInfoChangeListenerImpl}.
@@ -66,15 +68,17 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
     @NonNull
     public static ShortcutInfoChangeListenerImpl getInstance(@NonNull Context context) {
         return new ShortcutInfoChangeListenerImpl(context, FirebaseAppIndex.getInstance(context),
-                FirebaseUserActions.getInstance(context));
+                FirebaseUserActions.getInstance(context),
+                ShortcutUtils.getOrCreateShortcutKeysetHandle(context));
     }
 
     @VisibleForTesting
     ShortcutInfoChangeListenerImpl(Context context, FirebaseAppIndex firebaseAppIndex,
-            FirebaseUserActions firebaseUserActions) {
+            FirebaseUserActions firebaseUserActions, @Nullable KeysetHandle keysetHandle) {
         mContext = context;
         mFirebaseAppIndex = firebaseAppIndex;
         mFirebaseUserActions = firebaseUserActions;
+        mKeysetHandle = keysetHandle;
     }
 
     /**
@@ -177,7 +181,8 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
     @NonNull
     private Indexable buildIndexable(@NonNull ShortcutInfoCompat shortcut) {
         String url = ShortcutUtils.getIndexableUrl(mContext, shortcut.getId());
-        String shortcutUrl = ShortcutUtils.getIndexableShortcutUrl(mContext, shortcut.getIntent());
+        String shortcutUrl = ShortcutUtils.getIndexableShortcutUrl(mContext, shortcut.getIntent(),
+                mKeysetHandle);
 
         Indexable.Builder builder = new Indexable.Builder()
                 .setId(shortcut.getId())

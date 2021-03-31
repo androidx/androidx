@@ -18,6 +18,7 @@ package androidx.core.google.shortcuts;
 
 import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_DESCRIPTION_KEY;
 import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_LABEL_KEY;
+import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_TAG_KEY;
 import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -32,9 +33,11 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Base64;
 
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -42,6 +45,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.crypto.tink.KeysetHandle;
+import com.google.crypto.tink.Mac;
 import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseAppIndex;
 import com.google.firebase.appindexing.FirebaseUserActions;
@@ -52,6 +57,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -59,8 +65,6 @@ import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
 public class ShortcutInfoChangeListenerImplTest {
-    private static final String TEST_PACKAGE = "com.test.package";
-
     private FirebaseAppIndex mFirebaseAppIndex;
     private FirebaseUserActions mFirebaseUserActions;
     private Context mContext;
@@ -70,11 +74,9 @@ public class ShortcutInfoChangeListenerImplTest {
     public void setUp() {
         mFirebaseAppIndex = mock(FirebaseAppIndex.class);
         mFirebaseUserActions = mock(FirebaseUserActions.class);
-        mContext = mock(Context.class);
+        mContext = ApplicationProvider.getApplicationContext();
         mShortcutInfoChangeListener = new ShortcutInfoChangeListenerImpl(
-                mContext, mFirebaseAppIndex, mFirebaseUserActions);
-
-        when(mContext.getPackageName()).thenReturn(TEST_PACKAGE);
+                mContext, mFirebaseAppIndex, mFirebaseUserActions, null);
     }
 
     @Test
@@ -101,7 +103,8 @@ public class ShortcutInfoChangeListenerImplTest {
                 .setUrl(ShortcutUtils.getIndexableUrl(mContext, "publicIntent"))
                 .put(SHORTCUT_LABEL_KEY, "short label")
                 .put(SHORTCUT_DESCRIPTION_KEY, "long label")
-                .put(SHORTCUT_URL_KEY, ShortcutUtils.getIndexableShortcutUrl(mContext, intent))
+                .put(SHORTCUT_URL_KEY, ShortcutUtils.getIndexableShortcutUrl(mContext, intent,
+                        null))
                 .setImage("content://abc")
                 .build();
         assertThat(allValues).containsExactly(expected);
@@ -190,7 +193,8 @@ public class ShortcutInfoChangeListenerImplTest {
                 .setUrl(ShortcutUtils.getIndexableUrl(mContext, "publicIntent"))
                 .put(SHORTCUT_LABEL_KEY, "short label")
                 .put(SHORTCUT_DESCRIPTION_KEY, "long label")
-                .put(SHORTCUT_URL_KEY, ShortcutUtils.getIndexableShortcutUrl(mContext, intent));
+                .put(SHORTCUT_URL_KEY, ShortcutUtils.getIndexableShortcutUrl(mContext, intent,
+                        null));
         // The order of isPartOf field matters during comparison. However since the order is not
         // deterministic because the data is stored in maps and sets in ShortcutInfoCompat, we
         // check for all possible orderings to make the test more reliable.
@@ -245,7 +249,8 @@ public class ShortcutInfoChangeListenerImplTest {
                 .setUrl(ShortcutUtils.getIndexableUrl(mContext, "publicIntent"))
                 .put(SHORTCUT_LABEL_KEY, "short label")
                 .put(SHORTCUT_DESCRIPTION_KEY, "long label")
-                .put(SHORTCUT_URL_KEY, ShortcutUtils.getIndexableShortcutUrl(mContext, intent))
+                .put(SHORTCUT_URL_KEY, ShortcutUtils.getIndexableShortcutUrl(mContext, intent,
+                        null))
                 .setIsPartOf(new Indexable.Builder().setId("actions.intent.TWEET"))
                 .build();
         assertThat(allValues).containsExactly(expected);
@@ -275,7 +280,8 @@ public class ShortcutInfoChangeListenerImplTest {
                 .setUrl(ShortcutUtils.getIndexableUrl(mContext, "privateIntent"))
                 .setId("privateIntent")
                 .put("shortcutLabel", "short label")
-                .put("shortcutUrl", ShortcutUtils.getIndexableShortcutUrl(mContext, intent))
+                .put("shortcutUrl", ShortcutUtils.getIndexableShortcutUrl(mContext, intent,
+                        null))
                 .build();
         assertThat(allValues).containsExactly(expected);
     }
@@ -304,10 +310,48 @@ public class ShortcutInfoChangeListenerImplTest {
                 .setUrl(ShortcutUtils.getIndexableUrl(mContext, "intent"))
                 .put(SHORTCUT_LABEL_KEY, "short label")
                 .put(SHORTCUT_DESCRIPTION_KEY, "long label")
-                .put(SHORTCUT_URL_KEY, ShortcutUtils.getIndexableShortcutUrl(mContext, intent))
+                .put(SHORTCUT_URL_KEY, ShortcutUtils.getIndexableShortcutUrl(mContext, intent,
+                        null))
                 .setImage("content://abc")
                 .build();
         assertThat(allValues).containsExactly(expected);
+    }
+
+    @SmallTest
+    @Test
+    public void onShortcutAdded_withMacSignature_canVerifySignature() throws Exception {
+        ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
+        when(mFirebaseAppIndex.update(any())).thenReturn(Tasks.forResult(null));
+
+        KeysetHandle keysetHandle = ShortcutUtils.getOrCreateShortcutKeysetHandle(mContext);
+        // Make sure keyset can be created.
+        assertThat(keysetHandle).isNotNull();
+
+        mShortcutInfoChangeListener = new ShortcutInfoChangeListenerImpl(
+                mContext, mFirebaseAppIndex, mFirebaseUserActions, keysetHandle);
+
+        Intent intent = Intent.parseUri("http://www.google.com", 0);
+        ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "intent")
+                .setShortLabel("short label")
+                .setIntent(intent)
+                .build();
+        mShortcutInfoChangeListener.onShortcutAdded(Collections.singletonList(shortcut));
+
+        verify(mFirebaseAppIndex, only()).update(indexableCaptor.capture());
+        String trampolineIntentString = ShortcutUtils.getIndexableShortcutUrl(mContext, intent,
+                keysetHandle);
+
+        Intent trampolineIntent = Intent.parseUri(trampolineIntentString, 0);
+        // Make sure the trampoline activity is package restricted.
+        assertThat(trampolineIntent.getPackage()).isEqualTo(mContext.getPackageName());
+
+        String tag = trampolineIntent.getStringExtra(SHORTCUT_TAG_KEY);
+        String shortcutUrl = trampolineIntent.getStringExtra(SHORTCUT_URL_KEY);
+        Mac mac = keysetHandle.getPrimitive(Mac.class);
+
+        // Will throw exception if verification fails.
+        mac.verifyMac(Base64.decode(tag, Base64.DEFAULT),
+                shortcutUrl.getBytes(StandardCharsets.UTF_8));
     }
 
     @Test
