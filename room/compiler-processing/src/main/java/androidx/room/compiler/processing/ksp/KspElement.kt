@@ -48,6 +48,10 @@ internal abstract class KspElement(
         return XEquality.hashCode(equalityItems)
     }
 
+    override fun toString(): String {
+        return declaration.toString()
+    }
+
     /**
      * Return a reference to the containing file that implements the
      * [javax.lang.model.element.Element] API so that we can report it to JavaPoet.
