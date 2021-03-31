@@ -15,6 +15,6 @@
   -->
 
 <resources>
-    <string name="appsearch_no_documents_error">No AppSearch documents found for database: %1$s
+    <string name="appsearch_no_documents_error">No AppSearch documents found in database.
     </string>
 </resources>
