@@ -190,6 +190,7 @@ package androidx.navigation {
     method public final CharSequence? getLabel();
     method public final String getNavigatorName();
     method public final androidx.navigation.NavGraph? getParent();
+    method public final String? getRoute();
     method public boolean hasDeepLink(android.net.Uri deepLink);
     method public boolean hasDeepLink(androidx.navigation.NavDeepLinkRequest deepLinkRequest);
     method @CallSuper public void onInflate(android.content.Context context, android.util.AttributeSet attrs);
@@ -200,11 +201,13 @@ package androidx.navigation {
     method public final void removeArgument(String argumentName);
     method public final void setId(int id);
     method public final void setLabel(CharSequence? p);
+    method public final void setRoute(String? route);
     property public final java.util.Map<java.lang.String,androidx.navigation.NavArgument> arguments;
     property @IdRes public final int id;
     property public final CharSequence? label;
     property public final String navigatorName;
     property public final androidx.navigation.NavGraph? parent;
+    property public final String? route;
     field public static final androidx.navigation.NavDestination.Companion Companion;
   }
 
