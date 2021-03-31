@@ -753,7 +753,7 @@ class FragmentStateManager {
             } else {
                 shouldClear = true;
             }
-            if (beingRemoved || shouldClear) {
+            if ((beingRemoved && !mFragment.mBeingSaved) || shouldClear) {
                 mFragmentStore.getNonConfig().clearNonConfigState(mFragment);
             }
             mFragment.performDestroy();
