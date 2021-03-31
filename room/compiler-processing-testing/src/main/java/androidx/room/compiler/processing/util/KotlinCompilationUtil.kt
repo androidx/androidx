@@ -88,17 +88,9 @@ internal object KotlinCompilationUtil {
             kotlinReflectJar = compilation.kotlinReflectJar
             kotlinScriptRuntimeJar = compilation.kotlinScriptRuntimeJar
 
-            val hostClasspaths = getClasspathFromClassloader(
+            inheritedClasspath = getClasspathFromClassloader(
                 KotlinCompilationUtil::class.java.classLoader
             )
-            inheritedClasspath = hostClasspaths.filter {
-                // size of this classpath has a rather significant impact on kotlin compilation
-                // tests hence limit it to things we need and no more.
-                it.path.contains("room") ||
-                    it.path.contains("androidx") ||
-                    it.path.contains("junit") ||
-                    it.path.contains("android.jar")
-            }
         }
     }
 

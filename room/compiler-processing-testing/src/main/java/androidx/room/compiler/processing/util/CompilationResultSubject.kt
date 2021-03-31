@@ -133,6 +133,11 @@ class CompilationResultSubject(
      */
     fun hasErrorCount(expected: Int) = hasDiagnosticCount(Diagnostic.Kind.ERROR, expected)
 
+    /**
+     * Check the compilation had [expected] number of warning messages.
+     */
+    fun hasWarningCount(expected: Int) = hasDiagnosticCount(Diagnostic.Kind.WARNING, expected)
+
     private fun hasDiagnosticCount(kind: Diagnostic.Kind, expected: Int) = chain {
         val actual = compilationResult.diagnosticsOfKind(kind).size
         if (actual != expected) {
