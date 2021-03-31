@@ -25,6 +25,7 @@ plugins {
 }
 dependencies {
     api(project(":car:app:app"))
+    implementation("androidx.fragment:fragment:1.3.0")
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation 'androidx.annotation:annotation:1.1.0'
 

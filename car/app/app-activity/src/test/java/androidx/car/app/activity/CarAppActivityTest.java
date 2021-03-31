@@ -197,9 +197,10 @@ public class CarAppActivityTest {
                             ActivityLifecycleCallbacks.class);
                     activity.registerActivityLifecycleCallbacks(activityCallback);
                     // Report service connection error.
-                    activity.onServiceConnectionError("fake error");
+                    activity.onServiceConnectionError("fake error",
+                            CarAppActivity.ErrorActionType.FINISH);
 
-                    assertThat(activity.isFinishing()).isEqualTo(true);
+                    assertThat(activity.isFinishing()).isEqualTo(false);
 
                     // After service connection error has been reported, test that lifecycle
                     // events are no longer reported to host lifecycle listener.
