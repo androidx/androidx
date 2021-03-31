@@ -32,47 +32,36 @@ class SchemaDifferTest {
 
     @Test
     fun testPrimaryKeyChanged() {
-        try {
-            SchemaDiffer(
-                fromSchemaBundle = from.database,
-                toSchemaBundle = toChangeInPrimaryKey.database
-            ).diffSchemas()
-            fail("DiffException should have been thrown.")
-        } catch (ex: DiffException) {
-            assertThat(ex.errorMessage).isEqualTo(
-                ProcessorErrors.tableWithComplexChangedSchemaFound("Song")
-            )
-        }
+        val diffResult = SchemaDiffer(
+            fromSchemaBundle = from.database,
+            toSchemaBundle = toChangeInPrimaryKey.database
+        ).diffSchemas()
+
+        assertThat(diffResult.complexChangedTables.keys).contains("Song")
     }
 
     @Test
     fun testForeignKeyFieldChanged() {
-        try {
-            SchemaDiffer(
-                fromSchemaBundle = from.database,
-                toSchemaBundle = toForeignKeyAdded.database
-            ).diffSchemas()
-            fail("DiffException should have been thrown.")
-        } catch (ex: DiffException) {
-            assertThat(ex.errorMessage).isEqualTo(
-                ProcessorErrors.tableWithComplexChangedSchemaFound("Song")
-            )
-        }
+        val diffResult = SchemaDiffer(
+            fromSchemaBundle = from.database,
+            toSchemaBundle = toForeignKeyAdded.database
+        ).diffSchemas()
+
+        assertThat(diffResult.complexChangedTables.isNotEmpty())
+        assertThat(diffResult.complexChangedTables["Song"]?.foreignKeyChanged).isTrue()
+        assertThat(diffResult.complexChangedTables["Song"]?.indexChanged).isFalse()
     }
 
     @Test
     fun testComplexChangeInvolvingIndex() {
-        try {
-            SchemaDiffer(
-                fromSchemaBundle = from.database,
-                toSchemaBundle = toIndexAdded.database
-            ).diffSchemas()
-            fail("DiffException should have been thrown.")
-        } catch (ex: DiffException) {
-            assertThat(ex.errorMessage).isEqualTo(
-                ProcessorErrors.tableWithComplexChangedSchemaFound("Song")
-            )
-        }
+        val diffResult = SchemaDiffer(
+            fromSchemaBundle = from.database,
+            toSchemaBundle = toIndexAdded.database
+        ).diffSchemas()
+
+        assertThat(diffResult.complexChangedTables.isNotEmpty())
+        assertThat(diffResult.complexChangedTables["Song"]?.foreignKeyChanged).isFalse()
+        assertThat(diffResult.complexChangedTables["Song"]?.indexChanged).isTrue()
     }
 
     @Test
@@ -81,7 +70,8 @@ class SchemaDifferTest {
             fromSchemaBundle = from.database,
             toSchemaBundle = toColumnAddedWithColumnInfoDefaultValue.database
         ).diffSchemas()
-        assertThat(schemaDiffResult.addedColumns[0].fieldBundle.columnName).isEqualTo("artistId")
+        assertThat(schemaDiffResult.addedColumns["artistId"]?.fieldBundle?.columnName)
+            .isEqualTo("artistId")
     }
 
     @Test
@@ -120,21 +110,6 @@ class SchemaDifferTest {
         } catch (ex: DiffException) {
             assertThat(ex.errorMessage).isEqualTo(
                 ProcessorErrors.removedOrRenamedColumnFound("length")
-            )
-        }
-    }
-
-    @Test
-    fun testColumnFieldBundleChanged() {
-        try {
-            SchemaDiffer(
-                fromSchemaBundle = from.database,
-                toSchemaBundle = toColumnAffinityChanged.database
-            ).diffSchemas()
-            fail("DiffException should have been thrown.")
-        } catch (ex: DiffException) {
-            assertThat(ex.errorMessage).isEqualTo(
-                ProcessorErrors.columnWithChangedSchemaFound("length")
             )
         }
     }

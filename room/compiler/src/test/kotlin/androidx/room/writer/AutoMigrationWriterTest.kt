@@ -19,9 +19,8 @@ package androidx.room.writer
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FieldBundle
-import androidx.room.migration.bundle.PrimaryKeyBundle
+import androidx.room.util.SchemaDiffResult
 import androidx.room.vo.AutoMigrationResult
 import loadTestSource
 import org.junit.Test
@@ -52,19 +51,27 @@ class AutoMigrationWriterTest {
                 ),
                 from = 1,
                 to = 2,
-                addedColumns = listOf(
-                    AutoMigrationResult.AddedColumn(
-                        "Song",
-                        FieldBundle(
+                schemaDiff = SchemaDiffResult(
+                    addedColumns = mapOf(
+                        Pair(
                             "artistId",
-                            "artistId",
-                            "INTEGER",
-                            true,
-                            "0"
+                            AutoMigrationResult.AddedColumn(
+                                "Song",
+                                FieldBundle(
+                                    "artistId",
+                                    "artistId",
+                                    "INTEGER",
+                                    true,
+                                    "0"
+                                )
+                            )
                         )
-                    )
+                    ),
+                    removedOrRenamedColumns = listOf(),
+                    addedTables = listOf(),
+                    complexChangedTables = mapOf(),
+                    removedOrRenamedTables = listOf()
                 ),
-                addedTables = listOf()
             )
             AutoMigrationWriter(mock(XElement::class.java), autoMigrationResultWithNewAddedColumn)
                 .write(invocation.processingEnv)
@@ -102,19 +109,27 @@ class AutoMigrationWriterTest {
                 ),
                 from = 1,
                 to = 2,
-                addedColumns = listOf(
-                    AutoMigrationResult.AddedColumn(
-                        "Song",
-                        FieldBundle(
+                schemaDiff = SchemaDiffResult(
+                    addedColumns = mapOf(
+                        Pair(
                             "artistId",
-                            "artistId",
-                            "INTEGER",
-                            false,
-                            ""
+                            AutoMigrationResult.AddedColumn(
+                                "Song",
+                                FieldBundle(
+                                    "artistId",
+                                    "artistId",
+                                    "INTEGER",
+                                    false,
+                                    ""
+                                )
+                            )
                         )
-                    )
+                    ),
+                    removedOrRenamedColumns = listOf(),
+                    addedTables = listOf(),
+                    complexChangedTables = mapOf(),
+                    removedOrRenamedTables = listOf()
                 ),
-                addedTables = listOf()
             )
             AutoMigrationWriter(mock(XElement::class.java), autoMigrationResultWithNewAddedColumn)
                 .write(invocation.processingEnv)
@@ -124,97 +139,6 @@ class AutoMigrationWriterTest {
                     loadTestSource(
                         "autoMigrationWriter/output/ValidAutoMigrationWithoutDefault.java",
                         "foo.bar.ValidAutoMigrationWithoutDefault_Impl"
-                    )
-                )
-            }
-        }
-    }
-
-    @Test
-    fun validAutoMigrationWithNewTableAdded() {
-        val source = Source.java(
-            "foo.bar.ValidAutoMigrationWithoutDefault",
-            """
-            package foo.bar;
-            import androidx.room.migration.AutoMigrationCallback;
-            import androidx.room.AutoMigration;
-            import androidx.sqlite.db.SupportSQLiteDatabase;
-            @AutoMigration(from=1, to=2)
-            interface ValidAutoMigrationWithNewTableAdded extends AutoMigrationCallback {
-                @Override
-                void onPostMigrate(SupportSQLiteDatabase db);
-            }
-            """.trimIndent()
-        )
-
-        runProcessorTest(listOf(source)) { invocation ->
-            val autoMigrationResultWithNewTableAdded = AutoMigrationResult(
-                element = invocation.processingEnv.requireTypeElement(
-                    "foo.bar.ValidAutoMigrationWithNewTableAdded"
-                ),
-                from = 1,
-                to = 2,
-                addedColumns = listOf(
-                    AutoMigrationResult.AddedColumn(
-                        "Song",
-                        FieldBundle(
-                            "songId",
-                            "songId",
-                            "INTEGER",
-                            false,
-                            ""
-                        )
-                    )
-                ),
-                addedTables = listOf(
-                    AutoMigrationResult.AddedTable(
-                        EntityBundle(
-                            "Artist",
-                            "CREATE TABLE IF NOT EXISTS `Artist` (`artistId` INTEGER NOT NULL, " +
-                                "`name` TEXT NOT NULL, PRIMARY KEY(`artistId`))",
-                            listOf(
-                                FieldBundle(
-                                    "artistId",
-                                    "artistId",
-                                    "INTEGER",
-                                    true,
-                                    "1"
-                                )
-                            ),
-                            PrimaryKeyBundle(true, listOf("artistId")),
-                            listOf(),
-                            listOf()
-                        ),
-                    ),
-                    AutoMigrationResult.AddedTable(
-                        EntityBundle(
-                            "Album",
-                            "CREATE TABLE IF NOT EXISTS `Album` (`albumId` INTEGER NOT NULL, " +
-                                "PRIMARY KEY(`albumId`))",
-                            listOf(
-                                FieldBundle(
-                                    "albumId",
-                                    "albumId",
-                                    "INTEGER",
-                                    true,
-                                    "1"
-                                )
-                            ),
-                            PrimaryKeyBundle(true, listOf("albumId")),
-                            listOf(),
-                            listOf()
-                        )
-                    )
-                )
-            )
-            AutoMigrationWriter(mock(XElement::class.java), autoMigrationResultWithNewTableAdded)
-                .write(invocation.processingEnv)
-
-            invocation.assertCompilationResult {
-                generatedSource(
-                    loadTestSource(
-                        "autoMigrationWriter/output/ValidAutoMigrationWithNewTableAdded.java",
-                        "foo.bar.ValidAutoMigrationWithNewTableAdded_Impl"
                     )
                 )
             }
