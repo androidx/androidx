@@ -1451,7 +1451,17 @@ package androidx.core.location {
     method public void onStopped();
   }
 
+  public final class LocationCompat {
+    method public static long getElapsedRealtimeMillis(android.location.Location);
+    method public static long getElapsedRealtimeNanos(android.location.Location);
+    method public static boolean isMock(android.location.Location);
+    method public static void setMock(android.location.Location, boolean);
+  }
+
   public final class LocationManagerCompat {
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void getCurrentLocation(android.location.LocationManager, String, androidx.core.os.CancellationSignal?, java.util.concurrent.Executor, androidx.core.util.Consumer<android.location.Location!>);
+    method public static String? getGnssHardwareModelName(android.location.LocationManager);
+    method public static int getGnssYearOfHardware(android.location.LocationManager);
     method public static boolean isLocationEnabled(android.location.LocationManager);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback, android.os.Handler);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, java.util.concurrent.Executor, androidx.core.location.GnssStatusCompat.Callback);

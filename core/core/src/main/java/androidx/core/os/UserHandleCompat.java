@@ -85,7 +85,7 @@ public class UserHandleCompat {
 
     private static Method getGetUserIdMethod() throws NoSuchMethodException {
         if (sGetUserIdMethod == null) {
-            sGetUserIdMethod = UserHandle.class.getDeclaredMethod("getUserId", Integer.class);
+            sGetUserIdMethod = UserHandle.class.getDeclaredMethod("getUserId", int.class);
             sGetUserIdMethod.setAccessible(true);
         }
 
@@ -94,7 +94,7 @@ public class UserHandleCompat {
 
     private static Constructor<UserHandle> getUserHandleConstructor() throws NoSuchMethodException {
         if (sUserHandleConstructor == null) {
-            sUserHandleConstructor = UserHandle.class.getDeclaredConstructor(Integer.class);
+            sUserHandleConstructor = UserHandle.class.getDeclaredConstructor(int.class);
             sUserHandleConstructor.setAccessible(true);
         }
 
