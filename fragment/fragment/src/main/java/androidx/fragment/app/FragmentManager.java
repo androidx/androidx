@@ -24,6 +24,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -1198,6 +1199,25 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     + " is not currently in the FragmentManager"));
         }
         return fragmentStateManager.saveInstanceState();
+    }
+
+    private void clearBackStackStateViewModels() {
+        boolean shouldClear;
+        if (mHost instanceof ViewModelStoreOwner) {
+            shouldClear = mFragmentStore.getNonConfig().isCleared();
+        } else if (mHost.getContext() instanceof Activity) {
+            Activity activity = (Activity) mHost.getContext();
+            shouldClear = !activity.isChangingConfigurations();
+        } else {
+            shouldClear = true;
+        }
+        if (shouldClear) {
+            for (BackStackState backStackState : mBackStackStates.values()) {
+                for (String who : backStackState.mFragments) {
+                    mFragmentStore.getNonConfig().clearNonConfigState(who);
+                }
+            }
+        }
     }
 
     /**
@@ -3325,6 +3345,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mDestroyed = true;
         execPendingActions(true);
         endAnimatingAwayFragments();
+        clearBackStackStateViewModels();
         dispatchStateChange(Fragment.INITIALIZING);
         mHost = null;
         mContainer = null;
