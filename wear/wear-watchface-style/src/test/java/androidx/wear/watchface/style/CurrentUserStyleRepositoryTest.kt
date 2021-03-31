@@ -128,6 +128,7 @@ public class CurrentUserStyleRepositoryTest {
         Mockito.verify(mockListener3).onUserStyleChanged(userStyleRepository.userStyle)
     }
 
+    @Test
     public fun assigning_userStyle() {
         val newStyle = UserStyle(
             hashMapOf(

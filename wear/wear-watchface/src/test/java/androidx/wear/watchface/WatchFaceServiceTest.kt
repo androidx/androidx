@@ -2341,6 +2341,7 @@ public class WatchFaceServiceTest {
         assertThat(instance).isNull()
     }
 
+    @Test
     public fun firstOnVisibilityChangedIgnoredPostRFlow() {
         val instanceId = "interactiveInstanceId"
         initWallpaperInteractiveWatchFaceInstance(
