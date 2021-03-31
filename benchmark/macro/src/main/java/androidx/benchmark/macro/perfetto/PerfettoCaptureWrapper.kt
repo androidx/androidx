@@ -27,7 +27,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 /**
  * Wrapper for PerfettoCapture, which does nothing on API < Q
  */
-class PerfettoCaptureWrapper {
+internal class PerfettoCaptureWrapper {
     private var capture: PerfettoCapture? = null
     private val TRACE_ENABLE_PROP = "persist.traced.enable"
 
