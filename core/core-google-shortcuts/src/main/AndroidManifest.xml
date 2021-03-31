@@ -20,7 +20,7 @@
         <activity android:name=".TrampolineActivity"
             android:noHistory="true"
             android:theme="@android:style/Theme.NoDisplay"
-            android:exported="false">
+            android:exported="true">
         </activity>
     </application>
 </manifest>
