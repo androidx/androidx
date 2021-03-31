@@ -2,10 +2,17 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_container">
+
     <androidx.car.app.activity.renderer.surface.TemplateSurfaceView
         android:id="@+id/template_view_surface"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:focusable="true"
-        android:focusableInTouchMode="true"/>
+        android:focusableInTouchMode="true" />
+
+    <LinearLayout
+        android:id="@+id/error_message_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" />
 </merge>
