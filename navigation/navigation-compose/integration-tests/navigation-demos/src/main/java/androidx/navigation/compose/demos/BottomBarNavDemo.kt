@@ -16,6 +16,7 @@
 
 package androidx.navigation.compose.demos
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -24,6 +25,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.KEY_ROUTE
 import androidx.navigation.compose.NavHost
@@ -66,8 +68,8 @@ fun BottomBarNavDemo() {
                 }
             }
         }
-    ) {
-        NavHost(navController, startDestination = Screen.Profile.route) {
+    ) { innerPadding ->
+        NavHost(navController, Screen.Profile.route, Modifier.padding(innerPadding)) {
             composable(Screen.Profile.route) { Profile(navController) }
             composable(Screen.Dashboard.route) { Dashboard(navController) }
             composable(Screen.Scrollable.route) { Scrollable(navController) }
