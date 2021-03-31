@@ -16,7 +16,7 @@
 
 package androidx.benchmark.macro
 
-enum class StartupMode {
+public enum class StartupMode {
     /**
      * Startup from scratch - app's process is not alive, and must be started in addition to
      * Activity creation.

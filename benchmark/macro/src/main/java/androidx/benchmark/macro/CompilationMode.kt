@@ -16,10 +16,20 @@
 
 package androidx.benchmark.macro
 
+import android.app.Instrumentation
+import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import org.junit.AssumptionViolatedException
 
-sealed class CompilationMode(
+/**
+ * Type of compilation to use for a Macrobenchmark.
+ *
+ * For example, [SpeedProfile] will run a configurable number of profiling iterations to generate
+ * a profile, and use that to compile the target app.
+ */
+public sealed class CompilationMode(
     // for modes other than [None], is argument passed `cmd package compile`
     private val compileArgument: String?
 ) {
@@ -30,27 +40,55 @@ sealed class CompilationMode(
         return compileArgument
     }
 
-    object None : CompilationMode(null) {
-        override fun toString() = "None"
+    /**
+     * No pre-compilation - entire app will be allowed to Just-In-Time compile as it runs.
+     */
+    public object None : CompilationMode(null) {
+        public override fun toString(): String = "None"
     }
 
-    class SpeedProfile(val warmupIterations: Int = 3) : CompilationMode("speed-profile") {
-        override fun toString() = "SpeedProfile(iterations=$warmupIterations)"
+    /**
+     * Partial pre-compilation, based on configurable number of profiling iterations.
+     */
+    public class SpeedProfile(
+        public val warmupIterations: Int = 3
+    ) : CompilationMode("speed-profile") {
+        public override fun toString(): String = "SpeedProfile(iterations=$warmupIterations)"
     }
 
-    object Speed : CompilationMode("speed") {
-        override fun toString() = "Speed"
+    /**
+     * Full ahead-of-time compilation.
+     */
+    public object Speed : CompilationMode("speed") {
+        public override fun toString(): String = "Speed"
     }
 
-    object Interpreted : CompilationMode(null) {
-        override fun toString() = "Interpreted"
+    /**
+     * No JIT / pre-compilation, all app code runs on the interpreter.
+     *
+     * Note: this mode will only be supported on rooted devices with jit disabled. For this reason,
+     * it's only available for internal benchmarking.
+     *
+     * @suppress
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public object Interpreted : CompilationMode(null) {
+        public override fun toString(): String = "Interpreted"
     }
 }
 
+/**
+ * Compiles the application with the given mode.
+ *
+ * For more information: https://source.android.com/devices/tech/dalvik/jit-compiler
+ */
 internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
+    val device = instrumentation.device()
     // Clear profile between runs.
-    clearProfile(instrumentation, packageName)
+    Log.d(TAG, "Clearing profiles for $packageName")
+    device.executeShellCommand("cmd package compile --reset $packageName")
+
     if (this == CompilationMode.None || this == CompilationMode.Interpreted) {
         return // nothing to do
     }
@@ -58,16 +96,37 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
         repeat(this.warmupIterations) {
             block()
         }
+        // For speed profile compilation, ART team recommended to wait for 5 secs when app
+        // is in the foreground, dump the profile, wait for another 5 secs before
+        // speed-profile compilation.
+        Thread.sleep(5000)
+        val response = device.executeShellCommand("killall -s SIGUSR1 $packageName")
+        if (response.isNotBlank()) {
+            Log.d(TAG, "Received dump profile response $response")
+            throw RuntimeException("Failed to dump profile for $packageName ($response)")
+        }
+        Thread.sleep(5000)
     }
-    // TODO: merge in below method
-    compilationFilter(
-        InstrumentationRegistry.getInstrumentation(),
-        packageName,
-        compileArgument()
+
+    Log.d(TAG, "Compiling $packageName ($this)")
+    val response = device.executeShellCommand(
+        "cmd package compile -f -m ${compileArgument()} $packageName"
     )
+    if (!response.contains("Success")) {
+        Log.d(TAG, "Received compile cmd response: $response")
+        throw RuntimeException("Failed to compile $packageName ($response)")
+    }
 }
 
-fun CompilationMode.isSupportedWithVmSettings(): Boolean {
+/**
+ * Returns true if the CompilationMode can be run with the device's current VM settings.
+ *
+ * Used by jetpack-internal benchmarks to skip CompilationModes that would self-suppress.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public fun CompilationMode.isSupportedWithVmSettings(): Boolean {
     val device = InstrumentationRegistry.getInstrumentation().device()
     val getProp = device.executeShellCommand("getprop dalvik.vm.extra-opts")
     val vmRunningInterpretedOnly = getProp.contains("-Xusejit:false")
@@ -99,4 +158,8 @@ internal fun CompilationMode.assumeSupportedWithVmSettings() {
             }
         )
     }
+}
+
+internal fun Instrumentation.device(): UiDevice {
+    return UiDevice.getInstance(this)
 }

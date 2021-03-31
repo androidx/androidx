@@ -31,16 +31,18 @@ import java.io.File
  * - May need to distribute perfetto binary, with atrace workaround
  * - App tags are not available, due to lack of `<profileable shell=true>`. Can potentially hack
  * around this for individual tags within test infra as needed.
+ *
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(29)
-class PerfettoCapture {
+public class PerfettoCapture {
     private val helper = PerfettoHelper()
 
     /**
      * Kill perfetto process, if it is running.
      */
-    fun cancel() {
+    public fun cancel() {
         if (helper.isPerfettoRunning) {
             helper.stopPerfetto()
         }
@@ -51,7 +53,7 @@ class PerfettoCapture {
      *
      * TODO: provide configuration options
      */
-    fun start() {
+    public fun start() {
         val context = InstrumentationRegistry.getInstrumentation().context
         // Write textproto asset to external files dir, so it can be read by shell
         // TODO: use binary proto (which will also give us rooted 28 support)
@@ -71,7 +73,7 @@ class PerfettoCapture {
      * @param destinationPath Absolute path to write perfetto trace to. Must be shell-writable,
      * such as result of `context.getExternalFilesDir(null)` or other similar `external` paths.
      */
-    fun stop(destinationPath: String) {
+    public fun stop(destinationPath: String) {
         if (!helper.stopCollecting(400, destinationPath)) {
             // TODO: move internal failures to be exceptions
             throw IllegalStateException("Unable to store perfetto trace")
