@@ -21,11 +21,13 @@ import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
 import androidx.room.processor.Context
-import androidx.room.testing.TestInvocation
+import androidx.room.testing.context
 import androidx.room.vo.CallType
 import androidx.room.vo.Constructor
 import androidx.room.vo.Database
@@ -49,14 +51,13 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
-import simpleRun
 import java.sql.Connection
 
 @RunWith(Parameterized::class)
 class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
     @Test
     fun testSimpleDatabase() {
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
             val verifier = createVerifier(invocation)
             val stmt = verifier.connection.createStatement()
             val rs = stmt.executeQuery("select * from sqlite_master WHERE type='table'")
@@ -67,10 +68,10 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
             assertThat(table.columnNames(), `is`(listOf("id", "name", "lastName", "ratio")))
 
             assertThat(getPrimaryKeys(verifier.connection, "User"), `is`(listOf("id")))
-        }.compilesWithoutError()
+        }
     }
 
-    private fun createVerifier(invocation: TestInvocation): DatabaseVerifier {
+    private fun createVerifier(invocation: XTestInvocation): DatabaseVerifier {
         val db = userDb(invocation)
         return DatabaseVerifier.create(
             invocation.context, mock(XElement::class.java),
@@ -199,11 +200,11 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
 
     @Test
     fun testBadQuery() {
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
             val verifier = createVerifier(invocation)
             val (_, error) = verifier.analyze("select foo from User")
             assertThat(error, notNullValue())
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -226,13 +227,13 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
 
     @Test
     fun testCollateBasQuery() {
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
             val verifier = createVerifier(invocation)
             val (_, error) = verifier.analyze(
                 "SELECT id, name FROM user ORDER BY name COLLATE LOCALIZEDASC"
             )
             assertThat(error, notNullValue())
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -254,19 +255,19 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
 
     @Test
     fun testViewNoSuchColumn() {
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
             val verifier = createVerifier(invocation)
             val (_, error) = verifier.analyze(
                 "SELECT ratio FROM UserSummary"
             )
             assertThat(error, notNullValue())
             assertThat(error?.message, containsString("no such column: ratio"))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun defaultValue_exprError() {
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
             val db = database(
                 listOf(
                     entity(
@@ -287,20 +288,23 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                 ),
                 emptyList()
             )
+            invocation.assertCompilationResult {
+                hasErrorContaining("default value of column [name]")
+            }
             val element = mock(XElement::class.java)
             DatabaseVerifier.create(invocation.context, element, db.entities, db.views)!!
-        }.failsToCompile().withErrorContaining("default value of column [name]")
+        }
     }
 
     private fun validQueryTest(sql: String, cb: (QueryResultInfo) -> Unit) {
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
             val verifier = createVerifier(invocation)
             val info = verifier.analyze(sql)
             cb(info)
-        }.compilesWithoutError()
+        }
     }
 
-    private fun userDb(invocation: TestInvocation): Database {
+    private fun userDb(invocation: XTestInvocation): Database {
         val context = invocation.context
         return database(
             listOf(
@@ -337,11 +341,11 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
     }
 
     private fun entity(
-        invocation: TestInvocation,
+        invocation: XTestInvocation,
         tableName: String,
         vararg fields: Field
     ): Entity {
-        val element = invocation.processingEnv.requireTypeElement("NoOp")
+        val element = invocation.processingEnv.requireTypeElement("java.lang.String")
         return Entity(
             element = element,
             tableName = tableName,
