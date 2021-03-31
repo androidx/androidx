@@ -69,7 +69,7 @@ public final class FragmentStrictMode {
     @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO: Make API public as soon as we have a few checks
     public interface OnViolationListener {
 
-        /** Called on a VM policy violation. */
+        /** Called on a policy violation. */
         void onViolation(@NonNull Violation violation);
     }
 
