@@ -17,7 +17,6 @@
 package androidx.work.inspection
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command
 import androidx.work.inspection.WorkManagerInspectorProtocol.TrackWorkManagerCommand
@@ -39,7 +38,6 @@ class BasicTest {
         testEnvironment.assertNoQueuedEvents()
     }
 
-    @FlakyTest
     @Test
     fun sendUnsetCommand() = runBlocking {
         testEnvironment.sendCommand(Command.getDefaultInstance())
