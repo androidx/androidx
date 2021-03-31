@@ -53,14 +53,17 @@ public final class ForegroundCarColorSpan extends CarSpan {
     /**
      * Creates a {@link ForegroundColorSpan} from a {@link CarColor}.
      *
-     * <p>Custom colors created with {@link CarColor#createCustom} are not supported in text spans.
+     * <p>Custom colors created with {@link CarColor#createCustom} are not supported in text
+     * spans unless explicitly documented otherwise in the API that takes the string.
      *
      * @throws IllegalArgumentException if {@code carColor} contains a custom color
      * @throws NullPointerException     if {@code carColor} is {@code null}
      */
     @NonNull
     public static ForegroundCarColorSpan create(@NonNull CarColor carColor) {
-        CarColorConstraints.STANDARD_ONLY.validateOrThrow(carColor);
+        // TODO(b/183750545): Create CarTextConstraints and check allowed spans in all places
+        //  that take CharSequence or CarText
+        CarColorConstraints.UNCONSTRAINED.validateOrThrow(carColor);
         return new ForegroundCarColorSpan(requireNonNull(carColor));
     }
 
