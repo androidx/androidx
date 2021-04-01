@@ -35,7 +35,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.2.0")
 
     api(KOTLIN_STDLIB)
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     androidTestImplementation(project(":internal-testutils-navigation"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_TRUTH)
