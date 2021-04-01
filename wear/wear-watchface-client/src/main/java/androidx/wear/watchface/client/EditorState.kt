@@ -33,7 +33,22 @@ import androidx.wear.watchface.style.UserStyleData
  * @param id The system's id for a watch face being edited. This is passed in from
  *     [androidx.wear.watchface.EditorRequest.watchFaceId].
  */
-public class WatchFaceId(public val id: String)
+public class WatchFaceId(public val id: String) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as WatchFaceId
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+}
 
 /**
  * The state of the editing session. See [androidx.wear.watchface.editor.EditorSession].

@@ -82,7 +82,7 @@ public class UserStyle(
 
     override fun toString(): String =
         "[" + selectedOptions.entries.joinToString(
-            transform = { it.key.id.value + " -> " + it.value.id.value }
+            transform = { "${it.key.id} -> ${it.value}" }
         ) + "]"
 }
 
@@ -99,13 +99,15 @@ public class UserStyleData(
         userStyle: UserStyleWireFormat
     ) : this(userStyle.mUserStyle)
 
-    override fun toString(): String = "{" + userStyleMap.map {
-        try {
-            it.key + "=" + it.value.decodeToString()
-        } catch (e: Exception) {
-            it.key + "=" + it.value
+    override fun toString(): String = "{" + userStyleMap.entries.joinToString(
+        transform = {
+            try {
+                it.key + "=" + it.value.decodeToString()
+            } catch (e: Exception) {
+                it.key + "=" + it.value
+            }
         }
-    }.joinToString() + "}"
+    ) + "}"
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

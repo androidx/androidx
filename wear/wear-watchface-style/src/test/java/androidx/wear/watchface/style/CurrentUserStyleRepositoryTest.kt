@@ -16,9 +16,11 @@
 
 package androidx.wear.watchface.style
 
+import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
@@ -344,5 +346,20 @@ public class CurrentUserStyleRepositoryTest {
         assertThat(
             UserStyleData(mapOf("A" to "a".encodeToByteArray(), "B" to "b".encodeToByteArray()))
         ).isNotEqualTo(UserStyleData(mapOf("A" to "a".encodeToByteArray())))
+    }
+
+    @Test
+    public fun optionIdToStringTest() {
+        assertThat(BooleanUserStyleSetting.BooleanOption(true).toString()).isEqualTo("true")
+        assertThat(BooleanUserStyleSetting.BooleanOption(false).toString()).isEqualTo("false")
+        assertThat(gothicStyleOption.toString()).isEqualTo("gothic_style")
+        assertThat(DoubleRangeUserStyleSetting.DoubleRangeOption(12.3).toString())
+            .isEqualTo("12.3")
+        assertThat(LongRangeUserStyleSetting.LongRangeOption(123).toString())
+            .isEqualTo("123")
+        assertThat(
+            CustomValueUserStyleSetting.CustomValueOption("test".encodeToByteArray())
+                .toString()
+        ).isEqualTo("test")
     }
 }
