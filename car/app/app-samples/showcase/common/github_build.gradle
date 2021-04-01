@@ -17,18 +17,18 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 29
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
     }
 }
 
 dependencies {
-    implementation "androidx.core:core:1.5.0-alpha01"
-
+    implementation "androidx.core:core:1.6.0-alpha01"
+    implementation "androidx.activity:activity:1.2.2"
     implementation "androidx.car.app:app:1.0.0-rc01"
 }
