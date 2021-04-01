@@ -30,8 +30,6 @@ dependencies {
 android {
     sourceSets {
         main {
-            // We use a non-standard manifest path.
-            manifest.srcFile 'AndroidManifest.xml'
             res.srcDirs += 'src/main/res-public'
             // TODO(seanmcq): rewrite the tests to avoid needing the font / license files
             // removed to avoid dupe files
