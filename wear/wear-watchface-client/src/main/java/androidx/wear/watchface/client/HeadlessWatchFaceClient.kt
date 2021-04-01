@@ -48,7 +48,9 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
 
         @JvmStatic
         public fun createFromBundle(bundle: Bundle): HeadlessWatchFaceClient =
-            HeadlessWatchFaceClientImpl(bundle.getBinder(BINDER_KEY) as IHeadlessWatchFace)
+            HeadlessWatchFaceClientImpl(
+                IHeadlessWatchFace.Stub.asInterface(bundle.getBinder(BINDER_KEY))
+            )
     }
 
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
