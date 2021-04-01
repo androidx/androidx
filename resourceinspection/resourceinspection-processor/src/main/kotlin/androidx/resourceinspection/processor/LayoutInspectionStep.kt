@@ -16,20 +16,14 @@
 
 package androidx.resourceinspection.processor
 
-import androidx.annotation.ColorInt
-import androidx.annotation.ColorLong
-import androidx.annotation.GravityInt
-import androidx.resourceinspection.annotation.Attribute
 import com.google.auto.common.AnnotationMirrors.getAnnotationValue
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.GeneratedAnnotationSpecs.generatedAnnotationSpec
 import com.google.auto.common.MoreElements.asExecutable
 import com.google.auto.common.MoreElements.asType
-import com.google.auto.common.MoreElements.getAnnotationMirror
-import com.google.auto.common.MoreElements.isAnnotationPresent
 import com.google.auto.common.Visibility
 import com.google.auto.common.Visibility.effectiveVisibilityOfElement
-import com.google.common.collect.SetMultimap
+import com.google.common.collect.ImmutableSetMultimap
 import com.squareup.javapoet.AnnotationSpec
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.Processor
@@ -42,26 +36,26 @@ import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
 
-/** Processing step for generating layout inspection companions from [Attribute] annotations. */
-internal class LayoutInspectionProcessingStep(
+/** Processing step for generating layout inspection companions from `Attribute` annotations. */
+internal class LayoutInspectionStep(
     private val processingEnv: ProcessingEnvironment,
     processorClass: Class<out Processor>
-) : BasicAnnotationProcessor.ProcessingStep {
+) : BasicAnnotationProcessor.Step {
     private val generatedAnnotation: AnnotationSpec? = generatedAnnotationSpec(
         processingEnv.elementUtils,
         processingEnv.sourceVersion,
         processorClass
     ).orElse(null)
 
-    override fun annotations(): Set<Class<out Annotation>> {
-        return setOf(Attribute::class.java)
+    override fun annotations(): Set<String> {
+        return setOf(ATTRIBUTE)
     }
 
     override fun process(
-        elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
+        elementsByAnnotation: ImmutableSetMultimap<String, Element>
     ): Set<Element> {
         // TODO(b/180039277): Validate that linked APIs (e.g. InspectionCompanion) are present
-        elementsByAnnotation[Attribute::class.java]
+        elementsByAnnotation[ATTRIBUTE]
             .map { asExecutable(it) }
             .groupBy { asType(it.enclosingElement) }
             .forEach { (type, getters) ->
@@ -80,7 +74,7 @@ internal class LayoutInspectionProcessingStep(
                 printError(
                     "@Attribute must only annotate subclasses of android.view.View",
                     getter,
-                    getAnnotationMirror(getter, Attribute::class.java).get()
+                    getter.getAnnotationMirror(ATTRIBUTE)
                 )
             }
             return null
@@ -119,9 +113,9 @@ internal class LayoutInspectionProcessingStep(
         return ViewIR(type, attributes = attributes.filterNotNull().sortedBy { it.qualifiedName })
     }
 
-    /** Get an [AttributeIR] from a method known to have an [Attribute] annotation. */
+    /** Get an [AttributeIR] from a method known to have an `Attribute` annotation. */
     private fun parseAttribute(getter: ExecutableElement): AttributeIR? {
-        val annotation = getAnnotationMirror(getter, Attribute::class.java).get()
+        val annotation = getter.getAnnotationMirror(ATTRIBUTE)!!
         val annotationValue = getAnnotationValue(annotation, "value")
         val value = annotationValue.value as String
 
@@ -155,7 +149,7 @@ internal class LayoutInspectionProcessingStep(
         }
     }
 
-    /** Parse [Attribute.intMapping]. */
+    /** Parse `Attribute.intMapping`. */
     private fun parseIntMapping(annotation: AnnotationMirror): List<IntMapIR> {
         return (getAnnotationValue(annotation, "intMapping").value as List<*>).map { entry ->
             val intMapAnnotation = (entry as AnnotationValue).value as AnnotationMirror
@@ -181,15 +175,15 @@ internal class LayoutInspectionProcessingStep(
             TypeKind.FLOAT -> AttributeTypeIR.FLOAT
             TypeKind.SHORT -> AttributeTypeIR.SHORT
             TypeKind.INT -> when {
-                isAnnotationPresent(getter, ColorInt::class.java) -> AttributeTypeIR.COLOR
-                isAnnotationPresent(getter, GravityInt::class.java) -> AttributeTypeIR.GRAVITY
+                getter.isAnnotationPresent(COLOR_INT) -> AttributeTypeIR.COLOR
+                getter.isAnnotationPresent(GRAVITY_INT) -> AttributeTypeIR.GRAVITY
                 getter.hasResourceIdAnnotation() -> AttributeTypeIR.RESOURCE_ID
                 intMapping.any { it.mask != 0 } -> AttributeTypeIR.INT_FLAG
                 intMapping.isNotEmpty() -> AttributeTypeIR.INT_ENUM
                 else -> AttributeTypeIR.INT
             }
             TypeKind.LONG ->
-                if (isAnnotationPresent(getter, ColorLong::class.java)) {
+                if (getter.isAnnotationPresent(COLOR_LONG)) {
                     AttributeTypeIR.COLOR
                 } else {
                     AttributeTypeIR.LONG
@@ -234,11 +228,36 @@ internal class LayoutInspectionProcessingStep(
         )
     }
 
+    /** Find an annotation mirror by its qualified name */
+    private fun Element.getAnnotationMirror(qualifiedName: String): AnnotationMirror? {
+        return this.annotationMirrors.firstOrNull { annotation ->
+            asType(annotation.annotationType.asElement())
+                .qualifiedName.contentEquals(qualifiedName)
+        }
+    }
+
+    /** True if the supplied annotation name is present on the element */
+    private fun Element.isAnnotationPresent(qualifiedName: String): Boolean {
+        return getAnnotationMirror(qualifiedName) != null
+    }
+
     private companion object {
         /** Regex for validating and parsing attribute name and namespace. */
         val ATTRIBUTE_VALUE = """(\w+(?:\.\w+)*):(\w+)""".toRegex()
 
         /** Regex for matching resource ID annotations. */
         val RESOURCE_ID_ANNOTATION = """androidx?\.annotation\.[A-Z]\w+Res""".toRegex()
+
+        /** Fully qualified name of the `Attribute` annotation` */
+        const val ATTRIBUTE = "androidx.resourceinspection.annotation.Attribute"
+
+        /** Fully qualified name of `ColorInt` */
+        const val COLOR_INT = "androidx.annotation.ColorInt"
+
+        /** Fully qualified name of `ColorLong` */
+        const val COLOR_LONG = "androidx.annotation.ColorLong"
+
+        /** Fully qualified name of `GravityInt` */
+        const val GRAVITY_INT = "androidx.annotation.GravityInt"
     }
 }
