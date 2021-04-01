@@ -40,6 +40,11 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(KOTLIN_TEST)
     testImplementation(KOTLIN_COROUTINES_TEST)
+
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
 }
 
 androidx {
