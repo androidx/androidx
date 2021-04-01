@@ -349,6 +349,19 @@ public class CurrentUserStyleRepositoryTest {
     }
 
     @Test
+    public fun userStyleData_toString() {
+        val userStyleData = UserStyleData(
+            mapOf(
+                "A" to "a".encodeToByteArray(),
+                "B" to "b".encodeToByteArray()
+            )
+        )
+
+        assertThat(userStyleData.toString()).contains("A=a")
+        assertThat(userStyleData.toString()).contains("B=b")
+    }
+
+    @Test
     public fun optionIdToStringTest() {
         assertThat(BooleanUserStyleSetting.BooleanOption(true).toString()).isEqualTo("true")
         assertThat(BooleanUserStyleSetting.BooleanOption(false).toString()).isEqualTo("false")
