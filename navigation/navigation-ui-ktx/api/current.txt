@@ -6,12 +6,6 @@ package androidx.navigation.ui {
     method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
   }
 
-  public final class AppBarConfigurationKt {
-    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(androidx.navigation.NavGraph navGraph, optional androidx.customview.widget.Openable? drawerLayout, optional kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener);
-    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(android.view.Menu topLevelMenu, optional androidx.customview.widget.Openable? drawerLayout, optional kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener);
-    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(java.util.Set<java.lang.Integer> topLevelDestinationIds, optional androidx.customview.widget.Openable? drawerLayout, optional kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener);
-  }
-
   public final class BottomNavigationViewKt {
     method public static void setupWithNavController(com.google.android.material.bottomnavigation.BottomNavigationView, androidx.navigation.NavController navController);
   }

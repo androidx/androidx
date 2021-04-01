@@ -27,6 +27,12 @@ package androidx.navigation.ui {
     method public boolean onNavigateUp();
   }
 
+  public final class AppBarConfigurationKt {
+    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(androidx.navigation.NavGraph navGraph, optional androidx.customview.widget.Openable? drawerLayout, optional kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener);
+    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(android.view.Menu topLevelMenu, optional androidx.customview.widget.Openable? drawerLayout, optional kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener);
+    method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(java.util.Set<java.lang.Integer> topLevelDestinationIds, optional androidx.customview.widget.Openable? drawerLayout, optional kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener);
+  }
+
   public final class NavigationUI {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static com.google.android.material.bottomsheet.BottomSheetBehavior<?>? findBottomSheetBehavior(android.view.View view);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.navigation.NavDestination findStartDestination(androidx.navigation.NavGraph graph);

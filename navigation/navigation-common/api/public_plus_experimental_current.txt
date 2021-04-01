@@ -190,6 +190,14 @@ package androidx.navigation {
     property @IdRes public final int startDestination;
   }
 
+  public final class NavGraphKt {
+    method public static operator boolean contains(androidx.navigation.NavGraph, @IdRes int id);
+    method public static inline operator androidx.navigation.NavDestination get(androidx.navigation.NavGraph, @IdRes int id);
+    method public static inline operator void minusAssign(androidx.navigation.NavGraph, androidx.navigation.NavDestination node);
+    method public static inline operator void plusAssign(androidx.navigation.NavGraph, androidx.navigation.NavDestination node);
+    method public static inline operator void plusAssign(androidx.navigation.NavGraph, androidx.navigation.NavGraph other);
+  }
+
   @androidx.navigation.Navigator.Name("navigation") public class NavGraphNavigator extends androidx.navigation.Navigator<androidx.navigation.NavGraph> {
     ctor public NavGraphNavigator(androidx.navigation.NavigatorProvider navigatorProvider);
     method public androidx.navigation.NavGraph createDestination();
@@ -321,6 +329,13 @@ package androidx.navigation {
     method @CallSuper public <T extends androidx.navigation.Navigator<?>> T getNavigator(String name);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final java.util.Map<java.lang.String,androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>> getNavigators();
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final java.util.Map<java.lang.String,androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>> navigators;
+  }
+
+  public final class NavigatorProviderKt {
+    method public static inline operator <T extends androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>> T get(androidx.navigation.NavigatorProvider, String name);
+    method public static inline operator <T extends androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>> T get(androidx.navigation.NavigatorProvider, kotlin.reflect.KClass<T> clazz);
+    method public static inline operator void plusAssign(androidx.navigation.NavigatorProvider, androidx.navigation.Navigator<? extends androidx.navigation.NavDestination> navigator);
+    method public static inline operator androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>? set(androidx.navigation.NavigatorProvider, String name, androidx.navigation.Navigator<? extends androidx.navigation.NavDestination> navigator);
   }
 
 }
