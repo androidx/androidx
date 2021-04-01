@@ -199,10 +199,11 @@ public class EmojiCompat {
     static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;
 
     private static final Object INSTANCE_LOCK = new Object();
+    private static final Object CONFIG_LOCK = new Object();
 
     @GuardedBy("INSTANCE_LOCK")
     private static volatile @Nullable EmojiCompat sInstance;
-    @GuardedBy("INSTANCE_LOCK")
+    @GuardedBy("CONFIG_LOCK")
     private static volatile boolean sHasDoneDefaultConfigLookup;
 
     private final @NonNull ReadWriteLock mInitLock;
@@ -323,25 +324,27 @@ public class EmojiCompat {
     @SuppressWarnings("GuardedBy") /* double-check lock; volatile; threadsafe obj */
     public static EmojiCompat init(@NonNull Context context,
             @Nullable DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory defaultFactory) {
-        if (sInstance != null || sHasDoneDefaultConfigLookup) {
+        EmojiCompat.Config config;
+        if (sHasDoneDefaultConfigLookup) {
             // sInstance is safe to return outside the lock because
             // 1) static fields are volatile
             // 2) all fields on EmojiCompat are final, or guarded by a lock
+            // 3) we only write this after sInstance is settled by the call to `init`
             return sInstance;
+        } else {
+            DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory =
+                    defaultFactory != null ? defaultFactory :
+                            new DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory(null);
+            config = factory.create(context);
         }
-        synchronized (INSTANCE_LOCK) {
-            if (sInstance == null && !sHasDoneDefaultConfigLookup) {
+        synchronized (CONFIG_LOCK) {
+            if (!sHasDoneDefaultConfigLookup) {
                 // sDefaultConfigLookup allows us to early-exit above, as well as avoid repeated
                 // calls to create in the case where the font provider is not found
-
-                DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory =
-                        defaultFactory != null ? defaultFactory :
-                                new DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory(null);
-                EmojiCompat.Config config = factory.create(context);
                 if (config != null) {
-                    sInstance = new EmojiCompat(config);
+                    init(config);
                 }
-                // write this after sInstance to allow early-exit
+                // write this after init to allow safe early-exit
                 sHasDoneDefaultConfigLookup = true;
 
             }
@@ -412,7 +415,7 @@ public class EmojiCompat {
      */
     @RestrictTo(TESTS)
     public static void skipDefaultConfigurationLookup(boolean shouldSkip) {
-        synchronized (INSTANCE_LOCK) {
+        synchronized (CONFIG_LOCK) {
             sHasDoneDefaultConfigLookup = shouldSkip;
         }
     }
