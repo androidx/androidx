@@ -25,6 +25,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Selection;
@@ -50,6 +52,7 @@ import androidx.emoji2.bundled.util.Emoji;
 import androidx.emoji2.bundled.util.EmojiMatcher;
 import androidx.emoji2.bundled.util.KeyboardUtil;
 import androidx.emoji2.bundled.util.TestString;
+import androidx.emoji2.text.DefaultEmojiCompatConfig;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.EmojiSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -82,6 +85,69 @@ public class EmojiCompatTest {
     public void testGet_throwsException() {
         EmojiCompat.reset((EmojiCompat) null);
         EmojiCompat.get();
+    }
+
+    @Test
+    public void testInitWithContext_returnsNullWhenNotFound() {
+        EmojiCompat.reset((EmojiCompat) null);
+        EmojiCompat.skipDefaultConfigurationLookup(false);
+
+        Context context = mock(Context.class);
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory = mock(
+                DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory.class);
+        when(factory.create(any())).thenReturn(null);
+
+        EmojiCompat actual = EmojiCompat.init(context, factory);
+        assertNull(actual);
+    }
+
+    @Test
+    public void testInitWithContext_onlyQueriesOnce_onFailure() {
+        EmojiCompat.reset((EmojiCompat) null);
+        EmojiCompat.skipDefaultConfigurationLookup(false);
+
+        Context context = mock(Context.class);
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory = mock(
+                DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory.class);
+        when(factory.create(any())).thenReturn(null);
+
+        EmojiCompat.init(context, factory);
+        verify(factory).create(eq(context));
+
+        EmojiCompat.init(context, factory);
+        verifyNoMoreInteractions(factory);
+    }
+
+    @Test
+    public void testInitWithContext_returnsInstanceWhenFound() {
+        EmojiCompat.reset((EmojiCompat) null);
+        EmojiCompat.skipDefaultConfigurationLookup(false);
+
+        Context context = mock(Context.class);
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory = mock(
+                DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory.class);
+        EmojiCompat.Config config = TestConfigBuilder.config();
+        when(factory.create(any())).thenReturn(config);
+
+        EmojiCompat actual = EmojiCompat.init(context, factory);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void testInitWithContext_onlyQueriesOnce_whenFound() {
+        EmojiCompat.reset((EmojiCompat) null);
+        EmojiCompat.skipDefaultConfigurationLookup(false);
+
+        Context context = mock(Context.class);
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory = mock(
+                DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory.class);
+        EmojiCompat.Config config = TestConfigBuilder.config();
+        when(factory.create(any())).thenReturn(config);
+
+        EmojiCompat.init(context, factory);
+        verify(factory).create(eq(context));
+        EmojiCompat.init(context, factory);
+        verifyNoMoreInteractions(factory);
     }
 
     @Test
