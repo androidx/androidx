@@ -317,7 +317,7 @@ class PojoProcessor private constructor(
                     else -> {
                         context.logger.e(
                             param,
-                            ProcessorErrors.ambigiousConstructor(
+                            ProcessorErrors.ambiguousConstructor(
                                 pojo = element.qualifiedName,
                                 paramName = paramName,
                                 matchingFields = matchingFields.map { it.getPath() } +
@@ -451,7 +451,7 @@ class PojoProcessor private constructor(
         // parse it as an entity.
         val asMember = relationElement.asMemberOf(container!!)
         if (asMember.isError()) {
-            context.logger.e(ProcessorErrors.CANNOT_FIND_TYPE, element)
+            context.logger.e(relationElement, ProcessorErrors.CANNOT_FIND_TYPE)
             return null
         }
         val asType = if (asMember.isCollection()) {
