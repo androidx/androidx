@@ -85,25 +85,25 @@
             android:layout_width="match_parent"
             android:layout_height="100dp" />
 
-        <FrameLayout
+        <TextView
             android:id="@+id/accessibility_heading_view"
             android:accessibilityHeading="true"
             android:layout_width="match_parent"
             android:layout_height="10dp" />
 
-        <FrameLayout
+        <TextView
             android:id="@+id/accessibility_pane_view"
             android:accessibilityPaneTitle="Pane"
             android:layout_width="match_parent"
             android:layout_height="10dp" />
 
-        <FrameLayout
+        <TextView
             android:id="@+id/screen_reader_focusable_view"
             android:screenReaderFocusable="true"
             android:layout_width="match_parent"
             android:layout_height="10dp" />
 
-        <FrameLayout
+        <TextView
             android:id="@+id/not_accessible_view"
             android:layout_width="match_parent"
             android:layout_height="10dp" />
