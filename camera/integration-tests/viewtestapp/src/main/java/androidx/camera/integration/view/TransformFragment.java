@@ -44,7 +44,7 @@ import android.widget.ToggleButton;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
@@ -115,7 +115,7 @@ public final class TransformFragment extends Fragment {
                 new ImageProxyTransformFactory.Builder().build();
 
         @Override
-        @UseExperimental(markerClass = TransformExperimental.class)
+        @OptIn(markerClass = TransformExperimental.class)
         @SuppressWarnings("RestrictedApi")
         public void analyze(@NonNull ImageProxy imageProxy) {
             // Find the brightest tile to highlight.
@@ -544,7 +544,7 @@ public final class TransformFragment extends Fragment {
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
-    @UseExperimental(markerClass = TransformExperimental.class)
+    @OptIn(markerClass = TransformExperimental.class)
     @NonNull
     RectF getBrightestTileInFileWithoutExif(@NonNull File file,
             @NonNull OutputTransform imageProxyTransform,
@@ -557,7 +557,7 @@ public final class TransformFragment extends Fragment {
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
-    @UseExperimental(markerClass = TransformExperimental.class)
+    @OptIn(markerClass = TransformExperimental.class)
     @NonNull
     RectF getBrightestTileInUriWithExif(@NonNull Uri uri,
             @NonNull OutputTransform imageProxyTransform,
@@ -569,7 +569,7 @@ public final class TransformFragment extends Fragment {
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
-    @UseExperimental(markerClass = TransformExperimental.class)
+    @OptIn(markerClass = TransformExperimental.class)
     @MainThread
     @Nullable
     RectF getBrightestTileInPreviewView(@NonNull OutputTransform imageProxyTransform,
@@ -582,7 +582,7 @@ public final class TransformFragment extends Fragment {
         return getBrightestTile(imageProxyTransform, previewViewTransform, imageProxyTile);
     }
 
-    @UseExperimental(markerClass = TransformExperimental.class)
+    @OptIn(markerClass = TransformExperimental.class)
     @NonNull
     private RectF getBrightestTile(@NonNull OutputTransform source,
             @NonNull OutputTransform target,
