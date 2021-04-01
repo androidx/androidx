@@ -45,6 +45,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.inspection.ArtTooling;
 import androidx.inspection.ArtTooling.EntryHook;
 import androidx.inspection.ArtTooling.ExitHook;
 import androidx.inspection.Connection;
@@ -506,8 +507,8 @@ final class SqliteInspector extends Inspector {
     }
 
     /**
-     * Invalidation hooks triggered by {@link SQLiteCursor#getCount} and
-     * {@link SQLiteCursor#onMove} both of which lead to cursor's query being executed.
+     * Invalidation hooks triggered by {@link SQLiteCursor#close()}
+     * which means that the cursor's query was executed.
      * <p>
      * In order to access cursor's query, we also use {@link SQLiteDatabase#rawQueryWithFactory}
      * which takes a query String and constructs a cursor based on it.
@@ -542,18 +543,16 @@ final class SqliteInspector extends Inspector {
                     }
                 });
 
-        for (final String method : Arrays.asList("getCount()I", "onMove(II)Z")) {
-            hookRegistry.registerHook(SQLiteCursor.class, method,
-                    new EntryExitMatchingHookRegistry.OnExitCallback() {
-                        @Override
-                        public void onExit(EntryExitMatchingHookRegistry.Frame exitFrame) {
-                            SQLiteCursor cursor = (SQLiteCursor) exitFrame.mThisObject;
-                            if (trackedCursors.containsKey(cursor)) {
-                                throttler.submitRequest();
-                            }
+
+        mEnvironment.artTooling().registerEntryHook(SQLiteCursor.class, "close()V",
+                new ArtTooling.EntryHook() {
+                    @Override
+                    public void onEntry(@Nullable Object thisObject, @NonNull List<Object> args) {
+                        if (trackedCursors.containsKey(thisObject)) {
+                            throttler.submitRequest();
                         }
-                    });
-        }
+                    }
+                });
     }
 
     // Gets a SQLiteCursor from a passed-in Object (if possible)
