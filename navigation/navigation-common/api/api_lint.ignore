@@ -37,6 +37,8 @@ BuilderSetStyle: androidx.navigation.NavDestinationBuilder#deepLink(kotlin.jvm.f
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDestinationBuilder.deepLink(kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>)
 BuilderSetStyle: androidx.navigation.NavOptionsBuilder#anim(kotlin.jvm.functions.Function1<? super androidx.navigation.AnimBuilder,kotlin.Unit>):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavOptionsBuilder.anim(kotlin.jvm.functions.Function1<? super androidx.navigation.AnimBuilder,kotlin.Unit>)
+BuilderSetStyle: androidx.navigation.NavOptionsBuilder#popUpTo(String, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavOptionsBuilder.popUpTo(String,kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit>)
 BuilderSetStyle: androidx.navigation.NavOptionsBuilder#popUpTo(int, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit>):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavOptionsBuilder.popUpTo(int,kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit>)
 
@@ -83,6 +85,8 @@ GetterOnBuilder: androidx.navigation.NavOptionsBuilder#getLaunchSingleTop():
     Getter should be on the built object, not the builder: method androidx.navigation.NavOptionsBuilder.getLaunchSingleTop()
 GetterOnBuilder: androidx.navigation.NavOptionsBuilder#getPopUpToId():
     Getter should be on the built object, not the builder: method androidx.navigation.NavOptionsBuilder.getPopUpToId()
+GetterOnBuilder: androidx.navigation.NavOptionsBuilder#getPopUpToRoute():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavOptionsBuilder.getPopUpToRoute()
 GetterOnBuilder: androidx.navigation.PopUpToBuilder#getInclusive():
     Getter should be on the built object, not the builder: method androidx.navigation.PopUpToBuilder.getInclusive()
 
@@ -115,6 +119,8 @@ MissingGetterMatchingBuilder: androidx.navigation.NavOptions.Builder#setLaunchSi
     androidx.navigation.NavOptions does not declare a `isLaunchSingleTop()` method matching method androidx.navigation.NavOptions.Builder.setLaunchSingleTop(boolean)
 
 
+MissingJvmstatic: androidx.navigation.NavOptionsBuilder#popUpTo(String, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit>):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
 MissingJvmstatic: androidx.navigation.NavOptionsBuilder#popUpTo(int, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit>):
     A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
 

@@ -310,6 +310,7 @@ package androidx.navigation {
     method @AnimRes @AnimatorRes public int getPopExitAnim();
     method @Deprecated @IdRes public int getPopUpTo();
     method @IdRes public int getPopUpToId();
+    method public String? getPopUpToRoute();
     method public boolean isPopUpToInclusive();
     method public boolean shouldLaunchSingleTop();
     method public boolean shouldPopUpToSaveState();
@@ -319,6 +320,7 @@ package androidx.navigation {
     property @AnimRes @AnimatorRes public final int popEnterAnim;
     property @AnimRes @AnimatorRes public final int popExitAnim;
     property @IdRes public final int popUpToId;
+    property public final String? popUpToRoute;
   }
 
   public static final class NavOptions.Builder {
@@ -331,6 +333,8 @@ package androidx.navigation {
     method public androidx.navigation.NavOptions.Builder setPopExitAnim(@AnimRes @AnimatorRes int popExitAnim);
     method public androidx.navigation.NavOptions.Builder setPopUpTo(@IdRes int destinationId, boolean inclusive, optional boolean saveState);
     method public androidx.navigation.NavOptions.Builder setPopUpTo(@IdRes int destinationId, boolean inclusive);
+    method public androidx.navigation.NavOptions.Builder setPopUpTo(String? route, boolean inclusive, optional boolean saveState);
+    method public androidx.navigation.NavOptions.Builder setPopUpTo(String? route, boolean inclusive);
     method public androidx.navigation.NavOptions.Builder setRestoreState(boolean restoreState);
   }
 
@@ -340,14 +344,17 @@ package androidx.navigation {
     method public boolean getLaunchSingleTop();
     method @Deprecated public int getPopUpTo();
     method public int getPopUpToId();
+    method public String? getPopUpToRoute();
     method public boolean getRestoreState();
     method public void popUpTo(@IdRes int id, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
+    method public void popUpTo(String route, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
     method public void setLaunchSingleTop(boolean p);
     method @Deprecated public void setPopUpTo(int value);
     method public void setRestoreState(boolean p);
     property public final boolean launchSingleTop;
     property @Deprecated public final int popUpTo;
     property public final int popUpToId;
+    property public final String? popUpToRoute;
     property public final boolean restoreState;
   }
 
