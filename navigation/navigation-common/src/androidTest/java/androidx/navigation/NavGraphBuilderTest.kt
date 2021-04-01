@@ -43,6 +43,18 @@ class NavGraphBuilderTest {
     }
 
     @Test
+    fun navigationRoute() {
+        val graph = provider.navigation(
+            startDestination = DESTINATION_ROUTE
+        ) {
+            navDestination(DESTINATION_ROUTE) {}
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+    }
+
+    @Test
     fun navigationUnaryPlus() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
             +provider[NoOpNavigator::class].createDestination().apply {
@@ -51,6 +63,20 @@ class NavGraphBuilderTest {
         }
         assertWithMessage("Destination should be added to the graph")
             .that(DESTINATION_ID in graph)
+            .isTrue()
+    }
+
+    @Test
+    fun navigationUnaryPlusRoute() {
+        val graph = provider.navigation(
+            startDestination = DESTINATION_ROUTE
+        ) {
+            +provider[NoOpNavigator::class].createDestination().apply {
+                route = DESTINATION_ROUTE
+            }
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
             .isTrue()
     }
 
@@ -67,12 +93,35 @@ class NavGraphBuilderTest {
             .isTrue()
     }
 
+    @Test
+    fun navigationAddDestinationRoute() {
+        val graph = provider.navigation(
+            startDestination = DESTINATION_ROUTE
+        ) {
+            val destination = provider[NoOpNavigator::class].createDestination().apply {
+                route = DESTINATION_ROUTE
+            }
+            addDestination(destination)
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+    }
+
     @Test(expected = IllegalStateException::class)
     fun navigationMissingStartDestination() {
         provider.navigation(startDestination = 0) {
             navDestination(DESTINATION_ID) {}
         }
         fail("NavGraph should throw IllegalStateException if startDestination is zero")
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun navigationMissingStartDestinationRoute() {
+        provider.navigation(startDestination = "") {
+            navDestination(DESTINATION_ROUTE) {}
+        }
+        fail("NavGraph should throw IllegalStateException if no startDestinationRoute is set")
     }
 
     @Test
@@ -86,10 +135,24 @@ class NavGraphBuilderTest {
             .that(DESTINATION_ID in graph)
             .isTrue()
     }
+
+    @Test
+    fun navigationNestedRoute() {
+        val graph = provider.navigation(startDestination = DESTINATION_ROUTE) {
+            navigation(startDestination = SECOND_DESTINATION_ROUTE, route = DESTINATION_ROUTE) {
+                navDestination(SECOND_DESTINATION_ROUTE) {}
+            }
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ROUTE in graph)
+            .isTrue()
+    }
 }
 
 private const val DESTINATION_ID = 1
 private const val SECOND_DESTINATION_ID = 2
+private const val DESTINATION_ROUTE = "first"
+private const val SECOND_DESTINATION_ROUTE = "second"
 
 /**
  * Create a base NavDestination. Generally, only subtypes of NavDestination should be
@@ -99,3 +162,12 @@ fun NavGraphBuilder.navDestination(
     @IdRes id: Int,
     builder: NavDestinationBuilder<NavDestination>.() -> Unit
 ) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], id).apply(builder))
+
+/**
+ * Create a base NavDestination. Generally, only subtypes of NavDestination should be
+ * added to a NavGraph (hence why this is not in the common-ktx library)
+ */
+fun NavGraphBuilder.navDestination(
+    route: String,
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], route).apply(builder))

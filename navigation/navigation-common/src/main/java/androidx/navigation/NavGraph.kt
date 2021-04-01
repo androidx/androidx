@@ -86,9 +86,15 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
      */
     public fun addDestination(node: NavDestination) {
         val id = node.id
-        require(id != 0) {
-            "Destinations must have an id. Call setId() or include an android:id in your " +
-                "navigation XML."
+        val innerRoute = node.route
+        require(id != 0 || innerRoute != null) {
+            "Destinations must have an id or route. Call setId(), setRoute(), or include an " +
+                "android:id or app:route in your navigation XML."
+        }
+        if (route != null) {
+            require(innerRoute != route) {
+                "Destination $node cannot have the same route as graph $this"
+            }
         }
         require(id != this.id) { "Destination $node cannot have the same id as graph $this" }
         val existingDestination = nodes[id]
@@ -152,6 +158,20 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
         return findNode(resid, true)
     }
 
+    /**
+     * Finds a destination in the collection by route. This will recursively check the
+     * [parent][getParent] of this navigation graph if node is not found in this navigation graph.
+     *
+     * @param route Route to locate
+     * @return the node with route
+     */
+    public fun findNode(route: String?): NavDestination? {
+        return if (!route.isNullOrBlank()) findNode(route, true) else null
+    }
+
+    /**
+     * @hide
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findNode(@IdRes resid: Int, searchParents: Boolean): NavDestination? {
         val destination = nodes[resid]
@@ -159,6 +179,19 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
         // and searchParents is true
         return destination
             ?: if (searchParents && parent != null) parent!!.findNode(resid) else null
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun findNode(route: String, searchParents: Boolean): NavDestination? {
+        val id = createRoute(route).hashCode()
+        val destination = nodes[id]
+        // Search the parent for the NavDestination if it is not a child of this navigation graph
+        // and searchParents is true
+        return destination
+            ?: if (searchParents && parent != null) parent!!.findNode(route) else null
     }
 
     /**
@@ -258,15 +291,12 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
          * @return the start destination
          */
         get() = startDestId
-        /**
-         * Sets the starting destination for this NavGraph.
-         *
-         * @param startDestId The id of the destination to be shown when navigating to this
-         *                    NavGraph.
-         */
         private set(startDestId) {
             require(startDestId != id) {
                 "Start destination $startDestId cannot use the same id as the graph $this"
+            }
+            if (startDestinationRoute != null) {
+                startDestinationRoute = null
             }
             this.startDestId = startDestId
             startDestIdName = null
@@ -275,12 +305,49 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
     /**
      * Sets the starting destination for this NavGraph.
      *
+     * This will clear any previously set [startDestinationRoute]
+     *
      * @param startDestId The id of the destination to be shown when navigating to this
      *                    NavGraph.
      */
     public fun setStartDestination(startDestId: Int) {
         startDestinationId = startDestId
     }
+
+    /**
+     * Sets the starting destination for this NavGraph.
+     *
+     * This will override any previously set [startDestinationId]
+     *
+     * @param startDestRoute The route of the destination to be shown when navigating to this
+     *                    NavGraph.
+     */
+    public fun setStartDestination(startDestRoute: String) {
+        startDestinationRoute = startDestRoute
+    }
+
+    /**
+     * Returns the route for the starting destination for this NavGraph. When navigating to the
+     * NavGraph, this destination is the one the user will initially see.
+     *
+     * @return the start destination
+     */
+    public var startDestinationRoute: String? = null
+        private set(startDestRoute) {
+            startDestId = if (startDestRoute == null) {
+                0
+            } else {
+                require(startDestRoute != route) {
+                    "Start destination $startDestRoute cannot use the same route as the graph $this"
+                }
+                require(startDestRoute.isNotBlank()) {
+                    "Cannot have an empty start destination route"
+                }
+                val internalRoute = createRoute(startDestRoute)
+                internalRoute.hashCode()
+            }
+            field = startDestRoute
+        }
 
     public val startDestDisplayName: String
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -294,14 +361,13 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
     public override fun toString(): String {
         val sb = StringBuilder()
         sb.append(super.toString())
+        val startDestination = findNode(startDestinationRoute) ?: findNode(startDestinationId)
         sb.append(" startDestination=")
-        val startDestination = findNode(startDestinationId)
         if (startDestination == null) {
-            if (startDestIdName == null) {
-                sb.append("0x")
-                sb.append(Integer.toHexString(startDestId))
-            } else {
-                sb.append(startDestIdName)
+            when {
+                startDestinationRoute != null -> sb.append(startDestinationRoute)
+                startDestIdName != null -> sb.append(startDestIdName)
+                else -> sb.append("0x${Integer.toHexString(startDestId)}")
             }
         } else {
             sb.append("{")
@@ -321,8 +387,21 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
 public inline operator fun NavGraph.get(@IdRes id: Int): NavDestination =
     findNode(id) ?: throw IllegalArgumentException("No destination for $id was found in $this")
 
+/**
+ * Returns the destination with `route`.
+ *
+ * @throws IllegalArgumentException if no destination is found with that route.
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline operator fun NavGraph.get(route: String): NavDestination =
+    findNode(route)
+        ?: throw IllegalArgumentException("No destination for $route was found in $this")
+
 /** Returns `true` if a destination with `id` is found in this navigation graph. */
 public operator fun NavGraph.contains(@IdRes id: Int): Boolean = findNode(id) != null
+
+/** Returns `true` if a destination with `route` is found in this navigation graph. */
+public operator fun NavGraph.contains(route: String): Boolean = findNode(route) != null
 
 /**
  * Adds a destination to this NavGraph. The destination must have an
