@@ -82,7 +82,7 @@ public final class ErrorMessageFragment extends Fragment {
         errorMessage.setText(
                 requireArguments().getString(MESSAGE_ARGS_KEY));
         ImageView errorIcon = rootView.findViewById(R.id.message_icon);
-        errorIcon.setImageDrawable(requireActivity().getDrawable(R.drawable.car_ui_icon_error));
+        errorIcon.setImageDrawable(requireActivity().getDrawable(R.drawable.car_app_icon_error));
 
         Button actionButton = rootView.findViewById(R.id.action_button);
         CarAppActivity.ErrorActionType errorActionType =

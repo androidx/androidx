@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingRight="@dimen/template_plain_content_container_padding">
+    android:paddingRight="@dimen/car_app_plain_content_container_padding">
 
     <FrameLayout
         android:id="@+id/content_container"
@@ -37,8 +37,8 @@
 
             <ImageView
                 android:id="@+id/message_icon"
-                android:layout_width="@dimen/template_message_icon_size"
-                android:layout_height="@dimen/template_message_icon_size"
+                android:layout_width="@dimen/car_app_message_icon_size"
+                android:layout_height="@dimen/car_app_message_icon_size"
                 tools:ignore="ContentDescription" />
 
             <TextView
@@ -46,15 +46,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="@dimen/default_padding_4"
-                android:foreground="@drawable/no_content_view_focus_ring" />
+                android:layout_marginTop="@dimen/car_app_default_padding_4"
+                android:foreground="@drawable/car_app_no_content_view_focus_ring" />
 
             <Button
                 android:id="@+id/action_button"
-                android:layout_width="@dimen/action_button_width"
-                android:layout_height="@dimen/action_button_height"
-                android:layout_marginTop="@dimen/default_padding_5"
-                android:background="@drawable/rounded_corner"
+                android:layout_width="@dimen/car_app_action_button_width"
+                android:layout_height="@dimen/car_app_action_button_height"
+                android:layout_marginTop="@dimen/car_app_default_padding_5"
+                android:background="@drawable/car_app_rounded_corner"
                 android:backgroundTint="@color/action_button"
                 android:textColor="@color/default_white" />
         </LinearLayout>
