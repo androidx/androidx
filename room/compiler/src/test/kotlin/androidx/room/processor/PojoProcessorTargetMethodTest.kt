@@ -16,14 +16,14 @@
 
 package androidx.room.processor
 
-import com.google.testing.compile.CompileTester
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.testing.context
 import com.squareup.javapoet.ClassName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import simpleRun
-import toJFO
-import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class PojoProcessorTargetMethodTest {
@@ -31,7 +31,7 @@ class PojoProcessorTargetMethodTest {
     companion object {
         val MY_POJO: ClassName = ClassName.get("foo.bar", "MyPojo")
         val AUTOVALUE_MY_POJO: ClassName = ClassName.get("foo.bar", "AutoValue_MyPojo")
-        val HEADER = """
+        const val HEADER = """
             package foo.bar;
 
             import androidx.room.*;
@@ -41,7 +41,7 @@ class PojoProcessorTargetMethodTest {
             @AutoValue
             public abstract class MyPojo {
             """
-        val AUTO_VALUE_HEADER = """
+        const val AUTO_VALUE_HEADER = """
             package foo.bar;
 
             import androidx.room.*;
@@ -50,12 +50,14 @@ class PojoProcessorTargetMethodTest {
 
             public final class AutoValue_MyPojo extends MyPojo {
             """
-        val FOOTER = "\n}"
+        const val FOOTER = "\n}"
     }
 
     @Test
     fun invalidAnnotationInMethod() {
-        val source = """
+        val source = Source.java(
+            MY_POJO.toString(),
+            """
             package foo.bar;
 
             import androidx.room.*;
@@ -64,17 +66,25 @@ class PojoProcessorTargetMethodTest {
                 @PrimaryKey
                 void someRandomMethod() { }
             }
-            """.toJFO(MY_POJO.toString())
-        singleRun(source)
-            .failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method")
-            )
+            """
+        )
+        singleRun(source) { invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.invalidAnnotationTarget(
+                        "PrimaryKey",
+                        invocation.functionKindName
+                    )
+                )
+            }
+        }
     }
 
     @Test
     fun invalidAnnotationInStaticMethod() {
-        val source = """
+        val source = Source.java(
+            MY_POJO.toString(),
+            """
             package foo.bar;
 
             import androidx.room.*;
@@ -83,17 +93,25 @@ class PojoProcessorTargetMethodTest {
                 @PrimaryKey
                 static void someRandomMethod() { }
             }
-            """.toJFO(MY_POJO.toString())
-        singleRun(source)
-            .failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method")
-            )
+            """
+        )
+        singleRun(source) { invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.invalidAnnotationTarget(
+                        "PrimaryKey",
+                        invocation.functionKindName
+                    )
+                )
+            }
+        }
     }
 
     @Test
     fun invalidAnnotationInAbstractMethod() {
-        val source = """
+        val source = Source.java(
+            MY_POJO.toString(),
+            """
             package foo.bar;
 
             import androidx.room.*;
@@ -102,12 +120,18 @@ class PojoProcessorTargetMethodTest {
                 @PrimaryKey
                 abstract void someRandomMethod();
             }
-            """.toJFO(MY_POJO.toString())
-        singleRun(source)
-            .failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method")
-            )
+            """
+        )
+        singleRun(source) { invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.invalidAnnotationTarget(
+                        "PrimaryKey",
+                        invocation.functionKindName
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -128,9 +152,16 @@ class PojoProcessorTargetMethodTest {
                 @PrimaryKey
                 long getId() { return this.id; }
                 """
-        ).failsToCompile().withErrorContaining(
-            ProcessorErrors.invalidAnnotationTarget("ColumnInfo", "method")
-        )
+        ) { invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.invalidAnnotationTarget(
+                        "ColumnInfo",
+                        invocation.functionKindName
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -175,15 +206,24 @@ class PojoProcessorTargetMethodTest {
                     String getValue() { return this.value; };
                 $FOOTER
                 """,
-            parent.toJFO("foo.bar.ParentPojo")
-        ).failsToCompile().withErrorContaining(
-            ProcessorErrors.invalidAnnotationTarget("ColumnInfo", "method")
-        )
+            Source.java("foo.bar.ParentPojo", parent)
+        ) { invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.invalidAnnotationTarget(
+                        "ColumnInfo",
+                        invocation.functionKindName
+                    )
+                )
+            }
+        }
     }
 
     @Test
     fun validAnnotationInField() {
-        val source = """
+        val source = Source.java(
+            MY_POJO.toString(),
+            """
             package foo.bar;
 
             import androidx.room.*;
@@ -192,14 +232,16 @@ class PojoProcessorTargetMethodTest {
                 @PrimaryKey
                 int someRandomField;
             }
-            """.toJFO(MY_POJO.toString())
+            """
+        )
         singleRun(source)
-            .compilesWithoutError()
     }
 
     @Test
     fun validAnnotationInStaticField() {
-        val source = """
+        val source = Source.java(
+            MY_POJO.toString(),
+            """
             package foo.bar;
 
             import androidx.room.*;
@@ -208,9 +250,9 @@ class PojoProcessorTargetMethodTest {
                 @PrimaryKey
                 static final int SOME_RANDOM_CONSTANT = 42;
             }
-            """.toJFO(MY_POJO.toString())
+            """
+        )
         singleRun(source)
-            .compilesWithoutError()
     }
 
     @Test
@@ -229,7 +271,7 @@ class PojoProcessorTargetMethodTest {
                 @PrimaryKey
                 long getId() { return this.id; }
                 """
-        ).compilesWithoutError()
+        )
     }
 
     @Test
@@ -272,8 +314,8 @@ class PojoProcessorTargetMethodTest {
                     String getValue() { return this.value; };
                 $FOOTER
                 """,
-            parent.toJFO("foo.bar.ParentPojo")
-        ).compilesWithoutError()
+            Source.java("foo.bar.ParentPojo", parent)
+        )
     }
 
     @Test
@@ -316,8 +358,8 @@ class PojoProcessorTargetMethodTest {
                     public String getValue() { return this.value; };
                 $FOOTER
                 """,
-            parent.toJFO("foo.bar.InterfacePojo")
-        ).compilesWithoutError()
+            Source.java("foo.bar.InterfacePojo", parent)
+        )
     }
 
     @Test
@@ -357,8 +399,8 @@ class PojoProcessorTargetMethodTest {
                 @Embedded
                 EmbeddedPojo getEmbedded() { return this.embedded; }
                 """,
-            embeddedPojo.toJFO("foo.bar.EmbeddedPojo")
-        ).compilesWithoutError()
+            Source.java("foo.bar.EmbeddedPojo", embeddedPojo)
+        )
     }
 
     @Test
@@ -402,25 +444,34 @@ class PojoProcessorTargetMethodTest {
                 @Relation(parentColumn = "id", entityColumn = "parentId")
                 List<RelationPojo> getRelations() { return this.relations; }
                 """,
-            embeddedPojo.toJFO("foo.bar.RelationPojo")
-        ).compilesWithoutError()
+            Source.java("foo.bar.RelationPojo", embeddedPojo)
+        )
     }
 
-    private fun singleRun(vararg jfos: JavaFileObject) = simpleRun(*jfos) { invocation ->
-        PojoProcessor.createFor(
-            context = invocation.context,
-            element = invocation.processingEnv.requireTypeElement(MY_POJO),
-            bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-            parent = null
-        ).process()
+    private fun singleRun(
+        vararg sources: Source,
+        handler: ((XTestInvocation) -> Unit)? = null
+    ) {
+        runProcessorTest(
+            sources = sources.toList()
+        ) { invocation ->
+            PojoProcessor.createFor(
+                context = invocation.context,
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
+                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                parent = null
+            ).process()
+            handler?.invoke(invocation)
+        }
     }
 
     private fun singleRun(
         pojoCode: String,
         autoValuePojoCode: String,
-        vararg jfos: JavaFileObject
-    ): CompileTester {
-        return singleRunFullClass(
+        vararg sources: Source,
+        handler: ((XTestInvocation) -> Unit)? = null
+    ) {
+        singleRunFullClass(
             pojoCode = """
                     $HEADER
                     $pojoCode
@@ -431,25 +482,41 @@ class PojoProcessorTargetMethodTest {
                     $autoValuePojoCode
                     $FOOTER
                     """,
-            jfos = jfos
+            handler = handler,
+            sources = sources,
         )
     }
 
     private fun singleRunFullClass(
         pojoCode: String,
         autoValuePojoCode: String,
-        vararg jfos: JavaFileObject
-    ): CompileTester {
-        val pojoJFO = pojoCode.toJFO(MY_POJO.toString())
-        val autoValuePojoJFO = autoValuePojoCode.toJFO(AUTOVALUE_MY_POJO.toString())
-        val all = (jfos.toList() + pojoJFO + autoValuePojoJFO).toTypedArray()
-        return simpleRun(*all) { invocation ->
+        vararg sources: Source,
+        handler: ((XTestInvocation) -> Unit)? = null
+    ) {
+        val pojoSource = Source.java(MY_POJO.toString(), pojoCode)
+        val autoValuePojoSource = Source.java(AUTOVALUE_MY_POJO.toString(), autoValuePojoCode)
+        val all = sources.toList() + pojoSource + autoValuePojoSource
+        return runProcessorTest(
+            sources = all
+        ) { invocation ->
             PojoProcessor.createFor(
                 context = invocation.context,
                 element = invocation.processingEnv.requireTypeElement(MY_POJO),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null
             ).process()
+            handler?.invoke(invocation)
         }
     }
+
+    /**
+     * KSP and JavaAP name methods different. To feel more native, we use the name based on the
+     * processor. It only matters for the test assertion
+     */
+    private val XTestInvocation.functionKindName: String
+        get() = if (this.isKsp) {
+            "function"
+        } else {
+            "method"
+        }
 }
