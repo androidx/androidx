@@ -27,6 +27,7 @@ plugins {
 }
 
 dependencies {
+    androidTestImplementation(project(":emoji2:emoji2"))
     androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
