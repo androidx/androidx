@@ -19,10 +19,12 @@ package androidx.emoji2.benchmark.text
 import android.content.Context
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
+import androidx.emoji2.text.DefaultEmojiCompatConfig
 import androidx.emoji2.text.EmojiCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,6 +47,44 @@ class CachedEmojiCompatInitBenchmark {
         EmojiCompat.skipDefaultConfigurationLookup(true)
         benchmarkRule.measureRepeated {
             EmojiCompat.init(context)
+        }
+    }
+
+    @Test
+    fun cachedEmojiCompatInit_returningNonNull() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val config = NoFontTestEmojiConfig.emptyConfig()
+            .setMetadataLoadStrategy(EmojiCompat.LOAD_STRATEGY_MANUAL)
+        EmojiCompat.reset(config)
+        EmojiCompat.skipDefaultConfigurationLookup(true)
+        benchmarkRule.measureRepeated {
+            EmojiCompat.init(context)
+        }
+    }
+
+    @Test
+    fun actualEmojiCompatContextInit_fromQuickFactory() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val config = NoFontTestEmojiConfig.emptyConfig()
+            .setMetadataLoadStrategy(EmojiCompat.LOAD_STRATEGY_MANUAL)
+        val factory = TestEmojiCompatConfigFactory(config)
+
+        benchmarkRule.measureRepeated {
+            runWithTimingDisabled {
+                EmojiCompat.reset(null as EmojiCompat?)
+                EmojiCompat.skipDefaultConfigurationLookup(false)
+            }
+            val result = EmojiCompat.init(context, factory)
+            runWithTimingDisabled {
+                assertNotNull(result)
+            }
+        }
+    }
+
+    class TestEmojiCompatConfigFactory(private val config: EmojiCompat.Config) :
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory(null) {
+        override fun create(context: Context): EmojiCompat.Config {
+            return config
         }
     }
 }
