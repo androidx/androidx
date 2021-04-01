@@ -59,7 +59,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-final class GridLayoutManager extends RecyclerView.LayoutManager {
+/**
+ * A {@link RecyclerView.LayoutManager} implementation that lays out items in a grid for leanback
+ * {@link VerticalGridView} and {@link HorizontalGridView}.
+ */
+public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     /*
      * LayoutParams for {@link HorizontalGridView} and {@link VerticalGridView}.
@@ -408,7 +412,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return TAG + ":" + mBaseGridView.getId();
     }
 
-    final BaseGridView mBaseGridView;
+    BaseGridView mBaseGridView;
 
     /**
      * Note on conventions in the presence of RTL layout directions:
@@ -715,11 +719,20 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      */
     private FacetProviderAdapter mFacetProviderAdapter;
 
-    GridLayoutManager(@NonNull BaseGridView baseGridView) {
+    public GridLayoutManager() {
+        this(null);
+    }
+
+    GridLayoutManager(@Nullable BaseGridView baseGridView) {
         mBaseGridView = baseGridView;
         mChildVisibility = -1;
         // disable prefetch by default, prefetch causes regression on low power chipset
         setItemPrefetchEnabled(false);
+    }
+
+    void setGridView(BaseGridView baseGridView) {
+        mBaseGridView = baseGridView;
+        mGrid = null;
     }
 
     public void setOrientation(@RecyclerView.Orientation int orientation) {
@@ -1061,6 +1074,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         if (TRACE) TraceCompat.endSection();
 
+    }
+
+    @Override
+    public boolean checkLayoutParams(@Nullable RecyclerView.LayoutParams lp) {
+        return lp instanceof LayoutParams;
     }
 
     @Override
@@ -2898,8 +2916,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public boolean onRequestChildFocus(@NonNull RecyclerView parent, @NonNull View child,
-            @NonNull View focused) {
+    public boolean onRequestChildFocus(@NonNull RecyclerView parent, @NonNull State state,
+            @NonNull View child, @Nullable View focused) {
         if ((mFlag & PF_FOCUS_SEARCH_DISABLED) != 0) {
             return true;
         }
