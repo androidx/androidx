@@ -132,24 +132,20 @@ class InvalidationTest {
             "Ljava/lang/String;" +
             "Landroid/os/CancellationSignal;" +
             ")Landroid/database/Cursor;"
-        val getCountMethodSignature = "getCount()I"
-        val onMoveSignatureMethodSignature = "onMove(II)Z"
+        val closeMethodSignature = "close()V"
+
+        val hooks: List<Hook> = testEnvironment.consumeRegisteredHooks()
 
         // Check for hooks being registered
-        val hooks: List<Hook> = testEnvironment.consumeRegisteredHooks()
-        listOf(
-            SQLiteDatabase::class.java to rawQueryMethodSignature,
-            SQLiteCursor::class.java to getCountMethodSignature,
-            SQLiteCursor::class.java to onMoveSignatureMethodSignature
-        ).forEach { (clazz, method) ->
-            val methodHooks = hooks
-                .filter { it.originMethod == method && it.originClass == clazz }
-                .sortedBy { it.javaClass.canonicalName }
-            assertThat(methodHooks).hasSize(2)
-            assertThat(methodHooks.first()).isInstanceOf(Hook.EntryHook::class.java)
-            assertThat(methodHooks.last()).isInstanceOf(Hook.ExitHook::class.java)
-        }
+        val hooksByClass = hooks.groupBy { it.originClass }
+        val rawQueryHooks = hooksByClass[SQLiteDatabase::class.java]!!.filter {
+            it.originMethod == rawQueryMethodSignature
+        }.map { it::class }
 
+        assertThat(rawQueryHooks).containsExactly(Hook.EntryHook::class, Hook.ExitHook::class)
+        val hook = hooksByClass[SQLiteCursor::class.java]!!.single()
+        assertThat(hook).isInstanceOf(Hook.EntryHook::class.java)
+        assertThat(hook.originMethod).isEqualTo(closeMethodSignature)
         // Check for hook behaviour
         fun wrap(cursor: Cursor): Cursor = object : CursorWrapper(cursor) {}
         fun noOp(c: Cursor): Cursor = c
@@ -163,8 +159,7 @@ class InvalidationTest {
                 val cursor = cursorForQuery(query)
                 hooks.entryHookFor(rawQueryMethodSignature).onEntry(null, listOf(null, query))
                 hooks.exitHookFor(rawQueryMethodSignature).onExit(wrap(wrap(cursor)))
-                hooks.entryHookFor(getCountMethodSignature).onEntry(cursor, emptyList())
-                hooks.exitHookFor(getCountMethodSignature).onExit(null)
+                hooks.entryHookFor(closeMethodSignature).onEntry(cursor, emptyList())
 
                 if (shouldCauseInvalidation) {
                     testEnvironment.receiveEvent()
