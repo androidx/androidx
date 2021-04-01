@@ -80,7 +80,7 @@ public class ProviderInfoRetrieverTest {
             )
 
             val previewData =
-                providerInfoRetriever.requestPreviewComplicationData(component, type)!!
+                providerInfoRetriever.retrievePreviewComplicationData(component, type)!!
             assertThat(previewData.type).isEqualTo(type)
             assertThat(
                 (previewData as LongTextComplicationData).text.getTextAt(
@@ -108,7 +108,7 @@ public class ProviderInfoRetrieverTest {
                 any()
             )
 
-            assertThat(providerInfoRetriever.requestPreviewComplicationData(component, type))
+            assertThat(providerInfoRetriever.retrievePreviewComplicationData(component, type))
                 .isNull()
         }
     }
@@ -121,7 +121,7 @@ public class ProviderInfoRetrieverTest {
             Mockito.`when`(mockService.apiVersion).thenReturn(0)
             Mockito.`when`(mockService.asBinder()).thenReturn(mockBinder)
 
-            assertThat(providerInfoRetriever.requestPreviewComplicationData(component, type))
+            assertThat(providerInfoRetriever.retrievePreviewComplicationData(component, type))
                 .isNull()
         }
     }
@@ -141,7 +141,7 @@ public class ProviderInfoRetrieverTest {
                 any()
             )
 
-            assertThat(providerInfoRetriever.requestPreviewComplicationData(component, type))
+            assertThat(providerInfoRetriever.retrievePreviewComplicationData(component, type))
                 .isNull()
         }
     }
