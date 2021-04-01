@@ -16,8 +16,10 @@
 
 package androidx.camera.view;
 
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.media.ExifInterface;
 import android.util.Size;
 import android.view.Surface;
 
@@ -38,6 +40,10 @@ import androidx.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TransformUtils {
+
+    // Normalized space (0, 0) - (1, 1).
+    // TODO(b/137515129): change this to (-1, -1) - (1, 1) to simplify transforms.
+    public static final RectF NORMALIZED_RECT = new RectF(0, 0, 1, 1);
 
     // Each vertex is represented by a pair of (x, y) which is 2 slots in a float array.
     private static final int FLOAT_NUMBER_PER_VERTEX = 2;
@@ -202,5 +208,73 @@ public class TransformUtils {
         }
         // Then we check if the true value range overlaps.
         return ratio1UpperBound >= ratio2LowerBound && ratio2UpperBound >= ratio1LowerBound;
+    }
+
+    /**
+     * Gets the transform matrix based on exif orientation.
+     */
+    @NonNull
+    public static Matrix getExifTransform(int exifOrientation, int width, int height) {
+        Matrix matrix = new Matrix();
+
+        // Map the bitmap to a normalized space (0, 0) - (1, 1) and perform transform in the
+        // normalized space. It's more readable, and it can be tested with Robolectric's
+        // ShadowMatrix (Matrix#setPolyToPoly is currently not shadowed by ShadowMatrix).
+        RectF rect = new RectF(0, 0, width, height);
+        matrix.setRectToRect(rect, NORMALIZED_RECT, Matrix.ScaleToFit.FILL);
+
+        // A flag that checks if the image has been rotated 90/270.
+        boolean isWidthHeightSwapped = false;
+
+        // Transform the normalized space based on exif orientation.
+        float centerX = NORMALIZED_RECT.centerX();
+        float centerY = NORMALIZED_RECT.centerY();
+        switch (exifOrientation) {
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.postScale(-1f, 1f, centerX, centerY);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.postRotate(180, centerX, centerY);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.postScale(1f, -1f, centerX, centerY);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                // Flipped about top-left <--> bottom-right axis, it can also be represented by
+                // flip horizontally and then rotate 270 degree clockwise.
+                matrix.postScale(-1f, 1f, centerX, centerY);
+                matrix.postRotate(270, centerX, centerY);
+                isWidthHeightSwapped = true;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.postRotate(90, centerX, centerY);
+                isWidthHeightSwapped = true;
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                // Flipped about top-right <--> bottom left axis, it can also be represented by
+                // flip horizontally and then rotate 90 degree clockwise.
+                matrix.postScale(-1f, 1f, centerX, centerY);
+                matrix.postRotate(90, centerX, centerY);
+                isWidthHeightSwapped = true;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.postRotate(270, centerX, centerY);
+                isWidthHeightSwapped = true;
+                break;
+            case ExifInterface.ORIENTATION_NORMAL:
+                // Fall-through
+            case ExifInterface.ORIENTATION_UNDEFINED:
+                // Fall-through
+            default:
+                break;
+        }
+
+        // Map the normalized space back to the bitmap coordinates.
+        RectF restoredRect = isWidthHeightSwapped ? new RectF(0, 0, height, width) : rect;
+        Matrix restore = new Matrix();
+        restore.setRectToRect(NORMALIZED_RECT, restoredRect, Matrix.ScaleToFit.FILL);
+        matrix.postConcat(restore);
+
+        return matrix;
     }
 }

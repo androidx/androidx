@@ -16,6 +16,7 @@
 
 package androidx.camera.view.transform;
 
+import static androidx.camera.view.TransformUtils.getExifTransform;
 import static androidx.camera.view.TransformUtils.rectToSize;
 import static androidx.camera.view.TransformUtils.rectToVertices;
 import static androidx.camera.view.transform.ImageProxyTransformFactory.getRotatedVertices;
@@ -97,7 +98,8 @@ public class FileTransformFactory {
         matrix.preConcat(getNormalizedToBuffer(cropRect));
 
         if (mUseExifOrientation) {
-            // TODO(b/179827713): apply exif orientation.
+            matrix.postConcat(
+                    getExifTransform(exif.getOrientation(), exif.getWidth(), exif.getHeight()));
         }
 
         return new OutputTransform(matrix, rectToSize(cropRect));
@@ -128,8 +130,10 @@ public class FileTransformFactory {
          * orientation is applied to the loaded file. For example, if the image is loaded by a 3P
          * library that automatically applies exif orientation.
          */
-        public void setUseExifOrientation() {
-            mUseExifOrientation = true;
+        @NonNull
+        public Builder setUseExifOrientation(boolean useExifOrientation) {
+            mUseExifOrientation = useExifOrientation;
+            return this;
         }
     }
 
