@@ -67,7 +67,6 @@ dependencies {
     docs("androidx.compose.ui:ui-test:1.0.0-beta04")
     docs("androidx.compose.ui:ui-test-junit4:1.0.0-beta04")
     docs("androidx.compose.ui:ui-text:1.0.0-beta04")
-    docs("androidx.compose.ui:ui-text-android:1.0.0-alpha06")
     samples("androidx.compose.ui:ui-text-samples:1.0.0-beta04")
     docs("androidx.compose.ui:ui-tooling:1.0.0-beta04")
     docs("androidx.compose.ui:ui-tooling-data:1.0.0-beta04")
