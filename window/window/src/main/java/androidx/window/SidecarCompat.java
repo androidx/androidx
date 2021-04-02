@@ -73,10 +73,6 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
     SidecarCompat(@NonNull SidecarInterface sidecar, SidecarAdapter sidecarAdapter) {
         // Empty implementation to avoid null checks.
         mExtensionCallback = new ExtensionCallbackInterface() {
-            @Override
-            public void onDeviceStateChanged(@NonNull DeviceState newDeviceState) {
-
-            }
 
             @Override
             public void onWindowLayoutChanged(@NonNull Activity activity,
@@ -95,8 +91,8 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
                 new TranslatingCallback()));
     }
 
-    //TODO(b/173739071) reduce visibility to @VisibleForTesting
     @NonNull
+    @VisibleForTesting
     WindowLayoutInfo getWindowLayoutInfo(@NonNull Activity activity) {
         IBinder windowToken = getActivityWindowToken(activity);
 
@@ -125,6 +121,11 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
     void register(@NonNull IBinder windowToken, @NonNull Activity activity) {
         mWindowListenerRegisteredContexts.put(windowToken, activity);
         mSidecar.onWindowLayoutChangeListenerAdded(windowToken);
+        // Since SidecarDeviceState and SidecarWindowLayout are merged we trigger both
+        // data streams.
+        if (mWindowListenerRegisteredContexts.size() == 1) {
+            mSidecar.onDeviceStateListenersChanged(false);
+        }
         mExtensionCallback.onWindowLayoutChanged(activity, getWindowLayoutInfo(activity));
     }
 
@@ -133,17 +134,11 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         IBinder windowToken = getActivityWindowToken(activity);
 
         mSidecar.onWindowLayoutChangeListenerRemoved(windowToken);
-
+        boolean isLast = mWindowListenerRegisteredContexts.size() == 1;
         mWindowListenerRegisteredContexts.remove(windowToken);
-    }
-
-    @Override
-    public void onDeviceStateListenersChanged(boolean isEmpty) {
-        if (!isEmpty) {
-            SidecarDeviceState deviceState = mSidecar.getDeviceState();
-            mExtensionCallback.onDeviceStateChanged(mSidecarAdapter.translate(deviceState));
+        if (isLast) {
+            mSidecar.onDeviceStateListenersChanged(true);
         }
-        mSidecar.onDeviceStateListenersChanged(isEmpty);
     }
 
     @SuppressLint("BanUncheckedReflection")
@@ -332,8 +327,6 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         @Override
         @SuppressLint("SyntheticAccessor")
         public void onDeviceStateChanged(@NonNull SidecarDeviceState newDeviceState) {
-            mExtensionCallback.onDeviceStateChanged(mSidecarAdapter.translate(newDeviceState));
-
             for (int i = 0; i < mWindowListenerRegisteredContexts.size(); i++) {
                 Activity activity = mWindowListenerRegisteredContexts.valueAt(i);
                 IBinder windowToken = getActivityWindowToken(activity);
@@ -372,8 +365,6 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
             implements ExtensionCallbackInterface {
 
         private final Object mLock = new Object();
-        @GuardedBy("mLock")
-        private DeviceState mLastDeviceState;
         /**
          * A map from {@link Activity} to the last computed {@link WindowLayoutInfo} for the
          * given activity. A {@link WeakHashMap} is used to avoid retaining the {@link Activity}.
@@ -385,17 +376,6 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
 
         DistinctElementCallback(ExtensionCallbackInterface callbackInterface) {
             mCallbackInterface = callbackInterface;
-        }
-
-        @Override
-        public void onDeviceStateChanged(@NonNull DeviceState newDeviceState) {
-            synchronized (mLock) {
-                if (newDeviceState.equals(mLastDeviceState)) {
-                    return;
-                }
-                mLastDeviceState = newDeviceState;
-                mCallbackInterface.onDeviceStateChanged(newDeviceState);
-            }
         }
 
         @Override
