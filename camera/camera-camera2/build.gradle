@@ -46,6 +46,7 @@ dependencies {
     testImplementation(project(":annotation:annotation-experimental"))
     testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     testImplementation(project(":camera:camera-testing"))
+    testImplementation("androidx.arch.core:core-testing:2.1.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
