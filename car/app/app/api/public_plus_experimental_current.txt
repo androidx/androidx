@@ -280,7 +280,7 @@ package androidx.car.app.model {
 
   @androidx.car.app.annotations.ExperimentalCarApi public static final class CarText.Builder {
     ctor public CarText.Builder(CharSequence);
-    method public androidx.car.app.model.CarText.Builder addVariant(CharSequence);
+    method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.CarText.Builder addVariant(CharSequence);
     method public androidx.car.app.model.CarText build();
   }
 

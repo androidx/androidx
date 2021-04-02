@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.CollectionUtils;
 import androidx.car.app.utils.StringUtils;
 
@@ -358,6 +359,7 @@ public final class CarText {
          *
          * @throws NullPointerException if the text is {@code null}
          */
+        @RequiresCarApi(2)
         @NonNull
         public Builder addVariant(@NonNull CharSequence text) {
             mTextVariants.add(requireNonNull(text));
