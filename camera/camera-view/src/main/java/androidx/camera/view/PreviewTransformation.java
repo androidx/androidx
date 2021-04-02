@@ -449,7 +449,7 @@ final class PreviewTransformation {
 
     /**
      * Calculates the mapping from a UI touch point (0, 0) - (width, height) to normalized
-     * sensor rect (0, 0) - (1, 1).
+     * space (-1, -1) - (1, 1).
      *
      * <p> This is used by {@link PreviewViewMeteringPointFactory}.
      *
@@ -465,7 +465,7 @@ final class PreviewTransformation {
         // Map PreviewView coordinates to Surface coordinates.
         getSurfaceToPreviewViewMatrix(previewViewSize, layoutDirection).invert(matrix);
 
-        // Map Surface coordinates to normalized coordinates (0, 0) - (1, 1).
+        // Map Surface coordinates to normalized coordinates (-1, -1) - (1, 1).
         Matrix normalization = new Matrix();
         normalization.setRectToRect(
                 new RectF(0, 0, mResolution.getWidth(), mResolution.getHeight()),

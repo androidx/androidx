@@ -41,9 +41,8 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TransformUtils {
 
-    // Normalized space (0, 0) - (1, 1).
-    // TODO(b/137515129): change this to (-1, -1) - (1, 1) to simplify transforms.
-    public static final RectF NORMALIZED_RECT = new RectF(0, 0, 1, 1);
+    // Normalized space (-1, -1) - (1, 1).
+    public static final RectF NORMALIZED_RECT = new RectF(-1, -1, 1, 1);
 
     // Each vertex is represented by a pair of (x, y) which is 2 slots in a float array.
     private static final int FLOAT_NUMBER_PER_VERTEX = 2;
@@ -217,9 +216,9 @@ public class TransformUtils {
     public static Matrix getExifTransform(int exifOrientation, int width, int height) {
         Matrix matrix = new Matrix();
 
-        // Map the bitmap to a normalized space (0, 0) - (1, 1) and perform transform in the
-        // normalized space. It's more readable, and it can be tested with Robolectric's
-        // ShadowMatrix (Matrix#setPolyToPoly is currently not shadowed by ShadowMatrix).
+        // Map the bitmap to a normalized space and perform transform. It's more readable, and it
+        // can be tested with Robolectric's ShadowMatrix (Matrix#setPolyToPoly is currently not
+        // shadowed by ShadowMatrix).
         RectF rect = new RectF(0, 0, width, height);
         matrix.setRectToRect(rect, NORMALIZED_RECT, Matrix.ScaleToFit.FILL);
 
@@ -227,38 +226,36 @@ public class TransformUtils {
         boolean isWidthHeightSwapped = false;
 
         // Transform the normalized space based on exif orientation.
-        float centerX = NORMALIZED_RECT.centerX();
-        float centerY = NORMALIZED_RECT.centerY();
         switch (exifOrientation) {
             case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                matrix.postScale(-1f, 1f, centerX, centerY);
+                matrix.postScale(-1f, 1f);
                 break;
             case ExifInterface.ORIENTATION_ROTATE_180:
-                matrix.postRotate(180, centerX, centerY);
+                matrix.postRotate(180);
                 break;
             case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                matrix.postScale(1f, -1f, centerX, centerY);
+                matrix.postScale(1f, -1f);
                 break;
             case ExifInterface.ORIENTATION_TRANSPOSE:
                 // Flipped about top-left <--> bottom-right axis, it can also be represented by
                 // flip horizontally and then rotate 270 degree clockwise.
-                matrix.postScale(-1f, 1f, centerX, centerY);
-                matrix.postRotate(270, centerX, centerY);
+                matrix.postScale(-1f, 1f);
+                matrix.postRotate(270);
                 isWidthHeightSwapped = true;
                 break;
             case ExifInterface.ORIENTATION_ROTATE_90:
-                matrix.postRotate(90, centerX, centerY);
+                matrix.postRotate(90);
                 isWidthHeightSwapped = true;
                 break;
             case ExifInterface.ORIENTATION_TRANSVERSE:
                 // Flipped about top-right <--> bottom left axis, it can also be represented by
                 // flip horizontally and then rotate 90 degree clockwise.
-                matrix.postScale(-1f, 1f, centerX, centerY);
-                matrix.postRotate(90, centerX, centerY);
+                matrix.postScale(-1f, 1f);
+                matrix.postRotate(90);
                 isWidthHeightSwapped = true;
                 break;
             case ExifInterface.ORIENTATION_ROTATE_270:
-                matrix.postRotate(270, centerX, centerY);
+                matrix.postRotate(270);
                 isWidthHeightSwapped = true;
                 break;
             case ExifInterface.ORIENTATION_NORMAL:

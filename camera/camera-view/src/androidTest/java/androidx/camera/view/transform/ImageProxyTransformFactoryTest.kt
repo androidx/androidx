@@ -81,9 +81,9 @@ public class ImageProxyTransformFactoryTest {
         val imageProxy = createFakeImageProxy(16, 12, 90, Rect(8, 0, 16, 12))
         val transform = imageProxyTransformFactory.getOutputTransform(imageProxy)
 
-        // Assert: the center of the normalized space (0.5, 0.5) mapped to the center of the crop
+        // Assert: the center of the normalized space (0, 0) mapped to the center of the crop
         // rect (4,6).
-        val point = floatArrayOf(0.5f, 0.5f)
+        val point = floatArrayOf(0f, 0f)
         transform.matrix.mapPoints(point)
         assertThat(point).isEqualTo(floatArrayOf(4f, 6f))
     }
@@ -98,9 +98,9 @@ public class ImageProxyTransformFactoryTest {
         val imageProxy = createFakeImageProxy(16, 12, 90, Rect(8, 0, 16, 12))
         val transform = imageProxyTransformFactory.getOutputTransform(imageProxy)
 
-        // Assert: the center of the normalized space (0.5, 0.5) mapped to the center of the
+        // Assert: the center of the normalized space (0, 0) mapped to the center of the
         // rotated crop rect (4,6).
-        val point = floatArrayOf(0.5f, 0.5f)
+        val point = floatArrayOf(0f, 0f)
         transform.matrix.mapPoints(point)
         assertThat(point).isEqualTo(floatArrayOf(6f, 4f))
     }
