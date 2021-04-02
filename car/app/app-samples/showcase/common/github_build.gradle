@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-rootProject.name='car_app_samples'
-include ':helloworld:automotive'
-include ':helloworld:common'
-include ':helloworld:mobile'
-include ':navigation:automotive'
-include ':navigation:common'
-include ':navigation:mobile'
-include ':places:automotive'
-include ':places:common'
-include ':places:mobile'
-include ':showcase:automotive'
-include ':showcase:common'
-include ':showcase:mobile'
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 29
+
+    defaultConfig {
+        minSdkVersion 29
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+    }
+}
+
+dependencies {
+    implementation "androidx.core:core:1.5.0-alpha01"
+
+    implementation "androidx.car.app:app:1.0.0-rc01"
+}
