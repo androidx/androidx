@@ -119,6 +119,7 @@ final class Camera2CameraImpl implements CameraInternal {
     volatile InternalState mState = InternalState.INITIALIZED;
     private final LiveDataObservable<CameraInternal.State> mObservableState =
             new LiveDataObservable<>();
+    private final CameraStateMachine mCameraStateMachine;
     /** The camera control shared across all use cases bound to this Camera. */
     private final Camera2CameraControlImpl mCameraControlInternal;
     private final StateCallback mStateCallback;
@@ -193,6 +194,7 @@ final class Camera2CameraImpl implements CameraInternal {
         mStateCallback = new StateCallback(mExecutor, executorScheduler);
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mObservableState.postValue(State.CLOSED);
+        mCameraStateMachine = new CameraStateMachine(cameraStateRegistry);
         mCaptureSessionRepository = new CaptureSessionRepository(mExecutor);
         mCaptureSession = new CaptureSession();
 
@@ -204,6 +206,7 @@ final class Camera2CameraImpl implements CameraInternal {
                     cameraInfoImpl.getCameraQuirks());
             mCameraInfoInternal = cameraInfoImpl;
             mCameraInfoInternal.linkWithCameraControl(mCameraControlInternal);
+            mCameraInfoInternal.setCameraStateSource(mCameraStateMachine.getStateLiveData());
         } catch (CameraAccessExceptionCompat e) {
             throw CameraUnavailableExceptionHelper.createFrom(e);
         }
