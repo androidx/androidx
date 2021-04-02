@@ -115,24 +115,6 @@ public final class SidecarCompatTest extends WindowTestBase
 
     @Test
     @Override
-    public void testGetDeviceState() {
-        FakeExtensionImp fakeSidecarImp = new FakeExtensionImp(
-                newDeviceState(SidecarDeviceState.POSTURE_OPENED),
-                newWindowLayoutInfo(Collections.emptyList()));
-        SidecarCompat compat = new SidecarCompat(fakeSidecarImp, new SidecarAdapter());
-        ExtensionInterfaceCompat.ExtensionCallbackInterface mockCallback = mock(
-                ExtensionInterfaceCompat.ExtensionCallbackInterface.class);
-        compat.setExtensionCallback(mockCallback);
-        compat.onDeviceStateListenersChanged(false);
-        SidecarDeviceState deviceState = newDeviceState(SidecarDeviceState.POSTURE_HALF_OPENED);
-
-        fakeSidecarImp.triggerDeviceState(deviceState);
-
-        verify(mockCallback, atLeastOnce()).onDeviceStateChanged(any());
-    }
-
-    @Test
-    @Override
     public void testGetWindowLayout() {
         FakeExtensionImp fakeSidecarImp = new FakeExtensionImp(
                 newDeviceState(SidecarDeviceState.POSTURE_OPENED),
@@ -271,9 +253,6 @@ public final class SidecarCompatTest extends WindowTestBase
         setSidecarDevicePosture(sidecarDeviceState, SidecarDeviceState.POSTURE_HALF_OPENED);
 
         sidecarCallbackCaptor.getValue().onDeviceStateChanged(sidecarDeviceState);
-        ArgumentCaptor<DeviceState> deviceStateCaptor = ArgumentCaptor.forClass(DeviceState.class);
-        verify(callback).onDeviceStateChanged(deviceStateCaptor.capture());
-        assertEquals(DeviceState.POSTURE_HALF_OPENED, deviceStateCaptor.getValue().getPosture());
 
         // Verify that the callback set for sidecar propagates the window layout callback when a
         // window layout changed listener has been added.
@@ -335,7 +314,8 @@ public final class SidecarCompatTest extends WindowTestBase
     public void testOnWindowLayoutChangeListenerAdded() {
         IBinder windowToken = getActivityWindowToken(mActivity);
         mSidecarCompat.onWindowLayoutChangeListenerAdded(mActivity);
-        verify(mSidecarCompat.mSidecar).onWindowLayoutChangeListenerAdded(eq(windowToken));
+        verify(mSidecarCompat.mSidecar).onWindowLayoutChangeListenerAdded(windowToken);
+        verify(mSidecarCompat.mSidecar).onDeviceStateListenersChanged(false);
     }
 
     @Test
@@ -384,24 +364,10 @@ public final class SidecarCompatTest extends WindowTestBase
     }
 
     @Test
-    @Override
     public void testOnDeviceStateListenersChanged() {
-        mSidecarCompat.onDeviceStateListenersChanged(true);
-        verify(mSidecarCompat.mSidecar).onDeviceStateListenersChanged(eq(true));
-    }
-
-    @Test
-    public void testOnDeviceStateListenersAdded_emitInitialValue() {
-        SidecarDeviceState deviceState = new SidecarDeviceState();
-        DeviceState expectedDeviceState = new DeviceState(DeviceState.POSTURE_UNKNOWN);
-        ExtensionInterfaceCompat.ExtensionCallbackInterface listener =
-                mock(ExtensionInterfaceCompat.ExtensionCallbackInterface.class);
-        mSidecarCompat.setExtensionCallback(listener);
-        when(mSidecarCompat.mSidecar.getDeviceState()).thenReturn(deviceState);
-
-        mSidecarCompat.onDeviceStateListenersChanged(false);
-
-        verify(listener).onDeviceStateChanged(expectedDeviceState);
+        mSidecarCompat.onWindowLayoutChangeListenerAdded(mActivity);
+        mSidecarCompat.onWindowLayoutChangeListenerRemoved(mActivity);
+        verify(mSidecarCompat.mSidecar).onDeviceStateListenersChanged(true);
     }
 
     @Test

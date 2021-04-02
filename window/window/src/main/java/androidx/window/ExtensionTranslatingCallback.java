@@ -40,11 +40,6 @@ class ExtensionTranslatingCallback implements ExtensionCallback {
     }
 
     @Override
-    public void onDeviceStateChanged(@NonNull ExtensionDeviceState newDeviceState) {
-        mCallback.onDeviceStateChanged(mAdapter.translate(newDeviceState));
-    }
-
-    @Override
     public void onWindowLayoutChanged(@NonNull Activity activity,
             @NonNull ExtensionWindowLayoutInfo newLayout) {
         mCallback.onWindowLayoutChanged(activity, mAdapter.translate(activity, newLayout));

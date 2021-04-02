@@ -35,7 +35,6 @@ import android.graphics.Rect;
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.window.extensions.ExtensionDeviceState;
 import androidx.window.extensions.ExtensionDisplayFeature;
 import androidx.window.extensions.ExtensionFoldingFeature;
 import androidx.window.extensions.ExtensionInterface;
@@ -83,22 +82,6 @@ public final class ExtensionCompatTest extends WindowTestBase
 
     @Test
     @Override
-    public void testGetDeviceState() {
-        FakeExtensionImp fakeExtensionImp = new FakeExtensionImp();
-        ExtensionCompat compat = new ExtensionCompat(fakeExtensionImp, new ExtensionAdapter());
-        ExtensionCallbackInterface mockCallback = mock(ExtensionCallbackInterface.class);
-        compat.setExtensionCallback(mockCallback);
-        compat.onWindowLayoutChangeListenerAdded(mock(Activity.class));
-        ExtensionDeviceState deviceState =
-                new ExtensionDeviceState(ExtensionDeviceState.POSTURE_OPENED);
-
-        fakeExtensionImp.triggerDeviceState(deviceState);
-
-        verify(mockCallback).onDeviceStateChanged(new DeviceState(DeviceState.POSTURE_OPENED));
-    }
-
-    @Test
-    @Override
     public void testGetWindowLayout() {
         FakeExtensionImp fakeExtensionImp = new FakeExtensionImp();
         ExtensionCompat compat = new ExtensionCompat(fakeExtensionImp, new ExtensionAdapter());
@@ -125,15 +108,6 @@ public final class ExtensionCompatTest extends WindowTestBase
 
         verify(mExtensionCompat.mWindowExtension).setExtensionCallback(
                 extensionCallbackCaptor.capture());
-
-        // Verify that the callback set for extension propagates the device state callback
-        ExtensionDeviceState extensionDeviceState = new ExtensionDeviceState(
-                ExtensionDeviceState.POSTURE_HALF_OPENED);
-
-        extensionCallbackCaptor.getValue().onDeviceStateChanged(extensionDeviceState);
-        ArgumentCaptor<DeviceState> deviceStateCaptor = ArgumentCaptor.forClass(DeviceState.class);
-        verify(callback).onDeviceStateChanged(deviceStateCaptor.capture());
-        assertEquals(DeviceState.POSTURE_HALF_OPENED, deviceStateCaptor.getValue().getPosture());
 
         // Verify that the callback set for extension propagates the window layout callback when
         // a listener has been registered.
@@ -192,13 +166,6 @@ public final class ExtensionCompatTest extends WindowTestBase
     }
 
     @Test
-    @Override
-    public void testOnDeviceStateListenersChanged() {
-        mExtensionCompat.onDeviceStateListenersChanged(true);
-        verify(mExtensionCompat.mWindowExtension).onDeviceStateListenersChanged(eq(true));
-    }
-
-    @Test
     public void testValidateExtensionInterface() {
         assertTrue(mExtensionCompat.validateExtensionInterface());
     }
@@ -210,10 +177,6 @@ public final class ExtensionCompatTest extends WindowTestBase
 
         FakeExtensionImp() {
             mCallback = new ExtensionCallback() {
-                @Override
-                public void onDeviceStateChanged(@NonNull ExtensionDeviceState newDeviceState) {
-
-                }
 
                 @Override
                 public void onWindowLayoutChanged(@NonNull Activity activity,
@@ -238,11 +201,6 @@ public final class ExtensionCompatTest extends WindowTestBase
             mActivities.remove(activity);
         }
 
-        @Override
-        public void onDeviceStateListenersChanged(boolean isEmpty) {
-
-        }
-
         void triggerMalformedSignal() {
             triggerSignal(malformedWindowLayoutInfo());
         }
@@ -255,10 +213,6 @@ public final class ExtensionCompatTest extends WindowTestBase
             for (Activity activity: mActivities) {
                 mCallback.onWindowLayoutChanged(activity, info);
             }
-        }
-
-        public void triggerDeviceState(ExtensionDeviceState state) {
-            mCallback.onDeviceStateChanged(state);
         }
 
         private ExtensionWindowLayoutInfo malformedWindowLayoutInfo() {

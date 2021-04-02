@@ -193,10 +193,6 @@ public class ExtensionWindowBackendUnitTest {
 
         SynchronousExtensionInterface(WindowLayoutInfo windowLayoutInfo, DeviceState deviceState) {
             mInterface = new ExtensionCallbackInterface() {
-                @Override
-                public void onDeviceStateChanged(@NonNull DeviceState newDeviceState) {
-
-                }
 
                 @Override
                 public void onWindowLayoutChanged(@NonNull Activity activity,
@@ -229,9 +225,5 @@ public class ExtensionWindowBackendUnitTest {
 
         }
 
-        @Override
-        public void onDeviceStateListenersChanged(boolean isEmpty) {
-            mInterface.onDeviceStateChanged(mDeviceState);
-        }
     }
 }

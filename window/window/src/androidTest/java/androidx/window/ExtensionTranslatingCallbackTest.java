@@ -21,14 +21,12 @@ import static androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterfac
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
 import android.graphics.Rect;
 
-import androidx.window.extensions.ExtensionDeviceState;
 import androidx.window.extensions.ExtensionDisplayFeature;
 import androidx.window.extensions.ExtensionFoldingFeature;
 import androidx.window.extensions.ExtensionWindowLayoutInfo;
@@ -137,28 +135,5 @@ public class ExtensionTranslatingCallbackTest {
 
         verify(mockCallback).onWindowLayoutChanged(eq(mockActivity),
                 argThat((layoutInfo) -> layoutInfo.getDisplayFeatures().isEmpty()));
-    }
-
-    @Test
-    public void testOnDeviceStateChange_translateStates() {
-        ExtensionCallbackInterface mockCallback = mock(ExtensionCallbackInterface.class);
-        ExtensionTranslatingCallback extensionTranslatingCallback =
-                new ExtensionTranslatingCallback(mockCallback, new ExtensionAdapter());
-
-        extensionTranslatingCallback.onDeviceStateChanged(new ExtensionDeviceState(
-                ExtensionDeviceState.POSTURE_HALF_OPENED));
-        extensionTranslatingCallback.onDeviceStateChanged(new ExtensionDeviceState(
-                ExtensionDeviceState.POSTURE_OPENED));
-        extensionTranslatingCallback.onDeviceStateChanged(new ExtensionDeviceState(
-                ExtensionDeviceState.POSTURE_FLIPPED));
-
-        ArgumentCaptor<DeviceState> captor = ArgumentCaptor.forClass(DeviceState.class);
-        verify(mockCallback, atLeastOnce()).onDeviceStateChanged(captor.capture());
-
-        List<DeviceState> values = captor.getAllValues();
-        assertEquals(DeviceState.POSTURE_HALF_OPENED, values.get(0).getPosture());
-        assertEquals(DeviceState.POSTURE_OPENED, values.get(1).getPosture());
-        assertEquals(DeviceState.POSTURE_FLIPPED, values.get(2).getPosture());
-        assertEquals(3, values.size());
     }
 }
