@@ -13,27 +13,33 @@ In order to build app APKs,
 
 1. Open the project in Android Studio: File -> Open -> Select this directory and click OK.
 
-2. Select a sample app directory (e.g. `helloworld`) in the `Project Structure` UI on the top left.
+2. Select a sample app directory (e.g. `helloworld-mobile`) in the `Project Structure` UI on the top
+ left. Each sample app has two build targets, one for the `mobile` platform and the other for the
+  `automotive` platform.
 
-3. Go to Build -> Make Module 'androidx.car.app.app-samples.<sample_app>'. The apks will be generated in `<sample_app>/build/outputs/apk`.
+3. Go to Build -> Make Module 'androidx.car.app.app-samples.<sample_app>-<platform>'. The apks
+ will be generated in `<sample_app>-<platform>/build/outputs/apk`.
 
 In order to install and run the apps,
 
 1. Open the AndroidX project in Android Studio.
 
-2. Go to Run -> Edit Configurations, select your app (e.g. `car.app.app-samples.helloworld`), and in the General tab, under Launch Options, select Launch: Nothing, then click OK to close the dialog.
+2. Go to `Run -> Edit` Configurations, select your app (e.g. `car.app.app-samples.helloworld
+-mobile`). If you are building for the `mobile` platform, also select `Launch: Nothing` in `General
+ -> Launch Options`. Click OK to close the dialog.
 
 3. Select Run -> Run ‘your app’, to run the app, which will just install it in the selected device.
 
 Run From the Command Line
 ---------------------
-1. Run ./gradlew :sample:assemble to assemble the APKs. E.g.
+1. Run `./gradlew :<sample>-<platform>:assemble` to assemble the APKs. E.g.
 
 ```bash
-./gradlew :showcase:assemble
+./gradlew :showcase-mobile:assemble
 ```
 
-The APK should be generated under your app’s build directory, e.g. your_app/build/outputs/apk/debug.
+The APK should be generated under your app’s build directory, e.g. `<your_app>-<platform>/build
+/outputs/apk/debug`.
 
 If you see this error during the build:
 
