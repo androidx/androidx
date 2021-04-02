@@ -79,8 +79,7 @@ public final class TransformFragment extends Fragment {
     private static final String TAG = "TransformFragment";
 
     private static final int TILE_COUNT = 4;
-    // TODO(b/137515129): change this to (-1, -1) - (1, 1) to simplify transforms.
-    public static final RectF NORMALIZED_RECT = new RectF(0, 0, 1, 1);
+    public static final RectF NORMALIZED_RECT = new RectF(-1, -1, 1, 1);
 
     private LifecycleCameraController mCameraController;
     private ExecutorService mExecutorService;
@@ -155,7 +154,7 @@ public final class TransformFragment extends Fragment {
     public static Matrix getExifTransform(int exifOrientation, int width, int height) {
         Matrix matrix = new Matrix();
 
-        // Map the bitmap to a normalized space (0, 0) - (1, 1) and perform transform in the
+        // Map the bitmap to a normalized space (-1, -1) - (1, 1) and perform transform in the
         // normalized space.
         RectF rect = new RectF(0, 0, width, height);
         matrix.setRectToRect(rect, NORMALIZED_RECT, Matrix.ScaleToFit.FILL);
@@ -164,38 +163,36 @@ public final class TransformFragment extends Fragment {
         boolean isWidthHeightSwapped = false;
 
         // Transform the normalized space based on exif orientation.
-        float centerX = NORMALIZED_RECT.centerX();
-        float centerY = NORMALIZED_RECT.centerY();
         switch (exifOrientation) {
             case android.media.ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                matrix.postScale(-1f, 1f, centerX, centerY);
+                matrix.postScale(-1f, 1f);
                 break;
             case android.media.ExifInterface.ORIENTATION_ROTATE_180:
-                matrix.postRotate(180, centerX, centerY);
+                matrix.postRotate(180);
                 break;
             case android.media.ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                matrix.postScale(1f, -1f, centerX, centerY);
+                matrix.postScale(1f, -1f);
                 break;
             case android.media.ExifInterface.ORIENTATION_TRANSPOSE:
                 // Flipped about top-left <--> bottom-right axis, it can also be represented by
                 // flip horizontally and then rotate 270 degree clockwise.
-                matrix.postScale(-1f, 1f, centerX, centerY);
-                matrix.postRotate(270, centerX, centerY);
+                matrix.postScale(-1f, 1f);
+                matrix.postRotate(270);
                 isWidthHeightSwapped = true;
                 break;
             case android.media.ExifInterface.ORIENTATION_ROTATE_90:
-                matrix.postRotate(90, centerX, centerY);
+                matrix.postRotate(90);
                 isWidthHeightSwapped = true;
                 break;
             case android.media.ExifInterface.ORIENTATION_TRANSVERSE:
                 // Flipped about top-right <--> bottom-left axis, it can also be
                 // represented by flip horizontally and then rotate 90 degree clockwise.
-                matrix.postScale(-1f, 1f, centerX, centerY);
-                matrix.postRotate(90, centerX, centerY);
+                matrix.postScale(-1f, 1f);
+                matrix.postRotate(90);
                 isWidthHeightSwapped = true;
                 break;
             case android.media.ExifInterface.ORIENTATION_ROTATE_270:
-                matrix.postRotate(270, centerX, centerY);
+                matrix.postRotate(270);
                 isWidthHeightSwapped = true;
                 break;
             case android.media.ExifInterface.ORIENTATION_NORMAL:
