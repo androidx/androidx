@@ -315,6 +315,7 @@ public abstract class CarAppService extends Service {
         if (!CarAppApiLevels.isValid(apiLevel)) {
             throw new IllegalArgumentException("Invalid Car App API level received: " + apiLevel);
         }
+
         mHandshakeInfo = handshakeInfo;
     }
 
@@ -517,6 +518,19 @@ public abstract class CarAppService extends Service {
                                             + packageName + "', uid:" + uid));
                             return;
                         }
+
+                        int appMinApiLevel =
+                                CarAppService.this.getAppInfo().getMinCarAppApiLevel();
+                        int hostApiLevel = deserializedHandshakeInfo.getHostCarAppApiLevel();
+                        if (appMinApiLevel > hostApiLevel) {
+                            RemoteUtils.sendFailureResponseToHost(callback, "onHandshakeCompleted",
+                                    new IllegalArgumentException(
+                                            "Host API level (" + hostApiLevel + ") is "
+                                                    + "less than the app's min API level ("
+                                                    + appMinApiLevel + ")"));
+                            return;
+                        }
+
                         setHostInfo(hostInfo);
                         setHandshakeInfo(deserializedHandshakeInfo);
                         RemoteUtils.sendSuccessResponseToHost(callback, "onHandshakeCompleted",
