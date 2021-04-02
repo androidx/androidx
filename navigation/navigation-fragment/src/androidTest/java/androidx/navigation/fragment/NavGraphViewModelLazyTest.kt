@@ -31,7 +31,7 @@ import androidx.lifecycle.ViewModelStore
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.ktx.test.R
+import androidx.navigation.fragment.test.R
 import androidx.navigation.navGraphViewModels
 import androidx.navigation.navigation
 import androidx.navigation.plusAssign

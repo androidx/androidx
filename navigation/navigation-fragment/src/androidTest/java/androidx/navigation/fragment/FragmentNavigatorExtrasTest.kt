@@ -59,4 +59,20 @@ class FragmentNavigatorExtrasTest {
             assertEquals("Shared element's name should match", expected, name)
         }
     }
+
+    @Test
+    fun testFragmentNavigatorExtras() {
+        val view1 = View(InstrumentationRegistry.getInstrumentation().targetContext)
+        val view2 = View(InstrumentationRegistry.getInstrumentation().targetContext)
+        val extras = FragmentNavigatorExtras(view1 to "test1", view2 to "test2")
+        val sharedElements = extras.sharedElements
+
+        assertEquals("Should be 2 shared elements", 2, sharedElements.size)
+        val name1 = sharedElements[view1]
+        assertNotNull("Shared element should exist in the map", name1)
+        assertEquals("Shared element's name should match", "test1", name1)
+        val name2 = sharedElements[view2]
+        assertNotNull("Shared element should exist in the map", name2)
+        assertEquals("Shared element's name should match", "test2", name2)
+    }
 }
