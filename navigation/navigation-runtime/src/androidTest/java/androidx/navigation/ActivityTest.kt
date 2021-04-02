@@ -30,8 +30,8 @@ import org.junit.Test
 @LargeTest
 class ActivityTest {
     @Suppress("DEPRECATION")
-    @get:Rule val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(
-        TestActivity::class.java
+    @get:Rule val activityRule = androidx.test.rule.ActivityTestRule<TestArgsActivity>(
+        TestArgsActivity::class.java
     )
     private val view get() = activityRule.activity.findViewById<View>(VIEW_ID)
 
@@ -74,7 +74,7 @@ class ActivityTest {
         // Normally, this would be set by using an <activity> destination to
         // start the Activity, but we'll fake it here in the test
         activityRule.activity.intent = Intent(
-            activityRule.activity, TestActivity::class.java
+            activityRule.activity, TestArgsActivity::class.java
         ).apply {
             putExtra("test", "test")
         }
@@ -88,7 +88,7 @@ class ActivityTest {
         // Normally, this would be set by using an <activity> destination to
         // start the Activity, but we'll fake it here in the test
         activityRule.activity.intent = Intent(
-            activityRule.activity, TestActivity::class.java
+            activityRule.activity, TestArgsActivity::class.java
         )
         try {
             activityRule.activity.args
@@ -116,7 +116,7 @@ data class FakeTestArgs(val bundle: Bundle) : NavArgs {
         fun fromBundle(bundle: Bundle) = FakeTestArgs(bundle)
     }
 }
-class TestActivity : Activity() {
+class TestArgsActivity : Activity() {
     val args: FakeTestArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
