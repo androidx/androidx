@@ -20,19 +20,29 @@ import androidx.room.compiler.processing.javac.JavacMethodElement
 import androidx.room.compiler.processing.javac.JavacTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.javaTypeUtils
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterSpec
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+import java.io.File
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.util.Types
 
-class MethodSpecHelperTest {
+@RunWith(Parameterized::class)
+class MethodSpecHelperTest(
+    // if true, pre-compile sources then run the test to account for changes between .class files
+    // and source files
+    val preCompiledCode: Boolean
+) {
     @Test
     fun javaOverrides() {
         // check our override impl matches javapoet
@@ -291,22 +301,59 @@ class MethodSpecHelperTest {
         overridesCheck(source)
     }
 
-    private fun overridesCheck(source: Source, ignoreInheritedMethods: Boolean = false) {
+    @Test
+    fun javaOverridesWithVariance() {
+        val source = Source.java(
+            "foo.bar.Base",
+            """
+                package foo.bar;
+                import java.util.List;
+
+                interface Base<T> {
+                    void genericT(List<T> t);
+                    void singleT(T t);
+                    void varargT(T... t);
+                    void arrayT(T[] t);
+                }
+            """
+        )
+        val impl = Source.java(
+            "foo.bar.Baz",
+            """
+            package foo.bar;
+            public interface Baz extends Base<Integer> {
+            }
+            """.trimIndent()
+        )
+        overridesCheck(source, impl)
+    }
+
+    @Suppress("NAME_SHADOWING") // intentional
+    private fun overridesCheck(vararg sources: Source, ignoreInheritedMethods: Boolean = false) {
+        val (sources: List<Source>, classpath: List<File>) = if (preCompiledCode) {
+            emptyList<Source>() to listOf(compileFiles(sources.toList()))
+        } else {
+            sources.toList() to emptyList()
+        }
         // first build golden image with Java processor so we can use JavaPoet's API
-        val golden = buildMethodsViaJavaPoet(source, ignoreInheritedMethods)
+        val golden = buildMethodsViaJavaPoet(
+            sources = sources,
+            classpath = classpath,
+            ignoreInheritedMethods = ignoreInheritedMethods
+        )
         runProcessorTest(
-            sources = listOf(source)
+            sources = sources + Source.kotlin("Placeholder.kt", ""),
+            classpath = classpath
         ) { invocation ->
             val (target, methods) = invocation.getOverrideTestTargets(ignoreInheritedMethods)
             methods.forEachIndexed { index, method ->
-
                 if (invocation.isKsp && method.name == "throwsException") {
                     // TODO b/171572318
                 } else {
                     val subject = MethodSpecHelper.overridingWithFinalParams(
                         method,
                         target.type
-                    ).build().toString()
+                    ).toSignature()
                     assertThat(subject).isEqualTo(golden[index])
                 }
             }
@@ -314,12 +361,14 @@ class MethodSpecHelperTest {
     }
 
     private fun buildMethodsViaJavaPoet(
-        source: Source,
+        sources: List<Source>,
+        classpath: List<File>,
         ignoreInheritedMethods: Boolean
     ): List<String> {
         lateinit var result: List<String>
         runKaptTest(
-            sources = listOf(source)
+            sources = sources,
+            classpath = classpath
         ) { invocation ->
             val (target, methods) = invocation.getOverrideTestTargets(
                 ignoreInheritedMethods
@@ -333,7 +382,7 @@ class MethodSpecHelperTest {
                         it,
                         MoreTypes.asDeclared(element.asType()),
                         invocation.javaTypeUtils
-                    ).build().toString()
+                    ).toSignature()
                 }
         }
         return result
@@ -378,6 +427,29 @@ class MethodSpecHelperTest {
         )
     }
 
+    private fun MethodSpec.Builder.toSignature(): String {
+        if (preCompiledCode) {
+            // remove parameter names as they are not always read properly but doesn't matter
+            // here much
+            val backup = this.parameters.toList()
+            parameters.clear()
+            backup.forEachIndexed { index, spec ->
+                addParameter(spec.rename("arg$index"))
+            }
+        }
+        return build().toString()
+    }
+
+    private fun ParameterSpec.rename(newName: String): ParameterSpec {
+        return ParameterSpec
+            .builder(
+                type,
+                newName
+            ).addModifiers(modifiers)
+            .addAnnotations(annotations)
+            .build()
+    }
+
     /**
      * Copied from DaoWriter for backwards compatibility
      */
@@ -390,7 +462,9 @@ class MethodSpecHelperTest {
             .build()
 
         // make all the params final
-        val params = baseSpec.parameters.map { it.toBuilder().addModifiers(Modifier.FINAL).build() }
+        val params = baseSpec.parameters.map {
+            it.toBuilder().addModifiers(Modifier.FINAL).build()
+        }
 
         return MethodSpec.methodBuilder(baseSpec.name).apply {
             addAnnotation(Override::class.java)
@@ -401,5 +475,11 @@ class MethodSpecHelperTest {
             varargs(baseSpec.varargs)
             returns(baseSpec.returnType)
         }
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "preCompiledCode={0}")
+        fun params() = listOf(false, true)
     }
 }

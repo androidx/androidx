@@ -26,6 +26,7 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Origin
 import com.google.devtools.ksp.symbol.Variance
 import com.squareup.javapoet.TypeVariableName
 
@@ -44,6 +45,12 @@ internal class OverrideVarianceResolver(
     private val methodType: KspMethodType
 ) {
     fun resolve(): XMethodType {
+        // Look at the true origin to decide whether we need variance resolution or not.
+        val parentTrueOrigin = (methodType.origin.enclosingTypeElement as? KspTypeElement)
+            ?.trueOrigin
+        if (parentTrueOrigin == Origin.JAVA) {
+            return methodType
+        }
         val overideeElm = methodType.origin.findOverridee()
         return ResolvedMethodType(
             // kotlin does not touch return type
