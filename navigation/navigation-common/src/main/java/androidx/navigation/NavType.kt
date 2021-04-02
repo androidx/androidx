@@ -749,11 +749,18 @@ public abstract class NavType<T> internal constructor(
          */
         @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
         public override fun parseValue(value: String): D {
+            var caseInsensitiveMatch: D? = null
             for (constant in type.enumConstants) {
-                if ((constant as Enum<*>).name == value) {
+                val enumConstant = (constant as Enum<*>)
+                if (enumConstant.name == value) {
                     return constant
                 }
+                if (enumConstant.name.equals(value, ignoreCase = true)) {
+                    caseInsensitiveMatch = constant
+                    break
+                }
             }
+            if (caseInsensitiveMatch != null) return caseInsensitiveMatch
             throw IllegalArgumentException(
                 "Enum value $value not found for type ${type.name}."
             )
