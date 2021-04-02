@@ -16,6 +16,7 @@
 
 package androidx.navigation
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.collection.ArrayMap
 import java.lang.reflect.Method
@@ -48,6 +49,7 @@ public class NavArgsLazy<Args : NavArgs>(
                         methodMap[navArgsClass] = method
                     }
 
+                @SuppressLint("BanUncheckedReflection") // needed for method.invoke
                 @Suppress("UNCHECKED_CAST")
                 args = method.invoke(null, arguments) as Args
                 cached = args
