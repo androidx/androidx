@@ -17,11 +17,12 @@
 package androidx.room.processor
 
 import androidx.room.compiler.processing.isTypeElement
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.SqlParser
 import androidx.room.parser.expansion.ProjectionExpander
-import androidx.room.testing.TestInvocation
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
+import androidx.room.testing.context
 import createVerifierFromEntitiesAndViews
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
@@ -29,7 +30,6 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import simpleRun
 
 @RunWith(JUnit4::class)
 class ProjectionExpanderTest {
@@ -42,8 +42,8 @@ class ProjectionExpanderTest {
             import java.util.*;
         """
 
-        val ENTITIES = arrayOf(
-            JavaFileObjects.forSourceString(
+        val ENTITIES = listOf(
+            Source.java(
                 "foo.bar.User",
                 DATABASE_PREFIX + """
                     @Entity
@@ -56,7 +56,7 @@ class ProjectionExpanderTest {
                     }
                 """
             ),
-            JavaFileObjects.forSourceString(
+            Source.java(
                 "foo.bar.Pet",
                 DATABASE_PREFIX + """
                     @Entity
@@ -67,7 +67,7 @@ class ProjectionExpanderTest {
                     }
                 """
             ),
-            JavaFileObjects.forSourceString(
+            Source.java(
                 "foo.bar.Team",
                 DATABASE_PREFIX + """
                     @Entity
@@ -78,7 +78,7 @@ class ProjectionExpanderTest {
                     }
                 """
             ),
-            JavaFileObjects.forSourceString(
+            Source.java(
                 "foo.bar.Employee",
                 DATABASE_PREFIX + """
                     @Entity
@@ -90,7 +90,7 @@ class ProjectionExpanderTest {
                     }
                 """
             ),
-            JavaFileObjects.forSourceString(
+            Source.java(
                 "foo.bar.EmployeeSummary",
                 DATABASE_PREFIX + """
                     public class EmployeeSummary {
@@ -513,11 +513,8 @@ class ProjectionExpanderTest {
 
     @Test
     fun joinAndAbandonEntity() {
-        val all = ENTITIES
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(
-            jfos = all,
-            options = listOf("-Aroom.expandProjection=true")
+        runProcessorTest(
+            sources = ENTITIES
         ) { invocation ->
             val entities = invocation.roundEnv
                 .getTypeElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
@@ -527,9 +524,8 @@ class ProjectionExpanderTest {
                         element
                     ).process()
                 }
-            val entityElement = invocation.roundEnv
-                .rootElements
-                .first { it.toString() == "foo.bar.User" }
+            val entityElement = invocation.processingEnv
+                .requireTypeElement("foo.bar.User")
             check(entityElement.isTypeElement())
             val entity = PojoProcessor.createFor(
                 invocation.context,
@@ -550,7 +546,7 @@ class ProjectionExpanderTest {
                 FROM User JOIN Team ON User.id = Team.id
             """.trimIndent().lines().joinToString(" ")
             assertThat(expanded, `is`(equalTo(expected)))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -593,7 +589,7 @@ class ProjectionExpanderTest {
                     )
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     private fun testInterpret(
@@ -604,23 +600,21 @@ class ProjectionExpanderTest {
     ) {
         queryWithPojo(name, input, original) { actual, _ ->
             assertThat(actual, `is`(equalTo(expected.trimIndent().lines().joinToString(" "))))
-        }.compilesWithoutError()
+        }
     }
 
     private fun queryWithPojo(
         name: String,
         input: String?,
         original: String,
-        handler: (expanded: String, invocation: TestInvocation) -> Unit
-    ): CompileTester {
+        handler: (expanded: String, invocation: XTestInvocation) -> Unit
+    ) {
         val extraSource = input?.let {
-            listOf(JavaFileObjects.forSourceString(name, DATABASE_PREFIX + input))
+            listOf(Source.java(name, DATABASE_PREFIX + input))
         } ?: emptyList()
         val all = ENTITIES + extraSource
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        return simpleRun(
-            jfos = all,
-            options = listOf("-Aroom.expandProjection=true")
+        return runProcessorTest(
+            sources = all
         ) { invocation ->
             val entities = invocation.roundEnv
                 .getTypeElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
@@ -630,9 +624,7 @@ class ProjectionExpanderTest {
                         element
                     ).process()
                 }
-            val pojoElement = invocation.roundEnv
-                .rootElements
-                .first { it.toString() == name }
+            val pojoElement = invocation.processingEnv.requireTypeElement(name)
             check(pojoElement.isTypeElement())
             val pojo = PojoProcessor.createFor(
                 invocation.context,

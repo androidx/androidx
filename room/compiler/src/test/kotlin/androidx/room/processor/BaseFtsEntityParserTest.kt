@@ -16,19 +16,12 @@
 
 package androidx.room.processor
 
-import androidx.annotation.NonNull
-import androidx.room.Embedded
-import androidx.room.Fts3
-import androidx.room.Fts4
-import androidx.room.testing.TestInvocation
-import androidx.room.testing.TestProcessor
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.testing.context
 import androidx.room.vo.FtsEntity
-import com.google.common.truth.Truth
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import java.io.File
-import javax.tools.JavaFileObject
 
 abstract class BaseFtsEntityParserTest {
     companion object {
@@ -49,10 +42,10 @@ abstract class BaseFtsEntityParserTest {
         entityAttributes: Map<String, String> = mapOf(),
         ftsAttributes: Map<String, String> = mapOf(),
         baseClass: String = "",
-        jfos: List<JavaFileObject> = emptyList(),
-        classpathFiles: Set<File> = emptySet(),
-        handler: (FtsEntity, TestInvocation) -> Unit
-    ): CompileTester {
+        sources: List<Source> = emptyList(),
+        classpath: List<File> = emptyList(),
+        handler: (FtsEntity, XTestInvocation) -> Unit
+    ) {
         val ftsVersion = getFtsVersion().toString()
         val entityAttributesReplacement = if (entityAttributes.isEmpty()) {
             ""
@@ -69,52 +62,25 @@ abstract class BaseFtsEntityParserTest {
         } else {
             " extends $baseClass"
         }
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(
-                jfos + JavaFileObjects.forSourceString(
-                    "foo.bar.MyEntity",
-                    ENTITY_PREFIX.format(
-                        entityAttributesReplacement, ftsVersion,
-                        ftsAttributesReplacement, baseClassReplacement
-                    ) + input +
-                        ENTITY_SUFFIX
-                )
+        val entitySource = Source.java(
+            "foo.bar.MyEntity",
+            ENTITY_PREFIX.format(
+                entityAttributesReplacement, ftsVersion,
+                ftsAttributesReplacement, baseClassReplacement
+            ) + input + ENTITY_SUFFIX
+        )
+        runProcessorTest(
+            sources = sources + entitySource,
+            classpath = classpath
+        ) { invocation ->
+            val entity = invocation.processingEnv.requireTypeElement("foo.bar.MyEntity")
+            val processor = FtsTableEntityProcessor(
+                invocation.context,
+                entity
             )
-            .apply {
-                if (classpathFiles.isNotEmpty()) {
-                    withClasspath(classpathFiles)
-                }
-            }
-            .processedWith(
-                TestProcessor.builder()
-                    .forAnnotations(
-                        androidx.room.Entity::class,
-                        Fts3::class,
-                        Fts4::class,
-                        androidx.room.PrimaryKey::class,
-                        androidx.room.Ignore::class,
-                        Embedded::class,
-                        androidx.room.ColumnInfo::class,
-                        NonNull::class
-                    )
-                    .nextRunHandler { invocation ->
-                        val fts3AnnotatedElements = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Fts3::class.qualifiedName!!)
-                        val fts4AnnotatedElements = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Fts4::class.qualifiedName!!)
-                        val entity = (fts3AnnotatedElements + fts4AnnotatedElements).first {
-                            it.toString() == "foo.bar.MyEntity"
-                        }
-                        val processor = FtsTableEntityProcessor(
-                            invocation.context,
-                            entity
-                        )
-                        val processedEntity = processor.process()
-                        handler(processedEntity, invocation)
-                        true
-                    }
-                    .build()
-            )
+            val processedEntity = processor.process()
+            handler(processedEntity, invocation)
+        }
     }
 
     abstract fun getFtsVersion(): Int

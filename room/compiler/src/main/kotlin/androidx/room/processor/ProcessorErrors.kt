@@ -575,7 +575,7 @@ object ProcessorErrors {
     val MISSING_ROOM_COROUTINE_ARTIFACT = "To use Coroutine features, you must add `ktx`" +
         " artifact from Room as a dependency. androidx.room:room-ktx:<version>"
 
-    fun ambigiousConstructor(
+    fun ambiguousConstructor(
         pojo: String,
         paramName: String,
         matchingFields: List<String>
