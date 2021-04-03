@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.ExperimentalProcessingApi
+import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.util.runner.CompilationTestRunner
 import androidx.room.compiler.processing.util.runner.JavacCompilationTestRunner
 import androidx.room.compiler.processing.util.runner.KaptCompilationTestRunner
@@ -111,6 +112,42 @@ fun runProcessorTest(
     classpath: List<File> = emptyList(),
     handler: (XTestInvocation) -> Unit
 ) = runProcessorTest(sources = sources, classpath = classpath, handlers = listOf(handler))
+
+/**
+ * Runs the step created by [createProcessingStep] with ksp and one of javac or kapt, depending
+ * on whether input has kotlin sources.
+ *
+ * The step created by [createProcessingStep] will be invoked only for the first round.
+ *
+ * [onCompilationResult] will be called with a [CompilationResultSubject] after each compilation to
+ * assert the compilation result.
+ *
+ * By default, the compilation is expected to succeed. If it should fail, there must be an
+ * assertion on [onCompilationResult] which expects a failure (e.g. checking errors).
+ */
+@Suppress("VisibleForTests") // this is a test library
+@ExperimentalProcessingApi
+fun runProcessorTest(
+    sources: List<Source> = emptyList(),
+    classpath: List<File> = emptyList(),
+    createProcessingStep: () -> XProcessingStep,
+    onCompilationResult: (CompilationResultSubject) -> Unit
+) {
+    runProcessorTest(
+        sources = sources,
+        classpath = classpath
+    ) { invocation ->
+        val step = createProcessingStep()
+        val elements = step.annotations().associate {
+            it to invocation.roundEnv.getTypeElementsAnnotatedWith(it).toList()
+        }
+        step.process(
+            env = invocation.processingEnv,
+            elementsByAnnotation = elements
+        )
+        invocation.assertCompilationResult(onCompilationResult)
+    }
+}
 
 /**
  * @see runProcessorTest
