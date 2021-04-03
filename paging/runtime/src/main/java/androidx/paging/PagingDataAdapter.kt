@@ -18,11 +18,14 @@ package androidx.paging
 
 import androidx.annotation.IntRange
 import androidx.lifecycle.Lifecycle
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.ALLOW
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -61,29 +64,6 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
     workerDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : RecyclerView.Adapter<VH>() {
 
-    init {
-        super.setStateRestorationPolicy(StateRestorationPolicy.PREVENT)
-        // prevent state restoration and then watch for the first insert event.
-        // differ calls this with the inserted page even when it is empty, which is what we want
-        // here
-        @Suppress("LeakingThis")
-        registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                considerAllowingStateRestoration()
-                unregisterAdapterDataObserver(this)
-                super.onItemRangeInserted(positionStart, itemCount)
-            }
-
-            private fun considerAllowingStateRestoration() {
-                if (stateRestorationPolicy == StateRestorationPolicy.PREVENT &&
-                    !userSetRestorationPolicy
-                ) {
-                    this@PagingDataAdapter.setStateRestorationPolicy(StateRestorationPolicy.ALLOW)
-                }
-            }
-        })
-    }
-
     /**
      * Track whether developer called [setStateRestorationPolicy] or not to decide whether the
      * automated state restoration should apply or not.
@@ -101,6 +81,45 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
         mainDispatcher = mainDispatcher,
         workerDispatcher = workerDispatcher
     )
+
+    init {
+        // Wait on state restoration until the first insert event.
+        super.setStateRestorationPolicy(PREVENT)
+
+        fun considerAllowingStateRestoration() {
+            if (stateRestorationPolicy == PREVENT && !userSetRestorationPolicy) {
+                this@PagingDataAdapter.stateRestorationPolicy = ALLOW
+            }
+        }
+
+        // Watch for adapter insert before triggering state restoration. This is almost redundant
+        // with loadState below, but can handle cached case.
+        @Suppress("LeakingThis")
+        registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                considerAllowingStateRestoration()
+                unregisterAdapterDataObserver(this)
+                super.onItemRangeInserted(positionStart, itemCount)
+            }
+        })
+
+        // Watch for loadState update before triggering state restoration. This is almost
+        // redundant with data observer above, but can handle empty page case.
+        addLoadStateListener(object : Function1<CombinedLoadStates, Unit> {
+            // Ignore the first event we get, which is always the initial state, since we only
+            // want to observe for Insert events.
+            private var ignoreNextEvent = true
+
+            override fun invoke(loadStates: CombinedLoadStates) {
+                if (ignoreNextEvent) {
+                    ignoreNextEvent = false
+                } else if (loadStates.source.refresh is NotLoading) {
+                    considerAllowingStateRestoration()
+                    removeLoadStateListener(this)
+                }
+            }
+        })
+    }
 
     /**
      * Note: [getItemId] is final, because stable IDs are unnecessary and therefore unsupported.
