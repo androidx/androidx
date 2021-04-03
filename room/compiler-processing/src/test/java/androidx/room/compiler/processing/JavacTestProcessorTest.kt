@@ -18,15 +18,18 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.getField
+import androidx.room.compiler.processing.util.getMethod
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.reflect.KClass
 
 class JavacTestProcessorTest {
     @Test
-    fun testGetAnnotations() {
+    fun testGetTypeAnnotation() {
         val source = Source.java(
             "foo.bar.Baz",
             """
@@ -37,30 +40,88 @@ class JavacTestProcessorTest {
             }
             """.trimIndent()
         )
+        testProcessor(listOf(source), listOf(OtherAnnotation::class)) { roundEnv ->
+            val annotatedElements = roundEnv.getTypeElementsAnnotatedWith(
+                OtherAnnotation::class.qualifiedName!!
+            )
+            val targetElement = xProcessingEnv.requireTypeElement("foo.bar.Baz")
+            assertThat(
+                annotatedElements
+            ).apply {
+                containsExactly(targetElement)
+
+                val elementsByAnnotationClass = roundEnv.getTypeElementsAnnotatedWith(
+                    OtherAnnotation::class
+                )
+                containsExactlyElementsIn(elementsByAnnotationClass)
+            }
+        }
+    }
+
+    @Test
+    fun testGetAllAnnotations() {
+        val source = Source.java(
+            "foo.bar.Baz",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.OtherAnnotation;
+            @OtherAnnotation(value="xx")
+            class Baz {
+            
+              @OtherAnnotation(value="xx")
+              int myField = 0;
+              
+              @OtherAnnotation(value="xx")
+              void myFunction() { }
+            }
+            """.trimIndent()
+        )
+        testProcessor(listOf(source), listOf(OtherAnnotation::class)) { roundEnv ->
+            val annotatedElementsByClass = roundEnv.getElementsAnnotatedWith(
+                OtherAnnotation::class
+            )
+
+            val annotatedElementsByName = roundEnv.getElementsAnnotatedWith(
+                OtherAnnotation::class.qualifiedName!!
+            )
+
+            val targetElement = xProcessingEnv.requireTypeElement("foo.bar.Baz")
+            assertThat(
+                annotatedElementsByClass
+            ).apply {
+                containsExactlyElementsIn(annotatedElementsByName)
+                hasSize(3)
+                contains(targetElement)
+                contains(targetElement.getMethod("myFunction"))
+                contains(targetElement.getField("myField"))
+            }
+        }
+    }
+
+    private fun testProcessor(
+        sources: List<Source>,
+        annotations: List<KClass<out Annotation>>,
+        doProcessTest: JavacTestProcessor.(XRoundEnv) -> Unit
+    ) {
         val invoked = AtomicBoolean(false)
+
         val testProcessor = object : JavacTestProcessor() {
             override fun doProcess(annotations: Set<XTypeElement>, roundEnv: XRoundEnv): Boolean {
                 invoked.set(true)
-                val annotatedElements = roundEnv.getTypeElementsAnnotatedWith(
-                    OtherAnnotation::class.qualifiedName!!
-                )
-                val targetElement = xProcessingEnv.requireTypeElement("foo.bar.Baz")
-                assertThat(
-                    annotatedElements
-                ).containsExactly(
-                    targetElement
-                )
+
+                doProcessTest(roundEnv)
+
                 return true
             }
 
             override fun getSupportedAnnotationTypes(): Set<String> {
-                return setOf(OtherAnnotation::class.java.canonicalName)
+                return annotations.map { it.java.canonicalName }.toSet()
             }
         }
         assertAbout(
             JavaSourcesSubjectFactory.javaSources()
         ).that(
-            listOf(source.toJFO())
+            sources.map { it.toJFO() }
         ).processedWith(
             testProcessor
         ).compilesWithoutError()

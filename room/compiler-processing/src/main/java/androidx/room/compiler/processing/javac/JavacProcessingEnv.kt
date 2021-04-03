@@ -26,7 +26,10 @@ import com.google.auto.common.GeneratedAnnotations
 import com.google.auto.common.MoreTypes
 import java.util.Locale
 import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.Elements
@@ -119,7 +122,6 @@ internal class JavacProcessingEnv(
         )
     }
 
-    // maybe cache here ?
     fun wrapTypeElement(element: TypeElement) = typeElementStore[element]
 
     /**
@@ -181,6 +183,46 @@ internal class JavacProcessingEnv(
                     )
                 }
         } as T
+    }
+
+    // TODO: Add a cache layer
+    fun wrapExecutableElement(element: ExecutableElement): JavacExecutableElement {
+        val enclosingType = element.requireEnclosingType(this)
+
+        return when (element.kind) {
+            ElementKind.CONSTRUCTOR -> {
+                JavacConstructorElement(
+                    env = this,
+                    containing = enclosingType,
+                    element = element
+                )
+            }
+            ElementKind.METHOD -> {
+                JavacMethodElement(
+                    env = this,
+                    containing = enclosingType,
+                    element = element
+                )
+            }
+            else -> error("Unsupported kind ${element.kind} of executable element $element")
+        }
+    }
+
+    // TODO: Add a cache layer
+    fun wrapVariableElement(element: VariableElement): JavacVariableElement {
+        return when (val enclosingElement = element.enclosingElement) {
+            is ExecutableElement -> {
+                val executableElement = wrapExecutableElement(enclosingElement)
+
+                executableElement.parameters.find { param ->
+                    param.element == element
+                } ?: error("Unable to create variable element for $element")
+            }
+            is TypeElement -> {
+                JavacFieldElement(this, wrapTypeElement(enclosingElement), element)
+            }
+            else -> error("Unsupported enclosing type $enclosingElement for $element")
+        }
     }
 
     companion object {
