@@ -17,28 +17,28 @@
 package androidx.room.processor
 
 import COMMON
-import androidx.room.RoomProcessor
+import androidx.room.DatabaseProcessingStep
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.util.CompilationResultSubject
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.getSystemClasspathFiles
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
 import androidx.room.solver.query.result.EntityRowAdapter
 import androidx.room.solver.query.result.PojoRowAdapter
-import androidx.room.testing.TestInvocation
-import androidx.room.testing.TestProcessor
+import androidx.room.testing.context
 import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
-import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
-import compileLibrarySource
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.hasItems
@@ -51,10 +51,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
-import simpleRun
 import java.io.File
-import javax.tools.JavaFileObject
-import javax.tools.StandardLocation
 
 @RunWith(JUnit4::class)
 class DatabaseProcessorTest {
@@ -63,7 +60,7 @@ class DatabaseProcessorTest {
             package foo.bar;
             import androidx.room.*;
             """
-        val DB1: JavaFileObject = JavaFileObjects.forSourceString(
+        val DB1 = Source.java(
             "foo.bar.Db1",
             """
                 $DATABASE_PREFIX
@@ -73,7 +70,7 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        val DB2: JavaFileObject = JavaFileObjects.forSourceString(
+        val DB2 = Source.java(
             "foo.bar.Db2",
             """
                 $DATABASE_PREFIX
@@ -83,7 +80,7 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        val DB3: JavaFileObject = JavaFileObjects.forSourceString(
+        val DB3 = Source.java(
             "foo.bar.Db3",
             """
                 $DATABASE_PREFIX
@@ -92,7 +89,7 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        val USER: JavaFileObject = JavaFileObjects.forSourceString(
+        val USER = Source.java(
             "foo.bar.User",
             """
                 package foo.bar;
@@ -105,7 +102,7 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        val USER_DAO: JavaFileObject = JavaFileObjects.forSourceString(
+        val USER_DAO = Source.java(
             "foo.bar.UserDao",
             """
                 package foo.bar;
@@ -146,7 +143,7 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        val BOOK: JavaFileObject = JavaFileObjects.forSourceString(
+        val BOOK = Source.java(
             "foo.bar.Book",
             """
                 package foo.bar;
@@ -158,7 +155,7 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        val BOOK_DAO: JavaFileObject = JavaFileObjects.forSourceString(
+        val BOOK_DAO = Source.java(
             "foo.bar.BookDao",
             """
                 package foo.bar;
@@ -173,7 +170,7 @@ class DatabaseProcessorTest {
                 """
         )
 
-        val AUTOMIGRATION: JavaFileObject = JavaFileObjects.forSourceString(
+        val AUTOMIGRATION = Source.java(
             "foo.bar.MyAutoMigration",
             """
             package foo.bar;
@@ -198,7 +195,7 @@ class DatabaseProcessorTest {
         ) { db, _ ->
             assertThat(db.daoMethods.size, `is`(1))
             assertThat(db.entities.size, `is`(1))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -217,10 +214,10 @@ class DatabaseProcessorTest {
             assertThat(db.entities.size, `is`(2))
             assertThat(db.daoMethods.map { it.name }, `is`(listOf("userDao", "bookDao")))
             assertThat(
-                db.entities.map { it.type.toString() },
+                db.entities.map { it.type.typeName.toString() },
                 `is`(listOf("foo.bar.User", "foo.bar.Book"))
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -232,8 +229,11 @@ class DatabaseProcessorTest {
             }
             """,
             USER, BOOK
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
+            }
+        }
     }
 
     @Test
@@ -246,7 +246,7 @@ class DatabaseProcessorTest {
                 }
                 """,
             BOOK,
-            JavaFileObjects.forSourceString(
+            Source.java(
                 "foo.bar.BookDao",
                 """
                 package foo.bar;
@@ -258,8 +258,11 @@ class DatabaseProcessorTest {
                 }
                 """
             )
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining("no such table: nonExistentTable")
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining("no such table: nonExistentTable")
+            }
+        }
     }
 
     @Test
@@ -272,7 +275,7 @@ class DatabaseProcessorTest {
                 }
                 """,
             USER, USER_DAO,
-            JavaFileObjects.forSourceString(
+            Source.java(
                 "foo.bar.AnotherClass",
                 """
                 package foo.bar;
@@ -284,53 +287,69 @@ class DatabaseProcessorTest {
                 }
                 """
             )
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.duplicateTableNames(
-                "user",
-                listOf("foo.bar.User", "foo.bar.AnotherClass")
-            )
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.duplicateTableNames(
+                        "user",
+                        listOf("foo.bar.User", "foo.bar.AnotherClass")
+                    )
+                )
+            }
+        }
     }
 
     @Test
     fun detectMissingEntityAnnotationInLibraryClass() {
-        val libraryClasspath = compileLibrarySource(
+        val librarySource = Source.java(
             "test.library.MissingEntityAnnotationPojo",
             """
-                public class MissingEntityAnnotationPojo {
-                    @PrimaryKey
-                    private long id;
+            package test.library;
+            import androidx.room.*;
+            public class MissingEntityAnnotationPojo {
+                @PrimaryKey
+                private long id;
 
-                    public void setId(int id) {this.id = id;}
-                    public long getId() {return this.id;}
-                }
-                """
+                public void setId(int id) {this.id = id;}
+                public long getId() {return this.id;}
+            }
+            """.trimIndent()
+        )
+        val libraryClasspath = compileFiles(
+            sources = listOf(librarySource)
         )
         singleDb(
             """
                 @Database(entities = {test.library.MissingEntityAnnotationPojo.class}, version = 1)
                 public abstract class MyDb extends RoomDatabase {}
                 """,
-            classpathFiles = libraryClasspath
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY +
-                " - test.library.MissingEntityAnnotationPojo"
-        )
+            classpath = listOf(libraryClasspath) + getSystemClasspathFiles()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                compilationDidFail()
+                hasRawOutputContaining(
+                    ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY +
+                        " - test.library.MissingEntityAnnotationPojo"
+                )
+            }
+        }
     }
 
     @Test
     fun detectMissingDaoAnnotationInLibraryClass() {
-        val libraryClasspath = compileLibrarySource(
+        val librarySource = Source.java(
             "test.library.MissingAnnotationsBaseDao",
             """
-                public interface MissingAnnotationsBaseDao {
-                    int getFoo();
-                }
-                """
+            package test.library;
+            import androidx.room.*;
+            public interface MissingAnnotationsBaseDao {
+                int getFoo();
+            }
+            """.trimIndent()
         )
-
+        val libraryClasspath = compileFiles(
+            sources = listOf(librarySource)
+        )
         singleDb(
             """
                 @Database(entities = {User.class}, version = 1)
@@ -338,17 +357,21 @@ class DatabaseProcessorTest {
                     abstract test.library.MissingAnnotationsBaseDao getBadDao();
                 }
                 """,
-            USER, classpathFiles = libraryClasspath
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO +
-                " - test.library.MissingAnnotationsBaseDao"
-        )
+            USER, classpath = listOf(libraryClasspath) + getSystemClasspathFiles()
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                compilationDidFail()
+                hasRawOutputContaining(
+                    ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO +
+                        " - test.library.MissingAnnotationsBaseDao"
+                )
+            }
+        }
     }
 
     @Test
     fun detectMissingExternalContentEntity() {
-        val userNameFtsSrc = JavaFileObjects.forSourceString(
+        val userNameFtsSrc = Source.java(
             "foo.bar.UserNameFts",
             """
                 package foo.bar;
@@ -367,12 +390,15 @@ class DatabaseProcessorTest {
                 public abstract class MyDb extends RoomDatabase {}
                 """,
             USER, userNameFtsSrc
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.missingExternalContentEntity(
-                "foo.bar.UserNameFts", "foo.bar.User"
-            )
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.missingExternalContentEntity(
+                        "foo.bar.UserNameFts", "foo.bar.User"
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -386,7 +412,7 @@ class DatabaseProcessorTest {
                 }
                 """,
             BOOK,
-            JavaFileObjects.forSourceString(
+            Source.java(
                 "foo.bar.BookDao",
                 """
                 package foo.bar;
@@ -399,12 +425,12 @@ class DatabaseProcessorTest {
                 """
             )
         ) { _, _ ->
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun multipleDatabases() {
-        val db1_2 = JavaFileObjects.forSourceString(
+        val db1_2 = Source.java(
             "foo.barx.Db1",
             """
                 package foo.barx;
@@ -416,31 +442,17 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(listOf(BOOK, BOOK_DAO, DB1, DB2, db1_2))
-            .processedWith(RoomProcessor())
-            .compilesWithoutError()
-            .and()
-            .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "foo.bar", "Db1_Impl.class")
-            .and()
-            .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "foo.bar", "Db2_Impl.class")
-            .and()
-            .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "foo.barx", "Db1_Impl.class")
-            .and()
-            .generatesFileNamed(
-                StandardLocation.CLASS_OUTPUT, "foo.bar",
-                "BookDao_Db1_0_Impl.class"
-            )
-            .and()
-            .generatesFileNamed(
-                StandardLocation.CLASS_OUTPUT, "foo.bar",
-                "BookDao_Db1_1_Impl.class"
-            )
-            .and()
-            .generatesFileNamed(
-                StandardLocation.CLASS_OUTPUT, "foo.bar",
-                "BookDao_Db2_Impl.class"
-            )
+        runProcessorTest(
+            sources = listOf(BOOK, BOOK_DAO, DB1, DB2, db1_2),
+            createProcessingStep = { DatabaseProcessingStep() }
+        ) { result ->
+            result.generatedSourceFileWithPath("foo/bar/Db1_Impl.java")
+            result.generatedSourceFileWithPath("foo/bar/Db2_Impl.java")
+            result.generatedSourceFileWithPath("foo/barx/Db1_Impl.java")
+            result.generatedSourceFileWithPath("foo/bar/BookDao_Db1_0_Impl.java")
+            result.generatedSourceFileWithPath("foo/bar/BookDao_Db1_1_Impl.java")
+            result.generatedSourceFileWithPath("foo/bar/BookDao_Db2_Impl.java")
+        }
     }
 
     @Test
@@ -454,15 +466,18 @@ class DatabaseProcessorTest {
                 }
                 """,
             USER, USER_DAO
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining(ProcessorErrors.DAO_METHOD_CONFLICTS_WITH_OTHERS)
-            .and()
-            .withErrorContaining(
-                ProcessorErrors.duplicateDao(
-                    ClassName.get("foo.bar", "UserDao"), listOf("userDao", "userDao2")
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.DAO_METHOD_CONFLICTS_WITH_OTHERS
                 )
-            )
+                hasErrorContaining(
+                    ProcessorErrors.duplicateDao(
+                        ClassName.get("foo.bar", "UserDao"), listOf("userDao", "userDao2")
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -482,12 +497,12 @@ class DatabaseProcessorTest {
                     .context.logger.suppressedWarnings,
                 `is`(setOf(Warning.CURSOR_MISMATCH))
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun duplicateIndexNames() {
-        val entity1 = JavaFileObjects.forSourceString(
+        val entity1 = Source.java(
             "foo.bar.Entity1",
             """
                 package foo.bar;
@@ -501,7 +516,7 @@ class DatabaseProcessorTest {
                 """
         )
 
-        val entity2 = JavaFileObjects.forSourceString(
+        val entity2 = Source.java(
             "foo.bar.Entity2",
             """
                 package foo.bar;
@@ -521,18 +536,21 @@ class DatabaseProcessorTest {
                 }
                 """,
             entity1, entity2
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.duplicateIndexInDatabase(
-                "index_name",
-                listOf("foo.bar.Entity1 > index_name", "foo.bar.Entity2 > index_name")
-            )
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.duplicateIndexInDatabase(
+                        "index_name",
+                        listOf("foo.bar.Entity1 > index_name", "foo.bar.Entity2 > index_name")
+                    )
+                )
+            }
+        }
     }
 
     @Test
     fun foreignKey_missingParent() {
-        val entity1 = JavaFileObjects.forSourceString(
+        val entity1 = Source.java(
             "foo.bar.Entity1",
             """
                 package foo.bar;
@@ -553,16 +571,22 @@ class DatabaseProcessorTest {
                 public abstract class MyDb extends RoomDatabase {
                 }
                 """,
-            entity1, COMMON.USER
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.foreignKeyMissingParentEntityInDatabase("User", "foo.bar.Entity1")
-        )
+            entity1, Source.fromJavaFileObject(COMMON.USER)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.foreignKeyMissingParentEntityInDatabase(
+                        "User",
+                        "foo.bar.Entity1"
+                    )
+                )
+            }
+        }
     }
 
     @Test
     fun foreignKey_missingParentIndex() {
-        val entity1 = JavaFileObjects.forSourceString(
+        val entity1 = Source.java(
             "foo.bar.Entity1",
             """
                 package foo.bar;
@@ -583,21 +607,24 @@ class DatabaseProcessorTest {
                 public abstract class MyDb extends RoomDatabase {
                 }
                 """,
-            entity1, COMMON.USER
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.foreignKeyMissingIndexInParent(
-                parentEntity = COMMON.USER_TYPE_NAME.toString(),
-                parentColumns = listOf("lastName"),
-                childEntity = "foo.bar.Entity1",
-                childColumns = listOf("name")
-            )
-        )
+            entity1, Source.fromJavaFileObject(COMMON.USER)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.foreignKeyMissingIndexInParent(
+                        parentEntity = COMMON.USER_TYPE_NAME.toString(),
+                        parentColumns = listOf("lastName"),
+                        childEntity = "foo.bar.Entity1",
+                        childColumns = listOf("name")
+                    )
+                )
+            }
+        }
     }
 
     @Test
     fun foreignKey_goodWithPrimaryKey() {
-        val entity1 = JavaFileObjects.forSourceString(
+        val entity1 = Source.java(
             "foo.bar.Entity1",
             """
                 package foo.bar;
@@ -614,7 +641,7 @@ class DatabaseProcessorTest {
                 """
         )
 
-        val entity2 = JavaFileObjects.forSourceString(
+        val entity2 = Source.java(
             "foo.bar.Entity2",
             """
                 package foo.bar;
@@ -635,12 +662,12 @@ class DatabaseProcessorTest {
                 """,
             entity1, entity2
         ) { _, _ ->
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun foreignKey_missingParentColumn() {
-        val entity1 = JavaFileObjects.forSourceString(
+        val entity1 = Source.java(
             "foo.bar.Entity1",
             """
                 package foo.bar;
@@ -657,7 +684,7 @@ class DatabaseProcessorTest {
                 """
         )
 
-        val entity2 = JavaFileObjects.forSourceString(
+        val entity2 = Source.java(
             "foo.bar.Entity2",
             """
                 package foo.bar;
@@ -677,18 +704,21 @@ class DatabaseProcessorTest {
                 }
                 """,
             entity1, entity2
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.foreignKeyParentColumnDoesNotExist(
-                "foo.bar.Entity2",
-                "anotherName2", listOf("uid", "anotherName")
-            )
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.foreignKeyParentColumnDoesNotExist(
+                        "foo.bar.Entity2",
+                        "anotherName2", listOf("uid", "anotherName")
+                    )
+                )
+            }
+        }
     }
 
     @Test
     fun foreignKey_goodWithIndex() {
-        val entity1 = JavaFileObjects.forSourceString(
+        val entity1 = Source.java(
             "foo.bar.Entity1",
             """
                 package foo.bar;
@@ -705,7 +735,7 @@ class DatabaseProcessorTest {
                 """
         )
 
-        val entity2 = JavaFileObjects.forSourceString(
+        val entity2 = Source.java(
             "foo.bar.Entity2",
             """
                 package foo.bar;
@@ -727,7 +757,7 @@ class DatabaseProcessorTest {
                 """,
             entity1, entity2
         ) { _, _ ->
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -740,14 +770,17 @@ class DatabaseProcessorTest {
                 }
                 """,
             USER, USER_DAO, BOOK, BOOK_DAO
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.shortcutEntityIsNotInDatabase(
-                database = "foo.bar.MyDb",
-                dao = "foo.bar.BookDao",
-                entity = "foo.bar.Book"
-            )
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.shortcutEntityIsNotInDatabase(
+                        database = "foo.bar.MyDb",
+                        dao = "foo.bar.BookDao",
+                        entity = "foo.bar.Book"
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -807,7 +840,7 @@ class DatabaseProcessorTest {
 
             assertThat(convAdapterEntity, notNullValue())
             assertThat(adapterEntity, notNullValue())
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -849,35 +882,32 @@ class DatabaseProcessorTest {
             val convAdapterPojo = (convAdapter as PojoRowAdapter).pojo
             assertThat(convAdapterPojo, notNullValue())
             assertThat(convAdapterPojo, not(sameInstance(adapterPojo)))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun daoConstructor_RoomDatabase() {
         assertConstructor(listOf(DB1), "BookDao(RoomDatabase db) {}")
-            .compilesWithoutError()
     }
 
     @Test
     fun daoConstructor_specificDatabase() {
         assertConstructor(listOf(DB1), "BookDao(Db1 db) {}")
-            .compilesWithoutError()
     }
 
     @Test
     fun daoConstructor_wrongDatabase() {
-        assertConstructor(listOf(DB1, DB3), "BookDao(Db3 db) {}")
-            .failsToCompile()
-            .withErrorContaining(
+        assertConstructor(listOf(DB1, DB3), "BookDao(Db3 db) {}") { result ->
+            result.hasErrorContaining(
                 ProcessorErrors
                     .daoMustHaveMatchingConstructor("foo.bar.BookDao", "foo.bar.Db1")
             )
+        }
     }
 
     @Test
     fun daoConstructor_multipleDatabases_RoomDatabase() {
         assertConstructor(listOf(DB1, DB2), "BookDao(RoomDatabase db) {}")
-            .compilesWithoutError()
     }
 
     @Test
@@ -889,7 +919,6 @@ class DatabaseProcessorTest {
                     BookDao(Db2 db) {}
                 """
         )
-            .compilesWithoutError()
     }
 
     @Test
@@ -901,7 +930,6 @@ class DatabaseProcessorTest {
                     BookDao() {} // Db2 uses this
                 """
         )
-            .compilesWithoutError()
     }
 
     @Test
@@ -911,17 +939,17 @@ class DatabaseProcessorTest {
             """
                     BookDao(Db1 db) {}
                 """
-        )
-            .failsToCompile()
-            .withErrorContaining(
+        ) { result ->
+            result.hasErrorContaining(
                 ProcessorErrors
                     .daoMustHaveMatchingConstructor("foo.bar.BookDao", "foo.bar.Db2")
             )
+        }
     }
 
     @Test
     fun view_duplicateNames() {
-        val view1 = JavaFileObjects.forSourceString(
+        val view1 = Source.java(
             "foo.bar.View1",
             """
                 package foo.bar;
@@ -930,7 +958,7 @@ class DatabaseProcessorTest {
                 public class View1 {}
                 """
         )
-        val view2 = JavaFileObjects.forSourceString(
+        val view2 = Source.java(
             "foo.bar.View2",
             """
                 package foo.bar;
@@ -948,18 +976,21 @@ class DatabaseProcessorTest {
                 }
         """,
             USER, view1, view2
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.duplicateTableNames(
-                "samename",
-                listOf("foo.bar.View1", "foo.bar.View2")
-            )
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.duplicateTableNames(
+                        "samename",
+                        listOf("foo.bar.View1", "foo.bar.View2")
+                    )
+                )
+            }
+        }
     }
 
     @Test
     fun view_duplicateNamesWithEntity() {
-        val view1 = JavaFileObjects.forSourceString(
+        val view1 = Source.java(
             "foo.bar.View1",
             """
                 package foo.bar;
@@ -977,18 +1008,21 @@ class DatabaseProcessorTest {
                 }
         """,
             USER, BOOK, view1
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.duplicateTableNames(
-                "book",
-                listOf("foo.bar.Book", "foo.bar.View1")
-            )
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.duplicateTableNames(
+                        "book",
+                        listOf("foo.bar.Book", "foo.bar.View1")
+                    )
+                )
+            }
+        }
     }
 
     @Test
     fun view_circularReference() {
-        val view1 = JavaFileObjects.forSourceString(
+        val view1 = Source.java(
             "foo.bar.View1",
             """
                 package foo.bar;
@@ -997,7 +1031,7 @@ class DatabaseProcessorTest {
                 public class View1 {}
                 """
         )
-        val view2 = JavaFileObjects.forSourceString(
+        val view2 = Source.java(
             "foo.bar.View2",
             """
                 package foo.bar;
@@ -1015,10 +1049,13 @@ class DatabaseProcessorTest {
                 }
         """,
             USER, view1, view2
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.viewCircularReferenceDetected(listOf("View1", "View2"))
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.viewCircularReferenceDetected(listOf("View1", "View2"))
+                )
+            }
+        }
     }
 
     @Test
@@ -1030,7 +1067,7 @@ class DatabaseProcessorTest {
                 "S" to setOf("A", "Q"),
                 "R" to setOf("C", "Q")
             )
-        ) { views ->
+        ) { views, _ ->
             assertThat(views.size, `is`(4))
             views[0].let {
                 assertThat(it.viewName, `is`(equalTo("P")))
@@ -1058,14 +1095,14 @@ class DatabaseProcessorTest {
                 assertThat(it.tables.size, `is`(2))
                 assertThat(it.tables, hasItems("A", "B"))
             }
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun resolveDatabaseViews_empty() {
-        resolveDatabaseViews(emptyMap()) { views ->
+        resolveDatabaseViews(emptyMap()) { views, _ ->
             assertThat(views.size, `is`(0))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -1077,15 +1114,18 @@ class DatabaseProcessorTest {
                 "R" to setOf("A"),
                 "S" to setOf("R", "B")
             )
-        ) { _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.viewCircularReferenceDetected(listOf("P", "Q"))
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.viewCircularReferenceDetected(listOf("P", "Q"))
+                )
+            }
+        }
     }
 
     @Test
     fun daoMethod_nonDeclaredReturnType() {
-        val badDaoType = JavaFileObjects.forSourceString(
+        val badDaoType = Source.java(
             "foo.bar.MyDb",
             """
                 package foo.bar;
@@ -1096,21 +1136,32 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        simpleRun(badDaoType) { invocation ->
+        runProcessorTest(sources = listOf(badDaoType)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
             val result = DatabaseProcessor(
                 baseContext = invocation.context,
                 element = element
             ).process()
-            assertThat(result.daoMethods).isEmpty()
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.DATABASE_INVALID_DAO_METHOD_RETURN_TYPE
-        )
+            assertThat(result.daoMethods).hasSize(
+                // for KSP, it will still show as a method, just bad return type
+                if (invocation.isKsp) 1 else 0
+            )
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    if (invocation.isKsp) {
+                        // no primitives in KSP hence we'll get another error
+                        ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO
+                    } else {
+                        ProcessorErrors.DATABASE_INVALID_DAO_METHOD_RETURN_TYPE
+                    }
+                )
+            }
+        }
     }
 
     @Test
     fun nonDeclaredEntity() {
-        val badDaoType = JavaFileObjects.forSourceString(
+        val badDaoType = Source.java(
             "foo.bar.MyDb",
             """
                 package foo.bar;
@@ -1120,22 +1171,42 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        simpleRun(badDaoType) { invocation ->
+        runProcessorTest(listOf(badDaoType)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
             val result = DatabaseProcessor(
                 baseContext = invocation.context,
                 element = element
             ).process()
-            assertThat(result.entities).isEmpty()
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.invalidEntityTypeInDatabaseAnnotation(
-                TypeName.LONG
+            assertThat(result.entities).hasSize(
+                if (invocation.isKsp) 1 else 0
             )
-        ).and().withErrorContaining(
-            ProcessorErrors.invalidViewTypeInDatabaseAnnotation(
-                TypeName.INT
+            assertThat(result.views).hasSize(
+                if (invocation.isKsp) 1 else 0
             )
-        )
+            if (invocation.isKsp) {
+                invocation.assertCompilationResult {
+                    hasErrorContaining(
+                        ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY
+                    )
+                    hasErrorContaining(
+                        ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW
+                    )
+                }
+            } else {
+                invocation.assertCompilationResult {
+                    hasErrorContaining(
+                        ProcessorErrors.invalidEntityTypeInDatabaseAnnotation(
+                            TypeName.LONG
+                        )
+                    )
+                    hasErrorContaining(
+                        ProcessorErrors.invalidViewTypeInDatabaseAnnotation(
+                            TypeName.INT
+                        )
+                    )
+                }
+            }
+        }
     }
 
     @Test
@@ -1147,56 +1218,58 @@ class DatabaseProcessorTest {
                 public abstract class MyDb extends RoomDatabase {}
                 """,
             USER, AUTOMIGRATION
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining(ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
+                )
+            }
+        }
     }
 
     private fun resolveDatabaseViews(
         views: Map<String, Set<String>>,
-        body: (List<DatabaseView>) -> Unit
-    ): CompileTester {
-        return assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(listOf(DB3, BOOK))
-            .processedWith(
-                TestProcessor.builder()
-                    .forAnnotations(androidx.room.Database::class)
-                    .nextRunHandler { invocation ->
-                        val database = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(
-                                androidx.room.Database::class.qualifiedName!!
-                            )
-                            .first()
-                        val processor = DatabaseProcessor(
-                            invocation.context,
-                            database
-                        )
-
-                        val list = views.map { (viewName, names) ->
-                            DatabaseView(
-                                element = mock(XTypeElement::class.java),
-                                viewName = viewName,
-                                query = ParsedQuery(
-                                    "", QueryType.SELECT, emptyList(),
-                                    names.map { Table(it, it) }.toSet(),
-                                    emptyList()
-                                ),
-                                type = mock(XType::class.java),
-                                fields = emptyList(),
-                                embeddedFields = emptyList(),
-                                constructor = null
-                            )
-                        }
-                        val resolvedViews = processor.resolveDatabaseViews(list)
-                        body(resolvedViews)
-                        true
-                    }
-                    .build()
+        body: (List<DatabaseView>, XTestInvocation) -> Unit
+    ) {
+        runProcessorTest(
+            sources = listOf(DB3, BOOK)
+        ) { invocation ->
+            val database = invocation.roundEnv
+                .getTypeElementsAnnotatedWith(
+                    androidx.room.Database::class.qualifiedName!!
+                )
+                .first()
+            val processor = DatabaseProcessor(
+                invocation.context,
+                database
             )
+
+            val list = views.map { (viewName, names) ->
+                DatabaseView(
+                    element = mock(XTypeElement::class.java),
+                    viewName = viewName,
+                    query = ParsedQuery(
+                        "", QueryType.SELECT, emptyList(),
+                        names.map { Table(it, it) }.toSet(),
+                        emptyList()
+                    ),
+                    type = mock(XType::class.java),
+                    fields = emptyList(),
+                    embeddedFields = emptyList(),
+                    constructor = null
+                )
+            }
+            val resolvedViews = processor.resolveDatabaseViews(list)
+            body(resolvedViews, invocation)
+        }
     }
 
-    fun assertConstructor(dbs: List<JavaFileObject>, constructor: String): CompileTester {
-        val bookDao = JavaFileObjects.forSourceString(
+    private fun assertConstructor(
+        dbs: List<Source>,
+        constructor: String,
+        onCompilationResult: ((result: CompilationResultSubject) -> Unit)? = null
+    ) {
+        val bookDao = Source.java(
             "foo.bar.BookDao",
             """
                 package foo.bar;
@@ -1207,48 +1280,39 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        return assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(listOf(BOOK, bookDao) + dbs)
-            .processedWith(RoomProcessor())
+        runProcessorTest(
+            sources = listOf(BOOK, bookDao) + dbs,
+            createProcessingStep = { DatabaseProcessingStep() },
+        ) {
+            onCompilationResult?.invoke(it)
+        }
     }
 
     fun singleDb(
         input: String,
-        vararg otherFiles: JavaFileObject,
-        classpathFiles: Set<File> = emptySet(),
-        handler: (Database, TestInvocation) -> Unit
-    ): CompileTester {
-        return assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(
-                otherFiles.toMutableList() +
-                    JavaFileObjects.forSourceString(
-                        "foo.bar.MyDb",
-                        DATABASE_PREFIX + input
-                    )
+        vararg otherFiles: Source,
+        classpath: List<File> = emptyList(),
+        handler: (Database, XTestInvocation) -> Unit
+    ) {
+        runProcessorTest(
+            sources = otherFiles.toList() +
+                Source.java(
+                    "foo.bar.MyDb",
+                    DATABASE_PREFIX + input
+                ),
+            classpath = classpath
+        ) { invocation ->
+            val entity = invocation.roundEnv
+                .getTypeElementsAnnotatedWith(
+                    androidx.room.Database::class.qualifiedName!!
+                )
+                .first()
+            val parser = DatabaseProcessor(
+                invocation.context,
+                entity
             )
-            .apply {
-                if (classpathFiles.isNotEmpty()) {
-                    withClasspath(classpathFiles)
-                }
-            }
-            .processedWith(
-                TestProcessor.builder()
-                    .forAnnotations(androidx.room.Database::class)
-                    .nextRunHandler { invocation ->
-                        val entity = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(
-                                androidx.room.Database::class.qualifiedName!!
-                            )
-                            .first()
-                        val parser = DatabaseProcessor(
-                            invocation.context,
-                            entity
-                        )
-                        val parsedDb = parser.process()
-                        handler(parsedDb, invocation)
-                        true
-                    }
-                    .build()
-            )
+            val parsedDb = parser.process()
+            handler(parsedDb, invocation)
+        }
     }
 }
