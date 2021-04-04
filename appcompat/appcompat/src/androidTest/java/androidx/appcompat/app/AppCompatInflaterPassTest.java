@@ -33,7 +33,6 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.AppCompatToggleButton;
 import androidx.core.view.ViewCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
@@ -104,7 +103,6 @@ public abstract class AppCompatInflaterPassTest<A extends BaseTestActivity> {
                 mContainer.findViewById(R.id.scrollview).getClass());
     }
 
-    @FlakyTest
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testBackportAccessibilityAttributes() {
