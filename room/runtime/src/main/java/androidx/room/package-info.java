@@ -80,7 +80,7 @@
  *   void delete(Song song);
  * }
  * // File: MusicDatabase.java
- * {@literal @}Database(entities = {Song.java})
+ * {@literal @}Database(entities = {Song.class})
  * public abstract class MusicDatabase extends RoomDatabase {
  *   public abstract SongDao songDao();
  * }
