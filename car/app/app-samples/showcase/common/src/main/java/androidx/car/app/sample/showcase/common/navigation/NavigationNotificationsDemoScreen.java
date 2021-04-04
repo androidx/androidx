@@ -38,7 +38,9 @@ public final class NavigationNotificationsDemoScreen extends Screen {
         super(carContext);
     }
 
-    @SuppressLint("UnsafeNewApiCall")
+    // Suppressing 'ObsoleteSdkInt' as this code is shared between APKs with different min SDK
+    // levels
+    @SuppressLint({"UnsafeNewApiCall", "ObsoleteSdkInt"})
     @NonNull
     @Override
     public Template onGetTemplate() {
