@@ -20,7 +20,9 @@ import android.text.Spannable;
 import android.text.SpannableString;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.car.app.model.CarColor;
+import androidx.car.app.model.ClickableSpan;
 import androidx.car.app.model.ForegroundCarColorSpan;
 
 /** Assorted utilities. */
@@ -43,6 +45,20 @@ public abstract class Utils {
         SpannableString ss = new SpannableString(s);
         ss.setSpan(
                 ForegroundCarColorSpan.create(color),
+                index,
+                index + length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return ss;
+    }
+
+    /** Make the given string clickable. */
+    @NonNull
+    @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
+    public static CharSequence clickable(@NonNull String s, int index, int length,
+            @NonNull Runnable action) {
+        SpannableString ss = new SpannableString(s);
+        ss.setSpan(
+                ClickableSpan.create(action::run),
                 index,
                 index + length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

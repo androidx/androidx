@@ -103,7 +103,9 @@ public final class NavigationNotificationService extends Service {
      * screen. However, the rail widget at the bottom of the screen will show regardless of the
      * importance setting.
      */
-    @SuppressLint("UnsafeNewApiCall")
+    // Suppressing 'ObsoleteSdkInt' as this code is shared between APKs with different min SDK
+    // levels
+    @SuppressLint({"UnsafeNewApiCall", "ObsoleteSdkInt"})
     private static void initNotifications(Context context) {
         if (VERSION.SDK_INT >= VERSION_CODES.O) {
             NotificationChannel navChannel =
