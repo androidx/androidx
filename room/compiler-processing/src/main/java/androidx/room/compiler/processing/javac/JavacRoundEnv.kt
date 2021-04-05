@@ -37,7 +37,7 @@ internal class JavacRoundEnv(
 
     override fun getElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XElement> {
         val elements = delegate.getElementsAnnotatedWith(klass.java)
-        return wrapElements(elements, annotationName = { klass.java.name })
+        return wrapElements(elements, annotationName = { klass.java.canonicalName })
     }
 
     override fun getElementsAnnotatedWith(annotationQualifiedName: String): Set<XElement> {

@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class XRoundEnvTest {
@@ -55,7 +56,7 @@ class XRoundEnvTest {
 
             val targetElement = testInvocation.processingEnv.requireTypeElement("Baz")
 
-            Truth.assertThat(
+            assertThat(
                 annotatedElementsByClass
             ).apply {
                 containsExactlyElementsIn(annotatedElementsByName)
@@ -99,7 +100,7 @@ class XRoundEnvTest {
 
             val targetElement = testInvocation.processingEnv.requireTypeElement("Baz")
 
-            Truth.assertThat(
+            assertThat(
                 annotatedElements
             ).apply {
                 hasSize(3)

@@ -28,6 +28,7 @@ import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room.testing.context
 import androidx.room.vo.CustomTypeConverter
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.*
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -294,7 +295,7 @@ class CustomConverterProcessorTest {
                 invocation.context,
                 invocation.processingEnv.requireTypeElement("foo.bar.Container")
             )
-            Truth.assertThat(result.converters).isEmpty()
+            assertThat(result.converters).isEmpty()
             invocation.assertCompilationResult {
                 if (invocation.isKsp) {
                     // for KSP it always has a type element but we rather assert the other error

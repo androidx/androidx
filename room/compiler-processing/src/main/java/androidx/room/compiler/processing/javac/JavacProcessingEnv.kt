@@ -206,7 +206,7 @@ internal class JavacProcessingEnv(
             is PackageElement -> {
                 error(
                     "Cannot get elements with annotation ${annotationName()}. Package " +
-                        "elements are not supported by KSP."
+                        "elements are not supported by XProcessing."
                 )
             }
             else -> error("Unsupported element $element with annotation ${annotationName()}")
@@ -241,7 +241,7 @@ internal class JavacProcessingEnv(
                 val executableElement = wrapExecutableElement(enclosingElement)
 
                 executableElement.parameters.find { param ->
-                    param.element == element
+                    param.element === element
                 } ?: error("Unable to create variable element for $element")
             }
             is TypeElement -> {
