@@ -20,7 +20,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavArgs
-import androidx.navigation.fragment.ktx.test.R
+import androidx.navigation.fragment.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
