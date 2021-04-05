@@ -16,7 +16,7 @@
 
 package androidx.camera.view;
 
-import static androidx.camera.view.transform.OutputTransform.getNormalizedToBuffer;
+import static androidx.camera.view.TransformUtils.getNormalizedToBuffer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

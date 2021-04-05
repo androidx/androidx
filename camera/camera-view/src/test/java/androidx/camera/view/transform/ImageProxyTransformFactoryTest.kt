@@ -17,31 +17,22 @@
 package androidx.camera.view.transform
 
 import android.graphics.Rect
+import android.os.Build
 import androidx.camera.view.transform.TransformTestUtils.createFakeImageProxy
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.internal.DoNotInstrument
 
 /**
- * Instrument tests for [ImageProxyTransformFactory]
+ * Unit tests for [ImageProxyTransformFactory]
  */
-@LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class ImageProxyTransformFactoryTest {
-
-    @Test
-    public fun rotateVerticesAndAlignToOrigin() {
-        // Arrange: a 3x4 rect: (1,2) - (4,6)
-        val vertices = floatArrayOf(1f, 2f, 4f, 2f, 4f, 6f, 1f, 6f)
-
-        // Act.
-        val rotatedVertices = ImageProxyTransformFactory.getRotatedVertices(vertices, 90)
-
-        // Assert: the rotated rect becomes 4x3 and aligned to the origin: (0,0) - (4,3)
-        assertThat(rotatedVertices).isEqualTo(floatArrayOf(4f, 0f, 4f, 3f, 0f, 3f, 0f, 0f))
-    }
 
     @Test
     public fun withoutRotationOrCropRect_scaled() {

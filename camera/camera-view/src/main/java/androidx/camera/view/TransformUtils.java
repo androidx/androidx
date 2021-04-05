@@ -210,6 +210,51 @@ public class TransformUtils {
     }
 
     /**
+     * Gets the transform from one {@link Rect} to another with rotation degrees.
+     *
+     * <p> Following is how the source is mapped to the target with a 90° rotation. The rect
+     * <a, b, c, d> is mapped to <a', b', c', d'>.
+     *
+     * <pre>
+     *  a----------b               d'-----------a'
+     *  |  source  |    -90°->     |            |
+     *  d----------c               |   target   |
+     *                             |            |
+     *                             c'-----------b'
+     * </pre>
+     */
+    @NonNull
+    public static Matrix getRectToRect(
+            @NonNull RectF source, @NonNull RectF target, int rotationDegrees) {
+        // Map source to normalized space.
+        Matrix matrix = new Matrix();
+        matrix.setRectToRect(source, NORMALIZED_RECT, Matrix.ScaleToFit.FILL);
+        // Add rotation.
+        matrix.postRotate(rotationDegrees);
+        // Restore the normalized space to target's coordinates.
+        matrix.postConcat(getNormalizedToBuffer(target));
+        return matrix;
+    }
+
+    /**
+     * Gets the transform from a normalized space (-1, -1) - (1, 1) to the given rect.
+     */
+    @NonNull
+    public static Matrix getNormalizedToBuffer(@NonNull Rect viewPortRect) {
+        return getNormalizedToBuffer(new RectF(viewPortRect));
+    }
+
+    /**
+     * Gets the transform from a normalized space (-1, -1) - (1, 1) to the given rect.
+     */
+    @NonNull
+    private static Matrix getNormalizedToBuffer(@NonNull RectF viewPortRect) {
+        Matrix normalizedToBuffer = new Matrix();
+        normalizedToBuffer.setRectToRect(NORMALIZED_RECT, viewPortRect, Matrix.ScaleToFit.FILL);
+        return normalizedToBuffer;
+    }
+
+    /**
      * Gets the transform matrix based on exif orientation.
      */
     @NonNull
