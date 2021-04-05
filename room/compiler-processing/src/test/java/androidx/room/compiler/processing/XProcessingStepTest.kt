@@ -54,14 +54,18 @@ class XProcessingStepTest {
         val processingStep = object : XProcessingStep {
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, List<XTypeElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>
             ): Set<XTypeElement> {
-                elementsByAnnotation[OtherAnnotation::class.qualifiedName]?.forEach {
-                    annotatedElements[OtherAnnotation::class] = it.qualifiedName
-                }
-                elementsByAnnotation[MainAnnotation::class.qualifiedName]?.forEach {
-                    annotatedElements[MainAnnotation::class] = it.qualifiedName
-                }
+                elementsByAnnotation[OtherAnnotation::class.qualifiedName]
+                    ?.filterIsInstance<XTypeElement>()
+                    ?.forEach {
+                        annotatedElements[OtherAnnotation::class] = it.qualifiedName
+                    }
+                elementsByAnnotation[MainAnnotation::class.qualifiedName]
+                    ?.filterIsInstance<XTypeElement>()
+                    ?.forEach {
+                        annotatedElements[MainAnnotation::class] = it.qualifiedName
+                    }
                 return emptySet()
             }
 
@@ -126,11 +130,13 @@ class XProcessingStepTest {
         val processingStep = object : XProcessingStep {
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, List<XTypeElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>
             ): Set<XTypeElement> {
                 // for each element annotated with Main annotation, create a class with Other
                 // annotation to trigger another round
-                elementsByAnnotation[MainAnnotation::class.qualifiedName]?.forEach {
+                elementsByAnnotation[MainAnnotation::class.qualifiedName]
+                    ?.filterIsInstance<XTypeElement>()
+                    ?.forEach {
                     val className = ClassName.get(it.packageName, "${it.name}_Impl")
                     val spec = TypeSpec.classBuilder(className)
                         .addAnnotation(
@@ -143,7 +149,9 @@ class XProcessingStepTest {
                         .build()
                         .writeTo(env.filer)
                 }
-                elementsByAnnotation[OtherAnnotation::class.qualifiedName]?.forEach {
+                elementsByAnnotation[OtherAnnotation::class.qualifiedName]
+                    ?.filterIsInstance<XTypeElement>()
+                    ?.forEach {
                     otherAnnotatedElements.add(it.type.typeName)
                 }
                 return emptySet()
@@ -204,14 +212,16 @@ class XProcessingStepTest {
             var roundCounter = 0
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, List<XTypeElement>>
+                elementsByAnnotation: Map<String, Set<XElement>>
             ): Set<XTypeElement> {
                 elementPerRound[roundCounter++] = listOf(
                     env.requireTypeElement("foo.bar.Main"),
                     env.requireTypeElement("foo.bar.Main")
                 )
                 // trigger another round
-                elementsByAnnotation[MainAnnotation::class.qualifiedName]?.forEach {
+                elementsByAnnotation[MainAnnotation::class.qualifiedName]
+                    ?.filterIsInstance<XTypeElement>()
+                    ?.forEach {
                     val className = ClassName.get(it.packageName, "${it.name}_Impl")
                     val spec = TypeSpec.classBuilder(className)
                         .addAnnotation(
@@ -287,8 +297,8 @@ class XProcessingStepTest {
         val processingStep = object : XProcessingStep {
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<String, List<XTypeElement>>
-            ): Set<XTypeElement> {
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
                 return elementsByAnnotation.values
                     .flatten()
                     .toSet()

@@ -111,4 +111,126 @@ class XRoundEnvTest {
             }
         }
     }
+
+    @Test
+    fun misalignedAnnotationTargetFailsCompilation() {
+        val source = Source.kotlin(
+            "Baz.kt",
+            """
+            import androidx.room.compiler.processing.XRoundEnvTest.PropertyAnnotation;
+            class Baz {
+                @PropertyAnnotation
+                fun myFun(): Int = 0
+            }
+            """.trimIndent()
+        )
+
+        runProcessorTest(listOf(source)) { testInvocation ->
+            testInvocation.assertCompilationResult { compilationDidFail() }
+        }
+    }
+
+    @Test
+    fun getAnnotatedTopLevelFunction() {
+        val source = Source.kotlin(
+            "Baz.kt",
+            """
+            import androidx.room.compiler.processing.XRoundEnvTest.TopLevelAnnotation
+            
+            @TopLevelAnnotation
+            fun myFun(): Int = 0
+            """.trimIndent()
+        )
+
+        runProcessorTest(listOf(source)) { testInvocation ->
+            if (testInvocation.isKsp) {
+                // Currently not supported
+                // https://issuetracker.google.com/issues/184526463
+                val exception = try {
+                    testInvocation.roundEnv.getElementsAnnotatedWith(
+                        TopLevelAnnotation::class
+                    )
+                    null
+                } catch (e: Throwable) {
+                    e
+                }
+
+                assertThat(exception).isNotNull()
+                assertThat(exception)
+                    .hasMessageThat()
+                    .contains(
+                        "XProcessing does not currently support annotations on top level functions"
+                    )
+            } else {
+
+                val annotatedElements = testInvocation.roundEnv.getElementsAnnotatedWith(
+                    TopLevelAnnotation::class
+                )
+
+                val targetElement = testInvocation.processingEnv.requireTypeElement("BazKt")
+
+                assertThat(
+                    annotatedElements
+                ).apply {
+                    hasSize(1)
+                    contains(targetElement.getDeclaredMethod("myFun"))
+                }
+            }
+        }
+    }
+
+    @Test
+    fun getAnnotatedTopLevelProperty() {
+        val source = Source.kotlin(
+            "Baz.kt",
+            """
+            import androidx.room.compiler.processing.XRoundEnvTest.TopLevelAnnotation
+            
+            @get:TopLevelAnnotation
+            var myProperty: Int = 0
+
+            """.trimIndent()
+        )
+
+        runProcessorTest(listOf(source)) { testInvocation ->
+            if (testInvocation.isKsp) {
+                // Currently not supported
+                // https://issuetracker.google.com/issues/184526463
+                val exception = try {
+                    testInvocation.roundEnv.getElementsAnnotatedWith(
+                        TopLevelAnnotation::class
+                    )
+                    null
+                } catch (e: Throwable) {
+                    e
+                }
+
+                assertThat(exception).isNotNull()
+                assertThat(exception)
+                    .hasMessageThat()
+                    .contains(
+                        "XProcessing does not currently support annotations on top level properties"
+                    )
+            } else {
+
+                val annotatedElements = testInvocation.roundEnv.getElementsAnnotatedWith(
+                    TopLevelAnnotation::class
+                )
+
+                val targetElement = testInvocation.processingEnv.requireTypeElement("BazKt")
+
+                assertThat(
+                    annotatedElements
+                ).apply {
+                    hasSize(1)
+                    contains(targetElement.getDeclaredMethod("getMyProperty"))
+                }
+            }
+        }
+    }
+
+    annotation class TopLevelAnnotation
+
+    @Target(AnnotationTarget.PROPERTY)
+    annotation class PropertyAnnotation
 }

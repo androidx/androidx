@@ -74,18 +74,25 @@ internal abstract class KspExecutableElement(
             env: KspProcessingEnv,
             declaration: KSFunctionDeclaration
         ): KspExecutableElement {
+            val enclosingType = declaration.findEnclosingTypeElement(env)
+
+            checkNotNull(enclosingType) {
+                "XProcessing does not currently support annotations on top level " +
+                    "functions with KSP. Cannot process $declaration."
+            }
+
             return when {
                 declaration.isConstructor() -> {
                     KspConstructorElement(
                         env = env,
-                        containing = declaration.requireEnclosingTypeElement(env),
+                        containing = enclosingType,
                         declaration = declaration
                     )
                 }
                 else -> {
                     KspMethodElement.create(
                         env = env,
-                        containing = declaration.requireEnclosingTypeElement(env),
+                        containing = enclosingType,
                         declaration = declaration
                     )
                 }
