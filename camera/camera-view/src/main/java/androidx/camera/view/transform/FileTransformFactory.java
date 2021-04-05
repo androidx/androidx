@@ -17,17 +17,14 @@
 package androidx.camera.view.transform;
 
 import static androidx.camera.view.TransformUtils.getExifTransform;
+import static androidx.camera.view.TransformUtils.getNormalizedToBuffer;
 import static androidx.camera.view.TransformUtils.rectToSize;
-import static androidx.camera.view.TransformUtils.rectToVertices;
-import static androidx.camera.view.transform.ImageProxyTransformFactory.getRotatedVertices;
-import static androidx.camera.view.transform.OutputTransform.getNormalizedToBuffer;
 
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.net.Uri;
 
@@ -88,16 +85,11 @@ public class FileTransformFactory {
         Exif exif = Exif.createFromInputStream(inputStream);
         Rect cropRect = new Rect(0, 0, exif.getWidth(), exif.getHeight());
 
-        // TODO(b/179827713): reuse the following code with ImageProxyTransformFactory.
-        float[] cropRectVertices = rectToVertices(new RectF(cropRect));
-        float[] outputVertices = getRotatedVertices(cropRectVertices, 0);
-
-        Matrix matrix = new Matrix();
-        matrix.setPolyToPoly(cropRectVertices, 0, outputVertices, 0, 4);
-        // Map the normalized space to viewport.
-        matrix.preConcat(getNormalizedToBuffer(cropRect));
+        // Map the normalized space to the image buffer.
+        Matrix matrix = getNormalizedToBuffer(cropRect);
 
         if (mUseExifOrientation) {
+            // Add exif transform if enabled.
             matrix.postConcat(
                     getExifTransform(exif.getOrientation(), exif.getWidth(), exif.getHeight()));
         }
