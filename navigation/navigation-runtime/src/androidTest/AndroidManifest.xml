@@ -23,5 +23,6 @@
         <activity android:name="androidx.navigation.TargetActivity"/>
         <activity android:name="androidx.navigation.NavControllerActivity"/>
         <activity android:name="androidx.navigation.TestActivity"/>
+        <activity android:name="androidx.navigation.TestArgsActivity"/>
     </application>
 </manifest>
