@@ -25,7 +25,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
+import android.app.Application;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -33,6 +36,7 @@ import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
 
@@ -51,8 +55,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.shadows.ShadowApplication;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /** Tests for {@link CarContext}. */
@@ -417,5 +424,45 @@ public class CarContextTest {
         mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_DESTROY);
 
         assertThat(hostDispatcher.getHost(CarContext.APP_SERVICE)).isNull();
+    }
+
+    @Test
+    public void requestPermissions_startsTheExpectedActivity() throws RemoteException {
+        List<String> permissions = new ArrayList<>();
+        permissions.add("foo");
+        permissions.add("bar");
+
+        OnRequestPermissionsCallback callback = mock(OnRequestPermissionsCallback.class);
+
+        mLifecycleOwner.mRegistry.setCurrentState(State.CREATED);
+        mCarContext.requestPermissions(Runnable::run, permissions, callback);
+
+        ShadowApplication sa = shadowOf((Application) ApplicationProvider.getApplicationContext());
+        Intent startActivityIntent = sa.getNextStartedActivity();
+
+        assertThat(startActivityIntent.getAction()).isEqualTo(
+                CarContext.REQUEST_PERMISSIONS_ACTION);
+        assertThat(startActivityIntent.getComponent()).isEqualTo(new ComponentName(mCarContext,
+                CarAppInternalActivity.class));
+
+        Bundle extras = startActivityIntent.getExtras();
+
+        assertThat(extras.getStringArray(CarContext.EXTRA_PERMISSIONS_KEY)).isEqualTo(
+                permissions.toArray(new String[0]));
+
+        IBinder binder =
+                extras.getBinder(CarContext.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_CALLBACK_KEY);
+
+        IOnRequestPermissionsCallback iCallback = IOnRequestPermissionsCallback.Stub.asInterface(
+                binder);
+        iCallback.onRequestPermissionsResult(new String[]{"foo"}, new String[]{"bar"});
+
+        List<String> approved = new ArrayList<>();
+        approved.add("foo");
+
+        List<String> rejected = new ArrayList<>();
+        rejected.add("bar");
+
+        verify(callback).onRequestPermissionsResult(approved, rejected);
     }
 }

@@ -30,37 +30,30 @@ import androidx.car.app.sample.showcase.common.ShowcaseService;
 
 /** A {@link Screen} that provides an action to exit the car app. */
 public class FinishAppScreen extends Screen {
-    private final boolean mWillPreseed;
-
-    protected FinishAppScreen(@NonNull CarContext carContext, boolean willPreseed) {
+    protected FinishAppScreen(@NonNull CarContext carContext) {
         super(carContext);
-        mWillPreseed = willPreseed;
     }
 
     @NonNull
     @Override
     public Template onGetTemplate() {
         return new MessageTemplate.Builder(
-                mWillPreseed
-                        ? "This will finish the app, and when you return it will pre-seed"
-                        + " a permission screen"
-                        : "This will finish the app")
+                "This will finish the app, and when you return it will pre-seed a permission "
+                        + "screen")
                 .setTitle("Finish App Demo")
                 .setHeaderAction(BACK)
                 .addAction(
                         new Action.Builder()
                                 .setOnClickListener(
                                         () -> {
-                                            if (mWillPreseed) {
-                                                getCarContext()
-                                                        .getSharedPreferences(
-                                                                ShowcaseService.SHARED_PREF_KEY,
-                                                                Context.MODE_PRIVATE)
-                                                        .edit()
-                                                        .putBoolean(
-                                                                ShowcaseService.PRE_SEED_KEY, true)
-                                                        .apply();
-                                            }
+                                            getCarContext()
+                                                    .getSharedPreferences(
+                                                            ShowcaseService.SHARED_PREF_KEY,
+                                                            Context.MODE_PRIVATE)
+                                                    .edit()
+                                                    .putBoolean(
+                                                            ShowcaseService.PRE_SEED_KEY, true)
+                                                    .apply();
                                             getCarContext().finishCarApp();
                                         })
                                 .setTitle("Exit")
