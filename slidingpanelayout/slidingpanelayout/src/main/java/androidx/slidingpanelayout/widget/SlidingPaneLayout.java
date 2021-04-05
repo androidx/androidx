@@ -42,9 +42,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.util.Consumer;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.customview.view.AbsSavedState;
 import androidx.customview.widget.Openable;
@@ -211,6 +213,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     FoldingFeature mFoldingFeature;
+
+    private static boolean sEdgeSizeUsingSystemGestureInsets = Build.VERSION.SDK_INT >= 29;
 
     /**
      * Set the lock mode that controls how the user can swipe between the panes.
@@ -1106,8 +1110,20 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         final boolean enableEdgeLeftTracking = isLayoutRtl ^ isOpen();
         if (enableEdgeLeftTracking) {
             mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
+            Insets gestureInsets = getSystemGestureInsets();
+            if (gestureInsets != null) {
+                // Gesture insets will be 0 if the device doesn't have gesture navigation enabled.
+                mDragHelper.setEdgeSize(Math.max(mDragHelper.getDefaultEdgeSize(),
+                        gestureInsets.left));
+            }
         } else {
             mDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_RIGHT);
+            Insets gestureInsets = getSystemGestureInsets();
+            if (gestureInsets != null) {
+                // Gesture insets will be 0 if the device doesn't have gesture navigation enabled.
+                mDragHelper.setEdgeSize(Math.max(mDragHelper.getDefaultEdgeSize(),
+                        gestureInsets.right));
+            }
         }
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         boolean result;
@@ -1129,6 +1145,18 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         canvas.restoreToCount(save);
 
         return result;
+    }
+
+    // Get system gesture insets when SDK version is larger than 29. Otherwise, return null.
+    private Insets getSystemGestureInsets() {
+        Insets gestureInsets = null;
+        if (sEdgeSizeUsingSystemGestureInsets) {
+            WindowInsetsCompat rootInsetsCompat = ViewCompat.getRootWindowInsets(this);
+            if (rootInsetsCompat != null) {
+                gestureInsets = rootInsetsCompat.getSystemGestureInsets();
+            }
+        }
+        return gestureInsets;
     }
 
     private Method mGetDisplayList;
