@@ -17,8 +17,12 @@
 package androidx.work.impl.background.gcm;
 
 
+import static androidx.work.NetworkType.TEMPORARILY_UNMETERED;
+
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
@@ -98,6 +102,13 @@ public class GcmTaskConverter {
                     break;
                 case NOT_REQUIRED:
                     builder.setRequiredNetwork(Task.NETWORK_STATE_ANY);
+                    break;
+                default:
+                    if (Build.VERSION.SDK_INT >= 30) {
+                        if (networkType == TEMPORARILY_UNMETERED) {
+                            builder.setRequiredNetwork(Task.NETWORK_STATE_ANY);
+                        }
+                    }
             }
 
             // Charging constraints

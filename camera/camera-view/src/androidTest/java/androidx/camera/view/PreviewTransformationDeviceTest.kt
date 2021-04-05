@@ -85,7 +85,7 @@ public class PreviewTransformationDeviceTest {
                 Rect(
                     0,
                     0,
-                    PREVIEW_VIEW_SIZE.height,
+                    PREVIEW_VIEW_SIZE.height + 1,
                     PREVIEW_VIEW_SIZE.width - 1
                 )
             )
@@ -99,7 +99,7 @@ public class PreviewTransformationDeviceTest {
                 Rect(
                     0,
                     0,
-                    PREVIEW_VIEW_SIZE.height,
+                    PREVIEW_VIEW_SIZE.height + 2,
                     PREVIEW_VIEW_SIZE.width - 2
                 )
             )
@@ -113,7 +113,7 @@ public class PreviewTransformationDeviceTest {
             SURFACE_SIZE,
             BACK_CAMERA
         )
-        return mPreviewTransform.isCropRectAspectRatioMatchPreviewView(PREVIEW_VIEW_SIZE)
+        return mPreviewTransform.isViewportAspectRatioMatchPreviewView(PREVIEW_VIEW_SIZE)
     }
 
     @Test
@@ -393,6 +393,19 @@ public class PreviewTransformationDeviceTest {
         assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(15F)
         assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(0F)
         assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(-100F)
+    }
+
+    @Test
+    public fun previewViewSizeIs0_noOps() {
+        testOffCenterCropRectMirroring(
+            FRONT_CAMERA, CROP_RECT_90, Size(0, 0), 90
+        )
+
+        // Assert: no transform applied.
+        assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(1F)
+        assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(1F)
+        assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(0F)
+        assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(0F)
     }
 
     @Test

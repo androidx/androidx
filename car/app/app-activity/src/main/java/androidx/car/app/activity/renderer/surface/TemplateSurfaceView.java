@@ -16,14 +16,6 @@
 
 package androidx.car.app.activity.renderer.surface;
 
-import static android.view.KeyEvent.ACTION_DOWN;
-import static android.view.KeyEvent.KEYCODE_BACK;
-import static android.view.KeyEvent.KEYCODE_DPAD_CENTER;
-import static android.view.KeyEvent.KEYCODE_DPAD_DOWN;
-import static android.view.KeyEvent.KEYCODE_DPAD_LEFT;
-import static android.view.KeyEvent.KEYCODE_DPAD_RIGHT;
-import static android.view.KeyEvent.KEYCODE_DPAD_UP;
-
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.activity.LogTags.TAG;
 
@@ -38,16 +30,12 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceControlViewHost.SurfacePackage;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnTouchModeChangeListener;
-import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityManager;
-import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
@@ -72,27 +60,8 @@ import androidx.car.app.serialization.BundlerException;
 public final class TemplateSurfaceView extends SurfaceView {
     private static final boolean SUPPORTS_SURFACE_CONTROL =
             VERSION.SDK_INT >= Build.VERSION_CODES.R;
-
-    /**
-     * StateDescription for a {@link View} to support direct manipulation mode. It's also used as
-     * class name of {@link AccessibilityEvent} to indicate that the {@link AccessibilityEvent}
-     * represents a request to toggle direct manipulation mode.
-     *
-     * This value should not change, even if the actual package containing this class is different
-     * as this value must match the value defined at
-     * <a href="https://android.googlesource.com/platform/packages/apps/Car/libs/+/refs/heads/androi
-     * d11-release/car-ui-lib/src/com/android/car/ui/utils/DirectManipulationHelper.java#38">DIRECT_
-     * MANIPULATION</a>
-     */
-    private static final String DIRECT_MANIPULATION = "com.android.car.ui.utils"
-            + ".DIRECT_MANIPULATION";
-
-    @Nullable
-    private RotaryEventCallback mRotaryEventCallback;
     @Nullable
     private OnCreateInputConnectionListener mOnCreateInputConnectionListener;
-    @Nullable
-    private OnBackPressedListener mOnBackPressedListener;
 
     @Nullable
     ISurfaceControl mSurfaceControl;
@@ -121,26 +90,12 @@ public final class TemplateSurfaceView extends SurfaceView {
     }
 
     /**
-     * Registers a {@link RotaryEventCallback} that is notified of rotary events.
-     */
-    public void registerRotaryEventCallback(@Nullable RotaryEventCallback callback) {
-        mRotaryEventCallback = callback;
-    }
-
-    /**
      * Registers a {@link OnCreateInputConnectionListener} that is notified of invocations on
      * {@link #onCreateInputConnection(EditorInfo)}.
      */
     public void setOnCreateInputConnectionListener(
             @Nullable OnCreateInputConnectionListener listener) {
         mOnCreateInputConnectionListener = listener;
-    }
-
-    /**
-     * Registers a {@link OnBackPressedListener} that is notified of back button presses.
-     */
-    public void setOnBackPressedListener(@Nullable OnBackPressedListener listener) {
-        mOnBackPressedListener = listener;
     }
 
     /**
@@ -157,16 +112,6 @@ public final class TemplateSurfaceView extends SurfaceView {
     }
 
     @Override
-    @NonNull
-    public AccessibilityNodeInfo createAccessibilityNodeInfo() {
-        AccessibilityNodeInfo accessibilityNodeInfo = super.createAccessibilityNodeInfo();
-        // Indicate this as an editable view so the rotary service does not remove the focus when
-        // IME is presented.
-        accessibilityNodeInfo.setEditable(mIsInInputMode);
-        return accessibilityNodeInfo;
-    }
-
-    @Override
     protected void onFocusChanged(boolean gainFocus, int direction,
             @Nullable Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
@@ -177,7 +122,6 @@ public final class TemplateSurfaceView extends SurfaceView {
         } catch (RemoteException e) {
             Log.e(TAG, "Remote connection lost", e);
         }
-        enableDirectManipulationMode(this, gainFocus);
     }
 
     @Override
@@ -209,34 +153,6 @@ public final class TemplateSurfaceView extends SurfaceView {
         }
 
         return null;
-    }
-
-    /**
-     * Enables or disables direct manipulation mode. This method sends an {@link AccessibilityEvent}
-     * to tell the Rotary service to enter or exit direct manipulation mode. Typically pressing
-     * the center button of the rotary controller with a direct manipulation view focused will
-     * enter direct manipulation mode, while pressing the Back button will exit direct
-     * manipulation mode.
-     *
-     * @param view   the direct manipulation view
-     * @param enable true to enter direct manipulation mode, false to exit direct manipulation mode
-     * @return whether the AccessibilityEvent was sent
-     */
-    private boolean enableDirectManipulationMode(@NonNull View view, boolean enable) {
-        requireNonNull(view);
-        AccessibilityManager accessibilityManager = (AccessibilityManager)
-                view.getContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
-        if (accessibilityManager == null || !accessibilityManager.isEnabled()) {
-            return false;
-        }
-        AccessibilityEvent event = AccessibilityEvent.obtain();
-        event.setClassName(DIRECT_MANIPULATION);
-        event.setSource(view);
-        event.setEventType(enable
-                ? AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED
-                : AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED);
-        accessibilityManager.sendAccessibilityEvent(event);
-        return true;
     }
 
     private void copyEditorInfo(@NonNull EditorInfo from, @NonNull EditorInfo to) {
@@ -285,6 +201,12 @@ public final class TemplateSurfaceView extends SurfaceView {
     }
 
     @Override
+    @NonNull
+    public CharSequence getAccessibilityClassName() {
+        return SurfaceView.class.getName();
+    }
+
+    @Override
     public boolean checkInputConnectionProxy(@Nullable View view) {
         return mIsInInputMode;
     }
@@ -330,8 +252,6 @@ public final class TemplateSurfaceView extends SurfaceView {
         }
         mSurfaceControl = surfaceControl;
         setOnTouchListener((view, event) -> handleTouchEvent(event));
-        setOnKeyListener((view, keyCode, event) -> handleKeyEvent(event));
-        setOnGenericMotionListener((view, event) -> handleGenericMotionEvent(event));
     }
 
     @Override
@@ -357,59 +277,6 @@ public final class TemplateSurfaceView extends SurfaceView {
             }
         } catch (RemoteException e) {
             Log.e(TAG, "Remote connection lost", e);
-        }
-
-        return false;
-    }
-
-    /** Passes the generic motion events to the host. */
-    boolean handleGenericMotionEvent(@NonNull MotionEvent event) {
-        if (requireNonNull(event).getActionMasked() == MotionEvent.ACTION_SCROLL) {
-            int steps = (int) event.getAxisValue(MotionEvent.AXIS_SCROLL);
-            boolean isClockwise = steps > 0;
-            if (mRotaryEventCallback != null) {
-                mRotaryEventCallback.onRotate(steps, isClockwise);
-            }
-            return true;
-        }
-        return false;
-    }
-
-    /** Passes the appropriate key events to the host for rotary support. */
-    boolean handleKeyEvent(KeyEvent event) {
-        if (event.getAction() == ACTION_DOWN) {
-            return false;
-        }
-
-        switch (event.getKeyCode()) {
-            case KEYCODE_BACK:
-                if (mOnBackPressedListener != null) {
-                    mOnBackPressedListener.onBackPressed();
-                    return true;
-                }
-                break;
-            case KEYCODE_DPAD_CENTER:
-                if (mRotaryEventCallback != null) {
-                    mRotaryEventCallback.onSelect();
-                    return true;
-                }
-                break;
-            case KEYCODE_DPAD_RIGHT:
-            case KEYCODE_DPAD_LEFT:
-            case KEYCODE_DPAD_UP:
-            case KEYCODE_DPAD_DOWN:
-                if (mRotaryEventCallback != null) {
-                    boolean success = mRotaryEventCallback.onNudge(event.getKeyCode());
-                    if (!success) {
-                        // Quit direct manipulation mode if the nudge event cannot be handled.
-                        enableDirectManipulationMode(this, false);
-                        return false;
-                    }
-                    return true;
-                }
-                break;
-            default:
-                return false;
         }
 
         return false;

@@ -17,6 +17,7 @@ limitations under the License.
     package="androidx.camera.camera2.view">
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <application>
          <activity
             android:name="androidx.camera.testing.fakes.FakeActivity"

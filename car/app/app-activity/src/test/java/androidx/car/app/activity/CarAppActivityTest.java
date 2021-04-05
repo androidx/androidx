@@ -17,10 +17,6 @@
 package androidx.car.app.activity;
 
 import static android.view.KeyEvent.ACTION_UP;
-import static android.view.KeyEvent.KEYCODE_BACK;
-import static android.view.KeyEvent.KEYCODE_DPAD_CENTER;
-import static android.view.KeyEvent.KEYCODE_DPAD_DOWN;
-import static android.view.KeyEvent.KEYCODE_DPAD_RIGHT;
 import static android.view.KeyEvent.KEYCODE_R;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -28,7 +24,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -202,9 +197,10 @@ public class CarAppActivityTest {
                             ActivityLifecycleCallbacks.class);
                     activity.registerActivityLifecycleCallbacks(activityCallback);
                     // Report service connection error.
-                    activity.onServiceConnectionError("fake error");
+                    activity.onServiceConnectionError("fake error",
+                            CarAppActivity.ErrorActionType.FINISH);
 
-                    assertThat(activity.isFinishing()).isEqualTo(true);
+                    assertThat(activity.isFinishing()).isEqualTo(false);
 
                     // After service connection error has been reported, test that lifecycle
                     // events are no longer reported to host lifecycle listener.
@@ -278,26 +274,16 @@ public class CarAppActivityTest {
                             Bundleable.create(new LegacySurfacePackage(callback)));
                     carAppActivity.registerRendererCallback(rendererCallback);
 
-                    // Verify back events on surfaceView are sent to host.
-                    activity.mSurfaceView.dispatchKeyEvent(new KeyEvent(ACTION_UP, KEYCODE_BACK));
+                    // Verify back events on the activity are sent to host.
+                    activity.onBackPressed();
                     verify(rendererCallback, times(1)).onBackPressed();
 
                     // Verify focus request sent to host.
-                    activity.mSurfaceView.requestFocus();
-                    verify(callback, times(1)).onWindowFocusChanged(true, false);
+                    assertThat(activity.mSurfaceView.isFocused()).isTrue();
                     activity.mSurfaceView.clearFocus();
                     verify(callback, times(1)).onWindowFocusChanged(false, false);
-
-                    // Verify rotary events on surfaceView are sent to host.
-                    activity.mSurfaceView.dispatchKeyEvent(
-                            new KeyEvent(ACTION_UP, KEYCODE_DPAD_RIGHT));
-                    verify(rendererCallback, times(1)).onNudge(KEYCODE_DPAD_RIGHT);
-                    activity.mSurfaceView.dispatchKeyEvent(
-                            new KeyEvent(ACTION_UP, KEYCODE_DPAD_DOWN));
-                    verify(rendererCallback, times(1)).onNudge(KEYCODE_DPAD_DOWN);
-                    activity.mSurfaceView.dispatchKeyEvent(
-                            new KeyEvent(ACTION_UP, KEYCODE_DPAD_CENTER));
-                    verify(rendererCallback, times(1)).onSelect();
+                    activity.mSurfaceView.requestFocus();
+                    verify(callback, times(1)).onWindowFocusChanged(true, false);
 
                     long downTime = SystemClock.uptimeMillis();
                     long eventTime = SystemClock.uptimeMillis();
@@ -314,12 +300,6 @@ public class CarAppActivityTest {
                     // Compare string representations as equals in MotionEvent checks for same
                     // object.
                     assertThat(argument.getValue().toString()).isEqualTo(event.toString());
-
-                    // Test a action scroll event.
-                    event = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_SCROLL, x,
-                            y, metaState);
-                    activity.mSurfaceView.dispatchGenericMotionEvent(event);
-                    verify(rendererCallback, times(1)).onRotate(anyInt(), eq(false));
                 } catch (RemoteException | BundlerException e) {
                     fail(Log.getStackTraceString(e));
                 }

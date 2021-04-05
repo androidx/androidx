@@ -53,6 +53,11 @@ public class RemoteWorkManagerClientTest {
 
     @Before
     public fun setUp() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         mContext = mock(Context::class.java)
         mWorkManager = mock(WorkManagerImpl::class.java)
         `when`(mContext.applicationContext).thenReturn(mContext)
@@ -94,9 +99,16 @@ public class RemoteWorkManagerClientTest {
 
     @Test
     @MediumTest
+    @Suppress("UNCHECKED_CAST")
     public fun cleanUpWhenDispatcherFails() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val binder = mock(IBinder::class.java)
-        val remoteDispatcher = mock(RemoteWorkManagerClient.RemoteDispatcher::class.java)
+        val remoteDispatcher =
+            mock(RemoteDispatcher::class.java) as RemoteDispatcher<IWorkManagerImpl>
         val remoteStub = mock(IWorkManagerImpl::class.java)
         val callback = spy(RemoteCallback())
         val message = "Something bad happened"
@@ -117,8 +129,15 @@ public class RemoteWorkManagerClientTest {
 
     @Test
     @MediumTest
+    @Suppress("UNCHECKED_CAST")
     public fun cleanUpWhenSessionIsInvalid() {
-        val remoteDispatcher = mock(RemoteWorkManagerClient.RemoteDispatcher::class.java)
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
+        val remoteDispatcher =
+            mock(RemoteDispatcher::class.java) as RemoteDispatcher<IWorkManagerImpl>
         val callback = spy(RemoteCallback())
         val session = SettableFuture.create<IWorkManagerImpl>()
         session.setException(RuntimeException("Something bad happened"))
@@ -136,8 +155,13 @@ public class RemoteWorkManagerClientTest {
     @Test
     @MediumTest
     public fun cleanUpOnSuccessfulDispatch() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
         val binder = mock(IBinder::class.java)
-        val remoteDispatcher = RemoteWorkManagerClient.RemoteDispatcher { _, callback ->
+        val remoteDispatcher = RemoteDispatcher<IWorkManagerImpl> { _, callback ->
             callback.onSuccess(ByteArray(0))
         }
         val remoteStub = mock(IWorkManagerImpl::class.java)

@@ -1058,6 +1058,7 @@ package androidx.core.content {
     ctor protected ContextCompat();
     method public static int checkSelfPermission(android.content.Context, String);
     method public static android.content.Context? createDeviceProtectedStorageContext(android.content.Context);
+    method public static String? getAttributionTag(android.content.Context);
     method public static java.io.File! getCodeCacheDir(android.content.Context);
     method @ColorInt public static int getColor(android.content.Context, @ColorRes int);
     method public static android.content.res.ColorStateList? getColorStateList(android.content.Context, @ColorRes int);
@@ -1152,6 +1153,15 @@ package androidx.core.content.pm {
     method public static int getProtectionFlags(android.content.pm.PermissionInfo);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class ShortcutInfoChangeListener {
+    ctor public ShortcutInfoChangeListener();
+    method @AnyThread public void onAllShortcutsRemoved();
+    method @AnyThread public void onShortcutAdded(java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>);
+    method @AnyThread public void onShortcutRemoved(java.util.List<java.lang.String!>);
+    method @AnyThread public void onShortcutUpdated(java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>);
+    method @AnyThread public void onShortcutUsageReported(java.util.List<java.lang.String!>);
+  }
+
   public class ShortcutInfoCompat {
     method public android.content.ComponentName? getActivity();
     method public java.util.Set<java.lang.String!>? getCategories();
@@ -1183,6 +1193,7 @@ package androidx.core.content.pm {
     ctor public ShortcutInfoCompat.Builder(android.content.Context, String);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ShortcutInfoCompat.Builder(androidx.core.content.pm.ShortcutInfoCompat);
     ctor @RequiresApi(25) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ShortcutInfoCompat.Builder(android.content.Context, android.content.pm.ShortcutInfo);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder addCapabilityBinding(String, java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!>?);
     method public androidx.core.content.pm.ShortcutInfoCompat build();
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setActivity(android.content.ComponentName);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setAlwaysBadged();
@@ -1201,6 +1212,7 @@ package androidx.core.content.pm {
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setPersons(androidx.core.app.Person![]);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setRank(int);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setShortLabel(CharSequence);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setSliceUri(android.net.Uri);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class ShortcutInfoCompatSaver<T> {
@@ -1757,7 +1769,17 @@ package androidx.core.location {
     method public void onStopped();
   }
 
+  public final class LocationCompat {
+    method public static long getElapsedRealtimeMillis(android.location.Location);
+    method public static long getElapsedRealtimeNanos(android.location.Location);
+    method public static boolean isMock(android.location.Location);
+    method public static void setMock(android.location.Location, boolean);
+  }
+
   public final class LocationManagerCompat {
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void getCurrentLocation(android.location.LocationManager, String, androidx.core.os.CancellationSignal?, java.util.concurrent.Executor, androidx.core.util.Consumer<android.location.Location!>);
+    method public static String? getGnssHardwareModelName(android.location.LocationManager);
+    method public static int getGnssYearOfHardware(android.location.LocationManager);
     method public static boolean isLocationEnabled(android.location.LocationManager);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback, android.os.Handler);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, java.util.concurrent.Executor, androidx.core.location.GnssStatusCompat.Callback);
@@ -1862,15 +1884,15 @@ package androidx.core.os {
     field public static final String MEDIA_UNKNOWN = "unknown";
   }
 
+  public final class ExecutorCompat {
+    method public static java.util.concurrent.Executor create(android.os.Handler);
+  }
+
   public final class HandlerCompat {
     method public static android.os.Handler createAsync(android.os.Looper);
     method public static android.os.Handler createAsync(android.os.Looper, android.os.Handler.Callback);
+    method @RequiresApi(16) public static boolean hasCallbacks(android.os.Handler, Runnable);
     method public static boolean postDelayed(android.os.Handler, Runnable, Object?, long);
-  }
-
-  public class HandlerExecutor implements java.util.concurrent.Executor {
-    ctor public HandlerExecutor(android.os.Handler);
-    method public void execute(Runnable);
   }
 
   public final class LocaleListCompat {
@@ -1925,6 +1947,10 @@ package androidx.core.os {
     method @Deprecated public static void endSection();
     method @Deprecated public static boolean isEnabled();
     method @Deprecated public static void setCounter(String, int);
+  }
+
+  @RequiresApi(17) public class UserHandleCompat {
+    method public static android.os.UserHandle getUserHandleForUid(int);
   }
 
   public class UserManagerCompat {
@@ -2330,13 +2356,14 @@ package androidx.core.view {
   }
 
   public final class DisplayCompat {
+    method public static androidx.core.view.DisplayCompat.ModeCompat getMode(android.content.Context, android.view.Display);
     method public static androidx.core.view.DisplayCompat.ModeCompat![] getSupportedModes(android.content.Context, android.view.Display);
   }
 
   public static final class DisplayCompat.ModeCompat {
     method public int getPhysicalHeight();
     method public int getPhysicalWidth();
-    method public boolean isNative();
+    method @Deprecated public boolean isNative();
     method @RequiresApi(android.os.Build.VERSION_CODES.M) public android.view.Display.Mode? toMode();
   }
 

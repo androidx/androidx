@@ -140,12 +140,12 @@ class DaoWriterTest {
         ) { invocation ->
             val dao = invocation.roundEnv
                 .getTypeElementsAnnotatedWith(
-                    androidx.room.Dao::class.java
+                    androidx.room.Dao::class.qualifiedName!!
                 ).firstOrNull()
             if (dao != null) {
                 val db = invocation.roundEnv
                     .getTypeElementsAnnotatedWith(
-                        androidx.room.Database::class.java
+                        androidx.room.Database::class.qualifiedName!!
                     ).firstOrNull()
                     ?: invocation.context.processingEnv
                         .requireTypeElement(RoomTypeNames.ROOM_DB)

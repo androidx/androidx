@@ -66,26 +66,5 @@ interface IRendererCallback {
    *   remote {@code InputConnection} should occur
    */
   IProxyInputConnection onCreateInputConnection(in EditorInfo editorInfo) = 8;
-
-  /**
-   * Notifies of a rotary rotation.
-   *
-   * @param steps the number of rotation steps detected. Should be a positive number
-   * @param isClockwise true if the rotation direction is clockwise
-   */
-  void onRotate(int steps, boolean isClockwise) = 9;
-
-  /**
-   * Notifies of a nudge event.
-   *
-   * @param key the nudge key code. It can be {@code KEYCODE_DPAD_RIGHT}, {@code KEYCODE_DPAD_LEFT},
-   * {@code KEYCODE_DPAD_UP}, {@code KEYCODE_DPAD_DOWN}.
-   *
-   * @return true if handled successfully
-   */
-  boolean onNudge(int keyCode) = 10;
-
-  /** Will be called when rotary select is triggered. */
-  void onSelect() = 11;
 }
 

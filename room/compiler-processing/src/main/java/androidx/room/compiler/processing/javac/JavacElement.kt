@@ -16,10 +16,12 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.InternalXAnnotated
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XEquality
 import com.google.auto.common.MoreElements
+import com.google.auto.common.MoreElements.isAnnotationPresent
 import java.util.Locale
 import javax.lang.model.element.Element
 import kotlin.reflect.KClass
@@ -28,16 +30,34 @@ import kotlin.reflect.KClass
 internal abstract class JavacElement(
     protected val env: JavacProcessingEnv,
     open val element: Element
-) : XElement, XEquality {
-    override fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>? {
-        return MoreElements
-            .getAnnotationMirror(element, annotation.java)
-            .orNull()
-            ?.box(env, annotation.java)
+) : XElement, XEquality, InternalXAnnotated {
+    override fun <T : Annotation> getAnnotations(
+        annotation: KClass<T>,
+        containerAnnotation: KClass<out Annotation>?
+    ): List<XAnnotationBox<T>> {
+        return if (containerAnnotation == null) {
+            MoreElements
+                .getAnnotationMirror(element, annotation.java)
+                .orNull()
+                ?.box(env, annotation.java)
+                ?.let {
+                    listOf(it)
+                }
+        } else {
+            val container = MoreElements
+                .getAnnotationMirror(element, containerAnnotation.java)
+                .orNull()
+                ?.box(env, containerAnnotation.java)
+            container?.getAsAnnotationBoxArray<T>("value")?.toList()
+        } ?: emptyList()
     }
 
-    override fun hasAnnotation(annotation: KClass<out Annotation>): Boolean {
-        return MoreElements.isAnnotationPresent(element, annotation.java)
+    override fun hasAnnotation(
+        annotation: KClass<out Annotation>,
+        containerAnnotation: KClass<out Annotation>?
+    ): Boolean {
+        return isAnnotationPresent(element, annotation.java) ||
+            (containerAnnotation != null && isAnnotationPresent(element, containerAnnotation.java))
     }
 
     override fun toString(): String {

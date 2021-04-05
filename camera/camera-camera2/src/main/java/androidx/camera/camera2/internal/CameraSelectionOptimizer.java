@@ -53,9 +53,16 @@ class CameraSelectionOptimizer {
             }
 
             // Skip camera ID by heuristic: 0 is back lens facing, 1 is front lens facing.
-            Integer lensFacingInteger = availableCamerasSelector.getLensFacing();
-            String skippedCameraId = decideSkippedCameraIdByHeuristic(
-                    cameraFactory.getCameraManager(), lensFacingInteger, cameraIdList);
+            String skippedCameraId;
+            try {
+                Integer lensFacingInteger = availableCamerasSelector.getLensFacing();
+                skippedCameraId = decideSkippedCameraIdByHeuristic(
+                        cameraFactory.getCameraManager(), lensFacingInteger, cameraIdList);
+            } catch (IllegalStateException e) {
+                // Don't skip camera if there is any conflict in camera lens facing.
+                skippedCameraId = null;
+            }
+
             List<CameraInfo> cameraInfos = new ArrayList<>();
 
             for (String id : cameraIdList) {

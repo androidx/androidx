@@ -16,6 +16,7 @@
 
 package androidx.camera.view;
 
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Size;
 import android.view.Surface;
@@ -71,6 +72,16 @@ public class TransformUtils {
             rotated[rotatedIndex] = original[originalIndex];
         }
         return rotated;
+    }
+
+    /**
+     * Gets the size of the {@link Rect}.
+     * @param rect
+     * @return
+     */
+    @NonNull
+    public static Size rectToSize(@NonNull Rect rect) {
+        return new Size(rect.width(), rect.height());
     }
 
     /**
@@ -167,8 +178,9 @@ public class TransformUtils {
      */
     public static boolean isAspectRatioMatchingWithRoundingError(
             @NonNull Size size1, boolean isAccurate1, @NonNull Size size2, boolean isAccurate2) {
-        // The input width/height are rounded values, so they are at most .5 away from their
-        // true values.
+        // The crop rect coordinates are rounded values. Each value is at most .5 away from their
+        // true values. So the width/height, which is the difference of 2 coordinates, are at most
+        // 1.0 away from their true value.
         // First figure out the possible range of the aspect ratio's ture value.
         float ratio1UpperBound;
         float ratio1LowerBound;
@@ -176,8 +188,8 @@ public class TransformUtils {
             ratio1UpperBound = (float) size1.getWidth() / size1.getHeight();
             ratio1LowerBound = ratio1UpperBound;
         } else {
-            ratio1UpperBound = (size1.getWidth() + .5F) / (size1.getHeight() - .5F);
-            ratio1LowerBound = (size1.getWidth() - .5F) / (size1.getHeight() + .5F);
+            ratio1UpperBound = (size1.getWidth() + 1F) / (size1.getHeight() - 1F);
+            ratio1LowerBound = (size1.getWidth() - 1F) / (size1.getHeight() + 1F);
         }
         float ratio2UpperBound;
         float ratio2LowerBound;
@@ -185,8 +197,8 @@ public class TransformUtils {
             ratio2UpperBound = (float) size2.getWidth() / size2.getHeight();
             ratio2LowerBound = ratio2UpperBound;
         } else {
-            ratio2UpperBound = (size2.getWidth() + .5F) / (size2.getHeight() - .5F);
-            ratio2LowerBound = (size2.getWidth() - .5F) / (size2.getHeight() + .5F);
+            ratio2UpperBound = (size2.getWidth() + 1F) / (size2.getHeight() - 1F);
+            ratio2LowerBound = (size2.getWidth() - 1F) / (size2.getHeight() + 1F);
         }
         // Then we check if the true value range overlaps.
         return ratio1UpperBound >= ratio2LowerBound && ratio2UpperBound >= ratio1LowerBound;

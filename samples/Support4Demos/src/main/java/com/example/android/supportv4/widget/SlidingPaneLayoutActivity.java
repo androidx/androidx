@@ -17,7 +17,7 @@
 
 package com.example.android.supportv4.widget;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -28,6 +28,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.activity.ComponentActivity;
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 
 import com.example.android.supportv4.LoremIpsum;
@@ -62,28 +66,30 @@ import com.example.android.supportv4.R;
  * both panes to be visible all the time on a sufficiently wide screen, DrawerLayout and its
  * associated patterns are likely to be a better choice for your usage.</p>
  */
-public class SlidingPaneLayoutActivity extends Activity {
-    private SlidingPaneLayout mSlidingLayout;
-    private ListView mList;
-    private TextView mContent;
+public class SlidingPaneLayoutActivity extends ComponentActivity {
+    SlidingPaneLayout mSlidingLayout;
+    TextView mContent;
 
-    private ActionBarHelper mActionBar;
+    ActionBarHelper mActionBar;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.sliding_pane_layout);
 
         mSlidingLayout = findViewById(R.id.sliding_pane_layout);
-        mList = findViewById(R.id.left_pane);
+        ListView list = findViewById(R.id.left_pane);
         mContent = findViewById(R.id.content_text);
 
-        mSlidingLayout.setPanelSlideListener(new SliderListener());
+        getOnBackPressedDispatcher().addCallback(this,
+                new SliderOnBackPressedCallback(mSlidingLayout));
 
-        mList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+        mSlidingLayout.addPanelSlideListener(new SliderListener());
+
+        list.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
                 LoremIpsum.TITLES));
-        mList.setOnItemClickListener(new ListItemClickListener());
+        list.setOnItemClickListener(new ListItemClickListener());
 
         mActionBar = createActionBarHelper();
         mActionBar.init();
@@ -92,7 +98,7 @@ public class SlidingPaneLayoutActivity extends Activity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         /*
          * The action bar up action should close the detail view if it is
          * currently open, as the left pane contains content one level up in the navigation
@@ -110,7 +116,7 @@ public class SlidingPaneLayoutActivity extends Activity {
      * the primary content text. The slider is closed when a selection is made to fully
      * reveal the content.
      */
-    private class ListItemClickListener implements ListView.OnItemClickListener {
+    class ListItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             mContent.setText(LoremIpsum.DIALOGUE[position]);
@@ -120,16 +126,51 @@ public class SlidingPaneLayoutActivity extends Activity {
     }
 
     /**
+     * A self contained {@link OnBackPressedCallback} that ensures that the system back
+     * button will close the {@link SlidingPaneLayout} if it is slideable (i.e., the panes
+     * are overlapping) and open (i.e., the detail pane is visible).
+     */
+    static class SliderOnBackPressedCallback extends OnBackPressedCallback
+            implements SlidingPaneLayout.PanelSlideListener {
+
+        private final SlidingPaneLayout mSlidingPaneLayout;
+
+        SliderOnBackPressedCallback(@NonNull SlidingPaneLayout slidingPaneLayout) {
+            super(slidingPaneLayout.isSlideable() && slidingPaneLayout.isOpen());
+            mSlidingPaneLayout = slidingPaneLayout;
+            slidingPaneLayout.addPanelSlideListener(this);
+        }
+
+        @Override
+        public void handleOnBackPressed() {
+            mSlidingPaneLayout.closePane();
+        }
+
+        @Override
+        public void onPanelSlide(@NonNull View panel, float slideOffset) { }
+
+        @Override
+        public void onPanelOpened(@NonNull View panel) {
+            setEnabled(true);
+        }
+
+        @Override
+        public void onPanelClosed(@NonNull View panel) {
+            setEnabled(false);
+        }
+    }
+
+    /**
      * This panel slide listener updates the action bar accordingly for each panel state.
      */
-    private class SliderListener extends SlidingPaneLayout.SimplePanelSlideListener {
+    class SliderListener extends SlidingPaneLayout.SimplePanelSlideListener {
         @Override
-        public void onPanelOpened(View panel) {
+        public void onPanelOpened(@NonNull View panel) {
             mActionBar.onPanelOpened();
         }
 
         @Override
-        public void onPanelClosed(View panel) {
+        public void onPanelClosed(@NonNull View panel) {
             mActionBar.onPanelClosed();
         }
     }
@@ -140,9 +181,9 @@ public class SlidingPaneLayoutActivity extends Activity {
      * that adapt based on available space after they have had the opportunity to measure
      * and layout.
      */
-    private class FirstLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {
+    class FirstLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {
         @Override
-        @SuppressWarnings("deprecation")
+        @SuppressLint("UnsafeNewApiCall")
         public void onGlobalLayout() {
             mActionBar.onFirstLayout();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -163,7 +204,7 @@ public class SlidingPaneLayoutActivity extends Activity {
     /**
      * Stub action bar helper; this does nothing.
      */
-    private static class ActionBarHelper {
+    static class ActionBarHelper {
         public void init() {}
         public void onPanelClosed() {}
         public void onPanelOpened() {}

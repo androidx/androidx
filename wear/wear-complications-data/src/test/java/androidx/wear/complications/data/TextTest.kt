@@ -38,33 +38,68 @@ public class AsWireComplicationTextTest {
     @Test
     public fun plainText() {
         val text = PlainComplicationText.Builder("abc").build()
-        ParcelableSubject.assertThat(text.asWireComplicationText())
+        ParcelableSubject.assertThat(text.toWireComplicationText())
             .hasSameSerializationAs(WireComplicationText.plainText("abc"))
-        ParcelableSubject.assertThat(text.asWireComplicationText())
+        ParcelableSubject.assertThat(text.toWireComplicationText())
             .hasDifferentSerializationAs(WireComplicationText.plainText("abc1"))
     }
 
     @Test
-    public fun timeDifferenceText() {
+    public fun timeDifferenceText_CountUpTimeReference() {
+        val referenceMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
         val text = TimeDifferenceComplicationText.Builder(
             TimeDifferenceStyle.STOPWATCH,
-            TimeReference.starting(10000L)
+            CountUpTimeReference(referenceMillis)
+        )
+            .setText("^1 after lunch")
+            .setDisplayAsNow(false)
+            .setMinimumUnit(TimeUnit.SECONDS)
+            .build()
+
+        ParcelableSubject.assertThat(text.toWireComplicationText())
+            .hasSameSerializationAs(
+                WireTimeDifferenceBuilder()
+                    .setStyle(WireComplicationText.DIFFERENCE_STYLE_STOPWATCH)
+                    .setSurroundingText("^1 after lunch")
+                    .setShowNowText(false)
+                    .setMinimumUnit(TimeUnit.SECONDS)
+                    .setReferencePeriodEndMillis(referenceMillis)
+                    .build()
+            )
+
+        val twoMinutesThreeSecondAfter = referenceMillis + 2.minutes + 3.seconds
+        assertThat(
+            text.getTextAt(getResource(), twoMinutesThreeSecondAfter).toString()
+        ).isEqualTo("02:03 after lunch")
+    }
+
+    @Test
+    public fun timeDifferenceText_CountDownTimeReference() {
+        val referenceMillis = Instant.parse("2020-12-30T10:15:30.001Z").toEpochMilli()
+        val text = TimeDifferenceComplicationText.Builder(
+            TimeDifferenceStyle.STOPWATCH,
+            CountDownTimeReference(referenceMillis)
         )
             .setText("^1 before lunch")
             .setDisplayAsNow(false)
             .setMinimumUnit(TimeUnit.SECONDS)
             .build()
 
-        ParcelableSubject.assertThat(text.asWireComplicationText())
+        ParcelableSubject.assertThat(text.toWireComplicationText())
             .hasSameSerializationAs(
                 WireTimeDifferenceBuilder()
                     .setStyle(WireComplicationText.DIFFERENCE_STYLE_STOPWATCH)
                     .setSurroundingText("^1 before lunch")
                     .setShowNowText(false)
                     .setMinimumUnit(TimeUnit.SECONDS)
-                    .setReferencePeriodStartMillis(10000L)
+                    .setReferencePeriodStartMillis(referenceMillis)
                     .build()
             )
+
+        val twoMinutesThreeSecondBefore = referenceMillis - 2.minutes - 3.seconds
+        assertThat(
+            text.getTextAt(getResource(), twoMinutesThreeSecondBefore).toString()
+        ).isEqualTo("02:03 before lunch")
     }
 
     @Test
@@ -75,7 +110,7 @@ public class AsWireComplicationTextTest {
             .setTimeZone(TimeZone.getTimeZone("Europe/London"))
             .build()
 
-        ParcelableSubject.assertThat(text.asWireComplicationText())
+        ParcelableSubject.assertThat(text.toWireComplicationText())
             .hasSameSerializationAs(
                 WireTimeFormatBuilder()
                     .setFormat("h:m")
@@ -85,6 +120,8 @@ public class AsWireComplicationTextTest {
                     .build()
             )
     }
+
+    private fun getResource() = ApplicationProvider.getApplicationContext<Context>().resources
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
@@ -92,7 +129,7 @@ public class FromWireComplicationTextTest {
     @Test
     public fun plainText() {
         val wireText = WireComplicationText.plainText("abc")
-        val text = wireText.asApiComplicationText()
+        val text = wireText.toApiComplicationText()
 
         assertThat(text.getTextAt(getResource(), 0)).isEqualTo("abc")
         assertThat(text.getNextChangeTime(0)).isEqualTo(Long.MAX_VALUE)
@@ -111,7 +148,7 @@ public class FromWireComplicationTextTest {
             .setReferencePeriodEndMillis(startPointMillis)
             .build()
 
-        val text = wireText.asApiComplicationText()
+        val text = wireText.toApiComplicationText()
 
         val twoMinutesThreeSecondAfter = startPointMillis + 2.minutes + 3.seconds
         assertThat(
@@ -136,7 +173,7 @@ public class FromWireComplicationTextTest {
             .setTimeZone(java.util.TimeZone.getTimeZone("Europe/London"))
             .build()
 
-        val text = wireText.asApiComplicationText()
+        val text = wireText.toApiComplicationText()
 
         assertThat(text.getTextAt(getResource(), dateTimeMillis).toString())
             .isEqualTo("10:15 in London")

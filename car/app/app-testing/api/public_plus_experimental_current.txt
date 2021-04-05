@@ -9,6 +9,7 @@ package androidx.car.app.testing {
     method public androidx.car.app.testing.ScreenController create();
     method public androidx.car.app.testing.ScreenController destroy();
     method public androidx.car.app.Screen get();
+    method public Object? getScreenResult();
     method public java.util.List<androidx.car.app.model.Template!> getTemplatesReturned();
     method public static androidx.car.app.testing.ScreenController of(androidx.car.app.testing.TestCarContext, androidx.car.app.Screen);
     method public androidx.car.app.testing.ScreenController pause();
@@ -19,17 +20,18 @@ package androidx.car.app.testing {
   }
 
   public class SessionController {
-    method public androidx.car.app.testing.SessionController create();
+    method public androidx.car.app.testing.SessionController create(android.content.Intent);
     method public androidx.car.app.testing.SessionController destroy();
     method public androidx.car.app.Session get();
     method public static androidx.car.app.testing.SessionController of(androidx.car.app.Session, androidx.car.app.testing.TestCarContext);
     method public androidx.car.app.testing.SessionController pause();
     method public androidx.car.app.testing.SessionController resume();
+    method public androidx.car.app.testing.SessionController start();
     method public androidx.car.app.testing.SessionController stop();
   }
 
   public class TestAppManager extends androidx.car.app.AppManager {
-    method public androidx.car.app.SurfaceCallback? getSurfaceListener();
+    method public androidx.car.app.SurfaceCallback? getSurfaceCallback();
     method public java.util.List<android.util.Pair<androidx.car.app.Screen!,androidx.car.app.model.Template!>!> getTemplatesReturned();
     method public java.util.List<java.lang.CharSequence!> getToastsShown();
     method public void reset();

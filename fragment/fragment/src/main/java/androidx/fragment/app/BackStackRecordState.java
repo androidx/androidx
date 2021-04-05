@@ -63,7 +63,7 @@ final class BackStackRecordState implements Parcelable {
             final BackStackRecord.Op op = bse.mOps.get(opNum);
             mOps[pos++] = op.mCmd;
             mFragmentWhos.add(op.mFragment != null ? op.mFragment.mWho : null);
-            mOps[pos++] = op.mTopmostFragment ? 1 : 0;
+            mOps[pos++] = op.mFromExpandedOp ? 1 : 0;
             mOps[pos++] = op.mEnterAnim;
             mOps[pos++] = op.mExitAnim;
             mOps[pos++] = op.mPopEnterAnim;
@@ -154,7 +154,7 @@ final class BackStackRecordState implements Parcelable {
             }
             op.mOldMaxState = Lifecycle.State.values()[mOldMaxLifecycleStates[num]];
             op.mCurrentMaxState = Lifecycle.State.values()[mCurrentMaxLifecycleStates[num]];
-            op.mTopmostFragment = mOps[pos++] != 0;
+            op.mFromExpandedOp = mOps[pos++] != 0;
             op.mEnterAnim = mOps[pos++];
             op.mExitAnim = mOps[pos++];
             op.mPopEnterAnim = mOps[pos++];

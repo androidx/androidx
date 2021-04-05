@@ -16,6 +16,10 @@
 
 package androidx.wear.complications.provider.samples
 
+import android.graphics.Color
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import androidx.wear.complications.ComplicationProviderService
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
@@ -29,17 +33,27 @@ class AsynchronousProviderService : ComplicationProviderService() {
     override fun onComplicationUpdate(
         complicationId: Int,
         type: ComplicationType,
-        callback: ComplicationUpdateCallback
+        listener: ComplicationUpdateListener
     ) {
         executor.execute {
-            callback.onUpdateComplication(
+            listener.onUpdateComplication(
                 when (type) {
                     ComplicationType.SHORT_TEXT ->
                         ShortTextComplicationData.Builder(plainText("# $complicationId")).build()
 
                     ComplicationType.LONG_TEXT ->
-                        LongTextComplicationData.Builder(plainText("hello $complicationId"))
-                            .build()
+                        LongTextComplicationData.Builder(
+                            plainText(
+                                SpannableString("hello $complicationId").apply {
+                                    setSpan(
+                                        ForegroundColorSpan(Color.RED),
+                                        0,
+                                        5,
+                                        Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                                    )
+                                }
+                            )
+                        ).build()
 
                     else -> null
                 }
@@ -52,7 +66,18 @@ class AsynchronousProviderService : ComplicationProviderService() {
             ShortTextComplicationData.Builder(plainText("# 123")).build()
 
         ComplicationType.LONG_TEXT ->
-            LongTextComplicationData.Builder(plainText("hello 123")).build()
+            LongTextComplicationData.Builder(
+                plainText(
+                    SpannableString("hello 123").apply {
+                        setSpan(
+                            ForegroundColorSpan(Color.RED),
+                            0,
+                            5,
+                            Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                        )
+                    }
+                )
+            ).build()
 
         else
         -> null

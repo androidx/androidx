@@ -1,3 +1,5 @@
+import static androidx.build.dependencies.DependenciesKt.*
+
 /*
  * Copyright (C) 2021 The Android Open Source Project
  *
@@ -21,16 +23,30 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId "androidx.car.app.samples.helloworld"
+        applicationId "androidx.car.app.sample.helloworld"
         minSdkVersion 23
         versionCode 1
         versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            // Enables code shrinking, obfuscation, and optimization.
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile(
+                    'proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
+        }
     }
 }
 
 dependencies {
     implementation(project(":car:app:app"))
 
-    implementation("androidx.lifecycle:lifecycle-common-java8:2.2.0")
+    testImplementation(ROBOLECTRIC)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
+    testImplementation(project(":car:app:app-testing"))
 }
 

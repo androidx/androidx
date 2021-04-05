@@ -17,6 +17,7 @@
 package androidx.room.integration.kotlintestapp.test
 
 import androidx.room.integration.kotlintestapp.vo.Book
+import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -28,6 +29,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
@@ -59,6 +61,31 @@ class FlowQueryTest : TestDatabaseTest() {
 
         booksDao.getBooksFlow().take(1).collect {
             assertThat(it)
+                .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+        }
+    }
+
+    @Test
+    fun collectBooks_first() = runBlocking {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
+
+        val result = booksDao.getBooksFlow().first()
+        assertThat(result)
+            .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
+    }
+
+    @Test
+    fun collectBooks_first_inTransaction() = runBlocking {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        database.withTransaction {
+            booksDao.insertBookSuspend(TestUtil.BOOK_2)
+            val result = booksDao.getBooksFlow().first()
+            assertThat(result)
                 .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
         }
     }

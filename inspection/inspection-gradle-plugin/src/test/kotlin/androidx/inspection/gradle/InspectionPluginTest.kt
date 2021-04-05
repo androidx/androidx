@@ -66,7 +66,11 @@ class InspectionPluginTest {
                     id("androidx.inspection")
                 }
             """.trimIndent(),
-            suffix = ""
+            suffix = """
+                dependencies {
+                    implementation("androidx.inspection:inspection:1.0.0")
+                }
+            """
         )
 
         val output = gradleRunner.withArguments("dexInspectorRelease").build()

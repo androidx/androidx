@@ -88,11 +88,13 @@ public class OnItemVisibilityChangedDelegateImpl implements
         @Override
         public void onItemVisibilityChanged(
                 int startIndexInclusive, int endIndexExclusive, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mListener.onItemVisibilityChanged(
-                            startIndexInclusive, endIndexExclusive),
-                    callback,
-                    "onItemVisibilityChanged");
+            RemoteUtils.dispatchCallFromHost(
+                    callback, "onItemVisibilityChanged", () -> {
+                        mListener.onItemVisibilityChanged(
+                                startIndexInclusive, endIndexExclusive);
+                        return null;
+                    }
+            );
         }
     }
 }

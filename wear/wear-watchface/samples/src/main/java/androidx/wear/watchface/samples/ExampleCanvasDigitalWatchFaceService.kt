@@ -43,6 +43,7 @@ import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
@@ -55,9 +56,10 @@ import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.Option
 import kotlin.math.max
 import kotlin.math.min
 
@@ -470,35 +472,35 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
     ): WatchFace {
         val watchFaceStyle = WatchFaceColorStyle.create(this, RED_STYLE)
         val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
-            COLOR_STYLE_SETTING,
+            UserStyleSetting.Id(COLOR_STYLE_SETTING),
             getString(R.string.colors_style_setting),
             getString(R.string.colors_style_setting_description),
             icon = null,
             options = listOf(
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    RED_STYLE,
+                    Option.Id(RED_STYLE),
                     getString(R.string.colors_style_red),
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    GREEN_STYLE,
+                    Option.Id(GREEN_STYLE),
                     getString(R.string.colors_style_green),
                     Icon.createWithResource(this, R.drawable.green_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    BLUE_STYLE,
+                    Option.Id(BLUE_STYLE),
                     getString(R.string.colors_style_blue),
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
             ),
-            listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
+            listOf(Layer.BASE, Layer.COMPLICATIONS, Layer.COMPLICATIONS_OVERLAY)
         )
-        val userStyleRepository = UserStyleRepository(
+        val userStyleRepository = CurrentUserStyleRepository(
             UserStyleSchema(listOf(colorStyleSetting))
         )
         val leftComplication = Complication.createRoundRectComplicationBuilder(
             ComplicationID.LEFT.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
+            CanvasComplicationDrawable(watchFaceStyle.getDrawable(this)!!, watchState),
             listOf(
                 ComplicationType.RANGED_VALUE,
                 ComplicationType.SHORT_TEXT,
@@ -516,7 +518,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             .build()
         val rightComplication = Complication.createRoundRectComplicationBuilder(
             ComplicationID.RIGHT.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
+            CanvasComplicationDrawable(watchFaceStyle.getDrawable(this)!!, watchState),
             listOf(
                 ComplicationType.RANGED_VALUE,
                 ComplicationType.SHORT_TEXT,
@@ -543,7 +545,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         // The upper and lower complications change shape depending on the complication's type.
         val upperComplication = Complication.createRoundRectComplicationBuilder(
             ComplicationID.UPPER.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
+            CanvasComplicationDrawable(watchFaceStyle.getDrawable(this)!!, watchState),
             upperAndLowerComplicationTypes,
             DefaultComplicationProviderPolicy(SystemProviders.WORLD_CLOCK),
             ComplicationBounds(
@@ -565,7 +567,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             .build()
         val lowerComplication = Complication.createRoundRectComplicationBuilder(
             ComplicationID.LOWER.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
+            CanvasComplicationDrawable(watchFaceStyle.getDrawable(this)!!, watchState),
             upperAndLowerComplicationTypes,
             DefaultComplicationProviderPolicy(SystemProviders.NEXT_EVENT),
             ComplicationBounds(
@@ -587,7 +589,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             .build()
         val backgroundComplication = Complication.createBackgroundComplicationBuilder(
             ComplicationID.BACKGROUND.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
+            CanvasComplicationDrawable(watchFaceStyle.getDrawable(this)!!, watchState),
             listOf(ComplicationType.PHOTO_IMAGE),
             DefaultComplicationProviderPolicy()
         ).build()
@@ -621,7 +623,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             renderer.oldBounds.set(0, 0, 0, 0)
         }
         return WatchFace(
-            WatchFaceType.ANALOG,
+            WatchFaceType.DIGITAL,
             userStyleRepository,
             renderer,
             complicationsManager
@@ -633,13 +635,13 @@ class ExampleDigitalWatchCanvasRenderer(
     surfaceHolder: SurfaceHolder,
     private val context: Context,
     private var watchFaceColorStyle: WatchFaceColorStyle,
-    userStyleRepository: UserStyleRepository,
-    private val watchState: WatchState,
+    currentUserStyleRepository: CurrentUserStyleRepository,
+    watchState: WatchState,
     private val colorStyleSetting: UserStyleSetting.ListUserStyleSetting,
     private val complicationsManager: ComplicationsManager
 ) : Renderer.CanvasRenderer(
     surfaceHolder,
-    userStyleRepository,
+    currentUserStyleRepository,
     watchState,
     CanvasType.HARDWARE,
     INTERACTIVE_UPDATE_RATE_MS
@@ -648,6 +650,7 @@ class ExampleDigitalWatchCanvasRenderer(
 
     private fun getBaseDigitPaint() = Paint().apply {
         typeface = Typeface.create(DIGITAL_TYPE_FACE, Typeface.NORMAL)
+        isAntiAlias = true
     }
 
     private val digitTextHoursPaint = getBaseDigitPaint()
@@ -745,22 +748,21 @@ class ExampleDigitalWatchCanvasRenderer(
 
     init {
         // Listen for style changes.
-        userStyleRepository.addUserStyleListener(
-            object : UserStyleRepository.UserStyleListener {
+        currentUserStyleRepository.addUserStyleChangeListener(
+            object : CurrentUserStyleRepository.UserStyleChangeListener {
                 @SuppressLint("SyntheticAccessor")
                 override fun onUserStyleChanged(userStyle: UserStyle) {
                     watchFaceColorStyle =
                         WatchFaceColorStyle.create(
                             context,
-                            userStyle[colorStyleSetting]!!.id
+                            userStyle[colorStyleSetting]!!.toString()
                         )
 
                     // Apply the userStyle to the complications. ComplicationDrawables for each of
                     // the styles are defined in XML so we need to replace the complication's
                     // drawables.
                     for ((_, complication) in complicationsManager.complications) {
-                        complication.renderer =
-                            watchFaceColorStyle.getComplicationDrawableRenderer(context, watchState)
+                        complication.renderer.drawable = watchFaceColorStyle.getDrawable(context)!!
                     }
 
                     clearDigitBitmapCache()
@@ -777,6 +779,10 @@ class ExampleDigitalWatchCanvasRenderer(
 
             // Trigger recomputation of bounds.
             oldBounds.set(0, 0, 0, 0)
+            val antiAlias = !(it && watchState.hasLowBitAmbient)
+            digitTextHoursPaint.setAntiAlias(antiAlias)
+            digitTextMinutesPaint.setAntiAlias(antiAlias)
+            digitTextSecondsPaint.setAntiAlias(antiAlias)
         }
     }
 
@@ -821,13 +827,13 @@ class ExampleDigitalWatchCanvasRenderer(
 
         applyColorStyleAndDrawMode(renderParameters.drawMode)
 
-        if (renderParameters.layerParameters[Layer.BASE_LAYER] != LayerMode.HIDE) {
+        if (renderParameters.layerParameters[Layer.BASE] != LayerMode.HIDE) {
             drawBackground(canvas)
         }
 
         drawComplications(canvas, calendar)
 
-        if (renderParameters.layerParameters[Layer.BASE_LAYER] != LayerMode.HIDE) {
+        if (renderParameters.layerParameters[Layer.BASE] != LayerMode.HIDE) {
             val is24Hour: Boolean = DateFormat.is24HourFormat(context)
 
             nextSecondTime.timeInMillis = calendar.timeInMillis

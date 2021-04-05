@@ -19,7 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.METHOD_PARAMETER
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_METHOD_PARAMETER
 import com.google.devtools.ksp.symbol.KSValueParameter
 
 internal class KspExecutableParameterElement(
@@ -28,7 +28,7 @@ internal class KspExecutableParameterElement(
     val parameter: KSValueParameter
 ) : KspElement(env, parameter),
     XExecutableParameterElement,
-    XAnnotated by KspAnnotated.create(env, parameter, METHOD_PARAMETER) {
+    XAnnotated by KspAnnotated.create(env, parameter, NO_USE_SITE_OR_METHOD_PARAMETER) {
 
     override val equalityItems: Array<out Any?>
         get() = arrayOf(method, parameter)

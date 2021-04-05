@@ -87,7 +87,12 @@ import java.security.InvalidParameterException;
  */
 public abstract class CarAppService extends Service {
     /**
-     * The {@link Intent} that must be declared as handled by the service.
+     * The full qualified name of the {@link CarAppService} class.
+     *
+     * <p>This is the same name that must be used to declare the action of the intent filter for
+     * the app's {@link CarAppService} in the app's manifest.
+     *
+     * @see CarAppService
      */
     public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
 
@@ -149,21 +154,17 @@ public abstract class CarAppService extends Service {
             Log.d(TAG, "onUnbind intent: " + intent);
         }
         runOnMain(() -> {
-            // Destroy the session
             if (mCurrentSession != null) {
-                CarContext carContext = mCurrentSession.getCarContext();
-
-                // Stop any active navigation
-                carContext.getCarService(NavigationManager.class).onStopNavigation();
-
-                // Destroy all screens in the stack
-                carContext.getCarService(ScreenManager.class).destroyAndClearScreenStack();
-
-                // Remove binders to the host
-                carContext.resetHosts();
-
-                ((LifecycleRegistry) mCurrentSession.getLifecycle()).handleLifecycleEvent(
-                        Event.ON_DESTROY);
+                // Destroy the session
+                // The session's lifecycle is observed by some of the manager and they will
+                // perform cleanup on destroy.  For example, the ScreenManager can destroy all
+                // Screens it holds.
+                LifecycleRegistry lifecycleRegistry = getLifecycleIfValid();
+                if (lifecycleRegistry == null) {
+                    Log.e(TAG, "Null Session when unbinding");
+                } else {
+                    lifecycleRegistry.handleLifecycleEvent(Event.ON_DESTROY);
+                }
             }
             mCurrentSession = null;
         });
@@ -323,6 +324,17 @@ public abstract class CarAppService extends Service {
         return mHandshakeInfo;
     }
 
+    @Nullable
+    LifecycleRegistry getLifecycleIfValid() {
+        Session session = getCurrentSession();
+        return session == null ? null : (LifecycleRegistry) session.getLifecycleInternal();
+    }
+
+    @NonNull
+    LifecycleRegistry getLifecycle() {
+        return requireNonNull(getLifecycleIfValid());
+    }
+
     private final ICarApp.Stub mBinder =
             new ICarApp.Stub() {
                 // incompatible argument for parameter context of attachBaseContext.
@@ -340,10 +352,11 @@ public abstract class CarAppService extends Service {
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "onAppCreate intent: " + intent);
                     }
-                    RemoteUtils.dispatchHostCall(() -> {
+
+                    RemoteUtils.dispatchCallFromHost(callback, "onAppCreate", () -> {
                         Session session = getCurrentSession();
                         if (session == null
-                                || session.getLifecycle().getCurrentState() == State.DESTROYED) {
+                                || getLifecycle().getCurrentState() == State.DESTROYED) {
                             session = onCreateSession();
                             setCurrentSession(session);
                         }
@@ -354,7 +367,7 @@ public abstract class CarAppService extends Service {
                         // Whenever the host unbinds, the screens in the stack are destroyed.  If
                         // there is another bind, before the OS has destroyed this Service, then
                         // the stack will be empty, and we need to treat it as a new instance.
-                        LifecycleRegistry registry = (LifecycleRegistry) session.getLifecycle();
+                        LifecycleRegistry registry = getLifecycle();
                         Lifecycle.State state = registry.getCurrentState();
                         int screenStackSize = session.getCarContext().getCarService(
                                 ScreenManager.class).getScreenStack().size();
@@ -374,7 +387,8 @@ public abstract class CarAppService extends Service {
                             }
                             onNewIntentInternal(session, intent);
                         }
-                    }, callback, "onAppCreate");
+                        return null;
+                    });
 
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "onAppCreate completed");
@@ -383,99 +397,108 @@ public abstract class CarAppService extends Service {
 
                 @Override
                 public void onAppStart(IOnDoneCallback callback) {
-                    RemoteUtils.dispatchHostCall(
-                            () -> {
-                                ((LifecycleRegistry) throwIfInvalid(
-                                        getCurrentSession()).getLifecycle())
-                                        .handleLifecycleEvent(Event.ON_START);
-                            }, callback,
-                            "onAppStart");
+                    RemoteUtils.dispatchCallFromHost(
+                            getLifecycleIfValid(), callback,
+                            "onAppStart", () -> {
+                                getLifecycle().handleLifecycleEvent(Event.ON_START);
+                                return null;
+                            });
                 }
 
                 @Override
                 public void onAppResume(IOnDoneCallback callback) {
-                    RemoteUtils.dispatchHostCall(
-                            () -> {
-                                ((LifecycleRegistry) throwIfInvalid(
-                                        getCurrentSession()).getLifecycle())
+                    RemoteUtils.dispatchCallFromHost(
+                            getLifecycleIfValid(), callback,
+                            "onAppResume", () -> {
+                                getLifecycle()
                                         .handleLifecycleEvent(Event.ON_RESUME);
-                            }, callback,
-                            "onAppResume");
+                                return null;
+                            });
                 }
 
                 @Override
                 public void onAppPause(IOnDoneCallback callback) {
-                    RemoteUtils.dispatchHostCall(
+                    RemoteUtils.dispatchCallFromHost(
+                            getLifecycleIfValid(), callback, "onAppPause",
                             () -> {
-                                ((LifecycleRegistry) throwIfInvalid(
-                                        getCurrentSession()).getLifecycle())
-                                        .handleLifecycleEvent(Event.ON_PAUSE);
-                            }, callback, "onAppPause");
+                                getLifecycle().handleLifecycleEvent(Event.ON_PAUSE);
+                                return null;
+                            });
                 }
 
                 @Override
                 public void onAppStop(IOnDoneCallback callback) {
-                    RemoteUtils.dispatchHostCall(
+                    RemoteUtils.dispatchCallFromHost(
+                            getLifecycleIfValid(), callback, "onAppStop",
                             () -> {
-                                ((LifecycleRegistry) throwIfInvalid(
-                                        getCurrentSession()).getLifecycle())
-                                        .handleLifecycleEvent(Event.ON_STOP);
-                            }, callback, "onAppStop");
+                                getLifecycle().handleLifecycleEvent(Event.ON_STOP);
+                                return null;
+                            });
                 }
 
                 @Override
                 public void onNewIntent(Intent intent, IOnDoneCallback callback) {
-                    RemoteUtils.dispatchHostCall(
-                            () -> onNewIntentInternal(throwIfInvalid(getCurrentSession()), intent),
+                    RemoteUtils.dispatchCallFromHost(
+                            getLifecycleIfValid(),
                             callback,
-                            "onNewIntent");
+                            "onNewIntent",
+                            () -> {
+                                onNewIntentInternal(throwIfInvalid(getCurrentSession()), intent);
+                                return null;
+                            });
                 }
 
                 @Override
                 public void onConfigurationChanged(Configuration configuration,
                         IOnDoneCallback callback) {
-                    RemoteUtils.dispatchHostCall(
-                            () -> onConfigurationChangedInternal(
-                                    throwIfInvalid(getCurrentSession()), configuration),
+                    RemoteUtils.dispatchCallFromHost(
+                            getLifecycleIfValid(),
                             callback,
-                            "onConfigurationChanged");
+                            "onConfigurationChanged",
+                            () -> {
+                                onConfigurationChangedInternal(
+                                        throwIfInvalid(getCurrentSession()), configuration);
+                                return null;
+                            });
                 }
 
                 @Override
                 public void getManager(@CarServiceType @NonNull String type,
                         IOnDoneCallback callback) {
-                    Session session = throwIfInvalid(getCurrentSession());
-                    switch (type) {
-                        case CarContext.APP_SERVICE:
-                            RemoteUtils.sendSuccessResponse(
-                                    callback,
-                                    "getManager",
-                                    session.getCarContext().getCarService(
-                                            AppManager.class).getIInterface());
-                            return;
-                        case CarContext.NAVIGATION_SERVICE:
-                            RemoteUtils.sendSuccessResponse(
-                                    callback,
-                                    "getManager",
-                                    session.getCarContext().getCarService(
-                                            NavigationManager.class).getIInterface());
-                            return;
-                        default:
-                            Log.e(TAG, type + "%s is not a valid manager");
-                            RemoteUtils.sendFailureResponse(callback, "getManager",
-                                    new InvalidParameterException(
-                                            type + " is not a valid manager type"));
-                    }
+                    ThreadUtils.runOnMain(() -> {
+                        Session session = throwIfInvalid(getCurrentSession());
+                        switch (type) {
+                            case CarContext.APP_SERVICE:
+                                RemoteUtils.sendSuccessResponseToHost(
+                                        callback,
+                                        "getManager",
+                                        session.getCarContext().getCarService(
+                                                AppManager.class).getIInterface());
+                                return;
+                            case CarContext.NAVIGATION_SERVICE:
+                                RemoteUtils.sendSuccessResponseToHost(
+                                        callback,
+                                        "getManager",
+                                        session.getCarContext().getCarService(
+                                                NavigationManager.class).getIInterface());
+                                return;
+                            default:
+                                Log.e(TAG, type + "%s is not a valid manager");
+                                RemoteUtils.sendFailureResponseToHost(callback, "getManager",
+                                        new InvalidParameterException(
+                                                type + " is not a valid manager type"));
+                        }
+                    });
                 }
 
                 @Override
                 public void getAppInfo(IOnDoneCallback callback) {
                     try {
-                        RemoteUtils.sendSuccessResponse(
+                        RemoteUtils.sendSuccessResponseToHost(
                                 callback, "getAppInfo", CarAppService.this.getAppInfo());
                     } catch (IllegalArgumentException e) {
                         // getAppInfo() could fail with the specified API version is invalid.
-                        RemoteUtils.sendFailureResponse(callback, "getAppInfo", e);
+                        RemoteUtils.sendFailureResponseToHost(callback, "getAppInfo", e);
                     }
                 }
 
@@ -489,17 +512,18 @@ public abstract class CarAppService extends Service {
                         int uid = Binder.getCallingUid();
                         HostInfo hostInfo = new HostInfo(packageName, uid);
                         if (!getHostValidator().isValidHost(hostInfo)) {
-                            RemoteUtils.sendFailureResponse(callback, "onHandshakeCompleted",
+                            RemoteUtils.sendFailureResponseToHost(callback, "onHandshakeCompleted",
                                     new IllegalArgumentException("Unknown host '"
                                             + packageName + "', uid:" + uid));
                             return;
                         }
                         setHostInfo(hostInfo);
                         setHandshakeInfo(deserializedHandshakeInfo);
-                        RemoteUtils.sendSuccessResponse(callback, "onHandshakeCompleted", null);
+                        RemoteUtils.sendSuccessResponseToHost(callback, "onHandshakeCompleted",
+                                null);
                     } catch (BundlerException | IllegalArgumentException e) {
                         setHostInfo(null);
-                        RemoteUtils.sendFailureResponse(callback, "onHandshakeCompleted", e);
+                        RemoteUtils.sendFailureResponseToHost(callback, "onHandshakeCompleted", e);
                     }
                 }
 

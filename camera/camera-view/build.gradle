@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.LibraryVersions
+
 import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import androidx.build.Publish
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -25,16 +27,22 @@ plugins {
     id("kotlin-android")
 }
 
+apply(from: "dependencies.gradle")
+
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.1.0")
     api("androidx.lifecycle:lifecycle-common:2.0.0")
-    api(project(":camera:camera-core"))
-    implementation(project(path: ":camera:camera-lifecycle"))
     api("androidx.annotation:annotation:1.0.0")
+    api("androidx.camera:camera-core:${VIEW_ATOMIC_GROUP_PINNED_VER}")
+    implementation("androidx.camera:camera-lifecycle:${VIEW_ATOMIC_GROUP_PINNED_VER}")
+    implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
     implementation(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation(AUTO_VALUE_ANNOTATIONS)
+    implementation("androidx.appcompat:appcompat:1.1.0")
+    // Added for annotation-experimental
+    compileOnly(KOTLIN_STDLIB)
+
     annotationProcessor(AUTO_VALUE)
 
     testImplementation(ANDROIDX_TEST_RUNNER)
@@ -44,9 +52,17 @@ dependencies {
     testImplementation(TRUTH)
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(project(":camera:camera-testing"))
+    testImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in camera-core project dependency which will
+        // override pinned dependency.
+        exclude(group:"androidx.camera", module:"camera-core")
+    }
 
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing"))  {
+        // Ensure camera-testing does not pull in camera-core project dependency which will
+        // override pinned dependency.
+        exclude(group:"androidx.camera", module:"camera-core")
+    }
     androidTestImplementation(MOCKITO_CORE)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -56,7 +72,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(TRUTH)
-    androidTestImplementation(project(":camera:camera-camera2"))
+    androidTestImplementation("androidx.camera:camera-camera2:${VIEW_ATOMIC_GROUP_PINNED_VER}")
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
 }

@@ -492,8 +492,12 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
         AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(stream)
                 .build();
-        mPlayer.setAudioAttributes(attrs);
-        mSession.updatePlayer(mPlayer);
+        MockPlayer player = new MockPlayer(0);
+        player.setAudioAttributes(attrs);
+
+        // Replace with another player rather than setting the audio attribute of the existing
+        // player for making changes to take effect immediately.
+        mSession.updatePlayer(player);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int targetVolume = originalVolume == minVolume
@@ -534,8 +538,11 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
         AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(stream)
                 .build();
-        mPlayer.setAudioAttributes(attrs);
-        mSession.updatePlayer(mPlayer);
+        MockPlayer player = new MockPlayer(0);
+        player.setAudioAttributes(attrs);
+        // Replace with another player rather than setting the audio attribute of the existing
+        // player for making changes to take effect immediately.
+        mSession.updatePlayer(player);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int direction = originalVolume == minVolume

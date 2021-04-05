@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <declare-styleable name="FocusDispatcherView">
-    <!-- Points to the view that should gain the focus when FocusDispatcherView is focused. -->
-    <attr name="focusTarget" format="reference"/>
-  </declare-styleable>
-</resources>

@@ -73,7 +73,7 @@ function removeCaches() {
   # ~/.gradle as the Gradle cache dir, which could surprise users because it might hold
   # different state. So, we preemptively remove ~/.gradle too, just in case the user
   # is going to want that for their following build
-  rm ~/.gradle -rf
+  rm -rf ~/.gradle
   # AGP should (also) do this automatically (b/170640263)
   rm -rf appsearch/appsearch/.cxx
   rm -rf appsearch/local-backend/.cxx

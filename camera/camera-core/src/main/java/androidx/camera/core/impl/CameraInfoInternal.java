@@ -66,4 +66,8 @@ public interface CameraInfoInternal extends CameraInfo {
     /** Returns a list of quirks related to the camera. */
     @NonNull
     Quirks getCameraQuirks();
+
+    /** Returns the {@link CamcorderProfileProvider} associated with this camera. */
+    @NonNull
+    CamcorderProfileProvider getCamcorderProfileProvider();
 }

@@ -21,6 +21,13 @@ import androidx.room.compiler.processing.testcode.OtherAnnotation
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.AnnotationSpec
@@ -28,33 +35,45 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import com.tschuchort.compiletesting.KotlinCompilation
+import com.tschuchort.compiletesting.SourceFile
+import com.tschuchort.compiletesting.symbolProcessors
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import kotlin.reflect.KClass
 
 class XProcessingStepTest {
+    @field:Rule
+    @JvmField
+    val temporaryFolder = TemporaryFolder()
+
     @Test
     fun xProcessingStep() {
         val annotatedElements = mutableMapOf<KClass<out Annotation>, String>()
         val processingStep = object : XProcessingStep {
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<KClass<out Annotation>, List<XTypeElement>>
+                elementsByAnnotation: Map<String, List<XTypeElement>>
             ): Set<XTypeElement> {
-                elementsByAnnotation[OtherAnnotation::class]?.forEach {
+                elementsByAnnotation[OtherAnnotation::class.qualifiedName]?.forEach {
                     annotatedElements[OtherAnnotation::class] = it.qualifiedName
                 }
-                elementsByAnnotation[MainAnnotation::class]?.forEach {
+                elementsByAnnotation[MainAnnotation::class.qualifiedName]?.forEach {
                     annotatedElements[MainAnnotation::class] = it.qualifiedName
                 }
                 return emptySet()
             }
 
-            override fun annotations(): Set<KClass<out Annotation>> {
-                return setOf(OtherAnnotation::class, MainAnnotation::class)
+            override fun annotations(): Set<String> {
+                return setOf(
+                    OtherAnnotation::class.qualifiedName!!,
+                    MainAnnotation::class.qualifiedName!!
+                )
             }
         }
         val mainProcessor = object : BasicAnnotationProcessor() {
-            override fun initSteps(): Iterable<ProcessingStep> {
+            override fun steps(): Iterable<Step> {
                 return listOf(
                     processingStep.asAutoCommonProcessor(processingEnv)
                 )
@@ -107,11 +126,11 @@ class XProcessingStepTest {
         val processingStep = object : XProcessingStep {
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<KClass<out Annotation>, List<XTypeElement>>
+                elementsByAnnotation: Map<String, List<XTypeElement>>
             ): Set<XTypeElement> {
                 // for each element annotated with Main annotation, create a class with Other
                 // annotation to trigger another round
-                elementsByAnnotation[MainAnnotation::class]?.forEach {
+                elementsByAnnotation[MainAnnotation::class.qualifiedName]?.forEach {
                     val className = ClassName.get(it.packageName, "${it.name}_Impl")
                     val spec = TypeSpec.classBuilder(className)
                         .addAnnotation(
@@ -124,14 +143,17 @@ class XProcessingStepTest {
                         .build()
                         .writeTo(env.filer)
                 }
-                elementsByAnnotation[OtherAnnotation::class]?.forEach {
+                elementsByAnnotation[OtherAnnotation::class.qualifiedName]?.forEach {
                     otherAnnotatedElements.add(it.type.typeName)
                 }
                 return emptySet()
             }
 
-            override fun annotations(): Set<KClass<out Annotation>> {
-                return setOf(OtherAnnotation::class, MainAnnotation::class)
+            override fun annotations(): Set<String> {
+                return setOf(
+                    OtherAnnotation::class.qualifiedName!!,
+                    MainAnnotation::class.qualifiedName!!
+                )
             }
         }
         val main = JavaFileObjects.forSourceString(
@@ -155,16 +177,16 @@ class XProcessingStepTest {
             listOf(main)
         ).processedWith(
             object : BasicAnnotationProcessor() {
-                override fun initSteps(): Iterable<ProcessingStep> {
+                override fun steps(): Iterable<Step> {
                     return listOf(
                         processingStep.asAutoCommonProcessor(processingEnv)
                     )
                 }
 
-                override fun getSupportedOptions(): MutableSet<String> {
-                    return mutableSetOf(
-                        MainAnnotation::class.java.canonicalName,
-                        OtherAnnotation::class.java.canonicalName
+                override fun getSupportedOptions(): Set<String> {
+                    return setOf(
+                        MainAnnotation::class.qualifiedName!!,
+                        OtherAnnotation::class.qualifiedName!!
                     )
                 }
             }
@@ -182,14 +204,14 @@ class XProcessingStepTest {
             var roundCounter = 0
             override fun process(
                 env: XProcessingEnv,
-                elementsByAnnotation: Map<KClass<out Annotation>, List<XTypeElement>>
+                elementsByAnnotation: Map<String, List<XTypeElement>>
             ): Set<XTypeElement> {
                 elementPerRound[roundCounter++] = listOf(
                     env.requireTypeElement("foo.bar.Main"),
                     env.requireTypeElement("foo.bar.Main")
                 )
                 // trigger another round
-                elementsByAnnotation[MainAnnotation::class]?.forEach {
+                elementsByAnnotation[MainAnnotation::class.qualifiedName]?.forEach {
                     val className = ClassName.get(it.packageName, "${it.name}_Impl")
                     val spec = TypeSpec.classBuilder(className)
                         .addAnnotation(
@@ -205,8 +227,11 @@ class XProcessingStepTest {
                 return emptySet()
             }
 
-            override fun annotations(): Set<KClass<out Annotation>> {
-                return setOf(OtherAnnotation::class, MainAnnotation::class)
+            override fun annotations(): Set<String> {
+                return setOf(
+                    OtherAnnotation::class.qualifiedName!!,
+                    MainAnnotation::class.qualifiedName!!
+                )
             }
         }
         val main = JavaFileObjects.forSourceString(
@@ -230,16 +255,16 @@ class XProcessingStepTest {
             listOf(main)
         ).processedWith(
             object : BasicAnnotationProcessor() {
-                override fun initSteps(): Iterable<ProcessingStep> {
+                override fun steps(): Iterable<Step> {
                     return listOf(
                         processingStep.asAutoCommonProcessor(processingEnv)
                     )
                 }
 
-                override fun getSupportedOptions(): MutableSet<String> {
-                    return mutableSetOf(
-                        MainAnnotation::class.java.canonicalName,
-                        OtherAnnotation::class.java.canonicalName
+                override fun getSupportedOptions(): Set<String> {
+                    return setOf(
+                        MainAnnotation::class.qualifiedName!!,
+                        OtherAnnotation::class.qualifiedName!!
                     )
                 }
             }
@@ -255,5 +280,75 @@ class XProcessingStepTest {
         // make sure elements between different rounds are not the same instances
         assertThat(elementPerRound.get(0)?.get(0))
             .isNotSameInstanceAs(elementPerRound.get(1)?.get(0))
+    }
+
+    @Test
+    fun kspReturnsUnprocessed() {
+        val processingStep = object : XProcessingStep {
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, List<XTypeElement>>
+            ): Set<XTypeElement> {
+                return elementsByAnnotation.values
+                    .flatten()
+                    .toSet()
+            }
+
+            override fun annotations(): Set<String> {
+                return setOf(OtherAnnotation::class.qualifiedName!!)
+            }
+        }
+        var returned: List<KSAnnotated>? = null
+        val processor = object : SymbolProcessor {
+            private lateinit var codeGenerator: CodeGenerator
+            private lateinit var logger: KSPLogger
+
+            override fun init(
+                options: Map<String, String>,
+                kotlinVersion: KotlinVersion,
+                codeGenerator: CodeGenerator,
+                logger: KSPLogger
+            ) {
+                this.codeGenerator = codeGenerator
+                this.logger = logger
+            }
+
+            override fun process(resolver: Resolver): List<KSAnnotated> {
+                val env = XProcessingEnv.create(
+                    emptyMap(),
+                    resolver,
+                    codeGenerator,
+                    logger
+                )
+                return processingStep.executeInKsp(env)
+                    .also { returned = it }
+            }
+        }
+        val main = SourceFile.kotlin(
+            "Other.kt",
+            """
+            package foo.bar
+            import androidx.room.compiler.processing.testcode.*
+            @OtherAnnotation("y")
+            class Other {
+            }
+            """.trimIndent()
+        )
+
+        KotlinCompilation().apply {
+            workingDir = temporaryFolder.root
+            inheritClassPath = true
+            symbolProcessors = listOf(processor)
+            sources = listOf(main)
+            verbose = false
+        }.compile()
+
+        assertThat(returned).apply {
+            isNotNull()
+            isNotEmpty()
+        }
+        val element = returned!!.first() as KSClassDeclaration
+        assertThat(element.classKind).isEqualTo(ClassKind.CLASS)
+        assertThat(element.qualifiedName!!.asString()).isEqualTo("foo.bar.Other")
     }
 }

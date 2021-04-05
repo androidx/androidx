@@ -36,6 +36,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -46,11 +47,13 @@ import androidx.annotation.NonNull;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.Rating;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaController.ControllerCallback;
 import androidx.media2.session.MediaSession.CommandButton;
 import androidx.media2.session.MediaUtils;
+import androidx.media2.session.PercentageRating;
 import androidx.media2.session.RemoteSessionPlayer;
 import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
@@ -112,14 +115,19 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         final long bufferedPosition = 900000;
         final long timeDiff = 102;
         final float speed = 0.5f;
+        final int shuffleMode = SessionPlayer.SHUFFLE_MODE_GROUP;
+        final int repeatMode = SessionPlayer.REPEAT_MODE_ALL;
         final MediaMetadataCompat metadata = MediaUtils.convertToMediaMetadataCompat(
                 MediaTestUtils.createMetadata());
 
-        mSession.setPlaybackState(new PlaybackStateCompat.Builder()
-                .setState(PlaybackStateCompat.STATE_PLAYING, position, speed)
-                .setBufferedPosition(bufferedPosition)
-                .build());
+        mSession.setPlaybackState(
+                new PlaybackStateCompat.Builder()
+                        .setState(PlaybackStateCompat.STATE_PLAYING, position, speed)
+                        .setBufferedPosition(bufferedPosition).build());
         mSession.setMetadata(metadata);
+        mSession.setShuffleMode(shuffleMode);
+        mSession.setRepeatMode(repeatMode);
+        mSession.setRatingType(RatingCompat.RATING_PERCENTAGE);
 
         mController = createController(mSession.getSessionToken());
         mController.setTimeDiff(timeDiff);
@@ -133,6 +141,12 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
                 (double) mController.getCurrentPosition(), 100.0 /* 100 ms */);
         assertEquals(metadata.getDescription().getMediaId(),
                 mController.getCurrentMediaItem().getMediaId());
+        Rating rating = mController.getCurrentMediaItem().getMetadata()
+                .getRating(MediaMetadata.METADATA_KEY_USER_RATING);
+        assertTrue(rating instanceof PercentageRating);
+        assertFalse(rating.isRated());
+        assertEquals(shuffleMode, mController.getShuffleMode());
+        assertEquals(repeatMode, mController.getRepeatMode());
     }
 
     @Test

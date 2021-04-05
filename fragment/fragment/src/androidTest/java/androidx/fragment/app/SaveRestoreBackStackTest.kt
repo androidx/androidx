@@ -16,13 +16,18 @@
 
 package androidx.fragment.app
 
+import android.os.Bundle
 import androidx.fragment.app.test.FragmentTestActivity
+import androidx.fragment.app.test.TestViewModel
 import androidx.fragment.test.R
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,7 +43,7 @@ class SaveRestoreBackStackTest {
                 supportFragmentManager
             }
             val fragmentBase = StrictFragment()
-            val fragmentReplacement = StrictFragment()
+            val fragmentReplacement = ViewModelStrictFragment()
 
             fm.beginTransaction()
                 .add(R.id.content, fragmentBase)
@@ -52,11 +57,32 @@ class SaveRestoreBackStackTest {
                 .commit()
             executePendingTransactions()
 
+            assertWithMessage("ViewModel should not be cleared after commit()")
+                .that(fragmentReplacement.viewModel.cleared)
+                .isFalse()
+
             fm.saveBackStack("replacement")
             executePendingTransactions()
 
+            assertWithMessage("Saved Fragments should have their state saved")
+                .that(fragmentReplacement.calledOnSaveInstanceState)
+                .isTrue()
+
             // Saved Fragments should be destroyed
-            assertThat(fragmentReplacement.calledOnDestroy).isTrue()
+            assertWithMessage("Saved Fragments should be destroyed")
+                .that(fragmentReplacement.calledOnDestroy)
+                .isTrue()
+            // But any ViewModels should not be cleared so that they're available
+            // for later restoration
+            assertWithMessage("ViewModel should not be cleared after saveBackStack()")
+                .that(fragmentReplacement.viewModel.cleared)
+                .isFalse()
+
+            moveToState(Lifecycle.State.DESTROYED)
+
+            assertWithMessage("ViewModel should be cleared after the activity is fully destroyed")
+                .that(fragmentReplacement.viewModel.cleared)
+                .isTrue()
         }
     }
 
@@ -218,6 +244,159 @@ class SaveRestoreBackStackTest {
                             "Found retained child fragment "
                     )
             }
+        }
+    }
+
+    @Test
+    fun restoreBackStack() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictFragment()
+            val fragmentReplacement = StateSaveFragment("saved", "unsaved")
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            val originalViewModel = fragmentReplacement.viewModel
+            assertWithMessage("ViewModel should not be cleared after commit()")
+                .that(originalViewModel.cleared)
+                .isFalse()
+
+            fm.saveBackStack("replacement")
+            executePendingTransactions()
+
+            assertWithMessage("Saved Fragments should have their state saved")
+                .that(fragmentReplacement.calledOnSaveInstanceState)
+                .isTrue()
+
+            // Saved Fragments should be destroyed
+            assertWithMessage("Saved Fragments should be destroyed")
+                .that(fragmentReplacement.calledOnDestroy)
+                .isTrue()
+            // But any ViewModels should not be cleared so that they're available
+            // for later restoration
+            assertWithMessage("ViewModel should not be cleared after saveBackStack()")
+                .that(originalViewModel.cleared)
+                .isFalse()
+
+            fm.restoreBackStack("replacement")
+            executePendingTransactions()
+
+            val newFragmentReplacement = fm.findFragmentById(R.id.content)
+
+            assertThat(newFragmentReplacement).isInstanceOf(StateSaveFragment::class.java)
+
+            val stateSavedReplacement = newFragmentReplacement as StateSaveFragment
+
+            // Assert that restored fragment has its saved state restored
+            assertThat(stateSavedReplacement.savedState).isEqualTo("saved")
+            assertThat(stateSavedReplacement.unsavedState).isNull()
+            assertThat(stateSavedReplacement.viewModel).isSameInstanceAs(originalViewModel)
+        }
+    }
+
+    @Test
+    fun restoreBackStackAfterRecreate() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            var fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictFragment()
+            val fragmentReplacement = StateSaveFragment("saved", "unsaved")
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            val originalViewModel = fragmentReplacement.viewModel
+            assertWithMessage("ViewModel should not be cleared after commit()")
+                .that(originalViewModel.cleared)
+                .isFalse()
+
+            fm.saveBackStack("replacement")
+            executePendingTransactions()
+
+            assertWithMessage("Saved Fragments should have their state saved")
+                .that(fragmentReplacement.calledOnSaveInstanceState)
+                .isTrue()
+
+            // Saved Fragments should be destroyed
+            assertWithMessage("Saved Fragments should be destroyed")
+                .that(fragmentReplacement.calledOnDestroy)
+                .isTrue()
+            // But any ViewModels should not be cleared so that they're available
+            // for later restoration
+            assertWithMessage("ViewModel should not be cleared after saveBackStack()")
+                .that(originalViewModel.cleared)
+                .isFalse()
+
+            // Now recreate the whole activity while the state of the back stack is saved
+            recreate()
+
+            fm = withActivity {
+                supportFragmentManager
+            }
+
+            fm.restoreBackStack("replacement")
+            executePendingTransactions()
+
+            val newFragmentReplacement = fm.findFragmentById(R.id.content)
+
+            assertThat(newFragmentReplacement).isInstanceOf(StateSaveFragment::class.java)
+
+            val stateSavedReplacement = newFragmentReplacement as StateSaveFragment
+
+            // Assert that restored fragment has its saved state restored
+            assertThat(stateSavedReplacement.savedState).isEqualTo("saved")
+            assertThat(stateSavedReplacement.unsavedState).isNull()
+            assertThat(stateSavedReplacement.viewModel).isSameInstanceAs(originalViewModel)
+        }
+    }
+
+    public open class ViewModelStrictFragment : StrictFragment() {
+        public val viewModel: TestViewModel by lazy {
+            ViewModelProvider(this).get(TestViewModel::class.java)
+        }
+    }
+
+    public class StateSaveFragment(
+        public var savedState: String? = null,
+        public val unsavedState: String? = null
+    ) : ViewModelStrictFragment() {
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            if (savedInstanceState != null) {
+                savedState = savedInstanceState.getString(STATE_KEY)
+            }
+        }
+
+        override fun onSaveInstanceState(outState: Bundle) {
+            super.onSaveInstanceState(outState)
+            outState.putString(STATE_KEY, savedState)
+        }
+
+        private companion object {
+            private const val STATE_KEY = "state"
         }
     }
 }

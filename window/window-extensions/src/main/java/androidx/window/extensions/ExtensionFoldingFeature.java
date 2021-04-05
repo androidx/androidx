@@ -65,19 +65,10 @@ public class ExtensionFoldingFeature implements ExtensionDisplayFeature {
      */
     public static final int STATE_HALF_OPENED = 2;
 
-    /**
-     * The foldable device's hinge is flipped with the flexible screen parts or physical screens
-     * facing opposite directions. See the
-     * <a href="https://developer.android.com/guide/topics/ui/foldables#postures">Posture</a>
-     * section in the official documentation for visual samples and references.
-     */
-    public static final int STATE_FLIPPED = 3;
-
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             STATE_HALF_OPENED,
-            STATE_FLAT,
-            STATE_FLIPPED
+            STATE_FLAT
     })
     @interface State {}
 
@@ -101,7 +92,7 @@ public class ExtensionFoldingFeature implements ExtensionDisplayFeature {
     private final int mState;
 
     public ExtensionFoldingFeature(@NonNull Rect bounds, @Type int type, @State int state) {
-        validateFeatureBounds(bounds, type);
+        validateFeatureBounds(bounds);
         mBounds = new Rect(bounds);
         mType = type;
         mState = state;
@@ -129,26 +120,13 @@ public class ExtensionFoldingFeature implements ExtensionDisplayFeature {
     /**
      * Verifies the bounds of the folding feature.
      */
-    private static void validateFeatureBounds(@NonNull Rect bounds, int type) {
+    private static void validateFeatureBounds(@NonNull Rect bounds) {
         if (bounds.width() == 0 && bounds.height() == 0) {
             throw new IllegalArgumentException("Bounds must be non zero");
         }
-        if (type == TYPE_FOLD) {
-            if (bounds.width() != 0 && bounds.height() != 0) {
-                throw new IllegalArgumentException("Bounding rectangle must be either zero-wide "
-                        + "or zero-high for features of type " + typeToString(type));
-            }
-
-            if ((bounds.width() != 0 && bounds.left != 0)
-                    || (bounds.height() != 0 && bounds.top != 0)) {
-                throw new IllegalArgumentException("Bounding rectangle must span the entire "
-                        + "window space for features of type " + typeToString(type));
-            }
-        } else if (type == TYPE_HINGE) {
-            if (bounds.left != 0 && bounds.top != 0) {
-                throw new IllegalArgumentException("Bounding rectangle must span the entire "
-                        + "window space for features of type " + typeToString(type));
-            }
+        if (bounds.left != 0 && bounds.top != 0) {
+            throw new IllegalArgumentException("Bounding rectangle must start at the top or "
+                    + "left window edge for folding features");
         }
     }
 
@@ -169,8 +147,6 @@ public class ExtensionFoldingFeature implements ExtensionDisplayFeature {
         switch (state) {
             case STATE_FLAT:
                 return "FLAT";
-            case STATE_FLIPPED:
-                return "FLIPPED";
             case STATE_HALF_OPENED:
                 return "HALF_OPENED";
             default:

@@ -61,7 +61,7 @@ internal fun KSDeclaration.typeName(resolver: Resolver): TypeName {
     // TODO: https://issuetracker.google.com/issues/168639183
     val qualified = qualifiedName?.asString() ?: return ERROR_TYPE_NAME
     val jvmSignature = resolver.mapToJvmSignature(this)
-    if (jvmSignature.isNotBlank()) {
+    if (jvmSignature != null && jvmSignature.isNotBlank()) {
         return jvmSignature.typeNameFromJvmSignature()
     }
     if (this is KSTypeParameter) {

@@ -45,7 +45,7 @@ androidx {
     name = "Android Wear Watchface Client Editor"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.WEAR
-    mavenVersion = LibraryVersions.WEAR_WATCHFACE_EDITOR
+    mavenVersion = LibraryVersions.WEAR_WATCHFACE_EDITOR_GUAVA
     inceptionYear = "2021"
     description = "Guava wrappers for the Androidx Wear Watchface Editor library"
 }

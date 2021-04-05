@@ -138,11 +138,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.os.EnvironmentCompat;
+import androidx.core.os.ExecutorCompat;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Helper for accessing features in {@link android.content.Context}.
@@ -160,6 +160,22 @@ public class ContextCompat {
      */
     protected ContextCompat() {
         // Not publicly instantiable, but may be extended.
+    }
+
+    /**
+     * <p>Attribution can be used in complex apps to logically separate parts of the app. E.g. a
+     * blogging app might also have a instant messaging app built in. In this case two separate tags
+     * can for used each sub-feature.
+     *
+     * @return the attribution tag this context is for or {@code null} if this is the default.
+     */
+    @Nullable
+    public static String getAttributionTag(@NonNull Context context) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return context.getAttributionTag();
+        }
+
+        return null;
     }
 
     /**
@@ -663,22 +679,7 @@ public class ContextCompat {
         if (Build.VERSION.SDK_INT >= 28) {
             return context.getMainExecutor();
         }
-        return new MainHandlerExecutor(new Handler(context.getMainLooper()));
-    }
-
-    private static class MainHandlerExecutor implements Executor {
-        private final Handler mHandler;
-
-        MainHandlerExecutor(@NonNull Handler handler) {
-            mHandler = handler;
-        }
-
-        @Override
-        public void execute(Runnable command) {
-            if (!mHandler.post(command)) {
-                throw new RejectedExecutionException(mHandler + " is shutting down");
-            }
-        }
+        return ExecutorCompat.create(new Handler(context.getMainLooper()));
     }
 
     /**

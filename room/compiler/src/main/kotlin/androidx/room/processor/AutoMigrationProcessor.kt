@@ -26,6 +26,9 @@ import androidx.room.util.SchemaDiffer
 import androidx.room.vo.AutoMigrationResult
 import java.io.File
 
+// TODO: (b/183435544) Support downgrades in AutoMigrations.
+// TODO: (b/183007590) Use the callback in the AutoMigration annotation while end-to-end
+//  testing, when column/table rename/deletes are supported
 class AutoMigrationProcessor(
     val context: Context,
     val element: XTypeElement,
@@ -46,7 +49,8 @@ class AutoMigrationProcessor(
             return null
         }
 
-        if (!context.processingEnv.requireType(RoomTypeNames.AUTO_MIGRATION_CALLBACK)
+        if (!context.processingEnv
+            .requireType(RoomTypeNames.AUTO_MIGRATION_CALLBACK)
             .isAssignableFrom(element.type)
         ) {
             context.logger.e(
@@ -56,7 +60,7 @@ class AutoMigrationProcessor(
             return null
         }
 
-        val annotationBox = element.toAnnotationBox(AutoMigration::class)
+        val annotationBox = element.getAnnotation(AutoMigration::class)
         if (annotationBox == null) {
             context.logger.e(
                 element,
@@ -104,23 +108,21 @@ class AutoMigrationProcessor(
             element = element,
             from = fromSchemaBundle.version,
             to = toSchemaBundle.version,
-            addedColumns = schemaDiff.added
+            schemaDiff = schemaDiff
         )
     }
 
-    // TODO: File bug for not supporting downgrades.
-    // TODO: (b/180389433) If the files don't exist the getSchemaFile() method should return
-    //  null and before calling process
+    // TODO: (b/180389433) Verify automigration schemas before calling the AutoMigrationProcessor
     private fun getValidatedSchemaFile(version: Int): File? {
         val schemaFile = File(
             context.schemaOutFolder,
-            "${element.qualifiedName}/$version.json"
+            "${element.className.enclosingClassName()}/$version.json"
         )
         if (!schemaFile.exists()) {
             context.logger.e(
                 ProcessorErrors.autoMigrationSchemasNotFound(
                     context.schemaOutFolder.toString(),
-                    "${element.qualifiedName}/$version.json"
+                    "${element.className.enclosingClassName()}/$version.json"
                 ),
                 element
             )

@@ -29,14 +29,13 @@
             <meta-data
                 android:name="androidx.startup.first_library.WorkManagerInitializer"
                 android:value="@string/androidx_startup" />
-        </provider>
 
-        <!-- Remove provider for WorkManager on-demand initialization -->
-        <provider
-            android:name="androidx.work.impl.WorkManagerInitializer"
-            android:authorities="${applicationId}.workmanager-init"
-            android:exported="false"
-            tools:node="remove" />
+            <!-- Remove initializer for WorkManager on-demand initialization -->
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="@string/androidx_startup"
+                tools:node="remove" />
+        </provider>
 
     </application>
 

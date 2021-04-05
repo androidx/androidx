@@ -274,8 +274,8 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
     /**
      * Constructs the `LiveData<PagedList>`.
      *
-     * No work (such as loading) is done immediately, the creation of the first PagedList is is
-     * deferred until the LiveData is observed.
+     * No work (such as loading) is done immediately, the creation of the first [PagedList] is
+     * deferred until the [LiveData] is observed.
      *
      * @return The [LiveData] of [PagedList]s
      */

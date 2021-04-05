@@ -24,7 +24,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class InstrumentationResultsTest {
+public class InstrumentationResultsTest {
     @Test
     public fun ideSummary_alignment() {
         val summary1 = InstrumentationResults.ideSummaryLine("foo", 1000, 100)

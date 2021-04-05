@@ -16,12 +16,8 @@
 
 package androidx.window;
 
-import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -34,9 +30,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
-
-import com.google.common.collect.BoundType;
-import com.google.common.collect.Range;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -65,33 +58,6 @@ public class ExtensionWindowBackendUnitTest {
         // Verify that getInstance always returns the same value
         ExtensionWindowBackend newBackend = ExtensionWindowBackend.getInstance(mContext);
         assertEquals(backend, newBackend);
-    }
-
-    @Test
-    public void testRegisterDeviceStateChangeCallback_noExtension() {
-        // Verify method with extension
-        ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
-        backend.mWindowExtension = null;
-        SimpleConsumer<DeviceState> simpleConsumer = new SimpleConsumer<>();
-
-        backend.registerDeviceStateChangeCallback(directExecutor(), simpleConsumer);
-
-        DeviceState deviceState = simpleConsumer.lastValue();
-        assertNotNull(deviceState);
-        assertThat(deviceState.getPosture()).isIn(Range.range(
-                DeviceState.POSTURE_UNKNOWN, BoundType.CLOSED,
-                DeviceState.POSTURE_MAX_KNOWN, BoundType.CLOSED));
-        DeviceState initialLastReportedState = backend.mLastReportedDeviceState;
-
-        // Verify method without extension
-        backend.mWindowExtension = null;
-        SimpleConsumer<DeviceState> noExtensionConsumer = new SimpleConsumer<>();
-        backend.registerDeviceStateChangeCallback(directExecutor(), noExtensionConsumer);
-        deviceState = noExtensionConsumer.lastValue();
-        assertNotNull(deviceState);
-        assertEquals(DeviceState.POSTURE_UNKNOWN, deviceState.getPosture());
-        // Verify that last reported state does not change when using the getter
-        assertEquals(initialLastReportedState, backend.mLastReportedDeviceState);
     }
 
     @Test
@@ -185,113 +151,6 @@ public class ExtensionWindowBackendUnitTest {
 
         assertTrue(backend.mWindowLayoutChangeCallbacks.isEmpty());
         verify(backend.mWindowExtension).onWindowLayoutChangeListenerRemoved(activity);
-    }
-
-    @Test
-    public void testRegisterDeviceChangeCallback() {
-        ExtensionInterfaceCompat mockInterface = mock(ExtensionInterfaceCompat.class);
-        ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
-        backend.mWindowExtension = mockInterface;
-
-        // Check registering the device state change callback
-        Consumer<DeviceState> consumer = mock(DeviceStateConsumer.class);
-        backend.registerDeviceStateChangeCallback(Runnable::run, consumer);
-
-        assertEquals(1, backend.mDeviceStateChangeCallbacks.size());
-        verify(backend.mWindowExtension).onDeviceStateListenersChanged(eq(false));
-
-        // Check unregistering the device state change callback
-        backend.unregisterDeviceStateChangeCallback(consumer);
-
-        assertTrue(backend.mDeviceStateChangeCallbacks.isEmpty());
-        verify(backend.mWindowExtension).onDeviceStateListenersChanged(eq(true));
-    }
-
-    @Test
-    public void testDeviceChangeCallback() {
-        ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
-        backend.mWindowExtension = mock(ExtensionInterfaceCompat.class);
-
-        // Check that callbacks from the extension are propagated correctly
-        Consumer<DeviceState> consumer = mock(DeviceStateConsumer.class);
-
-        backend.registerDeviceStateChangeCallback(Runnable::run, consumer);
-        DeviceState deviceState = newTestDeviceState();
-        ExtensionWindowBackend.ExtensionListenerImpl backendListener =
-                backend.new ExtensionListenerImpl();
-        backendListener.onDeviceStateChanged(deviceState);
-
-        verify(consumer, times(1)).accept(eq(deviceState));
-        assertEquals(deviceState, backend.mLastReportedDeviceState);
-
-        // Test that the same value wouldn't be reported again
-        backendListener.onDeviceStateChanged(deviceState);
-        verify(consumer, times(1)).accept(any());
-    }
-
-    @Test
-    public void testDeviceChangeChangeCallback_callsExtensionOnce() {
-        ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
-        backend.mWindowExtension = mock(ExtensionInterfaceCompat.class);
-
-        // Check registering the layout change callback
-        Consumer<DeviceState> consumer = mock(DeviceStateConsumer.class);
-        backend.registerDeviceStateChangeCallback(Runnable::run, consumer);
-        backend.registerDeviceStateChangeCallback(Runnable::run, mock(DeviceStateConsumer.class));
-
-        assertEquals(2, backend.mDeviceStateChangeCallbacks.size());
-        verify(backend.mWindowExtension).onDeviceStateListenersChanged(false);
-
-        // Check unregistering the layout change callback
-        backend.unregisterDeviceStateChangeCallback(consumer);
-
-        assertEquals(1, backend.mDeviceStateChangeCallbacks.size());
-        verify(backend.mWindowExtension, times(0))
-                .onDeviceStateListenersChanged(true);
-    }
-
-    @Test
-    public void testDeviceChangeChangeCallback_clearListeners() {
-        ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
-        backend.mWindowExtension = mock(ExtensionInterfaceCompat.class);
-
-        // Check registering the layout change callback
-        Consumer<DeviceState> firstConsumer = mock(DeviceStateConsumer.class);
-        Consumer<DeviceState> secondConsumer = mock(DeviceStateConsumer.class);
-        backend.registerDeviceStateChangeCallback(Runnable::run, firstConsumer);
-        backend.registerDeviceStateChangeCallback(Runnable::run, secondConsumer);
-
-        // Check unregistering the layout change callback
-        backend.unregisterDeviceStateChangeCallback(firstConsumer);
-        backend.unregisterDeviceStateChangeCallback(secondConsumer);
-
-        assertTrue(backend.mDeviceStateChangeCallbacks.isEmpty());
-        verify(backend.mWindowExtension).onDeviceStateListenersChanged(true);
-    }
-
-    @Test
-    public void testDeviceChangeCallback_relayLastEmittedValue() {
-        DeviceState expectedState = newTestDeviceState();
-        ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
-        Consumer<DeviceState> consumer = mock(DeviceStateConsumer.class);
-        backend.mWindowExtension = mock(ExtensionInterfaceCompat.class);
-        backend.mLastReportedDeviceState = expectedState;
-
-        backend.registerDeviceStateChangeCallback(Runnable::run, consumer);
-
-        verify(consumer).accept(expectedState);
-    }
-
-    @Test
-    public void testDeviceChangeCallback_clearLastEmittedValue() {
-        ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
-        Consumer<DeviceState> consumer = mock(DeviceStateConsumer.class);
-
-        backend.registerDeviceStateChangeCallback(Runnable::run, consumer);
-        backend.unregisterDeviceStateChangeCallback(consumer);
-
-        assertTrue(backend.mDeviceStateChangeCallbacks.isEmpty());
-        assertNull(backend.mLastReportedDeviceState);
     }
 
     private static WindowLayoutInfo newTestWindowLayoutInfo() {

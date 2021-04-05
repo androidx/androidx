@@ -18,7 +18,7 @@ package androidx.camera.core;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-import androidx.annotation.experimental.Experimental;
+import androidx.annotation.RequiresOptIn;
 
 import java.lang.annotation.Retention;
 
@@ -32,6 +32,6 @@ import java.lang.annotation.Retention;
  * available camera, the camera selector will thrown an IllegalArgumentException.
  */
 @Retention(CLASS)
-@Experimental
+@RequiresOptIn
 public @interface ExperimentalCameraFilter {
 }

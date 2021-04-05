@@ -60,6 +60,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.versionedparcelable.ParcelUtils;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -154,6 +155,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
+    @Ignore("Throwing fatal exceptions: b/178708442")
     public void getItem_nullResult() throws Exception {
         prepareLooper();
         final String mediaId = MediaBrowserConstants.MEDIA_ID_GET_NULL_ITEM;
@@ -175,6 +177,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
+    @Ignore("Throwing fatal exceptions: b/178708442")
     public void getItem_invalidResult() throws Exception {
         prepareLooper();
         final String mediaId = MediaBrowserConstants.MEDIA_ID_GET_INVALID_ITEM;

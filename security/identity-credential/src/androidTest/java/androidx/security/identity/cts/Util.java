@@ -415,8 +415,10 @@ class Util {
         if (signature.length != 64) {
             throw new RuntimeException("signature.length is " + signature.length + ", expected 64");
         }
-        BigInteger r = new BigInteger(Arrays.copyOfRange(signature, 0, 32));
-        BigInteger s = new BigInteger(Arrays.copyOfRange(signature, 32, 64));
+        // r and s are always positive and may use all 256 bits so use the constructor which
+        // parses them as unsigned.
+        BigInteger r = new BigInteger(1, Arrays.copyOfRange(signature, 0, 32));
+        BigInteger s = new BigInteger(1, Arrays.copyOfRange(signature, 32, 64));
         byte[] rBytes = encodePositiveBigInteger(r);
         byte[] sBytes = encodePositiveBigInteger(s);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

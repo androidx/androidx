@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.params.OutputConfiguration
 import android.util.Size
+import androidx.annotation.RequiresApi
 
 /**
  * A [CameraStream] is used on a [CameraGraph] to control what outputs that graph produces.
@@ -130,19 +131,28 @@ public interface OutputStream {
                 size: Size,
                 format: StreamFormat,
                 camera: CameraId? = null,
-                outputType: OutputType = OutputType.SURFACE,
-                externalOutputConfig: OutputConfiguration? = null
+                outputType: OutputType = OutputType.SURFACE
             ): Config =
-                if (externalOutputConfig != null) {
-                    ExternalOutputConfig(size, format, camera, output = externalOutputConfig)
-                } else if (
+                if (
                     outputType == OutputType.SURFACE_TEXTURE ||
                     outputType == OutputType.SURFACE_VIEW
                 ) {
                     LazyOutputConfig(size, format, camera, outputType)
                 } else {
+                    check(outputType == OutputType.SURFACE)
                     SimpleOutputConfig(size, format, camera)
                 }
+
+            /** Create a stream configuration from an externally created [OutputConfiguration] */
+            @RequiresApi(24)
+            fun external(
+                size: Size,
+                format: StreamFormat,
+                camera: CameraId? = null,
+                externalOutputConfig: OutputConfiguration
+            ): Config {
+                return ExternalOutputConfig(size, format, camera, output = externalOutputConfig)
+            }
         }
 
         /**

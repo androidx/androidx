@@ -75,6 +75,12 @@ public class AppCompatViewInflater {
     private static final Class<?>[] sConstructorSignature = new Class<?>[]{
             Context.class, AttributeSet.class};
     private static final int[] sOnClickAttrs = new int[]{android.R.attr.onClick};
+    private static final int[] sAccessibilityHeading =
+            new int[]{android.R.attr.accessibilityHeading};
+    private static final int[] sAccessibilityPaneTitle =
+            new int[]{android.R.attr.accessibilityPaneTitle};
+    private static final int[] sScreenReaderFocusable =
+            new int[]{android.R.attr.screenReaderFocusable};
 
     private static final String[] sClassPrefixList = {
             "android.widget.",
@@ -184,6 +190,7 @@ public class AppCompatViewInflater {
         if (view != null) {
             // If we have created a view, check its android:onClick
             checkOnClickListener(view, attrs);
+            backportAccessibilityAttributes(context, view, attrs);
         }
 
         return view;
@@ -381,6 +388,31 @@ public class AppCompatViewInflater {
             context = new ContextThemeWrapper(context, themeId);
         }
         return context;
+    }
+
+    private void backportAccessibilityAttributes(@NonNull Context context, @NonNull View view,
+            @NonNull AttributeSet attrs) {
+        if (Build.VERSION.SDK_INT < 19 || Build.VERSION.SDK_INT > 28) {
+            return;
+        }
+
+        TypedArray a = context.obtainStyledAttributes(attrs, sAccessibilityHeading);
+        if (a.hasValue(0)) {
+            ViewCompat.setAccessibilityHeading(view, a.getBoolean(0, false));
+        }
+        a.recycle();
+
+        a = context.obtainStyledAttributes(attrs, sAccessibilityPaneTitle);
+        if (a.hasValue(0)) {
+            ViewCompat.setAccessibilityPaneTitle(view, a.getString(0));
+        }
+        a.recycle();
+
+        a = context.obtainStyledAttributes(attrs, sScreenReaderFocusable);
+        if (a.hasValue(0)) {
+            ViewCompat.setScreenReaderFocusable(view, a.getBoolean(0, false));
+        }
+        a.recycle();
     }
 
     /**

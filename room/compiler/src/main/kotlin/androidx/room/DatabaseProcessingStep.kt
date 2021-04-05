@@ -29,16 +29,15 @@ import androidx.room.writer.AutoMigrationWriter
 import androidx.room.writer.DaoWriter
 import androidx.room.writer.DatabaseWriter
 import java.io.File
-import kotlin.reflect.KClass
 
 class DatabaseProcessingStep : XProcessingStep {
     override fun process(
         env: XProcessingEnv,
-        elementsByAnnotation: Map<KClass<out Annotation>, List<XTypeElement>>
+        elementsByAnnotation: Map<String, List<XTypeElement>>
     ): Set<XTypeElement> {
         val context = Context(env)
         val rejectedElements = mutableSetOf<XTypeElement>()
-        val databases = elementsByAnnotation[Database::class]
+        val databases = elementsByAnnotation[Database::class.qualifiedName]
             ?.mapNotNull {
                 try {
                     DatabaseProcessor(
@@ -100,8 +99,8 @@ class DatabaseProcessingStep : XProcessingStep {
         return rejectedElements
     }
 
-    override fun annotations(): Set<KClass<out Annotation>> {
-        return mutableSetOf(Database::class)
+    override fun annotations(): Set<String> {
+        return mutableSetOf(Database::class.qualifiedName!!)
     }
 
     /**

@@ -47,7 +47,7 @@ public class ListOptionWireFormat extends OptionWireFormat {
     }
 
     public ListOptionWireFormat(
-            @NonNull String id,
+            @NonNull byte[] id,
             @NonNull CharSequence displayName,
             @Nullable Icon icon
     ) {

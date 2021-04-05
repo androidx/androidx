@@ -22,7 +22,7 @@ import android.hardware.camera2.CameraDevice
 import android.util.Log
 import android.view.Surface
 import android.view.ViewGroup
-import androidx.annotation.experimental.UseExperimental
+import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
@@ -307,7 +307,7 @@ private fun isCameraSurfaceTextureReleased(texture: SurfaceTexture): Boolean {
 /**
  * Setup the Camera X preview use case
  */
-@UseExperimental(markerClass = ExperimentalCamera2Interop::class)
+@OptIn(ExperimentalCamera2Interop::class)
 private fun cameraXPreviewUseCaseBuilder(
     focusMode: FocusMode,
     deviceStateCallback: CameraDevice.StateCallback,
@@ -328,7 +328,7 @@ private fun cameraXPreviewUseCaseBuilder(
 /**
  * Setup the Camera X image capture use case
  */
-@UseExperimental(markerClass = ExperimentalCamera2Interop::class)
+@OptIn(ExperimentalCamera2Interop::class)
 private fun cameraXImageCaptureUseCaseBuilder(
     focusMode: FocusMode,
     deviceStateCallback:

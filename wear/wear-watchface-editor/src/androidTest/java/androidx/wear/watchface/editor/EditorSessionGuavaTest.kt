@@ -30,11 +30,14 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
-import androidx.wear.watchface.CanvasComplication
+import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.client.WatchFaceId
+import androidx.wear.watchface.complications.rendering.ComplicationDrawable
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import com.google.common.truth.Truth
@@ -52,11 +55,13 @@ private const val TIMEOUT_MS = 500L
 public class EditorSessionGuavaTest {
     private val testComponentName = ComponentName("test.package", "test.class")
     private val testEditorPackageName = "test.package"
-    private val testInstanceId = "TEST_INSTANCE_ID"
+    private val testInstanceId = WatchFaceId("TEST_INSTANCE_ID")
     private var editorDelegate = Mockito.mock(WatchFace.EditorDelegate::class.java)
     private val screenBounds = Rect(0, 0, 400, 400)
 
-    private val mockLeftCanvasComplication = Mockito.mock(CanvasComplication::class.java)
+    private val placeholderWatchState = MutableWatchState().asWatchState()
+    private val mockLeftCanvasComplication =
+        CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
     private val leftComplication =
         Complication.createRoundRectComplicationBuilder(
             LEFT_COMPLICATION_ID,
@@ -73,7 +78,8 @@ public class EditorSessionGuavaTest {
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
-    private val mockRightCanvasComplication = Mockito.mock(CanvasComplication::class.java)
+    private val mockRightCanvasComplication =
+        CanvasComplicationDrawable(ComplicationDrawable(), placeholderWatchState)
     private val rightComplication =
         Complication.createRoundRectComplicationBuilder(
             RIGHT_COMPLICATION_ID,
@@ -93,10 +99,10 @@ public class EditorSessionGuavaTest {
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
         complications: List<Complication>,
-        instanceId: String? = testInstanceId,
+        watchFaceId: WatchFaceId = testInstanceId,
         previewReferenceTimeMillis: Long = 12345
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
-        val userStyleRepository = UserStyleRepository(UserStyleSchema(userStyleSettings))
+        val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
         val complicationsManager = ComplicationsManager(complications, userStyleRepository)
 
         WatchFace.registerEditorDelegate(testComponentName, editorDelegate)
@@ -108,9 +114,9 @@ public class EditorSessionGuavaTest {
             .thenReturn(previewReferenceTimeMillis)
 
         return ActivityScenario.launch(
-            WatchFaceEditorContractForTest().createIntent(
+            WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
-                EditorRequest(testComponentName, testEditorPackageName, instanceId, null)
+                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId)
             ).apply {
                 component = ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),
@@ -150,7 +156,7 @@ public class EditorSessionGuavaTest {
     }
 
     @Test
-    public fun listenableLaunchComplicationProviderChooser() {
+    public fun listenableOpenComplicationProviderChooser() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
@@ -167,7 +173,7 @@ public class EditorSessionGuavaTest {
          * the preview data) for [LEFT_COMPLICATION_ID].
          */
         assertTrue(
-            listenableEditorSession.listenableLaunchComplicationProviderChooser(
+            listenableEditorSession.listenableOpenComplicationProviderChooser(
                 LEFT_COMPLICATION_ID
             ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         )

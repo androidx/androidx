@@ -27,7 +27,7 @@ import androidx.camera.core.ExposureState
 internal val EMPTY_RANGE = Range(0, 0)
 
 /** Adapt [ExposureState] to a [CameraMetadata] instance. */
-@SuppressLint("UnsafeExperimentalUsageError")
+@SuppressLint("UnsafeOptInUsageError")
 class ExposureStateAdapter(
     private val cameraProperties: CameraProperties,
     private val exposureCompensation: Int

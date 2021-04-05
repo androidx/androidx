@@ -133,6 +133,11 @@ class CompilationResultSubject(
      */
     fun hasErrorCount(expected: Int) = hasDiagnosticCount(Diagnostic.Kind.ERROR, expected)
 
+    /**
+     * Check the compilation had [expected] number of warning messages.
+     */
+    fun hasWarningCount(expected: Int) = hasDiagnosticCount(Diagnostic.Kind.WARNING, expected)
+
     private fun hasDiagnosticCount(kind: Diagnostic.Kind, expected: Int) = chain {
         val actual = compilationResult.diagnosticsOfKind(kind).size
         if (actual != expected) {
@@ -427,7 +432,10 @@ internal class KotlinCompileTestingCompilationResult(
                         Source.loadJavaSource(sourceFile, qName)
                     }
                     sourceFile.name.endsWith(".kt") -> {
-                        Source.loadKotlinSource(sourceFile)
+                        val relativePath = sourceFile.absolutePath.substringAfter(
+                            srcRoot.absolutePath
+                        ).dropWhile { it == '/' }
+                        Source.loadKotlinSource(sourceFile, relativePath)
                     }
                     else -> null
                 }

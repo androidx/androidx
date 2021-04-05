@@ -269,7 +269,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT >= 16) {
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         }
-        return PendingIntent.getBroadcast(context, keyCode, intent, 0);
+        return PendingIntent.getBroadcast(context, keyCode, intent, PendingIntent.FLAG_IMMUTABLE);
     }
 
     /**

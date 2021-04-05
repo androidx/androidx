@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
-import androidx.wear.watchface.style.UserStyleSetting.Option.Companion.maxIdLength
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
@@ -37,6 +36,7 @@ import androidx.wear.watchface.style.data.LongRangeOptionWireFormat
 import androidx.wear.watchface.style.data.LongRangeUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.OptionWireFormat
 import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
+import java.nio.ByteBuffer
 import java.security.InvalidParameterException
 
 /**
@@ -49,46 +49,53 @@ import java.security.InvalidParameterException
  *
  * Styling data gets shared with the companion phone to support editors (typically over bluetooth),
  * as a result the size of serialized UserStyleSettings could become an issue if large.
+ *
+ * @param id Identifier for the element, must be unique. Styling data gets shared with the companion
+ *     (typically via bluetooth) so size is a consideration and short ids are encouraged. There is a
+ *     maximum length see [maxIdLength].
+ * @param displayName Localized human readable name for the element, used in the userStyle selection
+ *     UI.
+ * @param description Localized description string displayed under the displayName.
+ * @param icon Icon for use in the style selection UI.
+ * @param options List of options for this UserStyleSetting. Depending on the type of
+ *     UserStyleSetting this may be an exhaustive list, or just examples to populate a ListView
+ *     in case the UserStyleSetting isn't supported by the UI (e.g. a new WatchFace with an old
+ *     Companion).
+ * @param defaultOptionIndex The default option index, used if nothing has been selected within the
+ *     [options] list.
+ * @param affectedLayers Used by the style configuration UI. Describes which rendering layers this
+ *     style affects.
  */
 public sealed class UserStyleSetting(
-    /**
-     * Identifier for the element, must be unique. Styling data gets shared with the companion
-     * (typically via bluetooth) so size is a consideration and short ids are encouraged. There is a
-     * maximum length see [maxIdLength].
-     */
-    public val id: String,
-
-    /** Localized human readable name for the element, used in the userStyle selection UI. */
+    public val id: Id,
     public val displayName: CharSequence,
-
-    /** Localized description string displayed under the displayName. */
     public val description: CharSequence,
-
-    /** Icon for use in the style selection UI. */
     public val icon: Icon?,
-
-    /**
-     * List of options for this UserStyleSetting. Depending on the type of UserStyleSetting this
-     * may be an exhaustive list, or just examples to populate a ListView in case the
-     * UserStyleSetting isn't supported by the UI (e.g. a new WatchFace with an old Companion).
-     */
     public val options: List<Option>,
-
-    /**
-     * The default option index, used if nothing has been selected within the [options] list.
-     */
     public val defaultOptionIndex: Int,
-
-    /**
-     * Used by the style configuration UI. Describes which rendering layers this style affects.
-     */
-    public val affectsLayers: Collection<Layer>
+    public val affectedLayers: Collection<Layer>
 ) {
-    public companion object {
-        /** Maximum length of the [id] field. */
-        @JvmField
-        public val maxIdLength: Int = 40
+    /**
+     * Machine readable identifier for [UserStyleSetting]s. The length of this identifier may not
+     * exceed [MAX_LENGTH].
+     */
+    public class Id(public val value: String) {
+        public companion object {
+            /** Maximum length of the [value] field. */
+            public const val MAX_LENGTH: Int = 40
+        }
 
+        init {
+            require(value.length <= MAX_LENGTH) {
+                "UserStyleSetting.value.length (${value.length}) must be less than MAX_LENGTH " +
+                    "($MAX_LENGTH)"
+            }
+        }
+
+        override fun toString(): String = value
+    }
+
+    public companion object {
         internal fun createFromWireFormat(
             wireFormat: UserStyleSettingWireFormat
         ): UserStyleSetting = when (wireFormat) {
@@ -115,13 +122,9 @@ public sealed class UserStyleSetting(
         require(defaultOptionIndex >= 0 && defaultOptionIndex < options.size) {
             "defaultOptionIndex must be in the range [0 .. options.size)"
         }
-
-        require(id.length <= maxIdLength) {
-            "UserStyleSetting id length must not exceed $maxIdLength"
-        }
     }
 
-    internal fun getSettingOptionForId(id: String?) =
+    internal fun getSettingOptionForId(id: ByteArray?) =
         if (id == null) {
             options[defaultOptionIndex]
         } else {
@@ -129,7 +132,7 @@ public sealed class UserStyleSetting(
         }
 
     private constructor(wireFormat: UserStyleSettingWireFormat) : this(
-        wireFormat.mId,
+        Id(wireFormat.mId),
         wireFormat.mDisplayName,
         wireFormat.mDescription,
         wireFormat.mIcon,
@@ -150,33 +153,50 @@ public sealed class UserStyleSetting(
     /** Returns the default for when the user hasn't selected an option. */
     public fun getDefaultOption(): Option = options[defaultOptionIndex]
 
-    override fun toString(): String = "{$id : " + options.joinToString(transform = { it.id }) + "}"
+    override fun toString(): String = "{${id.value} : " +
+        options.joinToString(transform = { it.toString() }) + "}"
 
     /**
      * Represents a choice within a style setting which can either be an option from the list or a
      * an arbitrary value depending on the nature of the style setting.
      *
-     * @property id Machine readable identifier for the style setting.
+     * @property id Machine readable [Id] for the style setting. Identifier for the option (or the
+     *     option itself for [CustomValueUserStyleSetting.CustomValueOption]), must be unique
+     *     within the UserStyleSetting. Short ids are encouraged.
      */
-    public abstract class Option(
+    public abstract class Option(public val id: Id) {
         /**
-         * Identifier for the option (or the option itself for
-         * [CustomValueUserStyleSetting.CustomValueOption]), must be unique within the
-         * UserStyleSetting. Short ids are encouraged. There is a maximum length see [maxIdLength].
+         * Machine readable identifier for [Option]s. The length of this identifier may not exceed
+         * [MAX_LENGTH].
          */
-        public val id: String
-    ) {
-        init {
-            require(id.length <= maxIdLength) {
-                "UserStyleSetting.Option id length must not exceed $maxIdLength"
+        public class Id(public val value: ByteArray) {
+            /**
+             * Constructs an [Id] with a [String] encoded to a [ByteArray] by
+             * [String.encodeToByteArray].
+             */
+            public constructor(value: String) : this(value.encodeToByteArray())
+
+            public companion object {
+                /** Maximum length of the [value] field. */
+                public const val MAX_LENGTH: Int = 1024
             }
+
+            init {
+                require(value.size <= MAX_LENGTH) {
+                    "Option.Id.value.size (${value.size}) must be less than MAX_LENGTH " +
+                        "($MAX_LENGTH)"
+                }
+            }
+
+            override fun toString(): String =
+                try {
+                    value.decodeToString()
+                } catch (e: Exception) {
+                    value.toString()
+                }
         }
 
         public companion object {
-            /** Maximum length of the [id] field. */
-            @JvmField
-            public val maxIdLength: Int = 1024
-
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             public fun createFromWireFormat(
@@ -254,6 +274,13 @@ public sealed class UserStyleSetting(
             } else {
                 null
             }
+
+        override fun toString(): String =
+            try {
+                id.value.decodeToString()
+            } catch (e: Exception) {
+                id.value.toString()
+            }
     }
 
     /**
@@ -266,34 +293,30 @@ public sealed class UserStyleSetting(
      *     of the UserStyleSetting. If optionName is unrecognized then the default value for the
      *     setting should be returned.
      */
-    public open fun getOptionForId(optionId: String): Option =
-        options.find { it.id == optionId } ?: options[defaultOptionIndex]
+    public open fun getOptionForId(optionId: ByteArray): Option =
+        options.find { it.id.value.contentEquals(optionId) } ?: options[defaultOptionIndex]
 
     /** A BooleanUserStyleSetting represents a setting with a true and a false setting. */
     public class BooleanUserStyleSetting : UserStyleSetting {
 
+        /**
+         * Constructs a [BooleanUserStyleSetting].
+         *
+         * @param id [Id] for the element, must be unique.
+         * @param displayName Localized human readable name for the element, used in the userStyle
+         *     selection UI.
+         * @param description Localized description string displayed under the displayName.
+         * @param icon [Icon] for use in the userStyle selection UI.
+         * @param affectsLayers Used by the style configuration UI. Describes which rendering
+         *     layers this style affects.
+         * @param defaultValue The default value for this BooleanUserStyleSetting.
+         */
         public constructor (
-            /** Identifier for the element, must be unique. */
-            id: String,
-
-            /**
-             * Localized human readable name for the element, used in the userStyle selection UI.
-             */
+            id: Id,
             displayName: CharSequence,
-
-            /** Localized description string displayed under the displayName. */
             description: CharSequence,
-
-            /** Icon for use in the userStyle selection UI. */
             icon: Icon?,
-
-            /**
-             * Used by the style configuration UI. Describes which rendering layers this style
-             * affects.
-             */
             affectsLayers: Collection<Layer>,
-
-            /** The default value for this BooleanUserStyleSetting. */
             defaultValue: Boolean
         ) : super(
             id,
@@ -314,13 +337,13 @@ public sealed class UserStyleSetting(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         override fun toWireFormat(): BooleanUserStyleSettingWireFormat =
             BooleanUserStyleSettingWireFormat(
-                id,
+                id.value,
                 displayName,
                 description,
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectsLayers.map { it.ordinal }
+                affectedLayers.map { it.ordinal }
             )
 
         /** Returns the default value. */
@@ -330,20 +353,24 @@ public sealed class UserStyleSetting(
         public class BooleanOption : Option {
             public val value: Boolean
 
-            public constructor(value: Boolean) : super(value.toString()) {
+            public constructor(value: Boolean) : super(
+                Id(ByteArray(1).apply { this[0] = if (value) 1 else 0 })
+            ) {
                 this.value = value
             }
 
             internal constructor(
                 wireFormat: BooleanOptionWireFormat
-            ) : super(wireFormat.mId) {
-                value = wireFormat.mValue
+            ) : super(Id(wireFormat.mId)) {
+                value = wireFormat.mId[0] == 1.toByte()
             }
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): BooleanOptionWireFormat =
-                BooleanOptionWireFormat(id, value)
+                BooleanOptionWireFormat(id.value)
+
+            override fun toString(): String = if (id.value[0] == 1.toByte()) "true" else "false"
         }
     }
 
@@ -366,22 +393,17 @@ public sealed class UserStyleSetting(
         /**
          * Overrides to be applied to the corresponding complication's initial config (as specified
          * in [androidx.wear.watchface.Complication]) when the setting is selected.
+         *
+         * @param complicationId The [Id] of the complication to configure.
+         * @param enabled If non null, whether the complication should be enabled for this
+         *     configuration. If null then no changes are made.
+         * @param complicationBounds If non null, the new [ComplicationBounds] for this
+         *     configuration. If null then no changes are made.
          */
         public class ComplicationOverlay constructor(
-            /** The id of the complication to configure. */
             public val complicationId: Int,
-
-            /**
-             * If non null, whether the complication should be enabled for this configuration. If
-             * null then no changes are made.
-             */
             @get:JvmName("isEnabled")
             public val enabled: Boolean? = null,
-
-            /**
-             * If non null, the new [ComplicationBounds] for this configuration. If null then no
-             * changes are made.
-             */
             public val complicationBounds: ComplicationBounds? = null
         ) {
             public class Builder(
@@ -415,12 +437,9 @@ public sealed class UserStyleSetting(
             ) : this(
                 wireFormat.mComplicationId,
                 when (wireFormat.mEnabled) {
-                    ComplicationOverlayWireFormat
-                        .ENABLED_UNKNOWN -> null
-                    ComplicationOverlayWireFormat
-                        .ENABLED_YES -> true
-                    ComplicationOverlayWireFormat
-                        .ENABLED_NO -> false
+                    ComplicationOverlayWireFormat.ENABLED_UNKNOWN -> null
+                    ComplicationOverlayWireFormat.ENABLED_YES -> true
+                    ComplicationOverlayWireFormat.ENABLED_NO -> false
                     else -> throw InvalidParameterException(
                         "Unrecognised wireFormat.mEnabled " + wireFormat.mEnabled
                     )
@@ -436,32 +455,28 @@ public sealed class UserStyleSetting(
                 )
         }
 
+        /**
+         * Constructs a [ComplicationsUserStyleSetting].
+         *
+         * @param id [Id] for the element, must be unique.
+         * @param displayName Localized human readable name for the element, used in the userStyle
+         *     selection UI.
+         * @param description Localized description string displayed under the displayName.
+         * @param icon [Icon] for use in the userStyle selection UI.
+         * @param complicationConfig The configuration for affected complications.
+         * @param affectsLayers Used by the style configuration UI. Describes which rendering layers
+         *     this style affects, must include [Layer.COMPLICATIONS].
+         * @param defaultOption The default option, used when data isn't persisted. Optional
+         *     parameter which defaults to the first element of [complicationConfig].
+         */
         @JvmOverloads
         public constructor (
-            /** Identifier for the element, must be unique. */
-            id: String,
-
-            /**
-             * Localized human readable name for the element, used in the userStyle selection UI.
-             */
+            id: Id,
             displayName: CharSequence,
-
-            /** Localized description string displayed under the displayName. */
             description: CharSequence,
-
-            /** Icon for use in the userStyle selection UI. */
             icon: Icon?,
-
-            /** The configuration for affected complications. */
             complicationConfig: List<ComplicationsOption>,
-
-            /**
-             * Used by the style configuration UI. Describes which rendering layers this style
-             * affects, must include [Layer.COMPLICATIONS].
-             */
             affectsLayers: Collection<Layer>,
-
-            /** The default option, used when data isn't persisted. */
             defaultOption: ComplicationsOption = complicationConfig.first()
         ) : super(
             id,
@@ -483,13 +498,13 @@ public sealed class UserStyleSetting(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         override fun toWireFormat(): ComplicationsUserStyleSettingWireFormat =
             ComplicationsUserStyleSettingWireFormat(
-                id,
+                id.value,
                 displayName,
                 description,
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectsLayers.map { it.ordinal }
+                affectedLayers.map { it.ordinal }
             )
 
         /** Represents an override to the initial complication configuration. */
@@ -506,8 +521,19 @@ public sealed class UserStyleSetting(
             /** Icon for use in the style selection UI. */
             public val icon: Icon?
 
+            /**
+             * Constructs a [ComplicationsUserStyleSetting].
+             *
+             * @param id [Id] for the element, must be unique.
+             * @param displayName Localized human readable name for the element, used in the
+             *     userStyle selection UI.
+             * @param icon [Icon] for use in the style selection UI.
+             * @param complicationOverlays Overlays to be applied when this ComplicationsOption is
+             *     selected. If this is empty then the net result is the initial complication
+             *     configuration.
+             */
             public constructor(
-                id: String,
+                id: Id,
                 displayName: CharSequence,
                 icon: Icon?,
                 complicationOverlays: Collection<ComplicationOverlay>
@@ -519,7 +545,7 @@ public sealed class UserStyleSetting(
 
             internal constructor(
                 wireFormat: ComplicationsOptionWireFormat
-            ) : super(wireFormat.mId) {
+            ) : super(Id(wireFormat.mId)) {
                 complicationOverlays =
                     wireFormat.mComplicationOverlays.map { ComplicationOverlay(it) }
                 displayName = wireFormat.mDisplayName
@@ -531,7 +557,7 @@ public sealed class UserStyleSetting(
             override fun toWireFormat():
                 ComplicationsOptionWireFormat =
                     ComplicationsOptionWireFormat(
-                        id,
+                        id.value,
                         displayName,
                         icon,
                         complicationOverlays.map { it.toWireFormat() }.toTypedArray()
@@ -567,34 +593,28 @@ public sealed class UserStyleSetting(
             }
         }
 
+        /**
+         * Constructs a [DoubleRangeUserStyleSetting].
+         *
+         * @param id [Id] for the element, must be unique.
+         * @param displayName Localized human readable name for the element, used in the
+         *     userStyle selection UI.
+         * @param description Localized description string displayed under the displayName.
+         * @param icon [Icon] for use in the style selection UI.
+         * @param minimumValue Minimum value (inclusive).
+         * @param maximumValue Maximum value (inclusive).
+         * @param affectsLayers Used by the style configuration UI. Describes which rendering layers
+         *     this style affects.
+         * @param defaultValue The default value for this DoubleRangeUserStyleSetting.
+         */
         public constructor (
-            /** Identifier for the element, must be unique. */
-            id: String,
-
-            /**
-             * Localized human readable name for the element, used in the userStyle selection UI.
-             */
+            id: Id,
             displayName: CharSequence,
-
-            /** Localized description string displayed under the displayName. */
             description: CharSequence,
-
-            /** Icon for use in the userStyle selection UI. */
             icon: Icon?,
-
-            /** Minimum value (inclusive). */
             minimumValue: Double,
-
-            /** Maximum value (inclusive). */
             maximumValue: Double,
-
-            /**
-             * Used by the style configuration UI. Describes which rendering layers this style
-             * affects.
-             */
             affectsLayers: Collection<Layer>,
-
-            /** The default value for this DoubleRangeUserStyleSetting. */
             defaultValue: Double
         ) : super(
             id,
@@ -616,13 +636,13 @@ public sealed class UserStyleSetting(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         override fun toWireFormat(): DoubleRangeUserStyleSettingWireFormat =
             DoubleRangeUserStyleSettingWireFormat(
-                id,
+                id.value,
                 displayName,
                 description,
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectsLayers.map { it.ordinal }
+                affectedLayers.map { it.ordinal }
             )
 
         /** Represents an option as a [Double] in the range [minimumValue .. maximumValue]. */
@@ -630,27 +650,29 @@ public sealed class UserStyleSetting(
             /* The value for this option. Must be within the range [minimumValue .. maximumValue].*/
             public val value: Double
 
-            public constructor(value: Double) : super(value.toString()) {
+            /**
+             * Constructs a [DoubleRangeOption].
+             *
+             * @param value The value of this [DoubleRangeOption]
+             */
+            public constructor(value: Double) : super(
+                Id(ByteArray(8).apply { ByteBuffer.wrap(this).putDouble(value) })
+            ) {
                 this.value = value
-            }
-
-            internal companion object {
-                internal const val KEY_DOUBLE_VALUE = "KEY_DOUBLE_VALUE"
             }
 
             internal constructor(
                 wireFormat: DoubleRangeOptionWireFormat
-            ) : super(wireFormat.mId) {
-                value = wireFormat.mValue
+            ) : super(Id(wireFormat.mId)) {
+                value = ByteBuffer.wrap(wireFormat.mId).double
             }
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): DoubleRangeOptionWireFormat =
-                DoubleRangeOptionWireFormat(
-                    id,
-                    value
-                )
+                DoubleRangeOptionWireFormat(id.value)
+
+            override fun toString(): String = value.toString()
         }
 
         /** Returns the minimum value. */
@@ -664,18 +686,18 @@ public sealed class UserStyleSetting(
             (options[defaultOptionIndex] as DoubleRangeOption).value
 
         /** We support all values in the range [min ... max] not just min & max. */
-        override fun getOptionForId(optionId: String): Option =
-            options.find { it.id == optionId } ?: checkedOptionForId(optionId)
+        override fun getOptionForId(optionId: ByteArray): Option =
+            options.find { it.id.value.contentEquals(optionId) } ?: checkedOptionForId(optionId)
 
-        private fun checkedOptionForId(optionId: String): DoubleRangeOption {
+        private fun checkedOptionForId(optionId: ByteArray): DoubleRangeOption {
             return try {
-                val value = optionId.toDouble()
+                val value = ByteBuffer.wrap(optionId).double
                 if (value < getMinimumValue() || value > getMaximumValue()) {
                     options[defaultOptionIndex] as DoubleRangeOption
                 } else {
                     DoubleRangeOption(value)
                 }
-            } catch (e: NumberFormatException) {
+            } catch (e: Exception) {
                 options[defaultOptionIndex] as DoubleRangeOption
             }
         }
@@ -684,30 +706,27 @@ public sealed class UserStyleSetting(
     /** A ListStyleCategory represents a setting with options selected from a List. */
     public open class ListUserStyleSetting : UserStyleSetting {
 
+        /**
+         * Constructs a [ListUserStyleSetting].
+         *
+         * @param id [Id] for the element, must be unique.
+         * @param displayName Localized human readable name for the element, used in the userStyle
+         *     selection UI.
+         * @param description Localized description string displayed under the displayName.
+         * @param icon [Icon] for use in the userStyle selection UI.
+         * @param options List of all options for this ListUserStyleSetting.
+         * @param affectsLayers Used by the style configuration UI. Describes which rendering layers
+         *     this style affects.
+         * @param defaultOption The default option, used when data isn't persisted.
+         */
         @JvmOverloads
         public constructor (
-            /** Identifier for the element, must be unique. */
-            id: String,
-
-            /** Localized human readable name for the element, used in the userStyle selection UI.*/
+            id: Id,
             displayName: CharSequence,
-
-            /** Localized description string displayed under the displayName. */
             description: CharSequence,
-
-            /** Icon for use in the userStyle selection UI. */
             icon: Icon?,
-
-            /** List of all options for this ListUserStyleSetting. */
             options: List<ListOption>,
-
-            /**
-             * Used by the style configuration UI. Describes which rendering layers this style
-             * affects.
-             */
             affectsLayers: Collection<Layer>,
-
-            /** The default option, used when data isn't persisted. */
             defaultOption: ListOption = options.first()
         ) : super(
             id,
@@ -725,13 +744,13 @@ public sealed class UserStyleSetting(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         override fun toWireFormat(): ListUserStyleSettingWireFormat =
             ListUserStyleSettingWireFormat(
-                id,
+                id.value,
                 displayName,
                 description,
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectsLayers.map { it.ordinal }
+                affectedLayers.map { it.ordinal }
             )
 
         /**
@@ -744,14 +763,23 @@ public sealed class UserStyleSetting(
             /** Icon for use in the style selection UI. */
             public val icon: Icon?
 
-            public constructor(id: String, displayName: CharSequence, icon: Icon?) : super(id) {
+            /**
+             * Constructs a [ListOption].
+             *
+             * @param id The [Id] of this [ListOption], must be unique within the
+             *     [ListUserStyleSetting].
+             * @param displayName Localized human readable name for the setting, used in the style
+             *     selection UI.
+             * @param icon [Icon] for use in the style selection UI.
+             */
+            public constructor(id: Id, displayName: CharSequence, icon: Icon?) : super(id) {
                 this.displayName = displayName
                 this.icon = icon
             }
 
             internal constructor(
                 wireFormat: ListOptionWireFormat
-            ) : super(wireFormat.mId) {
+            ) : super(Id(wireFormat.mId)) {
                 displayName = wireFormat.mDisplayName
                 icon = wireFormat.mIcon
             }
@@ -760,7 +788,7 @@ public sealed class UserStyleSetting(
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): ListOptionWireFormat =
                 ListOptionWireFormat(
-                    id,
+                    id.value,
                     displayName,
                     icon
                 )
@@ -798,32 +826,28 @@ public sealed class UserStyleSetting(
             }
         }
 
+        /**
+         * Constructs a [LongRangeUserStyleSetting].
+         *
+         * @param id [Id] for the element, must be unique.
+         * @param displayName Localized human readable name for the element, used in the userStyle
+         *     selection UI.
+         * @param description Localized description string displayed under the displayName.
+         * @param icon [Icon] for use in the userStyle selection UI.
+         * @param minimumValue Minimum value (inclusive).
+         * @param maximumValue Maximum value (inclusive).
+         * @param affectsLayers Used by the style configuration UI. Describes which rendering layers
+         *     this style affects.
+         * @param defaultValue The default value for this LongRangeUserStyleSetting.
+         */
         public constructor (
-            /** Identifier for the element, must be unique. */
-            id: String,
-
-            /** Localized human readable name for the element, used in the userStyle selection UI.*/
+            id: Id,
             displayName: CharSequence,
-
-            /** Localized description string displayed under the displayName. */
             description: CharSequence,
-
-            /** Icon for use in the userStyle selection UI. */
             icon: Icon?,
-
-            /** Minimum value (inclusive). */
             minimumValue: Long,
-
-            /** Maximum value (inclusive). */
             maximumValue: Long,
-
-            /**
-             * Used by the style configuration UI. Describes which rendering layers this style
-             * affects.
-             */
             affectsLayers: Collection<Layer>,
-
-            /** The default value for this LongRangeUserStyleSetting. */
             defaultValue: Long
         ) : super(
             id,
@@ -845,13 +869,13 @@ public sealed class UserStyleSetting(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         override fun toWireFormat(): LongRangeUserStyleSettingWireFormat =
             LongRangeUserStyleSettingWireFormat(
-                id,
+                id.value,
                 displayName,
                 description,
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectsLayers.map { it.ordinal }
+                affectedLayers.map { it.ordinal }
             )
 
         /**
@@ -861,27 +885,29 @@ public sealed class UserStyleSetting(
             /* The value for this option. Must be within the range [minimumValue..maximumValue]. */
             public val value: Long
 
-            public constructor(value: Long) : super(value.toString()) {
+            /**
+             * Constructs a [LongRangeOption].
+             *
+             * @param value The value of this [LongRangeOption]
+             */
+            public constructor(value: Long) : super(
+                Id(ByteArray(8).apply { ByteBuffer.wrap(this).putLong(value) })
+            ) {
                 this.value = value
-            }
-
-            internal companion object {
-                internal const val KEY_LONG_VALUE = "KEY_LONG_VALUE"
             }
 
             internal constructor(
                 wireFormat: LongRangeOptionWireFormat
-            ) : super(wireFormat.mId) {
-                value = wireFormat.mValue
+            ) : super(Id(wireFormat.mId)) {
+                value = ByteBuffer.wrap(wireFormat.mId).long
             }
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): LongRangeOptionWireFormat =
-                LongRangeOptionWireFormat(
-                    id,
-                    value
-                )
+                LongRangeOptionWireFormat(id.value)
+
+            override fun toString(): String = value.toString()
         }
 
         /**
@@ -902,18 +928,18 @@ public sealed class UserStyleSetting(
         /**
          * We support all values in the range [min ... max] not just min & max.
          */
-        override fun getOptionForId(optionId: String): Option =
-            options.find { it.id == optionId } ?: checkedOptionForId(optionId)
+        override fun getOptionForId(optionId: ByteArray): Option =
+            options.find { it.id.value.contentEquals(optionId) } ?: checkedOptionForId(optionId)
 
-        private fun checkedOptionForId(optionId: String): LongRangeOption {
+        private fun checkedOptionForId(optionId: ByteArray): LongRangeOption {
             return try {
-                val value = optionId.toLong()
+                val value = ByteBuffer.wrap(optionId).long
                 if (value < getMinimumValue() || value > getMaximumValue()) {
                     options[defaultOptionIndex] as LongRangeOption
                 } else {
                     LongRangeOption(value)
                 }
-            } catch (e: NumberFormatException) {
+            } catch (e: Exception) {
                 options[defaultOptionIndex] as LongRangeOption
             }
         }
@@ -928,17 +954,18 @@ public sealed class UserStyleSetting(
             internal const val CUSTOM_VALUE_USER_STYLE_SETTING_ID = "CustomValue"
         }
 
+        /**
+         * Constructs a [CustomValueUserStyleSetting].
+         *
+         * @param affectsLayers Used by the style configuration UI. Describes which rendering layers
+         *     this style affects.
+         * @param defaultValue The default value [ByteArray].
+         */
         public constructor (
-            /**
-             * Used by the style configuration UI. Describes which rendering layers this style
-             * affects.
-             */
             affectsLayers: Collection<Layer>,
-
-            /** The default value. */
-            defaultValue: String
+            defaultValue: ByteArray
         ) : super(
-            CUSTOM_VALUE_USER_STYLE_SETTING_ID,
+            Id(CUSTOM_VALUE_USER_STYLE_SETTING_ID),
             "",
             "",
             null,
@@ -953,33 +980,42 @@ public sealed class UserStyleSetting(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         override fun toWireFormat(): CustomValueUserStyleSettingWireFormat =
             CustomValueUserStyleSettingWireFormat(
-                id,
+                id.value,
                 displayName,
                 description,
                 icon,
                 getWireFormatOptionsList(),
-                affectsLayers.map { it.ordinal }
+                affectedLayers.map { it.ordinal }
             )
 
-        /** An application specific custom value.  */
+        /**
+         * An application specific custom value. NB the [CustomValueOption.customValue] is the
+         * same as the [CustomValueOption.id].
+         */
         public class CustomValueOption : Option {
-            /* The value for this option. */
-            public val customValue: String
-                get() = id
+            /* The [ByteArray] value for this option which is the same as the [id]. */
+            public val customValue: ByteArray
+                get() = id.value
 
-            public constructor(customValue: String) : super(customValue)
+            /**
+             * Constructs a [CustomValueOption].
+             *
+             * @param customValue The [ByteArray] [id] and value of this [CustomValueOption]. This
+             *     may not exceed [Id.MAX_LENGTH].
+             */
+            public constructor(customValue: ByteArray) : super(Id(customValue))
 
             internal constructor(
                 wireFormat: CustomValueOptionWireFormat
-            ) : super(wireFormat.mId)
+            ) : super(Id(wireFormat.mId))
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             override fun toWireFormat(): CustomValueOptionWireFormat =
-                CustomValueOptionWireFormat(id)
+                CustomValueOptionWireFormat(id.value)
         }
 
-        override fun getOptionForId(optionId: String): Option =
-            options.find { it.id == optionId } ?: CustomValueOption(optionId)
+        override fun getOptionForId(optionId: ByteArray): Option =
+            options.find { it.id.value.contentEquals(optionId) } ?: CustomValueOption(optionId)
     }
 }

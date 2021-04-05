@@ -29,9 +29,9 @@ internal class KspRoundEnv(
     override val rootElements: Set<XElement>
         get() = TODO("not supported")
 
-    override fun getTypeElementsAnnotatedWith(klass: Class<out Annotation>): Set<XTypeElement> {
+    override fun getTypeElementsAnnotatedWith(annotationQualifiedName: String): Set<XTypeElement> {
         return env.resolver.getSymbolsWithAnnotation(
-            klass.canonicalName
+            annotationQualifiedName
         ).filterIsInstance<KSClassDeclaration>()
             .map {
                 env.wrapClassDeclaration(it)

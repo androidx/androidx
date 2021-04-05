@@ -13,9 +13,6 @@ package androidx.datastore.preferences.rxjava2 {
 
   public final class RxPreferenceDataStoreDelegateKt {
     method public static kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<androidx.datastore.preferences.core.Preferences>> rxPreferencesDataStore(String name, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>>> produceMigrations, optional io.reactivex.Scheduler scheduler);
-    method public static kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<androidx.datastore.preferences.core.Preferences>> rxPreferencesDataStore(String name, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>>> produceMigrations);
-    method public static kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<androidx.datastore.preferences.core.Preferences>> rxPreferencesDataStore(String name, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler);
-    method public static kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<androidx.datastore.preferences.core.Preferences>> rxPreferencesDataStore(String name);
   }
 
 }

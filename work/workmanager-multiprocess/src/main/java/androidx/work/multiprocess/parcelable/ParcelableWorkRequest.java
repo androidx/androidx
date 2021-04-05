@@ -27,7 +27,6 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.work.Data;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkRequestHolder;
 import androidx.work.impl.model.WorkSpec;
@@ -65,9 +64,11 @@ public class ParcelableWorkRequest implements Parcelable {
         // state
         workSpec.state = intToState(in.readInt());
         // inputData
-        workSpec.input = Data.fromByteArray(in.createByteArray());
+        ParcelableData parcelableInputData = new ParcelableData(in);
+        workSpec.input = parcelableInputData.getData();
         // outputData
-        workSpec.output = Data.fromByteArray(in.createByteArray());
+        ParcelableData parcelableOutputData = new ParcelableData(in);
+        workSpec.output = parcelableOutputData.getData();
         // initialDelay
         workSpec.initialDelay = in.readLong();
         // intervalDuration
@@ -125,11 +126,11 @@ public class ParcelableWorkRequest implements Parcelable {
         // state
         parcel.writeInt(stateToInt(workSpec.state));
         // inputData
-        byte[] inputData = workSpec.input.toByteArray();
-        parcel.writeByteArray(inputData);
+        ParcelableData parcelableInputData = new ParcelableData(workSpec.input);
+        parcelableInputData.writeToParcel(parcel, flags);
         // outputData
-        byte[] outputData = workSpec.output.toByteArray();
-        parcel.writeByteArray(outputData);
+        ParcelableData parcelableOutputData = new ParcelableData(workSpec.output);
+        parcelableOutputData.writeToParcel(parcel, flags);
         // initialDelay
         parcel.writeLong(workSpec.initialDelay);
         // intervalDuration

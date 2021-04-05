@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExposureState
 import androidx.camera.core.ZoomState
+import androidx.camera.core.impl.CamcorderProfileProvider
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Quirks
@@ -42,7 +43,7 @@ internal val defaultQuirks = Quirks(emptyList())
  * Adapt the [CameraInfoInternal] interface to [CameraPipe].
  */
 @SuppressLint(
-    "UnsafeExperimentalUsageError" // Suppressed due to experimental ExposureState
+    "UnsafeOptInUsageError" // Suppressed due to experimental ExposureState
 )
 @CameraScope
 class CameraInfoAdapter @Inject constructor(
@@ -81,7 +82,7 @@ class CameraInfoAdapter @Inject constructor(
     override fun getZoomState(): LiveData<ZoomState> = cameraState.zoomStateLiveData
     override fun getTorchState(): LiveData<Int> = cameraState.torchStateLiveData
 
-    @SuppressLint("UnsafeExperimentalUsageError")
+    @SuppressLint("UnsafeOptInUsageError")
     override fun getExposureState(): ExposureState = cameraState.exposureStateLiveData.value!!
 
     override fun addSessionCaptureCallback(executor: Executor, callback: CameraCaptureCallback) =
@@ -91,6 +92,12 @@ class CameraInfoAdapter @Inject constructor(
         cameraCallbackMap.removeCaptureCallback(callback)
 
     override fun getImplementationType(): String = "CameraPipe"
+
+    override fun getCamcorderProfileProvider(): CamcorderProfileProvider {
+        Log.warn { "TODO: CamcorderProfileProvider is not yet supported." }
+        return CamcorderProfileProvider.EMPTY
+    }
+
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
 
     override fun getCameraQuirks(): Quirks {

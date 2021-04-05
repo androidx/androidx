@@ -18,7 +18,7 @@ package androidx.camera.core;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-import androidx.annotation.experimental.Experimental;
+import androidx.annotation.RequiresOptIn;
 
 import java.lang.annotation.Retention;
 
@@ -36,6 +36,6 @@ import java.lang.annotation.Retention;
  * requirements.
  */
 @Retention(CLASS)
-@Experimental
+@RequiresOptIn
 public @interface ExperimentalCustomizableThreads {
 }

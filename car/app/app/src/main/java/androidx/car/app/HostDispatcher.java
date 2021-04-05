@@ -21,8 +21,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.SuppressLint;
 import android.os.IInterface;
+import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -30,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext.CarServiceType;
 import androidx.car.app.navigation.INavigationHost;
+import androidx.car.app.utils.LogTags;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
 
@@ -53,19 +55,55 @@ public final class HostDispatcher {
      * Dispatches the {@code call} to the host for the given {@code hostType}.
      *
      * @param hostType the service to dispatch to
-     * @param call     the request to dispatch
      * @param callName the name of the call for logging purposes
+     * @param call     the request to dispatch
+     *
+     * @throws RemoteException   if the host is unresponsive
      * @throws SecurityException if the host has thrown it
      * @throws HostException     if the host throws any exception other than
      *                           {@link SecurityException}
      */
     @Nullable
     @SuppressWarnings({"unchecked", "cast.unsafe"}) // Cannot check if instanceof ServiceT
-    @SuppressLint("LambdaLast")
-    public <ServiceT, ReturnT> ReturnT dispatch(
-            @CarServiceType @NonNull String hostType, @NonNull HostCall<ServiceT, ReturnT> call,
-            @NonNull String callName) {
-        return RemoteUtils.call(() -> call.dispatch((ServiceT) getHost(hostType)), callName);
+    public <ServiceT, ReturnT> ReturnT dispatchForResult(
+            @CarServiceType @NonNull String hostType, @NonNull String callName,
+            @NonNull HostCall<ServiceT, ReturnT> call) throws RemoteException {
+        return RemoteUtils.dispatchCallToHostForResult(callName, () -> {
+            IInterface service = getHost(hostType);
+            if (service == null) {
+                Log.e(LogTags.TAG_DISPATCH,
+                        "Could not retrieve host while dispatching call " + callName);
+                return null;
+            }
+            return call.dispatch((ServiceT) service);
+        });
+    }
+
+    /**
+     * Dispatches the {@code call} to the host for the given {@code hostType}.
+     *
+     * @param hostType the service to dispatch to
+     * @param callName the name of the call for logging purposes
+     * @param call     the request to dispatch
+     *
+     * @throws SecurityException if the host has thrown it
+     * @throws HostException     if the host throws any exception other than
+     *                           {@link SecurityException}
+     */
+    @SuppressWarnings({"unchecked", "cast.unsafe"}) // Cannot check if instanceof ServiceT
+    public <ServiceT, ReturnT> void dispatch(
+            @CarServiceType @NonNull String hostType, @NonNull String callName,
+            @NonNull HostCall<ServiceT, ReturnT> call) {
+        RemoteUtils.dispatchCallToHost(callName, () -> {
+            IInterface service = getHost(hostType);
+            if (service == null) {
+                Log.e(LogTags.TAG_DISPATCH,
+                        "Could not retrieve host while dispatching call " + callName);
+                return null;
+            }
+            call.dispatch((ServiceT) service);
+            return null;
+        });
     }
 
     @MainThread
@@ -89,12 +127,16 @@ public final class HostDispatcher {
     /**
      * Retrieves the {@link IInterface} for the given {@code hostType}.
      *
+     * @throws RemoteException if the host is unresponsive
      * @hide
      */
     @RestrictTo(LIBRARY)
-    IInterface getHost(@CarServiceType String hostType) {
+    @Nullable
+    IInterface getHost(@CarServiceType String hostType) throws RemoteException {
         if (mCarHost == null) {
-            throw new HostException("Host is not bound when attempting to retrieve host service");
+            Log.e(LogTags.TAG_DISPATCH, "Host is not bound when attempting to retrieve host "
+                    + "service");
+            return null;
         }
 
         IInterface host = null;
@@ -102,21 +144,21 @@ public final class HostDispatcher {
             case CarContext.APP_SERVICE:
                 if (mAppHost == null) {
                     mAppHost =
-                            RemoteUtils.call(() ->
+                            RemoteUtils.dispatchCallToHostForResult("getHost(App)", () ->
                                     IAppHost.Stub.asInterface(requireNonNull(mCarHost).getHost(
-                                            CarContext.APP_SERVICE)), "getHost(App)");
+                                            CarContext.APP_SERVICE)));
                 }
                 host = mAppHost;
                 break;
             case CarContext.NAVIGATION_SERVICE:
                 if (mNavigationHost == null) {
                     mNavigationHost =
-                            RemoteUtils.call(
-                                    () ->
+                            RemoteUtils.dispatchCallToHostForResult(
+                                    "getHost(Navigation)", () ->
                                             INavigationHost.Stub.asInterface(
                                                     requireNonNull(mCarHost).getHost(
-                                                            CarContext.NAVIGATION_SERVICE)),
-                                    "getHost(Navigation)");
+                                                            CarContext.NAVIGATION_SERVICE))
+                            );
                 }
                 host = mNavigationHost;
                 break;
@@ -126,6 +168,6 @@ public final class HostDispatcher {
             default:
                 throw new InvalidParameterException("Invalid host type: " + hostType);
         }
-        return requireNonNull(host);
+        return host;
     }
 }

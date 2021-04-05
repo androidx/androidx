@@ -26,23 +26,21 @@ import android.opengl.GLUtils
 import androidx.annotation.Px
 
 /**
- * Helper for rendering a [CanvasComplication] to a GLES20 texture. To use call [renderToTexture]
- * and then [bind] before drawing.
+ * Helper for rendering a [CanvasComplicationDrawable] to a GLES20 texture. To use call
+ * [renderToTexture] and then [bind] before drawing.
+ *
+ * @param canvasComplication The [CanvasComplicationDrawable] to render to texture.
+ * @param textureWidth The width of the texture in pixels to create.
+ * @param textureHeight The height of the texture in pixels to create.
+ * @param textureType The texture type, e.g. [GLES20.GL_TEXTURE_2D].
+ * @param id The id of the associated [Complication].
  */
 public class GlesTextureComplication(
-    /** The [CanvasComplication] to render to texture. */
-    public val canvasComplication: CanvasComplication,
-
-    /** The width of the texture to create. */
-    @Px
-    textureWidth: Int,
-
-    /** The height of the texture to create. */
-    @Px
-    textureHeight: Int,
-
-    /** The texture type, e.g. GLES20.GL_TEXTURE_2D */
-    private val textureType: Int
+    public val canvasComplication: CanvasComplicationDrawable,
+    @Px textureWidth: Int,
+    @Px textureHeight: Int,
+    private val textureType: Int,
+    public val id: Int
 ) {
     private val texture = createTexture(textureType)
     private val bitmap = Bitmap.createBitmap(
@@ -56,7 +54,7 @@ public class GlesTextureComplication(
     /** Renders [canvasComplication] to an OpenGL texture. */
     public fun renderToTexture(calendar: Calendar, renderParameters: RenderParameters) {
         canvas.drawColor(Color.BLACK)
-        canvasComplication.render(canvas, bounds, calendar, renderParameters)
+        canvasComplication.render(canvas, bounds, calendar, renderParameters, id)
         bind()
         GLUtils.texImage2D(textureType, 0, bitmap, 0)
     }

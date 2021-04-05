@@ -74,18 +74,6 @@ public class ActionTest {
     }
 
     @Test
-    public void create_throws_customBackgroundColor() {
-        OnClickListener onClickListener = mock(OnClickListener.class);
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Action.Builder()
-                        .setTitle("foo")
-                        .setOnClickListener(onClickListener)
-                        .setBackgroundColor(CarColor.createCustom(0xdead, 0xbeef))
-                        .build());
-    }
-
-    @Test
     public void create_noTitleDefault() {
         OnClickListener onClickListener = mock(OnClickListener.class);
         Action action = new Action.Builder()
@@ -102,6 +90,17 @@ public class ActionTest {
         Action action = new Action.Builder().setTitle("foo").setOnClickListener(
                 onClickListener).build();
         assertThat(action.getIcon()).isNull();
+    }
+
+    @Test
+    public void create_titleHasTextVariants() {
+        CarText title = new CarText.Builder("foo long text").addVariant("foo").build();
+        OnClickListener onClickListener = mock(OnClickListener.class);
+        Action action = new Action.Builder().setTitle(title).setOnClickListener(
+                onClickListener).build();
+        assertThat(action.getTitle()).isNotNull();
+        assertThat(action.getTitle().toCharSequence().toString()).isEqualTo("foo long text");
+        assertThat(action.getTitle().getVariants().get(0).toString()).isEqualTo("foo");
     }
 
     @Test

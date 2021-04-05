@@ -31,7 +31,7 @@ import javax.inject.Inject
 /**
  * [CameraStateAdapter] caches and updates based on callbacks from the active CameraGraph.
  */
-@SuppressLint("UnsafeExperimentalUsageError")
+@SuppressLint("UnsafeOptInUsageError")
 @CameraScope
 class CameraStateAdapter @Inject constructor(
     private val zoomControl: ZoomControl,

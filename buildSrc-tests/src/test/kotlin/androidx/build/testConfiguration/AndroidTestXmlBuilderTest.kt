@@ -162,7 +162,7 @@ private val goldenDefaultConfig = """
     See the License for the specific language governing permissions
     and limitations under the License.-->
     <configuration description="Runs tests for the module">
-    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.ShippingApiLevelModuleController">
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MinApiLevelModuleController">
     <option name="min-api-level" value="15" />
     </object>
     <option name="test-suite-tag" value="placeholder_tag" />
@@ -193,7 +193,7 @@ private val goldenMediaDefaultConfig = """
     See the License for the specific language governing permissions
     and limitations under the License.-->
     <configuration description="Runs tests for the module">
-    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.ShippingApiLevelModuleController">
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MinApiLevelModuleController">
     <option name="min-api-level" value="15" />
     </object>
     <option name="test-suite-tag" value="placeholder_tag" />
@@ -202,6 +202,7 @@ private val goldenMediaDefaultConfig = """
     <option name="wifi:disable" value="true" />
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+    <option name="cleanup-apks" value="true" />
     <option name="test-file-name" value="clientPlaceholder.apk" />
     <option name="test-file-name" value="servicePlaceholder.apk" />
     </target_preparer>

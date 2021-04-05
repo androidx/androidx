@@ -32,12 +32,13 @@ dependencies {
     kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(KOTLIN_STDLIB)
+    implementation(projectOrArtifact(":compose:foundation:foundation-layout"))
     api(projectOrArtifact(":activity:activity-compose"))
     api(projectOrArtifact(":compose:runtime:runtime"))
     api(projectOrArtifact(":compose:runtime:runtime-saveable"))
     api(projectOrArtifact(":compose:ui:ui"))
-    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose"))
-    api("androidx.navigation:navigation-runtime-ktx:2.3.4")
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha03")
+    api("androidx.navigation:navigation-runtime-ktx:2.3.5")
 
     androidTestImplementation(projectOrArtifact(":compose:material:material"))
     androidTestImplementation("androidx.navigation:navigation-testing:2.3.1")

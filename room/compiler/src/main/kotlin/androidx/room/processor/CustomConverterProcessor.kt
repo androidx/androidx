@@ -44,7 +44,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
             isError() || isVoid() || isNone()
 
         fun findConverters(context: Context, element: XElement): ProcessResult {
-            val annotation = element.toAnnotationBox(TypeConverters::class)
+            val annotation = element.getAnnotation(TypeConverters::class)
             return annotation?.let {
                 val classes = it.getAsTypeList("value")
                     .mapTo(LinkedHashSet()) { it }

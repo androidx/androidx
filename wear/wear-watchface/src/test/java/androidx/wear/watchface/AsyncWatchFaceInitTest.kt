@@ -21,14 +21,14 @@ import android.os.Handler
 import android.os.Looper
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
-import androidx.wear.watchface.control.IPendingInteractiveWatchFaceWCS
+import androidx.wear.watchface.control.IInteractiveWatchFace
+import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.DeviceConfig
-import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
@@ -91,9 +91,10 @@ internal class TestAsyncWatchFaceService(
 @RunWith(WatchFaceTestRunner::class)
 public class AsyncWatchFaceInitTest {
     private val handler = mock<Handler>()
+    private val surfaceHolder = mock<SurfaceHolder>()
     private var looperTimeMillis = 0L
     private val pendingTasks = PriorityQueue<Task>()
-    private val userStyleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
+    private val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(emptyList()))
     private val initParams = WallpaperInteractiveWatchFaceInstanceParams(
         "instanceId",
         DeviceConfig(
@@ -102,7 +103,7 @@ public class AsyncWatchFaceInitTest {
             0,
             0
         ),
-        SystemState(false, 0),
+        WatchUiState(false, 0),
         UserStyle(emptyMap()).toWireFormat(),
         null
     )
@@ -176,6 +177,7 @@ public class AsyncWatchFaceInitTest {
         )
 
         val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         runPostedTasksFor(0)
 
@@ -215,10 +217,11 @@ public class AsyncWatchFaceInitTest {
             initParams
         )
 
-        service.onCreateEngine() as WatchFaceService.EngineWrapper
+        val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         runPostedTasksFor(0)
 
-        var pendingInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS? = null
+        var pendingInteractiveWatchFaceWcs: IInteractiveWatchFace? = null
 
         // There shouldn't be an existing instance, so we expect null.
         assertNull(
@@ -226,12 +229,12 @@ public class AsyncWatchFaceInitTest {
                 .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                     InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                         initParams,
-                        object : IPendingInteractiveWatchFaceWCS.Stub() {
+                        object : IPendingInteractiveWatchFace.Stub() {
                             override fun getApiVersion() =
-                                IPendingInteractiveWatchFaceWCS.API_VERSION
+                                IPendingInteractiveWatchFace.API_VERSION
 
-                            override fun onInteractiveWatchFaceWcsCreated(
-                                iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS?
+                            override fun onInteractiveWatchFaceCreated(
+                                iInteractiveWatchFaceWcs: IInteractiveWatchFace?
                             ) {
                                 pendingInteractiveWatchFaceWcs = iInteractiveWatchFaceWcs
                             }

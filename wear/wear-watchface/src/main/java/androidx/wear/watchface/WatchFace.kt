@@ -31,6 +31,7 @@ import android.icu.util.TimeZone
 import android.os.BatteryManager
 import android.os.Build
 import android.support.wearable.watchface.WatchFaceStyle
+import android.util.Base64
 import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
 import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
@@ -44,12 +45,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.wear.utility.TraceEvent
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.complications.data.IdAndComplicationData
-import androidx.wear.complications.data.NoDataComplicationData
-import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
 import java.io.FileNotFoundException
@@ -87,13 +86,13 @@ public annotation class WatchFaceType {
 }
 
 private fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
-    val hashMap = HashMap<String, String>()
+    val hashMap = HashMap<String, ByteArray>()
     try {
         val reader = InputStreamReader(context.openFileInput(fileName)).buffered()
         while (true) {
             val key = reader.readLine() ?: break
             val value = reader.readLine() ?: break
-            hashMap[key] = value
+            hashMap[key] = Base64.decode(value, Base64.NO_WRAP)
         }
         reader.close()
     } catch (e: FileNotFoundException) {
@@ -105,9 +104,9 @@ private fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
 private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
     val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE).bufferedWriter()
     for ((key, value) in style.selectedOptions) {
-        writer.write(key.id)
+        writer.write(key.id.value)
         writer.newLine()
-        writer.write(value.id)
+        writer.write(Base64.encodeToString(value.id.value, Base64.NO_WRAP))
         writer.newLine()
     }
     writer.close()
@@ -116,25 +115,29 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
 /**
  * The return value of [WatchFaceService.createWatchFace] which brings together rendering, styling,
  * complications and state observers.
+ *
+ * @param watchFaceType The type of watch face, whether it's digital or analog. Used to determine
+ *     the default time for editor preview screenshots.
+ * @param currentUserStyleRepository The [CurrentUserStyleRepository] for this WatchFace.
+ * @param renderer The [Renderer] for this WatchFace.
+ * @param complicationsManager The [ComplicationsManager] for this WatchFace.
  */
 public class WatchFace @JvmOverloads constructor(
-    /**
-     * The type of watch face, whether it's digital or analog. Used to determine the
-     * default time for editor preview screenshots.
-     */
     @WatchFaceType internal var watchFaceType: Int,
-
-    /** The [UserStyleRepository] for this WatchFace. */
-    public val userStyleRepository: UserStyleRepository,
-
-    /** The [Renderer] for this WatchFace. */
+    public val currentUserStyleRepository: CurrentUserStyleRepository,
     internal val renderer: Renderer,
-
-    /** The [ComplicationsManager] for this WatchFace. */
     internal var complicationsManager: ComplicationsManager =
-        ComplicationsManager(emptyList(), userStyleRepository)
+        ComplicationsManager(emptyList(), currentUserStyleRepository)
 ) {
     internal var tapListener: TapListener? = null
+
+    init {
+        if (renderer is Renderer.GlesRenderer) {
+            require(renderer.initDone) {
+                "Did you forget to call GlesRenderer.initOpenGLContext?"
+            }
+        }
+    }
 
     public companion object {
         /** Returns whether [LegacyWatchFaceOverlayStyle] is supported on this device. */
@@ -219,8 +222,8 @@ public class WatchFace @JvmOverloads constructor(
         /** The UTC reference time to use for previews in milliseconds since the epoch. */
         public val previewReferenceTimeMillis: Long
 
-        /** Takes a screenshot with the [UserStyleRepository]'s [UserStyle]. */
-        public fun takeScreenshot(
+        /** Renders the watchface to a [Bitmap] with the [CurrentUserStyleRepository]'s [UserStyle]. */
+        public fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,
             calendarTimeMillis: Long,
             idToComplicationData: Map<Int, ComplicationData>?
@@ -254,44 +257,30 @@ public class WatchFace @JvmOverloads constructor(
     /**
      * Legacy Wear 2.0 watch face styling. These settings will be ignored on Wear 3.0 devices.
      *
+     * @param viewProtectionMode The view protection mode bit field, must be a combination of
+     *     zero or more of [PROTECT_STATUS_BAR], [PROTECT_HOTWORD_INDICATOR],
+     *     [PROTECT_WHOLE_SCREEN].
+     * @param statusBarGravity Controls the position of status icons (battery state, lack of
+     *     connection) on the screen. This must be any combination of horizontal Gravity constant:
+     *         ([Gravity.LEFT], [Gravity.CENTER_HORIZONTAL], [Gravity.RIGHT])
+     *         and vertical Gravity constants ([Gravity.TOP], [Gravity,CENTER_VERTICAL},
+     *         [Gravity,BOTTOM]), e.g. {@code Gravity.LEFT | Gravity.BOTTOM}. On circular screens,
+     *          only the vertical gravity is respected.
+     * @param tapEventsAccepted Controls whether this watch face accepts tap events. Watchfaces
+     *     that set this {@code true} are indicating they are prepared to receive
+     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_DOWN],
+     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_CANCEL], and
+     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_UP] events.
+     * @param accentColor The accent color which will be used when drawing the unread notification
+     *     indicator. Default color is white.
      * @throws IllegalArgumentException if [viewProtectionMode] has an unexpected value
      */
     public class LegacyWatchFaceOverlayStyle @JvmOverloads constructor(
-        /**
-         * The view protection mode bit field, must be a combination of
-         *     zero or more of [PROTECT_STATUS_BAR], [PROTECT_HOTWORD_INDICATOR],
-         *     [PROTECT_WHOLE_SCREEN].
-         */
         public val viewProtectionMode: Int,
-
-        /**
-         * Controls the position of status icons (battery state, lack of connection) on the screen.
-         *
-         * This must be any combination of horizontal Gravity constant
-         *     ([Gravity.LEFT], [Gravity.CENTER_HORIZONTAL], [Gravity.RIGHT])
-         *     and vertical Gravity constants ([Gravity.TOP], [Gravity,CENTER_VERTICAL},
-         *     [Gravity,BOTTOM]), e.g. {@code Gravity.LEFT | Gravity.BOTTOM}. On circular screens,
-         *     only the vertical gravity is respected.
-         */
         public val statusBarGravity: Int,
-
-        /**
-         * Controls whether this watch face accepts tap events.
-         *
-         * Watchfaces that set this {@code true} are indicating they are prepared to receive
-         * [IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH],
-         * [IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH_CANCEL], and
-         * [IInteractiveWatchFaceSysUI.TAP_TYPE_TAP] events.
-         */
         @get:JvmName("isTapEventsAccepted")
         public val tapEventsAccepted: Boolean,
-
-        /**
-         * The accent color which will be used when drawing the unread notification indicator.
-         * Default color is white.
-         */
-        @ColorInt
-        public val accentColor: Int = WatchFaceStyle.DEFAULT_ACCENT_COLOR
+        @ColorInt public val accentColor: Int = WatchFaceStyle.DEFAULT_ACCENT_COLOR
     ) {
         init {
             if (viewProtectionMode < 0 ||
@@ -405,7 +394,7 @@ internal class WatchFaceImpl(
 
     private val systemTimeProvider = watchface.systemTimeProvider
     private val legacyWatchFaceStyle = watchface.legacyWatchFaceStyle
-    internal val userStyleRepository = watchface.userStyleRepository
+    internal val userStyleRepository = watchface.currentUserStyleRepository
     internal val renderer = watchface.renderer
     internal val complicationsManager = watchface.complicationsManager
     private val tapListener = watchface.tapListener
@@ -521,19 +510,19 @@ internal class WatchFaceImpl(
         val storedUserStyle = watchFaceHostApi.getInitialUserStyle()
         if (storedUserStyle != null) {
             userStyleRepository.userStyle =
-                UserStyle(storedUserStyle, userStyleRepository.schema)
+                UserStyle(UserStyleData(storedUserStyle), userStyleRepository.schema)
         } else {
             // The system doesn't support preference persistence we need to do it ourselves.
             val preferencesFile =
                 "watchface_prefs_${watchFaceHostApi.getContext().javaClass.name}.txt"
 
             userStyleRepository.userStyle = UserStyle(
-                readPrefs(watchFaceHostApi.getContext(), preferencesFile),
+                UserStyleData(readPrefs(watchFaceHostApi.getContext(), preferencesFile)),
                 userStyleRepository.schema
             )
 
-            userStyleRepository.addUserStyleListener(
-                object : UserStyleRepository.UserStyleListener {
+            userStyleRepository.addUserStyleChangeListener(
+                object : CurrentUserStyleRepository.UserStyleChangeListener {
                     @SuppressLint("SyntheticAccessor")
                     override fun onUserStyleChanged(userStyle: UserStyle) {
                         writePrefs(watchFaceHostApi.getContext(), preferencesFile, userStyle)
@@ -660,25 +649,20 @@ internal class WatchFaceImpl(
         override val previewReferenceTimeMillis
             get() = this@WatchFaceImpl.previewReferenceTimeMillis
 
-        override fun takeScreenshot(
+        override fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,
             calendarTimeMillis: Long,
             idToComplicationData: Map<Int, ComplicationData>?
         ): Bitmap = TraceEvent("WFEditorDelegate.takeScreenshot").use {
             val oldComplicationData =
-                complicationsManager.complications.values.map {
-                    it.renderer.getIdAndData() ?: IdAndComplicationData(
-                        it.id,
-                        NoDataComplicationData()
-                    )
-                }
+                complicationsManager.complications.values.associateBy(
+                    { it.id },
+                    { it.renderer.getData() }
+                )
 
             idToComplicationData?.let {
                 for ((id, complicationData) in it) {
-                    complicationsManager[id]!!.renderer.setIdAndData(
-                        IdAndComplicationData(id, complicationData),
-                        false
-                    )
+                    complicationsManager[id]!!.renderer.loadData(complicationData, false)
                 }
             }
             val screenShot = renderer.takeScreenshot(
@@ -688,9 +672,8 @@ internal class WatchFaceImpl(
                 renderParameters
             )
             if (idToComplicationData != null) {
-                for (idAndData in oldComplicationData) {
-                    complicationsManager[idAndData.complicationId]!!.renderer
-                        .setIdAndData(idAndData, false)
+                for ((id, data) in oldComplicationData) {
+                    complicationsManager[id]!!.renderer.loadData(data, false)
                 }
             }
             return screenShot
@@ -918,13 +901,13 @@ internal class WatchFaceImpl(
         // TODO(alexclarke): Revisit this
         var tapType = originalTapType
         when (tapType) {
-            TapType.TOUCH -> {
+            TapType.DOWN -> {
                 lastTappedPosition = Point(x, y)
             }
-            TapType.TOUCH_CANCEL -> {
+            TapType.CANCEL -> {
                 lastTappedPosition?.let { safeLastTappedPosition ->
                     if ((safeLastTappedPosition.x == x) && (safeLastTappedPosition.y == y)) {
-                        tapType = TapType.TAP
+                        tapType = TapType.UP
                     }
                 }
                 lastTappedPosition = null
@@ -932,7 +915,7 @@ internal class WatchFaceImpl(
         }
 
         when (tapType) {
-            TapType.TAP -> {
+            TapType.UP -> {
                 if (tappedComplication.id != lastTappedComplicationId &&
                     lastTappedComplicationId != null
                 ) {
@@ -942,7 +925,7 @@ internal class WatchFaceImpl(
                 if (!pendingSingleTap.isPending()) {
                     // Give the user immediate visual feedback, the UI feels sluggish if we defer
                     // this.
-                    complicationsManager.bringAttentionToComplication(tappedComplication.id)
+                    complicationsManager.displayPressedAnimation(tappedComplication.id)
 
                     lastTappedComplicationId = tappedComplication.id
 
@@ -957,7 +940,7 @@ internal class WatchFaceImpl(
                     }
                 }
             }
-            TapType.TOUCH -> {
+            TapType.DOWN -> {
                 // Make sure the user isn't doing a swipe.
                 if (tappedComplication.id != lastTappedComplicationId &&
                     lastTappedComplicationId != null
@@ -989,8 +972,8 @@ internal class WatchFaceImpl(
         writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
         writer.println("lastTappedComplicationId=$lastTappedComplicationId")
         writer.println("lastTappedPosition=$lastTappedPosition")
-        writer.println("userStyleRepository.userStyle=${userStyleRepository.userStyle}")
-        writer.println("userStyleRepository.schema=${userStyleRepository.schema}")
+        writer.println("currentUserStyleRepository.userStyle=${userStyleRepository.userStyle}")
+        writer.println("currentUserStyleRepository.schema=${userStyleRepository.schema}")
         watchState.dump(writer)
         complicationsManager.dump(writer)
         renderer.dump(writer)

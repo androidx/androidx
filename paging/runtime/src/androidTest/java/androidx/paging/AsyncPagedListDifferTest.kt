@@ -19,6 +19,7 @@
 package androidx.paging
 
 import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.paging.DiffingChangePayload.PLACEHOLDER_POSITION_CHANGE
 import androidx.paging.ListUpdateCallbackFake.OnChangedEvent
 import androidx.paging.ListUpdateCallbackFake.OnInsertedEvent
 import androidx.paging.ListUpdateCallbackFake.OnRemovedEvent
@@ -217,8 +218,8 @@ class AsyncPagedListDifferTest {
                 trailingNulls = 2,
                 items = arrayOf("a", "b")
             ),
-            OnInsertedEvent(2, 2),
-            OnInsertedEvent(0, 3)
+            OnInsertedEvent(0, 3),
+            OnInsertedEvent(5, 2)
         )
         // remove some nulls from both ends
         submitAndAssert(
@@ -227,8 +228,10 @@ class AsyncPagedListDifferTest {
                 trailingNulls = 1,
                 items = arrayOf("a", "b")
             ),
-            OnRemovedEvent(6, 1),
-            OnRemovedEvent(0, 2)
+            OnRemovedEvent(0, 2),
+            OnChangedEvent(0, 1, PLACEHOLDER_POSITION_CHANGE),
+            OnRemovedEvent(4, 1),
+            OnChangedEvent(3, 1, PLACEHOLDER_POSITION_CHANGE),
         )
         // add to leading, remove from trailing
         submitAndAssert(
@@ -237,8 +240,9 @@ class AsyncPagedListDifferTest {
                 trailingNulls = 0,
                 items = arrayOf("a", "b")
             ),
-            OnRemovedEvent(3, 1),
-            OnInsertedEvent(0, 4)
+            OnChangedEvent(0, 1, PLACEHOLDER_POSITION_CHANGE),
+            OnInsertedEvent(0, 4),
+            OnRemovedEvent(7, 1)
         )
         // add trailing, remove from leading
         submitAndAssert(
@@ -247,8 +251,9 @@ class AsyncPagedListDifferTest {
                 trailingNulls = 3,
                 items = arrayOf("a", "b")
             ),
-            OnInsertedEvent(7, 3),
-            OnRemovedEvent(0, 4)
+            OnRemovedEvent(0, 4),
+            OnChangedEvent(0, 1, PLACEHOLDER_POSITION_CHANGE),
+            OnInsertedEvent(3, 3)
         )
         assertThat(differ.itemCount).isEqualTo(callback.itemCountFromEvents())
     }

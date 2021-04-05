@@ -82,7 +82,7 @@ class NavigateOnResumeFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         return FrameLayout(requireContext())
     }
 

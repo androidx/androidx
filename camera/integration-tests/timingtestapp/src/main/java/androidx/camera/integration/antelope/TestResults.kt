@@ -18,17 +18,23 @@
 
 package androidx.camera.integration.antelope
 
+import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
+import androidx.camera.integration.antelope.MainActivity.Companion.LOG_PATH
+import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import com.google.common.math.Quantiles
 import com.google.common.math.Stats
-import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -275,13 +281,26 @@ class TestResults {
  * @param csv The comma-based csv string
  */
 fun writeCSV(activity: MainActivity, filePrefix: String, csv: String) {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+        writeCSVAfterQ(activity, filePrefix, csv)
+    } else {
+        writeCSVBeforeQ(activity, filePrefix, csv)
+    }
+}
 
+/**
+ * When the platform is Android Pie and Pie below, Environment.getExternalStoragePublicDirectory
+ * (Environment.DIRECTORY_DOCUMENTS) can work. For Q, set requestLegacyExternalStorage = true to
+ * make it workable. Ref:
+ * https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
+*/
+fun writeCSVBeforeQ(activity: MainActivity, prefix: String, csv: String) {
     val csvFile = File(
         Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_DOCUMENTS
         ),
         File.separatorChar + MainActivity.LOG_DIR + File.separatorChar +
-            filePrefix + "_" + generateCSVTimestamp() + ".csv"
+            prefix + "_" + generateCSVTimestamp() + ".csv"
     )
 
     val csvDir = File(
@@ -345,21 +364,105 @@ fun writeCSV(activity: MainActivity, filePrefix: String, csv: String) {
         scannerIntent.data = Uri.fromFile(csvFile)
         activity.sendBroadcast(scannerIntent)
     } catch (e: IOException) {
-        logd("IOException vail on CSV write: " + e.printStackTrace())
+        logd("IOException Fail on CSV write: " + e.printStackTrace())
     } finally {
         try {
             output.close()
         } catch (e: IOException) {
-            logd("IOException vail on CSV close: " + e.printStackTrace())
+            logd("IOException Fail on CSV close: " + e.printStackTrace())
             e.printStackTrace()
         }
     }
 }
 
 /**
- * Delete all Antelope .csv files in the documents directory
+ * R and R above, change to use MediaStore to access the shared media files.
+ * https://developer.android.com/training/data-storage/shared
+ *
+ * @param activity The main activity
+ * @param prefix The prefix for the .csv file
+ * @param csv The comma-based csv string
+ */
+fun writeCSVAfterQ(activity: MainActivity, prefix: String, csv: String) {
+    var output: OutputStream?
+    val resolver: ContentResolver = activity.contentResolver
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, prefix + "_" + generateCSVTimestamp() + ".csv")
+        put(MediaStore.MediaColumns.MIME_TYPE, "text/comma-separated-values")
+        put(MediaStore.MediaColumns.RELATIVE_PATH, LOG_PATH)
+    }
+
+    val csvUri = resolver.insert(
+        MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
+        contentValues
+    )
+    if (csvUri != null) {
+        lateinit var bufferWriter: BufferedWriter
+        try {
+            output = activity.contentResolver.openOutputStream(csvUri)
+            bufferWriter = BufferedWriter(OutputStreamWriter(output))
+            bufferWriter.write(csv)
+            logd("CSV write completed successfully.")
+        } catch (e: IOException) {
+            logd("IOException Fail on CSV write: " + e.printStackTrace())
+        } finally {
+            try {
+                bufferWriter.close()
+            } catch (e: IOException) {
+                logd("IOException Fail on CSV close: " + e.printStackTrace())
+                e.printStackTrace()
+            }
+        }
+    } else {
+        activity.runOnUiThread {
+            Toast.makeText(
+                activity, "CSV log file creation failed.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+}
+
+/**
+ * Delete all Antelope .csv files in the Documents directory
  */
 fun deleteCSVFiles(activity: MainActivity) {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+        deleteCSVFilesAfterQ(activity)
+    } else {
+        deleteCSVFilesBeforeQ(activity)
+    }
+
+    activity.runOnUiThread {
+        Toast.makeText(activity, "CSV logs deleted", Toast.LENGTH_SHORT).show()
+    }
+    logd("All csv logs in directory DOCUMENTS/" + MainActivity.LOG_DIR + " deleted.")
+}
+
+/**
+ * R and R above, change to use MediaStore to delete the log files. It will delete records in media
+ * store and the physical log files.
+ */
+fun deleteCSVFilesAfterQ(activity: MainActivity) {
+    val logDirUri = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
+    val resolver: ContentResolver = activity.contentResolver
+    val selection = MediaStore.MediaColumns.RELATIVE_PATH + " like ?"
+    val selectionArgs = arrayOf("%$LOG_PATH%")
+
+    resolver.delete(
+        logDirUri,
+        selection,
+        selectionArgs
+    )
+}
+
+/**
+ * When the platform is Android Pie and Pie below, Environment.getExternalStoragePublicDirectory
+ * (Environment.DIRECTORY_DOCUMENTS) can work. For Q, set requestLegacyExternalStorage = true to
+ * make it workable. Ref:
+ * https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
+ */
+fun deleteCSVFilesBeforeQ(activity: MainActivity) {
     val csvDir = File(
         Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_DOCUMENTS
@@ -376,11 +479,6 @@ fun deleteCSVFiles(activity: MainActivity) {
         val scannerIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
         scannerIntent.data = Uri.fromFile(csvDir)
         activity.sendBroadcast(scannerIntent)
-
-        activity.runOnUiThread {
-            Toast.makeText(activity, "CSV logs deleted", Toast.LENGTH_SHORT).show()
-        }
-        logd("All csv logs in directory DOCUMENTS/" + MainActivity.LOG_DIR + " deleted.")
     }
 }
 
@@ -442,7 +540,7 @@ fun outputBooleanResultLine(
 ): String {
     var output = ""
 
-    // If every result is false, don't output this line at all
+// If every result is false, don't output this line at all
     if (!results.isEmpty() && results.contains(true)) {
         output += name + ": "
         for ((index, result) in results.withIndex()) {

@@ -85,6 +85,14 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatSpinnerRotationActivity"
+            android:label="@string/app_compat_spinner_activity"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:screenOrientation="portrait"
+            android:rotationAnimation="jumpcut"
+            android:configChanges="orientation"/>
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatTextViewActivity"
             android:label="@string/app_compat_text_view_activity"
             android:theme="@style/Theme.TextColors"/>
@@ -162,6 +170,14 @@
 
         <activity
             android:name="androidx.appcompat.app.NightModeActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"/>
+
+        <activity
+            android:name="androidx.appcompat.app.NightModeActivityA"
+            android:theme="@style/Theme.AppCompat.DayNight"/>
+
+        <activity
+            android:name="androidx.appcompat.app.NightModeActivityB"
             android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity

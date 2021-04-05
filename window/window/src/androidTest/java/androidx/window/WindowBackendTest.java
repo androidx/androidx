@@ -20,7 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 
@@ -51,18 +50,14 @@ public final class WindowBackendTest extends WindowTestBase {
     @Test
     public void testFakeWindowBackend() {
         WindowLayoutInfo windowLayoutInfo = newTestWindowLayout();
-        DeviceState deviceState = newTestDeviceState();
-        WindowBackend windowBackend = new FakeWindowBackend(windowLayoutInfo, deviceState);
+        WindowBackend windowBackend = new FakeWindowBackend(windowLayoutInfo);
         TestActivity activity = mActivityTestRule.launchActivity(new Intent());
         WindowManager wm = new WindowManager(activity, windowBackend);
         Consumer<WindowLayoutInfo> layoutInfoConsumer = mock(Consumer.class);
-        Consumer<DeviceState> stateConsumer = mock(Consumer.class);
 
         wm.registerLayoutChangeCallback(MoreExecutors.directExecutor(), layoutInfoConsumer);
-        wm.registerDeviceStateChangeCallback(MoreExecutors.directExecutor(), stateConsumer);
 
         verify(layoutInfoConsumer).accept(windowLayoutInfo);
-        verify(stateConsumer).accept(deviceState);
     }
 
     private WindowLayoutInfo newTestWindowLayout() {
@@ -74,68 +69,11 @@ public final class WindowBackendTest extends WindowTestBase {
         return new WindowLayoutInfo(displayFeatureList);
     }
 
-    private DeviceState newTestDeviceState() {
-        return new DeviceState(DeviceState.POSTURE_OPENED);
-    }
-
     private static class FakeWindowBackend implements WindowBackend {
         private WindowLayoutInfo mWindowLayoutInfo;
-        private DeviceState mDeviceState;
 
-        private FakeWindowBackend(@NonNull WindowLayoutInfo windowLayoutInfo,
-                @NonNull DeviceState deviceState) {
+        private FakeWindowBackend(@NonNull WindowLayoutInfo windowLayoutInfo) {
             mWindowLayoutInfo = windowLayoutInfo;
-            mDeviceState = deviceState;
-        }
-
-
-        /**
-         * @deprecated will be removed in next alpha
-         * @return nothing, throws an exception.
-         */
-        @Override
-        @NonNull
-        @Deprecated // TODO(b/173739071) Remove in next alpha.
-        public DeviceState getDeviceState() {
-            throw new RuntimeException("Deprecated method");
-        }
-
-        /**
-         * @deprecated will be removed in next alpha
-         * @param activity any {@link Activity}
-         * @return nothing, throws an exception since this is depredcated
-         */
-        @Override
-        @NonNull
-        @Deprecated // TODO(b/173739071) Remove in next alpha.
-        public WindowLayoutInfo getWindowLayoutInfo(@NonNull Activity activity) {
-            throw new RuntimeException("Deprecated method");
-        }
-
-        /**
-         * @deprecated will be removed in next alpha
-         * @param context any {@link Context}
-         * @return nothing, throws an exception since this is deprecated.
-         */
-        @NonNull
-        @Override
-        @Deprecated // TODO(b/173739071) Remove in next alpha.
-        public WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context) {
-            throw new RuntimeException("Deprecated method");
-        }
-
-        /**
-         * Throws an exception if used.
-         * @deprecated will be removed in next alpha
-         * @param context any {@link Activity}
-         * @param executor any {@link Executor}
-         * @param callback any {@link Consumer}
-         */
-        @Override
-        @Deprecated // TODO(b/173739071) Remove in next alpha.
-        public void registerLayoutChangeCallback(@NonNull Context context,
-                @NonNull Executor executor, @NonNull Consumer<WindowLayoutInfo> callback) {
-            throw new RuntimeException("Deprecated method");
         }
 
         @Override
@@ -149,15 +87,5 @@ public final class WindowBackendTest extends WindowTestBase {
             // Empty
         }
 
-        @Override
-        public void registerDeviceStateChangeCallback(@NonNull Executor executor,
-                @NonNull Consumer<DeviceState> callback) {
-            executor.execute(() -> callback.accept(mDeviceState));
-        }
-
-        @Override
-        public void unregisterDeviceStateChangeCallback(@NonNull Consumer<DeviceState> callback) {
-            // Empty
-        }
     }
 }

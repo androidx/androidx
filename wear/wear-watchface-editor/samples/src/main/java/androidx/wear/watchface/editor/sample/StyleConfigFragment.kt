@@ -37,6 +37,7 @@ import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.widget.SwipeDismissFrameLayout
@@ -101,9 +102,13 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
 
         when {
             booleanUserStyleSetting.isNotEmpty() -> {
-                booleanStyle.isChecked = userStyle[styleSetting]!!.id.toBoolean()
+                booleanStyle.isChecked = userStyle[styleSetting]?.toBooleanOption()!!.value
                 booleanStyle.setOnCheckedChangeListener { _, isChecked ->
-                    setUserStyleOption(styleSetting.getOptionForId(isChecked.toString()))
+                    setUserStyleOption(
+                        styleSetting.getOptionForId(
+                            BooleanUserStyleSetting.BooleanOption(isChecked).id.value
+                        )
+                    )
                 }
                 styleOptionsList.visibility = View.GONE
                 styleOptionsList.isEnabled = false
@@ -163,7 +168,9 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                         ) {
                             setUserStyleOption(
                                 rangedStyleSetting.getOptionForId(
-                                    (minValue + delta * progress.toFloat()).toString()
+                                    DoubleRangeUserStyleSetting.DoubleRangeOption(
+                                        minValue + delta * progress.toFloat()
+                                    ).id.value
                                 )
                             )
                         }
@@ -199,13 +206,15 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
         )
 
         userStyle = UserStyle(
-            ParcelUtils.fromParcelable<UserStyleWireFormat>(
-                requireArguments().getParcelable(USER_STYLE)!!
-            )!!,
+            UserStyleData(
+                ParcelUtils.fromParcelable<UserStyleWireFormat>(
+                    requireArguments().getParcelable(USER_STYLE)!!
+                )!!
+            ),
             styleSchema
         )
 
-        styleSetting = styleSchema.userStyleSettings.first { it.id == settingId }
+        styleSetting = styleSchema.userStyleSettings.first { it.id.value == settingId }
     }
 
     internal fun setUserStyleOption(userStyleOption: UserStyleSetting.Option) {

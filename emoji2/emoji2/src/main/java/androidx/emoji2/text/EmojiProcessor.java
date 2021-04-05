@@ -15,7 +15,7 @@
  */
 package androidx.emoji2.text;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.os.Build;
 import android.text.Editable;
@@ -37,7 +37,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.PaintCompat;
-import androidx.emoji2.widget.SpannableBuilder;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -50,7 +49,7 @@ import java.util.List;
  * @hide
  */
 @AnyThread
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY)
 @RequiresApi(19)
 final class EmojiProcessor {
 
@@ -81,16 +80,19 @@ final class EmojiProcessor {
     /**
      * Factory used to create EmojiSpans.
      */
+    @NonNull
     private final EmojiCompat.SpanFactory mSpanFactory;
 
     /**
      * Emoji metadata repository.
      */
+    @NonNull
     private final MetadataRepo mMetadataRepo;
 
     /**
      * Utility class that checks if the system can render a given glyph.
      */
+    @NonNull
     private EmojiCompat.GlyphChecker mGlyphChecker;
 
     /**
@@ -101,6 +103,7 @@ final class EmojiProcessor {
     /**
      * @see EmojiCompat.Config#setUseEmojiAsDefaultStyle(boolean, List)
      */
+    @Nullable
     private final int[] mEmojiAsDefaultStyleExceptions;
 
     EmojiProcessor(
@@ -298,7 +301,7 @@ final class EmojiProcessor {
      * @return {@code true} if an {@link EmojiSpan} is deleted
      */
     static boolean handleOnKeyDown(@NonNull final Editable editable, final int keyCode,
-            final KeyEvent event) {
+            @NonNull final KeyEvent event) {
         final boolean handled;
         switch (keyCode) {
             case KeyEvent.KEYCODE_DEL:
@@ -320,7 +323,7 @@ final class EmojiProcessor {
         return false;
     }
 
-    private static boolean delete(final Editable content, final KeyEvent event,
+    private static boolean delete(@NonNull final Editable content, @NonNull final KeyEvent event,
             final boolean forwardDelete) {
         if (hasModifiers(event)) {
             return false;
@@ -431,7 +434,7 @@ final class EmojiProcessor {
         return start == -1 || end == -1 || start != end;
     }
 
-    private static boolean hasModifiers(KeyEvent event) {
+    private static boolean hasModifiers(@NonNull KeyEvent event) {
         return !KeyEvent.metaStateHasNoModifiers(event.getMetaState());
     }
 
@@ -651,8 +654,11 @@ final class EmojiProcessor {
     /**
      * Copy of BaseInputConnection findIndexBackward and findIndexForward functions.
      */
+    @RequiresApi(19)
     private static final class CodepointIndexFinder {
         private static final int INVALID_INDEX = -1;
+
+        private CodepointIndexFinder() {}
 
         /**
          * Find start index of the character in {@code cs} that is {@code numCodePoints} behind
@@ -776,7 +782,7 @@ final class EmojiProcessor {
      * @hide
      */
     @AnyThread
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static class DefaultGlyphChecker implements EmojiCompat.GlyphChecker {
         /**
          * Default text size for {@link #mTextPaint}.

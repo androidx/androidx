@@ -23,12 +23,12 @@ import android.graphics.Matrix;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.view.PreviewView;
 import androidx.camera.view.TransformExperimental;
-import androidx.core.util.Preconditions;
 
 /**
  * This class represents the transform from one {@link OutputTransform} to another.
@@ -48,8 +48,9 @@ import androidx.core.util.Preconditions;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CoordinateTransform {
 
-    private static final String MISMATCH_MSG = "The source viewport does not match the target "
-            + "viewport. Please make sure they are from the same UseCaseGroup.";
+    private static final String TAG = "CoordinateTransform";
+    private static final String MISMATCH_MSG = "The source viewport (%s) does not match the target "
+            + "viewport (%s). Please make sure they are from the same UseCaseGroup.";
 
     private final Matrix mMatrix;
 
@@ -64,12 +65,18 @@ public class CoordinateTransform {
      */
     public CoordinateTransform(@NonNull OutputTransform source,
             @NonNull OutputTransform target) {
-        // Mismatched aspect ratio means the outputs are not from the same UseCaseGroup
-        Preconditions.checkArgument(
-                isAspectRatioMatchingWithRoundingError(
-                        source.getViewPortSize(), /* isAccurate1= */ false,
-                        target.getViewPortSize(), /* isAccurate2= */ false),
-                MISMATCH_MSG);
+        // TODO(b/137515129): This is a poor way to check if the two outputs are based on
+        //  the same viewport. A better way is to add a matrix in use case output that represents
+        //  the transform from sensor to surface. But it will require the view artifact to
+        //  depend on a new internal API in the core artifact, which we can't do at the
+        //  moment because of the version mismatch between view and core.
+        if (!isAspectRatioMatchingWithRoundingError(
+                source.getViewPortSize(), /* isAccurate1= */ false,
+                target.getViewPortSize(), /* isAccurate2= */ false)) {
+            // Mismatched aspect ratio means the outputs are not from the same UseCaseGroup
+            Logger.w(TAG, String.format(MISMATCH_MSG, source.getViewPortSize(),
+                    target.getViewPortSize()));
+        }
 
         // Concatenate the source transform with the target transform.
         mMatrix = new Matrix();

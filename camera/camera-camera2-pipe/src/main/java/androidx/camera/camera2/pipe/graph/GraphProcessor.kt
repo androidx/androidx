@@ -73,7 +73,7 @@ internal class GraphProcessorImpl @Inject constructor(
     private val cameraGraphConfig: CameraGraph.Config,
     private val graphState3A: GraphState3A,
     @ForCameraGraph private val graphScope: CoroutineScope,
-    @ForCameraGraph private val graphListeners: java.util.ArrayList<Request.Listener>
+    @ForCameraGraph private val graphListeners: List<@JvmSuppressWildcards Request.Listener>
 ) : GraphProcessor {
     private val lock = Any()
 

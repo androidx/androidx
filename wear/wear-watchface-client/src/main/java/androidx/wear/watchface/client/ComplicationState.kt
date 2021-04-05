@@ -17,6 +17,7 @@
 package androidx.wear.watchface.client
 
 import android.graphics.Rect
+import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationData
@@ -24,43 +25,39 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationStateWireFormat
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
 
-/** State of the [Complication]. */
+/**
+ * State of the [Complication].
+ *
+ * @param bounds Screen space bounds of the [Complication] in pixels.
+ * @param boundsType The type of the complication's bounds.
+ * @param supportedTypes The [ComplicationType]s supported by this complication.
+ * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] for this complication.
+ * @param defaultProviderType The default [ComplicationType] for this complication.
+ * @param isEnabled Whether or not the complication is currently enabled (i.e. it should be drawn).
+ * @param isInitiallyEnabled Whether or not the complication was initially enabled before
+ *     considering any [ComplicationsOption] whose [ComplicationOverlay]s may enable or disable
+ *     complications.
+ * @param currentType The [ComplicationType] of the complication's current [ComplicationData].
+ * @param fixedComplicationProvider Whether or not the complication provider is fixed (i.e the user
+ *      can't configure it).
+ * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
+ *      provider chooser activity.
+ */
 public class ComplicationState(
-    /** Screen space bounds of the [Complication] in pixels. */
     public val bounds: Rect,
-
-    /** The type of the complication's bounds. */
     @ComplicationBoundsType public val boundsType: Int,
-
-    /** The [ComplicationType]s supported by this complication. */
     public val supportedTypes: List<ComplicationType>,
-
-    /** The [DefaultComplicationProviderPolicy] for this complication. */
     public val defaultProviderPolicy: DefaultComplicationProviderPolicy,
-
-    /** The default [ComplicationType] for this complication. */
     public val defaultProviderType: ComplicationType,
-
-    /** Whether or not the complication is currently enabled (i.e. it should be drawn). */
     @get:JvmName("isEnabled")
     public val isEnabled: Boolean,
-
-    /**
-     * Whether or not the complication was initially enabled before considering any
-     * [ComplicationsOption] whose [ComplicationOverlay]s may enable or disable complications.
-     */
     @get:JvmName("isInitiallyEnabled")
     public val isInitiallyEnabled: Boolean,
-
-    /** The [ComplicationType] of the complication's current [ComplicationData]. */
     public val currentType: ComplicationType,
-
-    /** Whether or not the complication provider is fixed (i.e the user can't configure it). */
     @get:JvmName("isFixedComplicationProvider")
-    public val fixedComplicationProvider: Boolean
+    public val fixedComplicationProvider: Boolean,
+    public val complicationConfigExtras: Bundle
 ) {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -78,6 +75,7 @@ public class ComplicationState(
         complicationStateWireFormat.isEnabled,
         complicationStateWireFormat.isInitiallyEnabled,
         ComplicationType.fromWireType(complicationStateWireFormat.currentType),
-        complicationStateWireFormat.isFixedComplicationProvider
+        complicationStateWireFormat.isFixedComplicationProvider,
+        complicationStateWireFormat.complicationConfigExtras
     )
 }

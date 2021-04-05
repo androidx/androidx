@@ -799,6 +799,35 @@ class FragmentAnimationTest {
         }
     }
 
+    @Test
+    fun removePopExitAnimation() {
+        waitForAnimationReady()
+        val fm = activityRule.activity.supportFragmentManager
+        val fragment1 = AnimationFragment()
+        val fragment2 = AnimationFragment()
+
+        fm.beginTransaction()
+            .setReorderingAllowed(true)
+            .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
+            .add(R.id.fragmentContainer, fragment1, "fragment1")
+            .addToBackStack("fragment1")
+            .commit()
+        activityRule.waitForExecution()
+
+        activityRule.runOnUiThread {
+            fm.popBackStack()
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
+                .replace(R.id.fragmentContainer, fragment2, "fragment2")
+                .addToBackStack("fragment2")
+                .commit()
+        }
+        activityRule.waitForExecution()
+
+        assertThat(fragment1.loadedAnimation).isEqualTo(EXIT)
+    }
+
     private fun assertEnterPopExit(fragment: AnimationFragment) {
         assertFragmentAnimation(fragment, 1, true, ENTER)
 
@@ -848,7 +877,10 @@ class FragmentAnimationTest {
         assertThat(fragment.animation).isNotNull()
         assertThat(fragment.animation!!.waitForEnd(1000)).isTrue()
         assertThat(fragment.animation?.hasStarted()!!).isTrue()
-        assertThat(fragment.nextAnim).isEqualTo(0)
+        assertThat(fragment.enterAnim).isEqualTo(0)
+        assertThat(fragment.exitAnim).isEqualTo(0)
+        assertThat(fragment.popEnterAnim).isEqualTo(0)
+        assertThat(fragment.popExitAnim).isEqualTo(0)
     }
 
     private fun assertPostponed(fragment: AnimationFragment, expectedAnimators: Int) {

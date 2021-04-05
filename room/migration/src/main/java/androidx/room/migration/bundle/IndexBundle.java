@@ -16,6 +16,7 @@
 
 package androidx.room.migration.bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import com.google.gson.annotations.SerializedName;
@@ -61,15 +62,23 @@ public class IndexBundle implements SchemaEquality<IndexBundle> {
     }
 
     /**
+     * @param tableName The table name.
+     * @return Create index SQL query that uses the given table name.
+     */
+    public String getCreateSql(String tableName) {
+        return BundleUtil.replaceTableName(mCreateSql, tableName);
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public String create(String tableName) {
+    public String create(@NonNull String tableName) {
         return BundleUtil.replaceTableName(mCreateSql, tableName);
     }
 
     @Override
-    public boolean isSchemaEqual(IndexBundle other) {
+    public boolean isSchemaEqual(@NonNull IndexBundle other) {
         if (mUnique != other.mUnique) return false;
         if (mName.startsWith(DEFAULT_PREFIX)) {
             if (!other.mName.startsWith(DEFAULT_PREFIX)) {

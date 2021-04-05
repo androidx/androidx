@@ -27,7 +27,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
@@ -261,7 +261,7 @@ final class CaptureSession {
         }
     }
 
-    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @NonNull
     private ListenableFuture<Void> openCaptureSession(@NonNull List<Surface> configuredSurfaces,
             @NonNull SessionConfig sessionConfig, @NonNull CameraDevice cameraDevice) {
@@ -908,7 +908,6 @@ final class CaptureSession {
                     case INITIALIZED:
                     case GET_SURFACE:
                     case OPENED:
-                    case RELEASED:
                         throw new IllegalStateException(
                                 "onConfigureFailed() should not be possible in state: " + mState);
                     case OPENING:
@@ -919,6 +918,9 @@ final class CaptureSession {
                         // trigger StateCallback.onClosed(). It has to complete the close flow
                         // internally. Check b/147402661 for detail.
                         finishClose();
+                        break;
+                    case RELEASED:
+                        Logger.d(TAG, "ConfigureFailed callback after change to RELEASED state");
                         break;
                 }
                 Logger.e(TAG, "CameraCaptureSession.onConfigureFailed() " + mState);

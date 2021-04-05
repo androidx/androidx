@@ -18,7 +18,13 @@ import androidx.build.LibraryType
 import androidx.build.Publish
 import androidx.build.LibraryVersions
 
+import static androidx.build.dependencies.DependenciesKt.ANDROIDX_TEST_CORE
+import static androidx.build.dependencies.DependenciesKt.ANDROIDX_TEST_RUNNER
+import static androidx.build.dependencies.DependenciesKt.JUNIT
+import static androidx.build.dependencies.DependenciesKt.MOCKITO_CORE
 import static androidx.build.dependencies.DependenciesKt.NULLAWAY
+import static androidx.build.dependencies.DependenciesKt.ROBOLECTRIC
+import static androidx.build.dependencies.DependenciesKt.TRUTH
 
 plugins {
     id("AndroidXPlugin")
@@ -27,9 +33,17 @@ plugins {
 
 dependencies {
     api(project(":car:app:app"))
+    implementation "androidx.lifecycle:lifecycle-runtime:2.2.0"
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation 'androidx.annotation:annotation:1.1.0'
-    implementation project(path: ':lifecycle:lifecycle-runtime')
+
+    testImplementation("junit:junit:4.13")
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(ROBOLECTRIC)
+    testImplementation(TRUTH)
 
     annotationProcessor(NULLAWAY)
 }
@@ -45,8 +59,6 @@ androidx {
     name = "androidx.car.app:app-testing"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.CAR_APP
-    // Special pre-release version to exclude the app-aaos module from the 1.0.0 release.
-    mavenVersion = LibraryVersions.CAR_APP_PRE_RELEASE
     inceptionYear = "2021"
     description = "androidx.car.app:app-testing"
 }

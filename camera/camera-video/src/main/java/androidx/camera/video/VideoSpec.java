@@ -16,17 +16,16 @@
 
 package androidx.camera.video;
 
-import android.media.CamcorderProfile;
+import static androidx.camera.video.QualitySelector.FALLBACK_STRATEGY_HIGHER;
+import static androidx.camera.video.QualitySelector.QUALITY_FHD;
+import static androidx.camera.video.QualitySelector.QUALITY_HD;
+import static androidx.camera.video.QualitySelector.QUALITY_SD;
+
 import android.util.Range;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import com.google.auto.value.AutoValue;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 /**
  * Video specification that is options to config video encoding.
@@ -53,50 +52,16 @@ public abstract class VideoSpec {
             Integer.MAX_VALUE);
 
     /**
-     * Allow the video frame producer to choose video quality based on its current state.
-     */
-    public static final int VIDEO_QUALITY_AUTO = -1;
-    /**
-     * Choose the lowest video quality supported by the video frame producer.
-     */
-    public static final int VIDEO_QUALITY_LOWEST = CamcorderProfile.QUALITY_LOW;
-    /**
-     * Choose the highest video quality supported by the video frame producer.
-     */
-    public static final int VIDEO_QUALITY_HIGHEST = CamcorderProfile.QUALITY_HIGH;
-    /**
-     * Standard Definition (SD) 480p video quality.
+     * Quality selector representing no preference for quality.
      *
-     * <p>This video quality usually corresponds to a resolution of 720 x 480 (480p) pixels.
+     * <p>Using this value with {@link Builder#setQualitySelector(QualitySelector)} allows the
+     * video frame producer to choose video quality based on its current state.
      */
-    public static final int VIDEO_QUALITY_SD = CamcorderProfile.QUALITY_480P;
-    /**
-     * High Definition (HD) video quality.
-     *
-     * <p>This video quality usually corresponds to a resolution of 1280 x 720 (720p) pixels.
-     */
-    public static final int VIDEO_QUALITY_HD = CamcorderProfile.QUALITY_720P;
-    /**
-     * Full High Definition (FHD) 1080p video quality.
-     *
-     * <p>This video quality usually corresponds to a resolution of 1920 x 1080 (1080p) pixels.
-     */
-    public static final int VIDEO_QUALITY_FHD = CamcorderProfile.QUALITY_1080P;
-    /**
-     * Ultra High Definition (UHD) 2160p video quality.
-     *
-     * <p>This video quality usually corresponds to a resolution of 3840 x 2160 (2160p) pixels.
-     */
-    public static final int VIDEO_QUALITY_UHD = CamcorderProfile.QUALITY_2160P;
-
-
-    /** @hide */
-    @IntDef({VIDEO_QUALITY_AUTO, VIDEO_QUALITY_LOWEST, VIDEO_QUALITY_HIGHEST, VIDEO_QUALITY_SD,
-            VIDEO_QUALITY_HD, VIDEO_QUALITY_FHD, VIDEO_QUALITY_UHD})
-    @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public @interface VideoQuality {
-    }
+    public static final QualitySelector QUALITY_SELECTOR_AUTO =
+            QualitySelector.firstTry(QUALITY_FHD)
+                    .thenTry(QUALITY_HD)
+                    .thenTry(QUALITY_SD)
+                    .finallyTry(QUALITY_FHD, FALLBACK_STRATEGY_HIGHER);
 
     // Restrict constructor to same package
     VideoSpec() {
@@ -106,20 +71,14 @@ public abstract class VideoSpec {
     @NonNull
     public static Builder builder() {
         return new AutoValue_VideoSpec.Builder()
-                .setVideoQuality(VIDEO_QUALITY_AUTO)
+                .setQualitySelector(QUALITY_SELECTOR_AUTO)
                 .setFrameRate(FRAME_RATE_RANGE_AUTO)
                 .setBitrate(BITRATE_RANGE_AUTO);
     }
 
-    /**
-     * Gets the video quality.
-     *
-     * @return the video quality. Possible values include {@link #VIDEO_QUALITY_AUTO},
-     * {@link #VIDEO_QUALITY_LOWEST}, {@link #VIDEO_QUALITY_HIGHEST}, {@link #VIDEO_QUALITY_SD},
-     * {@link #VIDEO_QUALITY_HD}, {@link #VIDEO_QUALITY_FHD}, or {@link #VIDEO_QUALITY_UHD}.
-     */
-    @VideoQuality
-    public abstract int getVideoQuality();
+    /** Gets the {@link QualitySelector}. */
+    @NonNull
+    public abstract QualitySelector getQualitySelector();
 
     /** Gets the frame rate. */
     @NonNull
@@ -143,22 +102,17 @@ public abstract class VideoSpec {
         }
 
         /**
-         * Sets the video quality.
+         * Sets the {@link QualitySelector}.
          *
          * <p>Video encoding parameters such as frame rate and bitrate will often be automatically
          * determined according to quality. If video parameters are not set directly (such as
          * through {@link #setFrameRate(Range)}, the device will choose values calibrated for the
          * quality on that device.
          *
-         * <p>If not set, defaults to {@link #VIDEO_QUALITY_AUTO}.
-         *
-         * @param videoQuality the video quality. Possible values include
-         * {@link #VIDEO_QUALITY_AUTO}, {@link #VIDEO_QUALITY_LOWEST},
-         * {@link #VIDEO_QUALITY_HIGHEST}, {@link #VIDEO_QUALITY_SD}, {@link #VIDEO_QUALITY_HD},
-         * {@link #VIDEO_QUALITY_FHD}, or {@link #VIDEO_QUALITY_UHD}.
+         * <p>If not set, defaults to {@link #QUALITY_SELECTOR_AUTO}.
          */
         @NonNull
-        public abstract Builder setVideoQuality(@VideoQuality int videoQuality);
+        public abstract Builder setQualitySelector(@NonNull QualitySelector qualitySelector);
 
         /**
          * Sets the frame rate.

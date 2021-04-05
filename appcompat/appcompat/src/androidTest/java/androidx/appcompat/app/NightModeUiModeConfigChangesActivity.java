@@ -16,4 +16,7 @@
 
 package androidx.appcompat.app;
 
+/**
+ * An activity with DayNight theme that handles uiMode configuration changes.
+ */
 public class NightModeUiModeConfigChangesActivity extends NightModeActivity {}

@@ -31,7 +31,8 @@ dependencies {
     implementation(project(":resourceinspection:resourceinspection-annotation"))
     implementation(project(":annotation:annotation"))
 
-    implementation(AUTO_COMMON)
+    // TODO(183520738): Upgrade auto-common dependency to newest version 0.11.
+    implementation("com.google.auto:auto-common:0.10")
     implementation(AUTO_SERVICE_ANNOTATIONS)
     implementation(GRADLE_INCAP_HELPER)
     implementation(GUAVA)

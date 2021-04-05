@@ -42,6 +42,7 @@ import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -72,6 +73,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
@@ -312,6 +314,7 @@ public final class VideoCapture extends UseCase {
      * @hide
      */
     @Override
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
@@ -346,6 +349,7 @@ public final class VideoCapture extends UseCase {
      * @param callback          Callback for when the recorded video saving completion or failure.
      */
     @SuppressWarnings("ObjectToString")
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public void startRecording(
             @NonNull OutputFileOptions outputFileOptions, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
@@ -588,6 +592,7 @@ public final class VideoCapture extends UseCase {
      */
     @UiThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     void setupEncoder(@NonNull String cameraId, @NonNull Size resolution) {
         VideoCaptureConfig config = (VideoCaptureConfig) getCurrentConfig();
 
@@ -618,6 +623,7 @@ public final class VideoCapture extends UseCase {
 
         sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
             @Override
+            @RequiresPermission(Manifest.permission.RECORD_AUDIO)
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
                 // Ensure the attached camera has not changed before calling setupEncoder.
@@ -822,6 +828,7 @@ public final class VideoCapture extends UseCase {
         // Audio encoding loop. Exits on end of stream.
         boolean audioEos = false;
         int outIndex;
+        long lastAudioTimestamp = 0;
         while (!audioEos && mIsRecording) {
             // Check for end of stream from main thread
             if (mEndOfAudioStreamSignal.get()) {
@@ -862,7 +869,20 @@ public final class VideoCapture extends UseCase {
                         case MediaCodec.INFO_TRY_AGAIN_LATER:
                             break;
                         default:
-                            audioEos = writeAudioEncodedBuffer(outIndex);
+                            // Drops out of order audio frame if the frame's earlier than last
+                            // frame.
+                            if (mAudioBufferInfo.presentationTimeUs > lastAudioTimestamp) {
+                                audioEos = writeAudioEncodedBuffer(outIndex);
+                                lastAudioTimestamp = mAudioBufferInfo.presentationTimeUs;
+                            } else {
+                                Logger.w(TAG,
+                                        "Drops frame, current frame's timestamp "
+                                                + mAudioBufferInfo.presentationTimeUs
+                                                + " is earlier that last frame "
+                                                + lastAudioTimestamp);
+                                // Releases this frame from output buffer
+                                mAudioEncoder.releaseOutputBuffer(outIndex, false);
+                            }
                     }
                 } while (outIndex >= 0 && !audioEos); // end of dequeue output buffer
             }
@@ -913,6 +933,7 @@ public final class VideoCapture extends UseCase {
     }
 
     /** Create a AudioRecord object to get raw data */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     private AudioRecord autoConfigAudioRecordSource(VideoCaptureConfig config) {
         for (short audioFormat : sAudioEncoding) {
 

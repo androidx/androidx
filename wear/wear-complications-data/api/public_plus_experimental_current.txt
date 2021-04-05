@@ -185,7 +185,6 @@ package androidx.wear.complications {
     field public static final int DAY_AND_DATE = 16; // 0x10
     field public static final int DAY_OF_WEEK = 13; // 0xd
     field public static final int FAVORITE_CONTACT = 14; // 0xe
-    field public static final int GOOGLE_PAY = 8; // 0x8
     field public static final int MOST_RECENT_APP = 15; // 0xf
     field public static final int NEXT_EVENT = 9; // 0x9
     field public static final int NO_PROVIDER = -1; // 0xffffffff
@@ -231,8 +230,20 @@ package androidx.wear.complications.data {
     enum_constant public static final androidx.wear.complications.data.ComplicationType SMALL_IMAGE;
   }
 
+  public final class CountDownTimeReference {
+    ctor public CountDownTimeReference(long dateTimeMillis);
+    method public long getDateTimeMillis();
+    property public final long dateTimeMillis;
+  }
+
+  public final class CountUpTimeReference {
+    ctor public CountUpTimeReference(long dateTimeMillis);
+    method public long getDateTimeMillis();
+    property public final long dateTimeMillis;
+  }
+
   public final class DataKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.complications.data.ComplicationData asApiComplicationData(android.support.wearable.complications.ComplicationData);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.complications.data.ComplicationData toApiComplicationData(android.support.wearable.complications.ComplicationData);
   }
 
   public final class EmptyComplicationData extends androidx.wear.complications.data.ComplicationData {
@@ -240,15 +251,6 @@ package androidx.wear.complications.data {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public android.support.wearable.complications.ComplicationData asWireComplicationData();
     method public boolean isActiveAt(long dateTimeMillis);
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
-  }
-
-  public final class IdAndComplicationData {
-    ctor public IdAndComplicationData(int complicationId, androidx.wear.complications.data.ComplicationData complicationData);
-    ctor public IdAndComplicationData(int complicationId, android.support.wearable.complications.ComplicationData complicationData);
-    method public androidx.wear.complications.data.ComplicationData getComplicationData();
-    method public int getComplicationId();
-    property public final androidx.wear.complications.data.ComplicationData complicationData;
-    property public final int complicationId;
   }
 
   public final class LongTextComplicationData extends androidx.wear.complications.data.ComplicationData {
@@ -481,7 +483,8 @@ package androidx.wear.complications.data {
   }
 
   public static final class TimeDifferenceComplicationText.Builder {
-    ctor public TimeDifferenceComplicationText.Builder(androidx.wear.complications.data.TimeDifferenceStyle style, androidx.wear.complications.data.TimeReference reference);
+    ctor public TimeDifferenceComplicationText.Builder(androidx.wear.complications.data.TimeDifferenceStyle style, androidx.wear.complications.data.CountUpTimeReference countUpTimeReference);
+    ctor public TimeDifferenceComplicationText.Builder(androidx.wear.complications.data.TimeDifferenceStyle style, androidx.wear.complications.data.CountDownTimeReference countDownTimeReference);
     method public androidx.wear.complications.data.TimeDifferenceComplicationText build();
     method public androidx.wear.complications.data.TimeDifferenceComplicationText.Builder setDisplayAsNow(boolean displayAsNow);
     method public androidx.wear.complications.data.TimeDifferenceComplicationText.Builder setMinimumUnit(java.util.concurrent.TimeUnit? minimumUnit);
@@ -530,25 +533,6 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.TimeRange after(long startDateTimeMillis);
     method public androidx.wear.complications.data.TimeRange before(long endDateTimeMillis);
     method public androidx.wear.complications.data.TimeRange between(long startDateTimeMillis, long endDateTimeMillis);
-  }
-
-  public final class TimeReference {
-    method public static androidx.wear.complications.data.TimeReference between(long startDateTimeMillis, long endDateTimeMillis);
-    method public static androidx.wear.complications.data.TimeReference ending(long dateTimeMillis);
-    method public long getEndDateTimeMillis();
-    method public long getStartDateTimeMillis();
-    method public boolean hasEndDateTimeMillis();
-    method public boolean hasStartDateTimeMillis();
-    method public static androidx.wear.complications.data.TimeReference starting(long dateTimeMillis);
-    property public final long endDateTimeMillis;
-    property public final long startDateTimeMillis;
-    field public static final androidx.wear.complications.data.TimeReference.Companion Companion;
-  }
-
-  public static final class TimeReference.Companion {
-    method public androidx.wear.complications.data.TimeReference between(long startDateTimeMillis, long endDateTimeMillis);
-    method public androidx.wear.complications.data.TimeReference ending(long dateTimeMillis);
-    method public androidx.wear.complications.data.TimeReference starting(long dateTimeMillis);
   }
 
   public final class TypeKt {

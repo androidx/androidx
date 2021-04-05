@@ -43,7 +43,7 @@ public class ProxyControllerImpl extends ProxyController {
         String[][] proxyRuleArray = proxyRulesToStringArray(proxyConfig.getProxyRules());
         String[] bypassRuleArray = proxyConfig.getBypassRules().toArray(new String[0]);
 
-        if (proxyOverride.isSupportedByWebView() && !proxyConfig.isReverseBypass()) {
+        if (proxyOverride.isSupportedByWebView() && !proxyConfig.isReverseBypassEnabled()) {
             getBoundaryInterface().setProxyOverride(
                     proxyRuleArray, bypassRuleArray, listener, executor);
         } else if (proxyOverride.isSupportedByWebView() && reverseBypass.isSupportedByWebView()) {
@@ -52,7 +52,7 @@ public class ProxyControllerImpl extends ProxyController {
                     bypassRuleArray,
                     listener,
                     executor,
-                    proxyConfig.isReverseBypass());
+                    proxyConfig.isReverseBypassEnabled());
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

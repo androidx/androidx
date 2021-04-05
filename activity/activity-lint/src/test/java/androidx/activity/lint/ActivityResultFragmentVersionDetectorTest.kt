@@ -57,6 +57,31 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
     }
 
     @Test
+    fun expectPassRegisterForActivityResultStableVersions() {
+        lint().files(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.activity.result.ActivityResultCaller
+                import androidx.activity.result.contract.ActivityResultContract
+
+                val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
+            """
+            ),
+            gradle(
+                "build.gradle",
+                """
+                dependencies {
+                    api("androidx.fragment:fragment:1.3.1")
+                }
+            """
+            ).indented()
+        )
+            .run().expectClean()
+    }
+
+    @Test
     fun expectPassRegisterForActivityResultProject() {
         lint().files(
             kotlin(

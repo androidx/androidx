@@ -31,7 +31,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageCaptureException;
@@ -101,7 +101,7 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
     }
 
     /** Called when the user taps. */
-    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @OptIn(markerClass = ExperimentalVideo.class)
     private void onTap() {
         if (mCameraView.getCaptureMode() == CaptureMode.IMAGE
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
@@ -142,7 +142,7 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
     }
 
     /** Called when the user holds (long presses). */
-    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @OptIn(markerClass = ExperimentalVideo.class)
     private void onHold() {
         if (mCameraView.getCaptureMode() == CaptureMode.VIDEO
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
@@ -167,7 +167,7 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
     }
 
     /** Called when the user releases. */
-    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @OptIn(markerClass = ExperimentalVideo.class)
     private void onRelease() {
         if (mCameraView.getCaptureMode() == CaptureMode.VIDEO
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {

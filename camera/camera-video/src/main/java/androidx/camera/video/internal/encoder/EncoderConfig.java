@@ -31,7 +31,7 @@ public interface EncoderConfig {
      *
      * <p>For example, "video/avc" for a video encoder and "audio/mp4a-latm" for an audio encoder.
      *
-     * @See {@link MediaFormat}
+     * @see {@link MediaFormat}
      */
     @NonNull
     String getMimeType();

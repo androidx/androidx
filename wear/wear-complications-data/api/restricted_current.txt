@@ -230,7 +230,6 @@ package androidx.wear.complications {
     field public static final int DAY_AND_DATE = 16; // 0x10
     field public static final int DAY_OF_WEEK = 13; // 0xd
     field public static final int FAVORITE_CONTACT = 14; // 0xe
-    field public static final int GOOGLE_PAY = 8; // 0x8
     field public static final int MOST_RECENT_APP = 15; // 0xf
     field public static final int NEXT_EVENT = 9; // 0x9
     field public static final int NO_PROVIDER = -1; // 0xffffffff
@@ -244,7 +243,7 @@ package androidx.wear.complications {
     field public static final int WORLD_CLOCK = 5; // 0x5
   }
 
-  @IntDef({androidx.wear.complications.SystemProviders.NO_PROVIDER, androidx.wear.complications.SystemProviders.WATCH_BATTERY, androidx.wear.complications.SystemProviders.DATE, androidx.wear.complications.SystemProviders.TIME_AND_DATE, androidx.wear.complications.SystemProviders.STEP_COUNT, androidx.wear.complications.SystemProviders.WORLD_CLOCK, androidx.wear.complications.SystemProviders.APP_SHORTCUT, androidx.wear.complications.SystemProviders.UNREAD_NOTIFICATION_COUNT, androidx.wear.complications.SystemProviders.GOOGLE_PAY, androidx.wear.complications.SystemProviders.NEXT_EVENT, androidx.wear.complications.SystemProviders.RETAIL_STEP_COUNT, androidx.wear.complications.SystemProviders.RETAIL_CHAT, androidx.wear.complications.SystemProviders.SUNRISE_SUNSET, androidx.wear.complications.SystemProviders.DAY_OF_WEEK, androidx.wear.complications.SystemProviders.FAVORITE_CONTACT, androidx.wear.complications.SystemProviders.MOST_RECENT_APP, androidx.wear.complications.SystemProviders.DAY_AND_DATE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SystemProviders.ProviderId {
+  @IntDef({androidx.wear.complications.SystemProviders.NO_PROVIDER, androidx.wear.complications.SystemProviders.WATCH_BATTERY, androidx.wear.complications.SystemProviders.DATE, androidx.wear.complications.SystemProviders.TIME_AND_DATE, androidx.wear.complications.SystemProviders.STEP_COUNT, androidx.wear.complications.SystemProviders.WORLD_CLOCK, androidx.wear.complications.SystemProviders.APP_SHORTCUT, androidx.wear.complications.SystemProviders.UNREAD_NOTIFICATION_COUNT, androidx.wear.complications.SystemProviders.NEXT_EVENT, androidx.wear.complications.SystemProviders.RETAIL_STEP_COUNT, androidx.wear.complications.SystemProviders.RETAIL_CHAT, androidx.wear.complications.SystemProviders.SUNRISE_SUNSET, androidx.wear.complications.SystemProviders.DAY_OF_WEEK, androidx.wear.complications.SystemProviders.FAVORITE_CONTACT, androidx.wear.complications.SystemProviders.MOST_RECENT_APP, androidx.wear.complications.SystemProviders.DAY_AND_DATE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SystemProviders.ProviderId {
   }
 
 }
@@ -260,11 +259,11 @@ package androidx.wear.complications.data {
   }
 
   public interface ComplicationText {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationText asWireComplicationText();
     method public long getNextChangeTime(long fromDateTimeMillis);
     method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);
     method public boolean isAlwaysEmpty();
     method public boolean returnsSameText(long firstDateTimeMillis, long secondDateTimeMillis);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationText toWireComplicationText();
   }
 
   public enum ComplicationType {
@@ -289,8 +288,20 @@ package androidx.wear.complications.data {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int[] toWireTypes(java.util.Collection<? extends androidx.wear.complications.data.ComplicationType> types);
   }
 
+  public final class CountDownTimeReference {
+    ctor public CountDownTimeReference(long dateTimeMillis);
+    method public long getDateTimeMillis();
+    property public final long dateTimeMillis;
+  }
+
+  public final class CountUpTimeReference {
+    ctor public CountUpTimeReference(long dateTimeMillis);
+    method public long getDateTimeMillis();
+    property public final long dateTimeMillis;
+  }
+
   public final class DataKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.complications.data.ComplicationData asApiComplicationData(android.support.wearable.complications.ComplicationData);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.complications.data.ComplicationData toApiComplicationData(android.support.wearable.complications.ComplicationData);
   }
 
   public final class EmptyComplicationData extends androidx.wear.complications.data.ComplicationData {
@@ -298,15 +309,6 @@ package androidx.wear.complications.data {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public android.support.wearable.complications.ComplicationData asWireComplicationData();
     method public boolean isActiveAt(long dateTimeMillis);
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
-  }
-
-  public final class IdAndComplicationData {
-    ctor public IdAndComplicationData(int complicationId, androidx.wear.complications.data.ComplicationData complicationData);
-    ctor public IdAndComplicationData(int complicationId, android.support.wearable.complications.ComplicationData complicationData);
-    method public androidx.wear.complications.data.ComplicationData getComplicationData();
-    method public int getComplicationId();
-    property public final androidx.wear.complications.data.ComplicationData complicationData;
-    property public final int complicationId;
   }
 
   public final class LongTextComplicationData extends androidx.wear.complications.data.ComplicationData {
@@ -533,13 +535,15 @@ package androidx.wear.complications.data {
   }
 
   public final class TextKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.complications.data.ComplicationText toApiComplicationText(android.support.wearable.complications.TimeDependentText);
   }
 
   public final class TimeDifferenceComplicationText implements androidx.wear.complications.data.ComplicationText {
   }
 
   public static final class TimeDifferenceComplicationText.Builder {
-    ctor public TimeDifferenceComplicationText.Builder(androidx.wear.complications.data.TimeDifferenceStyle style, androidx.wear.complications.data.TimeReference reference);
+    ctor public TimeDifferenceComplicationText.Builder(androidx.wear.complications.data.TimeDifferenceStyle style, androidx.wear.complications.data.CountUpTimeReference countUpTimeReference);
+    ctor public TimeDifferenceComplicationText.Builder(androidx.wear.complications.data.TimeDifferenceStyle style, androidx.wear.complications.data.CountDownTimeReference countDownTimeReference);
     method public androidx.wear.complications.data.TimeDifferenceComplicationText build();
     method public androidx.wear.complications.data.TimeDifferenceComplicationText.Builder setDisplayAsNow(boolean displayAsNow);
     method public androidx.wear.complications.data.TimeDifferenceComplicationText.Builder setMinimumUnit(java.util.concurrent.TimeUnit? minimumUnit);
@@ -590,28 +594,9 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.TimeRange between(long startDateTimeMillis, long endDateTimeMillis);
   }
 
-  public final class TimeReference {
-    method public static androidx.wear.complications.data.TimeReference between(long startDateTimeMillis, long endDateTimeMillis);
-    method public static androidx.wear.complications.data.TimeReference ending(long dateTimeMillis);
-    method public long getEndDateTimeMillis();
-    method public long getStartDateTimeMillis();
-    method public boolean hasEndDateTimeMillis();
-    method public boolean hasStartDateTimeMillis();
-    method public static androidx.wear.complications.data.TimeReference starting(long dateTimeMillis);
-    property public final long endDateTimeMillis;
-    property public final long startDateTimeMillis;
-    field public static final androidx.wear.complications.data.TimeReference.Companion Companion;
-  }
-
-  public static final class TimeReference.Companion {
-    method public androidx.wear.complications.data.TimeReference between(long startDateTimeMillis, long endDateTimeMillis);
-    method public androidx.wear.complications.data.TimeReference ending(long dateTimeMillis);
-    method public androidx.wear.complications.data.TimeReference starting(long dateTimeMillis);
-  }
-
   public final class TypeKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.complications.data.ComplicationType![] asApiComplicationTypes(int[]);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static int[] asWireTypes(java.util.Collection<? extends androidx.wear.complications.data.ComplicationType>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.wear.complications.data.ComplicationType![] toApiComplicationTypes(int[]);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static int[] toWireTypes(java.util.Collection<? extends androidx.wear.complications.data.ComplicationType>);
   }
 
 }

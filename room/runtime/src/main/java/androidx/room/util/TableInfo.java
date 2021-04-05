@@ -237,6 +237,7 @@ public final class TableInfo {
 
     private static Map<String, Column> readColumns(SupportSQLiteDatabase database,
             String tableName) {
+
         Cursor cursor = database
                 .query("PRAGMA table_info(`" + tableName + "`)");
         //noinspection TryFinallyCanBeTryWithResources
@@ -456,20 +457,73 @@ public final class TableInfo {
             // from the compiler itself has it. b/136019383
             if (mCreatedFrom == CREATED_FROM_ENTITY
                     && column.mCreatedFrom == CREATED_FROM_DATABASE
-                    && (defaultValue != null && !defaultValue.equals(column.defaultValue))) {
+                    && (defaultValue != null && !defaultValueEquals(defaultValue,
+                    column.defaultValue))) {
                 return false;
             } else if (mCreatedFrom == CREATED_FROM_DATABASE
                     && column.mCreatedFrom == CREATED_FROM_ENTITY
-                    && (column.defaultValue != null && !column.defaultValue.equals(defaultValue))) {
+                    && (column.defaultValue != null && !defaultValueEquals(
+                    column.defaultValue, defaultValue))) {
                 return false;
             } else if (mCreatedFrom != CREATED_FROM_UNKNOWN
                     && mCreatedFrom == column.mCreatedFrom
-                    && (defaultValue != null ? !defaultValue.equals(column.defaultValue)
+                    && (defaultValue != null ? !defaultValueEquals(defaultValue,
+                    column.defaultValue)
                     : column.defaultValue != null)) {
                 return false;
             }
 
             return affinity == column.affinity;
+        }
+
+        /**
+         * Checks if the default values provided match. Handles the special case in which the
+         * default value is surrounded by parenthesis (e.g. encountered in b/182284899).
+         *
+         * Surrounding parenthesis are removed by SQLite when reading from the database, hence
+         * this function will check if they are present in the actual value, if so, it will
+         * compare the two values by ignoring the surrounding parenthesis.
+         *
+         */
+        public static boolean defaultValueEquals(@NonNull String actual, @Nullable String other) {
+            if (other == null) {
+                return false;
+            }
+
+            if (actual.equals(other)) {
+                return true;
+            } else if (containsSurroundingParenthesis(actual)) {
+                return actual.substring(1, actual.length() - 1).trim().equals(other);
+            }
+            return false;
+        }
+
+        /**
+         * Checks for potential surrounding parenthesis, if found, removes them and checks if
+         * remaining paranthesis are balanced. If so, the surrounding parenthesis are redundant,
+         * and returns true.
+         */
+        private static boolean containsSurroundingParenthesis(@NonNull String actual) {
+            if (actual.length() == 0) {
+                return false;
+            }
+            int surroundingParenthesis = 0;
+            for (int i = 0; i < actual.length(); i++) {
+                char c = actual.charAt(i);
+                if (i == 0 && c != '(') {
+                    return false;
+                }
+
+                if (c == '(') {
+                    surroundingParenthesis++;
+                } else if (c == ')') {
+                    surroundingParenthesis--;
+                    if (surroundingParenthesis == 0 && i != actual.length() - 1) {
+                        return false;
+                    }
+                }
+            }
+            return surroundingParenthesis == 0;
         }
 
         /**

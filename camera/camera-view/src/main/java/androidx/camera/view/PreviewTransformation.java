@@ -48,12 +48,14 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.ViewPort;
+import androidx.camera.view.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.view.internal.compat.quirk.PreviewOneThirdWiderQuirk;
 import androidx.core.util.Preconditions;
 
 /**
@@ -102,8 +104,12 @@ final class PreviewTransformation {
 
     // SurfaceRequest.getResolution().
     private Size mResolution;
-    // TransformationInfo.getCropRect().
+    // This represents the area of the Surface that should be visible to end users. The value
+    // is based on TransformationInfo.getCropRect() with possible corrections due to device quirks.
     private Rect mSurfaceCropRect;
+    // This rect represents the size of the viewport in preview. It's always the same as
+    // TransformationInfo.getCropRect().
+    private Rect mViewportRect;
     // TransformationInfo.getRotationDegrees().
     private int mPreviewRotationDegrees;
     // TransformationInfo.getTargetRotation.
@@ -121,12 +127,13 @@ final class PreviewTransformation {
      *
      * <p> All the values originally come from a {@link SurfaceRequest}.
      */
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     void setTransformationInfo(@NonNull SurfaceRequest.TransformationInfo transformationInfo,
             Size resolution, boolean isFrontCamera) {
         Logger.d(TAG, "Transformation info set: " + transformationInfo + " " + resolution + " "
                 + isFrontCamera);
-        mSurfaceCropRect = transformationInfo.getCropRect();
+        mSurfaceCropRect = getCorrectedCropRect(transformationInfo.getCropRect());
+        mViewportRect = transformationInfo.getCropRect();
         mPreviewRotationDegrees = transformationInfo.getRotationDegrees();
         mTargetRotation = transformationInfo.getTargetRotation();
         mResolution = resolution;
@@ -163,6 +170,10 @@ final class PreviewTransformation {
      * display rotation.
      */
     void transformView(Size previewViewSize, int layoutDirection, @NonNull View preview) {
+        if (previewViewSize.getHeight() == 0 || previewViewSize.getWidth() == 0) {
+            Logger.w(TAG, "Transform not applied due to PreviewView size: " + previewViewSize);
+            return;
+        }
         if (!isTransformationInfoReady()) {
             return;
         }
@@ -225,14 +236,13 @@ final class PreviewTransformation {
      *
      * <p> The calculation is based on making the crop rect to fill or fit the {@link PreviewView}.
      */
-    private Matrix getSurfaceToPreviewViewMatrix(Size previewViewSize,
-            int layoutDirection) {
+    Matrix getSurfaceToPreviewViewMatrix(Size previewViewSize, int layoutDirection) {
         Preconditions.checkState(isTransformationInfoReady());
         Matrix matrix = new Matrix();
 
         // Get the target of the mapping, the vertices of the crop rect in PreviewView.
         float[] previewViewCropRectVertices;
-        if (isCropRectAspectRatioMatchPreviewView(previewViewSize)) {
+        if (isViewportAspectRatioMatchPreviewView(previewViewSize)) {
             // If crop rect has the same aspect ratio as PreviewView, scale the crop rect to fill
             // the entire PreviewView. This happens if the scale type is FILL_* AND a
             // PreviewView-based viewport is used.
@@ -240,7 +250,7 @@ final class PreviewTransformation {
         } else {
             // If the aspect ratios don't match, it could be 1) scale type is FIT_*, 2) the
             // Viewport is not based on the PreviewView or 3) both.
-            RectF previewViewCropRect = getPreviewViewCropRectForMismatchedAspectRatios(
+            RectF previewViewCropRect = getPreviewViewViewportRectForMismatchedAspectRatios(
                     previewViewSize, layoutDirection);
             previewViewCropRectVertices = rectToVertices(previewViewCropRect);
         }
@@ -275,26 +285,48 @@ final class PreviewTransformation {
     }
 
     /**
-     * Gets the crop rect in {@link PreviewView} coordinates for the case where crop rect's aspect
-     * ratio doesn't match {@link PreviewView}'s aspect ratio.
+     * Gets the vertices of the crop rect in Surface.
+     */
+    private Rect getCorrectedCropRect(Rect surfaceCropRect) {
+        PreviewOneThirdWiderQuirk quirk = DeviceQuirks.get(PreviewOneThirdWiderQuirk.class);
+        if (quirk != null) {
+            // Correct crop rect if the device has a quirk.
+            RectF cropRectF = new RectF(surfaceCropRect);
+            Matrix correction = new Matrix();
+            correction.setScale(
+                    quirk.getCropRectScaleX(),
+                    1f,
+                    surfaceCropRect.centerX(),
+                    surfaceCropRect.centerY());
+            correction.mapRect(cropRectF);
+            Rect correctRect = new Rect();
+            cropRectF.round(correctRect);
+            return correctRect;
+        }
+        return surfaceCropRect;
+    }
+
+    /**
+     * Gets the viewport rect in {@link PreviewView} coordinates for the case where viewport's
+     * aspect ratio doesn't match {@link PreviewView}'s aspect ratio.
      *
      * <p> When aspect ratios don't match, additional calculation is needed to figure out how to
      * fit crop rect into the{@link PreviewView}.
      */
-    RectF getPreviewViewCropRectForMismatchedAspectRatios(Size previewViewSize,
+    RectF getPreviewViewViewportRectForMismatchedAspectRatios(Size previewViewSize,
             int layoutDirection) {
         RectF previewViewRect = new RectF(0, 0, previewViewSize.getWidth(),
                 previewViewSize.getHeight());
-        Size rotatedCropRectSize = getRotatedCropRectSize();
-        RectF rotatedSurfaceCropRect = new RectF(0, 0, rotatedCropRectSize.getWidth(),
-                rotatedCropRectSize.getHeight());
+        Size rotatedViewportSize = getRotatedViewportSize();
+        RectF rotatedViewportRect = new RectF(0, 0, rotatedViewportSize.getWidth(),
+                rotatedViewportSize.getHeight());
         Matrix matrix = new Matrix();
-        setMatrixRectToRect(matrix, rotatedSurfaceCropRect, previewViewRect, mScaleType);
-        matrix.mapRect(rotatedSurfaceCropRect);
+        setMatrixRectToRect(matrix, rotatedViewportRect, previewViewRect, mScaleType);
+        matrix.mapRect(rotatedViewportRect);
         if (layoutDirection == LayoutDirection.RTL) {
-            return flipHorizontally(rotatedSurfaceCropRect, (float) previewViewSize.getWidth() / 2);
+            return flipHorizontally(rotatedViewportRect, (float) previewViewSize.getWidth() / 2);
         }
-        return rotatedSurfaceCropRect;
+        return rotatedViewportRect;
     }
 
     /**
@@ -350,29 +382,37 @@ final class PreviewTransformation {
     }
 
     /**
-     * Returns crop rect size with target rotation applied.
+     * Returns viewport size with target rotation applied.
      */
-    private Size getRotatedCropRectSize() {
-        Preconditions.checkNotNull(mSurfaceCropRect);
+    private Size getRotatedViewportSize() {
         if (is90or270(mPreviewRotationDegrees)) {
-            return new Size(mSurfaceCropRect.height(), mSurfaceCropRect.width());
+            return new Size(mViewportRect.height(), mViewportRect.width());
         }
-        return new Size(mSurfaceCropRect.width(), mSurfaceCropRect.height());
+        return new Size(mViewportRect.width(), mViewportRect.height());
     }
 
     /**
-     * Checks if the crop rect's aspect ratio matches that of the {@link PreviewView}.
+     * Checks if the viewport's aspect ratio matches that of the {@link PreviewView}.
      *
      * <p> The mismatch could happen if the {@link ViewPort} is not based on the
      * {@link PreviewView}, or the {@link PreviewView#getScaleType()} is FIT_*. In this case, we
      * need to calculate how the crop rect should be fitted.
      */
     @VisibleForTesting
-    boolean isCropRectAspectRatioMatchPreviewView(Size previewViewSize) {
-        Size rotatedSize = getRotatedCropRectSize();
+    boolean isViewportAspectRatioMatchPreviewView(Size previewViewSize) {
+        // Using viewport rect to check if the viewport is based on the PreviewView.
+        Size rotatedViewportSize = getRotatedViewportSize();
         return isAspectRatioMatchingWithRoundingError(
                 previewViewSize, /* isAccurate1= */ true,
-                rotatedSize,  /* isAccurate2= */ false);
+                rotatedViewportSize,  /* isAccurate2= */ false);
+    }
+
+    /**
+     * Return the crop rect of the preview surface.
+     */
+    @Nullable
+    Rect getSurfaceCropRect() {
+        return mSurfaceCropRect;
     }
 
     /**

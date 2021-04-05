@@ -162,7 +162,6 @@ class PresentationActivity : BaseSampleActivity() {
     private fun FoldingFeature.stateString(): String {
         return when (state) {
             FoldingFeature.STATE_FLAT -> "FLAT"
-            FoldingFeature.STATE_FLIPPED -> "FLIPPED"
             FoldingFeature.STATE_HALF_OPENED -> "HALF_OPENED"
             else -> "Unknown feature state ($state)"
         }

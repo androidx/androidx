@@ -20,6 +20,7 @@ import static androidx.core.view.ContentInfoCompat.FLAG_CONVERT_TO_PLAIN_TEXT;
 import static androidx.core.view.ContentInfoCompat.SOURCE_CLIPBOARD;
 import static androidx.core.view.ContentInfoCompat.SOURCE_DRAG_AND_DROP;
 import static androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD;
+import static androidx.core.view.inputmethod.InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION;
 
 import android.app.Activity;
 import android.content.ClipData;
@@ -34,6 +35,7 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputContentInfo;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -178,7 +180,9 @@ final class AppCompatReceiveContentHelper {
             @Override
             public boolean onCommitContent(InputContentInfoCompat inputContentInfo, int flags,
                     Bundle opts) {
-                if ((flags & InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
+                Bundle extras = opts;
+                if (Build.VERSION.SDK_INT >= 25
+                        && (flags & INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
                     try {
                         inputContentInfo.requestPermission();
                     } catch (Exception e) {
@@ -186,15 +190,33 @@ final class AppCompatReceiveContentHelper {
                                 "Can't insert content from IME; requestPermission() failed", e);
                         return false;
                     }
+                    // Permissions granted above are revoked automatically by the platform when the
+                    // corresponding InputContentInfo object is garbage collected. To prevent
+                    // this from happening prematurely (before the receiving app has had a chance
+                    // to process the content), we set the InputContentInfo object into the
+                    // extras of the payload passed to OnReceiveContentListener.
+                    InputContentInfo inputContentInfoFmk =
+                            (InputContentInfo) inputContentInfo.unwrap();
+                    extras = (opts == null) ? new Bundle() : new Bundle(opts);
+                    extras.putParcelable(EXTRA_INPUT_CONTENT_INFO, inputContentInfoFmk);
                 }
                 ClipData clip = new ClipData(inputContentInfo.getDescription(),
                         new ClipData.Item(inputContentInfo.getContentUri()));
                 ContentInfoCompat payload = new ContentInfoCompat.Builder(clip, SOURCE_INPUT_METHOD)
                         .setLinkUri(inputContentInfo.getLinkUri())
-                        .setExtras(opts)
+                        .setExtras(extras)
                         .build();
                 return ViewCompat.performReceiveContent(view, payload) == null;
             }
         };
     }
+
+    /**
+     * Key for extras in {@link ContentInfoCompat}, to hold the {@link InputContentInfo} object
+     * passed by the IME. Apps should not access/read this object; it is only set in the extras
+     * in order to prevent premature garbage collection of {@link InputContentInfo} which in
+     * turn causes premature revocation of URI permissions.
+     */
+    private static final String EXTRA_INPUT_CONTENT_INFO =
+            "androidx.core.view.extra.INPUT_CONTENT_INFO";
 }

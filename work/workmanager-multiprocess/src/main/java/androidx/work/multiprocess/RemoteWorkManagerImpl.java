@@ -17,7 +17,7 @@
 package androidx.work.multiprocess;
 
 
-import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.failureCallback;
+import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.reportFailure;
 
 import android.content.Context;
 
@@ -28,8 +28,12 @@ import androidx.work.Operation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkContinuationImpl;
+import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.utils.WorkProgressUpdater;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
+import androidx.work.multiprocess.parcelable.ParcelableUpdateRequest;
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl;
 import androidx.work.multiprocess.parcelable.ParcelableWorkInfos;
 import androidx.work.multiprocess.parcelable.ParcelableWorkQuery;
@@ -81,7 +85,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                     };
             listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
-            failureCallback(callback, throwable);
+            reportFailure(callback, throwable);
         }
     }
 
@@ -107,7 +111,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                     };
             listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
-            failureCallback(callback, throwable);
+            reportFailure(callback, throwable);
         }
     }
 
@@ -127,7 +131,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                     };
             listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
-            failureCallback(callback, throwable);
+            reportFailure(callback, throwable);
         }
     }
 
@@ -149,7 +153,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                     };
             listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
-            failureCallback(callback, throwable);
+            reportFailure(callback, throwable);
         }
     }
 
@@ -171,7 +175,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                     };
             listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
-            failureCallback(callback, throwable);
+            reportFailure(callback, throwable);
         }
     }
 
@@ -191,7 +195,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                     };
             listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
-            failureCallback(callback, throwable);
+            reportFailure(callback, throwable);
         }
     }
 
@@ -214,7 +218,37 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                     };
             listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
-            failureCallback(callback, throwable);
+            reportFailure(callback, throwable);
+        }
+    }
+
+    @Override
+    public void setProgress(@NonNull byte[] request, @NonNull IWorkManagerImplCallback callback) {
+        try {
+            ParcelableUpdateRequest parcelled =
+                    ParcelConverters.unmarshall(request, ParcelableUpdateRequest.CREATOR);
+            final Context context = mWorkManager.getApplicationContext();
+            final TaskExecutor taskExecutor = mWorkManager.getWorkTaskExecutor();
+            final Executor executor = taskExecutor.getBackgroundExecutor();
+            final WorkDatabase database = mWorkManager.getWorkDatabase();
+            final WorkProgressUpdater progressUpdater =
+                    new WorkProgressUpdater(database, taskExecutor);
+            final ListenableFuture<Void> future = progressUpdater.updateProgress(
+                    context,
+                    UUID.fromString(parcelled.getId()),
+                    parcelled.getData()
+            );
+            final ListenableCallback<Void> listenableCallback =
+                    new ListenableCallback<Void>(executor, callback, future) {
+                        @NonNull
+                        @Override
+                        public byte[] toByteArray(@NonNull Void result) {
+                            return sEMPTY;
+                        }
+                    };
+            listenableCallback.dispatchCallbackSafely();
+        } catch (Throwable throwable) {
+            reportFailure(callback, throwable);
         }
     }
 }

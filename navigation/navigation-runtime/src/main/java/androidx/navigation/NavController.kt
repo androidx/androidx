@@ -65,7 +65,7 @@ public open class NavController(
         /**
          * Gets the topmost navigation graph associated with this NavController.
          *
-         * @see .setGraph
+         * @see NavController.setGraph
          * @throws IllegalStateException if called before `setGraph()`.
          */
         get() {
@@ -80,8 +80,8 @@ public open class NavController(
          * The graph can be retrieved later via [.getGraph].
          *
          * @param graph graph to set
-         * @see .setGraph
-         * @see .getGraph
+         * @see NavController.setGraph
+         * @see NavController.getGraph
          */
         @CallSuper
         set(graph) {
@@ -500,9 +500,9 @@ public open class NavController(
      *
      * @param graphResId resource id of the navigation graph to inflate
      *
-     * @see .getNavInflater
-     * @see .setGraph
-     * @see .getGraph
+     * @see NavController.getNavInflater
+     * @see NavController.setGraph
+     * @see NavController.getGraph
      */
     @CallSuper
     public open fun setGraph(@NavigationRes graphResId: Int) {
@@ -518,9 +518,9 @@ public open class NavController(
      * @param graphResId resource id of the navigation graph to inflate
      * @param startDestinationArgs arguments to send to the start destination of the graph
      *
-     * @see .getNavInflater
-     * @see .setGraph
-     * @see .getGraph
+     * @see NavController.getNavInflater
+     * @see NavController.setGraph
+     * @see NavController.getGraph
      */
     @CallSuper
     public open fun setGraph(@NavigationRes graphResId: Int, startDestinationArgs: Bundle?) {
@@ -534,8 +534,8 @@ public open class NavController(
      * The graph can be retrieved later via [.getGraph].
      *
      * @param graph graph to set
-     * @see .setGraph
-     * @see .getGraph
+     * @see NavController.setGraph
+     * @see NavController.getGraph
      */
     @CallSuper
     public open fun setGraph(graph: NavGraph, startDestinationArgs: Bundle?) {
@@ -940,7 +940,7 @@ public open class NavController(
      * thrown.
      *
      * @param deepLink deepLink to the destination reachable from the current NavGraph
-     * @see .navigate
+     * @see NavController.navigate
      */
     public open fun navigate(deepLink: Uri) {
         navigate(NavDeepLinkRequest(deepLink, null, null))
@@ -955,7 +955,7 @@ public open class NavController(
      *
      * @param deepLink deepLink to the destination reachable from the current NavGraph
      * @param navOptions special options for this navigation operation
-     * @see .navigate
+     * @see NavController.navigate
      */
     public open fun navigate(deepLink: Uri, navOptions: NavOptions?) {
         navigate(NavDeepLinkRequest(deepLink, null, null), navOptions, null)
@@ -971,7 +971,7 @@ public open class NavController(
      * @param deepLink deepLink to the destination reachable from the current NavGraph
      * @param navOptions special options for this navigation operation
      * @param navigatorExtras extras to pass to the Navigator
-     * @see .navigate
+     * @see NavController.navigate
      */
     public open fun navigate(
         deepLink: Uri,
@@ -1033,8 +1033,13 @@ public open class NavController(
         val deepLinkMatch = _graph!!.matchDeepLink(request)
         if (deepLinkMatch != null) {
             val destination = deepLinkMatch.destination
-            val args = destination.addInDefaultArgs(deepLinkMatch.matchingArgs)
+            val args = destination.addInDefaultArgs(deepLinkMatch.matchingArgs) ?: Bundle()
             val node = deepLinkMatch.destination
+            val intent = Intent().apply {
+                setDataAndType(request.uri, request.mimeType)
+                action = request.action
+            }
+            args.putParcelable(KEY_DEEP_LINK_INTENT, intent)
             navigate(node, args, navOptions, navigatorExtras)
         } else {
             throw IllegalArgumentException(
@@ -1275,6 +1280,13 @@ public open class NavController(
         onBackPressedCallback.remove()
         // Then add it to the new dispatcher
         dispatcher.addCallback(lifecycleOwner!!, onBackPressedCallback)
+
+        // Make sure that listener for updating the NavBackStackEntry lifecycles comes after
+        // the dispatcher
+        lifecycleOwner!!.lifecycle.apply {
+            removeObserver(lifecycleObserver)
+            addObserver(lifecycleObserver)
+        }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

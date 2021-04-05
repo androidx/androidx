@@ -25,8 +25,6 @@ import android.view.View.MeasureSpec.EXACTLY
 import android.widget.FrameLayout
 import androidx.window.DisplayFeature
 import androidx.window.FoldingFeature
-import androidx.window.FoldingFeature.TYPE_FOLD
-import androidx.window.FoldingFeature.TYPE_HINGE
 import androidx.window.WindowLayoutInfo
 
 /**
@@ -195,7 +193,6 @@ class SplitLayout : FrameLayout {
 
     private fun isValidFoldFeature(displayFeature: DisplayFeature): Boolean {
         val feature = displayFeature as? FoldingFeature ?: return false
-        return (feature.type == TYPE_FOLD || feature.type == TYPE_HINGE) &&
-            getFeaturePositionInViewRect(feature, this) != null
+        return getFeaturePositionInViewRect(feature, this) != null
     }
 }

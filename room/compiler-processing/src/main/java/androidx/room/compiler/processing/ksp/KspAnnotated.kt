@@ -16,7 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XAnnotated
+import androidx.room.compiler.processing.InternalXAnnotated
 import androidx.room.compiler.processing.XAnnotationBox
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -25,20 +25,40 @@ import kotlin.reflect.KClass
 
 internal sealed class KspAnnotated(
     val env: KspProcessingEnv
-) : XAnnotated {
+) : InternalXAnnotated {
     abstract fun annotations(): Sequence<KSAnnotation>
 
-    override fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>? {
-        return annotations().firstOrNull {
+    private fun <T : Annotation> findAnnotations(annotation: KClass<T>): Sequence<KSAnnotation> {
+        return annotations().filter {
             val qName = it.annotationType.resolve().declaration.qualifiedName?.asString()
             qName == annotation.qualifiedName
-        }?.let {
+        }
+    }
+
+    override fun <T : Annotation> getAnnotations(
+        annotation: KClass<T>,
+        containerAnnotation: KClass<out Annotation>?
+    ): List<XAnnotationBox<T>> {
+        // we'll try both because it can be the container or the annotation itself.
+        // try container first
+        if (containerAnnotation != null) {
+            // if container also repeats, this won't work but we don't have that use case
+            findAnnotations(containerAnnotation).firstOrNull()?.let {
+                return KspAnnotationBox(
+                    env = env,
+                    annotation = it,
+                    annotationClass = containerAnnotation.java,
+                ).getAsAnnotationBoxArray<T>("value").toList()
+            }
+        }
+        // didn't find anything with the container, try the annotation class
+        return findAnnotations(annotation).map {
             KspAnnotationBox(
                 env = env,
                 annotationClass = annotation.java,
                 annotation = it
             )
-        }
+        }.toList()
     }
 
     override fun hasAnnotationWithPackage(pkg: String): Boolean {
@@ -47,14 +67,16 @@ internal sealed class KspAnnotated(
         }
     }
 
-    override fun hasAnnotation(annotation: KClass<out Annotation>): Boolean {
+    override fun hasAnnotation(
+        annotation: KClass<out Annotation>,
+        containerAnnotation: KClass<out Annotation>?
+    ): Boolean {
         return annotations().any {
             val qName = it.annotationType.resolve().declaration.qualifiedName?.asString()
-            qName == annotation.qualifiedName
+            qName == annotation.qualifiedName ||
+                (containerAnnotation != null && qName == containerAnnotation.qualifiedName)
         }
     }
-
-    operator fun plus(other: KspAnnotated): XAnnotated = Combined(env, this, other)
 
     private class KSAnnotatedDelegate(
         env: KspProcessingEnv,
@@ -74,16 +96,6 @@ internal sealed class KspAnnotated(
         }
     }
 
-    private class Combined(
-        env: KspProcessingEnv,
-        private val first: KspAnnotated,
-        private val second: KspAnnotated
-    ) : KspAnnotated(env) {
-        override fun annotations(): Sequence<KSAnnotation> {
-            return first.annotations() + second.annotations()
-        }
-    }
-
     /**
      * TODO: The implementation of UseSiteFilter is not 100% correct until
      * https://github.com/google/ksp/issues/96 is fixed.
@@ -100,31 +112,26 @@ internal sealed class KspAnnotated(
         fun accept(annotation: KSAnnotation): Boolean
 
         private class Impl(
-            val acceptNull: Boolean,
             val acceptedTarget: AnnotationUseSiteTarget
         ) : UseSiteFilter {
             override fun accept(annotation: KSAnnotation): Boolean {
                 val target = annotation.useSiteTarget
-                return if (target == null) {
-                    acceptNull
-                } else {
-                    acceptedTarget == target
-                }
+                return target == null || acceptedTarget == target
             }
         }
 
         companion object {
-            val FIELD: UseSiteFilter = Impl(true, AnnotationUseSiteTarget.FIELD)
-            val PROPERTY_GETTER: UseSiteFilter = Impl(false, AnnotationUseSiteTarget.GET)
-            val PROPERTY_SETTER: UseSiteFilter = Impl(false, AnnotationUseSiteTarget.SET)
-            val PROPERTY_SETTER_PARAMETER: UseSiteFilter =
-                Impl(false, AnnotationUseSiteTarget.SETPARAM)
-            val METHOD_PARAMETER: UseSiteFilter = Impl(true, AnnotationUseSiteTarget.PARAM)
             val NO_USE_SITE = object : UseSiteFilter {
                 override fun accept(annotation: KSAnnotation): Boolean {
                     return annotation.useSiteTarget == null
                 }
             }
+            val NO_USE_SITE_OR_FIELD: UseSiteFilter = Impl(AnnotationUseSiteTarget.FIELD)
+            val NO_USE_SITE_OR_METHOD_PARAMETER: UseSiteFilter =
+                Impl(AnnotationUseSiteTarget.PARAM)
+            val NO_USE_SITE_OR_GETTER: UseSiteFilter = Impl(AnnotationUseSiteTarget.GET)
+            val NO_USE_SITE_OR_SETTER: UseSiteFilter = Impl(AnnotationUseSiteTarget.SET)
+            val NO_USE_SITE_OR_SET_PARAM: UseSiteFilter = Impl(AnnotationUseSiteTarget.SETPARAM)
         }
     }
 

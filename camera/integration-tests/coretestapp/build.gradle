@@ -70,7 +70,8 @@ dependencies {
     implementation(project(":appcompat:appcompat"))
     implementation("androidx.activity:activity:1.2.0")
     implementation("androidx.fragment:fragment:1.3.0")
-    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    // Needed because AGP enforces same version between main and androidTest classpaths
+    implementation(project(":concurrent:concurrent-futures"))
 
     // Android Support Library
     api(CONSTRAINT_LAYOUT, { transitive = true })
