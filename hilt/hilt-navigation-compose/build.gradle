@@ -42,10 +42,10 @@ dependencies {
 
     implementation(KOTLIN_STDLIB)
     api(project(":hilt:hilt-navigation"))
-    api("androidx.compose.runtime:runtime:1.0.0-beta01")
-    api("androidx.compose.ui:ui:1.0.0-beta01")
-    api("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha02")
-    api("androidx.navigation:navigation-compose:1.0.0-alpha08")
+    api(projectOrArtifact(":compose:runtime:runtime"))
+    api(projectOrArtifact(":compose:ui:ui"))
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose"))
+    api(projectOrArtifact(":navigation:navigation-compose"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -68,10 +68,4 @@ androidx {
     description = "Navigation Compose Hilt Extension"
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        useIR = true
-    }
 }
