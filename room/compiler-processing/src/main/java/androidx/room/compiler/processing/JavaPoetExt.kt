@@ -52,11 +52,7 @@ internal fun TypeMirror.safeTypeName(): TypeName = if (kind == TypeKind.NONE) {
  * see [TypeSpec.Builder.addOriginatingElement].
  */
 fun TypeSpec.Builder.addOriginatingElement(element: XElement) {
-    if (element is JavacElement) {
-        this.addOriginatingElement(element.element)
-    } else if (element is KspElement) {
-        element.containingFileAsOriginatingElement()?.let(this::addOriginatingElement)
-    }
+    element.originatingElement()?.let(this::addOriginatingElement)
 }
 
 internal fun TypeName.rawTypeName(): TypeName {

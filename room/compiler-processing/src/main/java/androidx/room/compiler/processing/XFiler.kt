@@ -23,11 +23,18 @@ import com.squareup.kotlinpoet.FileSpec
  * Code generation interface for XProcessing.
  */
 interface XFiler {
-    fun write(javaFile: JavaFile)
+    /**
+     * @param aggregating Specifies whether this
+     * file represents aggregating or isolating inputs for incremental build purposes. This does
+     * not apply in Javac processing because aggregating vs isolating is set on the processor
+     * level. For more on KSP's definitions of isolating vs aggregating see the documentation at
+     * https://github.com/google/ksp/blob/master/docs/incremental.md
+     */
+    fun write(javaFile: JavaFile, aggregating: Boolean = false)
 
-    fun write(fileSpec: FileSpec)
+    fun write(fileSpec: FileSpec, aggregating: Boolean = false)
 }
 
-fun JavaFile.writeTo(generator: XFiler) = generator.write(this)
+fun JavaFile.writeTo(generator: XFiler, aggregating: Boolean = false) = generator.write(this, aggregating)
 
-fun FileSpec.writeTo(generator: XFiler) = generator.write(this)
+fun FileSpec.writeTo(generator: XFiler, aggregating: Boolean = false) = generator.write(this, aggregating)
