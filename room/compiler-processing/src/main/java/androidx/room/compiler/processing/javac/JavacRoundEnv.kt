@@ -16,21 +16,14 @@
 
 package androidx.room.compiler.processing.javac
 
-import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XRoundEnv
-import androidx.room.compiler.processing.XTypeElement
 import com.google.auto.common.MoreElements
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.PackageElement
-import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
 import kotlin.reflect.KClass
 
 @Suppress("UnstableApiUsage")
-@VisibleForTesting
 internal class JavacRoundEnv(
     private val env: JavacProcessingEnv,
     val delegate: RoundEnvironment
@@ -40,23 +33,6 @@ internal class JavacRoundEnv(
             check(MoreElements.isType(it))
             env.wrapTypeElement(MoreElements.asType(it))
         }.toSet()
-    }
-
-    override fun getTypeElementsAnnotatedWith(annotationQualifiedName: String): Set<XTypeElement> {
-        val element = env.elementUtils.getTypeElement(annotationQualifiedName)
-            ?: error("Cannot find TypeElement: $annotationQualifiedName")
-        val result = delegate.getElementsAnnotatedWith(element)
-        return result.filter {
-            MoreElements.isType(it)
-        }.map {
-            env.wrapTypeElement(MoreElements.asType(it))
-        }.toSet()
-    }
-
-    override fun getTypeElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XTypeElement> {
-        return getTypeElementsAnnotatedWith(
-            annotationQualifiedName = klass.java.name
-        )
     }
 
     override fun getElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XElement> {
@@ -74,29 +50,9 @@ internal class JavacRoundEnv(
     }
 
     private inline fun wrapElements(
-        result: Set<Element>,
+        elements: Set<Element>,
         annotationName: () -> String
     ): Set<XElement> {
-
-        return result.map { element ->
-            when (element) {
-                is VariableElement -> {
-                    env.wrapVariableElement(element)
-                }
-                is TypeElement -> {
-                    env.wrapTypeElement(element)
-                }
-                is ExecutableElement -> {
-                    env.wrapExecutableElement(element)
-                }
-                is PackageElement -> {
-                    error(
-                        "Cannot get elements with annotation ${annotationName()}. Package " +
-                            "elements are not supported by KSP."
-                    )
-                }
-                else -> error("Unsupported element $element with annotation ${annotationName()}")
-            }
-        }.toSet()
+        return elements.map { env.wrapElement(it, annotationName) }.toSet()
     }
 }

@@ -19,6 +19,7 @@ import androidx.room.Entity
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.getSystemClasspathFiles
@@ -224,6 +225,7 @@ object COMMON {
         )
     }
 }
+
 fun testCodeGenScope(): CodeGenScope {
     return CodeGenScope(mock(ClassWriter::class.java))
 }
@@ -278,28 +280,36 @@ fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVer
 }
 
 fun XTestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
-    return roundEnv.getTypeElementsAnnotatedWith(DatabaseView::class.qualifiedName!!).map {
-        DatabaseViewProcessor(context, it).process()
-    }
+    return roundEnv.getElementsAnnotatedWith(DatabaseView::class.qualifiedName!!)
+        .filterIsInstance<XTypeElement>()
+        .map {
+            DatabaseViewProcessor(context, it).process()
+        }
 }
 
 fun XTestInvocation.getEntities(): List<androidx.room.vo.Entity> {
-    val entities = roundEnv.getTypeElementsAnnotatedWith(Entity::class.qualifiedName!!).map {
-        TableEntityProcessor(context, it).process()
-    }
+    val entities = roundEnv.getElementsAnnotatedWith(Entity::class.qualifiedName!!)
+        .filterIsInstance<XTypeElement>()
+        .map {
+            TableEntityProcessor(context, it).process()
+        }
     return entities
 }
 
 fun TestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
-    return roundEnv.getTypeElementsAnnotatedWith(DatabaseView::class.qualifiedName!!).map {
-        DatabaseViewProcessor(context, it).process()
-    }
+    return roundEnv.getElementsAnnotatedWith(DatabaseView::class.qualifiedName!!)
+        .filterIsInstance<XTypeElement>()
+        .map {
+            DatabaseViewProcessor(context, it).process()
+        }
 }
 
 fun TestInvocation.getEntities(): List<androidx.room.vo.Entity> {
-    val entities = roundEnv.getTypeElementsAnnotatedWith(Entity::class.qualifiedName!!).map {
-        TableEntityProcessor(context, it).process()
-    }
+    val entities = roundEnv.getElementsAnnotatedWith(Entity::class.qualifiedName!!)
+        .filterIsInstance<XTypeElement>()
+        .map {
+            TableEntityProcessor(context, it).process()
+        }
     return entities
 }
 

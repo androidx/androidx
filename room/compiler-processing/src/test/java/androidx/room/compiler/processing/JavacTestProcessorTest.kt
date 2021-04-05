@@ -28,38 +28,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.reflect.KClass
 
 class JavacTestProcessorTest {
-    @Test
-    fun testGetTypeAnnotation() {
-        val source = Source.java(
-            "foo.bar.Baz",
-            """
-            package foo.bar;
-            import androidx.room.compiler.processing.testcode.OtherAnnotation;
-            @OtherAnnotation(value="xx")
-            class Baz {
-            }
-            """.trimIndent()
-        )
-        testProcessor(listOf(source), listOf(OtherAnnotation::class)) { roundEnv ->
-            val annotatedElements = roundEnv.getTypeElementsAnnotatedWith(
-                OtherAnnotation::class.qualifiedName!!
-            )
-            val targetElement = xProcessingEnv.requireTypeElement("foo.bar.Baz")
-            assertThat(
-                annotatedElements
-            ).apply {
-                containsExactly(targetElement)
-
-                val elementsByAnnotationClass = roundEnv.getTypeElementsAnnotatedWith(
-                    OtherAnnotation::class
-                )
-                containsExactlyElementsIn(elementsByAnnotationClass)
-            }
-        }
-    }
 
     @Test
-    fun testGetAllAnnotations() {
+    fun getElementsAnnotatedWith() {
         val source = Source.java(
             "foo.bar.Baz",
             """

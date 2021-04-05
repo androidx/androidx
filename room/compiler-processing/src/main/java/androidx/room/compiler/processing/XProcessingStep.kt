@@ -18,22 +18,16 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
+import androidx.room.compiler.processing.ksp.KspElement
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
-import androidx.room.compiler.processing.ksp.KspTypeElement
 import com.google.auto.common.BasicAnnotationProcessor
-import com.google.auto.common.MoreElements
 import com.google.common.collect.ImmutableSetMultimap
 import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
-import javax.tools.Diagnostic
 
 /**
- * Specialized processing step which only supports annotations on TypeElements.
- *
- * We can generalize it but for now, Room only needs annotations on TypeElements to start
- * processing.
+ * Processing step to simplify processing a set of annotations.
  */
 interface XProcessingStep {
     /**
@@ -46,8 +40,8 @@ interface XProcessingStep {
      */
     fun process(
         env: XProcessingEnv,
-        elementsByAnnotation: Map<String, List<XTypeElement>>
-    ): Set<XTypeElement>
+        elementsByAnnotation: Map<String, Set<XElement>>
+    ): Set<XElement>
 
     /**
      * The set of annotation qualified names processed by this step.
@@ -69,17 +63,12 @@ interface XProcessingStep {
 
     fun executeInKsp(env: XProcessingEnv): List<KSAnnotated> {
         check(env is KspProcessingEnv)
+        val round = XRoundEnv.create(env)
         val args = annotations().associateWith { annotation ->
-            val elements = env.resolver.getSymbolsWithAnnotation(
-                annotation
-            ).filterIsInstance<KSClassDeclaration>()
-                .map {
-                    env.requireTypeElement(it.qualifiedName!!.asString())
-                }
-            elements
+            round.getElementsAnnotatedWith(annotation)
         }
         return process(env, args)
-            .map { (it as KspTypeElement).declaration }
+            .map { (it as KspElement).declaration }
     }
 }
 
@@ -93,23 +82,14 @@ internal class JavacProcessingStepDelegate(
     override fun process(
         elementsByAnnotation: ImmutableSetMultimap<String, Element>
     ): Set<Element> {
-        val converted = mutableMapOf<String, List<XTypeElement>>()
+        val converted = mutableMapOf<String, Set<XElement>>()
         // create a new x processing environment for each step to ensure it can freely cache
         // whatever it wants and we don't keep elements references across rounds.
         val xEnv = JavacProcessingEnv(env)
         annotations().forEach { annotation ->
             val elements = elementsByAnnotation[annotation].mapNotNull { element ->
-                if (MoreElements.isType(element)) {
-                    xEnv.wrapTypeElement(MoreElements.asType(element))
-                } else {
-                    xEnv.delegate.messager.printMessage(
-                        Diagnostic.Kind.ERROR,
-                        "Unsupported element type: ${element.kind}",
-                        element
-                    )
-                    null
-                }
-            }
+                xEnv.wrapElement(element, annotationName = { annotation })
+            }.toSet()
             converted[annotation] = elements
         }
         val result = delegate.process(xEnv, converted)

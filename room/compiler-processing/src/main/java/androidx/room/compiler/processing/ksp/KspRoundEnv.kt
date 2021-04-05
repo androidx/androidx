@@ -16,10 +16,8 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XRoundEnv
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -27,27 +25,11 @@ import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import kotlin.reflect.KClass
 
-@VisibleForTesting
 internal class KspRoundEnv(
     private val env: KspProcessingEnv
 ) : XRoundEnv {
     override val rootElements: Set<XElement>
         get() = TODO("not supported")
-
-    override fun getTypeElementsAnnotatedWith(annotationQualifiedName: String): Set<XTypeElement> {
-        return env.resolver.getSymbolsWithAnnotation(
-            annotationQualifiedName
-        ).filterIsInstance<KSClassDeclaration>()
-            .map {
-                env.wrapClassDeclaration(it)
-            }.toSet()
-    }
-
-    override fun getTypeElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XTypeElement> {
-        return getTypeElementsAnnotatedWith(
-            annotationQualifiedName = klass.qualifiedName ?: error("No qualified name for $klass")
-        )
-    }
 
     override fun getElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XElement> {
         return getElementsAnnotatedWith(

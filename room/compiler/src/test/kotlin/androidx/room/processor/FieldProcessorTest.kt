@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import androidx.room.Entity
 import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -645,7 +646,8 @@ class FieldProcessorTest {
             sources = sources
         ) { invocation ->
             val (owner, fieldElement) = invocation.roundEnv
-                .getTypeElementsAnnotatedWith(Entity::class.qualifiedName!!)
+                .getElementsAnnotatedWith(Entity::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
                 .map {
                     Pair(
                         it,

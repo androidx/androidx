@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing
 
-import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.javac.JavacRoundEnv
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
@@ -29,23 +28,11 @@ import kotlin.reflect.KClass
  *
  * @see javax.annotation.processing.RoundEnvironment
  */
-@VisibleForTesting
 interface XRoundEnv {
     /**
      * The root elements in the round.
      */
     val rootElements: Set<XElement>
-
-    /**
-     * Returns the set of [XTypeElement]s that are annotated with the given [annotationQualifiedName].
-     *
-     * Note, Elements that are not Type elements (such as functions) are ignored by this.
-     *
-     * @see getElementsAnnotatedWith
-     */
-    fun getTypeElementsAnnotatedWith(annotationQualifiedName: String): Set<XTypeElement>
-
-    fun getTypeElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XTypeElement>
 
     /**
      * Returns the set of [XElement]s that are annotated with the given annotation [klass].

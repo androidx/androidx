@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XProcessingEnv
@@ -26,8 +27,10 @@ import com.google.auto.common.GeneratedAnnotations
 import com.google.auto.common.MoreTypes
 import java.util.Locale
 import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.PackageElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
@@ -183,6 +186,31 @@ internal class JavacProcessingEnv(
                     )
                 }
         } as T
+    }
+
+    internal inline fun wrapElement(
+        element: Element,
+        annotationName: () -> String
+    ): XElement {
+
+        return when (element) {
+            is VariableElement -> {
+                wrapVariableElement(element)
+            }
+            is TypeElement -> {
+                wrapTypeElement(element)
+            }
+            is ExecutableElement -> {
+                wrapExecutableElement(element)
+            }
+            is PackageElement -> {
+                error(
+                    "Cannot get elements with annotation ${annotationName()}. Package " +
+                        "elements are not supported by KSP."
+                )
+            }
+            else -> error("Unsupported element $element with annotation ${annotationName()}")
+        }
     }
 
     // TODO: Add a cache layer
