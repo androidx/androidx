@@ -18,6 +18,7 @@ package androidx.navigation
 
 import android.os.Bundle
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -98,6 +99,27 @@ class NavigatorProviderTest {
         assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME))
             .isEqualTo(navigator)
     }
+
+    private val provider = NavigatorProvider()
+
+    @Test
+    fun set() {
+        val navigator = NoOpNavigator()
+        provider[NAME] = navigator
+        val foundNavigator: Navigator<NavDestination> = provider[NAME]
+        assertWithMessage("Set destination should be retrieved with get")
+            .that(foundNavigator)
+            .isSameInstanceAs(navigator)
+    }
+
+    @Test
+    fun plusAssign() {
+        val navigator = NoOpNavigator()
+        provider += navigator
+        assertWithMessage("Set destination should be retrieved with get")
+            .that(provider[NoOpNavigator::class])
+            .isSameInstanceAs(navigator)
+    }
 }
 
 class NoNameNavigator : Navigator<NavDestination>() {
@@ -146,3 +168,5 @@ internal open class EmptyNavigator : Navigator<NavDestination>() {
         throw IllegalStateException("popBackStack is not supported")
     }
 }
+
+private const val NAME = "TEST"

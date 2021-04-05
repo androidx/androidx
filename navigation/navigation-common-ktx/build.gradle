@@ -37,19 +37,6 @@ kotlin {
 
 dependencies {
     api(project(":navigation:navigation-common"))
-    implementation("androidx.core:core-ktx:1.1.0")
-    implementation("androidx.collection:collection:1.1.0")
-
-    api(KOTLIN_STDLIB)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
 }
 
 androidx {
