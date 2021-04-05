@@ -102,6 +102,10 @@ package androidx.car.app {
     method public void onSuccess(androidx.car.app.serialization.Bundleable?);
   }
 
+  public interface OnRequestPermissionsCallback {
+    method public void onRequestPermissionsResult(java.util.List<java.lang.String!>, java.util.List<java.lang.String!>);
+  }
+
   public interface OnScreenResultListener {
     method public void onScreenResult(Object?);
   }

@@ -18,11 +18,14 @@ package androidx.car.app.testing;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
+
 import android.app.PendingIntent;
 import android.content.Intent;
 
 import androidx.car.app.AppManager;
 import androidx.car.app.CarContext;
+import androidx.car.app.OnRequestPermissionsCallback;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.testing.navigation.TestNavigationManager;
@@ -33,6 +36,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.internal.DoNotInstrument;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /** Tests for {@link TestCarContext}. */
 @RunWith(RobolectricTestRunner.class)
@@ -87,5 +93,22 @@ public class TestCarContextTest {
         mCarContext.finishCarApp();
 
         assertThat(mCarContext.hasCalledFinishCarApp()).isTrue();
+    }
+
+    @Test
+    public void getLastPermissionRequest() {
+        assertThat(mCarContext.getLastPermissionRequest()).isNull();
+
+        List<String> permissions = new ArrayList<>();
+        permissions.add("foo");
+
+        OnRequestPermissionsCallback callback = mock(OnRequestPermissionsCallback.class);
+
+        mCarContext.requestPermissions(permissions, callback);
+
+        TestCarContext.PermissionRequest request = mCarContext.getLastPermissionRequest();
+
+        assertThat(request.getPermissionsRequested()).containsExactlyElementsIn(permissions);
+        assertThat(request.getCallback()).isEqualTo(callback);
     }
 }

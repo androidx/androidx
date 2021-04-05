@@ -31,6 +31,8 @@
       <intent-filter>
         <action android:name="androidx.car.app.CarAppService" />
       </intent-filter>
+      <meta-data android:name="androidx.car.app.CAR_APP_ACTIVITY"
+          android:value="androidx.car.app.sample.helloworld.common.HelloWorld" />
     </service>
     <activity-alias
         android:enabled="true"

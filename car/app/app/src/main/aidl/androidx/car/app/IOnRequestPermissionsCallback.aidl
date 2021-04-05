@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.library'
+package androidx.car.app;
 
-android {
-    compileSdkVersion 30
-
-    defaultConfig {
-        minSdkVersion 29
-        targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
-    }
-}
-
-dependencies {
-    implementation "androidx.core:core:1.6.0-alpha01"
-    implementation "androidx.activity:activity:1.2.2"
-    implementation "androidx.car.app:app:1.0.0-rc01"
-    implementation(project(":annotation:annotation-experimental"))
+/**
+ * A callback with the results from a permissions request.
+ *
+ * <p>This callback is sent between the {@link CarAppService} and {@link CarAppInternalActivity}
+ * and therefore runs entirely on the client process.
+ *
+ * @hide
+ */
+interface IOnRequestPermissionsCallback {
+    /**
+     * Provides the permission request's results to the caller.
+     */
+    void onRequestPermissionsResult(in String[] approvedPermissions, in String[]
+            rejectedPermissions) = 1;
 }

@@ -45,6 +45,8 @@
         <action android:name="androidx.car.app.CarAppService" />
         <category android:name="androidx.car.app.category.NAVIGATION"/>
       </intent-filter>
+      <meta-data android:name="androidx.car.app.CAR_APP_ACTIVITY"
+          android:value="androidx.car.app.sample.navigation.common.car.Navigation" />
     </service>
     <service
         android:name="androidx.car.app.sample.navigation.common.nav.NavigationService"

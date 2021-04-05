@@ -24,6 +24,7 @@
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
   <!-- For PlaceListMapTemplate -->
   <uses-permission android:name="androidx.car.app.MAP_TEMPLATES"/>
@@ -53,7 +54,23 @@
         <action android:name="androidx.car.app.CarAppService"/>
         <category android:name="androidx.car.app.category.NAVIGATION"/>
       </intent-filter>
+      <meta-data android:name="androidx.car.app.CAR_APP_ACTIVITY"
+          android:value="androidx.car.app.samples.showcase.Showcase" />
     </service>
+
+    <activity-alias
+        android:enabled="true"
+        android:exported="true"
+        android:label="Showcase"
+        android:name=".Showcase"
+        android:targetActivity="androidx.car.app.activity.CarAppActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+      <meta-data android:name="androidx.car.app.CAR_APP_SERVICE"
+          android:value="androidx.car.app.samples.showcase.ShowcaseService" />
+    </activity-alias>
 
     <service
         android:name=".common.navigation.NavigationNotificationService"
