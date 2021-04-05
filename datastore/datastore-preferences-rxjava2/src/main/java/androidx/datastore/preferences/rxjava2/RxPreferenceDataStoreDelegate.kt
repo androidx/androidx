@@ -94,10 +94,12 @@ internal class RxDataStoreSingletonDelegate internal constructor(
      */
     override fun getValue(thisRef: Context, property: KProperty<*>): RxDataStore<Preferences> {
         return INSTANCE ?: synchronized(lock) {
+            val applicationContext = thisRef.applicationContext
+
             if (INSTANCE == null) {
-                INSTANCE = with(RxPreferenceDataStoreBuilder(thisRef, fileName)) {
+                INSTANCE = with(RxPreferenceDataStoreBuilder(applicationContext, fileName)) {
                     setIoScheduler(scheduler)
-                    produceMigrations(thisRef.applicationContext).forEach {
+                    produceMigrations(applicationContext).forEach {
                         addDataMigration(it)
                     }
                     corruptionHandler?.let { setCorruptionHandler(it) }

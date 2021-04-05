@@ -98,11 +98,12 @@ internal class DataStoreSingletonDelegate<T> internal constructor(
     override fun getValue(thisRef: Context, property: KProperty<*>): DataStore<T> {
         return INSTANCE ?: synchronized(lock) {
             if (INSTANCE == null) {
+                val applicationContext = thisRef.applicationContext
                 INSTANCE = DataStoreFactory.create(
                     serializer = serializer,
                     produceFile = { thisRef.dataStoreFile(fileName) },
                     corruptionHandler = corruptionHandler,
-                    migrations = produceMigrations(thisRef.applicationContext),
+                    migrations = produceMigrations(applicationContext),
                     scope = scope
                 )
             }
