@@ -51,6 +51,11 @@ import androidx.testutils.TestNavigator
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.withIndex
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers
@@ -71,7 +76,13 @@ class NavControllerTest {
         private const val TEST_OVERRIDDEN_VALUE_ARG = "test_overriden_value"
         private const val TEST_ACTION_OVERRIDDEN_VALUE_ARG = "test_action_overriden_value"
         private const val TEST_OVERRIDDEN_VALUE_ARG_VALUE = "override"
+        private const val DESTINATION_ID = 1
     }
+
+    private val navController =
+        NavController(ApplicationProvider.getApplicationContext()).apply {
+            navigatorProvider += TestNavigator()
+        }
 
     @UiThreadTest
     @Test
@@ -570,7 +581,7 @@ class NavControllerTest {
         val intent = Intent(
             Intent.ACTION_VIEW,
             Uri.parse("android-app://androidx.navigation.test/test/argument1/argument2"),
-            ApplicationProvider.getApplicationContext() as Context,
+            ApplicationProvider.getApplicationContext(),
             TestActivity::class.java
         )
 
@@ -1617,6 +1628,41 @@ class NavControllerTest {
         dispatcher.onBackPressed()
 
         assertThat(backPressedIntercepted).isTrue()
+    }
+
+    @Test
+    fun createGraph() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ID) {
+            test(DESTINATION_ID)
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    @Suppress("EXPERIMENTAL_API_USAGE")
+    fun currentBackStackEntryFlow() = runBlocking {
+        navController.graph = navController.createGraph(startDestination = 1) {
+            test(1)
+            test(2)
+            test(3)
+        }
+
+        navController.currentBackStackEntryFlow
+            .take(navController.graph.count())
+            .withIndex()
+            .onEach { (index, backStackEntry) ->
+                val expectedDestination = index + 1
+                assertWithMessage("Flow emitted unexpected back stack entry (wrong destination)")
+                    .that(backStackEntry.destination.id)
+                    .isEqualTo(expectedDestination)
+
+                if (expectedDestination < navController.graph.count()) {
+                    navController.navigate(expectedDestination + 1)
+                }
+            }
+            .collect()
     }
 
     private fun createNavController(): NavController {
