@@ -71,6 +71,7 @@ class UseCaseManager @Inject constructor(
 
         var modified = false
         for (useCase in useCases) {
+            enabledUseCases.remove(useCase)
             modified = attachedUseCases.remove(useCase) || modified
         }
 
