@@ -37,6 +37,16 @@ class NavOptionsTest {
     }
 
     @Test
+    fun restoreState() {
+        val navOptions = navOptions {
+            restoreState = true
+        }
+        assertWithMessage("NavOptions should have restoreState set")
+            .that(navOptions.shouldRestoreState())
+            .isTrue()
+    }
+
+    @Test
     fun popUpTo() {
         val navOptions = navOptions {
             popUpTo = DESTINATION_ID
@@ -47,13 +57,17 @@ class NavOptionsTest {
         assertWithMessage("NavOptions should have isPopUpToInclusive false by default")
             .that(navOptions.isPopUpToInclusive())
             .isFalse()
+        assertWithMessage("NavOptions should have shouldPopUpToSaveState false by default")
+            .that(navOptions.shouldPopUpToSaveState())
+            .isFalse()
     }
 
     @Test
-    fun popUpToInclusive() {
+    fun popUpToBuilder() {
         val navOptions = navOptions {
             popUpTo(DESTINATION_ID) {
                 inclusive = true
+                saveState = true
             }
         }
         assertWithMessage("NavOptions should have popUpTo destination id set")
@@ -61,6 +75,9 @@ class NavOptionsTest {
             .isEqualTo(DESTINATION_ID)
         assertWithMessage("NavOptions should have isPopUpToInclusive set")
             .that(navOptions.isPopUpToInclusive())
+            .isTrue()
+        assertWithMessage("NavOptions should have shouldPopUpToSaveState set")
+            .that(navOptions.shouldPopUpToSaveState())
             .isTrue()
     }
 

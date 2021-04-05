@@ -46,6 +46,15 @@ public class NavOptionsBuilder {
     public var launchSingleTop: Boolean = false
 
     /**
+     * Whether this navigation action should restore any state previously saved
+     * by [PopUpToBuilder.saveState] or the `popUpToSaveState` attribute. If no state was
+     * previously saved with the destination ID being navigated to, this has no effect.
+     */
+    @get:Suppress("GetterOnBuilder", "GetterSetterNames")
+    @set:Suppress("SetterReturnsThis", "GetterSetterNames")
+    public var restoreState: Boolean = false
+
+    /**
      * Pop up to a given destination before navigating. This pops all non-matching destinations
      * from the back stack until this destination is found.
      */
@@ -56,6 +65,7 @@ public class NavOptionsBuilder {
             inclusive = false
         }
     private var inclusive = false
+    private var saveState = false
 
     /**
      * Pop up to a given destination before navigating. This pops all non-matching destinations
@@ -63,7 +73,9 @@ public class NavOptionsBuilder {
      */
     public fun popUpTo(@IdRes id: Int, popUpToBuilder: PopUpToBuilder.() -> Unit) {
         popUpTo = id
-        inclusive = PopUpToBuilder().apply(popUpToBuilder).inclusive
+        val builder = PopUpToBuilder().apply(popUpToBuilder)
+        inclusive = builder.inclusive
+        saveState = builder.saveState
     }
 
     /**
@@ -82,7 +94,8 @@ public class NavOptionsBuilder {
 
     internal fun build() = builder.apply {
         setLaunchSingleTop(launchSingleTop)
-        setPopUpTo(popUpTo, inclusive)
+        setRestoreState(restoreState)
+        setPopUpTo(popUpTo, inclusive, saveState)
     }.build()
 }
 
@@ -95,6 +108,17 @@ public class PopUpToBuilder {
      * Whether the `popUpTo` destination should be popped from the back stack.
      */
     public var inclusive: Boolean = false
+
+    /**
+     * Whether the back stack and the state of all destinations between the
+     * current destination and the [NavOptionsBuilder.popUpTo] ID should be saved for later
+     * restoration via [NavOptionsBuilder.restoreState] or the `restoreState` attribute using
+     * the same [NavOptionsBuilder.popUpTo] ID (note: this matching ID is true whether
+     * [inclusive] is true or false).
+     */
+    @get:Suppress("GetterOnBuilder", "GetterSetterNames")
+    @set:Suppress("SetterReturnsThis", "GetterSetterNames")
+    public var saveState: Boolean = false
 }
 
 /**
