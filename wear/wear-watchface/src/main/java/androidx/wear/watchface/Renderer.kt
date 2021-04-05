@@ -39,7 +39,7 @@ import androidx.annotation.UiThread
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.Renderer.CanvasRenderer
 import androidx.wear.watchface.Renderer.GlesRenderer
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import java.nio.ByteBuffer
 
 /**
@@ -88,24 +88,23 @@ private val EGL_CONTEXT_ATTRIB_LIST =
 
 internal val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
 
-/** The base class for [CanvasRenderer] and [GlesRenderer]. */
+/**
+ * The base class for [CanvasRenderer] and [GlesRenderer].
+ *
+ * @param surfaceHolder The [SurfaceHolder] that [renderInternal] will draw into.
+ * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
+ * @param watchState The associated [WatchState].
+ * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
+ *     interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
+ *     rate will be clamped to 10fps. Watch faces are recommended to use lower frame rates if
+ *     possible for better battery life. Variable frame rates can also help preserve battery
+ *     life, e.g. if a watch face has a short animation once per second it can adjust the frame
+ *     rate inorder to sleep when not animating.
+ */
 public sealed class Renderer(
-    /** The [SurfaceHolder] that [renderInternal] will draw into. */
     public val surfaceHolder: SurfaceHolder,
-
-    /** The associated [UserStyleRepository]. */
-    private val userStyleRepository: UserStyleRepository,
-
-    /** The associated [WatchState]. */
+    private val currentUserStyleRepository: CurrentUserStyleRepository,
     internal val watchState: WatchState,
-
-    /**
-     * The interval in milliseconds between frames in interactive [DrawMode]s. To render at 60hz
-     * set to 16. Note when battery is low, the frame rate will be clamped to 10fps. Watch faces are
-     * recommended to use lower frame rates if possible for better battery life. Variable frame
-     * rates can also help preserve battery life, e.g. if a watch face has a short animation once
-     * per second it can adjust the frame rate inorder to sleep when not animating.
-     */
     @IntRange(from = 0, to = 60000)
     public var interactiveDrawModeUpdateDelayMillis: Long,
 ) {
@@ -163,9 +162,6 @@ public sealed class Renderer(
             }
         }
 
-    /** Allows the renderer to finalize init after the child class's constructor has finished. */
-    internal open fun onPostCreate() {}
-
     /** Called when the Renderer is destroyed. */
     @UiThread
     public open fun onDestroy() {
@@ -173,7 +169,7 @@ public sealed class Renderer(
 
     /**
      * Renders the watch face into the [surfaceHolder] using the current [renderParameters]
-     * with the user style specified by the [userStyleRepository].
+     * with the user style specified by the [currentUserStyleRepository].
      *
      * @param calendar The Calendar to use when rendering the watch face
      * @return A [Bitmap] containing a screenshot of the watch face
@@ -184,7 +180,7 @@ public sealed class Renderer(
 
     /**
      * Renders the watch face into a Bitmap with the user style specified by the
-     * [userStyleRepository].
+     * [currentUserStyleRepository].
      *
      * @param calendar The Calendar to use when rendering the watch face
      * @param renderParameters The [RenderParameters] to use when rendering the watch face
@@ -266,39 +262,32 @@ public sealed class Renderer(
 
     /**
      * Watch faces that require [Canvas] rendering should extend their [Renderer] from this class.
+     *
+     * @param surfaceHolder The [SurfaceHolder] from which a [Canvas] to will be obtained and passed
+     *     into [render].
+     * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
+     * @param watchState The watch face's associated [WatchState].
+     * @param canvasType The type of canvas to request.
+     * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
+     *     interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the
+     *     frame rate will be clamped to 10fps. Watch faces are recommended to use lower frame
+     *     rates if possible for better battery life. Variable frame rates can also help preserve
+     *     battery life, e.g. if a watch face has a short animation once per second it can adjust
+     *     the frame rate inorder to sleep when not animating.
      */
     public abstract class CanvasRenderer(
-        /**
-         * The [SurfaceHolder] from which a [Canvas] to will be obtained and passed into [render].
-         */
         surfaceHolder: SurfaceHolder,
-
-        /** The watch face's associated [UserStyleRepository]. */
-        userStyleRepository: UserStyleRepository,
-
-        /** The watch face's associated [WatchState]. */
+        currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
-
-        /** The type of canvas to request. */
         @CanvasType private val canvasType: Int,
-
-        /**
-         * The interval in milliseconds between frames in interactive [DrawMode]s. To render at 60hz
-         * set to 16. Note when battery is low, the frame rate will be clamped to 10fps. Watch faces
-         * are recommended to use lower frame rates if possible for better battery life. Variable
-         * frame  rates can also help preserve battery life, e.g. if a watch face has a short
-         * animation once per second it can adjust the frame rate inorder to sleep when not
-         * animating.
-         */
-        @IntRange(from = 0, to = 10000)
+        @IntRange(from = 0, to = 60000)
         interactiveDrawModeUpdateDelayMillis: Long
     ) : Renderer(
         surfaceHolder,
-        userStyleRepository,
+        currentUserStyleRepository,
         watchState,
         interactiveDrawModeUpdateDelayMillis
     ) {
-
         @SuppressWarnings("UnsafeNewApiCall") // We check if the SDK is new enough.
         internal override fun renderInternal(
             calendar: Calendar
@@ -371,40 +360,34 @@ public sealed class Renderer(
 
     /**
      * Watch faces that require [GLES20] rendering should extend their [Renderer] from this class.
+     * Before passing to the [WatchFace] constructor [initOpenGlContext] must be called.
+     *
+     * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
+     *     into.
+     * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
+     * @param watchState The associated [WatchState].
+     * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
+     *     interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the
+     *     frame rate will be clamped to 10fps. Watch faces are recommended to use lower frame
+     *     rates if possible for better battery life. Variable frame rates can also help preserve
+     *     battery life, e.g. if a watch face has a short animation once per second it can adjust
+     *     the frame rate inorder to sleep when not animating.
+     * @param eglConfigAttribList Attributes for [EGL14.eglChooseConfig]. By default this selects an
+     *     RGBA8888 back buffer.
+     * @param eglSurfaceAttribList The attributes to be passed to [EGL14.eglCreateWindowSurface]. By
+     *     default this is empty.
      */
     public abstract class GlesRenderer @JvmOverloads constructor(
-        /** The [SurfaceHolder] whose [android.view.Surface] [render] will draw into. */
         surfaceHolder: SurfaceHolder,
-
-        /** The associated [UserStyleRepository]. */
-        userStyleRepository: UserStyleRepository,
-
-        /** The associated [WatchState]. */
+        currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
-
-        /**
-         * The interval in milliseconds between frames in interactive [DrawMode]s. To render at 60hz
-         * set to 16. Note when battery is low, the frame rate will be clamped to 10fps. Watch faces
-         * are recommended to use lower frame rates if possible for better battery life. Variable
-         * frame rates can also help preserve battery life, e.g. if a watch face has a short
-         * animation once per second it can adjust the frame rate inorder to sleep when not
-         * animating.
-         */
-        @IntRange(from = 0, to = 10000)
+        @IntRange(from = 0, to = 60000)
         interactiveDrawModeUpdateDelayMillis: Long,
-
-        /**
-         * Attributes for [EGL14.eglChooseConfig]. By default this selects an RGBA8888 back buffer.
-         */
         private val eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
-
-        /**
-         * The attributes to be passed to [EGL14.eglCreateWindowSurface]. By default this is empty.
-         */
         private val eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST
     ) : Renderer(
         surfaceHolder,
-        userStyleRepository,
+        currentUserStyleRepository,
         watchState,
         interactiveDrawModeUpdateDelayMillis
     ) {
@@ -413,7 +396,8 @@ public sealed class Renderer(
             private const val TAG = "Gles2WatchFace"
         }
 
-        private var eglDisplay: EGLDisplay? = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY).apply {
+        /** The GlesRenderer's [EGLDisplay]. */
+        public var eglDisplay: EGLDisplay? = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY).apply {
             if (this == EGL14.EGL_NO_DISPLAY) {
                 throw RuntimeException("eglGetDisplay returned EGL_NO_DISPLAY")
             }
@@ -424,10 +408,12 @@ public sealed class Renderer(
             }
         }
 
-        private var eglConfig: EGLConfig = chooseEglConfig(eglDisplay!!)
+        /** The GlesRenderer's [EGLConfig]. */
+        public var eglConfig: EGLConfig = chooseEglConfig(eglDisplay!!)
 
+        /** The GlesRenderer's [EGLContext]. */
         @SuppressWarnings("SyntheticAccessor")
-        private var eglContext: EGLContext? = EGL14.eglCreateContext(
+        public var eglContext: EGLContext? = EGL14.eglCreateContext(
             eglDisplay,
             eglConfig,
             EGL14.EGL_NO_CONTEXT,
@@ -443,6 +429,7 @@ public sealed class Renderer(
 
         private var eglSurface: EGLSurface? = null
         private var calledOnGlContextCreated = false
+        internal var initDone = false
 
         /**
          * Chooses the EGLConfig to use.
@@ -476,13 +463,23 @@ public sealed class Renderer(
                     Log.w(TAG, "eglDestroySurface failed")
                 }
             }
-            eglSurface = EGL14.eglCreateWindowSurface(
-                eglDisplay,
-                eglConfig,
-                surfaceHolder.surface,
-                eglSurfaceAttribList,
-                0
-            )
+            eglSurface = if (watchState.isHeadless) {
+                // Headless instances have a fake surfaceHolder so fall back to a Pbuffer.
+                EGL14.eglCreatePbufferSurface(
+                    eglDisplay,
+                    eglConfig,
+                    intArrayOf(EGL14.EGL_WIDTH, width, EGL14.EGL_HEIGHT, height, EGL14.EGL_NONE),
+                    0
+                )
+            } else {
+                EGL14.eglCreateWindowSurface(
+                    eglDisplay,
+                    eglConfig,
+                    surfaceHolder.surface,
+                    eglSurfaceAttribList,
+                    0
+                )
+            }
             if (eglSurface == EGL14.EGL_NO_SURFACE) {
                 throw RuntimeException("eglCreateWindowSurface failed")
             }
@@ -528,7 +525,12 @@ public sealed class Renderer(
             }
         }
 
-        internal override fun onPostCreate() {
+        /**
+         * Initializes the GlesRenderer, and calls [onGlSurfaceCreated]. It is an error to construct
+         * a [WatchFace] before this method has been called.
+         */
+        @UiThread
+        public fun initOpenGlContext() {
             surfaceHolder.addCallback(object : SurfaceHolder.Callback {
                 @SuppressLint("SyntheticAccessor")
                 override fun surfaceChanged(
@@ -552,10 +554,14 @@ public sealed class Renderer(
                 }
             })
 
+            // Note we have to call this after the derived class's init() method has run or it's
+            // typically going to fail because members have not been initialized.
             createWindowSurface(
                 surfaceHolder.surfaceFrame.width(),
                 surfaceHolder.surfaceFrame.height()
             )
+
+            initDone = true
         }
 
         /** Called when a new GL context is created. It's safe to use GL APIs in this method. */
@@ -570,7 +576,7 @@ public sealed class Renderer(
          * @param height height of surface in pixels
          */
         @UiThread
-        public open fun onGlSurfaceCreated(width: Int, height: Int) {
+        public open fun onGlSurfaceCreated(@Px width: Int, @Px height: Int) {
         }
 
         internal override fun renderInternal(

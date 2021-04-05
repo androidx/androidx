@@ -78,7 +78,7 @@ public class NavOptions internal constructor(
      * Whether the destination set in [.getPopUpTo] should be popped from the back stack.
      * @see Builder.setPopUpTo
      *
-     * @see .getPopUpTo
+     * @see NavOptions.getPopUpTo
      */
     public fun isPopUpToInclusive(): Boolean {
         return popUpToInclusive

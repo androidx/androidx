@@ -17,12 +17,17 @@
 package androidx.room.compiler.processing
 
 import com.squareup.javapoet.JavaFile
+import com.squareup.kotlinpoet.FileSpec
 
 /**
  * Code generation interface for XProcessing.
  */
 interface XFiler {
     fun write(javaFile: JavaFile)
+
+    fun write(fileSpec: FileSpec)
 }
 
 fun JavaFile.writeTo(generator: XFiler) = generator.write(this)
+
+fun FileSpec.writeTo(generator: XFiler) = generator.write(this)

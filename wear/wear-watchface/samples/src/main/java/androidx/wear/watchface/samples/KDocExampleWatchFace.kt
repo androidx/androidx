@@ -40,9 +40,11 @@ import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.Option
 
 @Sampled
 fun kDocCreateExampleWatchFaceService(): WatchFaceService {
@@ -52,52 +54,52 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             surfaceHolder: SurfaceHolder,
             watchState: WatchState
         ): WatchFace {
-            val userStyleRepository = UserStyleRepository(
+            val userStyleRepository = CurrentUserStyleRepository(
                 UserStyleSchema(
                     listOf(
                         ListUserStyleSetting(
-                            "color_style_setting",
+                            UserStyleSetting.Id("color_style_setting"),
                             "Colors",
                             "Watchface colorization",
                             icon = null,
                             options = listOf(
                                 ListUserStyleSetting.ListOption(
-                                    "red_style",
+                                    Option.Id("red_style"),
                                     "Red",
                                     icon = null
                                 ),
                                 ListUserStyleSetting.ListOption(
-                                    "green_style",
+                                    Option.Id("green_style"),
                                     "Green",
                                     icon = null
                                 ),
                                 ListUserStyleSetting.ListOption(
-                                    "bluestyle",
+                                    Option.Id("bluestyle"),
                                     "Blue",
                                     icon = null
                                 )
                             ),
-                            listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
+                            listOf(Layer.BASE, Layer.COMPLICATIONS, Layer.COMPLICATIONS_OVERLAY)
                         ),
                         ListUserStyleSetting(
-                            "hand_style_setting",
+                            UserStyleSetting.Id("hand_style_setting"),
                             "Hand Style",
                             "Hand visual look",
                             icon = null,
                             options = listOf(
                                 ListUserStyleSetting.ListOption(
-                                    "classic_style", "Classic", icon = null
+                                    Option.Id("classic_style"), "Classic", icon = null
                                 ),
                                 ListUserStyleSetting.ListOption(
-                                    "modern_style", "Modern", icon = null
+                                    Option.Id("modern_style"), "Modern", icon = null
                                 ),
                                 ListUserStyleSetting.ListOption(
-                                    "gothic_style",
+                                    Option.Id("gothic_style"),
                                     "Gothic",
                                     icon = null
                                 )
                             ),
-                            listOf(Layer.TOP_LAYER)
+                            listOf(Layer.COMPLICATIONS_OVERLAY)
                         )
                     )
                 )
@@ -150,8 +152,8 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 /* interactiveUpdateRateMillis */ 16,
             ) {
                 init {
-                    userStyleRepository.addUserStyleListener(
-                        object : UserStyleRepository.UserStyleListener {
+                    userStyleRepository.addUserStyleChangeListener(
+                        object : CurrentUserStyleRepository.UserStyleChangeListener {
                             override fun onUserStyleChanged(userStyle: UserStyle) {
                                 // `userStyle` will contain two userStyle categories with options
                                 // from the lists above. ...

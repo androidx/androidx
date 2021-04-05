@@ -97,7 +97,7 @@ internal class ConfigView(
     init {
         watchFaceConfigActivity.coroutineScope.launch {
             previewComplicationData =
-                watchFaceConfigActivity.editorSession.getComplicationPreviewData()
+                watchFaceConfigActivity.editorSession.getComplicationsPreviewData()
             setWillNotDraw(false)
         }
     }
@@ -159,7 +159,7 @@ internal class ConfigView(
         // Silently do nothing if the complication is fixed. Note the user is given a visual clue
         // that the complication is not editable in [Complication.drawOutline] so this is OK.
         val complicationState =
-            watchFaceConfigActivity.editorSession.complicationState[complicationId]!!
+            watchFaceConfigActivity.editorSession.complicationsState[complicationId]!!
         if (complicationState.fixedComplicationProvider) {
             return true
         }
@@ -209,13 +209,13 @@ internal class ConfigView(
 
     override fun onDraw(canvas: Canvas) {
         val editingSession = watchFaceConfigActivity.editorSession
-        val bitmap = editingSession.takeWatchFaceScreenshot(
+        val bitmap = editingSession.renderWatchFaceToBitmap(
             RenderParameters(
                 DrawMode.INTERACTIVE,
                 mapOf(
-                    Layer.BASE_LAYER to LayerMode.DRAW,
+                    Layer.BASE to LayerMode.DRAW,
                     Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
-                    Layer.TOP_LAYER to LayerMode.DRAW
+                    Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
                 ),
                 selectedComplicationId,
                 Color.RED

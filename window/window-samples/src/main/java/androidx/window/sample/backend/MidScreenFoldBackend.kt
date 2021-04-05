@@ -19,11 +19,9 @@
 package androidx.window.sample.backend
 
 import android.app.Activity
-import android.content.Context
 import android.graphics.Point
 import android.graphics.Rect
 import androidx.core.util.Consumer
-import androidx.window.DeviceState
 import androidx.window.DisplayFeature
 import androidx.window.FoldingFeature
 import androidx.window.WindowBackend
@@ -57,22 +55,11 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
     }
 
     /**
-     * @return {@link DeviceState} with an unknown posture.
-     * @deprecated Will be removed when method is removed from {@link WindowBackend}
-     */
-    @Deprecated("Added for compatibility with WindowBackend in sample")
-    override fun getDeviceState(): DeviceState {
-        return DeviceState.Builder().setPosture(DeviceState.POSTURE_OPENED).build()
-    }
-
-    /**
      * @param activity Currently running {@link Activity}.
      * @return A fake {@link WindowLayoutInfo} with a fold in the middle matching the {@link
      * FoldAxis}.
-     * @deprecated Visibility will be reduced when method is removed from {@link WindowBackend}.
      */
-    @Deprecated("Exposed for compatibility with WindowBackend in sample")
-    override fun getWindowLayoutInfo(activity: Activity): WindowLayoutInfo {
+    private fun getWindowLayoutInfo(activity: Activity): WindowLayoutInfo {
         val windowSize = activity.calculateWindowSizeExt()
         val featureRect = foldRect(windowSize)
 
@@ -85,19 +72,6 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
         val featureList = ArrayList<DisplayFeature>()
         featureList.add(displayFeature)
         return WindowLayoutInfo.Builder().setDisplayFeatures(featureList).build()
-    }
-
-    @Deprecated("Added for compatibility with WindowBackend in sample")
-    override fun getWindowLayoutInfo(context: Context): WindowLayoutInfo {
-        return WindowLayoutInfo.Builder().setDisplayFeatures(emptyList()).build()
-    }
-
-    @Deprecated("Added for compatibility with WindowBackend in sample")
-    override fun registerLayoutChangeCallback(
-        context: Context,
-        executor: Executor,
-        callback: Consumer<WindowLayoutInfo>
-    ) {
     }
 
     private fun foldRect(windowSize: Point): Rect {
@@ -121,15 +95,6 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
         } else { // Portrait
             Rect(windowSize.x / 2, 0, windowSize.x / 2, windowSize.y)
         }
-    }
-
-    override fun registerDeviceStateChangeCallback(
-        executor: Executor,
-        callback: Consumer<DeviceState>
-    ) {
-    }
-
-    override fun unregisterDeviceStateChangeCallback(callback: Consumer<DeviceState>) {
     }
 
     override fun registerLayoutChangeCallback(

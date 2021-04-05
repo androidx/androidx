@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2;
 
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
@@ -41,6 +43,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.location.Location;
+import android.media.ImageWriter;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -70,6 +73,7 @@ import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.Exif;
@@ -81,8 +85,11 @@ import androidx.core.content.ContextCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Assume;
@@ -1224,6 +1231,134 @@ public final class ImageCaptureTest {
         assertThat(imageCapture.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
     }
 
+    @Test
+    // Output JPEG format image when setting a CaptureProcessor is only enabled for devices that
+    // API level is at least 29.
+    @SdkSuppress(minSdkVersion = 29)
+    public void returnJpegImage_whenSoftwareJpegIsEnabled()
+            throws ExecutionException, InterruptedException {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
+        ImageCapture.Builder builder = new ImageCapture.Builder();
+
+        // Enables software Jpeg
+        builder.getMutableConfig().insertOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, true);
+
+        ImageCapture useCase = builder.build();
+
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
+
+        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        useCase.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
+
+        // Check the output image rotation degrees value is correct.
+        assertThat(imageProperties.get().rotationDegrees).isEqualTo(
+                mCamera.getCameraInfo().getSensorRotationDegrees(useCase.getTargetRotation()));
+        // Check the output format is correct.
+        assertThat(imageProperties.get().format).isEqualTo(ImageFormat.JPEG);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void returnYuvImage_whenSoftwareJpegIsEnabledWithYuvBufferFormat()
+            throws ExecutionException, InterruptedException {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
+        ImageCapture.Builder builder = new ImageCapture.Builder().setBufferFormat(
+                ImageFormat.YUV_420_888);
+
+        // Enables software Jpeg
+        builder.getMutableConfig().insertOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, true);
+
+        ImageCapture useCase = builder.build();
+
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
+
+        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        useCase.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
+
+        // Check the output image rotation degrees value is correct.
+        assertThat(imageProperties.get().rotationDegrees).isEqualTo(
+                mCamera.getCameraInfo().getSensorRotationDegrees(useCase.getTargetRotation()));
+        // Check the output format is correct.
+        assertThat(imageProperties.get().format).isEqualTo(ImageFormat.YUV_420_888);
+    }
+
+    @Test
+    // Output JPEG format image when setting a CaptureProcessor is only enabled for devices that
+    // API level is at least 29.
+    @SdkSuppress(minSdkVersion = 29)
+    public void returnJpegImage_whenCaptureProcessorIsSet() throws ExecutionException,
+            InterruptedException {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
+        ImageCapture.Builder builder = new ImageCapture.Builder();
+        SimpleCaptureProcessor simpleCaptureProcessor = new SimpleCaptureProcessor();
+
+        // Set a CaptureProcessor to directly pass the image to output surface.
+        ImageCapture useCase = builder.setCaptureProcessor(simpleCaptureProcessor).build();
+
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
+
+        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        useCase.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
+
+        // Check the output image rotation degrees value is correct.
+        assertThat(imageProperties.get().rotationDegrees).isEqualTo(
+                mCamera.getCameraInfo().getSensorRotationDegrees(useCase.getTargetRotation()));
+        // Check the output format is correct.
+        assertThat(imageProperties.get().format).isEqualTo(ImageFormat.JPEG);
+
+        simpleCaptureProcessor.close();
+    }
+
+    @Test
+    // Output JPEG format image when setting a CaptureProcessor is only enabled for devices that
+    // API level is at least 29.
+    @SdkSuppress(minSdkVersion = 29)
+    public void returnJpegImage_whenSoftwareJpegIsEnabledWithCaptureProcessor()
+            throws ExecutionException, InterruptedException {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
+        ImageCapture.Builder builder = new ImageCapture.Builder();
+        SimpleCaptureProcessor simpleCaptureProcessor = new SimpleCaptureProcessor();
+
+        // Set a CaptureProcessor to directly pass the image to output surface.
+        ImageCapture useCase = builder.setCaptureProcessor(simpleCaptureProcessor).build();
+
+        // Enables software Jpeg
+        builder.getMutableConfig().insertOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, true);
+
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
+
+        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        useCase.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
+
+        // Check the output image rotation degrees value is correct.
+        assertThat(imageProperties.get().rotationDegrees).isEqualTo(
+                mCamera.getCameraInfo().getSensorRotationDegrees(useCase.getTargetRotation()));
+        // Check the output format is correct.
+        assertThat(imageProperties.get().format).isEqualTo(ImageFormat.JPEG);
+
+        simpleCaptureProcessor.close();
+    }
+
     private OnImageCapturedCallback createMockOnImageCapturedCallback(
             @Nullable ResolvableFuture<ImageProperties> resultProperties) {
         OnImageCapturedCallback callback = mock(OnImageCapturedCallback.class);
@@ -1305,6 +1440,40 @@ public final class ImageCaptureTest {
             mNumOnErrorSuccess++;
             mImageCaptureErrors.add(exception.getImageCaptureError());
             mCountDownLatch.countDown();
+        }
+    }
+
+    private static class SimpleCaptureProcessor implements CaptureProcessor {
+        private ImageWriter mImageWriter = null;
+
+        @Override
+        public void onOutputSurface(Surface surface, int imageFormat) {
+            mImageWriter = ImageWriter.newInstance(surface, 2);
+        }
+
+        @Override
+        public void process(ImageProxyBundle bundle) {
+            ListenableFuture<ImageProxy> imageProxyListenableFuture =
+                    bundle.getImageProxy(bundle.getCaptureIds().get(0));
+            try {
+                ImageProxy imageProxy = imageProxyListenableFuture.get();
+                // Directly passing the input YUV image to the output surface.
+                mImageWriter.queueInputImage(imageProxy.getImage());
+            } catch (ExecutionException | InterruptedException e) {
+                throw new IllegalArgumentException("Can't extract ImageProxy from the"
+                        + " ImageProxyBundle." + e);
+            }
+        }
+
+        @Override
+        public void onResolutionUpdate(Size size) {
+
+        }
+
+        public void close() {
+            if (mImageWriter != null) {
+                mImageWriter.close();
+            }
         }
     }
 }

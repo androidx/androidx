@@ -45,16 +45,14 @@ import androidx.test.espresso.action.Tap
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.test.R
-import androidx.wear.widget.util.AsyncViewActions.waitForMatchingView
 import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_CENTER
-import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_OUTER
 import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_INNER
+import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_OUTER
+import androidx.wear.widget.util.AsyncViewActions.waitForMatchingView
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.any
 import org.hamcrest.Matcher
@@ -62,15 +60,14 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @MediumTest
-class WearArcLayoutTest {
-
-    private val bitmap = Bitmap.createBitmap(SCREEN_WIDTH, SCREEN_HEIGHT, Bitmap.Config.ARGB_8888)
-    private val canvas = Canvas(bitmap)
+class WearArcLayoutTest(private val testHeight: Int) {
+    private val testWidth: Int = SCREEN_SIZE_DEFAULT
     private val renderDoneLatch = CountDownLatch(1)
 
     @get:Rule
@@ -83,6 +80,9 @@ class WearArcLayoutTest {
         interactiveFunction: (FrameLayout.() -> Unit)? = null
 
     ) {
+        val bitmap = Bitmap.createBitmap(testWidth, testHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
         // Set the main frame.
         val mainFrame = FrameLayout(ApplicationProvider.getApplicationContext())
         mainFrame.setBackgroundColor(backgroundColor)
@@ -90,10 +90,10 @@ class WearArcLayoutTest {
         for (view in views) {
             mainFrame.addView(view)
         }
-        val screenWidth = MeasureSpec.makeMeasureSpec(SCREEN_WIDTH, MeasureSpec.EXACTLY)
-        val screenHeight = MeasureSpec.makeMeasureSpec(SCREEN_HEIGHT, MeasureSpec.EXACTLY)
+        val screenWidth = MeasureSpec.makeMeasureSpec(testWidth, MeasureSpec.EXACTLY)
+        val screenHeight = MeasureSpec.makeMeasureSpec(testHeight, MeasureSpec.EXACTLY)
         mainFrame.measure(screenWidth, screenHeight)
-        mainFrame.layout(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+        mainFrame.layout(0, 0, testWidth, testHeight)
         mainFrame.draw(canvas)
         // If an interactive function is set, call it now and redraw.
         // The function will generate mouse events and then we draw again to see the result
@@ -103,7 +103,7 @@ class WearArcLayoutTest {
             mainFrame.draw(canvas)
         }
         renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
-        bitmap.assertAgainstGolden(screenshotRule, key)
+        bitmap.assertAgainstGolden(screenshotRule, key + "_" + testHeight)
     }
 
     private fun createArc(text1: String = "SWEEP", text2: String = "Default") =
@@ -259,11 +259,11 @@ class WearArcLayoutTest {
     }
 
     // Extension functions to make the margin test more readable.
-    fun WearArcLayout.addSeparator() {
+    fun WearArcLayout.addSeparator(angle: Float = 10f) {
         addView(
             WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                 text = " "
-                minSweepDegrees = 10f
+                minSweepDegrees = angle
                 setBackgroundColor(Color.rgb(100, 100, 100))
                 clockwise = true
                 textSize = 40f
@@ -275,10 +275,16 @@ class WearArcLayoutTest {
     fun WearArcLayout.addCurvedText(
         text: String,
         color: Int,
-        marginLeft: Int = 0,
-        marginTop: Int = 0,
-        marginRight: Int = 0,
-        marginBottom: Int = 0,
+        marginLeft: Int? = null,
+        marginTop: Int? = null,
+        marginRight: Int? = null,
+        marginBottom: Int? = null,
+        margin: Int? = null,
+        paddingLeft: Int? = null,
+        paddingTop: Int? = null,
+        paddingRight: Int? = null,
+        paddingBottom: Int? = null,
+        padding: Int? = null,
         vAlign: Int = VALIGN_CENTER,
         clockwise: Boolean = true,
         textSize: Float = 14f,
@@ -293,11 +299,22 @@ class WearArcLayoutTest {
                 it.textSize = textSize
                 it.textAlignment = textAlignment
                 it.minSweepDegrees = minSweep
+                it.setPadding(
+                    paddingLeft ?: padding ?: 0,
+                    paddingTop ?: padding ?: 0,
+                    paddingRight ?: padding ?: 0,
+                    paddingBottom ?: padding ?: 0
+                )
                 it.layoutParams = WearArcLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 ).apply {
-                    setMargins(marginLeft, marginTop, marginRight, marginBottom)
+                    setMargins(
+                        marginLeft ?: margin ?: 0,
+                        marginTop ?: margin ?: 0,
+                        marginRight ?: margin ?: 0,
+                        marginBottom ?: margin ?: 0
+                    )
                     verticalAlignment = vAlign
                 }
             }
@@ -379,10 +396,7 @@ class WearArcLayoutTest {
 
     @Test
     fun testMargins() {
-        doOneTest(
-            "margin_test",
-            createTwoArcsWithMargin()
-        )
+        doOneTest("margin_test", createTwoArcsWithMargin())
     }
 
     @Test
@@ -418,6 +432,59 @@ class WearArcLayoutTest {
         )
     }
 
+    private fun createArcsWithPaddingAndMargins() = listOf(
+        WearArcLayout(ApplicationProvider.getApplicationContext()).apply {
+            anchorType = WearArcLayout.ANCHOR_CENTER
+            listOf(VALIGN_INNER, VALIGN_CENTER, VALIGN_OUTER).forEach { align ->
+                addSeparator()
+                addCurvedText("None", 0xFFFF0000.toInt(), vAlign = align)
+                addSeparator(angle = 1f)
+                addCurvedText("Pad", 0xFF80FF00.toInt(), padding = 8, vAlign = align)
+                addSeparator(angle = 1f)
+                addCurvedText("Mar", 0xFF00FFFF.toInt(), margin = 8, vAlign = align)
+                addSeparator(angle = 1f)
+                addCurvedText("Both", 0xFF8000FF.toInt(), padding = 8, margin = 8, vAlign = align)
+            }
+            addSeparator()
+        },
+        WearArcLayout(ApplicationProvider.getApplicationContext()).apply {
+            anchorType = WearArcLayout.ANCHOR_CENTER
+            anchorAngleDegrees = 180f
+            addSeparator()
+            addCurvedText("Top", 0xFFFF0000.toInt(), paddingTop = 16)
+            addSeparator()
+            addCurvedText("Bottom", 0xFF80FF00.toInt(), paddingBottom = 16)
+            addSeparator()
+            addCurvedText("Left", 0xFF00FFFF.toInt(), paddingLeft = 16)
+            addSeparator()
+            addCurvedText("Right", 0xFF8000FF.toInt(), paddingRight = 16)
+            addSeparator()
+        }
+    )
+
+    @Test
+    fun testMarginsAndPadding() {
+        doOneTest(
+            "margin_padding_test",
+            createArcsWithPaddingAndMargins()
+        )
+    }
+
+    @Test
+    fun testMarginsAndPaddingCcw() {
+        doOneTest(
+            "margin_padding_ccw_test",
+            // For each WearArcLayout, change all WearCurvedTextView children to counter-clockwise
+            createArcsWithPaddingAndMargins().map {
+                it.apply {
+                    children.forEach { child ->
+                        (child as? WearCurvedTextView)?.let { cv -> cv.clockwise = false }
+                    }
+                }
+            }
+        )
+    }
+
     // Generates a click in the x,y coordinates in the view's coordinate system.
     fun customClick(x: Float, y: Float) = ViewActions.actionWithAssertions(
         GeneralClickAction(
@@ -436,11 +503,9 @@ class WearArcLayoutTest {
     // Sending clicks is slow, around a quarter of a second each, on a desktop emulator.
     @Test(timeout = 100000)
     fun testTouchEvents() {
+        val bitmap = Bitmap.createBitmap(testWidth, testHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
         val scenario = ActivityScenario.launch(TouchTestActivity::class.java)
-
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val widgetWidth = context.resources.getDimension(R.dimen.touch_test_widget_width)
-        val widgetHeight = context.resources.getDimension(R.dimen.touch_test_widget_height)
 
         val STEP = 30
 
@@ -458,6 +523,15 @@ class WearArcLayoutTest {
                 )
             )
 
+        theView.perform(object : ViewAction {
+            override fun getConstraints(): Matcher<View> = any(View::class.java)
+            override fun getDescription(): String = "Resize view to fit the test."
+            override fun perform(uiController: UiController?, view: View?) {
+                (view as? FrameLayout)?.layoutParams =
+                    FrameLayout.LayoutParams(testWidth, testHeight)
+            }
+        })
+
         // Setup on-click handlers for each view so we can get the index of the clicked view.
         var clicked: Int
         scenario.onActivity {
@@ -474,9 +548,9 @@ class WearArcLayoutTest {
         // Simulate clicks in a grid all over the screen and draw a circle centered in the
         // position of the click and which color indicates the view that got clicked.
         // Black means no view got the click event, white means a out of range value.
-        for (y in STEP / 2 until widgetHeight.toInt() step STEP) {
+        for (y in STEP / 2 until testHeight step STEP) {
             val points = mutableListOf<ColoredPoint>()
-            for (x in STEP / 2 until widgetWidth.toInt() step STEP) {
+            for (x in STEP / 2 until testWidth step STEP) {
                 // Perform a click, and record a point colored according to which view was clicked.
                 clicked = -1
                 theView.perform(customClick(x.toFloat(), y.toFloat()))
@@ -508,7 +582,7 @@ class WearArcLayoutTest {
         scenario.onActivity {
             it.findViewById<View>(R.id.curved_frame).draw(canvas)
         }
-        bitmap.assertAgainstGolden(screenshotRule, "touch_screenshot")
+        bitmap.assertAgainstGolden(screenshotRule, "touch_screenshot" + "_" + testHeight)
     }
 
     // This is not testing the full event journey as the previous method does, but it's faster so
@@ -556,8 +630,8 @@ class WearArcLayoutTest {
             // Simulate clicks in a grid all over the screen and draw a circle centered in the
             // position of the click and which color indicates the view that got clicked.
             // Black means no view got the click event, white means a out of range value.
-            for (y in STEP / 2 until SCREEN_HEIGHT step STEP) {
-                for (x in STEP / 2 until SCREEN_WIDTH step STEP) {
+            for (y in STEP / 2 until testHeight step STEP) {
+                for (x in STEP / 2 until testWidth step STEP) {
                     // Perform a click, and record a point colored according to which view was clicked.
                     clicked = -1
 
@@ -633,16 +707,24 @@ class WearArcLayoutTest {
         testEventsFast("touch_fast_screenshot", views)
     }
 
-    @Test(timeout = 5000)
+    @Test(timeout = 10000)
     fun testMarginTouch() {
         val views = createTwoArcsWithMargin()
         testEventsFast("touch_fast_margin_screenshot", views)
     }
 
     companion object {
-        private const val SCREEN_WIDTH = 390
-        private const val SCREEN_HEIGHT = 390
+        private const val SCREEN_SIZE_DEFAULT = 390
+        private const val SCREEN_SIZE_DIFF = 100
         private const val TIMEOUT_MS = 1000L
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "testHeight={0}")
+        fun initParameters() = listOf(
+            SCREEN_SIZE_DEFAULT,
+            SCREEN_SIZE_DEFAULT + SCREEN_SIZE_DIFF,
+            SCREEN_SIZE_DEFAULT - SCREEN_SIZE_DIFF
+        )
     }
 }
 

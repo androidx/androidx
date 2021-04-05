@@ -447,21 +447,14 @@ public class WebViewFeature {
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers {@link WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView,
      * String, Set)}.
-     *
-     * TODO(ctzsm): unhide when ready.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String DOCUMENT_START_SCRIPT = "DOCUMENT_START_SCRIPT";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers {@link androidx.webkit.ProxyConfig.Builder.setReverseBypass(boolean)}
-     *
-     * TODO(laisminchillo): unhide when ready.
-     * @hide
+     * This feature covers
+     * {@link androidx.webkit.ProxyConfig.Builder#setReverseBypassEnabled(boolean)}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String PROXY_OVERRIDE_REVERSE_BYPASS = "PROXY_OVERRIDE_REVERSE_BYPASS";
 
     /**

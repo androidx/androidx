@@ -1153,6 +1153,17 @@ class ConcatAdapterTest {
         )
     }
 
+    @Test
+    public fun builderDefaults() {
+        val defaultBuilder = Builder().build()
+        assertThat(defaultBuilder.isolateViewTypes).isEqualTo(
+            ConcatAdapter.Config.DEFAULT.isolateViewTypes
+        )
+        assertThat(defaultBuilder.stableIdMode).isEqualTo(
+            ConcatAdapter.Config.DEFAULT.stableIdMode
+        )
+    }
+
     private var itemCounter = 0
     private fun produceItem(): TestItem = (itemCounter++).let {
         TestItem(id = it, value = it)

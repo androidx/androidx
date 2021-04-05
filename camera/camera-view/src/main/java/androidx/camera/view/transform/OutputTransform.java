@@ -39,7 +39,10 @@ import androidx.camera.view.TransformExperimental;
  */
 @TransformExperimental
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class OutputTransform {
+public class OutputTransform {
+
+    // Normalized space that maps to the viewport rect.
+    private static final RectF NORMALIZED_RECT = new RectF(0, 0, 1, 1);
 
     @NonNull
     final Matrix mMatrix;
@@ -57,8 +60,10 @@ public abstract class OutputTransform {
      *                     other {@link OutputTransform}, we can at least make sure that they
      *                     have the same aspect ratio. Viewports with different aspect ratios
      *                     cannot be from the same {@link UseCaseGroup}.
+     * @hide
      */
-    OutputTransform(@NonNull Matrix matrix, @NonNull Size viewPortSize) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public OutputTransform(@NonNull Matrix matrix, @NonNull Size viewPortSize) {
         mMatrix = matrix;
         mViewPortSize = viewPortSize;
     }
@@ -74,26 +79,21 @@ public abstract class OutputTransform {
     }
 
     /**
-     * Abstract builder of {@link OutputTransform} that provides shared functionalities.
+     * @hide
      */
-    static class Builder {
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static Matrix getNormalizedToBuffer(@NonNull Rect viewPortRect) {
+        return getNormalizedToBuffer(new RectF(viewPortRect));
+    }
 
-        // Normalized space that maps to the viewport rect.
-        private static final RectF NORMALIZED_RECT = new RectF(0, 0, 1, 1);
-
-        @NonNull
-        Matrix getNormalizedToBuffer(@NonNull Rect viewPortRect) {
-            return getNormalizedToBuffer(new RectF(viewPortRect));
-        }
-
-        /**
-         * Gets the transform from a normalized space (0, 0) - (1, 1) to viewport rect.
-         */
-        @NonNull
-        Matrix getNormalizedToBuffer(@NonNull RectF viewPortRect) {
-            Matrix normalizedToBuffer = new Matrix();
-            normalizedToBuffer.setRectToRect(NORMALIZED_RECT, viewPortRect, Matrix.ScaleToFit.FILL);
-            return normalizedToBuffer;
-        }
+    /**
+     * Gets the transform from a normalized space (0, 0) - (1, 1) to viewport rect.
+     */
+    @NonNull
+    static Matrix getNormalizedToBuffer(@NonNull RectF viewPortRect) {
+        Matrix normalizedToBuffer = new Matrix();
+        normalizedToBuffer.setRectToRect(NORMALIZED_RECT, viewPortRect, Matrix.ScaleToFit.FILL);
+        return normalizedToBuffer;
     }
 }

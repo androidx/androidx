@@ -17,14 +17,19 @@
 package androidx.room.vo
 
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FieldBundle
+import androidx.room.util.SchemaDiffResult
 import com.squareup.javapoet.ClassName
 
+/**
+ * Stores the changes detected in a database schema between the old and new versions.
+ */
 data class AutoMigrationResult(
     val element: XTypeElement,
     val from: Int?,
     val to: Int?,
-    val addedColumns: List<AddedColumn>
+    val schemaDiff: SchemaDiffResult
 ) {
 
     val implTypeName: ClassName by lazy {
@@ -41,17 +46,6 @@ data class AutoMigrationResult(
     data class AddedColumn(val tableName: String, val fieldBundle: FieldBundle)
 
     /**
-     * Stores the table name and the relevant field bundle of a column that was present in both
-     * the old and new version of the same database, but had a change in the field schema (e.g.
-     * change in affinity).
-     */
-    data class ChangedColumn(
-        val tableName: String,
-        val originalFieldBundle: FieldBundle,
-        val newFieldBundle: FieldBundle
-    )
-
-    /**
      * Stores the table name and the relevant field bundle of a column that was present in the
      * old version of a database but is not present in a new version of the same database, either
      * because it was removed or renamed.
@@ -59,5 +53,41 @@ data class AutoMigrationResult(
      * In the current implementation, we cannot differ between whether the column was removed or
      * renamed.
      */
-    data class RemovedColumn(val tableName: String, val fieldBundle: FieldBundle)
+    data class RemovedOrRenamedColumn(val tableName: String, val fieldBundle: FieldBundle)
+
+    /**
+     * Stores the table that was added to a database in a newer version.
+     */
+    data class AddedTable(val entityBundle: EntityBundle)
+
+    /**
+     * Stores the table name that contains a change in the primary key, foreign key(s) or index(es)
+     * in a newer version. Explicitly provides information on whether a foreign key change and/or
+     * an index change has occurred.
+     *
+     * As it is possible to have a table with only simple (non-complex) changes, which will be
+     * categorized as "AddedColumn" or "RemovedColumn" changes, all other
+     * changes at the table level are categorized as "complex" changes, using the category
+     * "ComplexChangedTable".
+     *
+     * At the column level, any change that is not a column add or a
+     * removal will be categorized as "ChangedColumn".
+     */
+    data class ComplexChangedTable(
+        val tableName: String,
+        val newTableName: String,
+        val oldVersionEntityBundle: EntityBundle,
+        val newVersionEntityBundle: EntityBundle,
+        val foreignKeyChanged: Boolean,
+        val indexChanged: Boolean
+    )
+
+    /**
+     * Stores the table that was present in the old version of a database but is not present in a
+     * new version of the same database, either because it was removed or renamed.
+     *
+     * In the current implementation, we cannot differ between whether the table was removed or
+     * renamed.
+     */
+    data class RemovedOrRenamedTable(val entityBundle: EntityBundle)
 }

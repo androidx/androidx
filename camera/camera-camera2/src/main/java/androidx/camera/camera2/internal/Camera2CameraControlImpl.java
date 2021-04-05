@@ -33,8 +33,8 @@ import android.util.Rational;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
@@ -102,7 +102,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * requests end in {@code ImmediateFailedFuture}. Any cached requests are dropped.</li>
  * </ul>
  */
-@UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 public class Camera2CameraControlImpl implements CameraControlInternal {
     private static final String TAG = "Camera2CameraControlImp";
     @VisibleForTesting

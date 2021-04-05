@@ -28,8 +28,11 @@ import androidx.camera.testing.fakes.FakeImageProxy;
  */
 class TransformTestUtils {
 
-    static ImageProxy createFakeImageProxy(int width, int height, Rect cropRect) {
-        FakeImageProxy imageProxy = new FakeImageProxy(new FakeImageInfo());
+    static ImageProxy createFakeImageProxy(int width, int height,
+            int rotationDegrees, Rect cropRect) {
+        FakeImageInfo fakeImageInfo = new FakeImageInfo();
+        fakeImageInfo.setRotationDegrees(rotationDegrees);
+        FakeImageProxy imageProxy = new FakeImageProxy(fakeImageInfo);
         imageProxy.setHeight(height);
         imageProxy.setWidth(width);
         imageProxy.setCropRect(cropRect);

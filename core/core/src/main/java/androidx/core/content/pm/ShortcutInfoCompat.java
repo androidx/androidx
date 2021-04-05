@@ -17,6 +17,7 @@ package androidx.core.content.pm;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +25,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.PersistableBundle;
 import android.os.UserHandle;
@@ -37,11 +39,14 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.app.Person;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.net.UriCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -53,6 +58,8 @@ public class ShortcutInfoCompat {
     private static final String EXTRA_PERSON_ = "extraPerson_";
     private static final String EXTRA_LOCUS_ID = "extraLocusId";
     private static final String EXTRA_LONG_LIVED = "extraLongLived";
+
+    private static final String EXTRA_SLICE_URI = "extraSliceUri";
 
     Context mContext;
     String mId;
@@ -490,6 +497,9 @@ public class ShortcutInfoCompat {
 
         private final ShortcutInfoCompat mInfo;
         private boolean mIsConversation;
+        private Set<String> mCapabilityBindings;
+        private Map<String, Map<String, List<String>>> mCapabilityBindingParams;
+        private Uri mSliceUri;
 
         public Builder(@NonNull Context context, @NonNull String id) {
             mInfo = new ShortcutInfoCompat();
@@ -744,7 +754,7 @@ public class ShortcutInfoCompat {
          * <li> Used by the system to associate a published Sharing Shortcut with supported
          * mimeTypes. Required for published Sharing Shortcuts with a matching category
          * declared in share targets, defined in the app's manifest linked shortcuts xml file.
-         * </ul>         
+         * </ul>
          *
          * @see ShortcutInfo#getCategories()
          */
@@ -802,8 +812,53 @@ public class ShortcutInfoCompat {
         }
 
         /**
+         * Associates a shortcut with a capability. Used when the shortcut is an instance
+         * of a capability.
+         *
+         * <P>This method can be called multiple times to associate multiple capabilities with
+         * this shortcut.
+         *
+         * @param parameters Optional capability parameters associated with given
+         * capability. This will be a mapping of parameter names to zero or
+         * more parameter values. e.g. {"START_EXERCISE": ["jogging", "dancing"],
+         * "STOP_EXERCISE": []}
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder addCapabilityBinding(@NonNull String capability,
+                @Nullable Map<String, List<String>> parameters) {
+            if (mCapabilityBindings == null) {
+                mCapabilityBindings = new HashSet<>();
+            }
+            mCapabilityBindings.add(capability);
+
+            if (parameters != null) {
+                if (mCapabilityBindingParams == null) {
+                    mCapabilityBindingParams = new HashMap<>();
+                }
+                if (mCapabilityBindingParams.get(capability) == null) {
+                    mCapabilityBindingParams.put(capability, new HashMap<String, List<String>>());
+                }
+                mCapabilityBindingParams.get(capability).putAll(parameters);
+            }
+            return this;
+        }
+
+        /**
+         * Sets the slice uri for a shortcut. The uri will be used if this shortcuts represents a
+         * slice, instead of an intent.
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder setSliceUri(@NonNull Uri sliceUri) {
+            mSliceUri = sliceUri;
+            return this;
+        }
+
+        /**
          * Creates a {@link ShortcutInfoCompat} instance.
          */
+        @SuppressLint("UnsafeNewApiCall")
         @NonNull
         public ShortcutInfoCompat build() {
             // Verify the arguments
@@ -818,6 +873,41 @@ public class ShortcutInfoCompat {
                     mInfo.mLocusId = new LocusIdCompat(mInfo.mId);
                 }
                 mInfo.mIsLongLived = true;
+            }
+
+            if (mCapabilityBindings != null) {
+                if (mInfo.mCategories == null) {
+                    mInfo.mCategories = new HashSet<>();
+                }
+                mInfo.mCategories.addAll(mCapabilityBindings);
+            }
+            if (Build.VERSION.SDK_INT >= 21) {
+                if (mCapabilityBindingParams != null) {
+                    if (mInfo.mExtras == null) {
+                        mInfo.mExtras = new PersistableBundle();
+                    }
+                    for (String capability : mCapabilityBindingParams.keySet()) {
+                        final Map<String, List<String>> params =
+                                mCapabilityBindingParams.get(capability);
+                        final Set<String> paramNames = params.keySet();
+                        // Persist the mapping of <Capability1> -> [<Param1>, <Param2> ... ]
+                        mInfo.mExtras.putStringArray(
+                                capability, paramNames.toArray(new String[0]));
+                        // Persist the capability param in respect to capability
+                        // i.e. <Capability1/Param1> -> [<Value1>, <Value2> ... ]
+                        for (String paramName : params.keySet()) {
+                            final List<String> value = params.get(paramName);
+                            mInfo.mExtras.putStringArray(capability + "/" + paramName,
+                                    value == null ? new String[0] : value.toArray(new String[0]));
+                        }
+                    }
+                }
+                if (mSliceUri != null) {
+                    if (mInfo.mExtras == null) {
+                        mInfo.mExtras = new PersistableBundle();
+                    }
+                    mInfo.mExtras.putString(EXTRA_SLICE_URI, UriCompat.toSafeString(mSliceUri));
+                }
             }
             return mInfo;
         }

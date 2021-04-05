@@ -65,6 +65,8 @@ def setupPlayground(settings, String relativePathToRoot) {
     }
     settings.includeBuild(new File(supportRoot, "androidx-plugin"))
     settings.includeProject(":lint-checks", new File(supportRoot, "lint-checks"))
+    settings.includeProject(":lint-checks:integration-tests",
+            new File(supportRoot, "lint-checks/integration-tests"))
     settings.includeProject(":fakeannotations", new File(supportRoot,"fakeannotations"))
     settings.includeProject(":internal-testutils-common",
             new File(supportRoot, "testutils/testutils-common"))

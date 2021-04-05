@@ -47,18 +47,18 @@ dependencies {
     implementation(project(":benchmark:benchmark-common"))
     implementation(ANDROIDX_TEST_CORE)
     implementation(ANDROIDX_TEST_UIAUTOMATOR)
-    implementation(ANDROIDX_TEST_RULES)
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(KOTLIN_TEST)
 }
 
 androidx {
     name = "Android Benchmark - Macrobenchmark"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"

@@ -69,7 +69,7 @@ public open class NavHostController
      * [NavHost].
      * @throws IllegalStateException if you have not called
      * [.setLifecycleOwner] before calling this method.
-     * @see .setLifecycleOwner
+     * @see NavHostController.setLifecycleOwner
      */
     public final override fun setOnBackPressedDispatcher(dispatcher: OnBackPressedDispatcher) {
         super.setOnBackPressedDispatcher(dispatcher)

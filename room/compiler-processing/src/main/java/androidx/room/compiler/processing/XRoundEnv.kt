@@ -36,9 +36,9 @@ interface XRoundEnv {
     val rootElements: Set<XElement>
 
     /**
-     * Returns the set of [XElement]s that are annotated with the given [klass].
+     * Returns the set of [XElement]s that are annotated with the given [annotationQualifiedName].
      */
-    fun getTypeElementsAnnotatedWith(klass: Class<out Annotation>): Set<XTypeElement>
+    fun getTypeElementsAnnotatedWith(annotationQualifiedName: String): Set<XTypeElement>
 
     companion object {
         /**

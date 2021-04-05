@@ -20,8 +20,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.junit.Test
@@ -39,25 +38,29 @@ class CoroutinesRoomTest {
     @Test
     fun testCreateFlow() = testRun {
         var callableExecuted = false
+        val expectedResult = Any()
         val flow = CoroutinesRoom.createFlow(
             db = database,
             inTransaction = false,
             tableNames = arrayOf("Pet"),
-            callable = Callable { callableExecuted = true }
+            callable = Callable {
+                callableExecuted = true
+                expectedResult
+            }
         )
 
         assertThat(invalidationTracker.observers.isEmpty()).isTrue()
         assertThat(callableExecuted).isFalse()
 
         val job = async {
-            flow.single()
+            flow.first()
         }
         yield(); yield() // yield for async and flow
 
         assertThat(invalidationTracker.observers.size).isEqualTo(1)
         assertThat(callableExecuted).isTrue()
 
-        job.cancelAndJoin()
+        assertThat(job.await()).isEqualTo(expectedResult)
         assertThat(invalidationTracker.observers.isEmpty()).isTrue()
     }
 

@@ -27,9 +27,8 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.model.TemplateWrapper;
 import androidx.car.app.utils.RemoteUtils;
-import androidx.car.app.utils.ThreadUtils;
+import androidx.lifecycle.Lifecycle;
 
 /** Manages the communication between the app and the host. */
 public class AppManager {
@@ -39,6 +38,8 @@ public class AppManager {
     private final IAppManager.Stub mAppManager;
     @NonNull
     private final HostDispatcher mHostDispatcher;
+    @NonNull
+    private final Lifecycle mLifecycle;
 
     /**
      * Sets the {@link SurfaceCallback} to get changes and updates to the surface on which the
@@ -62,11 +63,12 @@ public class AppManager {
     public void setSurfaceCallback(@Nullable SurfaceCallback surfaceCallback) {
         mHostDispatcher.dispatch(
                 CarContext.APP_SERVICE,
-                (IAppHost host) -> {
-                    host.setSurfaceCallback(RemoteUtils.stubSurfaceCallback(surfaceCallback));
+                "setSurfaceListener", (IAppHost host) -> {
+                    host.setSurfaceCallback(
+                            RemoteUtils.stubSurfaceCallback(mLifecycle, surfaceCallback));
                     return null;
-                },
-                "setSurfaceListener");
+                }
+        );
     }
 
     /**
@@ -78,11 +80,11 @@ public class AppManager {
     public void invalidate() {
         mHostDispatcher.dispatch(
                 CarContext.APP_SERVICE,
-                (IAppHost host) -> {
+                "invalidate", (IAppHost host) -> {
                     host.invalidate();
                     return null;
-                },
-                "invalidate");
+                }
+        );
     }
 
     /**
@@ -97,11 +99,11 @@ public class AppManager {
         requireNonNull(text);
         mHostDispatcher.dispatch(
                 CarContext.APP_SERVICE,
-                (IAppHost host) -> {
+                "showToast", (IAppHost host) -> {
                     host.showToast(text, duration);
                     return null;
-                },
-                "showToast");
+                }
+        );
     }
 
     /** Returns the {@code IAppManager.Stub} binder. */
@@ -111,11 +113,12 @@ public class AppManager {
 
     /** Creates an instance of {@link AppManager}. */
     static AppManager create(@NonNull CarContext carContext,
-            @NonNull HostDispatcher hostDispatcher) {
+            @NonNull HostDispatcher hostDispatcher, @NonNull Lifecycle lifecycle) {
         requireNonNull(carContext);
         requireNonNull(hostDispatcher);
+        requireNonNull(lifecycle);
 
-        return new AppManager(carContext, hostDispatcher);
+        return new AppManager(carContext, hostDispatcher, lifecycle);
     }
 
     // Strictly to avoid synthetic accessor.
@@ -124,38 +127,34 @@ public class AppManager {
         return mCarContext;
     }
 
+    @NonNull
+    Lifecycle getLifecycle() {
+        return mLifecycle;
+    }
+
     /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
-    protected AppManager(@NonNull CarContext carContext, @NonNull HostDispatcher hostDispatcher) {
+    protected AppManager(@NonNull CarContext carContext, @NonNull HostDispatcher hostDispatcher,
+            @NonNull Lifecycle lifecycle) {
         mCarContext = carContext;
         mHostDispatcher = hostDispatcher;
+        mLifecycle = lifecycle;
         mAppManager = new IAppManager.Stub() {
             @Override
             public void getTemplate(IOnDoneCallback callback) {
-                ThreadUtils.runOnMain(
-                        () -> {
-                            TemplateWrapper templateWrapper;
-                            try {
-                                templateWrapper = getCarContext().getCarService(
-                                        ScreenManager.class).getTopTemplate();
-                            } catch (RuntimeException e) {
-                                // Catch exceptions, notify the host of it, then rethrow it.
-                                // This allows the host to log, and show an error to the user.
-                                RemoteUtils.sendFailureResponse(callback,
-                                        "getTemplate", e);
-                                throw new RuntimeException(e);
-                            }
-
-                            RemoteUtils.sendSuccessResponse(callback, "getTemplate",
-                                    templateWrapper);
-                        });
+                RemoteUtils.dispatchCallFromHost(getLifecycle(), callback, "getTemplate",
+                        getCarContext().getCarService(
+                        ScreenManager.class)::getTopTemplate);
             }
 
             @Override
             public void onBackPressed(IOnDoneCallback callback) {
-                RemoteUtils.dispatchHostCall(
-                        carContext.getOnBackPressedDispatcher()::onBackPressed, callback,
-                        "onBackPressed");
+                RemoteUtils.dispatchCallFromHost(getLifecycle(), callback,
+                        "onBackPressed",
+                        () -> {
+                            carContext.getOnBackPressedDispatcher().onBackPressed();
+                            return null;
+                        });
             }
         };
     }

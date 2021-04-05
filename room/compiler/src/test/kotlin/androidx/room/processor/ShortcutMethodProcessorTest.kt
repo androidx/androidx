@@ -536,7 +536,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                         .forAnnotations(annotation, Dao::class)
                         .nextRunHandler { invocation ->
                             val (owner, methods) = invocation.roundEnv
-                                .getTypeElementsAnnotatedWith(Dao::class.java)
+                                .getTypeElementsAnnotatedWith(Dao::class.qualifiedName!!)
                                 .map {
                                     Pair(
                                         it,

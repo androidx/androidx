@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.migration.bundle.FieldBundle
+import androidx.room.util.SchemaDiffResult
 import androidx.room.vo.AutoMigrationResult
 import loadTestSource
 import org.junit.Test
@@ -50,18 +51,27 @@ class AutoMigrationWriterTest {
                 ),
                 from = 1,
                 to = 2,
-                addedColumns = listOf(
-                    AutoMigrationResult.AddedColumn(
-                        "Song",
-                        FieldBundle(
+                schemaDiff = SchemaDiffResult(
+                    addedColumns = mapOf(
+                        Pair(
                             "artistId",
-                            "artistId",
-                            "INTEGER",
-                            true,
-                            "0"
+                            AutoMigrationResult.AddedColumn(
+                                "Song",
+                                FieldBundle(
+                                    "artistId",
+                                    "artistId",
+                                    "INTEGER",
+                                    true,
+                                    "0"
+                                )
+                            )
                         )
-                    )
-                )
+                    ),
+                    removedOrRenamedColumns = listOf(),
+                    addedTables = listOf(),
+                    complexChangedTables = mapOf(),
+                    removedOrRenamedTables = listOf()
+                ),
             )
             AutoMigrationWriter(mock(XElement::class.java), autoMigrationResultWithNewAddedColumn)
                 .write(invocation.processingEnv)
@@ -99,18 +109,27 @@ class AutoMigrationWriterTest {
                 ),
                 from = 1,
                 to = 2,
-                addedColumns = listOf(
-                    AutoMigrationResult.AddedColumn(
-                        "Song",
-                        FieldBundle(
+                schemaDiff = SchemaDiffResult(
+                    addedColumns = mapOf(
+                        Pair(
                             "artistId",
-                            "artistId",
-                            "INTEGER",
-                            false,
-                            ""
+                            AutoMigrationResult.AddedColumn(
+                                "Song",
+                                FieldBundle(
+                                    "artistId",
+                                    "artistId",
+                                    "INTEGER",
+                                    false,
+                                    ""
+                                )
+                            )
                         )
-                    )
-                )
+                    ),
+                    removedOrRenamedColumns = listOf(),
+                    addedTables = listOf(),
+                    complexChangedTables = mapOf(),
+                    removedOrRenamedTables = listOf()
+                ),
             )
             AutoMigrationWriter(mock(XElement::class.java), autoMigrationResultWithNewAddedColumn)
                 .write(invocation.processingEnv)

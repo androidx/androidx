@@ -30,7 +30,7 @@ class VideoSpecTest {
     fun newBuilder_containsCorrectDefaults() {
         val videoSpec = VideoSpec.builder().build()
 
-        assertThat(videoSpec.videoQuality).isEqualTo(VideoSpec.VIDEO_QUALITY_AUTO)
+        assertThat(videoSpec.qualitySelector).isEqualTo(VideoSpec.QUALITY_SELECTOR_AUTO)
         assertThat(videoSpec.bitrate).isEqualTo(VideoSpec.BITRATE_RANGE_AUTO)
         assertThat(videoSpec.frameRate).isEqualTo(VideoSpec.FRAME_RATE_RANGE_AUTO)
     }

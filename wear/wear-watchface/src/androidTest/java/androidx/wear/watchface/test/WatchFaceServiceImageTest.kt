@@ -16,13 +16,17 @@
 
 package androidx.wear.watchface.test
 
+import android.app.Activity
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.icu.util.TimeZone
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.wearable.watchface.SharedMemoryImage
@@ -39,21 +43,23 @@ import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
-import androidx.wear.watchface.control.IPendingInteractiveWatchFaceWCS
+import androidx.wear.watchface.control.IInteractiveWatchFace
+import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
-import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
+import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
-import androidx.wear.watchface.data.SystemState
+import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.GREEN_STYLE
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -71,6 +77,36 @@ private const val TIMEOUT_MS = 800L
 
 private const val INTERACTIVE_INSTANCE_ID = "InteractiveTestInstance"
 
+// Activity for testing complication taps.
+public class ComplicationTapActivity : Activity() {
+    internal companion object {
+        private val lock = Any()
+        private lateinit var theIntent: Intent
+        private var countDown: CountDownLatch? = null
+
+        fun newCountDown() {
+            countDown = CountDownLatch(1)
+        }
+
+        fun awaitIntent(): Intent? {
+            if (countDown!!.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+                return theIntent
+            } else {
+                return null
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        synchronized(lock) {
+            theIntent = intent
+        }
+        countDown!!.countDown()
+        finish()
+    }
+}
+
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class WatchFaceServiceImageTest {
@@ -87,6 +123,18 @@ class WatchFaceServiceImageTest {
         SystemProviders.DAY_OF_WEEK to
             ShortTextComplicationData.Builder(PlainComplicationText.Builder("Mon").build())
                 .setTitle(PlainComplicationText.Builder("23rd").build())
+                .setTapAction(
+                    PendingIntent.getActivity(
+                        ApplicationProvider.getApplicationContext<Context>(),
+                        123,
+                        Intent(
+                            ApplicationProvider.getApplicationContext<Context>(),
+                            ComplicationTapActivity::class.java
+                        ).apply {
+                        },
+                        PendingIntent.FLAG_ONE_SHOT
+                    )
+                )
                 .build()
                 .asWireComplicationData(),
         SystemProviders.STEP_COUNT to
@@ -109,7 +157,7 @@ class WatchFaceServiceImageTest {
     private lateinit var canvasAnalogWatchFaceService: TestCanvasAnalogWatchFaceService
     private lateinit var glesWatchFaceService: TestGlesWatchFaceService
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
-    private lateinit var interactiveWatchFaceInstanceWCS: IInteractiveWatchFaceWCS
+    private lateinit var interactiveWatchFaceInstance: IInteractiveWatchFace
 
     @Before
     fun setUp() {
@@ -118,8 +166,8 @@ class WatchFaceServiceImageTest {
 
     @After
     fun shutDown() {
-        if (this::interactiveWatchFaceInstanceWCS.isInitialized) {
-            interactiveWatchFaceInstanceWCS.release()
+        if (this::interactiveWatchFaceInstance.isInitialized) {
+            interactiveWatchFaceInstance.release()
         }
     }
 
@@ -146,6 +194,12 @@ class WatchFaceServiceImageTest {
 
         engineWrapper =
             canvasAnalogWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onSurfaceChanged(
+            surfaceHolder,
+            0,
+            surfaceHolder.surfaceFrame.width(),
+            surfaceHolder.surfaceFrame.height()
+        )
     }
 
     private fun initGles2WatchFace() {
@@ -166,6 +220,12 @@ class WatchFaceServiceImageTest {
         setPendingWallpaperInteractiveWatchFaceInstance()
 
         engineWrapper = glesWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onSurfaceChanged(
+            surfaceHolder,
+            0,
+            surfaceHolder.surfaceFrame.width(),
+            surfaceHolder.surfaceFrame.height()
+        )
     }
 
     private fun setPendingWallpaperInteractiveWatchFaceInstance() {
@@ -180,18 +240,18 @@ class WatchFaceServiceImageTest {
                             0,
                             0
                         ),
-                        SystemState(false, 0),
+                        WatchUiState(false, 0),
                         UserStyleWireFormat(emptyMap()),
                         null
                     ),
-                    object : IPendingInteractiveWatchFaceWCS.Stub() {
+                    object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
-                            IPendingInteractiveWatchFaceWCS.API_VERSION
+                            IPendingInteractiveWatchFace.API_VERSION
 
-                        override fun onInteractiveWatchFaceWcsCreated(
-                            iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
                         ) {
-                            interactiveWatchFaceInstanceWCS = iInteractiveWatchFaceWcs
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
                             sendComplications()
                             // engineWrapper won't be initialized yet, so defer execution.
                             handler.post {
@@ -207,8 +267,8 @@ class WatchFaceServiceImageTest {
     }
 
     private fun sendComplications() {
-        interactiveWatchFaceInstanceWCS.updateComplicationData(
-            interactiveWatchFaceInstanceWCS.complicationDetails.map {
+        interactiveWatchFaceInstance.updateComplicationData(
+            interactiveWatchFaceInstance.complicationDetails.map {
                 IdAndComplicationDataWireFormat(
                     it.id,
                     complicationProviders[it.complicationState.fallbackSystemProvider]!!
@@ -218,13 +278,18 @@ class WatchFaceServiceImageTest {
     }
 
     private fun setAmbient(ambient: Boolean) {
-        val interactiveWatchFaceInstanceSysUi =
+        val interactiveWatchFaceInstance =
             InteractiveInstanceManager.getAndRetainInstance(
-                interactiveWatchFaceInstanceWCS.instanceId
-            )!!.createSysUiApi()
+                interactiveWatchFaceInstance.instanceId
+            )!!
 
-        interactiveWatchFaceInstanceSysUi.setSystemState(SystemState(ambient, 0))
-        interactiveWatchFaceInstanceSysUi.release()
+        interactiveWatchFaceInstance.setWatchUiState(
+            WatchUiState(
+                ambient,
+                0
+            )
+        )
+        interactiveWatchFaceInstance.release()
     }
 
     private fun waitForPendingTaskToRunOnHandler() {
@@ -268,8 +333,8 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
-                    WatchfaceScreenshotParams(
+                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.AMBIENT,
                             RenderParameters.DRAW_ALL_LAYERS,
@@ -301,8 +366,8 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
-                    WatchfaceScreenshotParams(
+                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.INTERACTIVE,
                             RenderParameters.DRAW_ALL_LAYERS,
@@ -330,9 +395,9 @@ class WatchFaceServiceImageTest {
         handler.post(this::initCanvasWatchFace)
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         handler.post {
-            interactiveWatchFaceInstanceWCS.updateInstance(
+            interactiveWatchFaceInstance.updateWatchfaceInstance(
                 "newId",
-                UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE))
+                UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray()))
             )
             sendComplications()
             engineWrapper.draw()
@@ -351,14 +416,14 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
-                    WatchfaceScreenshotParams(
+                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.INTERACTIVE,
                             mapOf(
-                                Layer.BASE_LAYER to LayerMode.DRAW,
+                                Layer.BASE to LayerMode.DRAW,
                                 Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
-                                Layer.TOP_LAYER to LayerMode.DRAW
+                                Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
                             ),
                             null,
                             Color.RED
@@ -388,14 +453,14 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
-                    WatchfaceScreenshotParams(
+                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.INTERACTIVE,
                             mapOf(
-                                Layer.BASE_LAYER to LayerMode.DRAW,
+                                Layer.BASE to LayerMode.DRAW,
                                 Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
-                                Layer.TOP_LAYER to LayerMode.DRAW
+                                Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
                             ),
                             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
                             Color.RED
@@ -443,8 +508,8 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
-                interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
-                    WatchfaceScreenshotParams(
+                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.INTERACTIVE,
                             RenderParameters.DRAW_ALL_LAYERS,
@@ -499,15 +564,21 @@ class WatchFaceServiceImageTest {
                         0,
                         0
                     ),
-                    SystemState(false, 0),
+                    WatchUiState(false, 0),
                     UserStyleWireFormat(
-                        mapOf(COLOR_STYLE_SETTING to GREEN_STYLE)
+                        mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray())
                     ),
                     null
                 )
             )
 
             engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
+            engineWrapper.onSurfaceChanged(
+                surfaceHolder,
+                0,
+                surfaceHolder.surfaceFrame.width(),
+                surfaceHolder.surfaceFrame.height()
+            )
             handler.post { engineWrapper.draw() }
         }
 
@@ -517,5 +588,26 @@ class WatchFaceServiceImageTest {
         } finally {
             engineWrapper.onDestroy()
         }
+    }
+
+    @Test
+    fun complicationTapLaunchesActivity() {
+        handler.post(this::initCanvasWatchFace)
+
+        ComplicationTapActivity.newCountDown()
+        handler.post {
+            val interactiveWatchFaceInstance =
+                InteractiveInstanceManager.getAndRetainInstance(
+                    interactiveWatchFaceInstance.instanceId
+                )!!
+            interactiveWatchFaceInstance.sendTouchEvent(
+                85,
+                165,
+                TapType.UP
+            )
+            interactiveWatchFaceInstance.release()
+        }
+
+        assertThat(ComplicationTapActivity.awaitIntent()).isNotNull()
     }
 }

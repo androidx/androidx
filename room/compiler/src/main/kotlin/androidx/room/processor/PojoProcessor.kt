@@ -140,7 +140,7 @@ class PojoProcessor private constructor(
             }
 
         val ignoredColumns =
-            element.toAnnotationBox(androidx.room.Entity::class)?.value?.ignoredColumns?.toSet()
+            element.getAnnotation(androidx.room.Entity::class)?.value?.ignoredColumns?.toSet()
                 ?: emptySet()
         val fieldBindingErrors = mutableMapOf<Field, String>()
         val unfilteredMyFields = allFields[null]
@@ -403,7 +403,7 @@ class PojoProcessor private constructor(
             return null
         }
 
-        val fieldPrefix = variableElement.toAnnotationBox(Embedded::class)?.value?.prefix ?: ""
+        val fieldPrefix = variableElement.getAnnotation(Embedded::class)?.value?.prefix ?: ""
         val inheritedPrefix = parent?.prefix ?: ""
         val embeddedField = Field(
             variableElement,
@@ -432,7 +432,7 @@ class PojoProcessor private constructor(
         container: XType?,
         relationElement: XFieldElement
     ): androidx.room.vo.Relation? {
-        val annotation = relationElement.toAnnotationBox(Relation::class)!!
+        val annotation = relationElement.getAnnotation(Relation::class)!!
 
         val parentField = myFields.firstOrNull {
             it.columnName == annotation.value.parentColumn

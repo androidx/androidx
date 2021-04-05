@@ -314,7 +314,7 @@ public abstract class ComplicationProviderService extends Service {
     public abstract void onComplicationUpdate(
             int complicationId,
             @NonNull ComplicationType type,
-            @NonNull ComplicationUpdateCallback resultCallback);
+            @NonNull ComplicationUpdateListener resultCallback);
 
     /**
      * A request for representative preview data for the complication, for use in the editor UI.
@@ -331,7 +331,7 @@ public abstract class ComplicationProviderService extends Service {
     public abstract ComplicationData getPreviewData(@NonNull ComplicationType type);
 
     /** Callback for {@link #onComplicationUpdate}. */
-    public interface ComplicationUpdateCallback {
+    public interface ComplicationUpdateListener {
         /**
          * Sends the complicationData to the system. If null is passed then any
          * previous complication data will not be overwritten. Can be called on any thread. Should

@@ -15,8 +15,11 @@
  */
 package androidx.emoji2.text;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
+
+import android.graphics.Typeface;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -35,7 +38,7 @@ public class MetadataRepoTest {
 
     @Before
     public void clearResourceIndex() {
-        mMetadataRepo = new MetadataRepo();
+        mMetadataRepo = MetadataRepo.create(mock(Typeface.class));
     }
 
     @Test(expected = NullPointerException.class)
@@ -63,10 +66,10 @@ public class MetadataRepoTest {
         mMetadataRepo.put(metadata);
         assertSame(metadata, getNode(codePoint));
 
-        assertEquals(null, getNode(new int[]{1}));
-        assertEquals(null, getNode(new int[]{1, 2}));
-        assertEquals(null, getNode(new int[]{1, 2, 3}));
-        assertEquals(null, getNode(new int[]{1, 2, 3, 5}));
+        assertNull(getNode(new int[]{1}));
+        assertNull(getNode(new int[]{1, 2}));
+        assertNull(getNode(new int[]{1, 2, 3}));
+        assertNull(getNode(new int[]{1, 2, 3, 5}));
     }
 
     @Test
@@ -88,8 +91,8 @@ public class MetadataRepoTest {
         assertSame(metadata2, getNode(codePoint2));
         assertSame(metadata3, getNode(codePoint3));
 
-        assertEquals(null, getNode(new int[]{1}));
-        assertEquals(null, getNode(new int[]{1, 2, 3, 4, 5}));
+        assertNull(getNode(new int[]{1}));
+        assertNull(getNode(new int[]{1, 2, 3, 4, 5}));
     }
 
     final EmojiMetadata getNode(final int[] codepoints) {

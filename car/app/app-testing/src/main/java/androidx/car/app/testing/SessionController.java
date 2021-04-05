@@ -18,8 +18,11 @@ package androidx.car.app.testing;
 
 import static java.util.Objects.requireNonNull;
 
+import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.Session;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.LifecycleRegistry;
 
@@ -53,17 +56,45 @@ public class SessionController {
     }
 
     /**
+     * Creates the {@link Session} that is being controlled with the given {@code intent}.
+     *
+     * <p>If this is the first time this is called on the {@link Session}, this would trigger
+     * {@link Session#onCreateScreen(Intent)} and transition the lifecycle to the
+     * {@link Lifecycle.State#CREATED} state. Otherwise, this will trigger
+     * {@link Session#onNewIntent(Intent)}.
+     *
+     * @see Session#getLifecycle
+     */
+    @NonNull
+    public SessionController create(@NonNull Intent intent) {
+        LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
+        Lifecycle.State state = registry.getCurrentState();
+        TestScreenManager screenManager = mTestCarContext.getCarService(TestScreenManager.class);
+
+        int screenStackSize = screenManager.getScreensPushed().size();
+        if (!state.isAtLeast(Lifecycle.State.CREATED) || screenStackSize < 1) {
+            registry.handleLifecycleEvent(Event.ON_CREATE);
+            screenManager.push(mSession.onCreateScreen(intent));
+        } else {
+            mSession.onNewIntent(intent);
+        }
+
+        return this;
+    }
+
+    /**
      * Starts the {@link Session} that is being controlled.
      *
      * @see Session#getLifecycle
      */
     @NonNull
-    public SessionController create() {
+    public SessionController start() {
         LifecycleRegistry registry = (LifecycleRegistry) mSession.getLifecycle();
-        registry.handleLifecycleEvent(Event.ON_CREATE);
+        registry.handleLifecycleEvent(Event.ON_START);
 
         return this;
     }
+
 
     /**
      * Resumes the {@link Session} that is being controlled.

@@ -23,16 +23,16 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class AllocationCountCaptureTest {
+public class AllocationCountCaptureTest {
     @Test
-    fun simple() {
+    public fun simple() {
         AllocationCountCapture().verifyMedian(100..110) {
             allocate(100)
         }
     }
 
     @Test
-    fun pauseResume() {
+    public fun pauseResume() {
         AllocationCountCapture().verifyMedian(100..110) {
             allocate(100)
 

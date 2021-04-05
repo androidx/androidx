@@ -87,6 +87,75 @@ public class CarTextTest {
     }
 
     @Test
+    public void variants_toCharSequence_withSpans() {
+        String text1 = "Part of this text is red";
+        SpannableString spannable1 = new SpannableString(text1);
+        ForegroundCarColorSpan foregroundCarColorSpan1 =
+                ForegroundCarColorSpan.create(CarColor.RED);
+        spannable1.setSpan(foregroundCarColorSpan1, 0, 5, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        DurationSpan durationSpan1 = DurationSpan.create(46);
+        spannable1.setSpan(durationSpan1, 10, 12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        // Create a text where the string is different
+        String text2 = "Part of this text is blue";
+        SpannableString spannable2 = new SpannableString(text2);
+        ForegroundCarColorSpan foregroundCarColorSpan2 =
+                ForegroundCarColorSpan.create(CarColor.RED);
+        spannable2.setSpan(foregroundCarColorSpan2, 0, 5, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        DurationSpan durationSpan2 = DurationSpan.create(46);
+        spannable2.setSpan(durationSpan2, 10, 12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        // Create the car text from the spannables and verify it.
+        CarText carText = new CarText.Builder(spannable1).addVariant(spannable2).build();
+
+        // Check that we have two variants.
+        assertThat(carText.toCharSequence()).isNotNull();
+        assertThat(carText.getVariants()).hasSize(1);
+
+        // Check the first variant.
+        CharSequence charSequence1 = carText.toCharSequence();
+        assertThat(charSequence1.toString()).isEqualTo(text1);
+
+        List<CarSpanInfo> carSpans1 = getCarSpans(charSequence1);
+        assertThat(carSpans1).hasSize(2);
+
+        CarSpanInfo carSpan = carSpans1.get(0);
+        assertThat(carSpan.mCarSpan instanceof ForegroundCarColorSpan).isTrue();
+        assertThat(carSpan.mCarSpan).isEqualTo(foregroundCarColorSpan1);
+        assertThat(carSpan.mStart).isEqualTo(0);
+        assertThat(carSpan.mEnd).isEqualTo(5);
+        assertThat(carSpan.mFlags).isEqualTo(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        carSpan = carSpans1.get(1);
+        assertThat(carSpan.mCarSpan instanceof DurationSpan).isTrue();
+        assertThat(carSpan.mCarSpan).isEqualTo(durationSpan1);
+        assertThat(carSpan.mStart).isEqualTo(10);
+        assertThat(carSpan.mEnd).isEqualTo(12);
+        assertThat(carSpan.mFlags).isEqualTo(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        // Check the second variant.
+        CharSequence charSequence2 = carText.getVariants().get(0);
+        assertThat(charSequence2.toString()).isEqualTo(text2);
+
+        List<CarSpanInfo> carSpans = getCarSpans(charSequence2);
+        assertThat(carSpans).hasSize(2);
+
+        carSpan = carSpans.get(0);
+        assertThat(carSpan.mCarSpan instanceof ForegroundCarColorSpan).isTrue();
+        assertThat(carSpan.mCarSpan).isEqualTo(foregroundCarColorSpan2);
+        assertThat(carSpan.mStart).isEqualTo(0);
+        assertThat(carSpan.mEnd).isEqualTo(5);
+        assertThat(carSpan.mFlags).isEqualTo(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        carSpan = carSpans.get(1);
+        assertThat(carSpan.mCarSpan instanceof DurationSpan).isTrue();
+        assertThat(carSpan.mCarSpan).isEqualTo(durationSpan2);
+        assertThat(carSpan.mStart).isEqualTo(10);
+        assertThat(carSpan.mEnd).isEqualTo(12);
+        assertThat(carSpan.mFlags).isEqualTo(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
+    @Test
     public void equals_and_hashCode() {
         String text = "Part of this text is red";
         SpannableString spannable = new SpannableString(text);

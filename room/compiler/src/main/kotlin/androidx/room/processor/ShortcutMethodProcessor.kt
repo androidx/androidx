@@ -39,7 +39,7 @@ class ShortcutMethodProcessor(
     private val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
 
     fun <T : Annotation> extractAnnotation(klass: KClass<T>, errorMsg: String): XAnnotationBox<T>? {
-        val annotation = executableElement.toAnnotationBox(klass)
+        val annotation = executableElement.getAnnotation(klass)
         context.checker.check(annotation != null, executableElement, errorMsg)
         return annotation
     }

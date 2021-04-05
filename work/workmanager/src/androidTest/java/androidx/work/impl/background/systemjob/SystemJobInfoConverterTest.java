@@ -16,6 +16,8 @@
 
 package androidx.work.impl.background.systemjob;
 
+import static android.net.NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED;
+
 import static androidx.work.NetworkType.CONNECTED;
 import static androidx.work.NetworkType.METERED;
 import static androidx.work.NetworkType.NOT_REQUIRED;
@@ -26,8 +28,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.Assert.assertTrue;
 
 import android.app.job.JobInfo;
+import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 
@@ -301,6 +305,18 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     public void testConvertNetworkType_metered_returnsMeteredAtOrAfterApi26() {
         assertThat(SystemJobInfoConverter.convertNetworkType(METERED),
                 is(JobInfo.NETWORK_TYPE_METERED));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 30)
+    public void testConvertNetworkType_temporarilyMetered() {
+        WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.TEMPORARILY_UNMETERED)
+                .build());
+        JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
+        NetworkRequest networkRequest = jobInfo.getRequiredNetwork();
+        assertTrue(networkRequest.hasCapability(NET_CAPABILITY_TEMPORARILY_NOT_METERED));
     }
 
     private WorkSpec getTestWorkSpecWithConstraints(Constraints constraints) {

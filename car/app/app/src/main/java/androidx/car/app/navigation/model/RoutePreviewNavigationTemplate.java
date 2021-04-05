@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
@@ -68,6 +69,9 @@ import java.util.Objects;
  *       number of rows and the string contents (title, texts, not counting spans) of each row
  *       between the previous and new {@link ItemList}s have not changed.
  * </ul>
+ *
+ * <p>Note that specifically, this means the app can't use this template to continuously refresh
+ * the routes as the car moves without hitting the template limit.
  *
  * <p>In order to use this template your car app <b>MUST</b> declare that it uses the {@code
  * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
@@ -219,8 +223,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
         /**
          * Sets the title of the template.
          *
-         * <p>Unless set with this method, the template will not have a title.
-         *
          * <p>Spans are not supported in the input string.
          *
          * @throws NullPointerException if {@code title} is null
@@ -229,6 +231,21 @@ public final class RoutePreviewNavigationTemplate implements Template {
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            return this;
+        }
+
+        /**
+         * Sets the title of the template.
+         *
+         * <p>Spans are not supported in the input string.
+         *
+         * @throws NullPointerException if {@code title} is null
+         * @see CarText
+         */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder setTitle(@NonNull CarText title) {
+            mTitle = requireNonNull(title);
             return this;
         }
 
@@ -275,6 +292,8 @@ public final class RoutePreviewNavigationTemplate implements Template {
          *
          * <p>This should not be {@code null} if the template is not in a loading state (see
          * #setIsLoading}), and the {@link Action}'s title must be set.
+         *
+         * <p>Any background colors or spans set on the action will be ignored.
          *
          * @throws NullPointerException     if {@code navigateAction} is {@code null}
          * @throws IllegalArgumentException if {@code navigateAction}'s title is {@code null} or

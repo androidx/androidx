@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -50,7 +51,6 @@ sealed class Screen(val route: String, @StringRes val resourceId: Int) {
     object Scrollable : Screen("scrollable", R.string.scrollable)
 }
 
-@Sampled
 @Composable
 fun BasicNav() {
     val navController = rememberNavController()
@@ -84,6 +84,19 @@ fun NestedNavInGraph() {
             composable("nested") { Dashboard(navController) }
         }
         composable(Screen.Scrollable.route) { Scrollable(navController) }
+    }
+}
+
+@Sampled
+@Composable
+fun NavScaffold() {
+    val navController = rememberNavController()
+    Scaffold { innerPadding ->
+        NavHost(navController, Screen.Profile.route, Modifier.padding(innerPadding)) {
+            composable(Screen.Profile.route) { Profile(navController) }
+            composable(Screen.Dashboard.route) { Dashboard(navController) }
+            composable(Screen.Scrollable.route) { Scrollable(navController) }
+        }
     }
 }
 

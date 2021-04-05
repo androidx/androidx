@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.InstrumentationResults
@@ -89,7 +90,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
  *
  * This function is a building block for public testing APIs
  */
-internal fun macrobenchmark(
+private fun macrobenchmark(
     uniqueName: String,
     className: String,
     testName: String,
@@ -110,6 +111,9 @@ internal fun macrobenchmark(
     require(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         "Macrobenchmark currently requires Android 10 (API 29) or greater."
     }
+
+    // skip benchmark if not supported by vm settings
+    compilationMode.assumeSupportedWithVmSettings()
 
     val suppressionState = checkErrors(packageName)
     var warningMessage = suppressionState?.warningMessage ?: ""
@@ -169,7 +173,13 @@ internal fun macrobenchmark(
         }
         InstrumentationResults.instrumentationReport {
             val statsList = metricResults.map { it.stats }
-            ideSummaryRecord(ideSummaryString(warningMessage, uniqueName, statsList))
+            val (summaryV1, summaryV2) = ideSummaryStrings(
+                warningMessage,
+                uniqueName,
+                statsList,
+                tracePaths
+            )
+            ideSummaryRecord(summaryV1 = summaryV1, summaryV2 = summaryV2)
             warningMessage = "" // warning only printed once
             statsList.forEach { it.putInBundle(bundle, suppressionState?.prefix ?: "") }
         }
@@ -196,7 +206,13 @@ internal fun macrobenchmark(
     }
 }
 
-fun macrobenchmarkWithStartupMode(
+/**
+ * Run a macrobenchmark with the specified StartupMode
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun macrobenchmarkWithStartupMode(
     uniqueName: String,
     className: String,
     testName: String,

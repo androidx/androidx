@@ -99,9 +99,9 @@ abstract class BaseFtsEntityParserTest {
                     )
                     .nextRunHandler { invocation ->
                         val fts3AnnotatedElements = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Fts3::class.java)
+                            .getTypeElementsAnnotatedWith(Fts3::class.qualifiedName!!)
                         val fts4AnnotatedElements = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Fts4::class.java)
+                            .getTypeElementsAnnotatedWith(Fts4::class.qualifiedName!!)
                         val entity = (fts3AnnotatedElements + fts4AnnotatedElements).first {
                             it.toString() == "foo.bar.MyEntity"
                         }

@@ -27,9 +27,9 @@ class SynchronousProviderService : ComplicationProviderService() {
     override fun onComplicationUpdate(
         complicationId: Int,
         type: ComplicationType,
-        callback: ComplicationUpdateCallback
+        listener: ComplicationUpdateListener
     ) {
-        callback.onUpdateComplication(
+        listener.onUpdateComplication(
             when (type) {
                 ComplicationType.SHORT_TEXT ->
                     ShortTextComplicationData.Builder(plainText("# $complicationId")).build()

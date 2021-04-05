@@ -44,8 +44,6 @@ import java.util.HashSet;
  * An {@link Activity} to exercise {@link WebViewCompat#addDocumentStartJavaScript(WebView, String,
  * Set)} related functionality.
  */
-// TODO(ctzsm): Remove the @SuppressLint after addDocumentStartJavaScript is unhidden.
-@SuppressLint("RestrictedApi")
 public class DocumentStartJavaScriptActivity extends AppCompatActivity {
     private final Uri mExampleUri = new Uri.Builder()
                                             .scheme("https")

@@ -113,12 +113,9 @@ internal fun Resolver.safeGetJvmName(
     declaration: KSFunctionDeclaration
 ): String {
     return try {
-        getJvmName(declaration)
-    } catch (ignored: ClassCastException) {
-        // TODO remove this catch once that issue is fixed.
-        // workaround for https://github.com/google/ksp/issues/164
-        return declaration.simpleName.asString()
+        getJvmName(declaration) ?: declaration.simpleName.asString()
     } catch (cannotFindDeclaration: IllegalStateException) {
+        // TODO remove this catch once that issue is fixed.
         // workaround for https://github.com/google/ksp/issues/240
         return declaration.simpleName.asString()
     }

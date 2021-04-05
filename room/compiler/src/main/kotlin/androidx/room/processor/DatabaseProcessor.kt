@@ -55,7 +55,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
     }
 
     private fun doProcess(): Database {
-        val dbAnnotation = element.toAnnotationBox(androidx.room.Database::class)!!
+        val dbAnnotation = element.getAnnotation(androidx.room.Database::class)!!
 
         val entities = processEntities(dbAnnotation, element)
         val viewsMap = processDatabaseViews(dbAnnotation)
@@ -125,7 +125,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         element: XTypeElement,
         latestDbSchema: DatabaseBundle
     ): List<AutoMigrationResult> {
-        val dbAnnotation = element.toAnnotationBox(androidx.room.Database::class)!!
+        val dbAnnotation = element.getAnnotation(androidx.room.Database::class)!!
         val autoMigrationList = dbAnnotation.getAsTypeList("autoMigrations")
         context.checker.check(
             autoMigrationList.isEmpty() || dbAnnotation.value.exportSchema,

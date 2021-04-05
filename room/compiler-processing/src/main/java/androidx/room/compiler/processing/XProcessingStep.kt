@@ -19,14 +19,15 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
+import androidx.room.compiler.processing.ksp.KspTypeElement
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.MoreElements
-import com.google.common.collect.SetMultimap
+import com.google.common.collect.ImmutableSetMultimap
+import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.tools.Diagnostic
-import kotlin.reflect.KClass
 
 /**
  * Specialized processing step which only supports annotations on TypeElements.
@@ -45,13 +46,13 @@ interface XProcessingStep {
      */
     fun process(
         env: XProcessingEnv,
-        elementsByAnnotation: Map<KClass<out Annotation>, List<XTypeElement>>
+        elementsByAnnotation: Map<String, List<XTypeElement>>
     ): Set<XTypeElement>
 
     /**
-     * The set of annotations processed by this step.
+     * The set of annotation qualified names processed by this step.
      */
-    fun annotations(): Set<KClass<out Annotation>>
+    fun annotations(): Set<String>
 
     /**
      * Wraps current [XProcessingStep] into an Auto Common
@@ -59,37 +60,40 @@ interface XProcessingStep {
      */
     fun asAutoCommonProcessor(
         env: ProcessingEnvironment
-    ): BasicAnnotationProcessor.ProcessingStep {
+    ): BasicAnnotationProcessor.Step {
         return JavacProcessingStepDelegate(
             env = env,
             delegate = this
         )
     }
 
-    fun executeInKsp(env: XProcessingEnv) {
+    fun executeInKsp(env: XProcessingEnv): List<KSAnnotated> {
         check(env is KspProcessingEnv)
         val args = annotations().associateWith { annotation ->
             val elements = env.resolver.getSymbolsWithAnnotation(
-                annotation.java.canonicalName
+                annotation
             ).filterIsInstance<KSClassDeclaration>()
                 .map {
                     env.requireTypeElement(it.qualifiedName!!.asString())
                 }
             elements
         }
-        process(env, args)
+        return process(env, args)
+            .map { (it as KspTypeElement).declaration }
     }
 }
 
-@Suppress("UnstableApiUsage")
 internal class JavacProcessingStepDelegate(
     val env: ProcessingEnvironment,
     val delegate: XProcessingStep
-) : BasicAnnotationProcessor.ProcessingStep {
+) : BasicAnnotationProcessor.Step {
+    override fun annotations(): Set<String> = delegate.annotations()
+
+    @Suppress("UnstableApiUsage")
     override fun process(
-        elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
+        elementsByAnnotation: ImmutableSetMultimap<String, Element>
     ): Set<Element> {
-        val converted = mutableMapOf<KClass<out Annotation>, List<XTypeElement>>()
+        val converted = mutableMapOf<String, List<XTypeElement>>()
         // create a new x processing environment for each step to ensure it can freely cache
         // whatever it wants and we don't keep elements references across rounds.
         val xEnv = JavacProcessingEnv(env)
@@ -106,17 +110,11 @@ internal class JavacProcessingStepDelegate(
                     null
                 }
             }
-            converted[annotation.kotlin] = elements
+            converted[annotation] = elements
         }
         val result = delegate.process(xEnv, converted)
         return result.map {
             (it as JavacElement).element
         }.toSet()
-    }
-
-    override fun annotations(): Set<Class<out Annotation>> {
-        return delegate.annotations().mapTo(mutableSetOf()) {
-            it.java
-        }
     }
 }

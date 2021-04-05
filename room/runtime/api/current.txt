@@ -51,6 +51,7 @@ package androidx.room {
     method protected abstract androidx.room.InvalidationTracker createInvalidationTracker();
     method protected abstract androidx.sqlite.db.SupportSQLiteOpenHelper createOpenHelper(androidx.room.DatabaseConfiguration!);
     method @Deprecated public void endTransaction();
+    method protected java.util.List<androidx.room.migration.Migration!> getAutoMigrations();
     method public androidx.room.InvalidationTracker getInvalidationTracker();
     method public androidx.sqlite.db.SupportSQLiteOpenHelper getOpenHelper();
     method public java.util.concurrent.Executor getQueryExecutor();
@@ -108,6 +109,7 @@ package androidx.room {
   public static class RoomDatabase.MigrationContainer {
     ctor public RoomDatabase.MigrationContainer();
     method public void addMigrations(androidx.room.migration.Migration!...);
+    method public void addMigrations(java.util.List<androidx.room.migration.Migration!>);
     method public java.util.List<androidx.room.migration.Migration!>? findMigrationPath(int, int);
   }
 

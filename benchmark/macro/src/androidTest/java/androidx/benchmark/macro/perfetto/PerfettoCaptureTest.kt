@@ -16,10 +16,10 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.Outputs
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.verifyWithPolling
 import androidx.tracing.Trace
 import androidx.tracing.trace
@@ -33,8 +33,7 @@ import java.io.File
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(AndroidJUnit4::class)
 class PerfettoCaptureTest {
-    private val context = InstrumentationRegistry.getInstrumentation().context
-    private val traceFile = File(context.getExternalFilesDir(null), "PerfettoCaptureTest.trace")
+    private val traceFile = File(Outputs.dirUsableByAppAndShell, "PerfettoCaptureTest.trace")
     private val traceFilePath = traceFile.absolutePath
 
     @Before

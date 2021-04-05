@@ -355,3 +355,27 @@ public class FakeRequestProcessor(
         val startRepeating: Boolean = false
     )
 }
+
+suspend fun FakeRequestProcessor.awaitEvent(
+    request: Request? = null,
+    filter: (event: FakeRequestProcessor.Event) -> Boolean
+): FakeRequestProcessor.Event {
+
+    var event: FakeRequestProcessor.Event
+    var loopCount = 0
+    while (loopCount < 10) {
+        loopCount++
+        event = this.nextEvent()
+
+        if (request != null) {
+            val contains = event.requestSequence?.requests?.contains(request) ?: false
+            if (filter(event) && contains) {
+                return event
+            }
+        } else if (filter(event)) {
+            return event
+        }
+    }
+
+    throw IllegalStateException("Failed to observe a submit event containing $request")
+}

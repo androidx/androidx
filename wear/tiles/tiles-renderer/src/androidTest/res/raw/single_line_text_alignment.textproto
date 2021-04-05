@@ -1,0 +1,65 @@
+column {
+  contents {
+    text {
+      text {
+        value: "Single-line text"
+      }
+      font_style {
+        weight {
+          value: FONT_WEIGHT_BOLD
+        }
+        size {
+          value: 16
+        }
+        color {
+          argb: 0xFFFF0000
+        }
+      }
+      multiline_alignment {
+        value: TEXT_ALIGN_START
+      }
+    }
+  }
+  contents {
+    text {
+      text {
+        value: "Single-line text"
+      }
+      font_style {
+        weight {
+          value: FONT_WEIGHT_BOLD
+        }
+        size {
+          value: 16
+        }
+        color {
+          argb: 0xFF00FF00
+        }
+      }
+      multiline_alignment {
+        value: TEXT_ALIGN_CENTER
+      }
+    }
+  }
+  contents {
+    text {
+      text {
+        value: "Single-line text"
+      }
+      font_style {
+        weight {
+          value: FONT_WEIGHT_BOLD
+        }
+        size {
+          value: 16
+        }
+        color {
+          argb: 0xFF0000FF
+        }
+      }
+      multiline_alignment {
+        value: TEXT_ALIGN_END
+      }
+    }
+  }
+}

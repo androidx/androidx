@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 
 import java.util.Collections;
@@ -49,7 +50,14 @@ public final class FragmentStrictMode {
 
     private enum Flag {
         PENALTY_LOG,
-        PENALTY_DEATH
+        PENALTY_DEATH,
+
+        DETECT_FRAGMENT_REUSE,
+        DETECT_FRAGMENT_TAG_USAGE,
+        DETECT_RETAIN_INSTANCE_USAGE,
+        DETECT_SET_USER_VISIBLE_HINT,
+        DETECT_TARGET_FRAGMENT_USAGE,
+        DETECT_WRONG_FRAGMENT_CONTAINER,
     }
 
     private FragmentStrictMode() {}
@@ -141,6 +149,66 @@ public final class FragmentStrictMode {
             }
 
             /**
+             * Detects cases, where a #{@link Fragment} instance is reused, after it was previously
+             * removed from a #{@link FragmentManager}.
+             */
+            @NonNull
+            @SuppressLint("BuilderSetStyle")
+            public Builder detectFragmentReuse() {
+                flags.add(Flag.DETECT_FRAGMENT_REUSE);
+                return this;
+            }
+
+            /** Detects usage of the &lt;fragment&gt; tag inside XML layouts. */
+            @NonNull
+            @SuppressLint("BuilderSetStyle")
+            public Builder detectFragmentTagUsage() {
+                flags.add(Flag.DETECT_FRAGMENT_TAG_USAGE);
+                return this;
+            }
+
+            /**
+             * Detects calls to #{@link Fragment#setRetainInstance} and
+             * #{@link Fragment#getRetainInstance()}.
+             */
+            @NonNull
+            @SuppressLint("BuilderSetStyle")
+            public Builder detectRetainInstanceUsage() {
+                flags.add(Flag.DETECT_RETAIN_INSTANCE_USAGE);
+                return this;
+            }
+
+            /** Detects calls to #{@link Fragment#setUserVisibleHint}. */
+            @NonNull
+            @SuppressLint("BuilderSetStyle")
+            public Builder detectSetUserVisibleHint() {
+                flags.add(Flag.DETECT_SET_USER_VISIBLE_HINT);
+                return this;
+            }
+
+            /**
+             * Detects calls to #{@link Fragment#setTargetFragment},
+             * #{@link Fragment#getTargetFragment()} and #{@link Fragment#getTargetRequestCode()}.
+             */
+            @NonNull
+            @SuppressLint("BuilderSetStyle")
+            public Builder detectTargetFragmentUsage() {
+                flags.add(Flag.DETECT_TARGET_FRAGMENT_USAGE);
+                return this;
+            }
+
+            /**
+             * Detects cases where a #{@link Fragment} is added to a container other than a
+             * #{@link FragmentContainerView}.
+             */
+            @NonNull
+            @SuppressLint("BuilderSetStyle")
+            public Builder detectWrongFragmentContainer() {
+                flags.add(Flag.DETECT_WRONG_FRAGMENT_CONTAINER);
+                return this;
+            }
+
+            /**
              * Construct the Policy instance.
              *
              * <p>Note: if no penalties are enabled before calling <code>build</code>, {@link
@@ -185,9 +253,65 @@ public final class FragmentStrictMode {
         return defaultPolicy;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onFragmentReuse(@NonNull Fragment fragment) {
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.flags.contains(Flag.DETECT_FRAGMENT_REUSE)) {
+            handlePolicyViolation(fragment, policy, new FragmentReuseViolation());
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onFragmentTagUsage(@NonNull Fragment fragment) {
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.flags.contains(Flag.DETECT_FRAGMENT_TAG_USAGE)) {
+            handlePolicyViolation(fragment, policy, new FragmentTagUsageViolation());
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onRetainInstanceUsage(@NonNull Fragment fragment) {
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.flags.contains(Flag.DETECT_RETAIN_INSTANCE_USAGE)) {
+            handlePolicyViolation(fragment, policy, new RetainInstanceUsageViolation());
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onSetUserVisibleHint(@NonNull Fragment fragment) {
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.flags.contains(Flag.DETECT_SET_USER_VISIBLE_HINT)) {
+            handlePolicyViolation(fragment, policy, new SetUserVisibleHintViolation());
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onTargetFragmentUsage(@NonNull Fragment fragment) {
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.flags.contains(Flag.DETECT_TARGET_FRAGMENT_USAGE)) {
+            handlePolicyViolation(fragment, policy, new TargetFragmentUsageViolation());
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void onWrongFragmentContainer(@NonNull Fragment fragment) {
+        Policy policy = getNearestPolicy(fragment);
+        if (policy.flags.contains(Flag.DETECT_WRONG_FRAGMENT_CONTAINER)) {
+            handlePolicyViolation(fragment, policy, new WrongFragmentContainerViolation());
+        }
+    }
+
     @VisibleForTesting
-    static void onPolicyViolation(@NonNull Fragment fragment, @NonNull final Violation violation) {
-        final Policy policy = getNearestPolicy(fragment);
+    static void onPolicyViolation(@NonNull Fragment fragment, @NonNull Violation violation) {
+        Policy policy = getNearestPolicy(fragment);
+        handlePolicyViolation(fragment, policy, violation);
+    }
+
+    private static void handlePolicyViolation(
+            @NonNull Fragment fragment,
+            @NonNull final Policy policy,
+            @NonNull final Violation violation
+    ) {
         final String fragmentName = fragment.getClass().getName();
 
         if (policy.flags.contains(Flag.PENALTY_LOG)) {

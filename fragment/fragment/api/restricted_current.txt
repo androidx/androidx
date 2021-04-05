@@ -305,6 +305,7 @@ package androidx.fragment.app {
     method public void registerFragmentLifecycleCallbacks(androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks, boolean);
     method public void removeFragmentOnAttachListener(androidx.fragment.app.FragmentOnAttachListener);
     method public void removeOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
+    method public void restoreBackStack(String);
     method public void saveBackStack(String);
     method public androidx.fragment.app.Fragment.SavedState? saveFragmentInstanceState(androidx.fragment.app.Fragment);
     method public void setFragmentFactory(androidx.fragment.app.FragmentFactory);
@@ -435,6 +436,8 @@ package androidx.fragment.app {
     field public static final int TRANSIT_EXIT_MASK = 8192; // 0x2000
     field public static final int TRANSIT_FRAGMENT_CLOSE = 8194; // 0x2002
     field public static final int TRANSIT_FRAGMENT_FADE = 4099; // 0x1003
+    field public static final int TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE = 8197; // 0x2005
+    field public static final int TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN = 4100; // 0x1004
     field public static final int TRANSIT_FRAGMENT_OPEN = 4097; // 0x1001
     field public static final int TRANSIT_NONE = 0; // 0x0
     field public static final int TRANSIT_UNSET = -1; // 0xffffffff
@@ -483,8 +486,18 @@ package androidx.fragment.app {
 
 package androidx.fragment.app.strictmode {
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public final class FragmentReuseViolation extends androidx.fragment.app.strictmode.Violation {
+    ctor public FragmentReuseViolation();
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public final class FragmentStrictMode {
     method public static androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onFragmentReuse(androidx.fragment.app.Fragment);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onFragmentTagUsage(androidx.fragment.app.Fragment);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onRetainInstanceUsage(androidx.fragment.app.Fragment);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onSetUserVisibleHint(androidx.fragment.app.Fragment);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onTargetFragmentUsage(androidx.fragment.app.Fragment);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static void onWrongFragmentContainer(androidx.fragment.app.Fragment);
     method public static void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy);
   }
 
@@ -499,13 +512,39 @@ package androidx.fragment.app.strictmode {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static final class FragmentStrictMode.Policy.Builder {
     ctor public FragmentStrictMode.Policy.Builder();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy build();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectFragmentReuse();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectFragmentTagUsage();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectRetainInstanceUsage();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectSetUserVisibleHint();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectTargetFragmentUsage();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectWrongFragmentContainer();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyDeath();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyListener(androidx.fragment.app.strictmode.FragmentStrictMode.OnViolationListener);
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyLog();
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public final class FragmentTagUsageViolation extends androidx.fragment.app.strictmode.Violation {
+    ctor public FragmentTagUsageViolation();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public final class RetainInstanceUsageViolation extends androidx.fragment.app.strictmode.Violation {
+    ctor public RetainInstanceUsageViolation();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {
+    ctor public SetUserVisibleHintViolation();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public final class TargetFragmentUsageViolation extends androidx.fragment.app.strictmode.Violation {
+    ctor public TargetFragmentUsageViolation();
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public abstract class Violation extends java.lang.RuntimeException {
     ctor public Violation();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public final class WrongFragmentContainerViolation extends androidx.fragment.app.strictmode.Violation {
+    ctor public WrongFragmentContainerViolation();
   }
 
 }

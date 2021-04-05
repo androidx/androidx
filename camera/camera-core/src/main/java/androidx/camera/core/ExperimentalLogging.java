@@ -16,7 +16,7 @@
 
 package androidx.camera.core;
 
-import androidx.annotation.experimental.Experimental;
+import androidx.annotation.RequiresOptIn;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,6 +27,6 @@ import java.lang.annotation.RetentionPolicy;
  * level to use inside CameraX.
  */
 @Retention(RetentionPolicy.CLASS)
-@Experimental
+@RequiresOptIn
 public @interface ExperimentalLogging {
 }

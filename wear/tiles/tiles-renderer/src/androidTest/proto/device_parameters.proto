@@ -1,0 +1,49 @@
+// Request messages used to fetch tiles and resources
+syntax = "proto3";
+
+package androidx.wear.tiles.testing.proto;
+
+option java_package = "androidx.wear.tiles.testing.proto";
+option java_outer_classname = "DeviceParametersProto";
+
+// The platform of the device requesting a tile.
+enum DevicePlatform {
+  // Device platform is undefined.
+  DEVICE_PLATFORM_UNDEFINED = 0;
+
+  // Device is a Wear OS by Google device.
+  DEVICE_PLATFORM_WEAR_OS = 1;
+}
+
+// The shape of a screen.
+enum ScreenShape {
+  // Screen shape is undefined.
+  SCREEN_SHAPE_UNDEFINED = 0;
+
+  // A round screen (typically found on most Wear devices).
+  SCREEN_SHAPE_ROUND = 1;
+
+  // Rectangular screens.
+  SCREEN_SHAPE_RECT = 2;
+}
+
+// Parameters describing the device requesting a tile update. This contains
+// physical and logical characteristics about the device (e.g. screen size and
+// density, etc).
+message DeviceParameters {
+  // Width of the device's screen in DP.
+  uint32 screen_width_dp = 1;
+
+  // Height of the device's screen in DP.
+  uint32 screen_height_dp = 2;
+
+  // Density of the display. This value is the scaling factor to get from DP to
+  // Pixels (px = dp * density).
+  float screen_density = 3;
+
+  // The platform of the device.
+  DevicePlatform device_platform = 4;
+
+  // The shape of the device's screen
+  ScreenShape screen_shape = 5;
+}

@@ -103,7 +103,7 @@ class Controller3AForCaptureTest {
         }
 
         val result3A = result.await()
-        assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // We now check if the correct sequence of requests were submitted by lock3AForCapture call.
@@ -180,7 +180,7 @@ class Controller3AForCaptureTest {
         }
 
         val result3A = result.await()
-        assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // We now check if the correct sequence of requests were submitted by unlock3APostCapture
@@ -217,7 +217,7 @@ class Controller3AForCaptureTest {
 
         cameraResponse.await()
         val result3A = result.await()
-        assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // We now check if the correct sequence of requests were submitted by unlock3APostCapture

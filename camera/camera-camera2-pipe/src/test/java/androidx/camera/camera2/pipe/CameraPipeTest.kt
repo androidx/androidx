@@ -18,15 +18,14 @@ package androidx.camera.camera2.pipe
 
 import android.content.Context
 import android.os.Build
-import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
-import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
-import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameras
+import androidx.camera.camera2.pipe.testing.awaitEvent
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -65,7 +64,7 @@ internal class CameraPipeTest {
         val context = ApplicationProvider.getApplicationContext() as Context
         val cameraPipe = CameraPipe(CameraPipe.Config(context))
         val cameras = cameraPipe.cameras()
-        val cameraList = cameras.findAll()
+        val cameraList = runBlocking { cameras.ids() }
 
         assertThat(cameraList).isNotNull()
         assertThat(cameraList.size).isEqualTo(1)
@@ -73,11 +72,9 @@ internal class CameraPipeTest {
     }
 
     @Test
-    @Ignore("b/180539013: Test is currently flaky")
     fun createExternalCameraGraph() {
         val fakeRequestProcessor = FakeRequestProcessor()
         val fakeCameraMetadata = FakeCameraMetadata()
-        val fakeCameras = FakeCameraDevices(listOf(fakeCameraMetadata))
 
         val config = CameraGraph.Config(
             camera = fakeCameraMetadata.camera,
@@ -85,7 +82,11 @@ internal class CameraPipeTest {
             defaultTemplate = RequestTemplate(0)
         )
 
-        val cameraGraph = CameraPipe.External().create(config, fakeCameras, fakeRequestProcessor)
+        val cameraGraph = CameraPipe.External().create(
+            config,
+            fakeCameraMetadata,
+            fakeRequestProcessor
+        )
         assertThat(cameraGraph).isNotNull()
 
         val request = Request(streams = emptyList())
@@ -103,7 +104,7 @@ internal class CameraPipeTest {
 
             cameraGraph.stop()
 
-            val closeEvent = fakeRequestProcessor.nextEvent()
+            val closeEvent = fakeRequestProcessor.awaitEvent { it.close }
             assertThat(closeEvent.close).isTrue()
         }
 

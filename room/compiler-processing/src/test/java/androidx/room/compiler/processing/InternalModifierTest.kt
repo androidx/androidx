@@ -37,9 +37,10 @@ class InternalModifierTest {
             package mainPackage;
             internal class InternalClass(val value: String)
             inline class InlineClass(val value:String)
-            class Subject {
+            abstract class Subject {
                 var normalProp: String = TODO()
                 var inlineProp: InlineClass = TODO()
+                internal abstract var internalAbstractProp: String
                 internal var internalProp: String = TODO()
                 internal var internalInlineProp: InlineClass = TODO()
                 private var internalTypeProp : InternalClass = TODO()

@@ -16,8 +16,8 @@
 
 package androidx.wear.watchface.control;
 
-import androidx.wear.watchface.control.data.ComplicationScreenshotParams;
-import androidx.wear.watchface.control.data.WatchfaceScreenshotParams;
+import androidx.wear.watchface.control.data.ComplicationRenderParams;
+import androidx.wear.watchface.control.data.WatchFaceRenderParams;
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 
@@ -73,24 +73,24 @@ interface IHeadlessWatchFace {
      * Watch Face.
      *
      * @since API version 1.
-     * @param params The {@link WatchfaceScreenshotParams} for this screenshot.
+     * @param params The {@link WatchFaceRenderParams} for this screenshot.
      * @return A bundle containing a compressed shared memory backed {@link Bitmap} of the watch
      *     face with the requested settings
      * TODO(alexclarke): Refactor to return a parcelable rather than a bundle.
      */
-    Bundle takeWatchFaceScreenshot(in WatchfaceScreenshotParams params) = 5;
+    Bundle renderWatchFaceToBitmap(in WatchFaceRenderParams params) = 5;
 
     /**
      * Request for a {@link Bundle} containing a WebP compressed shared memory backed {@link Bitmap}
      * (see {@link SharedMemoryImage#ashmemCompressedImageBundleToBitmap}).
      *
      * @since API version 1.
-     * @param params The {@link ComplicationScreenshotParams} for this screenshot.
+     * @param params The {@link ComplicationRenderParams} for this screenshot.
      * @return A bundle containing a compressed shared memory backed {@link Bitmap} of the
      *     complication with the requested settings
      * TODO(alexclarke): Refactor to return a parcelable rather than a bundle.
      */
-    Bundle takeComplicationScreenshot(in ComplicationScreenshotParams params) = 6;
+    Bundle renderComplicationToBitmap(in ComplicationRenderParams params) = 6;
 
     /**
      * Releases the watch face instance.  It is an error to issue any further commands on any AIDLs

@@ -289,7 +289,9 @@ function runGradle() {
   else
     wrapper=""
   fi
-  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG "$ORG_GRADLE_JVMARGS" "$@"; then
+
+  PROJECT_CACHE_DIR_ARGUMENT="--project-cache-dir $OUT_DIR/gradle-project-cache"
+  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $PROJECT_CACHE_DIR_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
     return 0
   else
     tryToDiagnosePossibleDaemonFailure

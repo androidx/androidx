@@ -47,6 +47,7 @@ class MetricResultExtensionsTest {
     fun mergeToMetricResults_standard() {
         assertEquals(
             expected = listOf(
+                // note, bar sorted first
                 MetricResult("bar", longArrayOf(101, 301, 201)),
                 MetricResult("foo", longArrayOf(100, 300, 200))
             ),

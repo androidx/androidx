@@ -1,0 +1,21 @@
+arc {
+  anchor_angle: {
+    value: 0
+  }
+  anchor_type: {
+    value: ARC_ANCHOR_START
+  }
+  contents {
+    line {
+      length {
+        value: 100
+      }
+      thickness {
+        value: 10
+      }
+      color {
+        argb: 0xFFFF0000
+      }
+    }
+  }
+}

@@ -23,8 +23,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Arrays
-import java.util.NoSuchElementException
 
 @RunWith(JUnit4::class)
 class NavGraphTest {
@@ -124,7 +122,7 @@ class NavGraphTest {
         val graph = navGraphNavigator.createDestination()
         val destination = createFirstDestination()
         val secondDestination = createSecondDestination()
-        graph.addDestinations(Arrays.asList(destination, secondDestination))
+        graph.addDestinations(listOf(destination, secondDestination))
 
         assertThat(destination.parent).isEqualTo(graph)
         assertThat(graph.findNode(FIRST_DESTINATION_ID)).isEqualTo(destination)

@@ -19,7 +19,7 @@ package androidx.benchmark.macro.perfetto
 import org.json.JSONArray
 import org.json.JSONObject
 
-object PerfettoResultsParser {
+internal object PerfettoResultsParser {
     fun parseResult(jsonTrace: String, packageName: String): Map<String, Long> {
         val map = mutableMapOf<String, Long>()
         val json = JSONObject(jsonTrace)

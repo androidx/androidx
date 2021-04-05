@@ -841,8 +841,9 @@ object ProcessorErrors {
     }
 
     fun columnWithChangedSchemaFound(columnName: String): String {
-        return "Encountered column '$columnName' with a changed FieldBundle schema. This change " +
-            "is not currently supported by AutoMigration."
+        return "Encountered column '$columnName' with an unsupported schema change at the column " +
+            "level (e.g. affinity change). These changes are not yet " +
+            "supported by AutoMigration."
     }
 
     fun removedOrRenamedColumnFound(columnName: String): String {
@@ -850,6 +851,22 @@ object ProcessorErrors {
             "renamed. This change is not currently supported by AutoMigration."
     }
 
+    fun tableWithComplexChangedSchemaFound(tableName: String): String {
+        return "Encountered table '$tableName' with an unsupported schema change at the table " +
+            "level (e.g. primary key, foreign key or index change). These changes are not yet " +
+            "supported by AutoMigration."
+    }
+
+    fun removedOrRenamedTableFound(tableName: String): String {
+        return "Table '$tableName' has been either removed or " +
+            "renamed. This change is not currently supported by AutoMigration."
+    }
+
     val AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF = "Cannot create auto-migrations when export " +
         "schema is OFF."
+
+    fun tableWithNewTablePrefixFound(tableName: String): String {
+        return "The new version of the schema contains `$tableName` a table name" +
+            " with the prefix '_new_', which is causing a conflict during autoMigration."
+    }
 }

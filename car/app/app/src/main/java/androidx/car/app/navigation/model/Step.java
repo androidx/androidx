@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.utils.CollectionUtils;
@@ -189,6 +190,17 @@ public final class Step {
          */
         public Builder(@NonNull CharSequence cue) {
             mCue = CarText.create(requireNonNull(cue));
+        }
+
+        /**
+         * Constructs a new builder of {@link Step} with a cue.
+         *
+         * @throws NullPointerException if {@code cue} is {@code null}
+         * @see Builder#Builder(CharSequence)
+         */
+        @ExperimentalCarApi
+        public Builder(@NonNull CarText cue) {
+            mCue = requireNonNull(cue);
         }
 
         /**

@@ -90,25 +90,25 @@ package androidx.camera.core {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraInfo, float, float);
   }
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalAvailableCamerasLimiter {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalAvailableCamerasLimiter {
   }
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCameraFilter {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCameraFilter {
   }
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCustomizableThreads {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCustomizableThreads {
   }
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalExposureCompensation {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalExposureCompensation {
   }
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
   }
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalLogging {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalLogging {
   }
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseGroup {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseGroup {
   }
 
   @androidx.camera.core.ExperimentalExposureCompensation public interface ExposureState {

@@ -17,7 +17,7 @@ class ValidAutoMigrationWithoutDefault_Impl extends Migration implements AutoMig
 
     @Override
     public void migrate(@NonNull SupportSQLiteDatabase database) {
-        database.execSQL("ALTER TABLE 'Song' ADD COLUMN `artistId` INTEGER DEFAULT NULL");
+        database.execSQL("ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL");
         onPostMigrate(database);
     }
 }

@@ -168,7 +168,7 @@ public object NavigationUI {
      * @param navController The NavController whose navigation actions will be reflected
      * in the title of the action bar.
      * @param openableLayout The Openable layout that should be toggled from the home button
-     * @see .setupActionBarWithNavController
+     * @see NavigationUI.setupActionBarWithNavController
      */
     @JvmStatic
     public fun setupActionBarWithNavController(

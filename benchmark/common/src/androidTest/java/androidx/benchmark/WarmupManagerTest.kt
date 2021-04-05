@@ -26,10 +26,10 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class WarmupManagerTest {
+public class WarmupManagerTest {
 
     @Test
-    fun minDuration() {
+    public fun minDuration() {
         // even with tiny, predictable inputs, we require min warmup duration
         val warmup = WarmupManager()
         while (!warmup.onNextIteration(100)) {}
@@ -37,7 +37,7 @@ class WarmupManagerTest {
     }
 
     @Test
-    fun maxDuration() {
+    public fun maxDuration() {
         // even if values are warming up slowly, we require max warmup duration
         val warmup = WarmupManager()
         warmup.warmupOnFakeData(
@@ -53,7 +53,7 @@ class WarmupManagerTest {
     }
 
     @Test
-    fun minIterations() {
+    public fun minIterations() {
         // min iterations overrides max duration
         val warmup = WarmupManager()
         while (!warmup.onNextIteration(TimeUnit.SECONDS.toNanos(2))) {}
@@ -61,7 +61,7 @@ class WarmupManagerTest {
     }
 
     @Test
-    fun similarIterationCount() {
+    public fun similarIterationCount() {
         // mock warmup data, and validate we detect convergence
         val warmup = WarmupManager()
         val warmupNeededNs = TimeUnit.SECONDS.toNanos(2)

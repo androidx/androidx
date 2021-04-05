@@ -20,7 +20,7 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.Futures
@@ -42,7 +42,7 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
         watchState: WatchState
     ): ListenableFuture<WatchFace> {
         val userStyleRepository =
-            UserStyleRepository(UserStyleSchema(emptyList()))
+            CurrentUserStyleRepository(UserStyleSchema(emptyList()))
         return Futures.immediateFuture(
             WatchFace(
                 WatchFaceType.DIGITAL, userStyleRepository,

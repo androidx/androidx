@@ -16,5 +16,11 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.core.google.shortcuts">
-
+    <application>
+        <activity android:name=".TrampolineActivity"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:exported="true">
+        </activity>
+    </application>
 </manifest>

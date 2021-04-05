@@ -63,7 +63,7 @@ constructor(
     /**
      * Sets the argument bundle to be used by default when navigating to this action.
      *
-     * @param defaultArgs argument bundle that should be used by default
+     * @param defaultArguments argument bundle that should be used by default
      */
     public var defaultArguments: Bundle? = null
 )

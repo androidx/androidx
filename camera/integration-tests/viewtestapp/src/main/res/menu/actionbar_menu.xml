@@ -28,4 +28,8 @@
         android:id="@+id/camera_controller"
         android:title="@string/camera_controller"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/transform"
+        android:title="@string/transform"
+        app:showAsAction="never" />
 </menu>

@@ -257,8 +257,8 @@ public abstract class NavType<T> internal constructor(
                 bundle.putInt(key, value)
             }
 
-            override fun get(bundle: Bundle, key: String): Int? {
-                return bundle[key] as Int?
+            override fun get(bundle: Bundle, key: String): Int {
+                return bundle[key] as Int
             }
 
             override fun parseValue(value: String): Int {
@@ -651,8 +651,7 @@ public abstract class NavType<T> internal constructor(
             require(Parcelable::class.java.isAssignableFrom(type)) {
                 "$type does not implement Parcelable."
             }
-            val arrayType: Class<Array<D>>
-            arrayType = try {
+            val arrayType: Class<Array<D>> = try {
                 @Suppress("UNCHECKED_CAST")
                 Class.forName("[L${type.name};") as Class<Array<D>>
             } catch (e: ClassNotFoundException) {
@@ -820,8 +819,7 @@ public abstract class NavType<T> internal constructor(
             require(
                 Serializable::class.java.isAssignableFrom(type)
             ) { "$type does not implement Serializable." }
-            val arrayType: Class<Array<D>>
-            arrayType = try {
+            val arrayType: Class<Array<D>> = try {
                 @Suppress("UNCHECKED_CAST")
                 Class.forName("[L${type.name};") as Class<Array<D>>
             } catch (e: ClassNotFoundException) {

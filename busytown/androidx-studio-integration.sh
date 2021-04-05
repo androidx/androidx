@@ -59,11 +59,11 @@ function exportTransformsDir() {
   zip -r "$DIST_DIR/transforms.zip" "$OUT_DIR/.gradle/caches/transforms-2/files-2.1"
 }
 
-if buildAndroidx; then
-  echo build succeeded
-else
-  # b/162260809 export transforms directory to help identify cause of corrupt/missing files
-  exportTransformsDir
-  exit 1
-fi
+#if buildAndroidx; then
+#  echo build succeeded
+#else
+#  # b/162260809 export transforms directory to help identify cause of corrupt/missing files
+#  exportTransformsDir
+#  exit 1
+#fi
 echo "Completing $0 at $(date)"

@@ -213,6 +213,10 @@ public final class TravelEstimate {
          *
          * <p>If not set, {@link #REMAINING_TIME_UNKNOWN} will be used.
          *
+         * <p>Note that {@link #REMAINING_TIME_UNKNOWN} may not be supported depending on where the
+         * {@link TravelEstimate} is used. See the documentation of where {@link TravelEstimate}
+         * is used for any restrictions that might apply.
+         *
          * @throws IllegalArgumentException if {@code remainingTimeSeconds} is a negative value
          *                                  but not {@link #REMAINING_TIME_UNKNOWN}
          */

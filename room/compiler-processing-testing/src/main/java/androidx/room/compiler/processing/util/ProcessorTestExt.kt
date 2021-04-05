@@ -24,9 +24,12 @@ import androidx.room.compiler.processing.util.runner.KspCompilationTestRunner
 import androidx.room.compiler.processing.util.runner.TestCompilationParameters
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import com.google.devtools.ksp.processing.SymbolProcessor
 import com.tschuchort.compiletesting.KotlinCompilation
+import com.tschuchort.compiletesting.symbolProcessors
 import java.io.ByteArrayOutputStream
 import java.io.File
+import javax.annotation.processing.Processor
 
 @ExperimentalProcessingApi
 private fun runTests(
@@ -238,15 +241,22 @@ fun runKspTest(
 /**
  * Compiles the given set of sources into a temporary folder and returns the output classes
  * directory.
+ * @param sources The list of source files to compile
+ * @param annotationProcessors The list of Java annotation processors to run with compilation
+ * @param symbolProcessors The list of Kotlin symbol processors to run with compilation
  */
 fun compileFiles(
-    sources: List<Source>
+    sources: List<Source>,
+    annotationProcessors: List<Processor> = emptyList(),
+    symbolProcessors: List<SymbolProcessor> = emptyList()
 ): File {
     val outputStream = ByteArrayOutputStream()
     val compilation = KotlinCompilationUtil.prepareCompilation(
         sources = sources,
         outputStream = outputStream
     )
+    compilation.annotationProcessors = annotationProcessors
+    compilation.symbolProcessors = symbolProcessors
     val result = compilation.compile()
     check(result.exitCode == KotlinCompilation.ExitCode.OK) {
         "compilation failed: ${outputStream.toString(Charsets.UTF_8)}"

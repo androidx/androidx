@@ -44,7 +44,7 @@ public class ComplicationOutlineRenderer {
 
         /** Draws a thick line around the complication with the given bounds. */
         @JvmStatic
-        public fun drawComplicationSelectOutline(
+        public fun drawComplicationOutline(
             canvas: Canvas,
             bounds: Rect,
             @ColorInt color: Int

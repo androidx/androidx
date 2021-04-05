@@ -33,7 +33,6 @@ import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
-import androidx.camera.camera2.pipe.CameraGraph.Constants3A.FRAME_NUMBER_INVALID
 import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
@@ -99,7 +98,7 @@ internal class Controller3A(
             CONTROL_AE_PRECAPTURE_TRIGGER to CONTROL_AE_PRECAPTURE_TRIGGER_START
         )
 
-        private val result3ASubmitFailed = Result3A(FRAME_NUMBER_INVALID, Status.SUBMIT_FAILED)
+        private val result3ASubmitFailed = Result3A(Status.SUBMIT_FAILED)
 
         private val aeUnlockedStateList = listOf(
             CaptureResult.CONTROL_AE_STATE_INACTIVE,
@@ -202,8 +201,9 @@ internal class Controller3A(
     }
 
     /**
-     * Given the desired lock behaviors for ae, af and awb, this method, (a) first unlocks them and
-     * wait for them to converge, and then (b) locks them.
+     * Given the desired metering regions and lock behaviors for ae, af and awb, this method
+     * updates the metering regions and then, (a) unlocks ae, af, awb and wait for them to converge,
+     * and then (b) locks them.
      *
      * (a) In this step, as needed, we first send a single request with 'af trigger = cancel' to
      * unlock af, and then a repeating request to unlock ae and awb. We suspend till we receive a
@@ -222,12 +222,20 @@ internal class Controller3A(
      * timeLimit) to complete
      */
     suspend fun lock3A(
+        aeRegions: List<MeteringRectangle>? = null,
+        afRegions: List<MeteringRectangle>? = null,
+        awbRegions: List<MeteringRectangle>? = null,
         aeLockBehavior: Lock3ABehavior? = null,
         afLockBehavior: Lock3ABehavior? = null,
         awbLockBehavior: Lock3ABehavior? = null,
         frameLimit: Int = DEFAULT_FRAME_LIMIT,
         timeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS
     ): Deferred<Result3A> {
+        // Update the 3A state of camera graph with the given metering regions. If metering regions
+        // are given as null then they are ignored and the current metering regions continue to be
+        // applied in subsequent requests to the camera device.
+        graphState3A.update(aeRegions = aeRegions, afRegions = afRegions, awbRegions = awbRegions)
+
         // If we explicitly need to unlock af first before proceeding to lock it, we need to send
         // a single request with TRIGGER = TRIGGER_CANCEL so that af can start a fresh scan.
         if (afLockBehavior.shouldUnlockAf()) {
@@ -279,8 +287,8 @@ internal class Controller3A(
             }
             val result = listener.result.await()
             debug {
-                "lock3A - converged at frame number=${result.frameNumber.value}, status=${result
-                    .status}"
+                "lock3A - converged at frame number=${result.frameMetadata?.frameNumber?.value}, " +
+                    "status=${result.status}"
             }
             // Return immediately if we encounter an error when unlocking and waiting for
             // convergence.

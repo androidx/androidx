@@ -64,7 +64,7 @@ androidx {
     name = "Android Wear Complications"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WEAR
-    mavenVersion = LibraryVersions.WEAR_COMPLICATIONS
+    mavenVersion = LibraryVersions.WEAR_COMPLICATIONS_DATA
     inceptionYear = "2020"
     description = "Android Wear Complications"
 }

@@ -231,7 +231,7 @@ public final class ComplicationHelperActivity extends Activity
         int[] wireSupportedTypes = new int[supportedTypes.size()];
         int i = 0;
         for (ComplicationType supportedType : supportedTypes) {
-            wireSupportedTypes[i++] = supportedType.asWireComplicationType();
+            wireSupportedTypes[i++] = supportedType.toWireComplicationType();
         }
         intent.putExtra(ProviderChooserIntent.EXTRA_SUPPORTED_TYPES, wireSupportedTypes);
         return intent;

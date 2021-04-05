@@ -1166,7 +1166,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                     )
                     .nextRunHandler { invocation ->
                         val (owner, methods) = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Dao::class.java)
+                            .getTypeElementsAnnotatedWith(Dao::class.qualifiedName!!)
                             .map {
                                 Pair(
                                     it,

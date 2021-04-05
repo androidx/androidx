@@ -107,7 +107,7 @@ internal class Controller3AUnlock3ATest {
         }
 
         val result3A = result.await()
-        Truth.assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        Truth.assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
@@ -168,7 +168,7 @@ internal class Controller3AUnlock3ATest {
         }
 
         val result3A = result.await()
-        Truth.assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        Truth.assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
@@ -231,7 +231,7 @@ internal class Controller3AUnlock3ATest {
         }
 
         val result3A = result.await()
-        Truth.assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        Truth.assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
@@ -298,7 +298,7 @@ internal class Controller3AUnlock3ATest {
         }
 
         val result3A = result.await()
-        Truth.assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        Truth.assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 

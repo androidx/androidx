@@ -16,25 +16,24 @@
 
 package androidx.room.processor.autovalue
 
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.FieldProcessor
 import androidx.room.processor.PojoProcessor
 import androidx.room.processor.ProcessorErrors
-import androidx.room.testing.TestInvocation
+import androidx.room.testing.context
 import androidx.room.vo.Pojo
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
+import com.google.auto.value.processor.AutoValueProcessor
 import com.squareup.javapoet.ClassName
-import compileLibrarySources
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import simpleRun
-import toJFO
 import java.io.File
-import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class AutoValuePojoProcessorDelegateTest {
@@ -80,19 +79,23 @@ class AutoValuePojoProcessorDelegateTest {
                 @PrimaryKey
                 long getId() { return this.id; }
                 """
-        ) { pojo ->
-            assertThat(pojo.type.toString(), `is`("foo.bar.MyPojo"))
+        ) { pojo, invocation ->
+            assertThat(pojo.type.typeName, `is`(MY_POJO))
             assertThat(pojo.fields.size, `is`(1))
             assertThat(pojo.constructor?.element, `is`(notNullValue()))
-        }.compilesWithoutError().withWarningCount(0)
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
     fun goodLibraryPojo() {
-        val libraryClasspath = compileLibrarySources(
-            JavaFileObjects.forSourceString(
-                MY_POJO.toString(),
-                """
+        val libraryClasspath = compileFiles(
+            sources = listOf(
+                Source.java(
+                    MY_POJO.toString(),
+                    """
                     $HEADER
                     @AutoValue.CopyAnnotations
                     @PrimaryKey
@@ -100,16 +103,31 @@ class AutoValuePojoProcessorDelegateTest {
                     static MyPojo create(long arg0) { return new AutoValue_MyPojo(arg0); }
                     $FOOTER
                     """
+                )
+            ),
+            annotationProcessors = listOf(
+                AutoValueProcessor()
             )
         )
-        simpleRun(classpathFiles = libraryClasspath) { invocation ->
-            PojoProcessor.createFor(
-                context = invocation.context,
-                element = invocation.processingEnv.requireTypeElement(MY_POJO),
-                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                parent = null
-            ).process()
-        }.compilesWithoutError().withWarningCount(0)
+        runProcessorTest(
+            sources = emptyList(),
+            classpath = listOf(libraryClasspath),
+        ) { invocation: XTestInvocation ->
+            if (!invocation.isKsp) {
+                // TODO KSP loses JAVA_STATIC modifier in compiled code which means we cannot
+                //  find the factory method for Auto Value
+                //  https://github.com/google/ksp/issues/231
+                PojoProcessor.createFor(
+                    context = invocation.context,
+                    element = invocation.processingEnv.requireTypeElement(MY_POJO),
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    parent = null
+                ).process()
+            }
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
     }
 
     @Test
@@ -125,10 +143,12 @@ class AutoValuePojoProcessorDelegateTest {
                 AutoValue_MyPojo(long id) { this.id = id; }
                 long getId() { return this.id; }
                 """
-        ) { _ -> }
-            .compilesWithoutError()
-            .withWarningCount(1)
-            .withWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
+                hasWarningCount(1)
+            }
+        }
     }
 
     @Test
@@ -169,11 +189,13 @@ class AutoValuePojoProcessorDelegateTest {
                     String getValue() { return this.value; };
                 $FOOTER
                 """,
-            parent.toJFO("foo.bar.ParentPojo")
-        ) { _, _ -> }
-            .compilesWithoutError()
-            .withWarningCount(2)
-            .withWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
+            Source.java("foo.bar.ParentPojo", parent)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarningCount(2)
+                hasWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
+            }
+        }
     }
 
     @Test
@@ -214,33 +236,24 @@ class AutoValuePojoProcessorDelegateTest {
                     public String getValue() { return this.value; };
                 $FOOTER
                 """,
-            parent.toJFO("foo.bar.InterfacePojo")
-        ) { _, _ -> }
-            .compilesWithoutError()
-            .withWarningCount(2)
-            .withWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
-    }
-
-    private fun singleRun(
-        pojoCode: String,
-        autoValuePojoCode: String,
-        vararg jfos: JavaFileObject,
-        handler: (Pojo) -> Unit
-    ): CompileTester {
-        return singleRun(pojoCode, autoValuePojoCode, *jfos) { pojo, _ ->
-            handler(pojo)
+            Source.java("foo.bar.InterfacePojo", parent)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
+                hasWarningCount(2)
+            }
         }
     }
 
     private fun singleRun(
         pojoCode: String,
         autoValuePojoCode: String,
-        vararg jfos: JavaFileObject,
-        classpathFiles: Set<File> = emptySet(),
-        handler: (Pojo, TestInvocation) -> Unit
-    ): CompileTester {
+        classpathFiles: List<File> = emptyList(),
+        vararg sources: Source,
+        handler: (pojo: Pojo, invocation: XTestInvocation) -> Unit
+    ) {
         @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        return singleRunFullClass(
+        singleRunFullClass(
             pojoCode = """
                     $HEADER
                     $pojoCode
@@ -251,7 +264,7 @@ class AutoValuePojoProcessorDelegateTest {
                     $autoValuePojoCode
                     $FOOTER
                     """,
-            jfos = jfos,
+            sources = sources,
             classpathFiles = classpathFiles,
             handler = handler
         )
@@ -260,14 +273,17 @@ class AutoValuePojoProcessorDelegateTest {
     private fun singleRunFullClass(
         pojoCode: String,
         autoValuePojoCode: String,
-        vararg jfos: JavaFileObject,
-        classpathFiles: Set<File> = emptySet(),
-        handler: (Pojo, TestInvocation) -> Unit
-    ): CompileTester {
-        val pojoJFO = pojoCode.toJFO(MY_POJO.toString())
-        val autoValuePojoJFO = autoValuePojoCode.toJFO(AUTOVALUE_MY_POJO.toString())
-        val all = (jfos.toList() + pojoJFO + autoValuePojoJFO).toTypedArray()
-        return simpleRun(*all, classpathFiles = classpathFiles) { invocation ->
+        vararg sources: Source,
+        classpathFiles: List<File> = emptyList(),
+        handler: (Pojo, XTestInvocation) -> Unit
+    ) {
+        val pojoSource = Source.java(MY_POJO.toString(), pojoCode)
+        val autoValuePojoSource = Source.java(AUTOVALUE_MY_POJO.toString(), autoValuePojoCode)
+        val all: List<Source> = sources.toList() + pojoSource + autoValuePojoSource
+        runProcessorTest(
+            sources = all,
+            classpath = classpathFiles
+        ) { invocation ->
             handler.invoke(
                 PojoProcessor.createFor(
                     context = invocation.context,

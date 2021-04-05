@@ -18,16 +18,16 @@ package androidx.room.solver
 
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
-import androidx.room.testing.TestInvocation
-import com.google.testing.compile.JavaFileObjects
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
-import simpleRun
 
 class TypeAssignmentTest {
     companion object {
-        private val TEST_OBJECT = JavaFileObjects.forSourceString(
+        private val TEST_OBJECT = Source.java(
             "foo.bar.MyObject",
             """
             package foo.bar;
@@ -108,9 +108,9 @@ class TypeAssignmentTest {
         }
     }
 
-    private fun runTest(handler: TestInvocation.() -> Unit) {
-        simpleRun(TEST_OBJECT) {
+    private fun runTest(handler: XTestInvocation.() -> Unit) {
+        runProcessorTest(sources = listOf(TEST_OBJECT)) {
             it.apply { handler() }
-        }.compilesWithoutError()
+        }
     }
 }

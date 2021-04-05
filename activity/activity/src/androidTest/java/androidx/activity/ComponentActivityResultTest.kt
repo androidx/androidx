@@ -16,8 +16,10 @@
 
 package androidx.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
@@ -39,6 +41,31 @@ class ComponentActivityResultTest {
             val launchCount = scenario.withActivity { this.registryLaunchCount }
             assertThat(launchCount).isEqualTo(1)
         }
+    }
+
+    @Test
+    fun leaveProcessWithParcelableExtra() {
+        ActivityScenario.launch(EmptyContentActivity::class.java).use { scenario ->
+            scenario.withActivity {
+                val intent = Intent(this, PassThroughActivity::class.java)
+                val destinationIntent = Intent(this, EmptyContentActivity::class.java)
+                destinationIntent.putExtra("parcelable", ActivityResult(1, null))
+                intent.putExtra("destinationIntent", destinationIntent)
+                startActivity(intent)
+            }
+        }
+    }
+}
+
+class PassThroughActivity : ComponentActivity() {
+    private val launcher = registerForActivityResult(StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            finish()
+        }
+    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        launcher.launch(intent.getParcelableExtra("destinationIntent"))
     }
 }
 

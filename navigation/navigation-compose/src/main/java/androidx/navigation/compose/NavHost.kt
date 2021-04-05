@@ -17,12 +17,14 @@
 package androidx.navigation.compose
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.lifecycle.SavedStateHandle
@@ -43,10 +45,11 @@ import java.util.UUID
  * The builder passed into this method is [remember]ed. This means that for this NavHost, the
  * contents of the builder cannot be changed.
  *
- * @sample androidx.navigation.compose.samples.BasicNav
+ * @sample androidx.navigation.compose.samples.NavScaffold
  *
  * @param navController the navController for this host
  * @param startDestination the route for the start destination
+ * @param modifier The modifier to be applied to the layout.
  * @param route the route for the graph
  * @param builder the builder used to construct the graph
  */
@@ -54,6 +57,7 @@ import java.util.UUID
 public fun NavHost(
     navController: NavHostController,
     startDestination: String,
+    modifier: Modifier = Modifier,
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ) {
@@ -61,7 +65,8 @@ public fun NavHost(
         navController,
         remember(route, startDestination, builder) {
             navController.createGraph(startDestination, route, builder)
-        }
+        },
+        modifier
     )
 }
 
@@ -76,14 +81,20 @@ public fun NavHost(
  *
  * @param navController the navController for this host
  * @param graph the graph for this host
+ * @param modifier The modifier to be applied to the layout.
  */
 @Composable
-public fun NavHost(navController: NavHostController, graph: NavGraph) {
+public fun NavHost(
+    navController: NavHostController,
+    graph: NavGraph,
+    modifier: Modifier = Modifier
+) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "NavHost requires a ViewModelStoreOwner to be provided via LocalViewModelStoreOwner"
     }
-    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
+    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val onBackPressedDispatcher = onBackPressedDispatcherOwner?.onBackPressedDispatcher
     val rememberedGraph = remember { graph }
 
     // on successful recompose we setup the navController with proper inputs
@@ -91,7 +102,9 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
     DisposableEffect(navController, lifecycleOwner, viewModelStoreOwner, onBackPressedDispatcher) {
         navController.setLifecycleOwner(lifecycleOwner)
         navController.setViewModelStore(viewModelStoreOwner.viewModelStore)
-        navController.setOnBackPressedDispatcher(onBackPressedDispatcher)
+        if (onBackPressedDispatcher != null) {
+            navController.setOnBackPressedDispatcher(onBackPressedDispatcher)
+        }
 
         onDispose { }
     }
@@ -115,13 +128,15 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
         if (destination is ComposeNavigator.Destination) {
             // while in the scope of the composable, we provide the navBackStackEntry as the
             // ViewModelStoreOwner and LifecycleOwner
-            CompositionLocalProvider(
-                LocalViewModelStoreOwner provides currentNavBackStackEntry,
-                LocalLifecycleOwner provides currentNavBackStackEntry,
-                LocalSavedStateRegistryOwner provides currentNavBackStackEntry
-            ) {
-                saveableStateHolder.SaveableStateProvider {
-                    destination.content(currentNavBackStackEntry)
+            Box(modifier, propagateMinConstraints = true) {
+                CompositionLocalProvider(
+                    LocalViewModelStoreOwner provides currentNavBackStackEntry,
+                    LocalLifecycleOwner provides currentNavBackStackEntry,
+                    LocalSavedStateRegistryOwner provides currentNavBackStackEntry
+                ) {
+                    saveableStateHolder.SaveableStateProvider {
+                        destination.content(currentNavBackStackEntry)
+                    }
                 }
             }
         }

@@ -25,6 +25,7 @@ plugins {
 }
 dependencies {
     api(project(":car:app:app"))
+    implementation("androidx.fragment:fragment:1.3.0")
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation 'androidx.annotation:annotation:1.1.0'
 
@@ -55,8 +56,6 @@ android {
 androidx {
     name = "Android for Cars App Library Activity Extension"
     type = LibraryType.PUBLISHED_LIBRARY
-    // Special pre-release version to exclude the app-activity module from the 1.0.0 release.
-    mavenVersion = LibraryVersions.CAR_APP_PRE_RELEASE
     mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2021"
     description = "Activity rendering specific funationaltiy to build navigation, parking, and charging apps for cars"

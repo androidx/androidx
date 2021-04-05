@@ -31,9 +31,9 @@ import kotlin.test.assertTrue
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class ProfilerTest {
+public class ProfilerTest {
     @Test
-    fun getByName() {
+    public fun getByName() {
         assertSame(MethodSampling, Profiler.getByName("MethodSampling"))
         assertSame(MethodTracing, Profiler.getByName("MethodTracing"))
         assertSame(ConnectedAllocation, Profiler.getByName("ConnectedAllocation"))
@@ -69,15 +69,15 @@ class ProfilerTest {
     }
 
     @Test
-    fun methodSampling() = verifyProfiler(
+    public fun methodSampling(): Unit = verifyProfiler(
         profiler = MethodSampling,
-        file = Arguments.testOutputFile("test-methodSampling.trace")
+        file = Outputs.testOutputFile("test-methodSampling.trace")
     )
 
     @Test
-    fun methodTracing() = verifyProfiler(
+    public fun methodTracing(): Unit = verifyProfiler(
         profiler = MethodTracing,
-        file = Arguments.testOutputFile("test-methodTracing.trace")
+        file = Outputs.testOutputFile("test-methodTracing.trace")
     )
 
     @Ignore(
@@ -86,7 +86,7 @@ class ProfilerTest {
     )
     @SdkSuppress(minSdkVersion = 28)
     @Test
-    fun methodSamplingSimpleperf() = verifyProfiler(
+    public fun methodSamplingSimpleperf(): Unit = verifyProfiler(
         profiler = MethodSamplingSimpleperf,
         file = File("/data/data/androidx.benchmark.test/simpleperf_data/test.data")
     )

@@ -22,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Template;
 import androidx.lifecycle.Lifecycle.Event;
@@ -84,6 +85,22 @@ public class ScreenController {
             }
         }
         return templates;
+    }
+
+    /**
+     * Returns the result that was set via {@link Screen#setResult(Object)}, or {@code null} if
+     * one was not set.
+     */
+    @Nullable
+    public Object getScreenResult() {
+        try {
+            Field result = Screen.class.getDeclaredField("mResult");
+            result.setAccessible(true);
+            return result.get(mScreen);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Unable to access result from screen being "
+                    + "controlled", e);
+        }
     }
 
     /**

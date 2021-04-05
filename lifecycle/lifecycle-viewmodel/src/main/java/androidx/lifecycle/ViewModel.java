@@ -143,7 +143,7 @@ public abstract class ViewModel {
      * If the given {@code newValue} is {@link Closeable},
      * it will be closed once {@link #clear()}.
      * <p>
-     * If a value was already set for the given key, this calls do nothing and
+     * If a value was already set for the given key, this call does nothing and
      * returns currently associated value, the given {@code newValue} would be ignored
      * <p>
      * If the ViewModel was already cleared then close() would be called on the returned object if

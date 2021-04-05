@@ -66,7 +66,7 @@ public class TestAppManager extends AppManager {
      * set.
      */
     @Nullable
-    public SurfaceCallback getSurfaceListener() {
+    public SurfaceCallback getSurfaceCallback() {
         return mSurfaceCallback;
     }
 
@@ -129,6 +129,6 @@ public class TestAppManager extends AppManager {
     }
 
     TestAppManager(TestCarContext testCarContext, HostDispatcher hostDispatcher) {
-        super(testCarContext, hostDispatcher);
+        super(testCarContext, hostDispatcher, testCarContext.getLifecycleOwner().mRegistry);
     }
 }

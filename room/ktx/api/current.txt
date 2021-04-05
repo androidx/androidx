@@ -10,3 +10,11 @@ package androidx.room {
 
 }
 
+package androidx.room.migration {
+
+  public final class MigrationKt {
+    method public static androidx.room.migration.Migration Migration(int startVersion, int endVersion, kotlin.jvm.functions.Function1<? super androidx.sqlite.db.SupportSQLiteDatabase,kotlin.Unit> migrate);
+  }
+
+}
+

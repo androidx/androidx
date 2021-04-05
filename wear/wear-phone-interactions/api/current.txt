@@ -66,9 +66,9 @@ package androidx.wear.phone.interactions.authentication {
     method protected void finalize();
     method @UiThread public void sendAuthorizationRequest(androidx.wear.phone.interactions.authentication.OAuthRequest request, androidx.wear.phone.interactions.authentication.RemoteAuthClient.Callback clientCallback);
     field public static final androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion Companion;
-    field public static final int ERROR_PHONE_UNAVAILABLE = 2; // 0x2
-    field public static final int ERROR_UNSUPPORTED = 1; // 0x1
-    field public static final int NO_ERROR = 0; // 0x0
+    field public static final int ERROR_PHONE_UNAVAILABLE = 1; // 0x1
+    field public static final int ERROR_UNSUPPORTED = 0; // 0x0
+    field public static final int NO_ERROR = -1; // 0xffffffff
   }
 
   public abstract static class RemoteAuthClient.Callback {

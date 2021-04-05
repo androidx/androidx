@@ -27,12 +27,19 @@ import androidx.appcompat.testutils.BaseTestActivity;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * An activity with DayNight theme.
+ */
 public class NightModeActivity extends BaseTestActivity {
+    public static final String KEY_TITLE = "title";
+
     private final Semaphore mOnConfigurationChangeSemaphore = new Semaphore(0);
     private final Semaphore mOnDestroySemaphore = new Semaphore(0);
     private final Semaphore mOnCreateSemaphore = new Semaphore(0);
 
     private int mLastNightModeChange = Integer.MIN_VALUE;
+
+    private Configuration mEffectiveConfiguration;
     private Configuration mLastConfigurationChange;
 
     @Override
@@ -49,14 +56,21 @@ public class NightModeActivity extends BaseTestActivity {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
+        mLastConfigurationChange = new Configuration(newConfig);
+        mEffectiveConfiguration = mLastConfigurationChange;
         mOnConfigurationChangeSemaphore.release();
-        mLastConfigurationChange = newConfig;
     }
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
+        String title = getIntent().getStringExtra(KEY_TITLE);
+        if (title != null) {
+            setTitle(title);
+        }
+
+        mEffectiveConfiguration = new Configuration(getResources().getConfiguration());
         mOnCreateSemaphore.release();
     }
 
@@ -72,6 +86,15 @@ public class NightModeActivity extends BaseTestActivity {
         final Configuration config = mLastConfigurationChange;
         mLastConfigurationChange = null;
         return config;
+    }
+
+    /**
+     * @return a copy of the {@link Configuration} from the most recent call to {@link #onCreate} or
+     *         {@link #onConfigurationChanged}, or {@code null} if neither has been called yet
+     */
+    @Nullable
+    Configuration getEffectiveConfiguration() {
+        return mEffectiveConfiguration;
     }
 
     int getLastNightModeAndReset() {

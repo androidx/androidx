@@ -74,8 +74,10 @@ import androidx.test.filters.SdkSuppress;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.AssumptionViolatedException;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -107,7 +109,7 @@ import java.util.concurrent.TimeoutException;
 @RunWith(AndroidJUnit4.class)
 public final class CaptureSessionTest {
     /** Thread for all asynchronous calls. */
-    private HandlerThread mHandlerThread;
+    private static HandlerThread sHandlerThread;
     /** Handler for all asynchronous calls. */
     private Handler mHandler;
     /** Executor which delegates to Handler */
@@ -128,14 +130,25 @@ public final class CaptureSessionTest {
     @Rule
     public TestRule mUseCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
 
+    @BeforeClass
+    public static void setUpClass() {
+        sHandlerThread = new HandlerThread("CaptureSessionTest");
+        sHandlerThread.start();
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+        if (sHandlerThread != null) {
+            sHandlerThread.quitSafely();
+        }
+    }
+
     @Before
     public void setup() throws CameraAccessException, InterruptedException,
             AssumptionViolatedException, TimeoutException, ExecutionException {
         mTestParameters0 = new CaptureSessionTestParameters("mTestParameters0");
         mTestParameters1 = new CaptureSessionTestParameters("mTestParameters1");
-        mHandlerThread = new HandlerThread("CaptureSessionTest");
-        mHandlerThread.start();
-        mHandler = new Handler(mHandlerThread.getLooper());
+        mHandler = new Handler(sHandlerThread.getLooper());
 
         mExecutor = CameraXExecutors.newHandlerExecutor(mHandler);
         mScheduledExecutor = CameraXExecutors.newHandlerExecutor(mHandler);
@@ -165,10 +178,6 @@ public final class CaptureSessionTest {
             CameraUtil.releaseCameraDevice(mCameraDeviceHolder);
             mTestParameters0.tearDown();
             mTestParameters1.tearDown();
-        }
-
-        if (mHandlerThread != null) {
-            mHandlerThread.quitSafely();
         }
     }
 
@@ -666,7 +675,7 @@ public final class CaptureSessionTest {
         CaptureResult captureResult2 = ((Camera2CameraCaptureResult) result2).getCaptureResult();
         assertThat(
                 captureResult2.getRequest().get(CaptureRequest.CONTROL_CAPTURE_INTENT)).isEqualTo(
-                CaptureRequest.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG);
+                CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM);
         // The onEnableSession should not been invoked in close().
         verify(mTestParameters0.mTestCameraEventCallback.mEnableCallback,
                 never()).onCaptureCompleted(any(CameraCaptureResult.class));
@@ -1171,7 +1180,7 @@ public final class CaptureSessionTest {
         @Override
         public CaptureConfig onDisableSession() {
             return getCaptureConfig(CaptureRequest.CONTROL_CAPTURE_INTENT,
-                    CaptureRequest.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG, mDisableCallback);
+                    CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM, mDisableCallback);
         }
     }
 

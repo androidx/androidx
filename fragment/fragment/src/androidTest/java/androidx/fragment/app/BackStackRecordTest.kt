@@ -23,6 +23,7 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
@@ -35,6 +36,218 @@ class BackStackRecordTest {
     @Suppress("DEPRECATION")
     @get:Rule
     var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
+
+    @Test
+    @UiThreadTest
+    fun testExpandCollapseOpsPrimaryNav() {
+        val initialFragment = StrictFragment()
+        val fm = activityRule.activity.supportFragmentManager
+        fm.beginTransaction()
+            .add(android.R.id.content, initialFragment)
+            .setPrimaryNavigationFragment(initialFragment)
+            .commitNow()
+
+        val replacementFragment = StrictFragment()
+        val backStackRecord = BackStackRecord(fm)
+        backStackRecord.setPrimaryNavigationFragment(replacementFragment)
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_SET_PRIMARY_NAV, replacementFragment)
+        }
+
+        backStackRecord.expandOps(ArrayList(fm.fragments), initialFragment)
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_UNSET_PRIMARY_NAV, initialFragment) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_SET_PRIMARY_NAV, replacementFragment) {
+                fromExpandedOp = true
+            }
+        }
+
+        backStackRecord.collapseOps()
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_SET_PRIMARY_NAV, replacementFragment)
+        }
+    }
+
+    @Test
+    @UiThreadTest
+    fun testExpandCollapseOpsReplace() {
+        val initialFragment = StrictFragment()
+        val fm = activityRule.activity.supportFragmentManager
+        fm.beginTransaction().add(android.R.id.content, initialFragment).commitNow()
+
+        val replacementFragment = StrictFragment()
+        val backStackRecord = BackStackRecord(fm)
+        backStackRecord.replace(android.R.id.content, replacementFragment)
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_REPLACE, replacementFragment)
+        }
+
+        backStackRecord.expandOps(ArrayList(fm.fragments), null)
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_REMOVE, initialFragment) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_ADD, replacementFragment) {
+                fromExpandedOp = true
+            }
+        }
+
+        backStackRecord.collapseOps()
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_REPLACE, replacementFragment)
+        }
+    }
+
+    @Test
+    @UiThreadTest
+    fun testExpandCollapseOpsReplacePrimaryNav() {
+        val initialFragment = StrictFragment()
+        val fm = activityRule.activity.supportFragmentManager
+        fm.beginTransaction()
+            .add(android.R.id.content, initialFragment)
+            .setPrimaryNavigationFragment(initialFragment)
+            .commitNow()
+
+        val replacementFragment = StrictFragment()
+        val backStackRecord = BackStackRecord(fm)
+        backStackRecord
+            .replace(android.R.id.content, replacementFragment)
+            .setPrimaryNavigationFragment(replacementFragment)
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_REPLACE, replacementFragment)
+            verify(FragmentTransaction.OP_SET_PRIMARY_NAV, replacementFragment)
+        }
+
+        backStackRecord.expandOps(ArrayList(fm.fragments), initialFragment)
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_UNSET_PRIMARY_NAV, initialFragment) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_REMOVE, initialFragment) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_ADD, replacementFragment) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_UNSET_PRIMARY_NAV) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_SET_PRIMARY_NAV, replacementFragment) {
+                fromExpandedOp = true
+            }
+        }
+
+        backStackRecord.collapseOps()
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_REPLACE, replacementFragment)
+            verify(FragmentTransaction.OP_SET_PRIMARY_NAV, replacementFragment)
+        }
+    }
+
+    @Test
+    @UiThreadTest
+    fun testExpandCollapseOpsReplaceMultiple() {
+        val initialFragment = StrictFragment()
+        val addedFragment = StrictFragment()
+        val fm = activityRule.activity.supportFragmentManager
+        fm.beginTransaction()
+            .add(android.R.id.content, initialFragment)
+            .add(android.R.id.content, addedFragment)
+            .commitNow()
+
+        val replacementFragment = StrictFragment()
+        val backStackRecord = BackStackRecord(fm)
+        backStackRecord.replace(android.R.id.content, replacementFragment)
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_REPLACE, replacementFragment)
+        }
+
+        backStackRecord.expandOps(ArrayList(fm.fragments), null)
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_REMOVE, addedFragment) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_REMOVE, initialFragment) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_ADD, replacementFragment) {
+                fromExpandedOp = true
+            }
+        }
+
+        backStackRecord.collapseOps()
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_REPLACE, replacementFragment)
+        }
+    }
+
+    @Test
+    @UiThreadTest
+    fun testExpandCollapseOpsReplaceMultiplePrimaryNav() {
+        val initialFragment = StrictFragment()
+        val addedFragment = StrictFragment()
+        val fm = activityRule.activity.supportFragmentManager
+        fm.beginTransaction()
+            .add(android.R.id.content, initialFragment)
+            .add(android.R.id.content, addedFragment)
+            .setPrimaryNavigationFragment(addedFragment)
+            .commitNow()
+
+        val replacementFragment = StrictFragment()
+        val backStackRecord = BackStackRecord(fm)
+        backStackRecord
+            .replace(android.R.id.content, replacementFragment)
+            .setPrimaryNavigationFragment(replacementFragment)
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_REPLACE, replacementFragment)
+            verify(FragmentTransaction.OP_SET_PRIMARY_NAV, replacementFragment)
+        }
+
+        backStackRecord.expandOps(ArrayList(fm.fragments), addedFragment)
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_UNSET_PRIMARY_NAV, addedFragment) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_REMOVE, addedFragment) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_REMOVE, initialFragment) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_ADD, replacementFragment) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_UNSET_PRIMARY_NAV) {
+                fromExpandedOp = true
+            }
+            verify(FragmentTransaction.OP_SET_PRIMARY_NAV, replacementFragment) {
+                fromExpandedOp = true
+            }
+        }
+
+        backStackRecord.collapseOps()
+
+        backStackRecord.verifyOps {
+            verify(FragmentTransaction.OP_REPLACE, replacementFragment)
+            verify(FragmentTransaction.OP_SET_PRIMARY_NAV, replacementFragment)
+        }
+    }
 
     @Test
     @UiThreadTest
@@ -322,4 +535,52 @@ class BackStackRecordTest {
                 )
         }
     }
+}
+
+internal class BackStackRecordVerify(private val backStackRecord: BackStackRecord) {
+    var currentOp = 0
+
+    fun verify(
+        command: Int,
+        fragment: Fragment? = null,
+        block: BackStackRecordOpInfo.() -> Unit = {}
+    ) {
+        assertWithMessage(
+            "Cannot verify op $currentOp as there is only ${backStackRecord.mOps.size} operations"
+        ).that(backStackRecord.mOps.size).isAtLeast(currentOp + 1)
+        backStackRecord.mOps[currentOp].verify(currentOp, command, fragment, block)
+        currentOp++
+    }
+}
+
+internal fun BackStackRecord.verifyOps(block: BackStackRecordVerify.() -> Unit) {
+    val verify = BackStackRecordVerify(this).apply(block)
+    assertWithMessage("Not all operations were verified")
+        .that(verify.currentOp)
+        .isEqualTo(mOps.size)
+}
+
+internal data class BackStackRecordOpInfo(
+    var fromExpandedOp: Boolean = false
+)
+
+private fun FragmentTransaction.Op.verify(
+    opIndex: Int,
+    command: Int,
+    fragment: Fragment? = null,
+    block: BackStackRecordOpInfo.() -> Unit = {}
+) {
+    val (fromExpandedOp) = BackStackRecordOpInfo().apply { block() }
+
+    assertWithMessage("Operation $opIndex had the wrong command")
+        .that(mCmd)
+        .isEqualTo(command)
+    assertWithMessage("Operation $opIndex had the wrong fragment")
+        .that(mFragment)
+        .isSameInstanceAs(fragment)
+    assertWithMessage(
+        "Operation $opIndex " + (if (fromExpandedOp) "should" else "shouldn't") +
+            " be marked as from an expanded op"
+    ).that(mFromExpandedOp).isEqualTo(fromExpandedOp)
+    assertThat(mFromExpandedOp).isEqualTo(fromExpandedOp)
 }

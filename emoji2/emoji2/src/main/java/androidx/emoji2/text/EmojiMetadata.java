@@ -15,8 +15,9 @@
  */
 package androidx.emoji2.text;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -38,7 +39,7 @@ import java.lang.annotation.RetentionPolicy;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY_GROUP)
 @AnyThread
 @RequiresApi(19)
 public class EmojiMetadata {
@@ -78,6 +79,7 @@ public class EmojiMetadata {
     /**
      * MetadataRepo that holds this instance.
      */
+    @NonNull
     private final MetadataRepo mMetadataRepo;
 
     /**
@@ -117,6 +119,7 @@ public class EmojiMetadata {
     /**
      * @return return typeface to be used to render this metadata
      */
+    @NonNull
     public Typeface getTypeface() {
         return mMetadataRepo.getTypeface();
     }
@@ -181,6 +184,7 @@ public class EmojiMetadata {
      * style selector 0xFE0F)
      */
     @HasGlyph
+    @SuppressLint("KotlinPropertyAccess")
     public int getHasGlyph() {
         return mHasGlyph;
     }
@@ -190,6 +194,7 @@ public class EmojiMetadata {
      *
      * @param hasGlyph {@code true} if system can render the emoji
      */
+    @SuppressLint("KotlinPropertyAccess")
     public void setHasGlyph(boolean hasGlyph) {
         mHasGlyph = hasGlyph ? HAS_GLYPH_EXISTS : HAS_GLYPH_ABSENT;
     }

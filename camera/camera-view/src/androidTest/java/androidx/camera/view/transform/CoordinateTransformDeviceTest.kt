@@ -32,26 +32,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 public class CoordinateTransformDeviceTest {
 
-    @Test(expected = IllegalArgumentException::class)
-    public fun mismatchViewPort_throwsException() {
-        // Arrange: create 2 imageProxy with mismatched viewport aspect ratio.
-        val source = ImageProxyTransform.Builder(
-            createFakeImageProxy(300, 400, Rect(0, 0, 300, 400))
-        ).build()
-        val target = ImageProxyTransform.Builder(
-            createFakeImageProxy(300, 400, Rect(0, 0, 200, 400))
-        ).build()
-
-        // Act: creating CoordinateTransform throws exception.
-        CoordinateTransform(source, target)
-    }
-
     @Test
     public fun sameSourceAndTarget_getsIdentityMatrix() {
         // Arrange.
-        val imageProxy = ImageProxyTransform.Builder(
-            createFakeImageProxy(3, 4, Rect(0, 0, 3, 4))
-        ).build()
+        val imageProxyTransformFactory = ImageProxyTransformFactory.Builder().build()
+        val imageProxy = imageProxyTransformFactory.getOutputTransform(
+            createFakeImageProxy(3, 4, 0, Rect(0, 0, 3, 4))
+        )
 
         // Act: create a transform with the same source and target.
         val transform = CoordinateTransform(imageProxy, imageProxy)
@@ -68,12 +55,13 @@ public class CoordinateTransformDeviceTest {
     @Test
     public fun scaleImageProxy() {
         // Arrange: create 2 ImageProxy with the only difference being 10x scale.
-        val source = ImageProxyTransform.Builder(
-            createFakeImageProxy(3, 4, Rect(0, 0, 3, 4))
-        ).build()
-        val target = ImageProxyTransform.Builder(
-            createFakeImageProxy(30, 40, Rect(0, 0, 30, 40))
-        ).build()
+        val imageProxyTransformFactory = ImageProxyTransformFactory.Builder().build()
+        val source = imageProxyTransformFactory.getOutputTransform(
+            createFakeImageProxy(3, 4, 0, Rect(0, 0, 3, 4))
+        )
+        val target = imageProxyTransformFactory.getOutputTransform(
+            createFakeImageProxy(30, 40, 0, Rect(0, 0, 30, 40))
+        )
 
         // Act.
         val coordinateTransform = CoordinateTransform(source, target)
@@ -87,12 +75,14 @@ public class CoordinateTransformDeviceTest {
     @Test
     public fun scaleAndRotateImageProxy() {
         // Arrange: create 2 ImageProxy with different scale and rotation.
-        val source = ImageProxyTransform.Builder(
-            createFakeImageProxy(3, 4, Rect(0, 0, 3, 4))
-        ).setRotationDegrees(270).build()
-        val target = ImageProxyTransform.Builder(
-            createFakeImageProxy(30, 40, Rect(0, 0, 30, 40))
-        ).setRotationDegrees(90).build()
+        val imageProxyTransformFactory = ImageProxyTransformFactory.Builder()
+            .setUseRotationDegrees(true).build()
+        val source = imageProxyTransformFactory.getOutputTransform(
+            createFakeImageProxy(3, 4, 270, Rect(0, 0, 3, 4))
+        )
+        val target = imageProxyTransformFactory.getOutputTransform(
+            createFakeImageProxy(30, 40, 90, Rect(0, 0, 30, 40))
+        )
 
         // Act.
         val coordinateTransform = CoordinateTransform(source, target)
@@ -107,12 +97,14 @@ public class CoordinateTransformDeviceTest {
     public fun withViewPortWithoutCropRect() {
         // Arrange: create 2 ImageProxy that have crop rect, but the coordinates do not respect the
         // crop rect. (MLKit scenario).
-        val source = ImageProxyTransform.Builder(
-            createFakeImageProxy(16, 12, Rect(2, 2, 10, 8))
-        ).build()
-        val target = ImageProxyTransform.Builder(
-            createFakeImageProxy(16, 12, Rect(8, 6, 16, 12))
-        ).build()
+        val imageProxyTransformFactory = ImageProxyTransformFactory.Builder()
+            .setUseRotationDegrees(true).build()
+        val source = imageProxyTransformFactory.getOutputTransform(
+            createFakeImageProxy(16, 12, 0, Rect(2, 2, 10, 8))
+        )
+        val target = imageProxyTransformFactory.getOutputTransform(
+            createFakeImageProxy(16, 12, 0, Rect(8, 6, 16, 12))
+        )
 
         // Act.
         val coordinateTransform = CoordinateTransform(source, target)
@@ -127,14 +119,18 @@ public class CoordinateTransformDeviceTest {
     public fun withViewPortAndCropRect() {
         // Arrange: create 2 ImageProxy that have crop rect, and the coordinates respect the crop
         // rect.
-        val sourceCropRect = Rect(2, 2, 10, 8)
-        val source = ImageProxyTransform.Builder(createFakeImageProxy(16, 12, sourceCropRect))
-            .setCropRect(sourceCropRect).build()
-        val targetCropRect = Rect(8, 6, 16, 12)
-        val target = ImageProxyTransform
-            .Builder(createFakeImageProxy(16, 12, targetCropRect))
-            .setCropRect(targetCropRect)
-            .build()
+        val imageProxyTransformFactory = ImageProxyTransformFactory.Builder()
+            .setUseCropRect(true).build()
+        val source = imageProxyTransformFactory.getOutputTransform(
+            createFakeImageProxy(
+                16, 12, 0, Rect(2, 2, 10, 8)
+            )
+        )
+        val target = imageProxyTransformFactory.getOutputTransform(
+            createFakeImageProxy(
+                16, 12, 90, Rect(8, 6, 16, 12)
+            )
+        )
 
         // Act.
         val coordinateTransform = CoordinateTransform(source, target)

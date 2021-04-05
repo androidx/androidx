@@ -372,17 +372,26 @@ public final class ImageCapture extends UseCase {
         } else if (mCaptureProcessor != null || mUseSoftwareJpeg) {
             // Capture processor set from configuration takes precedence over software JPEG.
             YuvToJpegProcessor softwareJpegProcessor = null;
+            CaptureProcessorPipeline captureProcessorPipeline = null;
             CaptureProcessor captureProcessor = mCaptureProcessor;
             int inputFormat = getImageFormat();
             int outputFormat = getImageFormat();
             if (mUseSoftwareJpeg) {
-                Preconditions.checkState(mCaptureProcessor == null, "CaptureProcessor should not "
-                        + "be set if software JPEG is to be used.");
                 // API check to satisfy linter
                 if (Build.VERSION.SDK_INT >= 26) {
                     Logger.i(TAG, "Using software JPEG encoder.");
-                    captureProcessor = softwareJpegProcessor =
-                            new YuvToJpegProcessor(getJpegQuality(), mMaxCaptureStages);
+
+                    if (mCaptureProcessor != null) {
+                        softwareJpegProcessor = new YuvToJpegProcessor(getJpegQuality(),
+                                mMaxCaptureStages);
+                        captureProcessor = captureProcessorPipeline = new CaptureProcessorPipeline(
+                                mCaptureProcessor, mMaxCaptureStages, softwareJpegProcessor,
+                                mExecutor);
+                    } else {
+                        captureProcessor = softwareJpegProcessor =
+                                new YuvToJpegProcessor(getJpegQuality(), mMaxCaptureStages);
+                    }
+
                     outputFormat = ImageFormat.JPEG;
                 } else {
                     // Note: This should never be hit due to SDK_INT check before setting
@@ -408,10 +417,12 @@ public final class ImageCapture extends UseCase {
                 // Close the JPEG processor once ProcessingImageReader is done.
                 // Processor is assigned to an effectively final variable here for the lambda.
                 YuvToJpegProcessor processorToClose = softwareJpegProcessor;
+                CaptureProcessorPipeline captureProcessorPipelineToClose = captureProcessorPipeline;
                 mProcessingImageReader.getCloseFuture().addListener(() -> {
                     // API check to satisfy linter
                     if (Build.VERSION.SDK_INT >= 26) {
                         processorToClose.close();
+                        captureProcessorPipelineToClose.close();
                     }
                 }, CameraXExecutors.directExecutor());
             }
@@ -512,9 +523,16 @@ public final class ImageCapture extends UseCase {
     @Override
     UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
-        // Request software JPEG encoder if quirk exists on this device and the software JPEG
-        // option has not already been explicitly set.
-        if (cameraInfo.getCameraQuirks().contains(SoftwareJpegEncodingPreferredQuirk.class)) {
+        if (builder.getUseCaseConfig().retrieveOption(OPTION_CAPTURE_PROCESSOR, null)
+                != null && Build.VERSION.SDK_INT >= 29) {
+            // TODO: The API level check can be removed if the ImageWriterCompat issue on API
+            //  level 28 devices (b182363220/) can be resolved.
+            Logger.i(TAG, "Requesting software JPEG due to a CaptureProcessor is set.");
+            builder.getMutableConfig().insertOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, true);
+        } else if (cameraInfo.getCameraQuirks().contains(
+                SoftwareJpegEncodingPreferredQuirk.class)) {
+            // Request software JPEG encoder if quirk exists on this device and the software JPEG
+            // option has not already been explicitly set.
             if (!builder.getMutableConfig().retrieveOption(OPTION_USE_SOFTWARE_JPEG_ENCODER,
                     true)) {
                 Logger.w(TAG, "Device quirk suggests software JPEG encoder, but it has been "
@@ -1208,11 +1226,6 @@ public final class ImageCapture extends UseCase {
                 supported = false;
             }
 
-            if (mutableConfig.retrieveOption(OPTION_CAPTURE_PROCESSOR, null) != null) {
-                Logger.w(TAG, "CaptureProcessor is set, unable to use software JPEG.");
-                supported = false;
-            }
-
             if (!supported) {
                 Logger.w(TAG, "Unable to support software JPEG. Disabling.");
                 mutableConfig.insertOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, false);
@@ -1491,19 +1504,17 @@ public final class ImageCapture extends UseCase {
         if (mProcessingImageReader != null) {
             // If the Processor is provided, check if we have valid CaptureBundle and update
             // ProcessingImageReader before actually issuing a take picture request.
-            if (mUseSoftwareJpeg) {
-                captureBundle = getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
-                if (captureBundle.getCaptureStages().size() > 1) {
-                    return Futures.immediateFailedFuture(new IllegalArgumentException(
-                            "Software JPEG not supported with CaptureBundle size > 1."));
-                }
-            } else {
-                captureBundle = getCaptureBundle(null);
-            }
+            captureBundle = getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
 
             if (captureBundle == null) {
                 return Futures.immediateFailedFuture(new IllegalArgumentException(
                         "ImageCapture cannot set empty CaptureBundle."));
+            }
+
+            if (mCaptureProcessor == null && captureBundle.getCaptureStages().size() > 1) {
+                return Futures.immediateFailedFuture(new IllegalArgumentException(
+                        "No CaptureProcessor can be found to process the images captured for "
+                                + "multiple CaptureStages."));
             }
 
             if (captureBundle.getCaptureStages().size() > mMaxCaptureStages) {

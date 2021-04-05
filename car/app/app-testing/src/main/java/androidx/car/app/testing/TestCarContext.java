@@ -183,7 +183,6 @@ public class TestCarContext extends CarContext {
      *
      * @throws NullPointerException if either {@code serviceClass} or {@code service} are {@code
      *                              null}
-     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -195,7 +194,14 @@ public class TestCarContext extends CarContext {
         mOverriddenService.put(serviceName, service);
     }
 
-    TestLifecycleOwner getLifecycleOwner() {
+    /**
+     * Returns the {@link TestLifecycleOwner} that is used for this CarContext.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    public TestLifecycleOwner getLifecycleOwner() {
         return mTestLifecycleOwner;
     }
 
