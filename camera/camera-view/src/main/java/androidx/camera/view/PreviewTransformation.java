@@ -24,13 +24,10 @@ import static androidx.camera.view.PreviewView.ScaleType.FILL_CENTER;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_CENTER;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_END;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_START;
-import static androidx.camera.view.TransformUtils.createRotatedVertices;
+import static androidx.camera.view.TransformUtils.getRectToRect;
 import static androidx.camera.view.TransformUtils.is90or270;
 import static androidx.camera.view.TransformUtils.isAspectRatioMatchingWithRoundingError;
-import static androidx.camera.view.TransformUtils.rectToVertices;
-import static androidx.camera.view.TransformUtils.sizeToVertices;
 import static androidx.camera.view.TransformUtils.surfaceRotationToRotationDegrees;
-import static androidx.camera.view.TransformUtils.verticesToRect;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -154,12 +151,9 @@ final class PreviewTransformation {
     @VisibleForTesting
     Matrix getTextureViewCorrectionMatrix() {
         Preconditions.checkState(isTransformationInfoReady());
-        Matrix matrix = new Matrix();
-        float[] surfaceVertices = sizeToVertices(mResolution);
-        float[] rotatedSurfaceVertices = createRotatedVertices(surfaceVertices,
+        RectF surfaceRect = new RectF(0, 0, mResolution.getWidth(), mResolution.getHeight());
+        return getRectToRect(surfaceRect, surfaceRect,
                 -surfaceRotationToRotationDegrees(mTargetRotation));
-        matrix.setPolyToPoly(surfaceVertices, 0, rotatedSurfaceVertices, 0, 4);
-        return matrix;
     }
 
     /**
@@ -224,10 +218,9 @@ final class PreviewTransformation {
         Preconditions.checkState(isTransformationInfoReady());
         Matrix surfaceToPreviewView =
                 getSurfaceToPreviewViewMatrix(previewViewSize, layoutDirection);
-
-        float[] surfaceVertices = sizeToVertices(mResolution);
-        surfaceToPreviewView.mapPoints(surfaceVertices);
-        return verticesToRect(surfaceVertices);
+        RectF rect = new RectF(0, 0, mResolution.getWidth(), mResolution.getHeight());
+        surfaceToPreviewView.mapRect(rect);
+        return rect;
     }
 
     /**
@@ -238,31 +231,23 @@ final class PreviewTransformation {
      */
     Matrix getSurfaceToPreviewViewMatrix(Size previewViewSize, int layoutDirection) {
         Preconditions.checkState(isTransformationInfoReady());
-        Matrix matrix = new Matrix();
 
-        // Get the target of the mapping, the vertices of the crop rect in PreviewView.
-        float[] previewViewCropRectVertices;
+        // Get the target of the mapping, the coordinates of the crop rect in PreviewView.
+        RectF previewViewCropRect;
         if (isViewportAspectRatioMatchPreviewView(previewViewSize)) {
             // If crop rect has the same aspect ratio as PreviewView, scale the crop rect to fill
             // the entire PreviewView. This happens if the scale type is FILL_* AND a
             // PreviewView-based viewport is used.
-            previewViewCropRectVertices = sizeToVertices(previewViewSize);
+            previewViewCropRect = new RectF(0, 0, previewViewSize.getWidth(),
+                    previewViewSize.getHeight());
         } else {
             // If the aspect ratios don't match, it could be 1) scale type is FIT_*, 2) the
             // Viewport is not based on the PreviewView or 3) both.
-            RectF previewViewCropRect = getPreviewViewViewportRectForMismatchedAspectRatios(
+            previewViewCropRect = getPreviewViewViewportRectForMismatchedAspectRatios(
                     previewViewSize, layoutDirection);
-            previewViewCropRectVertices = rectToVertices(previewViewCropRect);
         }
-        float[] rotatedPreviewViewCropRectVertices = createRotatedVertices(
-                previewViewCropRectVertices, mPreviewRotationDegrees);
-
-        // Get the source of the mapping, the vertices of the crop rect in Surface.
-        float[] surfaceCropRectVertices = rectToVertices(new RectF(mSurfaceCropRect));
-
-        // Map source to target.
-        matrix.setPolyToPoly(surfaceCropRectVertices, 0, rotatedPreviewViewCropRectVertices, 0, 4);
-
+        Matrix matrix = getRectToRect(new RectF(mSurfaceCropRect), previewViewCropRect,
+                mPreviewRotationDegrees);
         if (mIsFrontCamera) {
             // SurfaceView/TextureView automatically mirrors the Surface for front camera, which
             // needs to be compensated by mirroring the Surface around the upright direction of the
