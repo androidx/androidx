@@ -213,7 +213,6 @@ internal class JavacProcessingEnv(
         }
     }
 
-    // TODO: Add a cache layer
     fun wrapExecutableElement(element: ExecutableElement): JavacExecutableElement {
         val enclosingType = element.requireEnclosingType(this)
 
@@ -236,7 +235,6 @@ internal class JavacProcessingEnv(
         }
     }
 
-    // TODO: Add a cache layer
     fun wrapVariableElement(element: VariableElement): JavacVariableElement {
         return when (val enclosingElement = element.enclosingElement) {
             is ExecutableElement -> {
