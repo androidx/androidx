@@ -229,8 +229,6 @@ dependencies {
     docs("androidx.wear:wear-ongoing:1.0.0-alpha03")
     docs("androidx.wear:wear-phone-interactions:1.0.0-alpha04")
     docs("androidx.wear:wear-remote-interactions:1.0.0-alpha03")
-    docs("androidx.wear:wear-tiles:1.0.0-alpha01")
-    docs("androidx.wear:wear-tiles-renderer:1.0.0-alpha01")
     docs("androidx.wear:wear-watchface:1.0.0-alpha11")
     docs("androidx.wear:wear-watchface-client:1.0.0-alpha11")
     docs("androidx.wear:wear-watchface-client-guava:1.0.0-alpha11")

@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedClass: androidx.navigation.NavControllerKt:
+    Removed class androidx.navigation.NavControllerKt
+RemovedClass: androidx.navigation.NavHostKt:
+    Removed class androidx.navigation.NavHostKt

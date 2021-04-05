@@ -141,6 +141,11 @@ package androidx.navigation {
     method public void onDestinationChanged(androidx.navigation.NavController controller, androidx.navigation.NavDestination destination, android.os.Bundle? arguments);
   }
 
+  public final class NavControllerKt {
+    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static kotlinx.coroutines.flow.Flow<androidx.navigation.NavBackStackEntry> getCurrentBackStackEntryFlow(androidx.navigation.NavController);
+  }
+
   public final class NavDeepLinkBuilder {
     ctor public NavDeepLinkBuilder(android.content.Context context);
     method public androidx.navigation.NavDeepLinkBuilder addDestination(@IdRes int destId, optional android.os.Bundle? args);
@@ -167,6 +172,10 @@ package androidx.navigation {
     method public final void setLifecycleOwner(androidx.lifecycle.LifecycleOwner owner);
     method public final void setOnBackPressedDispatcher(androidx.activity.OnBackPressedDispatcher dispatcher);
     method public final void setViewModelStore(androidx.lifecycle.ViewModelStore viewModelStore);
+  }
+
+  public final class NavHostKt {
+    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavInflater {
