@@ -1,3 +1,3 @@
 // Baseline format: 1.0
-RemovedClass: androidx.navigation.ui.AppBarConfigurationKt:
-    Removed class androidx.navigation.ui.AppBarConfigurationKt
+RemovedPackage: androidx.navigation.ui:
+    Removed package androidx.navigation.ui
