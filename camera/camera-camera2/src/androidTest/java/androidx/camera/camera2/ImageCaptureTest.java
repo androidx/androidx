@@ -659,6 +659,7 @@ public final class ImageCaptureTest {
         // Ignore this tests on devices that do not support RAW10 image format.
         Assume.assumeTrue(resolutions != null);
         Assume.assumeTrue(resolutions.length > 0);
+        Assume.assumeTrue(isRawSupported(cameraCharacteristics));
 
         ImageCapture useCase = new ImageCapture.Builder()
                 .setBufferFormat(ImageFormat.RAW10)
@@ -673,6 +674,17 @@ public final class ImageCaptureTest {
         verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
 
         assertThat(imageProperties.get().format).isEqualTo(ImageFormat.RAW10);
+    }
+
+    private boolean isRawSupported(CameraCharacteristics cameraCharacteristics) {
+        int[] capabilities =
+                cameraCharacteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES);
+        for (int capability : capabilities) {
+            if (CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW ==  capability) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Test(expected = IllegalArgumentException.class)
