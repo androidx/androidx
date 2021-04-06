@@ -160,9 +160,9 @@ public final class SchemaToPlatformConverter {
             android.app.appsearch.AppSearchSchema.DocumentPropertyConfig documentProperty =
                     (android.app.appsearch.AppSearchSchema.DocumentPropertyConfig) platformProperty;
             return new AppSearchSchema.DocumentPropertyConfig.Builder(
-                    documentProperty.getName())
+                    documentProperty.getName(),
+                    documentProperty.getSchemaType())
                     .setCardinality(documentProperty.getCardinality())
-                    .setSchemaType(documentProperty.getSchemaType())
                     .setIndexNestedProperties(documentProperty.isIndexNestedProperties())
                     .build();
         } else {

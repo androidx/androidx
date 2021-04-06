@@ -156,9 +156,19 @@ class SchemaCodeGenerator {
 
         // Start the builder for the property
         String propertyName = mModel.getPropertyName(property);
-        CodeBlock.Builder codeBlock = CodeBlock.builder()
-                .add("new $T($S)", propertyClass.nestedClass("Builder"), propertyName)
-                .indent();
+        CodeBlock.Builder codeBlock = CodeBlock.builder();
+        if (isPropertyDocument) {
+            ClassName documentClass = (ClassName) ClassName.get(propertyType);
+            ClassName documentFactoryClass = mHelper.getDocumentClassFactoryForClass(documentClass);
+            codeBlock.add(
+                    "new $T($S, $T.SCHEMA_NAME)",
+                    propertyClass.nestedClass("Builder"),
+                    propertyName,
+                    documentFactoryClass);
+        } else {
+            codeBlock.add("new $T($S)", propertyClass.nestedClass("Builder"), propertyName);
+        }
+        codeBlock.indent();
 
         // Find property cardinality
         ClassName cardinalityEnum;
@@ -211,11 +221,7 @@ class SchemaCodeGenerator {
             codeBlock.add("\n.setIndexingType($T)", indexingEnum);
 
         } else if (isPropertyDocument) {
-            ClassName documentClass = (ClassName) ClassName.get(propertyType);
-            codeBlock.add(
-                    "\n.setSchemaType($T.SCHEMA_NAME)",
-                    mHelper.getDocumentClassFactoryForClass(documentClass));
-            // TODO(b/177572431): Apply setIndexNestedProperties here too
+            // TODO(b/177572431): Apply setIndexNestedProperties here
         }
 
         // Done!
