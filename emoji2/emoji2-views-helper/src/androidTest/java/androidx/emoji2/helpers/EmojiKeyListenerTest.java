@@ -29,14 +29,10 @@ import static org.mockito.Mockito.when;
 
 import android.text.Editable;
 import android.text.Selection;
-import android.text.SpannableStringBuilder;
 import android.text.method.KeyListener;
 import android.view.KeyEvent;
 import android.view.View;
 
-import androidx.emoji2.util.Emoji;
-import androidx.emoji2.util.KeyboardUtil;
-import androidx.emoji2.util.TestString;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -51,19 +47,18 @@ import org.junit.runner.RunWith;
 public class EmojiKeyListenerTest {
 
     private KeyListener mKeyListener;
-    private TestString mTestString;
     private Editable mEditable;
     private EmojiKeyListener mEmojiKeyListener;
     private EmojiKeyListener.EmojiCompatHandleKeyDownHelper mEmojiCompatKeydownHelper;
+    private KeyEvent mKeyEvent;
 
     @Before
     public void setup() {
         mKeyListener = mock(KeyListener.class);
-        mTestString = new TestString(Emoji.EMOJI_WITH_ZWJ).withPrefix().withSuffix();
-        mEditable = new SpannableStringBuilder(mTestString.toString());
+        mEditable = mock(Editable.class);
         mEmojiCompatKeydownHelper = mock(EmojiKeyListener.EmojiCompatHandleKeyDownHelper.class);
         mEmojiKeyListener = new EmojiKeyListener(mKeyListener, mEmojiCompatKeydownHelper);
-
+        mKeyEvent = mock(KeyEvent.class);
         when(mKeyListener.onKeyDown(any(View.class), any(Editable.class), anyInt(),
                 any(KeyEvent.class))).thenReturn(false);
     }
@@ -71,19 +66,17 @@ public class EmojiKeyListenerTest {
     @Test
     public void whenEmojiCompat_handlesKeyDown_doesntCallKeyListener() {
         Selection.setSelection(mEditable, 0);
-        final KeyEvent event = KeyboardUtil.zero();
         when(mEmojiCompatKeydownHelper.handleKeyDown(any(), anyInt(), any())).thenReturn(true);
-        assertTrue(mEmojiKeyListener.onKeyDown(null, mEditable, event.getKeyCode(), event));
+        assertTrue(mEmojiKeyListener.onKeyDown(null, mEditable, KeyEvent.KEYCODE_0, mKeyEvent));
         verifyNoMoreInteractions(mKeyListener);
     }
 
     @Test
     public void whenEmojiCompatDoesnt_handleKeyDown_callsListener() {
         Selection.setSelection(mEditable, 0);
-        final KeyEvent event = KeyboardUtil.zero();
         when(mEmojiCompatKeydownHelper.handleKeyDown(any(), anyInt(), any())).thenReturn(false);
-        assertFalse(mEmojiKeyListener.onKeyDown(null, mEditable, event.getKeyCode(), event));
-        verify(mKeyListener, times(1)).onKeyDown((View) eq(null), same(mEditable),
-                eq(event.getKeyCode()), same(event));
+        assertFalse(mEmojiKeyListener.onKeyDown(null, mEditable, KeyEvent.KEYCODE_0, mKeyEvent));
+        verify(mKeyListener, times(1)).onKeyDown(eq(null), same(mEditable),
+                eq(KeyEvent.KEYCODE_0), same(mKeyEvent));
     }
 }
