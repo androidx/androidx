@@ -50,7 +50,7 @@ internal fun TypeMirror.safeTypeName(): TypeName = if (kind == TypeKind.NONE) {
  * see [TypeSpec.Builder.addOriginatingElement].
  */
 fun TypeSpec.Builder.addOriginatingElement(element: XElement): TypeSpec.Builder {
-    element.originatingElement()?.let(this::addOriginatingElement)
+    element.originatingElementForPoet()?.let(this::addOriginatingElement)
     return this
 }
 

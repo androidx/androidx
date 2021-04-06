@@ -50,7 +50,7 @@ class OriginatingElementsTest {
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
 
-            val originatingElement = element.originatingElement()
+            val originatingElement = element.originatingElementForPoet()
             assertThat(originatingElement).isNotNull()
 
             if (it.isKsp) {
@@ -100,7 +100,7 @@ class OriginatingElementsTest {
             assertThat(javaPoetTypeSpec.originatingElements).apply {
                 hasSize(1)
                 containsExactlyElementsIn(kotlinPoetTypeSpec.originatingElements)
-                containsExactly(xTypeElement.originatingElement())
+                containsExactly(xTypeElement.originatingElementForPoet())
             }
         }
     }

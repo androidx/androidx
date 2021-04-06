@@ -25,6 +25,6 @@ import com.squareup.kotlinpoet.OriginatingElementsHolder
 fun <T : OriginatingElementsHolder.Builder<T>> T.addOriginatingElement(
     element: XElement
 ): T {
-    element.originatingElement()?.let(this::addOriginatingElement)
+    element.originatingElementForPoet()?.let(this::addOriginatingElement)
     return this
 }
