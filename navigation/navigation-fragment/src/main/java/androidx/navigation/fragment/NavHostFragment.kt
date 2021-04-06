@@ -16,9 +16,9 @@
 package androidx.navigation.fragment
 
 import android.content.Context
-import android.view.LayoutInflater
 import android.os.Bundle
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedDispatcherOwner
@@ -35,7 +35,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.Navigation
 import androidx.navigation.Navigator
 import androidx.navigation.plusAssign
-import androidx.navigation.get
 
 /**
  * NavHostFragment provides an area within your layout for self-contained navigation to occur.
@@ -210,15 +209,6 @@ public open class NavHostFragment : Fragment(), NavHost {
         navController.navigatorProvider +=
             DialogFragmentNavigator(requireContext(), childFragmentManager)
         navController.navigatorProvider.addNavigator(createFragmentNavigator())
-    }
-
-    // TODO: DialogFragmentNavigator should use FragmentOnAttachListener from Fragment 1.3
-    @Suppress("DEPRECATION")
-    public override fun onAttachFragment(childFragment: Fragment) {
-        super.onAttachFragment(childFragment)
-        val dialogFragmentNavigator =
-            navHostController!!.navigatorProvider[DialogFragmentNavigator::class]
-        dialogFragmentNavigator.onAttachFragment(childFragment)
     }
 
     @CallSuper
