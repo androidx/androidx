@@ -288,9 +288,13 @@ public class NavInflater(
             builder.setLaunchSingleTop(
                 array.getBoolean(R.styleable.NavAction_launchSingleTop, false)
             )
+            builder.setRestoreState(
+                array.getBoolean(R.styleable.NavAction_restoreState, false)
+            )
             builder.setPopUpTo(
                 array.getResourceId(R.styleable.NavAction_popUpTo, -1),
-                array.getBoolean(R.styleable.NavAction_popUpToInclusive, false)
+                array.getBoolean(R.styleable.NavAction_popUpToInclusive, false),
+                array.getBoolean(R.styleable.NavAction_popUpToSaveState, false)
             )
             builder.setEnterAnim(array.getResourceId(R.styleable.NavAction_enterAnim, -1))
             builder.setExitAnim(array.getResourceId(R.styleable.NavAction_exitAnim, -1))
