@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -67,9 +68,10 @@ abstract class BaseEntityParserTest {
             classpath = classpathFiles
         ) { invocation ->
             val entity = invocation.roundEnv
-                .getTypeElementsAnnotatedWith(
+                .getElementsAnnotatedWith(
                     androidx.room.Entity::class.qualifiedName!!
-                ).first {
+                ).filterIsInstance<XTypeElement>()
+                .first {
                     it.qualifiedName == "foo.bar.MyEntity"
                 }
             val parser = TableEntityProcessor(

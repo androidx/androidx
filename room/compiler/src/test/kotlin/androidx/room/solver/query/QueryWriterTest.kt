@@ -18,6 +18,7 @@ package androidx.room.solver.query
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.processor.QueryMethodProcessor
@@ -354,7 +355,8 @@ class QueryWriterTest {
                     .forAnnotations(Query::class, Dao::class)
                     .nextRunHandler { invocation ->
                         val (owner, methods) = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                            .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                            .filterIsInstance<XTypeElement>()
                             .map {
                                 Pair(
                                     it,

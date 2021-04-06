@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -517,7 +518,8 @@ class ProjectionExpanderTest {
             sources = ENTITIES
         ) { invocation ->
             val entities = invocation.roundEnv
-                .getTypeElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
+                .getElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
                 .map { element ->
                     TableEntityProcessor(
                         invocation.context,
@@ -617,7 +619,8 @@ class ProjectionExpanderTest {
             sources = all
         ) { invocation ->
             val entities = invocation.roundEnv
-                .getTypeElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
+                .getElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
                 .map { element ->
                     TableEntityProcessor(
                         invocation.context,

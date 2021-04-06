@@ -20,6 +20,7 @@ import COMMON
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
@@ -863,7 +864,8 @@ class InsertionMethodProcessorTest {
                     .forAnnotations(Insert::class, Dao::class)
                     .nextRunHandler { invocation ->
                         val (owner, methods) = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                            .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                            .filterIsInstance<XTypeElement>()
                             .map {
                                 Pair(
                                     it,

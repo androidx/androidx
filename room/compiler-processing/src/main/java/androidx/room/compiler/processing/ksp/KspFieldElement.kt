@@ -69,4 +69,17 @@ internal class KspFieldElement(
         declaration = declaration,
         containing = newContaining
     )
+
+    companion object {
+        fun create(
+            env: KspProcessingEnv,
+            declaration: KSPropertyDeclaration
+        ): KspFieldElement {
+            return KspFieldElement(
+                env = env,
+                declaration = declaration,
+                containing = declaration.requireEnclosingTypeElement(env)
+            )
+        }
+    }
 }
