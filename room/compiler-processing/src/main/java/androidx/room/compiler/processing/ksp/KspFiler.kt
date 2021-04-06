@@ -32,7 +32,7 @@ internal class KspFiler(
     private val delegate: CodeGenerator,
     private val messager: XMessager,
 ) : XFiler {
-    override fun write(javaFile: JavaFile, aggregating: Boolean) {
+    override fun write(javaFile: JavaFile, mode: XFiler.Mode) {
         val originatingFiles = javaFile.typeSpec.originatingElements
             .map(::originatingFileFor)
 
@@ -41,7 +41,7 @@ internal class KspFiler(
             packageName = javaFile.packageName,
             fileName = javaFile.typeSpec.name,
             extensionName = "java",
-            aggregating = aggregating
+            aggregating = mode == XFiler.Mode.Aggregating
         ).use { outputStream ->
             outputStream.bufferedWriter(Charsets.UTF_8).use {
                 javaFile.writeTo(it)
@@ -49,7 +49,7 @@ internal class KspFiler(
         }
     }
 
-    override fun write(fileSpec: FileSpec, aggregating: Boolean) {
+    override fun write(fileSpec: FileSpec, mode: XFiler.Mode) {
         val originatingFiles = fileSpec.members
             .filterIsInstance<TypeSpec>()
             .flatMap { it.originatingElements }
@@ -60,7 +60,7 @@ internal class KspFiler(
             packageName = fileSpec.packageName,
             fileName = fileSpec.name,
             extensionName = "kt",
-            aggregating = aggregating
+            aggregating = mode == XFiler.Mode.Aggregating
         ).use { outputStream ->
             outputStream.bufferedWriter(Charsets.UTF_8).use {
                 fileSpec.writeTo(it)

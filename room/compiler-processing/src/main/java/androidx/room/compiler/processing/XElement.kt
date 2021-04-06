@@ -92,6 +92,6 @@ internal fun XElement.originatingElementForPoet(): Element? {
     return when (this) {
         is JavacElement -> element
         is KspElement -> containingFileAsOriginatingElement()
-        else -> error("Originating element not implemented for ${this.javaClass}")
+        else -> error("Originating element is not implemented for ${this.javaClass}")
     }
 }
