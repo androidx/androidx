@@ -18,13 +18,13 @@ package androidx.ads.identifier.benchmark;
 
 import android.app.Application;
 
-import androidx.ads.identifier.provider.AdvertisingIdProviderManager;
-
+@SuppressWarnings("deprecation")
 public class AdsIdentifierBenchmarkApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
 
-        AdvertisingIdProviderManager.registerProviderCallable(SampleAdvertisingIdProvider::new);
+        androidx.ads.identifier.provider.AdvertisingIdProviderManager.registerProviderCallable(
+                SampleAdvertisingIdProvider::new);
     }
 }
