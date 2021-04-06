@@ -41,6 +41,7 @@ dependencies {
     docs(project(":camera:camera-view"))
     docs(project(":car:app:app"))
     docs(project(":car:app:app-activity"))
+    docs(project(":car:app:app-property"))
     docs(project(":car:app:app-testing"))
     docs(project(":cardview:cardview"))
     docs(project(":collection:collection"))
