@@ -188,11 +188,10 @@ internal class JavacProcessingEnv(
         } as T
     }
 
-    internal inline fun wrapElement(
+    internal fun wrapAnnotatedElement(
         element: Element,
-        annotationName: () -> String
+        annotationName: String
     ): XElement {
-
         return when (element) {
             is VariableElement -> {
                 wrapVariableElement(element)
@@ -205,11 +204,11 @@ internal class JavacProcessingEnv(
             }
             is PackageElement -> {
                 error(
-                    "Cannot get elements with annotation ${annotationName()}. Package " +
+                    "Cannot get elements with annotation ${annotationName}. Package " +
                         "elements are not supported by XProcessing."
                 )
             }
-            else -> error("Unsupported element $element with annotation ${annotationName()}")
+            else -> error("Unsupported element $element with annotation $annotationName")
         }
     }
 

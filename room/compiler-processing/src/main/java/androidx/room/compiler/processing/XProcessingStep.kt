@@ -88,7 +88,7 @@ internal class JavacProcessingStepDelegate(
         val xEnv = JavacProcessingEnv(env)
         annotations().forEach { annotation ->
             val elements = elementsByAnnotation[annotation].mapNotNull { element ->
-                xEnv.wrapElement(element, annotationName = { annotation })
+                xEnv.wrapAnnotatedElement(element, annotation)
             }.toSet()
             converted[annotation] = elements
         }
