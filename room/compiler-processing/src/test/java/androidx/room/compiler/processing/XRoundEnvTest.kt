@@ -37,7 +37,6 @@ class XRoundEnvTest {
             class Baz {
                 @OtherAnnotation(value="xx")
                 var myProperty: Int = 0
-                
                 @OtherAnnotation(value="xx")
                 fun myFunction() { }
             }
@@ -82,10 +81,8 @@ class XRoundEnvTest {
             class Baz {
                 @get:OtherAnnotation(value="xx")
                 var myProperty1: Int = 0
-
                 @set:OtherAnnotation(value="xx")
                 var myProperty2: Int = 0
-                
                 @field:OtherAnnotation(value="xx")
                 var myProperty3: Int = 0
             }
@@ -135,7 +132,6 @@ class XRoundEnvTest {
             "Baz.kt",
             """
             import androidx.room.compiler.processing.XRoundEnvTest.TopLevelAnnotation
-            
             @TopLevelAnnotation
             fun myFun(): Int = 0
             """.trimIndent()
@@ -184,10 +180,8 @@ class XRoundEnvTest {
             "Baz.kt",
             """
             import androidx.room.compiler.processing.XRoundEnvTest.TopLevelAnnotation
-            
             @get:TopLevelAnnotation
             var myProperty: Int = 0
-
             """.trimIndent()
         )
 
