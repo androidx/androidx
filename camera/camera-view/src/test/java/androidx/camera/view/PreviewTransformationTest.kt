@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package androidx.camera.view
 
 import android.graphics.Rect
+import android.os.Build
 import android.util.LayoutDirection
 import android.util.Size
 import android.view.Surface
@@ -24,50 +25,53 @@ import android.view.View
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue
 import androidx.camera.view.TransformUtils.sizeToVertices
+import androidx.camera.view.internal.compat.quirk.PreviewOneThirdWiderQuirk
+import androidx.camera.view.internal.compat.quirk.QuirkInjector
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.internal.DoNotInstrument
 import kotlin.math.roundToInt
+
+// Size of the PreviewView. Aspect ratio 2:1.
+private val PREVIEW_VIEW_SIZE = Size(400, 200)
+private val PIVOTED_PREVIEW_VIEW_SIZE = Size(PREVIEW_VIEW_SIZE.height, PREVIEW_VIEW_SIZE.width)
+
+// Size of the Surface. Aspect ratio 3:2.
+private val SURFACE_SIZE = Size(60, 40)
+
+// 2:1 crop rect.
+private val CROP_RECT = Rect(20, 0, 40, 40)
+
+private val FULL_CROP_RECT = Rect(0, 0, 60, 40)
+
+// Off-center crop rect with 0 rotation.
+private val CROP_RECT_0 = Rect(0, 15, 20, 25)
+
+// Off-center crop rect with 90 rotation.
+private val CROP_RECT_90 = Rect(10, 0, 50, 20)
+
+// 1:1 crop rect.
+private val FIT_SURFACE_SIZE = Size(60, 60)
+private val MISMATCHED_CROP_RECT = Rect(0, 0, 60, 60)
+private const val FLOAT_ERROR = 1e-3f
+
+private const val FRONT_CAMERA = true
+private const val BACK_CAMERA = false
+
+private const val ARBITRARY_ROTATION = Surface.ROTATION_0
 
 /**
  * Instrument tests for [PreviewTransformation].
  */
-@SmallTest
-@RunWith(AndroidJUnit4::class)
-public class PreviewTransformationDeviceTest {
-
-    public companion object {
-        // Size of the PreviewView. Aspect ratio 2:1.
-        private val PREVIEW_VIEW_SIZE = Size(400, 200)
-        private val PIVOTED_PREVIEW_VIEW_SIZE =
-            Size(PREVIEW_VIEW_SIZE.height, PREVIEW_VIEW_SIZE.width)
-
-        // Size of the Surface. Aspect ratio 3:2.
-        private val SURFACE_SIZE = Size(60, 40)
-
-        // 2:1 crop rect.
-        private val CROP_RECT = Rect(20, 0, 40, 40)
-
-        // Off-center crop rect with 0 rotation.
-        private val CROP_RECT_0 = Rect(0, 15, 20, 25)
-
-        // Off-center crop rect with 90 rotation.
-        private val CROP_RECT_90 = Rect(10, 0, 50, 20)
-
-        // 1:1 crop rect.
-        private val FIT_SURFACE_SIZE = Size(60, 60)
-        private val MISMATCHED_CROP_RECT = Rect(0, 0, 60, 60)
-        private const val FLOAT_ERROR = 1e-3f
-
-        private const val FRONT_CAMERA = true
-        private const val BACK_CAMERA = false
-
-        private const val ARBITRARY_ROTATION = Surface.ROTATION_0
-    }
+@RunWith(RobolectricTestRunner::class)
+@DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+public class PreviewTransformationTest {
 
     private lateinit var mPreviewTransform: PreviewTransformation
     private lateinit var mView: View
@@ -76,6 +80,23 @@ public class PreviewTransformationDeviceTest {
     public fun setUp() {
         mPreviewTransform = PreviewTransformation()
         mView = View(ApplicationProvider.getApplicationContext())
+    }
+
+    @Test
+    public fun withPreviewStretchedQuirk_cropRectIsAdjusted() {
+        // Arrange.
+        QuirkInjector.inject(PreviewOneThirdWiderQuirk())
+
+        // Act.
+        mPreviewTransform.setTransformationInfo(
+            SurfaceRequest.TransformationInfo.of(FULL_CROP_RECT, 0, 0),
+            Size(FULL_CROP_RECT.width(), FULL_CROP_RECT.height()),
+            /*isFrontCamera=*/false
+        )
+
+        // Assert: the crop rect is corrected.
+        assertThat(mPreviewTransform.surfaceCropRect).isEqualTo(Rect(8, 0, 53, 40))
+        QuirkInjector.clear()
     }
 
     @Test
