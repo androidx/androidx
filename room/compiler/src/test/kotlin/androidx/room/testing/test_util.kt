@@ -37,16 +37,12 @@ import androidx.room.processor.DatabaseViewProcessor
 import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.testing.TestInvocation
-import androidx.room.testing.TestProcessor
 import androidx.room.testing.context
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.writer.ClassWriter
 import com.google.common.io.Files
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
-import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ClassName
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
@@ -228,31 +224,6 @@ object COMMON {
 
 fun testCodeGenScope(): CodeGenScope {
     return CodeGenScope(mock(ClassWriter::class.java))
-}
-
-fun simpleRun(
-    vararg jfos: JavaFileObject,
-    classpathFiles: Set<File> = emptySet(),
-    options: List<String> = emptyList(),
-    f: (TestInvocation) -> Unit
-): CompileTester {
-    return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-        .that(jfos.toList() + JavaFileObjects.forSourceLines("NoOp", "final class NoOp {}"))
-        .apply {
-            if (classpathFiles.isNotEmpty()) {
-                withClasspath(classpathFiles)
-            }
-        }
-        .withCompilerOptions(options)
-        .processedWith(
-            TestProcessor.builder()
-                .nextRunHandler {
-                    f(it)
-                    true
-                }
-                .forAnnotations("*")
-                .build()
-        )
 }
 
 fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
