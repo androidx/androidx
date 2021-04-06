@@ -201,7 +201,7 @@ class ResourceInspectionProcessorTest {
                     "androidx.pkg", "testBoolean", "testByte", "testCharacter", "testDouble",
                     "testFloat", "testInt", "testLong", "testShort", "testString",
                     "colorInt", "colorLong", "colorObject", "layoutResourceId", "anyResourceId",
-                    "gravityInt"
+                    "gravityInt", "intArray"
                 ),
                 java(
                     "androidx.pkg.SimpleTypesTestView",
@@ -306,6 +306,12 @@ class ResourceInspectionProcessorTest {
                             public int getGravityInt() {
                                 return 14;
                             }
+
+                            @NonNull
+                            @Attribute("androidx.pkg:intArray")
+                            public int[] getIntArray() {
+                                return new int[15];
+                            }
                         }
                     """
                 )
@@ -336,6 +342,7 @@ class ResourceInspectionProcessorTest {
                             private int mColorLongId;
                             private int mColorObjectId;
                             private int mGravityIntId;
+                            private int mIntArrayId;
                             private int mLayoutResourceIdId;
                             private int mTestBooleanId;
                             private int mTestByteId;
@@ -359,6 +366,8 @@ class ResourceInspectionProcessorTest {
                                     .mapColor("colorObject", R.attr.colorObject);
                                 mGravityIntId = propertyMapper
                                     .mapGravity("gravityInt", R.attr.gravityInt)
+                                mIntArrayId = propertyMapper
+                                    .mapObject("intArray", R.attr.intArray)
                                 mLayoutResourceIdId = propertyMapper
                                     .mapResourceId("layoutResourceId", R.attr.layoutResourceId);
                                 mTestBooleanId = propertyMapper
@@ -404,6 +413,9 @@ class ResourceInspectionProcessorTest {
                                 propertyReader.readGravity(
                                     mGravityIntId,
                                     simpleTypesTestView.getGravityInt());
+                                propertyReader.readObject(
+                                    mIntArrayId,
+                                    simpleTypesTestView.getIntArray());
                                 propertyReader.readResourceId(
                                     mLayoutResourceIdId,
                                     simpleTypesTestView.getLayoutResourceId());
