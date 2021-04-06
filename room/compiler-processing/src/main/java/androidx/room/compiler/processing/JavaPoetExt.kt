@@ -51,8 +51,9 @@ internal fun TypeMirror.safeTypeName(): TypeName = if (kind == TypeKind.NONE) {
  * Adds the given element as the originating element for compilation.
  * see [TypeSpec.Builder.addOriginatingElement].
  */
-fun TypeSpec.Builder.addOriginatingElement(element: XElement) {
+fun TypeSpec.Builder.addOriginatingElement(element: XElement): TypeSpec.Builder {
     element.originatingElement()?.let(this::addOriginatingElement)
+    return this
 }
 
 internal fun TypeName.rawTypeName(): TypeName {
