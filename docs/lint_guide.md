@@ -5,9 +5,14 @@
 ## Getting started
 
 Lint is a static analysis tool that checks Android project source files. Lint
-checks come with Android Studio by default, but custom Lint checks can be added
+checks come with Android Studio by default, but custom lint checks can be added
 to specific library modules to help avoid potential bugs and encourage best code
 practices.
+
+This guide is targeted to developers who would like to quickly get started with
+adding lint checks in the AndroidX development workflow. For a complete guide to
+writing and running lint checks, see the official
+[Android lint documentation](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/docs/README.md.html).
 
 ### Create a module
 
