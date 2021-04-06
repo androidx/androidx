@@ -33,8 +33,9 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.editor.EditorService
-import androidx.wear.watchface.runOnHandlerWithTracing
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.FileDescriptor
 import java.io.PrintWriter
 
@@ -111,13 +112,19 @@ private class IWatchFaceInstanceServiceStub(
 
     override fun createHeadlessWatchFaceInstance(
         params: HeadlessWatchFaceInstanceParams
-    ): IHeadlessWatchFace? = uiThreadHandler.runOnHandlerWithTracing(
+    ): IHeadlessWatchFace? = TraceEvent(
         "IWatchFaceInstanceServiceStub.createHeadlessWatchFaceInstance"
-    ) {
+    ).use {
         val engine = createHeadlessEngine(params.watchFaceName, context)
         engine?.let {
             // This is serviced on a background thread so it should be fine to block.
-            runBlocking { it.createHeadlessInstance(params) }
+            runBlocking {
+                // However the WatchFaceService.createWatchFace method needs to be run on a UI
+                // thread.
+                withContext(uiThreadHandler.asCoroutineDispatcher().immediate) {
+                    it.createHeadlessInstance(params)
+                }
+            }
         }
     }
 
