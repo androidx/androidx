@@ -74,7 +74,7 @@ public final class SidecarCompatUnitTest {
 
         SidecarInterface mockSidecarInterface = mock(SidecarInterface.class);
         when(mockSidecarInterface.getDeviceState()).thenReturn(
-                newDeviceState(DeviceState.POSTURE_FLIPPED));
+                newDeviceState(SidecarDeviceState.POSTURE_FLIPPED));
         when(mockSidecarInterface.getWindowLayoutInfo(any())).thenReturn(
                 newWindowLayoutInfo(new ArrayList<>()));
         mSidecarCompat = new SidecarCompat(mockSidecarInterface, new SidecarAdapter());

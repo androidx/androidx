@@ -1,16 +1,6 @@
 // Signature format: 4.0
 package androidx.window.extensions {
 
-  public class ExtensionDeviceState {
-    ctor public ExtensionDeviceState(int);
-    method public int getPosture();
-    field public static final int POSTURE_CLOSED = 1; // 0x1
-    field public static final int POSTURE_FLIPPED = 4; // 0x4
-    field public static final int POSTURE_HALF_OPENED = 2; // 0x2
-    field public static final int POSTURE_OPENED = 3; // 0x3
-    field public static final int POSTURE_UNKNOWN = 0; // 0x0
-  }
-
   public interface ExtensionDisplayFeature {
     method public android.graphics.Rect getBounds();
   }
