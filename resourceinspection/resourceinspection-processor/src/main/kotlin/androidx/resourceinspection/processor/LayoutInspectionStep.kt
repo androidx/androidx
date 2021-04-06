@@ -188,7 +188,7 @@ internal class LayoutInspectionStep(
                 } else {
                     AttributeTypeIR.LONG
                 }
-            TypeKind.DECLARED ->
+            TypeKind.DECLARED, TypeKind.ARRAY ->
                 if (getter.returnType.isAssignableTo("android.graphics.Color")) {
                     AttributeTypeIR.COLOR
                 } else {
