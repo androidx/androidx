@@ -243,6 +243,7 @@ includeProject(":compose:androidview:androidview", "compose/androidview/androidv
 includeProject(":compose:androidview:androidview:integration-tests:androidview-demos", "compose/androidview/androidview/integration-tests/androidview-demos", [BuildType.COMPOSE])
 includeProject(":compose:animation", "compose/animation", [BuildType.COMPOSE])
 includeProject(":compose:animation:animation", "compose/animation/animation", [BuildType.COMPOSE])
+includeProject(":compose:animation:animation-lint", "compose/animation/animation-lint", [BuildType.COMPOSE])
 includeProject(":compose:animation:animation-core", "compose/animation/animation-core", [BuildType.COMPOSE])
 includeProject(":compose:animation:animation-core-lint", "compose/animation/animation-core-lint", [BuildType.COMPOSE])
 includeProject(":compose:animation:animation-core:animation-core-benchmark", "compose/animation/animation-core/benchmark", [BuildType.COMPOSE])
