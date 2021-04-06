@@ -18,11 +18,9 @@ package androidx.car.app.sample.showcase.common.textandicons;
 
 import static androidx.car.app.model.Action.BACK;
 
-import android.content.Intent;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.CarIcon;
@@ -33,13 +31,8 @@ import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.core.graphics.drawable.IconCompat;
 
-import java.io.IOException;
-
 /** Creates a screen that demonstrate the image loading in the library using a content provider. */
 public final class ContentProviderIconsDemoScreen extends Screen {
-    private static final String ANDROID_AUTO_PACKAGE_NAME =
-            "com.google.android.projection.gearhead";
-    private static final String FILE_PROVIDER_AUTHORITY = "com.showcase.fileprovider";
 
     private static final int[] ICON_DRAWABLES = {
             R.drawable.arrow_right_turn, R.drawable.arrow_straight, R.drawable.ic_i5,
@@ -57,12 +50,12 @@ public final class ContentProviderIconsDemoScreen extends Screen {
 
         for (int i = 0; i < ICON_DRAWABLES.length; i++) {
             int resId = ICON_DRAWABLES[i];
+            Uri uri = DelayedFileProvider.getUriForResource(getCarContext(), resId);
             listBuilder.addItem(
                     new Row.Builder()
                             .setImage(
                                     new CarIcon.Builder(
-                                            IconCompat.createWithContentUri(
-                                                    customIconUri(resId)))
+                                            IconCompat.createWithContentUri(uri))
                                             .build())
                             .setTitle("Icon " + i)
                             .build());
@@ -73,26 +66,5 @@ public final class ContentProviderIconsDemoScreen extends Screen {
                 .setTitle("Content Provider Icons Demo")
                 .setHeaderAction(BACK)
                 .build();
-    }
-
-    @Nullable
-    @SuppressWarnings("CatchAndPrintStackTrace")
-    private Uri customIconUri(int resId) {
-        Uri uri = null;
-        try {
-            uri =
-                    DelayedFileProvider.getUriForResource(
-                            getCarContext(), FILE_PROVIDER_AUTHORITY, resId);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // FileProvider requires the app to grant temporary access to Android Auto for the file. A
-        // URI
-        // from a content provider may not need to do this if its contents are public.
-        getCarContext()
-                .grantUriPermission(
-                        ANDROID_AUTO_PACKAGE_NAME, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        return uri;
     }
 }
