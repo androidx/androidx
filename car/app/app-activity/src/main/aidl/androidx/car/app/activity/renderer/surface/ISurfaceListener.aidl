@@ -7,7 +7,7 @@ import androidx.car.app.serialization.Bundleable;
  *
  * @hide
  */
-interface ISurfaceListener {
+oneway interface ISurfaceListener {
   /**
    * Notifies that the surface has become available.
    *

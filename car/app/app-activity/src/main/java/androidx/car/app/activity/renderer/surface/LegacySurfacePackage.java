@@ -16,12 +16,9 @@
 
 package androidx.car.app.activity.renderer.surface;
 
-import static androidx.car.app.activity.LogTags.TAG;
-
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import androidx.annotation.Keep;
@@ -51,35 +48,30 @@ public final class LegacySurfacePackage {
      */
     @SuppressLint("ExecutorRegistration")
     public LegacySurfacePackage(@NonNull SurfaceControlCallback callback) {
+        requireNonNull(callback);
+
         mISurfaceControl = new ISurfaceControl.Stub() {
             final SurfaceControlCallback mCallback = callback;
 
             @Override
             public void setSurfaceWrapper(@NonNull Bundleable surfaceWrapper) {
                 requireNonNull(surfaceWrapper);
-                if (mCallback != null) {
-                    try {
-                        mCallback.setSurfaceWrapper((SurfaceWrapper) surfaceWrapper.get());
-                    } catch (BundlerException e) {
-                        //TODO(b/179930319): Surface error on the CarAppActivity
-                        Log.e(TAG, "Unable to deserialize surface wrapper", e);
-                    }
+                try {
+                    mCallback.setSurfaceWrapper((SurfaceWrapper) surfaceWrapper.get());
+                } catch (BundlerException e) {
+                    mCallback.onError("Unable to deserialize surface wrapper", e);
                 }
             }
 
             @Override
             public void onWindowFocusChanged(boolean hasFocus, boolean isInTouchMode) {
-                if (mCallback != null) {
-                    mCallback.onWindowFocusChanged(hasFocus, isInTouchMode);
-                }
+                mCallback.onWindowFocusChanged(hasFocus, isInTouchMode);
             }
 
             @Override
             public void onTouchEvent(@NonNull MotionEvent event) {
                 requireNonNull(event);
-                if (mCallback != null) {
-                    mCallback.onTouchEvent(event);
-                }
+                mCallback.onTouchEvent(event);
             }
         };
     }

@@ -27,7 +27,6 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -45,9 +44,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.activity.ErrorHandler;
+import androidx.car.app.activity.ServiceDispatcher;
 import androidx.car.app.activity.renderer.IProxyInputConnection;
 import androidx.car.app.serialization.Bundleable;
-import androidx.car.app.serialization.BundlerException;
 
 /**
  * A surface view suitable for template rendering.
@@ -67,6 +67,11 @@ public final class TemplateSurfaceView extends SurfaceView {
     ISurfaceControl mSurfaceControl;
     private boolean mIsInInputMode;
 
+    // Package public to avoid synthetic accessor
+    @Nullable
+    ServiceDispatcher mServiceDispatcher;
+    @Nullable
+    private ErrorHandler mErrorHandler;
     private final InputMethodManager mInputMethodManager =
             (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
     private final SurfaceWrapperProvider mSurfaceWrapperProvider =
@@ -75,18 +80,32 @@ public final class TemplateSurfaceView extends SurfaceView {
             new ViewTreeObserver.OnTouchModeChangeListener() {
                 @Override
                 public void onTouchModeChanged(boolean isInTouchMode) {
-                    try {
-                        if (mSurfaceControl != null) {
-                            mSurfaceControl.onWindowFocusChanged(hasFocus(), isInTouchMode);
-                        }
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "Remote connection lost", e);
+                    requireNonNull(mServiceDispatcher);
+
+                    ISurfaceControl surfaceControl = mSurfaceControl;
+                    if (surfaceControl != null) {
+                        mServiceDispatcher.dispatch(() ->
+                                surfaceControl.onWindowFocusChanged(hasFocus(), isInTouchMode));
                     }
                 }
             };
 
     public TemplateSurfaceView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs, 0);
+    }
+
+    /**
+     * Sets the {@link ServiceDispatcher} to be used to communicate with the host.
+     */
+    public void setServiceDispatcher(@NonNull ServiceDispatcher serviceDispatcher) {
+        mServiceDispatcher = serviceDispatcher;
+    }
+
+    /**
+     * Sets the {@link ErrorHandler} to be used to handle errors.
+     */
+    public void setErrorHandler(@NonNull ErrorHandler errorHandler) {
+        mErrorHandler = errorHandler;
     }
 
     /**
@@ -115,12 +134,11 @@ public final class TemplateSurfaceView extends SurfaceView {
     protected void onFocusChanged(boolean gainFocus, int direction,
             @Nullable Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
-        try {
-            if (mSurfaceControl != null) {
-                mSurfaceControl.onWindowFocusChanged(gainFocus, isInTouchMode());
-            }
-        } catch (RemoteException e) {
-            Log.e(TAG, "Remote connection lost", e);
+        requireNonNull(mServiceDispatcher);
+        ISurfaceControl surfaceControl = mSurfaceControl;
+        if (surfaceControl != null) {
+            mServiceDispatcher.dispatch(() ->
+                    surfaceControl.onWindowFocusChanged(gainFocus, isInTouchMode()));
         }
     }
 
@@ -128,31 +146,32 @@ public final class TemplateSurfaceView extends SurfaceView {
     @Nullable
     public InputConnection onCreateInputConnection(@NonNull EditorInfo editorInfo) {
         requireNonNull(editorInfo);
+        requireNonNull(mServiceDispatcher);
 
         if (!mIsInInputMode || mOnCreateInputConnectionListener == null) {
             return null;
         }
 
-        try {
-            IProxyInputConnection proxyInputConnection =
-                    mOnCreateInputConnectionListener.onCreateInputConnection(editorInfo);
+        IProxyInputConnection proxyInputConnection =
+                mOnCreateInputConnectionListener.onCreateInputConnection(editorInfo);
 
-            // Clear the input and return null if inputConnectionListener is null or there is no
-            // open input connection on the host.
-            if (proxyInputConnection == null) {
-                Log.e(TAG,
-                        "InputConnectionListener has not been received yet. Canceling the input");
-                onStopInput();
-                return null;
-            }
-            copyEditorInfo(proxyInputConnection.getEditorInfo(), editorInfo);
-            return new RemoteProxyInputConnection(proxyInputConnection);
-
-        } catch (RemoteException e) {
-            Log.e(TAG, "Remote connection lost", e);
+        // Clear the input and return null if inputConnectionListener is null or there is no
+        // open input connection on the host.
+        if (proxyInputConnection == null) {
+            Log.e(TAG,
+                    "InputConnectionListener has not been received yet. Canceling the input");
+            onStopInput();
+            return null;
         }
 
-        return null;
+        EditorInfo hostEditorInfo =
+                mServiceDispatcher.fetch(null, proxyInputConnection::getEditorInfo);
+        if (hostEditorInfo == null) {
+            Log.e(TAG, "Unable to retrieve host EditorInfo");
+            return null;
+        }
+        copyEditorInfo(hostEditorInfo, editorInfo);
+        return new RemoteProxyInputConnection(mServiceDispatcher, proxyInputConnection);
     }
 
     private void copyEditorInfo(@NonNull EditorInfo from, @NonNull EditorInfo to) {
@@ -215,14 +234,8 @@ public final class TemplateSurfaceView extends SurfaceView {
      * Updates the surface package. The surface package can be either a
      * {@link android.view.SurfaceControlViewHost.SurfacePackage} or a {@link LegacySurfacePackage}.
      */
-    public void setSurfacePackage(@NonNull Bundleable bundle) {
-        Object surfacePackage;
-        try {
-            surfacePackage = bundle.get();
-        } catch (BundlerException e) {
-            Log.e(TAG, "Unable to deserialize surface package.");
-            return;
-        }
+    public void setSurfacePackage(@NonNull Object surfacePackage) {
+        requireNonNull(mErrorHandler);
 
         if (SUPPORTS_SURFACE_CONTROL && surfacePackage instanceof SurfacePackage) {
             Api30Impl.setSurfacePackage(this, (SurfacePackage) surfacePackage);
@@ -230,6 +243,9 @@ public final class TemplateSurfaceView extends SurfaceView {
             setSurfacePackage((LegacySurfacePackage) surfacePackage);
         } else {
             Log.e(TAG, "Unrecognized surface package");
+            mErrorHandler.onError(ErrorHandler.ErrorType.HOST_INCOMPATIBLE,
+                    new IllegalArgumentException("Unrecognized surface package: "
+                            + surfacePackage));
         }
     }
 
@@ -240,16 +256,12 @@ public final class TemplateSurfaceView extends SurfaceView {
      */
     @SuppressLint({"ClickableViewAccessibility"})
     private void setSurfacePackage(LegacySurfacePackage surfacePackage) {
+        requireNonNull(mServiceDispatcher);
+
         ISurfaceControl surfaceControl = surfacePackage.getSurfaceControl();
         SurfaceWrapper surfaceWrapper = mSurfaceWrapperProvider.createSurfaceWrapper();
-        try {
-            surfaceControl.setSurfaceWrapper(Bundleable.create(surfaceWrapper));
-        } catch (RemoteException e) {
-            Log.e(TAG, "Remote connection lost", e);
-            return;
-        } catch (BundlerException e) {
-            Log.e(TAG, "Unable to serialize surface wrapper", e);
-        }
+        mServiceDispatcher.dispatch(() ->
+                surfaceControl.setSurfaceWrapper(Bundleable.create(surfaceWrapper)));
         mSurfaceControl = surfaceControl;
         setOnTouchListener((view, event) -> handleTouchEvent(event));
     }
@@ -268,17 +280,15 @@ public final class TemplateSurfaceView extends SurfaceView {
 
     /** Passes the touch events to the host. */
     boolean handleTouchEvent(@NonNull MotionEvent event) {
+        requireNonNull(mServiceDispatcher);
+
         // Make a copy to avoid double recycling of the event.
         MotionEvent eventCopy = MotionEvent.obtain(requireNonNull(event));
-        try {
-            if (mSurfaceControl != null) {
-                mSurfaceControl.onTouchEvent(eventCopy);
-                return true;
-            }
-        } catch (RemoteException e) {
-            Log.e(TAG, "Remote connection lost", e);
+        ISurfaceControl surfaceControl = mSurfaceControl;
+        if (surfaceControl != null) {
+            mServiceDispatcher.dispatch(() -> surfaceControl.onTouchEvent(eventCopy));
+            return true;
         }
-
         return false;
     }
 

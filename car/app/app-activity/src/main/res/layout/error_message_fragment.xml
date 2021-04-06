@@ -39,6 +39,7 @@
                 android:id="@+id/message_icon"
                 android:layout_width="@dimen/car_app_message_icon_size"
                 android:layout_height="@dimen/car_app_message_icon_size"
+                android:src="@drawable/car_app_icon_error"
                 tools:ignore="ContentDescription" />
 
             <TextView

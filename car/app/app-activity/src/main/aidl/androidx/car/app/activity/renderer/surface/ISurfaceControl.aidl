@@ -8,7 +8,7 @@ import androidx.car.app.serialization.Bundleable;
  *
  * @hide
  */
-interface ISurfaceControl {
+oneway interface ISurfaceControl {
   /** Notifies that the underlying surface changed. */
   void setSurfaceWrapper(in Bundleable surfaceWrapper) = 1;
 
