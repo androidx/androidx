@@ -22,7 +22,6 @@ import androidx.room.migration.bundle.FieldBundle
 import androidx.room.migration.bundle.ForeignKeyBundle
 import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.migration.bundle.IndexBundle
-import androidx.room.processor.ProcessorErrors.FTS_TABLE_NOT_CURRENTLY_SUPPORTED
 import androidx.room.processor.ProcessorErrors.deletedOrRenamedTableFound
 import androidx.room.processor.ProcessorErrors.tableRenameError
 import androidx.room.processor.ProcessorErrors.conflictingRenameColumnAnnotationsFound
@@ -67,7 +66,6 @@ data class SchemaDiffResult(
  * @param renameTableEntries List of repeatable annotations specifying table renames
  * @param deleteTableEntries List of repeatable annotations specifying table deletes
  */
-// TODO: (b/181777611) Handle FTS tables
 class SchemaDiffer(
     private val fromSchemaBundle: DatabaseBundle,
     private val toSchemaBundle: DatabaseBundle,
@@ -78,6 +76,9 @@ class SchemaDiffer(
     private val deleteTableEntries: List<AutoMigrationResult.DeletedTable>
 ) {
     private val potentiallyDeletedTables = mutableSetOf<String>()
+    // Maps FTS tables in the to version to the name of their content tables in the from version
+    // for easy lookup.
+    private val contentTableToFtsEntities = mutableMapOf<String, MutableList<EntityBundle>>()
 
     private val addedTables = mutableSetOf<AutoMigrationResult.AddedTable>()
     // Any table that has been renamed, but also does not contain any complex changes.
@@ -107,13 +108,18 @@ class SchemaDiffer(
         // deleted columns/tables
         fromSchemaBundle.entitiesByTableName.values.forEach { fromTable ->
             val toTable = detectTableLevelChanges(fromTable)
-            if (fromTable is FtsEntityBundle) {
-                diffError(FTS_TABLE_NOT_CURRENTLY_SUPPORTED)
-            }
 
             // Check for column related changes. Since we require toTable to not be null, any
             // deleted tables will be skipped here.
             if (toTable != null) {
+                if (fromTable is FtsEntityBundle &&
+                    fromTable.ftsOptions.contentTable.isNotEmpty()
+                ) {
+                    contentTableToFtsEntities.getOrElse(fromTable.ftsOptions.contentTable) {
+                        mutableListOf()
+                    }.add(fromTable)
+                }
+
                 val fromColumns = fromTable.fieldsByColumnName
                 val processedColumnsInNewVersion = fromColumns.values.mapNotNull { fromColumn ->
                     detectColumnLevelChanges(
@@ -141,8 +147,10 @@ class SchemaDiffer(
                 )
             )
         }
-
         processDeletedColumns()
+
+        processContentTables()
+
         return SchemaDiffResult(
             addedColumns = addedColumns,
             deletedColumns = deletedColumns,
@@ -151,6 +159,27 @@ class SchemaDiffer(
             complexChangedTables = complexChangedTables,
             deletedTables = deletedTables.toList()
         )
+    }
+
+    /**
+     * Checks if any content tables have been renamed, and if so, marks the FTS table referencing
+     * the content table as a complex changed table.
+     */
+    private fun processContentTables() {
+        renameTableEntries.forEach { renamedTable ->
+            contentTableToFtsEntities[renamedTable.originalTableName]?.filter {
+                !complexChangedTables.containsKey(it.tableName)
+            }?.forEach { ftsTable ->
+                complexChangedTables[ftsTable.tableName] =
+                    AutoMigrationResult.ComplexChangedTable(
+                        tableName = ftsTable.tableName,
+                        tableNameWithNewPrefix = ftsTable.newTableName,
+                        oldVersionEntityBundle = ftsTable,
+                        newVersionEntityBundle = ftsTable,
+                        renamedColumnsMap = mutableMapOf()
+                    )
+            }
+        }
     }
 
     /**
@@ -168,6 +197,7 @@ class SchemaDiffer(
         // Check if the table was renamed. If so, check for other complex changes that could
         // be found on the table level. Save the end result to the complex changed tables map.
         val renamedTable = isTableRenamed(fromTable.tableName)
+
         if (renamedTable != null) {
             val toTable = toSchemaBundle.entitiesByTableName[renamedTable.newTableName]
             if (toTable != null) {
@@ -175,7 +205,8 @@ class SchemaDiffer(
                     fromTable,
                     toTable
                 )
-                if (isComplexChangedTable) {
+                val isFtsEntity = fromTable is FtsEntityBundle
+                if (isComplexChangedTable || isFtsEntity) {
                     if (toSchemaBundle.entitiesByTableName.containsKey(toTable.newTableName)) {
                         diffError(tableWithConflictingPrefixFound(toTable.newTableName))
                     }
@@ -233,6 +264,8 @@ class SchemaDiffer(
         if (!isDeletedTable) {
             potentiallyDeletedTables.add(fromTable.tableName)
         }
+
+        // Table was deleted.
         return null
     }
 
@@ -313,6 +346,8 @@ class SchemaDiffer(
                 )
             )
         }
+
+        // Column was deleted
         return null
     }
 
@@ -329,6 +364,20 @@ class SchemaDiffer(
         fromTable: EntityBundle,
         toTable: EntityBundle
     ): Boolean {
+        // If we have an FTS table, check if options have changed
+        if (fromTable is FtsEntityBundle &&
+            toTable is FtsEntityBundle &&
+            !fromTable.ftsOptions.isSchemaEqual(toTable.ftsOptions)
+        ) {
+            return true
+        }
+        // Check if the to table or the from table is an FTS table while the other is not.
+        if (fromTable is FtsEntityBundle && !(toTable is FtsEntityBundle) ||
+            toTable is FtsEntityBundle && !(fromTable is FtsEntityBundle)
+        ) {
+            return true
+        }
+
         if (!isForeignKeyBundlesListEqual(fromTable.foreignKeys, toTable.foreignKeys)) {
             return true
         }

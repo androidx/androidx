@@ -28,6 +28,9 @@ import androidx.room.DeleteColumn;
 import androidx.room.DeleteTable;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Fts3;
+import androidx.room.Fts4;
+import androidx.room.FtsOptions;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.Query;
@@ -59,7 +62,11 @@ import java.util.List;
                 AutoMigrationDb.Entity16.class,
                 AutoMigrationDb.Entity17.class,
                 AutoMigrationDb.Entity19_V2.class,
-                AutoMigrationDb.Entity20_V2.class
+                AutoMigrationDb.Entity20_V2.class,
+                AutoMigrationDb.Entity21.class,
+                AutoMigrationDb.Entity22.class,
+                AutoMigrationDb.Entity23.class,
+                AutoMigrationDb.Entity24.class
         },
         autoMigrations = {
                 @AutoMigration(
@@ -334,6 +341,58 @@ public abstract class AutoMigrationDb extends RoomDatabase {
         public String renamedInV2;
         @ColumnInfo(defaultValue = "2")
         public int addedInV2;
+    }
+
+    /**
+     * The content table of this FTS table has been renamed from Entity13 to Entity13_V2.
+     */
+    @Entity
+    @Fts4(contentEntity = Entity13_V2.class)
+    static class Entity21 {
+        public static final String TABLE_NAME = "Entity21";
+        @PrimaryKey
+        public int rowid;
+        public String name;
+        @ColumnInfo(defaultValue = "1")
+        public int addedInV1;
+    }
+
+    /**
+     * Change the options of the table from FTS3 to FTS4.
+     */
+    @Entity
+    @Fts4(matchInfo = FtsOptions.MatchInfo.FTS4)
+    static class Entity22 {
+        public static final String TABLE_NAME = "Entity22";
+        @PrimaryKey
+        public int rowid;
+        public String name;
+        @ColumnInfo(defaultValue = "1")
+        public int addedInV1;
+    }
+
+    @Entity
+    @Fts3
+    static class Entity23 {
+        public static final String TABLE_NAME = "Entity23";
+        @PrimaryKey
+        public int rowid;
+        public String name;
+        @ColumnInfo(defaultValue = "1")
+        public int addedInV1;
+        @ColumnInfo(defaultValue = "2")
+        public int addedInV2;
+    }
+
+    @Entity
+    @Fts3
+    static class Entity24 {
+        public static final String TABLE_NAME = "Entity24";
+        @PrimaryKey
+        public int rowid;
+        public String name;
+        @ColumnInfo(defaultValue = "1")
+        public int addedInV1;
     }
 
     @Dao
