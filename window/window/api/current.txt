@@ -1,21 +1,6 @@
 // Signature format: 4.0
 package androidx.window {
 
-  @Deprecated public final class DeviceState {
-    method @Deprecated public int getPosture();
-    field @Deprecated public static final int POSTURE_CLOSED = 1; // 0x1
-    field @Deprecated public static final int POSTURE_FLIPPED = 4; // 0x4
-    field @Deprecated public static final int POSTURE_HALF_OPENED = 2; // 0x2
-    field @Deprecated public static final int POSTURE_OPENED = 3; // 0x3
-    field @Deprecated public static final int POSTURE_UNKNOWN = 0; // 0x0
-  }
-
-  @Deprecated public static final class DeviceState.Builder {
-    ctor @Deprecated public DeviceState.Builder();
-    method @Deprecated public androidx.window.DeviceState build();
-    method @Deprecated public androidx.window.DeviceState.Builder setPosture(int);
-  }
-
   public interface DisplayFeature {
     method public android.graphics.Rect getBounds();
     method @Deprecated public int getType();

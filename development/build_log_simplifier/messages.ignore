@@ -284,6 +284,13 @@ w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthS
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'b'\. This may cause problems when calling this function with named arguments\.
 # > Task :benchmark:benchmark-common:runErrorProne
 \^
+symbol:   class ExtensionDeviceState
+location: package androidx\.window\.extensions
+DeviceState translate\(ExtensionDeviceState deviceState\) \{
+location: class ExtensionAdapter
+\$OUT_DIR/androidx/docs\-public/build/unzippedDocsSources/androidx/window/ExtensionTranslatingCallback\.java:[0-9]+: error: cannot find symbol
+public void onDeviceStateChanged\(@NonNull ExtensionDeviceState newDeviceState\) \{
+location: class ExtensionTranslatingCallback
 # > Task :buildOnServer
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache
@@ -613,3 +620,6 @@ Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/b
 \$OUT_DIR\/androidx\/compose\/animation\/animation\-core\/animation\-core\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :compose:ui:ui-graphics:ui-graphics-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR\/androidx\/compose\/ui\/ui\-graphics\/ui\-graphics\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
+# > Task :docs-public:doclavaDocs
+\$OUT_DIR/androidx/docs\-public/build/unzippedDocsSources/androidx/window/ExtensionAdapter\.java:[0-9]+: error: cannot find symbol
+import androidx\.window\.extensions\.ExtensionDeviceState;

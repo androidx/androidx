@@ -213,27 +213,19 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
     }
 
     @Test
-    @Override
-    public void testTranslateDeviceState() {
-        SidecarAdapter sidecarCallbackAdapter = new SidecarAdapter();
-        List<DeviceState> values = new ArrayList<>();
+    public void testTranslateWindowLayoutInfo_filterRemovesInvalidPostureFeature() {
+        List<SidecarDisplayFeature> sidecarDisplayFeatures = new ArrayList<>();
+        Rect bounds = new Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0);
+        SidecarDisplayFeature unknownFeature = sidecarDisplayFeature(bounds, -1000 /* invalid */);
+        sidecarDisplayFeatures.add(unknownFeature);
 
-        values.add(sidecarCallbackAdapter.translate(sidecarDeviceState(
-                SidecarDeviceState.POSTURE_UNKNOWN)));
-        values.add(sidecarCallbackAdapter.translate(sidecarDeviceState(
-                SidecarDeviceState.POSTURE_CLOSED)));
-        values.add(sidecarCallbackAdapter.translate(sidecarDeviceState(
-                SidecarDeviceState.POSTURE_HALF_OPENED)));
-        values.add(sidecarCallbackAdapter.translate(sidecarDeviceState(
-                SidecarDeviceState.POSTURE_OPENED)));
-        values.add(sidecarCallbackAdapter.translate(sidecarDeviceState(
-                SidecarDeviceState.POSTURE_FLIPPED)));
+        SidecarAdapter sidecarAdapter = new SidecarAdapter();
+        SidecarWindowLayoutInfo windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures);
+        Activity mockActivity = mock(Activity.class);
+        SidecarDeviceState state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED);
 
-        assertEquals(DeviceState.POSTURE_UNKNOWN, values.get(0).getPosture());
-        assertEquals(DeviceState.POSTURE_CLOSED, values.get(1).getPosture());
-        assertEquals(DeviceState.POSTURE_HALF_OPENED, values.get(2).getPosture());
-        assertEquals(DeviceState.POSTURE_OPENED, values.get(3).getPosture());
-        assertEquals(DeviceState.POSTURE_FLIPPED, values.get(4).getPosture());
-        assertEquals(5, values.size());
+        WindowLayoutInfo actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo, state);
+
+        assertTrue(actual.getDisplayFeatures().isEmpty());
     }
 }

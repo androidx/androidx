@@ -357,9 +357,9 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
 
     /**
      * A class to record the last calculated values from {@link SidecarInterface} and filter out
-     * duplicates. This class uses {@link WindowLayoutInfo} and {@link DeviceState} as opposed to
-     * {@link SidecarDeviceState} and {@link SidecarDisplayFeature} since the methods
-     * {@link Object#equals(Object)} and {@link Object#hashCode()} may not have been overridden.
+     * duplicates. This class uses {@link WindowLayoutInfo} as opposed to
+     * {@link SidecarDisplayFeature} since the methods {@link Object#equals(Object)} and
+     * {@link Object#hashCode()} may not have been overridden.
      */
     private static final class DistinctElementCallback
             implements ExtensionCallbackInterface {

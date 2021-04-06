@@ -55,7 +55,6 @@ interface ExtensionInterfaceCompat {
      * should use to report all state changes.
      */
     interface ExtensionCallbackInterface {
-
         /**
          * Called by extension when the feature layout inside the window changes.
          */
