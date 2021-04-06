@@ -17,20 +17,26 @@
 package androidx.room.ext
 
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
-import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import simpleRun
 
+/**
+ * TODO: Make this run with pre-compiled sources as well.
+ * https://github.com/google/ksp/issues/231
+ * b/184588339
+ */
 @RunWith(JUnit4::class)
 class ElementExtTest {
     @Test
     fun methodsInClass() {
-        val parentCode = JavaFileObjects.forSourceLines(
+        val parentCode = Source.java(
             "foo.bar.Parent",
             """
             package foo.bar;
@@ -45,7 +51,7 @@ class ElementExtTest {
             }
             """.trimIndent()
         )
-        val childCode = JavaFileObjects.forSourceLines(
+        val childCode = Source.java(
             "foo.bar.Child",
             """
             package foo.bar;
@@ -60,16 +66,13 @@ class ElementExtTest {
             }
             """.trimIndent()
         )
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(
-            jfos = arrayOf(parentCode, childCode)
+
+        runProcessorTest(
+            sources = listOf(parentCode, childCode)
         ) {
             val parent = it.processingEnv.requireTypeElement("foo.bar.Parent")
             val child = it.processingEnv.requireTypeElement("foo.bar.Child")
-            val objectMethods = it.processingEnv.requireTypeElement("java.lang.Object")
-                .getAllMethods().map {
-                    it.name
-                } - "registerNatives"
+            val objectMethodNames = it.objectMethodNames()
             val parentMethods = listOf(
                 "parentPrivate", "parentPublic", "parentStaticPrivate",
                 "parentStaticPublic", "overridden"
@@ -78,28 +81,30 @@ class ElementExtTest {
                 "childPrivate", "childPublic", "childStaticPrivate",
                 "childStaticPublic", "overridden"
             )
-            assertThat(parent.getDeclaredMethods()).containsExactlyElementsIn(parentMethods)
-            assertThat(parent.getAllMethods())
-                .containsExactlyElementsIn(parentMethods + objectMethods)
-            assertThat(parent.getAllNonPrivateInstanceMethods())
+            assertThat(parent.getDeclaredMethods().names())
+                .containsExactlyElementsIn(parentMethods)
+            assertThat(parent.getAllMethods().names())
+                .containsExactlyElementsIn(parentMethods + objectMethodNames)
+            val shouldNotExistInChild =
+                listOf("parentPrivate", "parentStaticPrivate", "parentStaticPublic")
+
+            assertThat(parent.getAllNonPrivateInstanceMethods().names())
                 .containsExactlyElementsIn(
-                    parentMethods + objectMethods -
-                        listOf("parentPrivate", "parentStaticPrivate", "parentStaticPublic")
+                    parentMethods + objectMethodNames - shouldNotExistInChild
                 )
 
-            assertThat(child.getDeclaredMethods()).containsExactlyElementsIn(
-                childMethods
-            )
-            assertThat(child.getAllMethods()).containsExactlyElementsIn(
-                childMethods + parentMethods + objectMethods -
-                    listOf("parentPrivate", "parentStaticPrivate", "overridden") +
-                    "overridden" // add 1 overridden back
-            )
-            assertThat(child.getAllNonPrivateInstanceMethods())
+            assertThat(child.getDeclaredMethods().names())
+                .containsExactlyElementsIn(childMethods)
+            assertThat(child.getAllMethods().names())
                 .containsExactlyElementsIn(
-                    childMethods + parentMethods + objectMethods -
+                    childMethods + parentMethods + objectMethodNames -
+                        listOf("parentPrivate", "parentStaticPrivate", "overridden") +
+                        "overridden" // add 1 overridden back
+                )
+            assertThat(child.getAllNonPrivateInstanceMethods().names())
+                .containsExactlyElementsIn(
+                    childMethods + parentMethods + objectMethodNames - shouldNotExistInChild -
                         listOf(
-                            "parentPrivate", "parentStaticPrivate", "parentStaticPublic",
                             "childPrivate", "childStaticPrivate", "childStaticPublic",
                             "overridden"
                         ) + "overridden" // add 1 overridden back
@@ -107,12 +112,12 @@ class ElementExtTest {
 
             assertThat(child.getConstructors()).hasSize(1)
             assertThat(parent.getConstructors()).hasSize(1)
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun methodsInInterface() {
-        val parentCode = JavaFileObjects.forSourceLines(
+        val parentCode = Source.java(
             "foo.bar.Parent",
             """
             package foo.bar;
@@ -125,7 +130,7 @@ class ElementExtTest {
             }
             """.trimIndent()
         )
-        val childCode = JavaFileObjects.forSourceLines(
+        val childCode = Source.java(
             "foo.bar.Child",
             """
             package foo.bar;
@@ -138,9 +143,9 @@ class ElementExtTest {
             }
             """.trimIndent()
         )
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(
-            jfos = arrayOf(parentCode, childCode)
+
+        runProcessorTest(
+            sources = listOf(parentCode, childCode)
         ) {
             // NOTE: technically, an interface should show all methods it receives from Object
             //  In practice, we never need it and would require additional code to implement hence
@@ -153,33 +158,35 @@ class ElementExtTest {
             val childMethods = listOf(
                 "childPublic", "childStaticPrivate", "childStaticPublic", "overridden"
             )
-            assertThat(parent.getDeclaredMethods())
+            val objectMethodNames = it.objectMethodNames()
+            assertThat(parent.getDeclaredMethods().names())
                 .containsExactlyElementsIn(parentMethods)
-            assertThat(parent.getAllMethods())
+            assertThat(parent.getAllMethods().names() - objectMethodNames)
                 .containsExactlyElementsIn(parentMethods)
-            assertThat(parent.getAllNonPrivateInstanceMethods())
+            assertThat(parent.getAllNonPrivateInstanceMethods().names() - objectMethodNames)
                 .containsExactly("parentPublic", "overridden")
 
-            assertThat(child.getDeclaredMethods())
+            assertThat(child.getDeclaredMethods().names())
                 .containsExactlyElementsIn(childMethods)
-            assertThat(child.getAllMethods()).containsExactlyElementsIn(
-                childMethods + parentMethods -
-                    listOf("parentStaticPrivate", "parentStaticPublic", "overridden") +
-                    "overridden" // add 1 overridden back
-            )
-            assertThat(child.getAllNonPrivateInstanceMethods())
+            assertThat(child.getAllMethods().names() - objectMethodNames)
+                .containsExactlyElementsIn(
+                    childMethods + parentMethods -
+                        listOf("parentStaticPrivate", "parentStaticPublic", "overridden") +
+                        "overridden" // add 1 overridden back
+                )
+            assertThat(child.getAllNonPrivateInstanceMethods().names() - objectMethodNames)
                 .containsExactly(
                     "childPublic", "parentPublic", "overridden"
                 )
 
             assertThat(child.getConstructors()).isEmpty()
             assertThat(parent.getConstructors()).isEmpty()
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun types() {
-        val testCode = JavaFileObjects.forSourceLines(
+        val testCode = Source.java(
             "foo.bar.Baz",
             """
             package foo.bar;
@@ -192,9 +199,9 @@ class ElementExtTest {
             }
             """.trimIndent()
         )
-        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-        simpleRun(
-            jfos = arrayOf(testCode)
+
+        runProcessorTest(
+            sources = listOf(testCode)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             val field = element.getAllFieldsIncludingPrivateSupers()
@@ -208,7 +215,7 @@ class ElementExtTest {
             assertThat(field.type.typeName).isEqualTo(TypeName.INT)
             assertThat(method.returnType.typeName).isEqualTo(TypeName.INT)
             assertThat(element.type.typeName).isEqualTo(ClassName.get("foo.bar", "Baz"))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -224,7 +231,7 @@ class ElementExtTest {
             TypeName.FLOAT,
             TypeName.DOUBLE
         )
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
             val processingEnv = invocation.processingEnv
             primitiveTypeNames.forEach { primitiveTypeName ->
                 val typeMirror = processingEnv.requireType(primitiveTypeName)
@@ -233,10 +240,15 @@ class ElementExtTest {
                     typeMirror.boxed().typeName
                 ).isEqualTo(primitiveTypeName.box())
             }
-        }.compilesWithoutError()
+        }
     }
 
-    private fun assertThat(executables: Iterable<XMethodElement>) = assertThat(
-        executables.map { it.name }
-    )
+    private fun XTestInvocation.objectMethodNames(): List<String> {
+        return processingEnv.requireTypeElement("java.lang.Object")
+            .getAllMethods().map {
+                it.name
+            } - "registerNatives"
+    }
+
+    private fun List<XMethodElement>.names() = map { it.name }
 }

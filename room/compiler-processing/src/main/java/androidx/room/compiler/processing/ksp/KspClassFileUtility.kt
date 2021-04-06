@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XProcessingConfig
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Origin
@@ -32,8 +31,37 @@ import java.lang.reflect.Proxy
  * This class implements a port of https://github.com/google/ksp/pull/260 via reflection until KSP
  * (or kotlin compiler) fixes the problem. As this uses reflection, it is fail safe such that if it
  * cannot find the correct order, it will just return in the order KSP returned instead of crashing.
+ *
+ * KSP Bugs:
+ *  * https://github.com/google/ksp/issues/250
+ *  * https://github.com/google/ksp/issues/375
  */
-internal object KspFieldOrdering {
+internal object KspClassFileUtility {
+    /**
+     * Tries to resolve an Origin.CLASS into koltin or java.
+     * see: https://github.com/google/ksp/issues/375
+     */
+    fun findTrueOrigin(
+        ksClassDeclaration: KSClassDeclaration
+    ): Origin? {
+        if (ksClassDeclaration.origin != Origin.CLASS) {
+            return ksClassDeclaration.origin
+        }
+        return try {
+            val typeReferences = ReflectionReferences.getInstance(ksClassDeclaration) ?: return null
+            val descriptor =
+                typeReferences.getDescriptorMethod.invoke(ksClassDeclaration) ?: return null
+            val descriptorCanonicalName = descriptor::class.java.canonicalName
+            when {
+                descriptorCanonicalName.contains("Java") -> Origin.JAVA
+                descriptorCanonicalName.contains("DeserializedClassDescriptor") -> Origin.KOTLIN
+                else -> null
+            }
+        } catch (throwable: Throwable) {
+            null
+        }
+    }
+
     /**
      * Sorts the given fields in the order they are declared in the backing class declaration.
      */
@@ -43,7 +71,7 @@ internal object KspFieldOrdering {
     ): List<KspFieldElement> {
         // no reason to try to load .class if we don't have any fields to sort
         if (fields.isEmpty()) return fields
-        val comparator = getFieldNamesComparator(owner)
+        val comparator = getNamesComparator(owner, Type.FIELD, KspFieldElement::name)
         return if (comparator == null) {
             fields
         } else {
@@ -57,14 +85,40 @@ internal object KspFieldOrdering {
     }
 
     /**
+     * Sorts the given methods in the order they are declared in the backing class declaration.
+     * Note that this does not check signatures so ordering might break if there are multiple
+     * methods with the same name.
+     */
+    fun orderMethods(
+        owner: KSClassDeclaration,
+        methods: List<KspMethodElement>
+    ): List<KspMethodElement> {
+        // no reason to try to load .class if we don't have any fields to sort
+        if (methods.isEmpty()) return methods
+        val comparator = getNamesComparator(owner, Type.METHOD, KspMethodElement::name)
+        return if (comparator == null) {
+            methods
+        } else {
+            methods.forEach {
+                // make sure each name gets registered so that if we didn't find it in .class for
+                // whatever reason, we keep the order given from KSP.
+                comparator.register(it.name)
+            }
+            methods.sortedWith(comparator)
+        }
+    }
+
+    /**
      * Builds a field names comparator from the given class declaration if and only if its origin
      * is CLASS.
      * If it fails to find the order, returns null.
      */
     @Suppress("BanUncheckedReflection")
-    private fun getFieldNamesComparator(
-        ksClassDeclaration: KSClassDeclaration
-    ): FieldNameComparator? {
+    private fun <T> getNamesComparator(
+        ksClassDeclaration: KSClassDeclaration,
+        type: Type,
+        getName: T.() -> String,
+    ): MemberNameComparator<T>? {
         return try {
             if (ksClassDeclaration.origin != Origin.CLASS) return null
             val typeReferences = ReflectionReferences.getInstance(ksClassDeclaration) ?: return null
@@ -81,9 +135,9 @@ internal object KspFieldOrdering {
             val binarySource = typeReferences.binaryClassMethod.invoke(descriptorSrc)
                 ?: return null
 
-            val fieldNameComparator = FieldNameComparator()
+            val fieldNameComparator = MemberNameComparator(getName)
             val invocationHandler = InvocationHandler { _, method, args ->
-                if (method.name == "visitField") {
+                if (method.name == type.visitorName) {
                     val nameAsString = typeReferences.asStringMethod.invoke(args[0])
                     if (nameAsString is String) {
                         fieldNameComparator.register(nameAsString)
@@ -175,7 +229,9 @@ internal object KspFieldOrdering {
         }
     }
 
-    private class FieldNameComparator : Comparator<XFieldElement> {
+    private class MemberNameComparator<T>(
+        val getName: T.() -> String
+    ) : Comparator<T> {
         private var nextOrder: Int = 0
         private var sealed: Boolean = false
         private val orders = mutableMapOf<String, Int>()
@@ -207,8 +263,18 @@ internal object KspFieldOrdering {
             nextOrder++
         }
 
-        override fun compare(field1: XFieldElement, field2: XFieldElement): Int {
-            return getOrder(field1.name).compareTo(getOrder(field2.name))
+        override fun compare(elm1: T, elm2: T): Int {
+            return getOrder(elm1.getName()).compareTo(getOrder(elm2.getName()))
         }
+    }
+
+    /**
+     * The type of declaration that we want to extract from class descriptor.
+     */
+    private enum class Type(
+        val visitorName: String
+    ) {
+        FIELD("visitField"),
+        METHOD("visitMethod")
     }
 }
