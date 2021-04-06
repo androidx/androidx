@@ -49,6 +49,16 @@ internal sealed class KspTypeElement(
     XHasModifiers by KspHasModifiers.create(declaration),
     XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE) {
 
+    /**
+     * The true origin of this class file. This may not match `declaration.origin` when declaration
+     * is coming from a .class file.
+     *
+     * TODO: Remove this field when https://github.com/google/ksp/issues/375 is fixed.
+     */
+    val trueOrigin: Origin by lazy {
+        KspClassFileUtility.findTrueOrigin(declaration) ?: declaration.origin
+    }
+
     override val name: String by lazy {
         declaration.simpleName.asString()
     }
@@ -111,7 +121,7 @@ internal sealed class KspTypeElement(
                 )
             }.let {
                 // only order instance fields, we don't care about the order of companion fields.
-                KspFieldOrdering.orderFields(declaration, it)
+                KspClassFileUtility.orderFields(declaration, it)
             }
 
         val companionProperties = declaration
@@ -286,7 +296,8 @@ internal sealed class KspTypeElement(
                     declaration = it
                 )
             }.toList()
-        declaredMethods + syntheticGetterSetterMethods
+        KspClassFileUtility.orderMethods(declaration, declaredMethods) +
+            syntheticGetterSetterMethods
     }
 
     override fun getDeclaredMethods(): List<XMethodElement> {

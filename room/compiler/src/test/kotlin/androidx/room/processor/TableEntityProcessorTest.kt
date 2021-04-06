@@ -18,6 +18,8 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.getSystemClasspathFiles
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import androidx.room.vo.CallType
@@ -31,7 +33,6 @@ import androidx.room.vo.columnNames
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
-import compileLibrarySource
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.MatcherAssert.assertThat
@@ -91,21 +92,27 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
 
     @Test
     fun noGetterInLibraryClass() {
-        val libraryClasspath = compileLibrarySource(
-            "test.library.MissingGetterEntity",
-            """
-                @Entity
-                public class MissingGetterEntity {
-                    @PrimaryKey
-                    private long id;
-                    public void setId(int id) {this.id = id;}
-                }
-                """
+        val libraryClasspath = compileFiles(
+            sources = listOf(
+                Source.java(
+                    "test.library.MissingGetterEntity",
+                    """
+                    package test.library;
+                    import androidx.room.*;
+                    @Entity
+                    public class MissingGetterEntity {
+                        @PrimaryKey
+                        private long id;
+                        public void setId(int id) {this.id = id;}
+                    }
+                    """
+                )
+            )
         )
         singleEntity(
             "",
             baseClass = "test.library.MissingGetterEntity",
-            classpathFiles = libraryClasspath.toList()
+            classpathFiles = listOf(libraryClasspath) + getSystemClasspathFiles()
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasError(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
