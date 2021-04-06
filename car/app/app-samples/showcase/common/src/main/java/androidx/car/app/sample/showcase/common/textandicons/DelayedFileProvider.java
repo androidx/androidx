@@ -17,6 +17,7 @@
 package androidx.car.app.sample.showcase.common.textandicons;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -34,16 +35,18 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /** A simple file provider that returns files after a random delay. */
 public class DelayedFileProvider extends FileProvider {
-
+    private static final String ANDROID_AUTO_PACKAGE_NAME =
+            "com.google.android.projection.gearhead";
+    private static final String AAOS_HOST_PACKAGE_NAME =
+            "com.google.android.apps.automotive.templates.host";
+    private static final String FILE_PROVIDER_AUTHORITY = "com.showcase.fileprovider";
     private static final String RESOURCE_DIR = "res";
     private static final long MIN_DELAY_MILLIS = 1000;
     private static final long MAX_DELAY_MILLIS = 3000;
 
     /** Creates a file from the given resource id and returns the URI for it. */
     @NonNull
-    public static Uri getUriForResource(@NonNull Context context, @NonNull String authority,
-            int resId)
-            throws IOException {
+    public static Uri getUriForResource(@NonNull Context context, int resId) {
         File resourceFile =
                 new File(context.getFilesDir().getAbsolutePath(), RESOURCE_DIR + "/" + resId);
         if (!resourceFile.exists()) {
@@ -52,9 +55,20 @@ public class DelayedFileProvider extends FileProvider {
             Bitmap bm = BitmapFactory.decodeResource(context.getResources(), resId);
             try (FileOutputStream fos = new FileOutputStream(resourceFile)) {
                 bm.compress(CompressFormat.PNG, 10, fos);
+            } catch (IOException ex) {
+                throw new IllegalArgumentException("Invalid resource " + resId);
             }
         }
-        return getUriForFile(context, authority, resourceFile);
+        Uri uri = getUriForFile(context, FILE_PROVIDER_AUTHORITY, resourceFile);
+
+        // FileProvider requires the app to grant temporary access to Android Auto for the file.
+        // A URI from a content provider may not need to do this if its contents are public.
+        context.grantUriPermission(ANDROID_AUTO_PACKAGE_NAME, uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        context.grantUriPermission(AAOS_HOST_PACKAGE_NAME, uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        return uri;
     }
 
     @Override
