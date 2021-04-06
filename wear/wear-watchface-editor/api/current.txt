@@ -37,6 +37,7 @@ package androidx.wear.watchface.editor {
     method public abstract Integer? getBackgroundComplicationId();
     method @UiThread public abstract Integer? getComplicationIdAt(@Px int x, @Px int y);
     method @UiThread public abstract suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>> p);
+    method @UiThread public abstract suspend Object? getComplicationsProviderInfo(kotlin.coroutines.Continuation<? super java.util.Map<java.lang.Integer,androidx.wear.complications.ComplicationProviderInfo>> p);
     method public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationsState();
     method public abstract long getPreviewReferenceTimeMillis();
     method public abstract androidx.wear.watchface.style.UserStyle getUserStyle();

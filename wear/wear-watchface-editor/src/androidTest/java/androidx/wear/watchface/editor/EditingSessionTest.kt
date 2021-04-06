@@ -1328,7 +1328,7 @@ public class EditorSessionTest {
         scenario.onActivity {
             baseEditorSession = it.editorSession as BaseEditorSession
             baseEditorSession.pendingComplicationProviderChooserResult = CompletableDeferred()
-            baseEditorSession.updatePreviewData(
+            baseEditorSession.onComplicationProviderChooserResult(
                 ComplicationProviderChooserResult(
                     ComplicationProviderInfo(
                         "provider.app",
