@@ -19,27 +19,21 @@ package androidx.work.multiprocess
 import android.content.Context
 import androidx.work.Data
 import androidx.work.WorkerParameters
-import androidx.work.impl.utils.futures.SettableFuture
-import com.google.common.util.concurrent.ListenableFuture
+import androidx.work.workDataOf
+import kotlinx.coroutines.delay
 
-/**
- * A Remote Listenable Worker which always fails.
- */
-public class RemoteFailureWorker(context: Context, workerParameters: WorkerParameters) :
-    RemoteListenableWorker(context, workerParameters) {
-    override fun startRemoteWork(): ListenableFuture<Result> {
-        val future = SettableFuture.create<Result>()
-        val result = Result.failure(outputData())
-        future.set(result)
-        return future
+public class RemoteFailureWorker(
+    context: Context,
+    parameters: WorkerParameters
+) : RemoteCoroutineWorker(context, parameters) {
+    override suspend fun doRemoteWork(): Result {
+        delay(100)
+        return Result.failure(outputData())
     }
 
     public companion object {
         public fun outputData(): Data {
-            return Data.Builder()
-                .put("output_1", 1)
-                .put("output_2,", "test")
-                .build()
+            return workDataOf("failure" to true)
         }
     }
 }
