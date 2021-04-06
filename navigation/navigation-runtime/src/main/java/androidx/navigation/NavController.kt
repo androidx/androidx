@@ -27,6 +27,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
+import androidx.annotation.MainThread
 import androidx.annotation.NavigationRes
 import androidx.annotation.RestrictTo
 import androidx.core.app.TaskStackBuilder
@@ -73,6 +74,7 @@ public open class NavController(
          * @see NavController.setGraph
          * @throws IllegalStateException if called before `setGraph()`.
          */
+        @MainThread
         get() {
             checkNotNull(_graph) { "You must call setGraph() before calling getGraph()" }
             return _graph as NavGraph
@@ -88,6 +90,7 @@ public open class NavController(
          * @see NavController.setGraph
          * @see NavController.getGraph
          */
+        @MainThread
         @CallSuper
         set(graph) {
             setGraph(graph, null)
@@ -509,6 +512,7 @@ public open class NavController(
      * @see NavController.setGraph
      * @see NavController.getGraph
      */
+    @MainThread
     @CallSuper
     public open fun setGraph(@NavigationRes graphResId: Int) {
         setGraph(navInflater.inflate(graphResId), null)
@@ -527,6 +531,7 @@ public open class NavController(
      * @see NavController.setGraph
      * @see NavController.getGraph
      */
+    @MainThread
     @CallSuper
     public open fun setGraph(@NavigationRes graphResId: Int, startDestinationArgs: Bundle?) {
         setGraph(navInflater.inflate(graphResId), startDestinationArgs)
@@ -542,6 +547,7 @@ public open class NavController(
      * @see NavController.setGraph
      * @see NavController.getGraph
      */
+    @MainThread
     @CallSuper
     public open fun setGraph(graph: NavGraph, startDestinationArgs: Bundle?) {
         _graph?.let { previousGraph ->
@@ -552,6 +558,7 @@ public open class NavController(
         onGraphCreated(startDestinationArgs)
     }
 
+    @MainThread
     private fun onGraphCreated(startDestinationArgs: Bundle?) {
         navigatorStateToRestore?.let { navigatorStateToRestore ->
             val navigatorNames = navigatorStateToRestore.getStringArrayList(
@@ -629,6 +636,7 @@ public open class NavController(
      * @throws IllegalStateException if deep link cannot be accessed from the current destination
      * @see NavDestination.addDeepLink
      */
+    @MainThread
     public open fun handleDeepLink(intent: Intent?): Boolean {
         if (intent == null) {
             return false
@@ -829,6 +837,7 @@ public open class NavController(
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
+    @MainThread
     public open fun navigate(@IdRes resId: Int) {
         navigate(resId, null)
     }
@@ -845,6 +854,7 @@ public open class NavController(
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
+    @MainThread
     public open fun navigate(@IdRes resId: Int, args: Bundle?) {
         navigate(resId, args, null)
     }
@@ -862,6 +872,7 @@ public open class NavController(
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
+    @MainThread
     public open fun navigate(@IdRes resId: Int, args: Bundle?, navOptions: NavOptions?) {
         navigate(resId, args, navOptions, null)
     }
@@ -880,6 +891,7 @@ public open class NavController(
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
+    @MainThread
     public open fun navigate(
         @IdRes resId: Int,
         args: Bundle?,
@@ -947,6 +959,7 @@ public open class NavController(
      * @param deepLink deepLink to the destination reachable from the current NavGraph
      * @see NavController.navigate
      */
+    @MainThread
     public open fun navigate(deepLink: Uri) {
         navigate(NavDeepLinkRequest(deepLink, null, null))
     }
@@ -962,6 +975,7 @@ public open class NavController(
      * @param navOptions special options for this navigation operation
      * @see NavController.navigate
      */
+    @MainThread
     public open fun navigate(deepLink: Uri, navOptions: NavOptions?) {
         navigate(NavDeepLinkRequest(deepLink, null, null), navOptions, null)
     }
@@ -978,6 +992,7 @@ public open class NavController(
      * @param navigatorExtras extras to pass to the Navigator
      * @see NavController.navigate
      */
+    @MainThread
     public open fun navigate(
         deepLink: Uri,
         navOptions: NavOptions?,
@@ -997,6 +1012,7 @@ public open class NavController(
      *
      * @throws IllegalArgumentException if the given deep link request is invalid
      */
+    @MainThread
     public open fun navigate(request: NavDeepLinkRequest) {
         navigate(request, null)
     }
@@ -1013,6 +1029,7 @@ public open class NavController(
      *
      * @throws IllegalArgumentException if the given deep link request is invalid
      */
+    @MainThread
     public open fun navigate(request: NavDeepLinkRequest, navOptions: NavOptions?) {
         navigate(request, navOptions, null)
     }
@@ -1030,6 +1047,7 @@ public open class NavController(
      *
      * @throws IllegalArgumentException if the given deep link request is invalid
      */
+    @MainThread
     public open fun navigate(
         request: NavDeepLinkRequest,
         navOptions: NavOptions?,
@@ -1054,6 +1072,7 @@ public open class NavController(
         }
     }
 
+    @MainThread
     private fun navigate(
         node: NavDestination,
         args: Bundle?,
