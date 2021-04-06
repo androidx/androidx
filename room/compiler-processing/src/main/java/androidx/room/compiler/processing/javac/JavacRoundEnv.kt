@@ -16,15 +16,14 @@
 
 package androidx.room.compiler.processing.javac
 
-import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XRoundEnv
-import androidx.room.compiler.processing.XTypeElement
 import com.google.auto.common.MoreElements
 import javax.annotation.processing.RoundEnvironment
+import javax.lang.model.element.Element
+import kotlin.reflect.KClass
 
 @Suppress("UnstableApiUsage")
-@VisibleForTesting
 internal class JavacRoundEnv(
     private val env: JavacProcessingEnv,
     val delegate: RoundEnvironment
@@ -36,15 +35,24 @@ internal class JavacRoundEnv(
         }.toSet()
     }
 
-    // TODO this is only for tests but we may need to support more types of elements
-    override fun getTypeElementsAnnotatedWith(annotationQualifiedName: String): Set<XTypeElement> {
+    override fun getElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XElement> {
+        val elements = delegate.getElementsAnnotatedWith(klass.java)
+        return wrapAnnotatedElements(elements, klass.java.canonicalName)
+    }
+
+    override fun getElementsAnnotatedWith(annotationQualifiedName: String): Set<XElement> {
         val element = env.elementUtils.getTypeElement(annotationQualifiedName)
             ?: error("Cannot find TypeElement: $annotationQualifiedName")
-        val result = delegate.getElementsAnnotatedWith(element)
-        return result.filter {
-            MoreElements.isType(it)
-        }.map {
-            env.wrapTypeElement(MoreElements.asType(it))
-        }.toSet()
+
+        val elements = delegate.getElementsAnnotatedWith(element)
+
+        return wrapAnnotatedElements(elements, annotationQualifiedName)
+    }
+
+    private fun wrapAnnotatedElements(
+        elements: Set<Element>,
+        annotationName: String
+    ): Set<XElement> {
+        return elements.map { env.wrapAnnotatedElement(it, annotationName) }.toSet()
     }
 }

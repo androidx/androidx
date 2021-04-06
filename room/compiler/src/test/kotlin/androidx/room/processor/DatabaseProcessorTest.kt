@@ -1235,9 +1235,10 @@ class DatabaseProcessorTest {
             sources = listOf(DB3, BOOK)
         ) { invocation ->
             val database = invocation.roundEnv
-                .getTypeElementsAnnotatedWith(
+                .getElementsAnnotatedWith(
                     androidx.room.Database::class.qualifiedName!!
                 )
+                .filterIsInstance<XTypeElement>()
                 .first()
             val processor = DatabaseProcessor(
                 invocation.context,
@@ -1303,9 +1304,10 @@ class DatabaseProcessorTest {
             classpath = classpath
         ) { invocation ->
             val entity = invocation.roundEnv
-                .getTypeElementsAnnotatedWith(
+                .getElementsAnnotatedWith(
                     androidx.room.Database::class.qualifiedName!!
                 )
+                .filterIsInstance<XTypeElement>()
                 .first()
             val parser = DatabaseProcessor(
                 invocation.context,

@@ -24,6 +24,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
@@ -345,7 +346,8 @@ class RawQueryMethodProcessorTest {
                     )
                     .nextRunHandler { invocation ->
                         val (owner, methods) = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                            .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                            .filterIsInstance<XTypeElement>()
                             .map {
                                 Pair(
                                     it,

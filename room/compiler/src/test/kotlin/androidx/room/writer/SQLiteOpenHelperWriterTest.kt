@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -214,7 +215,8 @@ class SQLiteOpenHelperWriterTest {
             sources = sources + databaseCode
         ) { invocation ->
             val db = invocation.roundEnv
-                .getTypeElementsAnnotatedWith(androidx.room.Database::class.qualifiedName!!)
+                .getElementsAnnotatedWith(androidx.room.Database::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
                 .first()
             handler(DatabaseProcessor(invocation.context, db).process(), invocation)
         }
