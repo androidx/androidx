@@ -432,7 +432,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarText? getTitle();
   }
 
-  public static final class LongMessageTemplate.Builder {
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public static final class LongMessageTemplate.Builder {
     ctor public LongMessageTemplate.Builder(CharSequence);
     method public androidx.car.app.model.LongMessageTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.LongMessageTemplate build();
@@ -758,7 +758,7 @@ package androidx.car.app.model.signin {
     method public boolean isLoading();
   }
 
-  public static final class SignInTemplate.Builder {
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public static final class SignInTemplate.Builder {
     ctor public SignInTemplate.Builder(androidx.car.app.model.signin.SignInTemplate.SignInMethod);
     method public androidx.car.app.model.signin.SignInTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.signin.SignInTemplate build();
