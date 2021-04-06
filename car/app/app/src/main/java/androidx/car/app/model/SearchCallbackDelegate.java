@@ -20,10 +20,12 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.annotations.CarProtocol;
 
 /**
  * A host-side interface for reporting to search updates to clients.
  */
+@CarProtocol
 public interface SearchCallbackDelegate {
     /**
      * Notifies that the search text has changed.

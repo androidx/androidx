@@ -27,6 +27,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.CollectionUtils;
@@ -73,6 +74,7 @@ import java.util.Objects;
  * pass a list of text variants of different lengths. In those cases the host will pick the
  * variant that best fits the screen. See {@link Builder#addVariant} for more information.
  */
+@CarProtocol
 public final class CarText {
     @Keep
     private final String mText;

@@ -26,6 +26,7 @@ import android.util.Log;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.utils.CollectionUtils;
@@ -44,6 +45,7 @@ import java.util.Objects;
  * {@link androidx.car.app.Screen#onGetTemplate()}, this template is
  * considered a refresh of a previous one if the title and messages have not changed.
  */
+@CarProtocol
 public final class MessageTemplate implements Template {
     @Keep
     @Nullable

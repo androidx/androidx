@@ -26,6 +26,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.DateTimeWithZone;
 import androidx.car.app.model.Distance;
@@ -40,6 +41,7 @@ import java.util.Objects;
  * remaining time and distance to the destination.
  */
 @SuppressWarnings("MissingSummary")
+@CarProtocol
 public final class TravelEstimate {
     /** A value used to represent an unknown remaining amount of time. */
     public static final long REMAINING_TIME_UNKNOWN = -1L;

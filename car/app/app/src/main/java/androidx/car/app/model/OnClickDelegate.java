@@ -20,10 +20,12 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.annotations.CarProtocol;
 
 /**
  * A host-side interface for reporting click to clients.
  */
+@CarProtocol
 public interface OnClickDelegate {
     /**
      * Indicates if the click listener is for parked-only scenarios.
