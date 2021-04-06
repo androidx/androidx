@@ -16,6 +16,7 @@
 
 package androidx.car.app.sample.showcase.common.templates;
 
+import static androidx.car.app.CarToast.LENGTH_LONG;
 import static androidx.car.app.CarToast.LENGTH_SHORT;
 
 import android.graphics.Color;
@@ -27,6 +28,7 @@ import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.MessageTemplate;
@@ -151,6 +153,20 @@ public class SignInTemplateDemoScreen extends Screen {
                 .setInstructions("Enter your credentials")
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
+                .setActionStrip(
+                        new ActionStrip.Builder()
+                                .addAction(
+                                        new Action.Builder()
+                                                .setTitle("Settings")
+                                                .setOnClickListener(
+                                                        () ->
+                                                                CarToast.makeText(
+                                                                        getCarContext(),
+                                                                        "Clicked Settings",
+                                                                        LENGTH_LONG)
+                                                                        .show())
+                                                .build())
+                                .build())
                 .build();
     }
 
@@ -203,7 +219,8 @@ public class SignInTemplateDemoScreen extends Screen {
 
         ProviderSignInMethod providerSignInMethod = new ProviderSignInMethod.Builder(
                 new Action.Builder()
-                        .setTitle("Sign in with Google")
+                        .setTitle(Utils.colorize("Sign in with Google",
+                                CarColor.createCustom(Color.BLACK, Color.BLACK), 0, 19))
                         .setBackgroundColor(CarColor.createCustom(Color.WHITE, Color.WHITE))
                         .setIcon(new CarIcon.Builder(providerIcon)
                                 .setTint(noTint)
