@@ -22,7 +22,6 @@ import androidx.room.compiler.processing.util.getDeclaredMethod
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 

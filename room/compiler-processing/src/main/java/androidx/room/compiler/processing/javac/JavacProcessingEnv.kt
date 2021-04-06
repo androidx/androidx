@@ -204,7 +204,7 @@ internal class JavacProcessingEnv(
             }
             is PackageElement -> {
                 error(
-                    "Cannot get elements with annotation ${annotationName}. Package " +
+                    "Cannot get elements with annotation $annotationName. Package " +
                         "elements are not supported by XProcessing."
                 )
             }

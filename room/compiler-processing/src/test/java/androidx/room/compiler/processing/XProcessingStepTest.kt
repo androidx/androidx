@@ -137,23 +137,23 @@ class XProcessingStepTest {
                 elementsByAnnotation[MainAnnotation::class.qualifiedName]
                     ?.filterIsInstance<XTypeElement>()
                     ?.forEach {
-                    val className = ClassName.get(it.packageName, "${it.name}_Impl")
-                    val spec = TypeSpec.classBuilder(className)
-                        .addAnnotation(
-                            AnnotationSpec.builder(OtherAnnotation::class.java).apply {
-                                addMember("value", "\"foo\"")
-                            }.build()
-                        )
-                        .build()
-                    JavaFile.builder(className.packageName(), spec)
-                        .build()
-                        .writeTo(env.filer)
-                }
+                        val className = ClassName.get(it.packageName, "${it.name}_Impl")
+                        val spec = TypeSpec.classBuilder(className)
+                            .addAnnotation(
+                                AnnotationSpec.builder(OtherAnnotation::class.java).apply {
+                                    addMember("value", "\"foo\"")
+                                }.build()
+                            )
+                            .build()
+                        JavaFile.builder(className.packageName(), spec)
+                            .build()
+                            .writeTo(env.filer)
+                    }
                 elementsByAnnotation[OtherAnnotation::class.qualifiedName]
                     ?.filterIsInstance<XTypeElement>()
                     ?.forEach {
-                    otherAnnotatedElements.add(it.type.typeName)
-                }
+                        otherAnnotatedElements.add(it.type.typeName)
+                    }
                 return emptySet()
             }
 
@@ -222,18 +222,18 @@ class XProcessingStepTest {
                 elementsByAnnotation[MainAnnotation::class.qualifiedName]
                     ?.filterIsInstance<XTypeElement>()
                     ?.forEach {
-                    val className = ClassName.get(it.packageName, "${it.name}_Impl")
-                    val spec = TypeSpec.classBuilder(className)
-                        .addAnnotation(
-                            AnnotationSpec.builder(OtherAnnotation::class.java).apply {
-                                addMember("value", "\"foo\"")
-                            }.build()
-                        )
-                        .build()
-                    JavaFile.builder(className.packageName(), spec)
-                        .build()
-                        .writeTo(env.filer)
-                }
+                        val className = ClassName.get(it.packageName, "${it.name}_Impl")
+                        val spec = TypeSpec.classBuilder(className)
+                            .addAnnotation(
+                                AnnotationSpec.builder(OtherAnnotation::class.java).apply {
+                                    addMember("value", "\"foo\"")
+                                }.build()
+                            )
+                            .build()
+                        JavaFile.builder(className.packageName(), spec)
+                            .build()
+                            .writeTo(env.filer)
+                    }
                 return emptySet()
             }
 
