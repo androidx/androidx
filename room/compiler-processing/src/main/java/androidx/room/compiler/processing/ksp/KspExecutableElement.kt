@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
+import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 
@@ -66,5 +67,36 @@ internal abstract class KspExecutableElement(
             declaration.parameters.any {
                 it.isVararg
             }
+    }
+
+    companion object {
+        fun create(
+            env: KspProcessingEnv,
+            declaration: KSFunctionDeclaration
+        ): KspExecutableElement {
+            val enclosingType = declaration.findEnclosingTypeElement(env)
+
+            checkNotNull(enclosingType) {
+                "XProcessing does not currently support annotations on top level " +
+                    "functions with KSP. Cannot process $declaration."
+            }
+
+            return when {
+                declaration.isConstructor() -> {
+                    KspConstructorElement(
+                        env = env,
+                        containing = enclosingType,
+                        declaration = declaration
+                    )
+                }
+                else -> {
+                    KspMethodElement.create(
+                        env = env,
+                        containing = enclosingType,
+                        declaration = declaration
+                    )
+                }
+            }
+        }
     }
 }

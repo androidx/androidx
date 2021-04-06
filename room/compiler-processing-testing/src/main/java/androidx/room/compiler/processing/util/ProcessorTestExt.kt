@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.XProcessingStep
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.runner.CompilationTestRunner
 import androidx.room.compiler.processing.util.runner.JavacCompilationTestRunner
 import androidx.room.compiler.processing.util.runner.KaptCompilationTestRunner
@@ -138,9 +139,13 @@ fun runProcessorTest(
         classpath = classpath
     ) { invocation ->
         val step = createProcessingStep()
-        val elements = step.annotations().associate {
-            it to invocation.roundEnv.getTypeElementsAnnotatedWith(it).toList()
-        }
+        val elements =
+            step.annotations()
+                .associateWith { annotation ->
+                    invocation.roundEnv.getElementsAnnotatedWith(annotation)
+                        .filterIsInstance<XTypeElement>()
+                        .toSet()
+                }
         step.process(
             env = invocation.processingEnv,
             elementsByAnnotation = elements

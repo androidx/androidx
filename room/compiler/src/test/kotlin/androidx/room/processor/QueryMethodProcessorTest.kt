@@ -20,6 +20,7 @@ import COMMON
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -1166,7 +1167,8 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                     )
                     .nextRunHandler { invocation ->
                         val (owner, methods) = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                            .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                            .filterIsInstance<XTypeElement>()
                             .map {
                                 Pair(
                                     it,
