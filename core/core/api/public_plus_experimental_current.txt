@@ -1075,7 +1075,9 @@ package androidx.core.content.pm {
 
   public static class ShortcutInfoCompat.Builder {
     ctor public ShortcutInfoCompat.Builder(android.content.Context, String);
-    method public androidx.core.content.pm.ShortcutInfoCompat.Builder addCapabilityBinding(String, java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!>?);
+    method @Deprecated public androidx.core.content.pm.ShortcutInfoCompat.Builder addCapabilityBinding(String, java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!>?);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder addCapabilityBinding(String);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder addCapabilityBinding(String, String, java.util.List<java.lang.String!>);
     method public androidx.core.content.pm.ShortcutInfoCompat build();
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setActivity(android.content.ComponentName);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setAlwaysBadged();

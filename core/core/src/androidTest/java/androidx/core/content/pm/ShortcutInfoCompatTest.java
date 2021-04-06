@@ -268,6 +268,92 @@ public class ShortcutInfoCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void testBuilder_setCapabilities_noParameters() {
+        final String capability = "actions.intent.TWEET";
+
+        final ShortcutInfoCompat compat = mBuilder
+                .addCapabilityBinding(capability)
+                .build();
+
+        /*
+         * Verify the extras contains mapping of capability to their parameter names.
+         * {
+         *     "actions.intent.TWEET": null
+         * }
+         */
+        final Set<String> categories = compat.mCategories;
+        assertNotNull(categories);
+        assertTrue(categories.contains(capability));
+        final PersistableBundle extra = compat.getExtras();
+        assertNull(extra);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void testBuilder_setCapabilityWithParameters() {
+        final String capability = "actions.intent.START_EXERCISE";
+        final String capabilityParam1 = "exercise.name";
+        final String capabilityParam2 = "duration";
+        final String capabilityParam3 = "difficulty";
+        final String capabilityParam1Value1 = "running";
+        final String capabilityParam1Value2 = "jogging";
+        final String capabilityParam2Value1 = "60 minutes";
+        final String capabilityParam2Value2 = "1 hour";
+
+        final ShortcutInfoCompat compat = mBuilder
+                .addCapabilityBinding(capability, capabilityParam1,
+                        Arrays.asList(capabilityParam1Value1, capabilityParam1Value2))
+                .addCapabilityBinding(capability, capabilityParam2,
+                        Arrays.asList(capabilityParam2Value1, capabilityParam2Value2))
+                // This one should be ignored since its values are empty.
+                .addCapabilityBinding(capability, capabilityParam3, new ArrayList<String>())
+                .build();
+
+        /*
+         * Verify the extras contains mapping of capability to their parameter names.
+         * {
+         *     "actions.intent.START_EXERCISE": ["exercise.name", "duration"],
+         * }
+         */
+        final Set<String> categories = compat.mCategories;
+        assertNotNull(categories);
+        assertTrue(categories.contains(capability));
+        final PersistableBundle extra = compat.getExtras();
+        assertNotNull(extra);
+        assertTrue(extra.containsKey(capability));
+        final String[] paramNamesForCapability = extra.getStringArray(capability);
+        assertNotNull(paramNamesForCapability);
+        assertEquals(2, paramNamesForCapability.length);
+        final List<String> parameterListForCapability = Arrays.asList(paramNamesForCapability);
+        assertTrue(parameterListForCapability.contains(capabilityParam1));
+        assertTrue(parameterListForCapability.contains(capabilityParam2));
+        assertFalse(parameterListForCapability.contains(capabilityParam3));
+
+        /*
+         * Verify the extras contains mapping of capability params to their values.
+         * {
+         *     "START_EXERCISE/exercise.name": ["running","jogging"],
+         *     "START_EXERCISE/duration": ["60 minutes", "1 hour"],
+         * }
+         */
+        final String capabilityParam1Key = capability + "/" + capabilityParam1;
+        final String capabilityParam2Key = capability + "/" + capabilityParam2;
+        assertTrue(extra.containsKey(capabilityParam1Key));
+        assertTrue(extra.containsKey(capabilityParam2Key));
+        final String[] actualCapabilityParams1 = extra.getStringArray(capabilityParam1Key);
+        final String[] actualCapabilityParams2 = extra.getStringArray(capabilityParam2Key);
+        assertNotNull(actualCapabilityParams1);
+        assertEquals(2, actualCapabilityParams1.length);
+        assertEquals(capabilityParam1Value1, actualCapabilityParams1[0]);
+        assertEquals(capabilityParam1Value2, actualCapabilityParams1[1]);
+        assertNotNull(actualCapabilityParams2);
+        assertEquals(2, actualCapabilityParams2.length);
+        assertEquals(capabilityParam2Value1, actualCapabilityParams2[0]);
+        assertEquals(capabilityParam2Value2, actualCapabilityParams2[1]);
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 25)
     public void testBuilder_copyConstructor() {
         String longLabel = "Test long label";
