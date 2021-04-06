@@ -38,10 +38,8 @@ class JavacTestProcessorTest {
             import androidx.room.compiler.processing.testcode.OtherAnnotation;
             @OtherAnnotation(value="xx")
             class Baz {
-            
               @OtherAnnotation(value="xx")
               int myField = 0;
-              
               @OtherAnnotation(value="xx")
               void myFunction() { }
             }
