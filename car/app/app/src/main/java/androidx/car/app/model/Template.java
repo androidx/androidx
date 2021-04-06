@@ -16,6 +16,9 @@
 
 package androidx.car.app.model;
 
+import androidx.car.app.annotations.CarProtocol;
+
 /** An interface used to denote a model that can act as a root for a tree of other models. */
+@CarProtocol
 public interface Template {
 }

@@ -24,6 +24,7 @@ import android.os.Looper;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
@@ -51,6 +52,7 @@ import java.util.Objects;
  */
 @ExperimentalCarApi
 @RequiresCarApi(2)
+@CarProtocol
 public final class ClickableSpan extends CarSpan {
     @Keep
     @Nullable

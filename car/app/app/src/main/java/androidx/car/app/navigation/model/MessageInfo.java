@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
@@ -30,6 +31,7 @@ import androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo;
 import java.util.Objects;
 
 /** Represents a message that can be shown in the {@link NavigationTemplate}. */
+@CarProtocol
 public final class MessageInfo implements NavigationInfo {
     @Keep
     @Nullable

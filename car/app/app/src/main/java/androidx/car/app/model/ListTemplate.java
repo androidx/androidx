@@ -26,6 +26,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ import java.util.Objects;
  *       the toggle state has changed between the previous and new templates.
  * </ul>
  */
+@CarProtocol
 public final class ListTemplate implements Template {
     @Keep
     private final boolean mIsLoading;

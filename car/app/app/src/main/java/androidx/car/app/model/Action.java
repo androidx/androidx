@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
@@ -60,6 +61,7 @@ import java.util.Objects;
  * icon may be disallowed. If such restrictions apply, the documentation of the APIs that consume
  * the action will note them accordingly.
  */
+@CarProtocol
 public final class Action {
     /**
      * The type of action represented by the {@link Action } instance.

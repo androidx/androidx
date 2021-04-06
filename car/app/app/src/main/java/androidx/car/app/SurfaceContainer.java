@@ -20,8 +20,10 @@ import android.view.Surface;
 
 import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 /** A container for the {@link Surface} created by the host and its associated properties. */
+@CarProtocol
 public final class SurfaceContainer {
     @Keep
     @Nullable

@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -28,6 +29,7 @@ import androidx.car.app.model.constraints.CarIconConstraints;
 import java.util.Objects;
 
 /** A class representing information related to a destination. */
+@CarProtocol
 public final class Destination {
     @Keep
     @Nullable

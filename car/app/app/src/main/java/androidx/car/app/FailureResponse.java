@@ -28,6 +28,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.serialization.BundlerException;
 
 import java.lang.annotation.Retention;
@@ -40,6 +41,7 @@ import java.util.Objects;
  *
  * <p>This is used for the failure response for an {@link androidx.car.app.IOnDoneCallback}
  */
+@CarProtocol
 public final class FailureResponse {
     /**
      * The exception type of the failure.

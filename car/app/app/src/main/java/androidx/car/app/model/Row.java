@@ -29,6 +29,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.utils.CollectionUtils;
@@ -44,6 +45,7 @@ import java.util.Objects;
  * Represents a row with a title, several lines of text, an optional image, and an optional action
  * or switch.
  */
+@CarProtocol
 public final class Row implements Item {
     /** A boat that belongs to you. */
     private static final String YOUR_BOAT = "\uD83D\uDEA3"; // 🚣
