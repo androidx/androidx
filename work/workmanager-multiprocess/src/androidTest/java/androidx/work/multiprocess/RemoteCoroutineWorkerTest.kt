@@ -34,8 +34,6 @@ import androidx.work.impl.WorkerWrapper
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.utils.SerialExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
-import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_CLASS_NAME
-import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_PACKAGE_NAME
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -45,7 +43,7 @@ import org.mockito.Mockito.mock
 import java.util.concurrent.Executor
 
 @RunWith(AndroidJUnit4::class)
-public class RemoteListenableWorkerTest {
+public class RemoteCoroutineWorkerTest {
     private lateinit var mConfiguration: Configuration
     private lateinit var mTaskExecutor: TaskExecutor
     private lateinit var mScheduler: Scheduler
@@ -106,7 +104,6 @@ public class RemoteListenableWorkerTest {
         wrapper.future.get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)
         assertEquals(workSpec.state, WorkInfo.State.SUCCEEDED)
-        assertEquals(workSpec.output, RemoteSuccessWorker.outputData())
     }
 
     @Test
@@ -123,7 +120,6 @@ public class RemoteListenableWorkerTest {
         wrapper.future.get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)
         assertEquals(workSpec.state, WorkInfo.State.FAILED)
-        assertEquals(workSpec.output, RemoteFailureWorker.outputData())
     }
 
     @Test
@@ -142,10 +138,13 @@ public class RemoteListenableWorkerTest {
         assertEquals(workSpec.state, WorkInfo.State.ENQUEUED)
     }
 
-    public inline fun <reified T : RemoteListenableWorker> buildRequest(): OneTimeWorkRequest {
+    private inline fun <reified T : RemoteCoroutineWorker> buildRequest(): OneTimeWorkRequest {
         val inputData = Data.Builder()
-            .putString(ARGUMENT_PACKAGE_NAME, mContext.packageName)
-            .putString(ARGUMENT_CLASS_NAME, RemoteWorkerService::class.java.name)
+            .putString(RemoteListenableWorker.ARGUMENT_PACKAGE_NAME, mContext.packageName)
+            .putString(
+                RemoteListenableWorker.ARGUMENT_CLASS_NAME,
+                RemoteWorkerService::class.java.name
+            )
             .build()
 
         val request = OneTimeWorkRequest.Builder(T::class.java)
@@ -156,7 +155,7 @@ public class RemoteListenableWorkerTest {
         return request
     }
 
-    public fun buildWrapper(request: WorkRequest): WorkerWrapper {
+    private fun buildWrapper(request: WorkRequest): WorkerWrapper {
         return WorkerWrapper.Builder(
             mContext,
             mConfiguration,

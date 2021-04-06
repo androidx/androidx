@@ -18,18 +18,14 @@ package androidx.work.multiprocess
 
 import android.content.Context
 import androidx.work.WorkerParameters
-import androidx.work.impl.utils.futures.SettableFuture
-import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.delay
 
-/**
- * A Remote Listenable Worker which always retries.
- */
-public class RemoteRetryWorker(context: Context, workerParameters: WorkerParameters) :
-    RemoteListenableWorker(context, workerParameters) {
-    override fun startRemoteWork(): ListenableFuture<Result> {
-        val future = SettableFuture.create<Result>()
-        val result = Result.retry()
-        future.set(result)
-        return future
+public class RemoteRetryWorker(
+    context: Context,
+    parameters: WorkerParameters
+) : RemoteCoroutineWorker(context, parameters) {
+    override suspend fun doRemoteWork(): Result {
+        delay(100)
+        return Result.retry()
     }
 }
