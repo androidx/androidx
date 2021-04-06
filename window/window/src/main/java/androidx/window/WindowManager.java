@@ -77,8 +77,7 @@ public final class WindowManager {
                     + "instead.");
         }
         mActivity = activity;
-        mWindowBackend = windowBackend == null ? ExtensionWindowBackend.getInstance(context)
-                : windowBackend;
+        mWindowBackend = windowBackend;
     }
 
     /**
