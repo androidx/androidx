@@ -222,6 +222,7 @@ package androidx.navigation {
 
   @androidx.navigation.NavDestinationDsl public class NavDestinationBuilder<D extends androidx.navigation.NavDestination> {
     ctor public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, @IdRes int id);
+    ctor public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, String route);
     method public final void action(int actionId, kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit> actionBuilder);
     method public final void argument(String name, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit> argumentBuilder);
     method public D build();
@@ -230,10 +231,12 @@ package androidx.navigation {
     method public final int getId();
     method public final CharSequence? getLabel();
     method protected final androidx.navigation.Navigator<? extends D> getNavigator();
+    method public final String? getRoute();
     method public final void setLabel(CharSequence? p);
     property public final int id;
     property public final CharSequence? label;
     property protected final androidx.navigation.Navigator<? extends D> navigator;
+    property public final String? route;
   }
 
   @kotlin.DslMarker public @interface NavDestinationDsl {
