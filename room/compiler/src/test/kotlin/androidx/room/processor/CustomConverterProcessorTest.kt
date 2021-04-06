@@ -27,8 +27,7 @@ import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room.testing.context
 import androidx.room.vo.CustomTypeConverter
-import com.google.common.truth.Truth
-import com.google.common.truth.Truth.*
+import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
