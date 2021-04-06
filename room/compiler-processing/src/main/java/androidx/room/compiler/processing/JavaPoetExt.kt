@@ -15,9 +15,7 @@
  */
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.javac.JavacExecutableElement
-import androidx.room.compiler.processing.ksp.KspElement
 import androidx.room.compiler.processing.ksp.KspMethodElement
 import androidx.room.compiler.processing.ksp.KspMethodType
 import com.squareup.javapoet.ClassName

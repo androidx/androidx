@@ -35,6 +35,10 @@ interface XFiler {
     fun write(fileSpec: FileSpec, aggregating: Boolean = false)
 }
 
-fun JavaFile.writeTo(generator: XFiler, aggregating: Boolean = false) = generator.write(this, aggregating)
+fun JavaFile.writeTo(generator: XFiler, aggregating: Boolean = false) {
+    generator.write(this, aggregating)
+}
 
-fun FileSpec.writeTo(generator: XFiler, aggregating: Boolean = false) = generator.write(this, aggregating)
+fun FileSpec.writeTo(generator: XFiler, aggregating: Boolean = false) {
+    generator.write(this, aggregating)
+}
