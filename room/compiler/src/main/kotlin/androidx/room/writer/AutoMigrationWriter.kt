@@ -23,8 +23,11 @@ import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.T
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.vo.AutoMigrationResult
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
@@ -49,10 +52,22 @@ class AutoMigrationWriter(
         val builder = TypeSpec.classBuilder(autoMigrationResult.implTypeName)
         builder.apply {
             addOriginatingElement(dbElement)
-            addSuperinterface(RoomTypeNames.AUTO_MIGRATION_CALLBACK)
             superclass(RoomTypeNames.MIGRATION)
-            addMethod(createConstructor())
-            addMethod(createMigrateMethod())
+
+            if (autoMigrationResult.specClassName != null) {
+                builder.addField(
+                    FieldSpec.builder(
+                        autoMigrationResult.specClassName,
+                        "callback",
+                        Modifier.PRIVATE,
+                        Modifier.FINAL
+                    ).initializer(
+                        "new $T()", autoMigrationResult.specClassName
+                    ).build()
+                )
+                addMethod(createConstructor())
+            }
+            addMethod(createMigrateMethod(autoMigrationResult.specClassName))
         }
         return builder
     }
@@ -69,7 +84,7 @@ class AutoMigrationWriter(
         }.build()
     }
 
-    private fun createMigrateMethod(): MethodSpec? {
+    private fun createMigrateMethod(specClassName: ClassName?): MethodSpec? {
         val migrateFunctionBuilder: MethodSpec.Builder = MethodSpec.methodBuilder("migrate")
             .apply {
                 addParameter(
@@ -82,7 +97,9 @@ class AutoMigrationWriter(
                 addModifiers(Modifier.PUBLIC)
                 returns(TypeName.VOID)
                 addAutoMigrationResultToMigrate(this)
-                addStatement("onPostMigrate(database)")
+                if (specClassName != null) {
+                    addStatement("callback.onPostMigrate(database)")
+                }
             }
         return migrateFunctionBuilder.build()
     }

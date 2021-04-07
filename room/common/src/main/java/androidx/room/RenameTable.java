@@ -16,8 +16,6 @@
 
 package androidx.room;
 
-import androidx.annotation.RestrictTo;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -26,36 +24,32 @@ import java.lang.annotation.Target;
 
 
 /**
- * Repeatable annotation to be used by the user in specifying renamed tables between the old and
- * new versions of one database.
+ * Repeatable annotation declaring the renamed tables in the new version of an auto migration.
  *
- * @hide
+ * @see AutoMigration
+ *
  */
 @Repeatable(RenameTable.Entries.class)
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public @interface RenameTable {
     /**
-     * Name of the table in the previous version of the database.
+     * Name of the table in the {@link AutoMigration#from} version of the database.
      *
-     * @return Original name of the table.
-     *
-     * @hide
+     * @return Name of the table to rename from.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    String originalTableName();
+    String fromTableName();
 
     /**
-     * Name of the table in the new version of the database.
+     * Name of the table in the {@link AutoMigration#to} version of the database.
      *
-     * @return New name of the table.
-     *
-     * @hide
+     * @return Name of the table to rename to.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    String newTableName();
+    String toTableName();
 
+    /**
+     * Container annotation for the repeatable annotation {@link RenameTable}.
+     */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.CLASS)
     @interface Entries {

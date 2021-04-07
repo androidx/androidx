@@ -1,6 +1,12 @@
 // Signature format: 4.0
 package androidx.room {
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface AutoMigration {
+    method public abstract int from();
+    method public abstract Class<?> spec() default java.lang.Object.class;
+    method public abstract int to();
+  }
+
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface ColumnInfo {
     method @androidx.room.ColumnInfo.Collate public abstract int collate() default androidx.room.ColumnInfo.UNSPECIFIED;
     method public abstract String defaultValue() default androidx.room.ColumnInfo.VALUE_UNSPECIFIED;
@@ -45,6 +51,23 @@ package androidx.room {
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface Delete {
     method public abstract Class<?> entity() default java.lang.Object.class;
+  }
+
+  @java.lang.annotation.Repeatable(DeleteColumn.Entries.class) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface DeleteColumn {
+    method public abstract String columnName();
+    method public abstract String tableName();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public static @interface DeleteColumn.Entries {
+    method public abstract androidx.room.DeleteColumn[] value();
+  }
+
+  @java.lang.annotation.Repeatable(DeleteTable.Entries.class) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface DeleteTable {
+    method public abstract String tableName();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public static @interface DeleteTable.Entries {
+    method public abstract androidx.room.DeleteTable[] value();
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface Embedded {
@@ -159,6 +182,25 @@ package androidx.room {
     method public abstract String entityColumn();
     method public abstract String parentColumn();
     method public abstract String[] projection() default {};
+  }
+
+  @java.lang.annotation.Repeatable(RenameColumn.Entries.class) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface RenameColumn {
+    method public abstract String fromColumnName();
+    method public abstract String tableName();
+    method public abstract String toColumnName();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public static @interface RenameColumn.Entries {
+    method public abstract androidx.room.RenameColumn[] value();
+  }
+
+  @java.lang.annotation.Repeatable(RenameTable.Entries.class) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface RenameTable {
+    method public abstract String fromTableName();
+    method public abstract String toTableName();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public static @interface RenameTable.Entries {
+    method public abstract androidx.room.RenameTable[] value();
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE}) public @interface RewriteQueriesToDropUnusedColumns {

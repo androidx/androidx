@@ -17,6 +17,8 @@
 package androidx.room.integration.testapp.migration;
 
 
+import android.database.sqlite.SQLiteDatabase;
+
 import androidx.annotation.NonNull;
 import androidx.room.AutoMigration;
 import androidx.room.ColumnInfo;
@@ -32,7 +34,7 @@ import androidx.room.Query;
 import androidx.room.RenameColumn;
 import androidx.room.RenameTable;
 import androidx.room.RoomDatabase;
-import androidx.room.migration.AutoMigrationCallback;
+import androidx.room.migration.AutoMigrationSpec;
 
 import java.util.List;
 
@@ -61,7 +63,7 @@ import java.util.List;
         },
         autoMigrations = {
                 @AutoMigration(
-                        from = 1, to = 2, callback = AutoMigrationDb.SimpleAutoMigration1.class
+                        from = 1, to = 2, spec = AutoMigrationDb.SimpleAutoMigration1.class
                 )
         },
         exportSchema = true
@@ -340,17 +342,20 @@ public abstract class AutoMigrationDb extends RoomDatabase {
         List<AutoMigrationDb.Entity1> getAllEntity1s();
     }
 
-    @DeleteTable(deletedTableName = "Entity18")
-    @RenameTable(originalTableName = "Entity19", newTableName = "Entity19_V2")
-    @RenameTable(originalTableName = "Entity20", newTableName = "Entity20_V2")
-    @RenameTable(originalTableName = "Entity13", newTableName = "Entity13_V2")
-    @RenameColumn(tableName = "Entity16", originalColumnName = "addedInV1",
-            newColumnName = "renamedInV2")
-    @RenameColumn(tableName = "Entity17", originalColumnName = "addedInV1",
-            newColumnName = "renamedInV2")
-    @RenameColumn(tableName = "Entity20", originalColumnName = "addedInV1",
-            newColumnName = "renamedInV2")
-    @DeleteColumn(tableName = "Entity15", deletedColumnName = "addedInV1")
-    interface SimpleAutoMigration1 extends AutoMigrationCallback {
+    @DeleteTable(tableName = "Entity18")
+    @RenameTable(fromTableName = "Entity19", toTableName = "Entity19_V2")
+    @RenameTable(fromTableName = "Entity20", toTableName = "Entity20_V2")
+    @RenameTable(fromTableName = "Entity13", toTableName = "Entity13_V2")
+    @RenameColumn(tableName = "Entity16", fromColumnName = "addedInV1",
+            toColumnName = "renamedInV2")
+    @RenameColumn(tableName = "Entity17", fromColumnName = "addedInV1",
+            toColumnName = "renamedInV2")
+    @RenameColumn(tableName = "Entity20", fromColumnName = "addedInV1",
+            toColumnName = "renamedInV2")
+    @DeleteColumn(tableName = "Entity15", columnName = "addedInV1")
+    static class SimpleAutoMigration1 implements AutoMigrationSpec {
+        void onPostMigrate(SQLiteDatabase db) {
+            // Do something
+        }
     }
 }

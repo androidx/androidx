@@ -16,21 +16,23 @@
 
 package androidx.room.migration;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import androidx.room.AutoMigration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 /**
- * Interface for defining automatic migration strategy for Room databases.
+ * Interface for defining an automatic migration specification for Room databases.
+ * <p>
+ * The methods defined in this interface will be called on a background thread from the executor
+ * set in Room's builder. It is important to note that the methods are all in a transaction when
+ * it is called.
  *
- * @hide
+ * @see AutoMigration
  */
-// TODO: (b/181655460) Complete code usage documentation for this class and the AutoMigration
-//  annotation.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface AutoMigrationCallback {
+public interface AutoMigrationSpec {
 
     /**
-     * Handles any changes the user may want to implement after migration is completed.
+     * Invoked after the migration is completed.
+     * @param db The SQLite database.
      */
     default void onPostMigrate(@NonNull SupportSQLiteDatabase db) {}
 }
