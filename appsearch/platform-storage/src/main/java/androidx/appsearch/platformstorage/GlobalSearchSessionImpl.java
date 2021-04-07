@@ -29,7 +29,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 /**
  * An implementation of {@link androidx.appsearch.app.GlobalSearchSession} which proxies to a
@@ -40,13 +40,13 @@ import java.util.concurrent.ExecutorService;
 @RequiresApi(Build.VERSION_CODES.S)
 class GlobalSearchSessionImpl implements GlobalSearchSession {
     private final android.app.appsearch.GlobalSearchSession mPlatformSession;
-    private final ExecutorService mExecutorService;
+    private final Executor mExecutor;
 
     GlobalSearchSessionImpl(
             @NonNull android.app.appsearch.GlobalSearchSession platformSession,
-            @NonNull ExecutorService executorService) {
+            @NonNull Executor executor) {
         mPlatformSession = Preconditions.checkNotNull(platformSession);
-        mExecutorService = Preconditions.checkNotNull(executorService);
+        mExecutor = Preconditions.checkNotNull(executor);
     }
 
     @Override
@@ -60,7 +60,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                 mPlatformSession.search(
                         queryExpression,
                         SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec));
-        return new SearchResultsImpl(platformSearchResults, mExecutorService);
+        return new SearchResultsImpl(platformSearchResults, mExecutor);
     }
 
     @NonNull

@@ -46,7 +46,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 /**
  * An implementation of {@link AppSearchSession} which proxies to a platform
@@ -57,13 +57,13 @@ import java.util.concurrent.ExecutorService;
 @RequiresApi(Build.VERSION_CODES.S)
 class SearchSessionImpl implements AppSearchSession {
     private final android.app.appsearch.AppSearchSession mPlatformSession;
-    private final ExecutorService mExecutorService;
+    private final Executor mExecutor;
 
     SearchSessionImpl(
             @NonNull android.app.appsearch.AppSearchSession platformSession,
-            @NonNull ExecutorService executorService) {
+            @NonNull Executor executor) {
         mPlatformSession = Preconditions.checkNotNull(platformSession);
-        mExecutorService = Preconditions.checkNotNull(executorService);
+        mExecutor = Preconditions.checkNotNull(executor);
     }
 
     @Override
@@ -73,8 +73,8 @@ class SearchSessionImpl implements AppSearchSession {
         ResolvableFuture<SetSchemaResponse> future = ResolvableFuture.create();
         mPlatformSession.setSchema(
                 RequestToPlatformConverter.toPlatformSetSchemaRequest(request),
-                mExecutorService,
-                mExecutorService,
+                mExecutor,
+                mExecutor,
                 result -> {
                     if (result.isSuccess()) {
                         SetSchemaResponse jetpackResponse =
@@ -93,7 +93,7 @@ class SearchSessionImpl implements AppSearchSession {
     public ListenableFuture<GetSchemaResponse> getSchema() {
         ResolvableFuture<GetSchemaResponse> future = ResolvableFuture.create();
         mPlatformSession.getSchema(
-                mExecutorService,
+                mExecutor,
                 result -> {
                     if (result.isSuccess()) {
                         android.app.appsearch.GetSchemaResponse platformGetResponse =
@@ -129,7 +129,7 @@ class SearchSessionImpl implements AppSearchSession {
         ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
         mPlatformSession.put(
                 RequestToPlatformConverter.toPlatformPutDocumentsRequest(request),
-                mExecutorService,
+                mExecutor,
                 BatchResultCallbackAdapter.forSameValueType(future));
         return future;
     }
@@ -143,7 +143,7 @@ class SearchSessionImpl implements AppSearchSession {
                 ResolvableFuture.create();
         mPlatformSession.getByUri(
                 RequestToPlatformConverter.toPlatformGetByUriRequest(request),
-                mExecutorService,
+                mExecutor,
                 new BatchResultCallbackAdapter<>(
                         future, GenericDocumentToPlatformConverter::toJetpackGenericDocument));
         return future;
@@ -160,7 +160,7 @@ class SearchSessionImpl implements AppSearchSession {
                 mPlatformSession.search(
                         queryExpression,
                         SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec));
-        return new SearchResultsImpl(platformSearchResults, mExecutorService);
+        return new SearchResultsImpl(platformSearchResults, mExecutor);
     }
 
     @Override
@@ -170,7 +170,7 @@ class SearchSessionImpl implements AppSearchSession {
         ResolvableFuture<Void> future = ResolvableFuture.create();
         mPlatformSession.reportUsage(
                 RequestToPlatformConverter.toPlatformReportUsageRequest(request),
-                mExecutorService,
+                mExecutor,
                 result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
                         result, future));
         return future;
@@ -184,7 +184,7 @@ class SearchSessionImpl implements AppSearchSession {
         ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
         mPlatformSession.remove(
                 RequestToPlatformConverter.toPlatformRemoveByUriRequest(request),
-                mExecutorService,
+                mExecutor,
                 BatchResultCallbackAdapter.forSameValueType(future));
         return future;
     }
@@ -199,7 +199,7 @@ class SearchSessionImpl implements AppSearchSession {
         mPlatformSession.remove(
                 queryExpression,
                 SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec),
-                mExecutorService,
+                mExecutor,
                 result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
                         result, future));
         return future;

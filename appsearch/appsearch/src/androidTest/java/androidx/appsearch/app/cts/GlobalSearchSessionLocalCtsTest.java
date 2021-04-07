@@ -26,8 +26,6 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-// TODO(b/175801531): Support this test for the platform backend once the global search API is
-//  public.
 public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestBase {
     @Override
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {

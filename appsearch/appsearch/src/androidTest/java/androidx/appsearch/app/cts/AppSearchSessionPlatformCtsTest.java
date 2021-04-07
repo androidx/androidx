@@ -38,7 +38,7 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
         return PlatformStorage.createSearchSession(
-                new PlatformStorage.SearchContext.Builder(context).setDatabaseName(dbName).build());
+                new PlatformStorage.SearchContext.Builder(context, dbName).build());
     }
 
     @Override
@@ -46,8 +46,8 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
             @NonNull String dbName, @NonNull ExecutorService executor) {
         Context context = ApplicationProvider.getApplicationContext();
         return PlatformStorage.createSearchSession(
-                new PlatformStorage.SearchContext.Builder(context).setDatabaseName(dbName).build(),
-                executor);
+                new PlatformStorage.SearchContext.Builder(context, dbName)
+                        .setWorkerExecutor(executor).build());
     }
 
     @Override
