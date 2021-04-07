@@ -81,6 +81,7 @@ import androidx.camera.lifecycle.ExperimentalUseCaseGroupLifecycle;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.espresso.IdlingResource;
@@ -213,6 +214,20 @@ public class CameraXActivity extends AppCompatActivity {
     // Listener that handles all ToggleButton events.
     private CompoundButton.OnCheckedChangeListener mOnCheckedChangeListener =
             (compoundButton, isChecked) -> tryBindUseCases();
+
+    private Consumer<Long> mFrameUpdateListener = timestamp -> {
+        if (mPreviewFrameCount.getAndIncrement() >= FRAMES_UNTIL_VIEW_IS_READY) {
+            try {
+                if (!this.mViewIdlingResource.isIdleNow()) {
+                    Log.d(TAG, FRAMES_UNTIL_VIEW_IS_READY + " or more counted on preview."
+                            + " Make IdlingResource idle.");
+                    this.mViewIdlingResource.decrement();
+                }
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "Unexpected decrement. Continuing");
+            }
+        }
+    };
 
     // Espresso testing variables
     private final CountingIdlingResource mViewIdlingResource = new CountingIdlingResource("view");
@@ -605,21 +620,6 @@ public class CameraXActivity extends AppCompatActivity {
                 Objects.requireNonNull((DisplayManager) getSystemService(Context.DISPLAY_SERVICE));
         dpyMgr.registerDisplayListener(mDisplayListener, new Handler(Looper.getMainLooper()));
 
-        previewRenderer.setFrameUpdateListener(ContextCompat.getMainExecutor(this), timestamp -> {
-            // Wait until surface texture receives enough updates. This is for testing.
-            if (mPreviewFrameCount.getAndIncrement() >= FRAMES_UNTIL_VIEW_IS_READY) {
-                try {
-                    if (!mViewIdlingResource.isIdleNow()) {
-                        Log.d(TAG, FRAMES_UNTIL_VIEW_IS_READY + " or more counted on preview."
-                                + " Make IdlingResource idle.");
-                        mViewIdlingResource.decrement();
-                    }
-                } catch (IllegalStateException e) {
-                    Log.e(TAG, "Unexpected decrement. Continuing");
-                }
-            }
-        });
-
         StrictMode.VmPolicy vmPolicy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
         StrictMode.setVmPolicy(vmPolicy);
@@ -691,6 +691,9 @@ public class CameraXActivity extends AppCompatActivity {
             // next thing being ready.
             return;
         }
+        // Clear listening frame update before unbind all.
+        mPreviewRenderer.clearFrameUpdateListener();
+
         mCameraProvider.unbindAll();
         try {
             List<UseCase> useCases = buildUseCases();
@@ -725,7 +728,14 @@ public class CameraXActivity extends AppCompatActivity {
                     .setTargetName("Preview")
                     .build();
             resetViewIdlingResource();
-            mPreviewRenderer.attachInputPreview(preview);
+            // Use the listener of the future to make sure the Preview setup the new surface.
+            mPreviewRenderer.attachInputPreview(preview).addListener(() -> {
+                Log.d(TAG, "OpenGLRenderer get the new surface for the Preview");
+                mPreviewRenderer.setFrameUpdateListener(
+                        ContextCompat.getMainExecutor(this), mFrameUpdateListener
+                );
+            }, ContextCompat.getMainExecutor(this));
+
             useCases.add(preview);
         }
 
