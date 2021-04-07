@@ -28,7 +28,7 @@ plugins {
 
 dependencies {
     api(project(":navigation:navigation-dynamic-features-runtime"))
-    api(project(":navigation:navigation-fragment-ktx"))
+    api(project(":navigation:navigation-fragment"))
     api(KOTLIN_STDLIB)
 
     testImplementation(ANDROIDX_TEST_CORE)
