@@ -216,7 +216,7 @@ public final class CarAppActivity extends FragmentActivity {
                 public void onServiceDisconnected(@NonNull ComponentName name) {
                     onServiceConnectionError(
                             String.format("Host service %s is disconnected", requireNonNull(name)),
-                            ErrorActionType.FINISH);
+                            ErrorActionType.DISCONNECT);
                 }
             };
 
@@ -370,6 +370,11 @@ public final class CarAppActivity extends FragmentActivity {
      * @param errorMessage the error message to be shown in the logs
      */
     void onServiceConnectionError(@Nullable String errorMessage, ErrorActionType type) {
+        if (type == ErrorActionType.DISCONNECT) {
+            Log.d(TAG, "Disconnect by user, don't kill the CarAppActivity");
+            return;
+        }
+
         // Remove the renderer callback since there is no need to communicate the state with
         // the host.
         mActivityLifecycleDelegate.registerRendererCallback(null);
@@ -466,5 +471,8 @@ public final class CarAppActivity extends FragmentActivity {
 
         /** Finish the CarAppActivity */
         FINISH,
+
+        /** Finish the CarAppActivity */
+        DISCONNECT,
     }
 }
