@@ -848,8 +848,11 @@ public final class ComplicationDrawable extends Drawable {
         return mComplicationRenderer;
     }
 
+    /**
+     * Returns the text to be rendered when {@link ComplicationData} is of type {@link
+     * ComplicationData#TYPE_NO_DATA}.
+     */
     @Nullable
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     public CharSequence getNoDataText() {
         return mNoDataText;
     }
