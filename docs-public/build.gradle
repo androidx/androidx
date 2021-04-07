@@ -136,7 +136,7 @@ dependencies {
     docs("androidx.lifecycle:lifecycle-runtime-testing:2.4.0-alpha01")
     docs("androidx.lifecycle:lifecycle-service:2.4.0-alpha01")
     docs("androidx.lifecycle:lifecycle-viewmodel:2.4.0-alpha01")
-    docs("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha03")
+    docs("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha04")
     docs("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0-alpha01")
     docs("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.4.0-alpha01")
     docs("androidx.loader:loader:1.1.0")
