@@ -117,6 +117,68 @@ without a link:
 class Item
 ```
 
+### Include class name in `@see`
+
+When referring to a function using `@see`, include the class name with the
+function - even if the function the `see` is referring to is in the same class.
+
+Instead of:
+
+```kotlin {.bad}
+/**
+ * @see .myCoolFun
+ */
+```
+
+Do this:
+
+```kotlin {.good}
+/**
+ * @see MyCoolClass.myCoolFun
+ */
+```
+
+### Match `@param` with usage
+
+When using `@param` to refer to a variable, the spelling must match the
+variable's code declaration.
+
+Instead of:
+
+```kotlin {.bad}
+/**
+ * @param myParam
+ */
+public var myParameter: String
+```
+
+Do this:
+
+```kotlin {.good}
+/**
+ * @param myParameter
+ */
+public var myParameter: String
+```
+
+### Don't mix `@see` and Markdown links
+
+Instead of:
+
+```kotlin {.bad}
+/**
+ * @see [MyCoolClass.myCoolFun()][androidx.library.myCoolFun] for more details.
+ */
+```
+
+Do this:
+
+```kotlin {.good}
+/**
+ * See [MyCoolClass.myCoolFun()][androidx.library.myCoolFun] for more details.
+ */
+```
+
 ## Javadoc - KDoc differences
 
 Some tags are shared between Javadoc and KDoc, such as `@param`, but there are

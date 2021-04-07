@@ -241,7 +241,7 @@ any changes likely to introduce additional functional instability. Requests for
 exceptions **must** be accompanied by a justification explaining why the change
 cannot be made in a future minor version.
 
-#### Checklist for moving to `beta01`
+#### Checklist for moving to `beta01` {#beta-checklist}
 
 *   API surface
     *   Entire API surface has been reviewed by API Council

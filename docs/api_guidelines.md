@@ -80,6 +80,12 @@ dependency on `androidx.library:1.1.0`, there is no easy way for the developer
 to discover this solution from the class duplication error raised at compile
 time.
 
+Same-version groups are a special case for this rule. Existing modules that are
+already in a same-version group may be split into sub-modules provided that (a)
+the sub-modules are also in the same-version group and (b) the full API surface
+of the existing module is preserved through transitive dependencies, e.g. the
+sub-modules are added as dependencies of the existing module.
+
 #### Same-version (atomic) groups {#modules-atomic}
 
 Library groups are encouraged to opt-in to a same-version policy whereby all
@@ -732,6 +738,10 @@ should migrate away from the API.
 Deprecation is an non-breaking API change that must occur in a **major** or
 **minor** release.
 
+APIs that are added during a pre-release cycle and marked as `@Deprecated`
+within the same cycle, e.g. added in `alpha01` and deprecated in `alpha06`,
+[must be removed](versioning.md#beta-checklist) before moving to `beta01`.
+
 ### Soft removal (@removed)
 
 Soft removal preserves binary compatibility while preventing source code from
@@ -1166,10 +1176,10 @@ When making any change to the experimental API surface, you *must* run
 ### Restricted APIs {#restricted-api}
 
 Jetpack's library tooling supports hiding Java-visible (ex. `public` and
-`protected`) APIs from developers using a combination of the `@hide` docs
-annotation and `@RestrictTo` source annotation. These annotations **must** be
-paired together when used, and are validated as part of presubmit checks for
-Java code (Kotlin not yet supported by Checkstyle).
+`protected`) APIs from developers using a combination of the `@RestrictTo`
+source annotation, and the `@hide` docs annotation (`@suppress` in Kotlin).
+These annotations **must** be paired together when used, and are validated as
+part of presubmit checks for Java code (Kotlin not yet supported by Checkstyle).
 
 The effects of hiding an API are as follows:
 
@@ -1184,22 +1194,22 @@ Hiding an API does *not* provide strong guarantees about usage:
 
 #### When to use `@hide` {#restricted-api-usage}
 
-Generally, avoid using `@hide`. The `@hide` annotation indicates that developers
-should not call an API that is _technically_ public from a Java visibility
-perspective. Hiding APIs is often a sign of a poorly-abstracted API surface, and
-priority should be given to creating public, maintainable APIs and using Java
-visibility modifiers.
+In other cases, avoid using `@hide` / `@suppress`. These annotations indicates
+that developers should not call an API that is _technically_ public from a Java
+visibility perspective. Hiding APIs is often a sign of a poorly-abstracted API
+surface, and priority should be given to creating public, maintainable APIs and
+using Java visibility modifiers.
 
-*Do not* use `@hide` to bypass API tracking and review for production APIs;
-instead, rely on API+1 and API Council review to ensure APIs are reviewed on a
-timely basis.
+*Do not* use `@hide`/`@suppress` to bypass API tracking and review for
+production APIs; instead, rely on API+1 and API Council review to ensure APIs
+are reviewed on a timely basis.
 
-*Do not* use `@hide` for implementation detail APIs that are used between
-libraries and could reasonably be made public.
+*Do not* use `@hide`/`@suppress` for implementation detail APIs that are used
+between libraries and could reasonably be made public.
 
-*Do* use `@hide` paired with `@RestrictTo(LIBRARY)` for implementation detail
-APIs used within a single library (but prefer Java language `private` or
-`default` visibility).
+*Do* use `@hide`/`@suppress` paired with `@RestrictTo(LIBRARY)` for
+implementation detail APIs used within a single library (but prefer Java
+language `private` or `default` visibility).
 
 #### `RestrictTo.Scope` and inter- versus intra-library API surfaces {#private-api-types}
 
@@ -1385,6 +1395,75 @@ that are more lightweight, depending on your use case:
 *   Maintain granular control of your concurrency invariants
 
 ### Kotlin {#kotlin}
+
+#### Nullability from Java (new APIs)
+
+All new Java APIs should be annotated either `@Nullable` or `@NonNull` for all
+reference parameters and reference return types.
+
+```java
+    @Nullable
+    public Object someNewApi(@NonNull Thing arg1, @Nullable List<WhatsIt> arg2) {
+        if(/** something **/) {
+            return someObject;
+        } else {
+            return null;
+    }
+```
+
+#### Nullability from Java (existing APIs)
+
+Adding `@Nullable` or `@NonNull` annotations to existing APIs to document their
+existing nullability is OK. This is a source breaking change for Kotlin
+consumers, and you should ensure that it's noted in the release notes and try to
+minimize the frequency of these updates in releases.
+
+Changing the nullability of an API is a breaking change.
+
+#### Extending APIs that expose types without nullability annotations
+
+[Platform types](https://kotlinlang.org/docs/java-interop.html#null-safety-and-platform-types)
+are exposed by Java types that do not have a `@Nullable` or `@NonNull`
+annotation. In Kotlin they are indicated with the `!` suffix.
+
+When interacting with an Android platform API that exposes APIs with unknown
+nullability follow these rules:
+
+1.  If wrapping the type in a new API, define and handle `@Nullable` or
+    `@NonNull` in the library. Treat types with unknown nullability passed into
+    or return from Android as `@Nullable` in the library.
+2.  If extending an existing API (e.g. `@Override`), pass through the existing
+    types with unknown nullability and annotate each with
+    `@SuppressLint("UnknownNullness")`
+
+In Kotlin, a type with unknown nullability is exposed as a "platform type"
+(indicated with a `!` suffix) which has unknown nullability in the type checker,
+and may bypass type checking leading to runtime errors. When possible, do not
+directly expose types with unknown nullability in new public APIs.
+
+#### Extending `@RecentlyNonNull` and `@RecentlyNullable` APIs
+
+Platform APIs are annotated in the platform SDK artifacts with fake annotations
+`@RecentlyNonNull` and `@RecentlyNullable` to avoid breaking builds when we
+annotated platform APIs with nullability. These annotations cause warnings
+instead of build failures. The `RecentlyNonNull` and `RecentlyNullable`
+annotations are added by Metalava and do not appear in platform code.
+
+When extending an API that is annotated `@RecentlyNonNull`, you should annotate
+the override with `@NonNull`, and the same for `@RecentlyNullable` and
+`@Nullable`.
+
+For example `SpannableStringBuilder.append` is annotated `RecentlyNonNull` and
+an override should look like:
+
+```java
+    @NonNull
+    @Override
+    public SpannableStringBuilder append(@SuppressLint("UnknownNullness") CharSequence text) {
+        super.append(text);
+        return this;
+    }
+```
 
 #### Data classes {#kotlin-data}
 
