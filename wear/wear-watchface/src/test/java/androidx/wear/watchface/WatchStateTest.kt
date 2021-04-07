@@ -125,6 +125,18 @@ public class WatchStateTest {
     }
 
     @Test
+    public fun asWatchFace_chinHeight_isNotPropagated() {
+        val mutableWatchState = MutableWatchState()
+        var watchState = mutableWatchState.asWatchState()
+        // Defaults to 0.
+        assertThat(watchState.chinHeight).isEqualTo(0)
+        // Value updated is not propagated unless a new instance is created.
+        mutableWatchState.chinHeight = 48
+        assertThat(watchState.chinHeight).isEqualTo(0)
+        assertThat(mutableWatchState.asWatchState().chinHeight).isEqualTo(48)
+    }
+
+    @Test
     public fun asWatchFace_isHeadless_isNotPropagated() {
         val mutableWatchState = MutableWatchState()
         var watchState = mutableWatchState.asWatchState()
