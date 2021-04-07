@@ -67,8 +67,6 @@ jobs:
 
       - name: "Get changed files in push or pull_request"
         id: changed-files
-        # Temporary workaround for failing on force-push
-        continue-on-error: true
         uses: androidx/changed-files-action@main
 
       - name: Check invalid suppressions
