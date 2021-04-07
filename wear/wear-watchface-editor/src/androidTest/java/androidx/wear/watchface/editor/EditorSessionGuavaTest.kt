@@ -113,6 +113,9 @@ public class EditorSessionGuavaTest {
         Mockito.`when`(editorDelegate.previewReferenceTimeMillis)
             .thenReturn(previewReferenceTimeMillis)
 
+        OnWatchFaceEditingTestActivity.providerInfoRetrieverProvider =
+            TestProviderInfoRetrieverProvider()
+
         return ActivityScenario.launch(
             WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
