@@ -27,7 +27,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":navigation:navigation-runtime-ktx"))
+    api(project(":navigation:navigation-runtime"))
     api(PLAY_CORE)
     api(KOTLIN_STDLIB)
 
