@@ -50,10 +50,15 @@ constructor(private val navigatorProvider: NavigatorProvider) : Navigator<NavGra
         navigatorExtras: Extras?
     ): NavDestination? {
         val startId = destination.startDestinationId
-        check(startId != 0) {
+        val startRoute = destination.startDestinationRoute
+        check(startId != 0 || startRoute != null) {
             ("no start destination defined via app:startDestination for ${destination.displayName}")
         }
-        val startDestination = destination.findNode(startId, false)
+        val startDestination = if (startRoute != null) {
+            destination.findNode(startRoute, false)
+        } else {
+            destination.findNode(startId, false)
+        }
         requireNotNull(startDestination) {
             val dest = destination.startDestDisplayName
             throw IllegalArgumentException(

@@ -24,6 +24,7 @@ import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.annotation.NavigationRes
 import androidx.core.app.TaskStackBuilder
+import androidx.navigation.NavDestination.Companion.createRoute
 
 /**
  * Class used to construct deep links to a particular destination in a [NavGraph].
@@ -151,6 +152,26 @@ constructor(private val context: Context) {
     }
 
     /**
+     * Sets the destination route to deep link to. Any destinations previous added via
+     * [.addDestination] are cleared, effectively resetting this object
+     * back to only this single destination.
+     *
+     * @param destRoute destination route to deep link to.
+     * @param args Arguments to pass to this destination and any synthetic back stack created
+     * due to this destination being added.
+     * @return this object for chaining
+     */
+    @JvmOverloads
+    public fun setDestination(destRoute: String, args: Bundle? = null): NavDeepLinkBuilder {
+        destinations.clear()
+        destinations.add(DeepLinkDestination(createRoute(destRoute).hashCode(), args))
+        if (graph != null) {
+            verifyAllDestinations()
+        }
+        return this
+    }
+
+    /**
      * Add a new destination id to deep link to. This builds off any previous calls to this method
      * or calls to [setDestination], building the minimal synthetic back stack of
      * start destinations between the previous deep link destination and the newly added
@@ -164,6 +185,26 @@ constructor(private val context: Context) {
     @JvmOverloads
     public fun addDestination(@IdRes destId: Int, args: Bundle? = null): NavDeepLinkBuilder {
         destinations.add(DeepLinkDestination(destId, args))
+        if (graph != null) {
+            verifyAllDestinations()
+        }
+        return this
+    }
+
+    /**
+     * Add a new destination route to deep link to. This builds off any previous calls to this
+     * method or calls to [.setDestination], building the minimal synthetic back stack of
+     * start destinations between the previous deep link destination and the newly added
+     * deep link destination.
+     *
+     * @param route destination route to deep link to.
+     * @param args Arguments to pass to this destination and any synthetic back stack created
+     * due to this destination being added.
+     * @return this object for chaining
+     */
+    @JvmOverloads
+    public fun addDestination(route: String, args: Bundle? = null): NavDeepLinkBuilder {
+        destinations.add(DeepLinkDestination(createRoute(route).hashCode(), args))
         if (graph != null) {
             verifyAllDestinations()
         }

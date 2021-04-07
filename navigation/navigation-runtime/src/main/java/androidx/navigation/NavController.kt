@@ -31,12 +31,14 @@ import androidx.annotation.MainThread
 import androidx.annotation.NavigationRes
 import androidx.annotation.RestrictTo
 import androidx.core.app.TaskStackBuilder
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.navigation.NavDestination.Companion.createRoute
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -386,6 +388,28 @@ public open class NavController(
         // the change to a new destination
         return popped && dispatchOnDestinationChanged()
     }
+
+    /**
+     * Attempts to pop the controller's back stack back to a specific destination.
+     *
+     * @param route The topmost destination to retain
+     * @param inclusive Whether the given destination should also be popped.
+     * @param saveState Whether the back stack and the state of all destinations between the
+     * current destination and the [route] should be saved for later
+     * restoration via [NavOptions.Builder.setRestoreState] or the `restoreState` attribute using
+     * the same [route] (note: this matching ID is true whether
+     * [inclusive] is true or false).
+     *
+     * @return true if the stack was popped at least once and the user has been navigated to
+     * another destination, false otherwise
+     */
+    @MainThread
+    @JvmOverloads
+    public fun popBackStack(
+        route: String,
+        inclusive: Boolean,
+        saveState: Boolean = false
+    ): Boolean = popBackStack(createRoute(route).hashCode(), inclusive, saveState)
 
     /**
      * Attempts to pop the controller's back stack back to a specific destination. This does
@@ -1041,6 +1065,19 @@ public open class NavController(
         return currentGraph.findNode(destinationId)
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun findDestination(destinationRoute: String): NavDestination? {
+        if (_graph == null) {
+            return null
+        }
+        if (_graph!!.route == destinationRoute) {
+            return _graph
+        }
+        val currentNode = backQueue.lastOrNull()?.destination ?: _graph!!
+        val currentGraph = if (currentNode is NavGraph) currentNode else currentNode.parent!!
+        return currentGraph.findNode(destinationRoute)
+    }
+
     /**
      * Navigate to a destination from the current navigation graph. This supports both navigating
      * via an [action][NavDestination.getAction] and directly navigating to a destination.
@@ -1541,6 +1578,41 @@ public open class NavController(
     }
 
     /**
+     * Navigate to a route in the current NavGraph. If an invalid route is given, an
+     * [IllegalArgumentException] will be thrown.
+     *
+     * @param route route for the destination
+     * @param builder DSL for constructing a new [NavOptions]
+     *
+     * @throws IllegalArgumentException if the given route is invalid
+     */
+    public fun navigate(route: String, builder: NavOptionsBuilder.() -> Unit) {
+        navigate(route, navOptions(builder))
+    }
+
+    /**
+     * Navigate to a route in the current NavGraph. If an invalid route is given, an
+     * [IllegalArgumentException] will be thrown.
+     *
+     * @param route route for the destination
+     * @param navOptions special options for this navigation operation
+     * @param navigatorExtras extras to pass to the [Navigator]
+     *
+     * @throws IllegalArgumentException if the given route is invalid
+     */
+    @JvmOverloads
+    public fun navigate(
+        route: String,
+        navOptions: NavOptions? = null,
+        navigatorExtras: Navigator.Extras? = null
+    ) {
+        navigate(
+            NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build(), navOptions,
+            navigatorExtras
+        )
+    }
+
+    /**
      * Create a deep link to a destination within this NavController.
      *
      * @return a [NavDeepLinkBuilder] suitable for constructing a deep link
@@ -1758,6 +1830,27 @@ public open class NavController(
     }
 
     /**
+     * Gets the topmost {@link NavBackStackEntry} for a route.
+     * <p>
+     * This is always safe to use with {@link #getCurrentDestination() the current destination} or
+     * {@link NavDestination#getParent() its parent} or grandparent navigation graphs as these
+     * destinations are guaranteed to be on the back stack.
+     *
+     * @param route route of a destination that exists on the back stack
+     * @throws IllegalArgumentException if the destination is not on the back stack
+     */
+    public fun getBackStackEntry(route: String): NavBackStackEntry {
+        val lastFromBackStack: NavBackStackEntry? = backQueue.lastOrNull { entry ->
+            entry.destination.route == route
+        }
+        requireNotNull(lastFromBackStack) {
+            "No destination with route $route is on the NavController's back stack. The " +
+                "current destination is $currentDestination"
+        }
+        return lastFromBackStack
+    }
+
+    /**
      * Gets the topmost [NavBackStackEntry].
      *
      * @return the topmost entry on the back stack or null if the back stack is empty
@@ -1837,3 +1930,16 @@ public inline fun NavController.createGraph(
     @IdRes startDestination: Int,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(id, startDestination, builder)
+
+/**
+ * Construct a new [NavGraph]
+ *
+ * @param route the route for the graph
+ * @param startDestination the route for the start destination
+ * @param builder the builder used to construct the graph
+ */
+public fun NavController.createGraph(
+    startDestination: String,
+    route: String? = null,
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = navigatorProvider.navigation(startDestination, route, builder)
