@@ -13,7 +13,6 @@ package androidx.navigation.fragment {
     ctor public DialogFragmentNavigator(android.content.Context context, androidx.fragment.app.FragmentManager fragmentManager);
     method public androidx.navigation.fragment.DialogFragmentNavigator.Destination createDestination();
     method public androidx.navigation.NavDestination? navigate(androidx.navigation.fragment.DialogFragmentNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onAttachFragment(androidx.fragment.app.Fragment childFragment);
     method public boolean popBackStack();
   }
 
