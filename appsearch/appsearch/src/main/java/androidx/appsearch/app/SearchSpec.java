@@ -25,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.exceptions.IllegalSearchSpecException;
 import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
 
@@ -338,10 +337,14 @@ public final class SearchSpec {
         public Builder() {
             mBundle = new Bundle();
             mBundle.putInt(NUM_PER_PAGE_FIELD, DEFAULT_NUM_PER_PAGE);
+            mBundle.putInt(TERM_MATCH_TYPE_FIELD, TERM_MATCH_PREFIX);
         }
 
         /**
          * Indicates how the query terms should match {@code TermMatchCode} in the index.
+         *
+         * <p>If this method is not called, the default term match type is
+         * {@link SearchSpec#TERM_MATCH_PREFIX}.
          */
         @NonNull
         public Builder setTermMatch(@TermMatch int termMatchTypeCode) {
@@ -689,9 +692,6 @@ public final class SearchSpec {
         @NonNull
         public SearchSpec build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            if (!mBundle.containsKey(TERM_MATCH_TYPE_FIELD)) {
-                throw new IllegalSearchSpecException("Missing termMatchType field.");
-            }
             mBundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
             mBundle.putStringArrayList(SCHEMA_FIELD, mSchemas);
             mBundle.putStringArrayList(PACKAGE_NAME_FIELD, mPackageNames);

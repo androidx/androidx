@@ -447,23 +447,22 @@ public final class SearchResult {
             private boolean mBuilt = false;
 
             /**
-             * Sets the property path corresponding to the given entry.
+             * Creates a new {@link MatchInfo.Builder} reporting a match with the given property
+             * path.
              *
-             * <p>A property path is a '.' - delimited sequence of property names indicating which
+             * <p>A property path is a dot-delimited sequence of property names indicating which
              * property in the document these snippets correspond to.
              *
              * <p>Example properties: 'body', 'sender.name', 'sender.emailaddress', etc.
-             * For class example 1 this returns "subject"
+             * For class example 1 this returns "subject".
              *
-             * @throws IllegalStateException if the builder has already been used
+             * @param propertyPath A {@code dot-delimited sequence of property names indicating
+             *                     which property in the document these snippets correspond to.
              */
-            @NonNull
-            public Builder setPropertyPath(@NonNull String propertyPath) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
+            public Builder(@NonNull String propertyPath) {
                 mBundle.putString(
                         SearchResult.MatchInfo.PROPERTY_PATH_FIELD,
                         Preconditions.checkNotNull(propertyPath));
-                return this;
             }
 
             /**

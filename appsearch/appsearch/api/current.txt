@@ -293,9 +293,8 @@ package androidx.appsearch.app {
   }
 
   public static final class ReportSystemUsageRequest.Builder {
-    ctor public ReportSystemUsageRequest.Builder(String, String, String);
+    ctor public ReportSystemUsageRequest.Builder(String, String, String, String);
     method public androidx.appsearch.app.ReportSystemUsageRequest build();
-    method public androidx.appsearch.app.ReportSystemUsageRequest.Builder setUri(String);
     method public androidx.appsearch.app.ReportSystemUsageRequest.Builder setUsageTimeMillis(long);
   }
 
@@ -306,9 +305,10 @@ package androidx.appsearch.app {
   }
 
   public static final class ReportUsageRequest.Builder {
-    ctor public ReportUsageRequest.Builder(String);
+    ctor public ReportUsageRequest.Builder(String, String);
+    ctor @Deprecated public ReportUsageRequest.Builder(String);
     method public androidx.appsearch.app.ReportUsageRequest build();
-    method public androidx.appsearch.app.ReportUsageRequest.Builder setUri(String);
+    method @Deprecated public androidx.appsearch.app.ReportUsageRequest.Builder setUri(String);
     method public androidx.appsearch.app.ReportUsageRequest.Builder setUsageTimeMillis(long);
   }
 
@@ -340,10 +340,9 @@ package androidx.appsearch.app {
   }
 
   public static final class SearchResult.MatchInfo.Builder {
-    ctor public SearchResult.MatchInfo.Builder();
+    ctor public SearchResult.MatchInfo.Builder(String);
     method public androidx.appsearch.app.SearchResult.MatchInfo build();
     method public androidx.appsearch.app.SearchResult.MatchInfo.Builder setExactMatchRange(androidx.appsearch.app.SearchResult.MatchRange);
-    method public androidx.appsearch.app.SearchResult.MatchInfo.Builder setPropertyPath(String);
     method public androidx.appsearch.app.SearchResult.MatchInfo.Builder setSnippetRange(androidx.appsearch.app.SearchResult.MatchRange);
   }
 
@@ -458,19 +457,11 @@ package androidx.appsearch.app {
   }
 
   public static class SetSchemaResponse.MigrationFailure {
+    ctor public SetSchemaResponse.MigrationFailure(String, String, String, androidx.appsearch.app.AppSearchResult<?>);
     method public androidx.appsearch.app.AppSearchResult<java.lang.Void!> getAppSearchResult();
     method public String getNamespace();
     method public String getSchemaType();
     method public String getUri();
-  }
-
-  public static final class SetSchemaResponse.MigrationFailure.Builder {
-    ctor public SetSchemaResponse.MigrationFailure.Builder();
-    method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure build();
-    method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure.Builder setAppSearchResult(androidx.appsearch.app.AppSearchResult<java.lang.Void!>);
-    method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure.Builder setNamespace(String);
-    method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure.Builder setSchemaType(String);
-    method public androidx.appsearch.app.SetSchemaResponse.MigrationFailure.Builder setUri(String);
   }
 
   public class StorageInfo {

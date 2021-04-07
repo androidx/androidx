@@ -59,8 +59,7 @@ public class SearchResultToPlatformConverter {
     private static SearchResult.MatchInfo toJetpackMatchInfo(
             @NonNull android.app.appsearch.SearchResult.MatchInfo platformMatchInfo) {
         Preconditions.checkNotNull(platformMatchInfo);
-        return new SearchResult.MatchInfo.Builder()
-                .setPropertyPath(platformMatchInfo.getPropertyPath())
+        return new SearchResult.MatchInfo.Builder(platformMatchInfo.getPropertyPath())
                 .setExactMatchRange(
                         new SearchResult.MatchRange(
                                 platformMatchInfo.getExactMatchRange().getStart(),

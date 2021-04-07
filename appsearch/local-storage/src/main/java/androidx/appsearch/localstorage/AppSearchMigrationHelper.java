@@ -171,19 +171,17 @@ class AppSearchMigrationHelper implements Closeable {
                             /*logger=*/ null);
                 } catch (Throwable t) {
                     responseBuilder.addMigrationFailure(
-                            new SetSchemaResponse.MigrationFailure.Builder()
-                                    .setNamespace(document.getNamespace())
-                                    .setSchemaType(document.getSchemaType())
-                                    .setUri(document.getUri())
-                                    .setAppSearchResult(throwableToFailedResult(t))
-                                    .build());
+                            new SetSchemaResponse.MigrationFailure(
+                                    document.getNamespace(),
+                                    document.getUri(),
+                                    document.getSchemaType(),
+                                    throwableToFailedResult(t)));
                 }
             }
             mAppSearchImpl.persistToDisk();
         }
         return responseBuilder.build();
     }
-
 
     /**
      * Reads {@link GenericDocument} from given {@link CodedInputStream}.

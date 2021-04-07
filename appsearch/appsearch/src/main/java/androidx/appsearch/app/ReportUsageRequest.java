@@ -67,6 +67,13 @@ public final class ReportUsageRequest {
         private boolean mBuilt = false;
 
         /** Creates a {@link ReportUsageRequest.Builder} instance. */
+        public Builder(@NonNull String namespace, @NonNull String uri) {
+            mNamespace = Preconditions.checkNotNull(namespace);
+            mUri = Preconditions.checkNotNull(uri);
+        }
+
+        /** @deprecated This method exists only for dogfooder transition and must be removed */
+        @Deprecated // TODO(b/184667648): Exists only for dogfooder transition and must be removed
         public Builder(@NonNull String namespace) {
             mNamespace = Preconditions.checkNotNull(namespace);
         }
@@ -77,7 +84,9 @@ public final class ReportUsageRequest {
          * <p>This field is required.
          *
          * @throws IllegalStateException if the builder has already been used
+         * @deprecated This method exists only for dogfooder transition and must be removed
          */
+        @Deprecated // TODO(b/184667648): Exists only for dogfooder transition and must be removed
         @NonNull
         public ReportUsageRequest.Builder setUri(@NonNull String uri) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
