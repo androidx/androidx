@@ -41,9 +41,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigate
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int) {
     object Profile : Screen("profile", R.string.profile)
@@ -61,7 +60,6 @@ fun BasicNav() {
     }
 }
 
-@Sampled
 @Composable
 fun NestedNavStartDestination() {
     val navController = rememberNavController()
@@ -74,7 +72,6 @@ fun NestedNavStartDestination() {
     }
 }
 
-@Sampled
 @Composable
 fun NestedNavInGraph() {
     val navController = rememberNavController()
