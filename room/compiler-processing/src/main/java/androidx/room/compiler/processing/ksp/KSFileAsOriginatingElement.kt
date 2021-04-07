@@ -30,7 +30,7 @@ import javax.lang.model.type.TypeMirror
  * This wrapper class helps us wrap a KSFile as an originating element and KspFiler unwraps it to
  * get the actual KSFile out of it.
  */
-internal class KSFileAsOriginatingElement(
+internal data class KSFileAsOriginatingElement(
     val ksFile: KSFile
 ) : Element {
     override fun getAnnotationMirrors(): List<AnnotationMirror> {
@@ -74,10 +74,6 @@ internal class KSFileAsOriginatingElement(
 
     override fun <R : Any?, P : Any?> accept(v: ElementVisitor<R, P>?, p: P): R? {
         return null
-    }
-
-    override fun toString(): String {
-        return ksFile.toString()
     }
 
     private class NameImpl(private val str: String) : Name, CharSequence by str {

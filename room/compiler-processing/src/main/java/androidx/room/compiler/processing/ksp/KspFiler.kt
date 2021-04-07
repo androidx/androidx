@@ -32,7 +32,7 @@ internal class KspFiler(
     private val delegate: CodeGenerator,
     private val messager: XMessager,
 ) : XFiler {
-    override fun write(javaFile: JavaFile) {
+    override fun write(javaFile: JavaFile, mode: XFiler.Mode) {
         val originatingFiles = javaFile.typeSpec.originatingElements
             .map(::originatingFileFor)
 
@@ -40,7 +40,8 @@ internal class KspFiler(
             originatingFiles = originatingFiles,
             packageName = javaFile.packageName,
             fileName = javaFile.typeSpec.name,
-            extensionName = "java"
+            extensionName = "java",
+            aggregating = mode == XFiler.Mode.Aggregating
         ).use { outputStream ->
             outputStream.bufferedWriter(Charsets.UTF_8).use {
                 javaFile.writeTo(it)
@@ -48,7 +49,7 @@ internal class KspFiler(
         }
     }
 
-    override fun write(fileSpec: FileSpec) {
+    override fun write(fileSpec: FileSpec, mode: XFiler.Mode) {
         val originatingFiles = fileSpec.members
             .filterIsInstance<TypeSpec>()
             .flatMap { it.originatingElements }
@@ -58,7 +59,8 @@ internal class KspFiler(
             originatingFiles = originatingFiles,
             packageName = fileSpec.packageName,
             fileName = fileSpec.name,
-            extensionName = "kt"
+            extensionName = "kt",
+            aggregating = mode == XFiler.Mode.Aggregating
         ).use { outputStream ->
             outputStream.bufferedWriter(Charsets.UTF_8).use {
                 fileSpec.writeTo(it)
@@ -77,7 +79,8 @@ internal class KspFiler(
         originatingFiles: List<KSFile>,
         packageName: String,
         fileName: String,
-        extensionName: String
+        extensionName: String,
+        aggregating: Boolean
     ): OutputStream {
         val dependencies = if (originatingFiles.isEmpty()) {
             messager.printMessage(
@@ -91,7 +94,7 @@ internal class KspFiler(
             Dependencies.ALL_FILES
         } else {
             Dependencies(
-                aggregating = false,
+                aggregating = aggregating,
                 sources = originatingFiles.distinct().toTypedArray()
             )
         }
