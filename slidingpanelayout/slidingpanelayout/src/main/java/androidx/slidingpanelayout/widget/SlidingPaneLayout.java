@@ -113,6 +113,18 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             "androidx.slidingpanelayout.widget.SlidingPaneLayout";
 
     /**
+     * This field is only used to support the setter and getter. It is not used by
+     * SlidingPaneLayout.
+     */
+    private int mSliderFadeColor = 0;
+
+    /**
+     * This field is only used to support the setter and getter. It is not used by
+     * SlidingPaneLayout.
+     */
+    private int mCoveredFadeColor;
+
+    /**
      * Drawable used to draw the shadow between panes by default.
      */
     private Drawable mShadowDrawableLeft;
@@ -351,6 +363,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      */
     @Deprecated
     public void setSliderFadeColor(@ColorInt int color) {
+        mSliderFadeColor = color;
     }
 
     /**
@@ -361,7 +374,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     @Deprecated
     @ColorInt
     public int getSliderFadeColor() {
-        return 0;
+        return mSliderFadeColor;
     }
 
     /**
@@ -373,6 +386,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      */
     @Deprecated
     public void setCoveredFadeColor(@ColorInt int color) {
+        mCoveredFadeColor = color;
     }
 
     /**
@@ -383,7 +397,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     @Deprecated
     @ColorInt
     public int getCoveredFadeColor() {
-        return 0;
+        return mCoveredFadeColor;
     }
 
     /**
