@@ -16,9 +16,10 @@
 
 package androidx.wear.watchface.style
 
-import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
+import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
@@ -50,27 +51,29 @@ public class UserStyleSettingTest {
             )
 
         assertThat(
-            rangedUserStyleSetting.getOptionForId("not a number".encodeToByteArray())
-                .toDoubleRangeOption()!!.value
+            (
+                rangedUserStyleSetting.getOptionForId("not a number".encodeToByteArray()) as
+                    DoubleRangeOption
+                ).value
         ).isEqualTo(defaultValue)
 
         assertThat(
-            rangedUserStyleSetting.getOptionForId("-1".encodeToByteArray())
-                .toDoubleRangeOption()!!.value
+            (rangedUserStyleSetting.getOptionForId("-1".encodeToByteArray()) as DoubleRangeOption)
+                .value
         ).isEqualTo(defaultValue)
 
         assertThat(
-            rangedUserStyleSetting.getOptionForId("10".encodeToByteArray())
-                .toDoubleRangeOption()!!.value
+            (rangedUserStyleSetting.getOptionForId("10".encodeToByteArray()) as DoubleRangeOption)
+                .value
         ).isEqualTo(defaultValue)
     }
 
     @Test
     public fun byteArrayConversion() {
-        assertThat(BooleanUserStyleSetting.BooleanOption(true).value).isEqualTo(true)
-        assertThat(BooleanUserStyleSetting.BooleanOption(false).value).isEqualTo(false)
-        assertThat(DoubleRangeUserStyleSetting.DoubleRangeOption(123.4).value).isEqualTo(123.4)
-        assertThat(LongRangeUserStyleSetting.LongRangeOption(1234).value).isEqualTo(1234)
+        assertThat(BooleanOption(true).value).isEqualTo(true)
+        assertThat(BooleanOption(false).value).isEqualTo(false)
+        assertThat(DoubleRangeOption(123.4).value).isEqualTo(123.4)
+        assertThat(LongRangeOption(1234).value).isEqualTo(1234)
     }
 
     @Test
