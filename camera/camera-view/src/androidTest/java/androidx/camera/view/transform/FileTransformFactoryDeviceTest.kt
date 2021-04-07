@@ -29,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,13 +47,24 @@ private const val HEIGHT = 60
 @RunWith(AndroidJUnit4::class)
 public class FileTransformFactoryDeviceTest {
 
-    private val factory = FileTransformFactory.Builder().build()
+    private lateinit var factory: FileTransformFactory
     private val contentResolver = getApplicationContext<Context>().contentResolver
 
     @get:Rule
     public val runtimePermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
+
+    @Before
+    public fun setUp() {
+        factory = FileTransformFactory()
+    }
+
+    @Test
+    public fun setUseRotationDegrees_getterReturnsTrue() {
+        factory.isUsingExifOrientation = true
+        assertThat(factory.isUsingExifOrientation).isTrue()
+    }
 
     @Test
     public fun extractFromFile() {
@@ -61,9 +73,8 @@ public class FileTransformFactoryDeviceTest {
 
     @Test
     public fun extractFromFileWithExifInfo() {
-        val factoryWithExifInfo = FileTransformFactory.Builder().setUseExifOrientation(true).build()
-        factoryWithExifInfo
-            .getOutputTransform(createImageFile(ExifInterface.ORIENTATION_ROTATE_90))
+        factory.isUsingExifOrientation = true
+        factory.getOutputTransform(createImageFile(ExifInterface.ORIENTATION_ROTATE_90))
             .assertMapping(1f, 1f, 0, WIDTH)
     }
 
