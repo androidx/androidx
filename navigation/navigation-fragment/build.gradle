@@ -28,7 +28,7 @@ plugins {
 
 dependencies {
     api(projectOrArtifact(":fragment:fragment-ktx"))
-    api(project(":navigation:navigation-runtime-ktx"))
+    api(project(":navigation:navigation-runtime"))
 
     api(KOTLIN_STDLIB)
     androidTestImplementation(projectOrArtifact(":fragment:fragment-testing"))
