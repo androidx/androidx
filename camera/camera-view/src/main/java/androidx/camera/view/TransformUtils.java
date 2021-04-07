@@ -44,45 +44,11 @@ public class TransformUtils {
     // Normalized space (-1, -1) - (1, 1).
     public static final RectF NORMALIZED_RECT = new RectF(-1, -1, 1, 1);
 
-    // Each vertex is represented by a pair of (x, y) which is 2 slots in a float array.
-    private static final int FLOAT_NUMBER_PER_VERTEX = 2;
-
     private TransformUtils() {
     }
 
     /**
-     * Creates a new quad by rotating {@code original}'s vertices {@code rotationDegrees} clockwise.
-     *
-     * <pre>
-     *  a----b
-     *  |    |
-     *  d----c  vertices = {a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y}
-     *
-     * After 90° rotation:
-     *
-     *  d----a
-     *  |    |
-     *  c----b  vertices = {d.x, d.y, a.x, a.y, b.x, b.y, c.x, c.y}
-     * </pre>
-     *
-     * @param rotationDegrees multiple of 90.
-     */
-    @NonNull
-    public static float[] createRotatedVertices(@NonNull float[] original, int rotationDegrees) {
-        float[] rotated = new float[original.length];
-        int offset = -rotationDegrees / 90 * FLOAT_NUMBER_PER_VERTEX;
-        for (int originalIndex = 0; originalIndex < original.length; originalIndex++) {
-            int rotatedIndex = (originalIndex + offset) % original.length;
-            rotatedIndex = rotatedIndex < 0 ? rotatedIndex + original.length : rotatedIndex;
-            rotated[rotatedIndex] = original[originalIndex];
-        }
-        return rotated;
-    }
-
-    /**
      * Gets the size of the {@link Rect}.
-     * @param rect
-     * @return
      */
     @NonNull
     public static Size rectToSize(@NonNull Rect rect) {
