@@ -29,7 +29,7 @@ plugins {
 
 dependencies {
     api(project(":navigation:navigation-common-ktx"))
-    api("androidx.activity:activity-ktx:1.1.0")
+    api("androidx.activity:activity-ktx:1.2.2")
     api("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
     api("androidx.savedstate:savedstate:1.0.0")
