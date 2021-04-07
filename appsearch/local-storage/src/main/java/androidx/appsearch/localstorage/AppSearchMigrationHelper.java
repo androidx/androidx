@@ -31,6 +31,7 @@ import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.protobuf.CodedInputStream;
@@ -42,7 +43,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -67,9 +67,7 @@ class AppSearchMigrationHelper implements Closeable {
         mDatabaseName = Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(newSchemas);
         mFile = File.createTempFile(/*prefix=*/"appsearch", /*suffix=*/null);
-        // The Set will be used for potentially high value of search operation and won't be used as
-        // an iterator.
-        mDestinationTypes = new HashSet<>(newSchemas.size());
+        mDestinationTypes = new ArraySet<>(newSchemas.size());
         for (AppSearchSchema newSchema : newSchemas) {
             mDestinationTypes.add(newSchema.getSchemaType());
         }
