@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Insets
 import android.graphics.Rect
 import android.graphics.RectF
 import android.os.BatteryManager
@@ -35,7 +36,10 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
+import android.view.WindowInsets
+import androidx.annotation.Px
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
@@ -50,9 +54,9 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
@@ -1111,6 +1115,61 @@ public class WatchFaceServiceTest {
             .isEqualTo(
                 gothicStyleOption.id
             )
+    }
+
+    @SdkSuppress(maxSdkVersion = 29)
+    @Test
+    public fun onApplyWindowInsetsBeforeR_setsChinHeight() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList())
+        )
+        // Initially the chin size is set to zero.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(0)
+        // When window insets are delivered to the watch face.
+        engineWrapper.onApplyWindowInsets(getChinWindowInsetsApi25(chinHeight = 12))
+        // Then the chin size is updated.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(12)
+    }
+
+    @SdkSuppress(minSdkVersion = 30)
+    @Test
+    public fun onApplyWindowInsetsRAndAbove_setsChinHeight() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList())
+        )
+        // Initially the chin size is set to zero.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(0)
+        // When window insets are delivered to the watch face.
+        engineWrapper.onApplyWindowInsets(getChinWindowInsetsApi30(chinHeight = 12))
+        // Then the chin size is updated.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(12)
+    }
+
+    @Test
+    public fun onApplyWindowInsetsBeforeR_multipleCallsIgnored() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList())
+        )
+        // Initially the chin size is set to zero.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(0)
+        // When window insets are delivered to the watch face.
+        engineWrapper.onApplyWindowInsets(getChinWindowInsetsApi25(chinHeight = 12))
+        // Then the chin size is updated.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(12)
+        // When the same window insets are delivered to the watch face again.
+        engineWrapper.onApplyWindowInsets(getChinWindowInsetsApi25(chinHeight = 12))
+        // Nothing happens.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(12)
+        // When different window insets are delivered to the watch face again.
+        engineWrapper.onApplyWindowInsets(getChinWindowInsetsApi25(chinHeight = 24))
+        // Nothing happens and the size is unchanged.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(12)
     }
 
     @Test
@@ -2380,4 +2439,16 @@ public class WatchFaceServiceTest {
         engineWrapper.onVisibilityChanged(false)
         verify(observer).onChanged(true)
     }
+
+    @Suppress("DEPRECATION")
+    private fun getChinWindowInsetsApi25(@Px chinHeight: Int): WindowInsets =
+        WindowInsets.Builder().setSystemWindowInsets(
+            Insets.of(0, 0, 0, chinHeight)
+        ).build()
+
+    private fun getChinWindowInsetsApi30(@Px chinHeight: Int): WindowInsets =
+        WindowInsets.Builder().setInsets(
+            WindowInsets.Type.systemBars(),
+            Insets.of(Rect().apply { bottom = chinHeight })
+        ).build()
 }

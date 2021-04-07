@@ -17,6 +17,7 @@
 package androidx.wear.watchface
 
 import android.app.NotificationManager
+import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 
@@ -46,6 +47,9 @@ import androidx.annotation.UiThread
  *     milliseconds since the epoch.
  * @param digitalPreviewReferenceTimeMillis UTC reference time for previews of digital watch faces
  *     in milliseconds since the epoch.
+ * @param chinHeight the size, in pixels, of the chin or zero if the device does not have a
+ *     chin. A chin is a section at the bottom of a circular display that is visible due to
+ *     hardware limitations.
  * @param isHeadless Whether or not this is a headless watchface.
  */
 public class WatchState(
@@ -60,6 +64,7 @@ public class WatchState(
     public val hasBurnInProtection: Boolean,
     public val analogPreviewReferenceTimeMillis: Long,
     public val digitalPreviewReferenceTimeMillis: Long,
+    @Px @get:Px public val chinHeight: Int,
     public val isHeadless: Boolean
 ) {
     @UiThread
@@ -74,6 +79,7 @@ public class WatchState(
         writer.println("hasBurnInProtection=$hasBurnInProtection")
         writer.println("analogPreviewReferenceTimeMillis=$analogPreviewReferenceTimeMillis")
         writer.println("digitalPreviewReferenceTimeMillis=$digitalPreviewReferenceTimeMillis")
+        writer.println("chinHeight=$chinHeight")
         writer.println("isHeadless=$isHeadless")
         writer.decreaseIndent()
     }
@@ -91,6 +97,12 @@ public class MutableWatchState {
     public var hasBurnInProtection: Boolean = false
     public var analogPreviewReferenceTimeMillis: Long = 0
     public var digitalPreviewReferenceTimeMillis: Long = 0
+    @Px
+    public var chinHeight: Int = 0
+        @Px get
+        set(@Px value) {
+            field = value
+        }
     public var isHeadless: Boolean = false
 
     public fun asWatchState(): WatchState = WatchState(
@@ -102,6 +114,7 @@ public class MutableWatchState {
         hasBurnInProtection = hasBurnInProtection,
         analogPreviewReferenceTimeMillis = analogPreviewReferenceTimeMillis,
         digitalPreviewReferenceTimeMillis = digitalPreviewReferenceTimeMillis,
+        chinHeight = chinHeight,
         isHeadless = isHeadless
     )
 }
