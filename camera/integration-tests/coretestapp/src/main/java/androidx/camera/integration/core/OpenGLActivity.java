@@ -236,8 +236,9 @@ public class OpenGLActivity extends AppCompatActivity {
         // with ConstraintLayout).
         Preview preview = new Preview.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3).build();
 
-        mRenderer.attachInputPreview(preview);
-
+        mRenderer.attachInputPreview(preview).addListener(() -> {
+            Log.d(TAG, "OpenGLRenderer get the new surface for the Preview");
+        }, ContextCompat.getMainExecutor(this));
         CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
         mCameraProvider.bindToLifecycle(this, cameraSelector, preview);
