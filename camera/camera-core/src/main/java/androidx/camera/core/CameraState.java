@@ -157,6 +157,9 @@ public abstract class CameraState {
      *
      * <p>CameraX will attempt to recover from the error, it if succeeds in doing so, the
      * camera will open, otherwise the camera will move to a {@link Type#PENDING_OPEN} state.
+     *
+     * When CameraX uses a {@link android.hardware.camera2} implementation, this error represents
+     * a {@link android.hardware.camera2.CameraDevice.StateCallback#ERROR_CAMERA_DEVICE} error.
      */
     public static final int ERROR_OTHER_RECOVERABLE_ERROR = 3;
 
@@ -178,6 +181,9 @@ public abstract class CameraState {
      *
      * <p>The error may require the Android device to be shut down and restarted to restore camera
      * function. It may also indicate the existence of a persistent camera hardware problem.
+     *
+     * When CameraX uses a {@link android.hardware.camera2} implementation, this error represents
+     * a {@link android.hardware.camera2.CameraDevice.StateCallback#ERROR_CAMERA_SERVICE} error.
      */
     public static final int ERROR_CAMERA_FATAL_ERROR = 6;
 
