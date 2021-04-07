@@ -151,7 +151,8 @@ public sealed class UserStyleSetting(
         options.map { it.toWireFormat() }
 
     /** Returns the default for when the user hasn't selected an option. */
-    public fun getDefaultOption(): Option = options[defaultOptionIndex]
+    public val defaultOption: Option
+        get() = options[defaultOptionIndex]
 
     override fun toString(): String = "{${id.value} : " +
         options.joinToString(transform = { it.toString() }) + "}"
@@ -232,48 +233,6 @@ public sealed class UserStyleSetting(
         @Suppress("HiddenAbstractMethod")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         public abstract fun toWireFormat(): OptionWireFormat
-
-        public fun toBooleanOption(): BooleanUserStyleSetting.BooleanOption? =
-            if (this is BooleanUserStyleSetting.BooleanOption) {
-                this
-            } else {
-                null
-            }
-
-        public fun toComplicationsOption(): ComplicationsUserStyleSetting.ComplicationsOption? =
-            if (this is ComplicationsUserStyleSetting.ComplicationsOption) {
-                this
-            } else {
-                null
-            }
-
-        public fun toCustomValueOption(): CustomValueUserStyleSetting.CustomValueOption? =
-            if (this is CustomValueUserStyleSetting.CustomValueOption) {
-                this
-            } else {
-                null
-            }
-
-        public fun toDoubleRangeOption(): DoubleRangeUserStyleSetting.DoubleRangeOption? =
-            if (this is DoubleRangeUserStyleSetting.DoubleRangeOption) {
-                this
-            } else {
-                null
-            }
-
-        public fun toListOption(): ListUserStyleSetting.ListOption? =
-            if (this is ListUserStyleSetting.ListOption) {
-                this
-            } else {
-                null
-            }
-
-        public fun toLongRangeOption(): LongRangeUserStyleSetting.LongRangeOption? =
-            if (this is LongRangeUserStyleSetting.LongRangeOption) {
-                this
-            } else {
-                null
-            }
 
         override fun toString(): String =
             try {
@@ -676,14 +635,16 @@ public sealed class UserStyleSetting(
         }
 
         /** Returns the minimum value. */
-        public fun getMinimumValue(): Double = (options.first() as DoubleRangeOption).value
+        public val minimumValue: Double
+            get() = (options.first() as DoubleRangeOption).value
 
         /** Returns the maximum value. */
-        public fun getMaximumValue(): Double = (options.last() as DoubleRangeOption).value
+        public val maximumValue: Double
+            get() = (options.last() as DoubleRangeOption).value
 
         /** Returns the default value. */
-        public fun getDefaultValue(): Double =
-            (options[defaultOptionIndex] as DoubleRangeOption).value
+        public val defaultValue: Double
+            get() = (options[defaultOptionIndex] as DoubleRangeOption).value
 
         /** We support all values in the range [min ... max] not just min & max. */
         override fun getOptionForId(optionId: ByteArray): Option =
@@ -692,7 +653,7 @@ public sealed class UserStyleSetting(
         private fun checkedOptionForId(optionId: ByteArray): DoubleRangeOption {
             return try {
                 val value = ByteBuffer.wrap(optionId).double
-                if (value < getMinimumValue() || value > getMaximumValue()) {
+                if (value < minimumValue || value > maximumValue) {
                     options[defaultOptionIndex] as DoubleRangeOption
                 } else {
                     DoubleRangeOption(value)
@@ -910,20 +871,17 @@ public sealed class UserStyleSetting(
             override fun toString(): String = value.toString()
         }
 
-        /**
-         * Returns the minimum value.
-         */
-        public fun getMinimumValue(): Long = (options.first() as LongRangeOption).value
+        /** The minimum value. */
+        public val minimumValue: Long
+            get() = (options.first() as LongRangeOption).value
 
-        /**
-         * Returns the maximum value.
-         */
-        public fun getMaximumValue(): Long = (options.last() as LongRangeOption).value
+        /** The maximum value. */
+        public val maximumValue: Long
+            get() = (options.last() as LongRangeOption).value
 
-        /**
-         * Returns the default value.
-         */
-        public fun getDefaultValue(): Long = (options[defaultOptionIndex] as LongRangeOption).value
+        /** The default value. */
+        public val defaultValue: Long
+            get() = (options[defaultOptionIndex] as LongRangeOption).value
 
         /**
          * We support all values in the range [min ... max] not just min & max.
@@ -934,7 +892,7 @@ public sealed class UserStyleSetting(
         private fun checkedOptionForId(optionId: ByteArray): LongRangeOption {
             return try {
                 val value = ByteBuffer.wrap(optionId).long
-                if (value < getMinimumValue() || value > getMaximumValue()) {
+                if (value < minimumValue || value > maximumValue) {
                     options[defaultOptionIndex] as LongRangeOption
                 } else {
                     LongRangeOption(value)

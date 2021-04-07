@@ -41,15 +41,17 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import kotlin.math.cos
@@ -334,12 +336,10 @@ class ExampleAnalogWatchCanvasRenderer(
                         complication.renderer.drawable = watchFaceColorStyle.getDrawable(context)!!
                     }
 
-                    val drawPipsOption = userStyle[drawPipsStyleSetting]?.toBooleanOption()!!
-                    val watchHandLengthOption =
-                        userStyle[watchHandLengthStyleSettingDouble]?.toDoubleRangeOption()!!
-
-                    drawHourPips = drawPipsOption.value
-                    watchHandScale = watchHandLengthOption.value.toFloat()
+                    drawHourPips = (userStyle[drawPipsStyleSetting]!! as BooleanOption).value
+                    watchHandScale =
+                        (userStyle[watchHandLengthStyleSettingDouble]!! as DoubleRangeOption)
+                            .value.toFloat()
                 }
             }
         )

@@ -59,7 +59,7 @@ public class UserStyle(
                 if (option != null) {
                     this[styleSetting] = styleSetting.getSettingOptionForId(option)
                 } else {
-                    this[styleSetting] = styleSetting.getDefaultOption()
+                    this[styleSetting] = styleSetting.defaultOption
                 }
             }
         }
@@ -207,7 +207,7 @@ public class CurrentUserStyleRepository(
     public var userStyle: UserStyle = UserStyle(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
             for (setting in schema.userStyleSettings) {
-                this[setting] = setting.getDefaultOption()
+                this[setting] = setting.defaultOption
             }
         }
     )

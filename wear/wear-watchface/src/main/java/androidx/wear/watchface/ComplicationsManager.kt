@@ -35,6 +35,7 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
 import java.lang.ref.WeakReference
 
 private fun getComponentName(context: Context) = ComponentName(
@@ -135,7 +136,7 @@ public class ComplicationsManager(
                 object : CurrentUserStyleRepository.UserStyleChangeListener {
                     override fun onUserStyleChanged(userStyle: UserStyle) {
                         val newlySelectedOption =
-                            userStyle[complicationsStyleCategory]?.toComplicationsOption()!!
+                            userStyle[complicationsStyleCategory]!! as ComplicationsOption
                         if (previousOption != newlySelectedOption) {
                             previousOption = newlySelectedOption
                             applyComplicationsStyleCategoryOption(newlySelectedOption)
