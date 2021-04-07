@@ -135,7 +135,7 @@ public class ProviderInfoRetriever : AutoCloseable {
      */
     @Throws(ServiceDisconnectedException::class)
     @RequiresApi(Build.VERSION_CODES.R)
-    public suspend fun requestPreviewComplicationData(
+    public suspend fun retrievePreviewComplicationData(
         providerComponent: ComponentName,
         complicationType: ComplicationType
     ): ComplicationData? = TraceEvent(

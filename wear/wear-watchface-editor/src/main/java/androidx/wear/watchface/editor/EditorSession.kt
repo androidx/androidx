@@ -374,7 +374,7 @@ public abstract class BaseEditorSession internal constructor(
         // Fetch preview ComplicationData if possible.
         return providerInfo.providerComponentName?.let {
             try {
-                providerInfoRetriever.requestPreviewComplicationData(
+                providerInfoRetriever.retrievePreviewComplicationData(
                     it,
                     ComplicationType.fromWireType(providerInfo.complicationType)
                 )
