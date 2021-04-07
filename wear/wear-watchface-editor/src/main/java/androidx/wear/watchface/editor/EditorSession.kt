@@ -130,7 +130,10 @@ public abstract class EditorSession : AutoCloseable {
     @get:SuppressWarnings("AutoBoxing")
     public abstract val backgroundComplicationId: Int?
 
-    /** Returns the ID of the complication at the given coordinates or `null` if there isn't one. */
+    /**
+     * Returns the ID of the complication at the given coordinates or `null` if there isn't one.
+     * Only complications with [ComplicationBoundsType.ROUND_RECT] are supported by this function.
+     */
     @SuppressWarnings("AutoBoxing")
     @UiThread
     public abstract fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int?
