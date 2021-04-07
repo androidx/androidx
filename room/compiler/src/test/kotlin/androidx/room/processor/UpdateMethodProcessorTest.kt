@@ -19,6 +19,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Update
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.util.Source
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_UPDATE_RESULT_ADAPTER
 import androidx.room.processor.ProcessorErrors.UPDATE_MISSING_PARAMS
 import androidx.room.vo.UpdateMethod
@@ -27,7 +28,6 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import toJFO
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -53,7 +53,7 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
                 """
         ) { shortcut, _ ->
             assertThat(shortcut.onConflictStrategy, `is`(OnConflictStrategy.REPLACE))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -63,32 +63,41 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
                 @Update(onConflict = -1)
                 abstract public void foo(User user);
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
+            }
+        }
     }
 
     @Test
     fun targetEntityMissingPrimaryKey() {
-        val usernameJfo = """
+        val usernameSource = Source.java(
+            "foo.bar.Username",
+            """
             package foo.bar;
             import androidx.room.*;
 
             public class Username {
                 String name;
             }
-        """.toJFO("foo.bar.Username")
+            """
+        )
         singleShortcutMethod(
             """
                 @Update(entity = User.class)
                 abstract public int foo(Username username);
                 """,
-            additionalJFOs = listOf(usernameJfo)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
-                partialEntityName = "foo.bar.Username",
-                primaryKeyNames = listOf("uid")
-            )
-        )
+            additionalSources = listOf(usernameSource)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
+                        partialEntityName = "foo.bar.Username",
+                        primaryKeyNames = listOf("uid")
+                    )
+                )
+            }
+        }
     }
 }
