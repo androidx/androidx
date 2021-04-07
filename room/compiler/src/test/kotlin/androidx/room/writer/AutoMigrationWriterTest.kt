@@ -16,7 +16,6 @@
 
 package androidx.room.writer
 
-import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.migration.bundle.FieldBundle
@@ -26,7 +25,6 @@ import loadTestSource
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.mock
 
 @RunWith(JUnit4::class)
 class AutoMigrationWriterTest {
@@ -73,7 +71,10 @@ class AutoMigrationWriterTest {
                     removedOrRenamedTables = listOf()
                 ),
             )
-            AutoMigrationWriter(mock(XElement::class.java), autoMigrationResultWithNewAddedColumn)
+            AutoMigrationWriter(
+                autoMigrationResultWithNewAddedColumn.element,
+                autoMigrationResultWithNewAddedColumn
+            )
                 .write(invocation.processingEnv)
 
             invocation.assertCompilationResult {
@@ -131,7 +132,10 @@ class AutoMigrationWriterTest {
                     removedOrRenamedTables = listOf()
                 ),
             )
-            AutoMigrationWriter(mock(XElement::class.java), autoMigrationResultWithNewAddedColumn)
+            AutoMigrationWriter(
+                autoMigrationResultWithNewAddedColumn.element,
+                autoMigrationResultWithNewAddedColumn
+            )
                 .write(invocation.processingEnv)
 
             invocation.assertCompilationResult {
