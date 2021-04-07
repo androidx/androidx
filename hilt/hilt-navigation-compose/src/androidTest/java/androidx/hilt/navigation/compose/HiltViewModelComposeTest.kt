@@ -29,6 +29,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.getBackStackEntry
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
@@ -48,7 +49,7 @@ import javax.inject.Inject
 @HiltAndroidTest
 @ExperimentalTestApi
 @RunWith(AndroidJUnit4::class)
-class HiltNavGraphViewModelComposeTest {
+class HiltViewModelComposeTest {
 
     @get:Rule
     val testRule = HiltAndroidRule(this)
@@ -64,10 +65,10 @@ class HiltNavGraphViewModelComposeTest {
             val navController = rememberNavController()
             NavHost(navController, startDestination = "One") {
                 composable("One") {
-                    firstViewModel = hiltNavGraphViewModel()
+                    firstViewModel = hiltViewModel()
                 }
             }
-            secondViewModel = hiltNavGraphViewModel()
+            secondViewModel = hiltViewModel()
         }
         composeTestRule.awaitIdle()
         assertThat(firstViewModel).isNotNull()
@@ -85,12 +86,12 @@ class HiltNavGraphViewModelComposeTest {
         composeTestRule.setContent {
             val navController = rememberNavController()
             NavHost(navController, startDestination = "One") {
-                composable("One") { backStackEntry ->
-                    firstViewModel = hiltNavGraphViewModel(backStackEntry)
+                composable("One") {
+                    firstViewModel = hiltViewModel()
                     NavigateButton("Two") { navController.navigate("Two") }
                 }
-                composable("Two") { backStackEntry ->
-                    secondViewModel = hiltNavGraphViewModel(backStackEntry)
+                composable("Two") {
+                    secondViewModel = hiltViewModel()
                     NavigateButton("One") { navController.navigate("One") }
                 }
             }
@@ -114,11 +115,15 @@ class HiltNavGraphViewModelComposeTest {
             NavHost(navController, startDestination = "Main") {
                 navigation(startDestination = "One", route = "Main") {
                     composable("One") {
-                        firstViewModel = navController.hiltNavGraphViewModel("Main")
+                        firstViewModel = hiltViewModel(
+                            navController.getBackStackEntry("Main")
+                        )
                         NavigateButton("Two") { navController.navigate("Two") }
                     }
                     composable("Two") {
-                        secondViewModel = navController.hiltNavGraphViewModel("Main")
+                        secondViewModel = hiltViewModel(
+                            navController.getBackStackEntry("Main")
+                        )
                         NavigateButton("One") { navController.navigate("One") }
                     }
                 }
