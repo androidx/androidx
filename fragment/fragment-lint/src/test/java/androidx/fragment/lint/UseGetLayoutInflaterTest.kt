@@ -32,6 +32,44 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
 
     override fun getIssues(): MutableList<Issue> = mutableListOf(UseGetLayoutInflater.ISSUE)
 
+    private val dialogFragmentCorrectImplementationStubJava = java(
+        """
+            package foo;
+            import android.os.Bundle;
+            import android.view.View;
+            import android.view.ViewGroup;
+            import androidx.annotation.NonNull;
+            import androidx.annotation.Nullable;
+            import androidx.fragment.app.DialogFragment;
+            
+            public class TestFragment extends DialogFragment {
+            
+                @NonNull
+                @Override
+                public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+                    getLayoutInflater().inflate(R.layout.some_layout, null);
+                    return super.onCreateDialog(savedInstanceState);
+                }
+            }
+            """
+    ).indented()
+
+    private val dialogFragmentCorrectImplementationStubKotlin = kotlin(
+        """
+            package foo
+            import android.app.Dialog
+            import android.os.Bundle
+            import androidx.fragment.app.DialogFragment
+            
+            class Test : DialogFragment() {
+                override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+                    layoutInflater.inflate(R.layout.some_layout, null)
+                    return super.onCreateDialog(savedInstanceState)
+                }
+            }
+            """
+    ).indented()
+
     private val dialogFragmentStubJava = java(
         """
             package foo;
@@ -130,7 +168,7 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
     ).indented()
 
     @Test
-    fun `pass java check`() {
+    fun `java expect fail dialog fragment with fix`() {
         lint().files(dialogFragmentStubJava)
             .run()
             .expect(
@@ -153,14 +191,21 @@ src/foo/TestFragment.java:18: Warning: Use of LayoutInflater.from(requireContext
     }
 
     @Test
-    fun `pass java check without dialog fragment`() {
+    fun `java expect clean non dialog fragment`() {
         lint().files(fragmentStubJava)
             .run()
             .expectClean()
     }
 
     @Test
-    fun `pass kotlin check`() {
+    fun `java expect clean dialog fragment`() {
+        lint().files(dialogFragmentCorrectImplementationStubJava)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun `kotlin expect fail dialog fragment`() {
         lint().files(dialogFragmentStubKotlin)
             .run()
             .expect(
@@ -175,8 +220,15 @@ src/foo/TestFragment.kt:15: Warning: Use of LayoutInflater.from(Context) detecte
     }
 
     @Test
-    fun `pass kotlin check without dialog fragment`() {
+    fun `kotlin expect clean non dialog fragment`() {
         lint().files(fragmentStubKotlin)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun `kotlin expect clean dialog fragment`() {
+        lint().files(dialogFragmentCorrectImplementationStubKotlin)
             .run()
             .expectClean()
     }

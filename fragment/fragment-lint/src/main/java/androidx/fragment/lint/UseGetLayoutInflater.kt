@@ -38,6 +38,24 @@ import org.jetbrains.uast.getContainingUClass
  */
 class UseGetLayoutInflater : Detector(), SourceCodeScanner {
 
+    companion object Issues {
+        val ISSUE = Issue.create(
+            id = "UseGetLayoutInflater",
+            briefDescription = "Use getLayoutInflater() to get the LayoutInflater instead of " +
+                "calling LayoutInflater.from(Context).",
+            explanation = """Using LayoutInflater.from(Context) can return a LayoutInflater  \
+                that does not have the correct theme.""",
+            category = Category.CORRECTNESS,
+            priority = 9,
+            severity = Severity.WARNING,
+            implementation = Implementation(
+                UseGetLayoutInflater::class.java,
+                Scope.JAVA_FILE_SCOPE
+            ),
+            androidSpecific = true
+        )
+    }
+
     override fun getApplicableMethodNames(): List<String>? {
         return listOf(UNWANTED_METHOD)
     }
@@ -105,24 +123,6 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
             .build()
     }
 
-
-    companion object Issues {
-        val ISSUE = Issue.create(
-            id = "UseGetLayoutInflater",
-            briefDescription = "Use getLayoutInflater() to get the LayoutInflater instead of " +
-                "calling LayoutInflater.from(Context).",
-            explanation = """Using LayoutInflater.from(Context) can return a LayoutInflater  \
-                that does not have the correct theme.""",
-            category = Category.CORRECTNESS,
-            priority = 9,
-            severity = Severity.WARNING,
-            implementation = Implementation(
-                UseGetLayoutInflater::class.java,
-                Scope.JAVA_FILE_SCOPE
-            ),
-            androidSpecific = true
-        )
-    }
 }
 
 private const val UNWANTED_CLASS = "android.view.LayoutInflater"
