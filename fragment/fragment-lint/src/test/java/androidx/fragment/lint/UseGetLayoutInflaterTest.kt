@@ -232,5 +232,4 @@ src/foo/TestFragment.kt:15: Warning: Use of LayoutInflater.from(Context) detecte
             .run()
             .expectClean()
     }
-
 }

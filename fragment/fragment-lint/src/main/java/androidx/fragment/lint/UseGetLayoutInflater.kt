@@ -91,7 +91,7 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
 
     private fun startLintForKotlin(context: JavaContext, node: UCallExpression) {
         if (node.getContainingUClass()?.javaPsi?.text?.contains
-                ("${DIALOG_FRAGMENT_CLASS}()") == false
+            ("$DIALOG_FRAGMENT_CLASS()") == false
         ) {
             return
         }
@@ -122,7 +122,6 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
             .autoFix()
             .build()
     }
-
 }
 
 private const val UNWANTED_CLASS = "android.view.LayoutInflater"
