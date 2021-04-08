@@ -17,11 +17,13 @@
 package androidx.camera.testing.activity;
 
 
+import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
+
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.util.Size;
-import android.view.Surface;
 import android.view.TextureView;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,10 +34,10 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.R;
+import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
 import java.util.Collections;
@@ -113,7 +115,6 @@ public class CameraXTestActivity extends AppCompatActivity {
                     public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surfaceTexture,
                             int width, int height) {
                         Logger.d(TAG, "SurfaceTexture available");
-                        setSurfaceProvider(surfaceTexture);
                     }
 
                     @Override
@@ -138,6 +139,24 @@ public class CameraXTestActivity extends AppCompatActivity {
                     }
                 });
 
+        mPreview.setSurfaceProvider(createSurfaceTextureProvider(
+                new SurfaceTextureProvider.SurfaceTextureCallback() {
+                    @Override
+                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
+                            @NonNull Size resolution) {
+                        ViewGroup viewGroup = (ViewGroup) textureView.getParent();
+                        viewGroup.removeView(textureView);
+                        viewGroup.addView(textureView, resolution.getWidth(),
+                                resolution.getHeight());
+                        textureView.setSurfaceTexture(surfaceTexture);
+                    }
+
+                    @Override
+                    public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                        surfaceTexture.release();
+                    }
+                }));
+
         try {
             final CameraX cameraX = CameraX.getOrCreateInstance(this).get();
             final LinkedHashSet<CameraInternal> cameras =
@@ -156,25 +175,6 @@ public class CameraXTestActivity extends AppCompatActivity {
 
         mCameraId = CameraX.getCameraWithCameraSelector(
                 cameraSelector).getCameraInfoInternal().getCameraId();
-    }
-
-    void setSurfaceProvider(@NonNull SurfaceTexture surfaceTexture) {
-        if (mPreview == null) {
-            return;
-        }
-        mPreview.setSurfaceProvider((surfaceRequest) -> {
-            final Size resolution = surfaceRequest.getResolution();
-            surfaceTexture.setDefaultBufferSize(resolution.getWidth(), resolution.getHeight());
-
-            final Surface surface = new Surface(surfaceTexture);
-            surfaceRequest.provideSurface(
-                    surface,
-                    CameraXExecutors.directExecutor(),
-                    (surfaceResponse) -> {
-                        surface.release();
-                        surfaceTexture.release();
-                    });
-        });
     }
 
     @Nullable
