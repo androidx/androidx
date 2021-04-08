@@ -78,7 +78,6 @@ import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.FileDescriptor
-import java.io.FileNotFoundException
 import java.io.PrintWriter
 import java.util.concurrent.CountDownLatch
 
@@ -291,7 +290,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 ParcelUtils.fromInputStream<WallpaperInteractiveWatchFaceInstanceParams>(reader)
             reader.close()
             result
-        } catch (e: FileNotFoundException) {
+        } catch (e: Exception) {
             null
         }
     }
