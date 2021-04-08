@@ -25,7 +25,9 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.Parcel
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationProviderInfo
@@ -64,9 +66,11 @@ import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -82,7 +86,6 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doAnswer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.CoroutineContext
 
 public const val LEFT_COMPLICATION_ID: Int = 1000
 public const val RIGHT_COMPLICATION_ID: Int = 1001
@@ -105,18 +108,12 @@ public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
         ListenableEditorSession(editorSession)
     }
 
-    public val providerIcon1: Icon =
-        Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
-    public val providerIcon2: Icon =
-        Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+    internal companion object {
+        internal var providerInfoRetrieverProvider: ProviderInfoRetrieverProvider? = null
+    }
 
-    public val immediateCoroutineScope: CoroutineScope = CoroutineScope(
-        object : CoroutineDispatcher() {
-            override fun dispatch(context: CoroutineContext, block: Runnable) {
-                block.run()
-            }
-        }
-    )
+    public val immediateCoroutineScope: CoroutineScope =
+        CoroutineScope(Handler(Looper.getMainLooper()).asCoroutineDispatcher().immediate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,53 +121,54 @@ public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
             editorSession = EditorSession.createOnWatchEditingSessionImpl(
                 this@OnWatchFaceEditingTestActivity,
                 intent!!,
-                object : ProviderInfoRetrieverProvider {
-                    override fun getProviderInfoRetriever() = ProviderInfoRetriever(
-                        FakeProviderInfoServiceV1(
-                            ComponentName("test.package", "test.class"),
-                            mapOf(
-                                LEFT_COMPLICATION_ID to ComplicationProviderInfo(
-                                    "ProviderApp1",
-                                    "Provider1",
-                                    providerIcon1,
-                                    ComplicationType.SHORT_TEXT.toWireComplicationType(),
-                                    provider1
-                                ),
-                                RIGHT_COMPLICATION_ID to ComplicationProviderInfo(
-                                    "ProviderApp2",
-                                    "Provider2",
-                                    providerIcon2,
-                                    ComplicationType.LONG_TEXT.toWireComplicationType(),
-                                    provider2
-                                )
-                            ),
-                            mapOf(
-                                provider1 to
-                                    ShortTextComplicationData.Builder(
-                                        PlainComplicationText.Builder("Left").build()
-                                    ).build().asWireComplicationData(),
-                                provider2 to
-                                    LongTextComplicationData.Builder(
-                                        PlainComplicationText.Builder("Right").build()
-                                    ).build().asWireComplicationData(),
-                                provider3 to
-                                    LongTextComplicationData.Builder(
-                                        PlainComplicationText.Builder("Provider3").build()
-                                    ).build().asWireComplicationData(),
-                            )
-                        )
-                    )
-                }
+                providerInfoRetrieverProvider!!
             )!!
         }
     }
 }
 
-private class FakeProviderInfoServiceV1(
-    private val watchFaceComponent: ComponentName,
-    private val providerData: Map<Int, ComplicationProviderInfo>,
-    private val previewData: Map<ComponentName, ComplicationData>
-) : IProviderInfoService.Stub() {
+public open class TestProviderInfoRetrieverProvider :
+    ProviderInfoRetrieverProvider, IProviderInfoService.Stub() {
+
+    private val providerIcon1: Icon =
+        Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+    private val providerIcon2: Icon =
+        Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+
+    private val watchFaceComponent = ComponentName("test.package", "test.class")
+    private val providerData = mapOf(
+        LEFT_COMPLICATION_ID to ComplicationProviderInfo(
+            "ProviderApp1",
+            "Provider1",
+            providerIcon1,
+            ComplicationType.SHORT_TEXT.toWireComplicationType(),
+            provider1
+        ),
+        RIGHT_COMPLICATION_ID to ComplicationProviderInfo(
+            "ProviderApp2",
+            "Provider2",
+            providerIcon2,
+            ComplicationType.LONG_TEXT.toWireComplicationType(),
+            provider2
+        )
+    )
+    private val previewData = mapOf(
+        provider1 to
+            ShortTextComplicationData.Builder(
+                PlainComplicationText.Builder("Left").build()
+            ).build().asWireComplicationData(),
+        provider2 to
+            LongTextComplicationData.Builder(
+                PlainComplicationText.Builder("Right").build()
+            ).build().asWireComplicationData(),
+        provider3 to
+            LongTextComplicationData.Builder(
+                PlainComplicationText.Builder("Provider3").build()
+            ).build().asWireComplicationData(),
+    )
+
+    override fun getProviderInfoRetriever(): ProviderInfoRetriever = ProviderInfoRetriever(this)
+
     override fun getProviderInfos(
         watchFaceComponent: ComponentName,
         ids: IntArray
@@ -185,7 +183,7 @@ private class FakeProviderInfoServiceV1(
         }.toTypedArray()
     }
 
-    override fun getApiVersion() = 1
+    override fun getApiVersion(): Int = 1
 
     override fun requestPreviewComplicationData(
         providerComponent: ComponentName,
@@ -328,6 +326,9 @@ public class EditorSessionTest {
 
     private val fakeBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
     private val onDestroyLatch = CountDownLatch(1)
+    private val providerIcon =
+        Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+    private val providerComponentName = ComponentName("test.package", "test.class")
 
     private class TestEditorObserver : IEditorObserver.Stub() {
         private lateinit var editorState: EditorStateWireFormat
@@ -352,7 +353,9 @@ public class EditorSessionTest {
         userStyleSettings: List<UserStyleSetting>,
         complications: List<Complication>,
         watchFaceId: WatchFaceId = testInstanceId,
-        previewReferenceTimeMillis: Long = 12345
+        previewReferenceTimeMillis: Long = 12345,
+        providerInfoRetrieverProvider: ProviderInfoRetrieverProvider =
+            TestProviderInfoRetrieverProvider()
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
         val complicationsManager = ComplicationsManager(complications, userStyleRepository)
@@ -381,6 +384,8 @@ public class EditorSessionTest {
             }
         }
         WatchFace.registerEditorDelegate(testComponentName, editorDelegate)
+
+        OnWatchFaceEditingTestActivity.providerInfoRetrieverProvider = providerInfoRetrieverProvider
 
         return ActivityScenario.launch(
             WatchFaceEditorContract().createIntent(
@@ -595,10 +600,7 @@ public class EditorSessionTest {
             runBlocking {
                 val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
                 val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
-                val providerComponentName = ComponentName("test.package", "test.class")
                 val complicationType = ComplicationData.TYPE_SHORT_TEXT
-                val providerIcon =
-                    Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
                 val complicationText = "TestText"
                 val mockBinder = Mockito.mock(IBinder::class.java)
 
@@ -658,8 +660,6 @@ public class EditorSessionTest {
                 val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
                 val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
                 val complicationType = ComplicationData.TYPE_SHORT_TEXT
-                val providerIcon =
-                    Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
 
                 val providerInfoRetriever = ProviderInfoRetriever(mockProviderInfoService)
                 val previewComplication = editorSession.getPreviewData(
@@ -702,10 +702,7 @@ public class EditorSessionTest {
             runBlocking {
                 val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
                 val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
-                val providerComponentName = ComponentName("test.package", "test.class")
                 val complicationType = ComplicationData.TYPE_SHORT_TEXT
-                val providerIcon =
-                    Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
 
                 `when`(mockProviderInfoService.apiVersion).thenReturn(1)
                 `when`(
@@ -1070,5 +1067,58 @@ public class EditorSessionTest {
             // This shouldn't throw an exception.
             EditorService.globalEditorService.closeEditor()
         }
+    }
+
+    @Test
+    public fun cancelDuring_updatePreviewData() {
+        lateinit var baseEditorSession: BaseEditorSession
+        lateinit var providerInfoRetriever: ProviderInfoRetriever
+        var forceClosed = false
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication),
+            providerInfoRetrieverProvider = object : TestProviderInfoRetrieverProvider() {
+
+                override fun getProviderInfoRetriever(): ProviderInfoRetriever {
+                    providerInfoRetriever = super.getProviderInfoRetriever()
+                    return providerInfoRetriever
+                }
+
+                override fun requestPreviewComplicationData(
+                    providerComponent: ComponentName,
+                    complicationType: Int,
+                    previewComplicationDataCallback: IPreviewComplicationDataCallback
+                ): Boolean {
+                    if (!forceClosed) {
+                        baseEditorSession.forceClose()
+                        forceClosed = true
+                    }
+                    return true
+                }
+            }
+        )
+        scenario.onActivity {
+            baseEditorSession = it.editorSession as BaseEditorSession
+            baseEditorSession.pendingComplicationProviderChooserResult = CompletableDeferred()
+            baseEditorSession.updatePreviewData(
+                ComplicationProviderChooserResult(
+                    ComplicationProviderInfo(
+                        "provider.app",
+                        "provider",
+                        providerIcon,
+                        ComplicationData.TYPE_SHORT_TEXT,
+                        providerComponentName
+                    )
+                )
+            )
+        }
+
+        // Make sure everything that was going to run has run.
+        runBlocking {
+            baseEditorSession.coroutineScope.coroutineContext.job.join()
+        }
+
+        // Ensure the providerInfoRetriever was closed despite forceClose() being called.
+        assertThat(providerInfoRetriever.closed).isTrue()
     }
 }
