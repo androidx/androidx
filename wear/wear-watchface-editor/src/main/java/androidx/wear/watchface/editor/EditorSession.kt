@@ -549,7 +549,7 @@ internal class OnWatchFaceEditorSessionImpl(
             editorDelegate.onDestroy()
         }
         // Revert any changes to the UserStyle if needed.
-        if (!commitChangesOnClose) {
+        if (!commitChangesOnClose && this::previousWatchFaceUserStyle.isInitialized) {
             userStyle = previousWatchFaceUserStyle
         }
     }

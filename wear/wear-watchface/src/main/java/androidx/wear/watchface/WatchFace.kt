@@ -164,6 +164,15 @@ public class WatchFace @JvmOverloads constructor(
             componentNameToEditorDelegate.remove(componentName)
         }
 
+        /** @hide */
+        @JvmStatic
+        @UiThread
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @VisibleForTesting
+        public fun clearAllEditorDelegates() {
+            componentNameToEditorDelegate.clear()
+        }
+
         /**
          * For use by on watch face editors.
          * @hide
