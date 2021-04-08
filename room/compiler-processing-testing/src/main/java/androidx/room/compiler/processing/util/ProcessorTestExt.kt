@@ -28,6 +28,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.tschuchort.compiletesting.KotlinCompilation
+import com.tschuchort.compiletesting.kspArgs
 import com.tschuchort.compiletesting.symbolProcessors
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -79,12 +80,14 @@ private fun runTests(
 fun runProcessorTestWithoutKsp(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
     handler: (XTestInvocation) -> Unit
 ) {
     runTests(
         params = TestCompilationParameters(
             sources = sources,
             classpath = classpath,
+            options = options,
             handlers = listOf(handler)
         ),
         JavacCompilationTestRunner,
@@ -111,8 +114,14 @@ fun runProcessorTestWithoutKsp(
 fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
     handler: (XTestInvocation) -> Unit
-) = runProcessorTest(sources = sources, classpath = classpath, handlers = listOf(handler))
+) = runProcessorTest(
+    sources = sources,
+    classpath = classpath,
+    options = options,
+    handlers = listOf(handler)
+)
 
 /**
  * Runs the step created by [createProcessingStep] with ksp and one of javac or kapt, depending
@@ -131,12 +140,14 @@ fun runProcessorTest(
 fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
     createProcessingStep: () -> XProcessingStep,
     onCompilationResult: (CompilationResultSubject) -> Unit
 ) {
     runProcessorTest(
         sources = sources,
-        classpath = classpath
+        classpath = classpath,
+        options = options
     ) { invocation ->
         val step = createProcessingStep()
         val elements =
@@ -161,6 +172,7 @@ fun runProcessorTest(
 fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     val javaApRunner = if (sources.any { it is Source.KotlinSource }) {
@@ -172,6 +184,7 @@ fun runProcessorTest(
         params = TestCompilationParameters(
             sources = sources,
             classpath = classpath,
+            options = options,
             handlers = handlers
         ),
         javaApRunner,
@@ -188,10 +201,12 @@ fun runProcessorTest(
 fun runJavaProcessorTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
     handler: (XTestInvocation) -> Unit
 ) = runJavaProcessorTest(
     sources = sources,
     classpath = classpath,
+    options = options,
     handlers = listOf(handler)
 )
 
@@ -202,12 +217,14 @@ fun runJavaProcessorTest(
 fun runJavaProcessorTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     runTests(
         params = TestCompilationParameters(
             sources = sources,
             classpath = classpath,
+            options = options,
             handlers = handlers
         ),
         JavacCompilationTestRunner
@@ -221,10 +238,12 @@ fun runJavaProcessorTest(
 fun runKaptTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
     handler: (XTestInvocation) -> Unit
 ) = runKaptTest(
     sources = sources,
     classpath = classpath,
+    options = options,
     handlers = listOf(handler)
 )
 
@@ -235,12 +254,14 @@ fun runKaptTest(
 fun runKaptTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     runTests(
         params = TestCompilationParameters(
             sources = sources,
             classpath = classpath,
+            options = options,
             handlers = handlers
         ),
         KaptCompilationTestRunner
@@ -254,10 +275,12 @@ fun runKaptTest(
 fun runKspTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
     handler: (XTestInvocation) -> Unit
 ) = runKspTest(
     sources = sources,
     classpath = classpath,
+    options = options,
     handlers = listOf(handler)
 )
 
@@ -268,12 +291,14 @@ fun runKspTest(
 fun runKspTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     runTests(
         params = TestCompilationParameters(
             sources = sources,
             classpath = classpath,
+            options = options,
             handlers = handlers
         ),
         KspCompilationTestRunner
@@ -284,11 +309,13 @@ fun runKspTest(
  * Compiles the given set of sources into a temporary folder and returns the output classes
  * directory.
  * @param sources The list of source files to compile
+ * @param options The annotation processor arguments
  * @param annotationProcessors The list of Java annotation processors to run with compilation
  * @param symbolProcessors The list of Kotlin symbol processors to run with compilation
  */
 fun compileFiles(
     sources: List<Source>,
+    options: Map<String, String> = emptyMap(),
     annotationProcessors: List<Processor> = emptyList(),
     symbolProcessors: List<SymbolProcessor> = emptyList()
 ): File {
@@ -297,6 +324,12 @@ fun compileFiles(
         sources = sources,
         outputStream = outputStream
     )
+    if (annotationProcessors.isNotEmpty()) {
+        compilation.kaptArgs.putAll(options)
+    }
+    if (symbolProcessors.isNotEmpty()) {
+        compilation.kspArgs.putAll(options)
+    }
     compilation.annotationProcessors = annotationProcessors
     compilation.symbolProcessors = symbolProcessors
     val result = compilation.compile()
