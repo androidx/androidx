@@ -15,11 +15,14 @@
  */
 package androidx.emoji2.helpers;
 
+import static androidx.emoji2.util.EmojiMatcher.sameCharSequence;
+
 import static junit.framework.TestCase.assertSame;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -34,7 +37,6 @@ import android.text.method.TransformationMethod;
 import android.view.View;
 
 import androidx.emoji2.text.EmojiCompat;
-import androidx.emoji2.util.EmojiMatcher;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -101,7 +103,7 @@ public class EmojiTransformationMethodTest {
         final CharSequence result = mTransformationMethod.getTransformation(mTestString, mView);
 
         assertTrue(TextUtils.equals(new SpannableString(mTestString), result));
-        verify(mEmojiCompat, times(1)).process(EmojiMatcher.sameCharSequence(mTestString));
+        verify(mEmojiCompat, times(1)).process(sameCharSequence(mTestString));
     }
 
     @Test
@@ -111,8 +113,8 @@ public class EmojiTransformationMethodTest {
         assertTrue(TextUtils.equals(new SpannableString(mTestString), result));
         assertTrue(result instanceof Spannable);
         verify(mWrappedTransformationMethod, times(1)).getTransformation(
-                EmojiMatcher.sameCharSequence(mTestString), same(mView));
-        verify(mEmojiCompat, times(1)).process(EmojiMatcher.sameCharSequence(mTestString));
+                eq(mTestString), same(mView));
+        verify(mEmojiCompat, times(1)).process(sameCharSequence(mTestString));
         verify(mEmojiCompat, never()).registerInitCallback(any(EmojiCompat.InitCallback.class));
     }
 
@@ -124,8 +126,8 @@ public class EmojiTransformationMethodTest {
 
         assertSame(mTestString, result);
         verify(mWrappedTransformationMethod, times(1)).getTransformation(
-                EmojiMatcher.sameCharSequence(mTestString), same(mView));
-        verify(mEmojiCompat, never()).process(EmojiMatcher.sameCharSequence(mTestString));
+                eq(mTestString), same(mView));
+        verify(mEmojiCompat, never()).process(sameCharSequence(mTestString));
         verify(mEmojiCompat, never()).registerInitCallback(any(EmojiCompat.InitCallback.class));
     }
 
@@ -137,8 +139,8 @@ public class EmojiTransformationMethodTest {
 
         assertSame(mTestString, result);
         verify(mWrappedTransformationMethod, times(1)).getTransformation(
-                EmojiMatcher.sameCharSequence(mTestString), same(mView));
-        verify(mEmojiCompat, never()).process(EmojiMatcher.sameCharSequence(mTestString));
+                eq(mTestString), same(mView));
+        verify(mEmojiCompat, never()).process(sameCharSequence(mTestString));
         verify(mEmojiCompat, never()).registerInitCallback(any(EmojiCompat.InitCallback.class));
     }
 
@@ -150,8 +152,8 @@ public class EmojiTransformationMethodTest {
 
         assertSame(mTestString, result);
         verify(mWrappedTransformationMethod, times(1)).getTransformation(
-                EmojiMatcher.sameCharSequence(mTestString), same(mView));
-        verify(mEmojiCompat, never()).process(EmojiMatcher.sameCharSequence(mTestString));
+                eq(mTestString), same(mView));
+        verify(mEmojiCompat, never()).process(sameCharSequence(mTestString));
         verify(mEmojiCompat, never()).registerInitCallback(any(EmojiCompat.InitCallback.class));
     }
 }
