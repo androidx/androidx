@@ -27,6 +27,8 @@ import static com.google.common.truth.Truth.assertThat;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 
 import androidx.core.google.shortcuts.test.TestActivity;
 import androidx.test.core.app.ActivityScenario;
@@ -42,8 +44,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.List;
+
 @RunWith(AndroidJUnit4.class)
 public class TrampolineActivityTest {
+    private static final String SHORTCUT_LISTENER_INTENT_FILTER_ACTION = "androidx.core.content.pm"
+            + ".SHORTCUT_LISTENER";
+    private static final String SHORTCUT_LISTENER_META_DATA_KEY = "androidx.core.content.pm"
+            + ".shortcut_listener_impl";
+    private static final String SHORTCUT_LISTENER_CLASS_NAME = "androidx.core.google.shortcuts"
+            + ".ShortcutInfoChangeListenerImpl";
+
     private Context mContext;
 
     @Before
@@ -108,6 +119,22 @@ public class TrampolineActivityTest {
         intended(hasComponent(TestActivity.class.getName()), times(0));
         // Verify trampoline activity is finished.
         assertThat(scenario.getResult().getResultCode()).isEqualTo(Activity.RESULT_CANCELED);
+    }
+
+    @Test
+    @SmallTest
+    public void testManifest_canDiscoverMetadata() {
+        PackageManager packageManager = mContext.getPackageManager();
+        Intent activityIntent = new Intent(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
+        activityIntent.setPackage(mContext.getPackageName());
+
+        List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(
+                activityIntent, PackageManager.GET_META_DATA);
+
+        assertThat(resolveInfos.stream().anyMatch(resolveInfo ->
+                SHORTCUT_LISTENER_CLASS_NAME.equals(resolveInfo.activityInfo.metaData
+                        .getString(SHORTCUT_LISTENER_META_DATA_KEY))))
+                .isTrue();
     }
 
     private Intent createIntentToTestActivity() throws Exception {

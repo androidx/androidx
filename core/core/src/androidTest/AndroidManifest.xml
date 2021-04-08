@@ -67,7 +67,13 @@
         </activity-alias>
 
         <activity android:name="androidx.core.app.TestActivity"
-                  android:icon="@drawable/test_drawable_blue"/>
+                  android:icon="@drawable/test_drawable_blue">
+            <intent-filter>
+                <action android:name="androidx.core.content.pm.SHORTCUT_LISTENER"/>
+            </intent-filter>
+            <meta-data android:name="androidx.core.content.pm.shortcut_listener_impl"
+                android:value="androidx.core.content.pm.TestShortcutInfoChangeListener"/>
+        </activity>
 
         <activity android:name="androidx.core.app.TestComponentActivity"/>
         <activity android:name="androidx.core.app.TestActivityWithLifecycle"/>

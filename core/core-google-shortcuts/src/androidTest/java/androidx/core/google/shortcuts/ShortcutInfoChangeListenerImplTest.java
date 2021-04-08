@@ -44,7 +44,6 @@ import androidx.test.filters.SmallTest;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.Mac;
 import com.google.firebase.appindexing.Action;
@@ -173,14 +172,10 @@ public class ShortcutInfoChangeListenerImplTest {
                 .setShortLabel("short label")
                 .setLongLabel("long label")
                 .setIntent(intent)
-                .addCapabilityBinding(
-                        "actions.intent.START_EXERCISE",
-                        ImmutableMap.of("exercise.name", ImmutableList.of("start running",
-                                "start jogging")))
-                .addCapabilityBinding(
-                        "actions.intent.STOP_EXERCISE",
-                        ImmutableMap.of("exercise.name", ImmutableList.of("stop running",
-                                "stop jogging")))
+                .addCapabilityBinding("actions.intent.START_EXERCISE", "exercise.name",
+                        ImmutableList.of("start running", "start jogging"))
+                .addCapabilityBinding("actions.intent.STOP_EXERCISE", "exercise.name",
+                        ImmutableList.of("stop running", "stop jogging"))
                 .build();
 
         mShortcutInfoChangeListener.onShortcutUpdated(Collections.singletonList(shortcut));
@@ -235,8 +230,7 @@ public class ShortcutInfoChangeListenerImplTest {
                 .setShortLabel("short label")
                 .setLongLabel("long label")
                 .setIntent(intent)
-                .addCapabilityBinding(
-                        "actions.intent.TWEET", null)
+                .addCapabilityBinding("actions.intent.TWEET")
                 .build();
 
         mShortcutInfoChangeListener.onShortcutUpdated(Collections.singletonList(shortcut));
