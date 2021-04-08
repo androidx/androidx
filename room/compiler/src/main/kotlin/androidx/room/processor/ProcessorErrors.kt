@@ -721,6 +721,11 @@ object ProcessorErrors {
     ) = "The partial entity $partialEntityName is missing the primary key fields " +
         "(${primaryKeyNames.joinToString()}) needed to perform an UPDATE."
 
+    fun noColumnsInPartialEntity(
+        partialEntityName: String
+    ) = "The partial entity $partialEntityName does not have any columns that can be used to " +
+        "perform the query."
+
     fun cannotFindPreparedQueryResultAdapter(
         returnType: String,
         type: QueryType

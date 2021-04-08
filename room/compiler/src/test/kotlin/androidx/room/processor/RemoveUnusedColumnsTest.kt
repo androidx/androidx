@@ -17,47 +17,51 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.room.DatabaseProcessingStep
 import androidx.room.RewriteQueriesToDropUnusedColumns
-import androidx.room.RoomProcessor
-import com.google.common.truth.Truth.assertAbout
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
+import androidx.room.compiler.processing.util.CompilationResultSubject
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.runProcessorTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.tools.JavaFileObject
-import javax.tools.StandardLocation
 
 @RunWith(JUnit4::class)
 class RemoveUnusedColumnsTest {
 
     @Test
     fun noAnnotationGivesWarning() {
-        compile()
-            .withWarningCount(1)
-            .withWarningContaining("The query returns some columns [uid, ageColumn]")
+        compile { result ->
+            result.hasWarningContaining("The query returns some columns [uid, ageColumn]")
+            result.hasWarningCount(1)
+        }
     }
 
     @Test
     fun annotateMethod() {
         compile(
             annotateMethod = true
-        ).withWarningCount(0)
+        ) { result ->
+            result.hasNoWarnings()
+        }
     }
 
     @Test
     fun annotateDao() {
         compile(
             annotateDao = true
-        ).withWarningCount(0)
+        ) { result ->
+            result.hasNoWarnings()
+        }
     }
 
     @Test
     fun annotateDb() {
         compile(
             annotateDb = true
-        ).withWarningCount(0)
+        ) { result ->
+            result.hasNoWarnings()
+        }
     }
 
     @Test
@@ -65,8 +69,10 @@ class RemoveUnusedColumnsTest {
         compile(
             annotateDb = true,
             enableExpandProjection = true
-        ).withWarningCount(1)
-            .withWarningContaining(ProcessorErrors.EXPAND_PROJECTION_ALONG_WITH_REMOVE_UNUSED)
+        ) { result ->
+            result.hasWarningContaining(ProcessorErrors.EXPAND_PROJECTION_ALONG_WITH_REMOVE_UNUSED)
+            result.hasWarningCount(1)
+        }
     }
 
     @Test
@@ -74,8 +80,10 @@ class RemoveUnusedColumnsTest {
         compile(
             annotateMethod = true,
             enableExpandProjection = true
-        ).withWarningCount(1)
-            .withWarningContaining(ProcessorErrors.EXPAND_PROJECTION_ALONG_WITH_REMOVE_UNUSED)
+        ) { result ->
+            result.hasWarningContaining(ProcessorErrors.EXPAND_PROJECTION_ALONG_WITH_REMOVE_UNUSED)
+            result.hasWarningCount(1)
+        }
     }
 
     @Test
@@ -83,41 +91,44 @@ class RemoveUnusedColumnsTest {
         compile(
             annotateDao = true,
             enableExpandProjection = true
-        ).withWarningCount(1)
-            .withWarningContaining(ProcessorErrors.EXPAND_PROJECTION_ALONG_WITH_REMOVE_UNUSED)
+        ) { result ->
+            result.hasWarningContaining(
+                ProcessorErrors.EXPAND_PROJECTION_ALONG_WITH_REMOVE_UNUSED
+            )
+            result.hasWarningCount(1)
+        }
     }
 
     private fun compile(
         annotateDb: Boolean = false,
         annotateDao: Boolean = false,
         annotateMethod: Boolean = false,
-        enableExpandProjection: Boolean = false
-    ): CompileTester.SuccessfulCompilationClause {
-        val jfos = dao(
+        enableExpandProjection: Boolean = false,
+        validate: (CompilationResultSubject) -> Unit,
+    ) {
+        val sources = dao(
             annotateDao = annotateDao,
             annotateDb = annotateDb,
             annotateMethod = annotateMethod
-        ) + COMMON.USER
-        return assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(jfos)
-            .withCompilerOptions("-Xlint:-processing") // remove unclaimed annotation warnings
-            .also {
-                if (enableExpandProjection) {
-                    it.withCompilerOptions("-Aroom.expandProjection=true")
-                }
-            }
-            .processedWith(RoomProcessor())
-            .compilesWithoutError()
-            .also {
-                it.and()
-                    .generatesFileNamed(
-                        StandardLocation.CLASS_OUTPUT, "foo.bar", "MyDao_Impl.class"
-                    )
-                    .and()
-                    .generatesFileNamed(
-                        StandardLocation.CLASS_OUTPUT, "foo.bar", "MyDb_Impl.class"
-                    )
-            }
+        ) + Source.fromJavaFileObject(COMMON.USER)
+
+        runProcessorTest(
+            sources = sources,
+            createProcessingStep = {
+                DatabaseProcessingStep()
+            },
+            options = mapOf(
+                "room.expandProjection" to enableExpandProjection.toString()
+            )
+        ) { result ->
+            validate(result)
+            result.generatedSourceFileWithPath(
+                "foo/bar/MyDao_Impl.java"
+            )
+            result.generatedSourceFileWithPath(
+                "foo/bar/MyDb_Impl.java"
+            )
+        }
     }
 
     companion object {
@@ -125,14 +136,14 @@ class RemoveUnusedColumnsTest {
             annotateDb: Boolean,
             annotateDao: Boolean,
             annotateMethod: Boolean
-        ): List<JavaFileObject> {
+        ): List<Source> {
             fun annotationText(enabled: Boolean) = if (enabled) {
                 "@${RewriteQueriesToDropUnusedColumns::class.java.canonicalName}"
             } else {
                 ""
             }
 
-            val pojo = JavaFileObjects.forSourceString(
+            val pojo = Source.java(
                 "foo.bar.Pojo",
                 """
                     package foo.bar;
@@ -142,7 +153,7 @@ class RemoveUnusedColumnsTest {
                     }
                 """.trimIndent()
             )
-            val dao = JavaFileObjects.forSourceString(
+            val dao = Source.java(
                 "foo.bar.MyDao",
                 """
                     package foo.bar;
@@ -156,7 +167,7 @@ class RemoveUnusedColumnsTest {
                     }
                 """.trimIndent()
             )
-            val db = JavaFileObjects.forSourceString(
+            val db = Source.java(
                 "foo.bar.MyDb",
                 """
                     package foo.bar;
