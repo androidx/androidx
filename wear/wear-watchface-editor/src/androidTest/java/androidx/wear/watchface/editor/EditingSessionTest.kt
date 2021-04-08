@@ -69,6 +69,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -392,6 +393,11 @@ public class EditorSessionTest {
                 )
             }
         )
+    }
+
+    @After
+    public fun tearDown() {
+        WatchFace.clearAllEditorDelegates()
     }
 
     @Test
@@ -1042,7 +1048,7 @@ public class EditorSessionTest {
     }
 
     @Test
-    public fun closeEditorSessionBeforeWatchFaceDelegateCreated() {
+    public fun closeEditorSessionBeforeInitCompleted() {
         val session: ActivityScenario<OnWatchFaceEditingTestActivity> = ActivityScenario.launch(
             WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
@@ -1060,9 +1066,9 @@ public class EditorSessionTest {
             }
         )
 
-        session.onActivity { activity ->
+        session.onActivity {
             // This shouldn't throw an exception.
-            activity.editorSession.close()
+            EditorService.globalEditorService.closeEditor()
         }
     }
 }
