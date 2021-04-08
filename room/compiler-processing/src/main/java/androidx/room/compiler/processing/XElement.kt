@@ -16,6 +16,10 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.javac.JavacElement
+import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
+import androidx.room.compiler.processing.ksp.KspElement
+import javax.lang.model.element.Element
 import kotlin.contracts.contract
 
 /**
@@ -74,4 +78,20 @@ fun XElement.isConstructor(): Boolean {
         returns(true) implies (this@isConstructor is XConstructorElement)
     }
     return this is XConstructorElement
+}
+
+/**
+ * Attempts to get a Javac [Element] representing the originating element for attribution
+ * when writing a file for incremental processing.
+ *
+ * In KSP a [KSFileAsOriginatingElement] will be returned, which is a synthetic javac element
+ * that allows us to pass originating elements to JavaPoet and KotlinPoet, and later extract
+ * the KSP file when writing with [XFiler].
+ */
+internal fun XElement.originatingElementForPoet(): Element? {
+    return when (this) {
+        is JavacElement -> element
+        is KspElement -> containingFileAsOriginatingElement()
+        else -> error("Originating element is not implemented for ${this.javaClass}")
+    }
 }
