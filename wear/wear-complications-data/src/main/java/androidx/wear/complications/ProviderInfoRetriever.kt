@@ -33,7 +33,9 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.utility.TraceEvent
 import kotlinx.coroutines.CompletableDeferred
-
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 /**
  * Retrieves [ComplicationProviderInfo] for a watch face's complications.
  *
@@ -75,6 +77,14 @@ public class ProviderInfoRetriever : AutoCloseable {
     private var context: Context? = null
     private val deferredService = CompletableDeferred<IProviderInfoService>()
 
+    /**
+     * @hide
+     */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public var closed: Boolean = false
+        private set
+
     /** @param context the current context */
     public constructor(context: Context) {
         this.context = context
@@ -115,6 +125,9 @@ public class ProviderInfoRetriever : AutoCloseable {
         watchFaceComponent: ComponentName,
         watchFaceComplicationIds: IntArray
     ): Array<ProviderInfo>? = TraceEvent("ProviderInfoRetriever.retrieveProviderInfo").use {
+        require(!closed) {
+            "retrieveProviderInfo called after close"
+        }
         awaitDeferredService().getProviderInfos(
             watchFaceComponent, watchFaceComplicationIds
         )?.mapIndexed { index, info ->
@@ -141,32 +154,42 @@ public class ProviderInfoRetriever : AutoCloseable {
     ): ComplicationData? = TraceEvent(
         "ProviderInfoRetriever.requestPreviewComplicationData"
     ).use {
+        require(!closed) {
+            "retrievePreviewComplicationData called after close"
+        }
         val service = awaitDeferredService()
         if (service.apiVersion < 1) {
             return null
         }
-        val result = CompletableDeferred<ComplicationData?>()
-        val deathObserver = IBinder.DeathRecipient {
-            result.completeExceptionally(ServiceDisconnectedException())
-        }
-        service.asBinder().linkToDeath(deathObserver, 0)
-        if (!service.requestPreviewComplicationData(
-                providerComponent,
-                complicationType.toWireComplicationType(),
-                object : IPreviewComplicationDataCallback.Stub() {
-                    override fun updateComplicationData(
-                        data: android.support.wearable.complications.ComplicationData?
-                    ) {
-                        service.asBinder().unlinkToDeath(deathObserver, 0)
-                        result.complete(data?.toApiComplicationData())
+
+        return suspendCancellableCoroutine { continuation ->
+            val deathObserver = IBinder.DeathRecipient {
+                continuation.resumeWithException(ServiceDisconnectedException())
+            }
+            service.asBinder().linkToDeath(deathObserver, 0)
+
+            // Not a huge deal but we might as well unlink the deathObserver.
+            continuation.invokeOnCancellation {
+                service.asBinder().unlinkToDeath(deathObserver, 0)
+            }
+
+            if (!service.requestPreviewComplicationData(
+                    providerComponent,
+                    complicationType.toWireComplicationType(),
+                    object : IPreviewComplicationDataCallback.Stub() {
+                        override fun updateComplicationData(
+                            data: android.support.wearable.complications.ComplicationData?
+                        ) {
+                            service.asBinder().unlinkToDeath(deathObserver, 0)
+                            continuation.resume(data?.toApiComplicationData())
+                        }
                     }
-                }
-            )
-        ) {
-            service.asBinder().unlinkToDeath(deathObserver, 0)
-            return null
+                )
+            ) {
+                service.asBinder().unlinkToDeath(deathObserver, 0)
+                continuation.resume(null)
+            }
         }
-        return result.await()
     }
 
     private suspend fun awaitDeferredService(): IProviderInfoService =
@@ -186,6 +209,7 @@ public class ProviderInfoRetriever : AutoCloseable {
      * may be used with try-with-resources.
      */
     override fun close() {
+        closed = true
         context?.unbindService(serviceConnection)
     }
 
