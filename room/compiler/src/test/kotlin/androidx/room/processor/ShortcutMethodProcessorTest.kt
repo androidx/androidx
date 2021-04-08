@@ -18,20 +18,18 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Dao
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.compiler.processing.XMethodElement
-import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XTypeElement
-import androidx.room.testing.TestInvocation
-import androidx.room.testing.TestProcessor
+import androidx.room.testing.context
 import androidx.room.vo.ShortcutMethod
-import com.google.common.truth.Truth
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
@@ -39,8 +37,7 @@ import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
-import toJFO
-import javax.tools.JavaFileObject
+import toSources
 import kotlin.reflect.KClass
 
 /**
@@ -70,10 +67,13 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 @${annotation.java.canonicalName}
                 abstract public void foo();
                 """
-        ) { shortcut, _ ->
+        ) { shortcut, invocation ->
             assertThat(shortcut.name, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(0))
-        }.failsToCompile().withErrorContaining(noParamsError())
+            invocation.assertCompilationResult {
+                hasErrorContaining(noParamsError())
+            }
+        }
     }
 
     abstract fun noParamsError(): String
@@ -94,7 +94,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["user"]?.isPartialEntity, `is`(false))
             assertThat(shortcut.entities["user"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -104,13 +104,16 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 @${annotation.java.canonicalName}
                 abstract public void foo(NotAnEntity notValid);
                 """
-        ) { shortcut, _ ->
+        ) { shortcut, invocation ->
             assertThat(shortcut.name, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             assertThat(shortcut.entities.size, `is`(0))
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER
-        )
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER
+                )
+            }
+        }
     }
 
     @Test
@@ -135,7 +138,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 shortcut.parameters.map { it.name },
                 `is`(listOf("u1", "u2"))
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -171,7 +174,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 assertThat(param.pojoType?.typeName, `is`(USER_TYPE_NAME))
                 assertThat(shortcut.entities.size, `is`(1))
                 assertThat(shortcut.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
-            }.compilesWithoutError()
+            }
         }
     }
 
@@ -194,7 +197,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             )
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -219,7 +222,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             )
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -244,7 +247,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             )
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -270,7 +273,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             )
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -306,7 +309,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 assertThat(shortcut.entities.size, `is`(2))
                 assertThat(shortcut.entities["u1"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
                 assertThat(shortcut.entities["b1"]?.pojo?.typeName, `is`(BOOK_TYPE_NAME))
-            }.compilesWithoutError()
+            }
         }
     }
 
@@ -331,14 +334,19 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 @${annotation.java.canonicalName}
                 abstract public $type foo(User user);
                 """
-            ) { _, _ ->
-            }.failsToCompile().withErrorContaining(invalidReturnTypeError())
+            ) { _, invocation ->
+                invocation.assertCompilationResult {
+                    hasErrorContaining(invalidReturnTypeError())
+                }
+            }
         }
     }
 
     @Test
     fun targetEntity() {
-        val usernameJfo = """
+        val usernameSource = Source.java(
+            "foo.bar.Username",
+            """
             package foo.bar;
             import androidx.room.*;
 
@@ -346,13 +354,14 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 int uid;
                 String name;
             }
-        """.toJFO("foo.bar.Username")
+            """
+        )
         singleShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
                 abstract public int foo(Username username);
                 """,
-            additionalJFOs = listOf(usernameJfo)
+            additionalSources = listOf(usernameSource)
         ) { shortcut, _ ->
             assertThat(shortcut.name, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
@@ -363,7 +372,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             assertThat(shortcut.entities["username"]?.isPartialEntity, `is`(true))
             assertThat(shortcut.entities["username"]?.entityTypeName, `is`(USER_TYPE_NAME))
             assertThat(shortcut.entities["username"]?.pojo?.typeName, `is`(USERNAME_TYPE_NAME))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -374,12 +383,14 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public int foo(User user);
                 """
         ) { _, _ ->
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun targetEntityExtraColumn() {
-        val usernameJfo = """
+        val usernameSource = Source.java(
+            "foo.bar.Username",
+            """
             package foo.bar;
             import androidx.room.*;
 
@@ -388,22 +399,28 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 String name;
                 long extraField;
             }
-        """.toJFO("foo.bar.Username")
+            """
+        )
         singleShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
                 abstract public int foo(Username username);
                 """,
-            additionalJFOs = listOf(usernameJfo)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.cannotFindAsEntityField("foo.bar.User")
-        )
+            additionalSources = listOf(usernameSource)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.cannotFindAsEntityField("foo.bar.User")
+                )
+            }
+        }
     }
 
     @Test
     fun targetEntityExtraColumnIgnored() {
-        val usernameJfo = """
+        val usernameSource = Source.java(
+            "foo.bar.Username",
+            """
             package foo.bar;
             import androidx.room.*;
 
@@ -413,20 +430,23 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 @Ignore
                 long extraField;
             }
-        """.toJFO("foo.bar.Username")
+            """
+        )
         singleShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
                 abstract public int foo(Username username);
                 """,
-            additionalJFOs = listOf(usernameJfo)
+            additionalSources = listOf(usernameSource)
         ) { _, _ ->
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun targetEntityWithEmbedded() {
-        val usernameJfo = """
+        val usernameSource = Source.java(
+            "foo.bar.Username",
+            """
             package foo.bar;
             import androidx.room.*;
 
@@ -435,8 +455,11 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 @Embedded
                 Fullname name;
             }
-        """.toJFO("foo.bar.Username")
-        val fullnameJfo = """
+            """
+        )
+        val fullnameSource = Source.java(
+            "foo.bar.Fullname",
+            """
             package foo.bar;
             import androidx.room.*;
 
@@ -445,20 +468,23 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 String firstName;
                 String lastName;
             }
-        """.toJFO("foo.bar.Fullname")
+            """
+        )
         singleShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
                 abstract public int foo(Username username);
                 """,
-            additionalJFOs = listOf(usernameJfo, fullnameJfo)
+            additionalSources = listOf(usernameSource, fullnameSource)
         ) { _, _ ->
-        }.compilesWithoutError()
+        }
     }
 
     @Test
     fun targetEntityWithRelation() {
-        val userPetsJfo = """
+        val userPetsSource = Source.java(
+            "foo.bar.UserPets",
+            """
             package foo.bar;
             import androidx.room.*;
             import java.util.List;
@@ -468,8 +494,11 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 @Relation(parentColumn = "uid", entityColumn = "ownerId")
                 List<Pet> pets;
             }
-        """.toJFO("foo.bar.UserPets")
-        val petJfo = """
+            """
+        )
+        val petSource = Source.java(
+            "foo.bar.Pet",
+            """
             package foo.bar;
             import androidx.room.*;
 
@@ -479,15 +508,19 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 int petId;
                 int ownerId;
             }
-        """.toJFO("foo.bar.Pet")
+            """
+        )
         singleShortcutMethod(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
                 abstract public int foo(UserPets userPets);
                 """,
-            additionalJFOs = listOf(userPetsJfo, petJfo)
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_RELATION_IN_PARTIAL_ENTITY)
+            additionalSources = listOf(userPetsSource, petSource)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.INVALID_RELATION_IN_PARTIAL_ENTITY)
+            }
+        }
     }
 
     @Test
@@ -496,13 +529,52 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             """
                 @${annotation.java.canonicalName}(entity = User.class)
                 abstract public int foo(long x);
-                """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.shortcutMethodArgumentMustBeAClass(
-                TypeName.LONG
-            )
+                """,
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                if (invocation.isKsp) {
+                    hasErrorContaining(
+                        ProcessorErrors.noColumnsInPartialEntity(
+                            "java.lang.Long"
+                        )
+                    )
+                } else {
+                    // javac has a different error for primitives.
+                    hasErrorContaining(
+                        ProcessorErrors.shortcutMethodArgumentMustBeAClass(
+                            TypeName.LONG
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun targetEntity_emptyClassParameter() {
+        val emptyClass = Source.java(
+            "foo.bar.EmptyClass",
+            """
+            package foo.bar;
+            public class EmptyClass {}
+            """.trimIndent()
         )
+
+        singleShortcutMethod(
+            """
+                @${annotation.java.canonicalName}(entity = User.class)
+                abstract public int foo(EmptyClass x);
+                """,
+            additionalSources = listOf(emptyClass)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.noColumnsInPartialEntity(
+                        "foo.bar.EmptyClass"
+                    )
+                )
+            }
+        }
     }
 
     abstract fun invalidReturnTypeError(): String
@@ -515,47 +587,39 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
 
     fun singleShortcutMethod(
         vararg input: String,
-        additionalJFOs: List<JavaFileObject> = emptyList(),
-        handler: (T, TestInvocation) -> Unit
-    ):
-        CompileTester {
-            return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(
-                    listOf(
-                        JavaFileObjects.forSourceString(
-                            "foo.bar.MyClass",
-                            DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-                        ),
-                        COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
-                        COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX3_COMPLETABLE,
-                        COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE,
-                        COMMON.GUAVA_ROOM
-                    ) + additionalJFOs
-                )
-                .processedWith(
-                    TestProcessor.builder()
-                        .forAnnotations(annotation, Dao::class)
-                        .nextRunHandler { invocation ->
-                            val (owner, methods) = invocation.roundEnv
-                                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
-                                .filterIsInstance<XTypeElement>()
-                                .map {
-                                    Pair(
-                                        it,
-                                        it.getAllMethods().filter {
-                                            it.hasAnnotation(annotation)
-                                        }
-                                    )
-                                }.first { it.second.isNotEmpty() }
-                            val processed = process(
-                                baseContext = invocation.context,
-                                containing = owner.type,
-                                executableElement = methods.first()
-                            )
-                            handler(processed, invocation)
-                            true
+        additionalSources: List<Source> = emptyList(),
+        handler: (T, XTestInvocation) -> Unit
+    ) {
+        val inputSource = Source.java(
+            "foo.bar.MyClass",
+            DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
+        )
+        val commonSources = listOf(
+            COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
+            COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX3_COMPLETABLE,
+            COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE,
+            COMMON.GUAVA_ROOM
+        ).toSources()
+        runProcessorTest(
+            sources = commonSources + additionalSources + inputSource
+        ) { invocation ->
+            val (owner, methods) = invocation.roundEnv
+                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
+                .map {
+                    Pair(
+                        it,
+                        it.getAllMethods().filter {
+                            it.hasAnnotation(annotation)
                         }
-                        .build()
-                )
+                    )
+                }.first { it.second.isNotEmpty() }
+            val processed = process(
+                baseContext = invocation.context,
+                containing = owner.type,
+                executableElement = methods.first()
+            )
+            handler(processed, invocation)
         }
+    }
 }

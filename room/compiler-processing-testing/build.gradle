@@ -74,7 +74,8 @@ tasks.named("compileKotlin").configure {
 // in the source.
 tasks.named("compileTestKotlin", KotlinCompile.class).configure {
     it.kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"]
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn",
+                             "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"]
     }
 }
 
