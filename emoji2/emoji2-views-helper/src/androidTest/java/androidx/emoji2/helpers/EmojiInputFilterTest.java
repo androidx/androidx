@@ -73,7 +73,8 @@ public class EmojiInputFilterTest {
 
         assertNotNull(result);
         assertTrue(result instanceof Spannable);
-        verify(mEmojiCompat, times(1)).process(EmojiMatcher.sameCharSequence("a"), eq(0), eq(1));
+        verify(mEmojiCompat, times(1)).process(
+                EmojiMatcher.sameCharSequence("a"), eq(0), eq(1));
     }
 
     @Test
