@@ -812,43 +812,6 @@ public class ShortcutInfoCompat {
         }
 
         /**
-         * Associates a shortcut with a capability. Used when the shortcut is an instance
-         * of a capability.
-         *
-         * <P>This method can be called multiple times to associate multiple capabilities with
-         * this shortcut.
-         *
-         * @param parameters Optional capability parameters associated with given
-         * capability. This will be a mapping of parameter names to zero or
-         * more parameter values. e.g. {"START_EXERCISE": ["jogging", "dancing"],
-         * "STOP_EXERCISE": []}
-         *
-         * @deprecated use {@link #addCapabilityBinding(String)} and
-         * {@link #addCapabilityBinding(String, String, List)} instead.
-         */
-        @Deprecated
-        @SuppressLint("MissingGetterMatchingBuilder")
-        @NonNull
-        public Builder addCapabilityBinding(@NonNull String capability,
-                @Nullable Map<String, List<String>> parameters) {
-            if (mCapabilityBindings == null) {
-                mCapabilityBindings = new HashSet<>();
-            }
-            mCapabilityBindings.add(capability);
-
-            if (parameters != null) {
-                if (mCapabilityBindingParams == null) {
-                    mCapabilityBindingParams = new HashMap<>();
-                }
-                if (mCapabilityBindingParams.get(capability) == null) {
-                    mCapabilityBindingParams.put(capability, new HashMap<String, List<String>>());
-                }
-                mCapabilityBindingParams.get(capability).putAll(parameters);
-            }
-            return this;
-        }
-
-        /**
          * Associates a shortcut with a capability without any parameters. Used when the shortcut is
          * an instance of a capability.
          *

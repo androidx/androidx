@@ -16,6 +16,7 @@
 
 package androidx.core.google.shortcuts;
 
+import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_LISTENER_INTENT_FILTER_ACTION;
 import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_TAG_KEY;
 import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
 
@@ -50,8 +51,9 @@ public class ShortcutUtilsTest {
 
         String url = ShortcutUtils.getIndexableUrl(context, id);
 
-        String expectedUri = String.format("intent:#Intent;component=%s/androidx.core.google"
-                        + ".shortcuts.TrampolineActivity;S.id=%s;end", TEST_PACKAGE, id);
+        String expectedUri = String.format("intent:#Intent;action=%s;component=%s/androidx.core"
+                + ".google.shortcuts.TrampolineActivity;S.id=%s;end",
+                SHORTCUT_LISTENER_INTENT_FILTER_ACTION, TEST_PACKAGE, id);
         assertThat(url).isEqualTo(expectedUri);
     }
 
@@ -80,6 +82,7 @@ public class ShortcutUtilsTest {
         Intent trampolineIntent = Intent.parseUri(trampolineUrl, Intent.URI_INTENT_SCHEME);
 
         assertThat(trampolineIntent.getPackage()).isEqualTo(context.getPackageName());
+        assertThat(trampolineIntent.getAction()).isEqualTo(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
         assertThat(trampolineIntent.getStringExtra(SHORTCUT_TAG_KEY)).isNotEmpty();
         String expectedShortcutUrl = "http://www.google.com";
         assertThat(trampolineIntent.getStringExtra(SHORTCUT_URL_KEY))
