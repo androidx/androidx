@@ -20,13 +20,17 @@ import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.ResultWriter
 import androidx.benchmark.macro.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.macro.perfetto.UiState
+import androidx.benchmark.macro.perfetto.appendUiState
 import androidx.test.platform.app.InstrumentationRegistry
+import java.io.File
 
 internal fun checkErrors(packageName: String): ConfigurationError.SuppressionState? {
     val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
@@ -156,11 +160,23 @@ private fun macrobenchmark(
             }!!
 
             tracePaths.add(tracePath)
-            metrics
+            val metricsWithUiState = metrics
                 // capture list of Map<String,Long> per metric
                 .map { it.getMetrics(packageName, tracePath) }
                 // merge into one map
                 .reduce { sum, element -> sum + element }
+
+            // append UI state to trace, so tools opening trace will highlight relevant part in UI
+            val uiState = UiState(
+                timelineStart = metricsWithUiState.timelineStart,
+                timelineEnd = metricsWithUiState.timelineEnd,
+                highlightPackage = packageName
+            )
+            File(tracePath).appendUiState(uiState)
+            Log.d(TAG, "Iteration $iteration captured $uiState")
+
+            // report just the metrics
+            metricsWithUiState.metrics
         }.mergeToMetricResults(tracePaths)
 
         require(metricResults.isNotEmpty()) {
