@@ -152,11 +152,11 @@ class FragmentContainerViewTest {
             .setSystemWindowInsets(Insets.of(4, 3, 2, 1))
             .build()
 
-        var dispatchedToChild = false
+        var dispatchedToChild = 0
         childView.setOnApplyWindowInsetsListener { _, insets ->
             // Ensure insets received by child are not consumed at all by the parent
             assertThat(insets.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
-            dispatchedToChild = true
+            dispatchedToChild++
             insets
         }
 
@@ -165,7 +165,50 @@ class FragmentContainerViewTest {
         parentView.addView(childView)
         parentView.dispatchApplyWindowInsets(sentInsets)
 
-        assertThat(dispatchedToChild).isTrue()
+        assertThat(dispatchedToChild).isEqualTo(1)
+    }
+
+    @Suppress("DEPRECATION") /* systemWindowInsets */
+    @SdkSuppress(minSdkVersion = 29) // WindowInsets.Builder requires API 29
+    @Test
+    fun windowInsetsDispatchToMultipleChildren() {
+        val parentView = FragmentContainerView(context)
+        val childView = FragmentContainerView(context)
+        val childView2 = FragmentContainerView(context)
+
+        parentView.fitsSystemWindows = true
+
+        val sentInsets = WindowInsets.Builder()
+            .setSystemWindowInsets(Insets.of(4, 3, 2, 1))
+            .build()
+
+        var dispatchedToChild = 0
+        childView.setOnApplyWindowInsetsListener { _, insets ->
+            // Ensure insets received by child are not consumed at all by the parent
+            assertThat(insets.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
+            dispatchedToChild++
+            WindowInsets.Builder()
+                .setSystemWindowInsets(Insets.of(0, 0, 0, 0))
+                .build()
+        }
+
+        var dispatchedToChild2 = 0
+        childView2.setOnApplyWindowInsetsListener { _, insets ->
+            // Ensure insets received by child are not consumed at all by the parent
+            assertThat(insets.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
+            dispatchedToChild2++
+            insets
+        }
+
+        childView.setTag(R.id.fragment_container_view_tag, Fragment())
+        childView2.setTag(R.id.fragment_container_view_tag, Fragment())
+
+        parentView.addView(childView)
+        parentView.addView(childView2)
+        parentView.dispatchApplyWindowInsets(sentInsets)
+
+        assertThat(dispatchedToChild).isEqualTo(1)
+        assertThat(dispatchedToChild2).isEqualTo(1)
     }
 
     @Test
