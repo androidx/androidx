@@ -104,12 +104,15 @@ class ExportToFramework:
             .replace(
                     'androidx.core.util.ObjectsCompat',
                     'java.util.Objects')
+            # Preconditions.checkNotNull is replaced with Objects.requireNonNull. We add both
+            # imports and let google-java-format sort out which one is unused.
             .replace(
-                    'androidx.core.util.Preconditions',
-                    'com.android.internal.util.Preconditions')
+                    'import androidx.core.util.Preconditions;',
+                    'import java.util.Objects; import com.android.internal.util.Preconditions;')
             .replace('import androidx.annotation.RestrictTo;', '')
             .replace('@RestrictTo(RestrictTo.Scope.LIBRARY)', '')
             .replace('@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)', '')
+            .replace('Preconditions.checkNotNull(', 'Objects.requireNonNull(')
             .replace('ObjectsCompat.', 'Objects.')
             .replace('// @exportToFramework:skipFile()', '')
         )
