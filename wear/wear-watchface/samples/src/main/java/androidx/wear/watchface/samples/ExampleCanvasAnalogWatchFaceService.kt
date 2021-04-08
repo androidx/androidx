@@ -35,14 +35,12 @@ import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
-import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
@@ -54,6 +52,7 @@ import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSettin
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
+import androidx.wear.watchface.style.WatchFaceLayer
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -74,20 +73,17 @@ private const val SECOND_HAND_THICKNESS_FRACTION = 0.00934f
 
 private const val NUMBER_RADIUS_FRACTION = 0.45f
 
-val COLOR_STYLE_SETTING = "color_style_setting"
-val RED_STYLE = "red_style"
-val GREEN_STYLE = "green_style"
-val BLUE_STYLE = "blue_style"
-
-val DRAW_HOUR_PIPS_STYLE_SETTING = "draw_hour_pips_style_setting"
-
-val WATCH_HAND_LENGTH_STYLE_SETTING = "watch_hand_length_style_setting"
-
-val COMPLICATIONS_STYLE_SETTING = "complications_style_setting"
-val NO_COMPLICATIONS = "NO_COMPLICATIONS"
-val LEFT_COMPLICATION = "LEFT_COMPLICATION"
-val RIGHT_COMPLICATION = "RIGHT_COMPLICATION"
-val LEFT_AND_RIGHT_COMPLICATIONS = "LEFT_AND_RIGHT_COMPLICATIONS"
+const val COLOR_STYLE_SETTING = "color_style_setting"
+const val RED_STYLE = "red_style"
+const val GREEN_STYLE = "green_style"
+const val BLUE_STYLE = "blue_style"
+const val DRAW_HOUR_PIPS_STYLE_SETTING = "draw_hour_pips_style_setting"
+const val WATCH_HAND_LENGTH_STYLE_SETTING = "watch_hand_length_style_setting"
+const val COMPLICATIONS_STYLE_SETTING = "complications_style_setting"
+const val NO_COMPLICATIONS = "NO_COMPLICATIONS"
+const val LEFT_COMPLICATION = "LEFT_COMPLICATION"
+const val RIGHT_COMPLICATION = "RIGHT_COMPLICATION"
+const val LEFT_AND_RIGHT_COMPLICATIONS = "LEFT_AND_RIGHT_COMPLICATIONS"
 
 /** How long each frame is displayed at expected frame rate.  */
 private const val FRAME_PERIOD_MS: Long = 16L
@@ -135,14 +131,18 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
                 Icon.createWithResource(context, R.drawable.blue_style)
             )
         ),
-        listOf(Layer.BASE, Layer.COMPLICATIONS, Layer.COMPLICATIONS_OVERLAY)
+        listOf(
+            WatchFaceLayer.BASE,
+            WatchFaceLayer.COMPLICATIONS,
+            WatchFaceLayer.COMPLICATIONS_OVERLAY
+        )
     )
     val drawHourPipsStyleSetting = BooleanUserStyleSetting(
         UserStyleSetting.Id(DRAW_HOUR_PIPS_STYLE_SETTING),
         context.getString(R.string.watchface_pips_setting),
         context.getString(R.string.watchface_pips_setting_description),
         null,
-        listOf(Layer.BASE),
+        listOf(WatchFaceLayer.BASE),
         true
     )
     val watchHandLengthStyleSetting = DoubleRangeUserStyleSetting(
@@ -152,7 +152,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
         null,
         0.25,
         1.0,
-        listOf(Layer.COMPLICATIONS_OVERLAY),
+        listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
         0.75
     )
     // These are style overrides applied on top of the complications passed into
@@ -209,7 +209,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
                 )
             )
         ),
-        listOf(Layer.COMPLICATIONS)
+        listOf(WatchFaceLayer.COMPLICATIONS)
     )
     val userStyleRepository = CurrentUserStyleRepository(
         UserStyleSchema(
@@ -354,18 +354,33 @@ class ExampleAnalogWatchCanvasRenderer(
 
         canvas.drawColor(style.backgroundColor)
 
-        // CanvasComplicationDrawable already obeys rendererParameters.
-        drawComplications(canvas, calendar)
+        // We don't need to check renderParameters.watchFaceWatchFaceLayers because
+        // CanvasComplicationDrawable does that for us.
+        for ((_, complication) in complicationsManager.complications) {
+            if (complication.enabled) {
+                complication.render(canvas, calendar, renderParameters)
+            }
+        }
 
-        if (renderParameters.layerParameters[Layer.COMPLICATIONS_OVERLAY] != LayerMode.HIDE) {
+        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS_OVERLAY)
+        ) {
             drawClockHands(canvas, bounds, calendar, style)
         }
 
         if (renderParameters.drawMode != DrawMode.AMBIENT &&
-            renderParameters.layerParameters[Layer.BASE] != LayerMode.HIDE &&
-            drawHourPips
+            renderParameters.watchFaceLayers.contains(WatchFaceLayer.BASE) && drawHourPips
         ) {
             drawNumberStyleOuterElement(canvas, bounds, style)
+        }
+    }
+
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+        canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
+
+        for ((_, complication) in complicationsManager.complications) {
+            if (complication.enabled) {
+                complication.renderHighlightLayer(canvas, calendar, renderParameters)
+            }
         }
     }
 
@@ -553,14 +568,6 @@ class ExampleAnalogWatchCanvasRenderer(
             path.addRect(left, top, right, bottom, Path.Direction.CW)
         }
         return path
-    }
-
-    private fun drawComplications(canvas: Canvas, calendar: Calendar) {
-        for ((_, complication) in complicationsManager.complications) {
-            if (complication.enabled) {
-                complication.render(canvas, calendar, renderParameters)
-            }
-        }
     }
 
     private fun drawNumberStyleOuterElement(canvas: Canvas, bounds: Rect, style: ColorStyle) {

@@ -41,7 +41,6 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
-import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFaceService
@@ -57,7 +56,7 @@ import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.GREEN_STYLE
-import androidx.wear.watchface.style.Layer
+import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -109,7 +108,7 @@ public class ComplicationTapActivity : Activity() {
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-class WatchFaceServiceImageTest {
+public class WatchFaceServiceImageTest {
 
     @Mock
     private lateinit var surfaceHolder: SurfaceHolder
@@ -145,7 +144,8 @@ class WatchFaceServiceImageTest {
     )
 
     @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule("wear/wear-watchface")
+    public val screenshotRule: AndroidXScreenshotTestRule =
+        AndroidXScreenshotTestRule("wear/wear-watchface")
 
     private val bitmap = Bitmap.createBitmap(BITMAP_WIDTH, BITMAP_HEIGHT, Bitmap.Config.ARGB_8888)
     private val canvas = Canvas(bitmap)
@@ -160,12 +160,12 @@ class WatchFaceServiceImageTest {
     private lateinit var interactiveWatchFaceInstance: IInteractiveWatchFace
 
     @Before
-    fun setUp() {
+    public fun setUp() {
         MockitoAnnotations.initMocks(this)
     }
 
     @After
-    fun shutDown() {
+    public fun shutDown() {
         if (this::interactiveWatchFaceInstance.isInitialized) {
             interactiveWatchFaceInstance.release()
         }
@@ -301,7 +301,7 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
-    fun testActiveScreenshot() {
+    public fun testActiveScreenshot() {
         handler.post(this::initCanvasWatchFace)
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         handler.post {
@@ -313,7 +313,7 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
-    fun testAmbientScreenshot() {
+    public fun testAmbientScreenshot() {
         handler.post(this::initCanvasWatchFace)
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         handler.post {
@@ -326,7 +326,7 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
-    fun testCommandTakeScreenShot() {
+    public fun testCommandTakeScreenShot() {
         val latch = CountDownLatch(1)
         handler.post(this::initCanvasWatchFace)
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
@@ -337,9 +337,8 @@ class WatchFaceServiceImageTest {
                     WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.AMBIENT,
-                            RenderParameters.DRAW_ALL_LAYERS,
-                            null,
-                            Color.RED
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            null
                         ).toWireFormat(),
                         123456789,
                         null,
@@ -358,7 +357,7 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
-    fun testCommandTakeOpenGLScreenShot() {
+    public fun testCommandTakeOpenGLScreenShot() {
         val latch = CountDownLatch(1)
 
         handler.post(this::initGles2WatchFace)
@@ -370,9 +369,8 @@ class WatchFaceServiceImageTest {
                     WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.INTERACTIVE,
-                            RenderParameters.DRAW_ALL_LAYERS,
-                            null,
-                            Color.RED
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            null
                         ).toWireFormat(),
                         123456789,
                         null,
@@ -391,7 +389,7 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
-    fun testSetGreenStyle() {
+    public fun testSetGreenStyle() {
         handler.post(this::initCanvasWatchFace)
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         handler.post {
@@ -408,7 +406,7 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
-    fun testHighlightAllComplicationsInScreenshot() {
+    public fun testHighlightAllComplicationsInScreenshot() {
         val latch = CountDownLatch(1)
 
         handler.post(this::initCanvasWatchFace)
@@ -420,13 +418,12 @@ class WatchFaceServiceImageTest {
                     WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.INTERACTIVE,
-                            mapOf(
-                                Layer.BASE to LayerMode.DRAW,
-                                Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
-                                Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
-                            ),
-                            null,
-                            Color.RED
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            RenderParameters.HighlightLayer(
+                                RenderParameters.HighlightedElement.AllComplications,
+                                Color.RED,
+                                Color.argb(128, 0, 0, 0)
+                            )
                         ).toWireFormat(),
                         123456789,
                         null,
@@ -445,7 +442,7 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
-    fun testHighlightRightComplicationInScreenshot() {
+    public fun testHighlightRightComplicationInScreenshot() {
         val latch = CountDownLatch(1)
 
         handler.post(this::initCanvasWatchFace)
@@ -457,13 +454,14 @@ class WatchFaceServiceImageTest {
                     WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.INTERACTIVE,
-                            mapOf(
-                                Layer.BASE to LayerMode.DRAW,
-                                Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
-                                Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
-                            ),
-                            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                            Color.RED
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            RenderParameters.HighlightLayer(
+                                RenderParameters.HighlightedElement.Complication(
+                                    EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+                                ),
+                                Color.RED,
+                                Color.argb(128, 0, 0, 0)
+                            )
                         ).toWireFormat(),
                         123456789,
                         null,
@@ -482,7 +480,7 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
-    fun testScreenshotWithPreviewComplicationData() {
+    public fun testScreenshotWithPreviewComplicationData() {
         val latch = CountDownLatch(1)
         val previewComplicationData = listOf(
             IdAndComplicationDataWireFormat(
@@ -512,9 +510,8 @@ class WatchFaceServiceImageTest {
                     WatchFaceRenderParams(
                         RenderParameters(
                             DrawMode.INTERACTIVE,
-                            RenderParameters.DRAW_ALL_LAYERS,
-                            null,
-                            Color.RED
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            null
                         ).toWireFormat(),
                         123456789,
                         null,
@@ -533,7 +530,7 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
-    fun directBoot() {
+    public fun directBoot() {
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, BITMAP_WIDTH, BITMAP_HEIGHT))
         Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
@@ -591,7 +588,7 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
-    fun complicationTapLaunchesActivity() {
+    public fun complicationTapLaunchesActivity() {
         handler.post(this::initCanvasWatchFace)
 
         ComplicationTapActivity.newCountDown()

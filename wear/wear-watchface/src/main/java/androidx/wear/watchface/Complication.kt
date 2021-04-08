@@ -34,9 +34,10 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
-import androidx.wear.watchface.style.Layer
+import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.RenderParameters.HighlightedElement
 
 /**
  * A complication rendered with [ComplicationDrawable] which renders complications in a material
@@ -105,57 +106,43 @@ public open class CanvasComplicationDrawable(
      * @param bounds A [Rect] describing the bounds of the complication
      * @param calendar The current [Calendar]
      * @param renderParameters The current [RenderParameters]
-     * @param complicationId The Id of the parent [Complication]
      */
     @UiThread
     public open fun render(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar,
-        renderParameters: RenderParameters,
-        complicationId: Int
+        renderParameters: RenderParameters
     ) {
-        when (renderParameters.layerParameters[Layer.COMPLICATIONS]) {
-            LayerMode.DRAW -> {
-                drawable.bounds = bounds
-                drawable.currentTimeMillis = calendar.timeInMillis
-                drawable.draw(canvas)
-            }
-            LayerMode.DRAW_OUTLINED -> {
-                drawable.bounds = bounds
-                drawable.currentTimeMillis = calendar.timeInMillis
-                val wasHighlighted = drawable.isHighlighted
-                drawable.isHighlighted = renderParameters.selectedComplicationId == complicationId
-                drawable.draw(canvas)
-                drawable.isHighlighted = wasHighlighted
-
-                // It's only sensible to render a highlight for non-background, non-fixed
-                // complications.
-                if (!attachedComplication!!.fixedComplicationProvider) {
-                    drawOutline(canvas, bounds, calendar, renderParameters.outlineTint)
-                }
-            }
-            LayerMode.HIDE -> return
+        if (!renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS)) {
+            return
         }
+
+        drawable.bounds = bounds
+        drawable.currentTimeMillis = calendar.timeInMillis
+        drawable.draw(canvas)
     }
 
     /**
-     * Used (indirectly) by the editor to highlight a complication by drawing a (dashed) line
-     * around it.
+     * Draws a highlight for a [ComplicationBoundsType.ROUND_RECT] complication. The default
+     * implementation does this by drawing a dashed line around the complication, other visual
+     * effects may be used if desired.
      *
-     * @param canvas The [Canvas] to render into.
-     * @param bounds The screen space bounding [Rect] of the complication in pixels.
-     * @param calendar The [Calendar] to use for rendering any time dependent properties.
-     * @param color The color to use when rendering the outline.
+     * @param canvas The [Canvas] to render into
+     * @param bounds A [Rect] describing the bounds of the complication
+     * @param boundsType The [ComplicationBoundsType] of the complication
+     * @param calendar The current [Calendar]
+     * @param color The color to render the highlight with
      */
-    public open fun drawOutline(
+    public open fun drawHighlight(
         canvas: Canvas,
         bounds: Rect,
+        @ComplicationBoundsType boundsType: Int,
         calendar: Calendar,
         @ColorInt color: Int
     ) {
-        if (!attachedComplication!!.fixedComplicationProvider) {
-            ComplicationOutlineRenderer.drawComplicationOutline(
+        if (boundsType == ComplicationBoundsType.ROUND_RECT) {
+            ComplicationHighlightRenderer.drawComplicationHighlight(
                 canvas,
                 bounds,
                 color
@@ -359,7 +346,7 @@ public class Complication internal constructor(
          * An edge complication is drawn around the border of the display and has custom hit test
          * logic (see [complicationTapFilter]). When tapped the associated intent is
          * dispatched. Edge complications should have a custom [renderer] with
-         * [CanvasComplicationDrawable.drawEdgeOutline] overridden.
+         * [CanvasComplicationDrawable.drawHighlight] overridden.
          *
          * Note we don't support edge complication hit testing from an editor.
          *
@@ -649,7 +636,53 @@ public class Complication internal constructor(
         renderParameters: RenderParameters
     ) {
         val bounds = computeBounds(Rect(0, 0, canvas.width, canvas.height))
-        renderer.render(canvas, bounds, calendar, renderParameters, id)
+        renderer.render(canvas, bounds, calendar, renderParameters)
+    }
+
+    /**
+     * Watch faces should use this method to render non-fixed complications for any highlight layer
+     * pass. Note the system may call this.
+     *
+     * @param canvas The [Canvas] to render into
+     * @param calendar The current [Calendar]
+     * @param renderParameters The current [RenderParameters]
+     */
+    @UiThread
+    public fun renderHighlightLayer(
+        canvas: Canvas,
+        calendar: Calendar,
+        renderParameters: RenderParameters
+    ) {
+        // It's only sensible to render a highlight for non-fixed complications because you can't
+        // edit fixed complications.
+        if (fixedComplicationProvider) {
+            return
+        }
+
+        val bounds = computeBounds(Rect(0, 0, canvas.width, canvas.height))
+        when (val highlightedElement = renderParameters.highlightLayer?.highlightedElement) {
+            is HighlightedElement.AllComplications -> {
+                renderer.drawHighlight(
+                    canvas,
+                    bounds,
+                    boundsType,
+                    calendar,
+                    renderParameters.highlightLayer.highlightTint
+                )
+            }
+
+            is HighlightedElement.Complication -> {
+                if (highlightedElement.id == id) {
+                    renderer.drawHighlight(
+                        canvas,
+                        bounds,
+                        boundsType,
+                        calendar,
+                        renderParameters.highlightLayer.highlightTint
+                    )
+                }
+            }
+        }
     }
 
     /**

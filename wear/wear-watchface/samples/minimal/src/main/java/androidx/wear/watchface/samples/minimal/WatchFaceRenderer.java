@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.icu.util.Calendar;
 import android.view.SurfaceHolder;
 
+import androidx.annotation.NonNull;
 import androidx.wear.watchface.CanvasType;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchState;
@@ -77,5 +78,11 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
                 rect.centerX(),
                 rect.centerY() - mWatchState.getChinHeight(),
                 mPaint);
+    }
+
+    @Override
+    public void renderHighlightLayer(@NonNull Canvas canvas, @NonNull Rect bounds,
+            @NonNull Calendar calendar) {
+        canvas.drawColor(getRenderParameters().getHighlightLayer().getBackgroundTint());
     }
 }
