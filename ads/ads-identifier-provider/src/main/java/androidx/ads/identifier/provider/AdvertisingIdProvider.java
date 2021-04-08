@@ -25,7 +25,12 @@ import androidx.annotation.NonNull;
  * See {@link AdvertisingIdProviderManager} for more details.
  *
  * <p>Note: The implementation of this interface must be completely thread-safe.
+ *
+ * @deprecated Use the
+ * <a href="https://developers.google.com/android/reference/com/google/android/gms/ads/identifier/AdvertisingIdClient">
+ * Advertising ID API that's available as part of Google Play Services</a> instead of this library.
  */
+@Deprecated
 public interface AdvertisingIdProvider {
     /** Retrieves the Advertising ID. */
     @NonNull
