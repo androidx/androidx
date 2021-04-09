@@ -30,7 +30,6 @@ import androidx.annotation.RestrictTo;
 import androidx.core.os.CancellationSignal;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.ViewGroupCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -208,75 +207,6 @@ public abstract class FragmentTransitionImpl {
     }
 
     /**
-     * Gets the Views in the hierarchy affected by entering and exiting Activity Scene transitions.
-     *
-     * @param transitioningViews This View will be added to transitioningViews if it is VISIBLE and
-     *                           a normal View or a ViewGroup with
-     *                           {@link android.view.ViewGroup#isTransitionGroup()} true.
-     * @param view               The base of the view hierarchy to look in.
-     */
-    void captureTransitioningViews(ArrayList<View> transitioningViews, View view) {
-        if (view.getVisibility() == View.VISIBLE) {
-            if (view instanceof ViewGroup) {
-                ViewGroup viewGroup = (ViewGroup) view;
-                if (ViewGroupCompat.isTransitionGroup(viewGroup)) {
-                    transitioningViews.add(viewGroup);
-                } else {
-                    int count = viewGroup.getChildCount();
-                    for (int i = 0; i < count; i++) {
-                        View child = viewGroup.getChildAt(i);
-                        captureTransitioningViews(transitioningViews, child);
-                    }
-                }
-            } else {
-                transitioningViews.add(view);
-            }
-        }
-    }
-
-    /**
-     * Finds all views that have transition names in the hierarchy under the given view and
-     * stores them in {@code namedViews} map with the name as the key.
-     */
-    void findNamedViews(Map<String, View> namedViews, @NonNull View view) {
-        if (view.getVisibility() == View.VISIBLE) {
-            String transitionName = ViewCompat.getTransitionName(view);
-            if (transitionName != null) {
-                namedViews.put(transitionName, view);
-            }
-            if (view instanceof ViewGroup) {
-                ViewGroup viewGroup = (ViewGroup) view;
-                int count = viewGroup.getChildCount();
-                for (int i = 0; i < count; i++) {
-                    View child = viewGroup.getChildAt(i);
-                    findNamedViews(namedViews, child);
-                }
-            }
-        }
-    }
-
-    /**
-     *Applies the prepared {@code nameOverrides} to the view hierarchy.
-     */
-    void setNameOverridesOrdered(final View sceneRoot,
-            final ArrayList<View> sharedElementsIn, final Map<String, String> nameOverrides) {
-        OneShotPreDrawListener.add(sceneRoot, new Runnable() {
-            @Override
-            public void run() {
-                final int numSharedElements = sharedElementsIn.size();
-                for (int i = 0; i < numSharedElements; i++) {
-                    View view = sharedElementsIn.get(i);
-                    String name = ViewCompat.getTransitionName(view);
-                    if (name != null) {
-                        String inName = findKeyForValue(nameOverrides, name);
-                        ViewCompat.setTransitionName(view, inName);
-                    }
-                }
-            }
-        });
-    }
-
-    /**
      * After the transition has started, remove all targets that we added to the transitions
      * so that the transitions are left in a clean state.
      */
@@ -334,22 +264,6 @@ public abstract class FragmentTransitionImpl {
      */
     public abstract void setEpicenter(Object transitionObj, Rect epicenter);
 
-    void scheduleNameReset(final ViewGroup sceneRoot,
-            final ArrayList<View> sharedElementsIn, final Map<String, String> nameOverrides) {
-        OneShotPreDrawListener.add(sceneRoot, new Runnable() {
-            @Override
-            public void run() {
-                final int numSharedElements = sharedElementsIn.size();
-                for (int i = 0; i < numSharedElements; i++) {
-                    final View view = sharedElementsIn.get(i);
-                    final String name = ViewCompat.getTransitionName(view);
-                    final String inName = nameOverrides.get(name);
-                    ViewCompat.setTransitionName(view, inName);
-                }
-            }
-        });
-    }
-
     /**
      * Uses a breadth-first scheme to add startView and all of its children to views.
      * It won't add a child if it is already in views.
@@ -393,19 +307,6 @@ public abstract class FragmentTransitionImpl {
      */
     protected static boolean isNullOrEmpty(List list) {
         return list == null || list.isEmpty();
-    }
-
-    /**
-     * Utility to find the String key in {@code map} that maps to {@code value}.
-     */
-    @SuppressWarnings("WeakerAccess")
-    static String findKeyForValue(Map<String, String> map, String value) {
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            if (value.equals(entry.getValue())) {
-                return entry.getKey();
-            }
-        }
-        return null;
     }
 
 }
