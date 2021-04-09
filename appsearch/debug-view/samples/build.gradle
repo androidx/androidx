@@ -44,11 +44,18 @@ android {
 }
 
 dependencies {
+    annotationProcessor project(":appsearch:appsearch-compiler")
+
     api('androidx.annotation:annotation:1.1.0')
 
+    implementation project(':appsearch:appsearch')
+    implementation project(':appsearch:appsearch-local-storage')
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
+    implementation(GUAVA_ANDROID)
     implementation('com.google.android.material:material:1.0.0')
+    implementation('com.google.code.gson:gson:2.6.2')
     implementation('androidx.appcompat:appcompat:1.2.0')
+    implementation('androidx.concurrent:concurrent-futures:1.0.0')
 }
 
 androidx {
