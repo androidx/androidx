@@ -23,6 +23,7 @@ import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.migration.bundle.PrimaryKeyBundle
 import androidx.room.migration.bundle.SchemaBundle
+import androidx.room.processor.ProcessorErrors.autoMigrationElementMustExtendCallback
 import androidx.room.testing.context
 import org.junit.Test
 
@@ -34,19 +35,21 @@ class AutoMigrationProcessorTest {
             """
             package foo.bar;
             import androidx.room.AutoMigration;
-            @AutoMigration(from=1, to=2)
             class MyAutoMigration implements AutoMigration {}
             """.trimIndent()
         )
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                invocation.context,
                 invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
+                invocation.context,
+                1,
+                2,
+                invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
                 from.database
             ).process()
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.AUTOMIGRATION_ANNOTATED_TYPE_ELEMENT_MUST_BE_INTERFACE)
+                hasError(ProcessorErrors.AUTOMIGRATION_CALLBACK_MUST_BE_INTERFACE)
             }
         }
     }
@@ -66,13 +69,16 @@ class AutoMigrationProcessorTest {
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                invocation.context,
                 invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
+                invocation.context,
+                1,
+                2,
+                invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
                 from.database
             ).process()
             invocation.assertCompilationResult {
                 hasError(
-                    ProcessorErrors.AUTOMIGRATION_ELEMENT_MUST_IMPLEMENT_AUTOMIGRATION_CALLBACK
+                    autoMigrationElementMustExtendCallback("MyAutoMigration")
                 )
             }
         }

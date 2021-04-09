@@ -793,9 +793,9 @@ object ProcessorErrors {
             "interface."
     }
 
-    fun invalidAutoMigrationTypeInDatabaseAnnotation(typeName: TypeName): String {
-        return "Invalid AutoMigration type: $typeName. An automigration in the database must be a" +
-            " class."
+    fun invalidAutoMigrationTypeInDatabaseAnnotation(): String {
+        return "Invalid AutoMigration type: An automigration in the database must be " +
+            "an @AutoMigration annotation."
     }
 
     val EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE = "The type of an Embedded field must be a " +
@@ -809,12 +809,13 @@ object ProcessorErrors {
         return "Invalid query argument: $typeName. It must be a class or an interface."
     }
 
-    val AUTOMIGRATION_ANNOTATED_TYPE_ELEMENT_MUST_BE_INTERFACE = "The @AutoMigration annotated " +
+    val AUTOMIGRATION_CALLBACK_MUST_BE_INTERFACE = "The @AutoMigration callback " +
         "type must be an interface."
-    val AUTOMIGRATION_ANNOTATION_MISSING = "The @AutoMigration annotation has not been found. " +
-        "Cannot generate auto migrations."
-    val AUTOMIGRATION_ELEMENT_MUST_IMPLEMENT_AUTOMIGRATION_CALLBACK = "AutoMigration element must" +
-        " implement the AutoMigrationCallback interface."
+
+    fun autoMigrationElementMustExtendCallback(callback: String): String {
+        return "The AutoMigration callback " +
+            "$callback must extend the AutoMigrationCallback interface."
+    }
 
     // TODO: (b/180389433) If the files don't exist the getSchemaFile() method should return
     //  null and before calling process
@@ -838,40 +839,109 @@ object ProcessorErrors {
             "@ColumnInfo."
     }
 
-    fun nullabilityOfColumnChangedNotNullColumnMustHaveDefaultValue(columnName: String): String {
-        return "The nullability of the " +
-            "column '$columnName' " +
-            "has been changed from NULL to NOT NULL with no default value specified. Please " +
-            "specify the default value using @ColumnInfo."
-    }
-
     fun columnWithChangedSchemaFound(columnName: String): String {
         return "Encountered column '$columnName' with an unsupported schema change at the column " +
             "level (e.g. affinity change). These changes are not yet " +
             "supported by AutoMigration."
     }
 
-    fun removedOrRenamedColumnFound(columnName: String): String {
-        return "Column '$columnName' has been either removed or " +
-            "renamed. This change is not currently supported by AutoMigration."
+    fun deletedOrRenamedColumnFound(
+        className: String?,
+        columnName: String,
+        tableName: String
+    ): String {
+        return if (className != null) {
+            """
+            AutoMigration Failure in ‘$className’: Column ‘$columnName’ in table ‘$tableName’ has
+            been either removed or renamed. Please annotate ‘$className’ with the @RenameColumn
+            or @RemoveColumn annotation to specify the change to be performed:
+            1) RENAME: @RenameColumn.Entries(
+                    @RenameColumn(
+                        tableName = "$tableName",
+                        originalColumnName = "$columnName",
+                        newColumnName = <NEW_COLUMN_NAME>
+                    )
+                )
+            2) DELETE: @DeleteColumn.Entries(
+                    @DeleteColumn=(
+                        tableName = "$tableName",
+                        deletedColumnName = "$columnName"
+                    )
+                )
+            """
+        } else {
+            """
+            AutoMigration Failure: Please declare an interface extending 'AutoMigrationCallback',
+            and annotate with the @RenameColumn or @RemoveColumn annotation to specify the
+            change to be performed:
+            1) RENAME: @RenameColumn.Entries(
+                    @RenameColumn(
+                        tableName = "$tableName",
+                        originalColumnName = "$columnName",
+                        newColumnName = <NEW_COLUMN_NAME>
+                    )
+                )
+            2) DELETE: @DeleteColumn.Entries(
+                    @DeleteColumn=(
+                        tableName = "$tableName",
+                        deletedColumnName = "$columnName"
+                    )
+                )
+            """
+        }
     }
 
-    fun tableWithComplexChangedSchemaFound(tableName: String): String {
-        return "Encountered table '$tableName' with an unsupported schema change at the table " +
-            "level (e.g. primary key, foreign key or index change). These changes are not yet " +
-            "supported by AutoMigration."
+    fun deletedOrRenamedTableFound(
+        className: String?,
+        tableName: String
+    ): String {
+        return if (className != null) {
+            """
+            AutoMigration Failure in '$className': Table '$tableName' has been either removed or
+            renamed. Please annotate '$className' with the @RenameTable or @RemoveTable
+            annotation to specify the change to be performed:
+            1) RENAME: @RenameTable.Entries(
+                    @RenameTable(originalTableName = "$tableName", newTableName = <NEW_TABLE_NAME>))
+            2) DELETE: @DeleteTable.Entries(@DeleteTable(deletedTableName = "$tableName"))
+            """
+        } else {
+            """
+            AutoMigration Failure: Please declare an interface extending 'AutoMigrationCallback',
+            and annotate with the @RenameTable or @RemoveTable
+            annotation to specify the change to be performed:
+            1) RENAME: @RenameTable.Entries(
+                    @RenameTable(originalTableName = "$tableName", newTableName = <NEW_TABLE_NAME>))
+            2) DELETE: @DeleteTable.Entries(@DeleteTable(deletedTableName = "$tableName"))
+            """
+        }
     }
 
-    fun removedOrRenamedTableFound(tableName: String): String {
-        return "Table '$tableName' has been either removed or " +
-            "renamed. This change is not currently supported by AutoMigration."
+    fun tableRenameError(
+        className: String,
+        originalTableName: String,
+        newTableName: String
+    ): String {
+        return "AutoMigration Failure in '$className': The table renamed from " +
+            "'$originalTableName' to '$newTableName' is " +
+            "not found in the new version of the database."
+    }
+
+    fun conflictingRenameTableAnnotationsFound(annotations: String): String {
+        return "Conflicting @RenameTable annotations found: [$annotations]"
+    }
+    fun conflictingRenameColumnAnnotationsFound(annotations: String): String {
+        return "Conflicting @RenameColumn annotations found: [$annotations]"
     }
 
     val AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF = "Cannot create auto-migrations when export " +
         "schema is OFF."
 
-    fun tableWithNewTablePrefixFound(tableName: String): String {
-        return "The new version of the schema contains `$tableName` a table name" +
-            " with the prefix '_new_', which is causing a conflict during autoMigration."
+    fun tableWithConflictingPrefixFound(tableName: String): String {
+        return "The new version of the schema contains '$tableName' a table name" +
+            " with the prefix '_new_', which will cause conflicts for auto migrations. Please use" +
+            " a different name."
     }
+
+    val FTS_TABLE_NOT_CURRENTLY_SUPPORTED = "Schemas involving FTS tables are not currently " +
+        "supported."
 }

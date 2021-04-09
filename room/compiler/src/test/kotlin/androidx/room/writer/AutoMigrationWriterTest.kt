@@ -36,7 +36,6 @@ class AutoMigrationWriterTest {
             """
             package foo.bar;
             import androidx.room.migration.AutoMigrationCallback;
-            import androidx.room.AutoMigration;
             import androidx.sqlite.db.SupportSQLiteDatabase;
             interface ValidAutoMigrationWithDefault extends AutoMigrationCallback {}
             """.trimIndent()
@@ -65,10 +64,11 @@ class AutoMigrationWriterTest {
                             )
                         )
                     ),
-                    removedOrRenamedColumns = listOf(),
-                    addedTables = listOf(),
+                    deletedColumns = listOf(),
+                    addedTables = setOf(),
                     complexChangedTables = mapOf(),
-                    removedOrRenamedTables = listOf()
+                    renamedTables = mapOf(),
+                    deletedTables = listOf()
                 ),
             )
             AutoMigrationWriter(
@@ -82,7 +82,7 @@ class AutoMigrationWriterTest {
                     loadTestSource(
                         "autoMigrationWriter/output/ValidAutoMigrationWithDefault" +
                             ".java",
-                        "foo.bar.ValidAutoMigrationWithDefault_Impl"
+                        "foo.bar.AutoMigration_1_2_Impl"
                     )
                 )
             }
@@ -96,9 +96,7 @@ class AutoMigrationWriterTest {
             """
             package foo.bar;
             import androidx.room.migration.AutoMigrationCallback;
-            import androidx.room.AutoMigration;
             import androidx.sqlite.db.SupportSQLiteDatabase;
-            @AutoMigration(from=1, to=2)
             interface ValidAutoMigrationWithoutDefault extends AutoMigrationCallback {}
             """.trimIndent()
         )
@@ -126,10 +124,11 @@ class AutoMigrationWriterTest {
                             )
                         )
                     ),
-                    removedOrRenamedColumns = listOf(),
-                    addedTables = listOf(),
+                    deletedColumns = listOf(),
+                    addedTables = setOf(),
                     complexChangedTables = mapOf(),
-                    removedOrRenamedTables = listOf()
+                    renamedTables = mapOf(),
+                    deletedTables = listOf()
                 ),
             )
             AutoMigrationWriter(
@@ -142,7 +141,7 @@ class AutoMigrationWriterTest {
                 generatedSource(
                     loadTestSource(
                         "autoMigrationWriter/output/ValidAutoMigrationWithoutDefault.java",
-                        "foo.bar.ValidAutoMigrationWithoutDefault_Impl"
+                        "foo.bar.AutoMigration_1_2_Impl"
                     )
                 )
             }

@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.AutoMigration
 import androidx.room.SkipQueryVerification
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
@@ -126,7 +127,8 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         latestDbSchema: DatabaseBundle
     ): List<AutoMigrationResult> {
         val dbAnnotation = element.getAnnotation(androidx.room.Database::class)!!
-        val autoMigrationList = dbAnnotation.getAsTypeList("autoMigrations")
+        val autoMigrationList = dbAnnotation
+            .getAsAnnotationBoxArray<AutoMigration>("autoMigrations")
         context.checker.check(
             autoMigrationList.isEmpty() || dbAnnotation.value.exportSchema,
             element,
@@ -134,22 +136,15 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         )
 
         return autoMigrationList.mapNotNull {
-            val typeElement = it.typeElement
-            if (typeElement == null) {
-                context.logger.e(
-                    element,
-                    ProcessorErrors.invalidAutoMigrationTypeInDatabaseAnnotation(
-                        it.typeName
-                    )
-                )
-                null
-            } else {
-                AutoMigrationProcessor(
-                    context = context,
-                    element = typeElement,
-                    latestDbSchema = latestDbSchema
-                ).process()
-            }
+            val autoMigration = it.value
+            AutoMigrationProcessor(
+                element = element,
+                context = context,
+                from = autoMigration.from,
+                to = autoMigration.to,
+                callback = it.getAsType("callback")!!,
+                latestDbSchema = latestDbSchema
+            ).process()
         }
     }
 
