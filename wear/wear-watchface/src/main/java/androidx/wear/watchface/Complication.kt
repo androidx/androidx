@@ -37,15 +37,15 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 import androidx.wear.watchface.RenderParameters.HighlightedElement
-
 /**
  * A complication rendered with [ComplicationDrawable] which renders complications in a material
  * design style. This renderer can't be shared by multiple complications.
  *
  * @param _drawable The [ComplicationDrawable] to render with.
  * @param watchState The watch's [WatchState] which contains details pertaining to (low-bit) ambient
- *     mode and burn in protection needed to render correctly.
+ * mode and burn in protection needed to render correctly.
  */
 public open class CanvasComplicationDrawable(
     _drawable: ComplicationDrawable,
@@ -238,23 +238,22 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
  * @param boundsType The [ComplicationBoundsType] of the complication.
  * @param bounds The complication's [ComplicationBounds].
  * @param renderer The [CanvasComplicationDrawable] used to render the complication.
- * @param supportedTypes The list of [ComplicationType]s accepted by this complication. Passed
- *     into [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
- *     configuration. This list should be non-empty.
+ * @param supportedTypes The list of [ComplicationType]s accepted by this complication. Used
+ * during complication, this list should be non-empty.
  * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] which controls the initial
- *     provider when the watch face is first installed.
+ * provider when the watch face is first installed.
  * @param defaultProviderType The default [ComplicationType] for the default provider.
  * @param initiallyEnabled At creation a complication is either enabled or disabled. This can be
- *     overridden by a [ComplicationsUserStyleSetting] (see [ComplicationOverlay.enabled]).
- *     Editors need to know the initial state of a complication to predict the effects of making a
- *     style change.
+ * overridden by a [ComplicationsUserStyleSetting] (see [ComplicationOverlay.enabled]).
+ * Editors need to know the initial state of a complication to predict the effects of making a
+ * style change.
  * @param configExtras Extras to be merged into the Intent sent when invoking the provider chooser
- *     activity.
+ * activity.
  * @param fixedComplicationProvider  Whether or not the complication provider is fixed (i.e.
- *     can't be changed by the user).  This is useful for watch faces built around specific
- *     complications.
+ * can't be changed by the user).  This is useful for watch faces built around specific
+ * complications.
  * @param tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
- *     complication.
+ * complication.
  */
 public class Complication internal constructor(
     internal val id: Int,
@@ -280,14 +279,13 @@ public class Complication internal constructor(
          * can be tapped by the user to trigger the associated intent.
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
-         *     unique within the watch face.
+         * unique within the watch face.
          * @param renderer The [CanvasComplicationDrawable] to use for rendering. Note renderers
-         *     should not be shared between complications.
-         * @param supportedTypes The types of complication supported by this Complication. Passed
-         *     into [ComplicationHelperActivity.createProviderChooserHelperIntent] during
-         *     complication configuration. This list should be non-empty.
+         * should not be shared between complications.
+         * @param supportedTypes The types of complication supported by this Complication. Used
+         * during complication, this list should be non-empty.
          * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
-         *     the initial complication provider when the watch is first installed.
+         * the initial complication provider when the watch is first installed.
          * @param bounds The complication's [ComplicationBounds].
          */
         @JvmStatic
@@ -315,14 +313,13 @@ public class Complication internal constructor(
          * the list of complications.
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
-         *     unique within the watch face.
+         * unique within the watch face.
          * @param renderer The [CanvasComplicationDrawable] to use for rendering. Note renderers
-         *     should not be shared between complications.
-         * @param supportedTypes The types of complication supported by this Complication. Passed
-         *     into [ComplicationHelperActivity.createProviderChooserHelperIntent] during
-         *     complication configuration. This list should be non-empty.
+         * should not be shared between complications.
+         * @param supportedTypes The types of complication supported by this Complication. Used
+         * during complication, this list should be non-empty.
          * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
-         *     the initial complication provider when the watch is first installed.
+         * the initial complication provider when the watch is first installed.
          */
         @JvmStatic
         public fun createBackgroundComplicationBuilder(
@@ -351,18 +348,17 @@ public class Complication internal constructor(
          * Note we don't support edge complication hit testing from an editor.
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
-         *     unique within the watch face.
+         * unique within the watch face.
          * @param renderer The [CanvasComplicationDrawable] to use for rendering. Note renderers
-         *     should not be shared between complications.
-         * @param supportedTypes The types of complication supported by this Complication. Passed
-         *     into [ComplicationHelperActivity.createProviderChooserHelperIntent] during
-         *     complication configuration. This list should be non-empty.
+         * should not be shared between complications.
+         * @param supportedTypes The types of complication supported by this Complication. Used
+         * during complication, this list should be non-empty.
          * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
-         *     the initial complication provider when the watch is first installed.
+         * the initial complication provider when the watch is first installed.
          * @param bounds The complication's [ComplicationBounds]. Its likely the bounding rect will
-         *     be much larger than the complication and shouldn't directly be used for hit testing.
+         * be much larger than the complication and shouldn't directly be used for hit testing.
          * @param complicationTapFilter The [ComplicationTapFilter] used to determine whether or
-         *     not a tap hit the complication.
+         * not a tap hit the complication.
          */
         @JvmStatic
         public fun createEdgeComplicationBuilder(
@@ -387,18 +383,17 @@ public class Complication internal constructor(
      * Builder for constructing [Complication]s.
      *
      * @param id The watch face's ID for this complication. Can be any integer but should be unique
-     *     within the watch face.
+     * within the watch face.
      * @param renderer The [CanvasComplicationDrawable] to use for rendering. Note renderers should
-     *     not be shared between complications.
-     * @param supportedTypes The types of complication supported by this Complication. Passed into
-     *     [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
-     *     configuration. This list should be non-empty.
+     * not be shared between complications.
+     * @param supportedTypes The types of complication supported by this Complication. Used
+     * during complication, this list should be non-empty.
      * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
-     *     the initial complication provider when the watch is first installed.
+     * the initial complication provider when the watch is first installed.
      * @param boundsType The [ComplicationBoundsType] of the complication.
      * @param bounds The complication's [ComplicationBounds].
      * @param complicationTapFilter The [ComplicationTapFilter] used to perform hit testing for this
-     *     complication.
+     * complication.
      */
     public class Builder internal constructor(
         private val id: Int,

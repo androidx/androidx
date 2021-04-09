@@ -31,7 +31,7 @@ import androidx.wear.watchface.style.UserStyleData
  * use by the WatchFace provider.
  *
  * @param id The system's id for a watch face being edited. This is passed in from
- *     [androidx.wear.watchface.EditorRequest.watchFaceId].
+ * [androidx.wear.watchface.EditorRequest.watchFaceId].
  */
 public class WatchFaceId(public val id: String) {
     override fun equals(other: Any?): Boolean {
@@ -54,15 +54,15 @@ public class WatchFaceId(public val id: String) {
  * The state of the editing session. See [androidx.wear.watchface.editor.EditorSession].
  *
  * @param watchFaceId Unique ID for the instance of the watch face being edited (see
- *     [androidx.wear.watchface.editor.EditorRequest.watchFaceId]), only defined for
- *     Android R and beyond.
+ * [androidx.wear.watchface.editor.EditorRequest.watchFaceId]), only defined for Android R and
+ * beyond.
  * @param userStyle The current [UserStyle] encoded as a [UserStyleData].
  * @param previewComplicationsData Preview [ComplicationData] needed for taking screenshots without
- *     live complication data.
+ * live complication data.
  * @param shouldCommitChanges Whether or not this state should be committed (i.e. the user aborted
- *     the session). If it's not committed then any changes (E.g. complication provider changes)
- *     should be abandoned. There's no need to resend the style to the watchface because the
- *     library will have restored the previous style.
+ * the session). If it's not committed then any changes (E.g. complication provider changes) should
+ * be abandoned. There's no need to resend the style to the watchface because the library will have
+ * restored the previous style.
  */
 public class EditorState internal constructor(
     @RequiresApi(Build.VERSION_CODES.R)

@@ -43,7 +43,6 @@ private const val TAG = "RenderBufferTexture"
  *
  * If the operation is not successful, the check throws an exception.
  *
- *
  * *Note* This is quite slow so it's best to use it sparingly in production builds.
  *
  * @param glOperation name of the OpenGL call to check

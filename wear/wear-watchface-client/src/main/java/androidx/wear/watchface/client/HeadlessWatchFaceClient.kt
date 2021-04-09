@@ -75,9 +75,9 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with.
      * @param userStyle Optional [UserStyle] to render with, if null the default style is used.
      * @param idToComplicationData Map of complication ids to [ComplicationData] to render with, or
-     *     if null complications are not rendered.
+     * if null complications are not rendered.
      * @return A shared memory backed [Bitmap] containing a screenshot of the watch face with the
-     *     given settings.
+     * given settings.
      */
     @RequiresApi(27)
     public fun renderWatchFaceToBitmap(
@@ -96,7 +96,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * @param complicationData the [ComplicationData] to render with
      * @param userStyle Optional [UserStyle] to render with, if null the default style is used
      * @return A shared memory backed [Bitmap] containing a screenshot of the watch face with the
-     *     given settings, or `null` if [complicationId] is unrecognized.
+     * given settings, or `null` if [complicationId] is unrecognized.
      */
     @RequiresApi(27)
     public fun renderComplicationToBitmap(
