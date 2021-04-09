@@ -636,7 +636,10 @@ final class Camera2CameraImpl implements CameraInternal {
      * capture requests from the use case.
      */
     @Override
-    public void attachUseCases(@NonNull Collection<UseCase> useCases) {
+    public void attachUseCases(@NonNull Collection<UseCase> inputUseCases) {
+        // Defensively copy the inputUseCases to prevent from being changed.
+        Collection<UseCase> useCases = new ArrayList<>(inputUseCases);
+
         if (!useCases.isEmpty()) {
             /*
              * Increase the camera control use count so that camera control can accept requests
@@ -766,7 +769,9 @@ final class Camera2CameraImpl implements CameraInternal {
      * handle capture requests from the use case.
      */
     @Override
-    public void detachUseCases(@NonNull Collection<UseCase> useCases) {
+    public void detachUseCases(@NonNull Collection<UseCase> inputUseCases) {
+        // Defensively copy the inputUseCases to prevent from being changed.
+        Collection<UseCase> useCases = new ArrayList<>(inputUseCases);
         if (!useCases.isEmpty()) {
             notifyStateDetachedToUseCases(new ArrayList<>(useCases));
             mExecutor.execute(() -> tryDetachUseCases(useCases));
