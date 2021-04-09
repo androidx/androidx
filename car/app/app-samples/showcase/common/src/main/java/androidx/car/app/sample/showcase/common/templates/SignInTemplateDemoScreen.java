@@ -69,7 +69,7 @@ public class SignInTemplateDemoScreen extends Screen {
             () -> getScreenManager().push(new LongMessageTemplateDemoScreen(getCarContext())));
 
     private final Action mProviderSignInAction = new Action.Builder()
-            .setTitle("Sign In with Google")
+            .setTitle("Google Sign-In")
             .setOnClickListener(() -> {
                 mState = State.PROVIDER;
                 invalidate();
@@ -77,7 +77,7 @@ public class SignInTemplateDemoScreen extends Screen {
             .build();
 
     private final Action mPinSignInAction = new Action.Builder()
-            .setTitle("Sign In with PIN")
+            .setTitle("Use PIN")
             .setOnClickListener(() -> {
                 mState = State.PIN;
                 invalidate();
