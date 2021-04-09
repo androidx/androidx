@@ -37,7 +37,6 @@ import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
-import toSources
 import kotlin.reflect.KClass
 
 /**
@@ -599,7 +598,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX3_COMPLETABLE,
             COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE,
             COMMON.GUAVA_ROOM
-        ).toSources()
+        )
         runProcessorTest(
             sources = commonSources + additionalSources + inputSource
         ) { invocation ->

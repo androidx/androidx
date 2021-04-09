@@ -231,8 +231,7 @@ class XProcessingEnvTest {
             )
             it.assertCompilationResult {
                 compilationDidFail()
-                    .and()
-                    .hasError("intentional failure")
+                hasError("intentional failure")
             }
         }
     }

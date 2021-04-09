@@ -35,7 +35,6 @@ import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
-import toSources
 
 class RawQueryMethodProcessorTest {
     @Test
@@ -353,7 +352,7 @@ class RawQueryMethodProcessorTest {
             COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER,
             COMMON.DATA_SOURCE_FACTORY, COMMON.POSITIONAL_DATA_SOURCE,
             COMMON.NOT_AN_ENTITY
-        ).toSources()
+        )
         runProcessorTest(
             sources = commonSources + inputSource
         ) { invocation ->

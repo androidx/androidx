@@ -41,7 +41,6 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import toSources
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -934,7 +933,7 @@ class InsertionMethodProcessorTest {
             COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
             COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX3_COMPLETABLE,
             COMMON.RX3_MAYBE, COMMON.RX3_SINGLE
-        ).toSources()
+        )
 
         runProcessorTest(
             sources = commonSources + additionalSources + inputSource

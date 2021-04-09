@@ -421,7 +421,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                     "foo.bar.MyDao",
                     DAO_PREFIX + inputs.joinToString("\n")
                 ),
-                Source.fromJavaFileObject(COMMON.USER)
+                COMMON.USER
             ),
             classpath = classpathFiles
         ) { invocation: XTestInvocation ->

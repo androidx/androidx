@@ -38,12 +38,10 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.testing.context
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.writer.ClassWriter
-import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import java.io.File
-import javax.tools.JavaFileObject
 
 object COMMON {
     val USER by lazy {
@@ -218,9 +216,9 @@ fun testCodeGenScope(): CodeGenScope {
     return CodeGenScope(mock(ClassWriter::class.java))
 }
 
-fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
+fun loadJavaCode(fileName: String, qName: String): Source {
     val contents = File("src/test/data/$fileName").readText(Charsets.UTF_8)
-    return JavaFileObjects.forSourceString(qName, contents)
+    return Source.java(qName, contents)
 }
 
 fun loadTestSource(fileName: String, qName: String): Source {
@@ -262,7 +260,3 @@ fun mockElementAndType(): Pair<XFieldElement, XType> {
     doReturn(type).`when`(element).type
     return element to type
 }
-
-fun String.toJFO(qName: String): JavaFileObject = JavaFileObjects.forSourceLines(qName, this)
-
-fun Collection<JavaFileObject>.toSources() = map(Source::fromJavaFileObject)

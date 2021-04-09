@@ -196,7 +196,7 @@ class BaseDaoTest {
             """
         )
         runProcessorTest(
-            sources = listOf(baseClass, extension, Source.fromJavaFileObject(COMMON.USER), fakeDb)
+            sources = listOf(baseClass, extension, COMMON.USER, fakeDb)
         ) { invocation ->
             val daoElm = invocation.processingEnv.requireTypeElement("foo.bar.MyDao")
             val dbElm = invocation.context.processingEnv
