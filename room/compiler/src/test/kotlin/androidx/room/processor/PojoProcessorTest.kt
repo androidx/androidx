@@ -176,7 +176,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 public transient List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER),
+            COMMON.USER,
         ) { pojo, invocation ->
             assertThat(pojo.relations.size, `is`(1))
             assertThat(pojo.relations.first().entityField.name, `is`("uid"))
@@ -419,7 +419,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<UserSummary> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER_SUMMARY)
+            COMMON.USER_SUMMARY
         ) { _, _ ->
         }
     }
@@ -432,7 +432,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 public User user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { _, _ ->
         }
     }
@@ -446,7 +446,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION)
@@ -462,7 +462,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<NotAnEntity> user;
                 """,
-            Source.fromJavaFileObject(COMMON.NOT_AN_ENTITY)
+            COMMON.NOT_AN_ENTITY
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.NOT_ENTITY_OR_VIEW)
@@ -507,7 +507,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "idk", entityColumn = "uid")
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -525,7 +525,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "idk")
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -575,7 +575,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "foo", entityColumn = "uid")
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { pojo, _ ->
             assertThat(pojo.relations.first().parentField.columnName, `is`("foo"))
         }
@@ -595,7 +595,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid", entity = User.class)
                 public List<UserWithNested> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { pojo, invocation ->
             assertThat(pojo.relations.first().parentField.name, `is`("id"))
             invocation.assertCompilationResult {
@@ -612,7 +612,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { pojo, invocation ->
             // trigger assignment evaluation
             RelationCollector.createCollectors(invocation.context, pojo.relations)
@@ -640,7 +640,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { pojo, invocation ->
             assertThat(pojo.relations.size, `is`(1))
             assertThat(pojo.relations.first().entityField.name, `is`("uid"))
@@ -659,7 +659,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid", projection={"i_dont_exist"})
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -682,7 +682,7 @@ class PojoProcessorTest {
                 public void setUser(List<User> user){ this.user = user;}
                 public User getUser(){return null;}
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(CANNOT_FIND_GETTER_FOR_FIELD)
@@ -699,7 +699,7 @@ class PojoProcessorTest {
                         entity = User.class)
                 public List<Integer> userIds;
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { pojo, _ ->
             assertThat(pojo.relations.size, `is`(1))
             val rel = pojo.relations.first()
@@ -717,7 +717,7 @@ class PojoProcessorTest {
                         entity = User.class)
                 public List<String> userNames;
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { pojo, _ ->
             assertThat(pojo.relations.size, `is`(1))
             val rel = pojo.relations.first()
@@ -734,7 +734,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<? extends User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { pojo, invocation ->
             assertThat(pojo.relations.size, `is`(1))
             assertThat(pojo.relations.first().entityField.name, `is`("uid"))
@@ -787,7 +787,7 @@ class PojoProcessorTest {
                 )
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER), junctionEntity
+            COMMON.USER, junctionEntity
         ) { pojo, invocation ->
             assertThat(pojo.relations.size, `is`(1))
             assertThat(pojo.relations.first().junction, notNullValue())
@@ -832,7 +832,7 @@ class PojoProcessorTest {
                 )
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER), junctionEntity
+            COMMON.USER, junctionEntity
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasNoWarnings()
@@ -880,7 +880,7 @@ class PojoProcessorTest {
                     associateBy = @Junction(UserFriendsXRef.class))
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER), junctionEntity
+            COMMON.USER, junctionEntity
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasNoWarnings()
@@ -913,7 +913,7 @@ class PojoProcessorTest {
                 )
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER), junctionEntity
+            COMMON.USER, junctionEntity
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -950,7 +950,7 @@ class PojoProcessorTest {
                 )
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER), junctionEntity
+            COMMON.USER, junctionEntity
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -989,7 +989,7 @@ class PojoProcessorTest {
                 )
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER), junctionEntity
+            COMMON.USER, junctionEntity
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -1028,7 +1028,7 @@ class PojoProcessorTest {
                 )
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER), junctionEntity
+            COMMON.USER, junctionEntity
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -1064,7 +1064,7 @@ class PojoProcessorTest {
                     associateBy = @Junction(UserFriendsXRef.class))
                 public List<User> user;
                 """,
-            Source.fromJavaFileObject(COMMON.USER), junctionEntity
+            COMMON.USER, junctionEntity
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasWarningCount(2)
@@ -1390,7 +1390,7 @@ class PojoProcessorTest {
             public MyPojo(String uid, List<String> items) {
             }
             """,
-            Source.fromJavaFileObject(COMMON.USER)
+            COMMON.USER
         ) { _, _ ->
         }
     }

@@ -29,7 +29,6 @@ import loadTestSource
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import toSources
 import java.util.Locale
 
 @RunWith(JUnit4::class)
@@ -135,7 +134,7 @@ class DaoWriterTest {
             COMMON.RX2_MAYBE, COMMON.RX2_COMPLETABLE, COMMON.USER_SUMMARY,
             COMMON.RX2_ROOM, COMMON.PARENT, COMMON.CHILD1, COMMON.CHILD2,
             COMMON.INFO, COMMON.LISTENABLE_FUTURE, COMMON.GUAVA_ROOM
-        ).toSources() + inputs
+        ) + inputs
         runProcessorTest(
             sources = sources
         ) { invocation ->
