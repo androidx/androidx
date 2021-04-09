@@ -91,6 +91,7 @@ import java.util.PriorityQueue
 private const val INTERACTIVE_UPDATE_RATE_MS = 16L
 private const val LEFT_COMPLICATION_ID = 1000
 private const val RIGHT_COMPLICATION_ID = 1001
+private const val EDGE_COMPLICATION_ID = 1002
 private const val BACKGROUND_COMPLICATION_ID = 1111
 private const val NO_COMPLICATIONS = "NO_COMPLICATIONS"
 private const val LEFT_COMPLICATION = "LEFT_COMPLICATION"
@@ -118,6 +119,7 @@ public class WatchFaceServiceTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val complicationDrawableLeft = ComplicationDrawable(context)
     private val complicationDrawableRight = ComplicationDrawable(context)
+    private val complicationDrawableEdge = ComplicationDrawable(context)
     private val complicationDrawableBackground = ComplicationDrawable(context)
 
     private val redStyleOption =
@@ -203,6 +205,29 @@ public class WatchFaceServiceTest {
             ),
             DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
             ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+            .build()
+
+    private val edgeComplicationHitTester = mock<ComplicationTapFilter>()
+    private val edgeComplication =
+        Complication.createEdgeComplicationBuilder(
+            EDGE_COMPLICATION_ID,
+            CanvasComplicationDrawable(
+                complicationDrawableEdge,
+                watchState.asWatchState()
+            ).apply {
+                loadData(createComplicationData(), false)
+            },
+            listOf(
+                ComplicationType.RANGED_VALUE,
+                ComplicationType.LONG_TEXT,
+                ComplicationType.SHORT_TEXT,
+                ComplicationType.MONOCHROMATIC_IMAGE,
+                ComplicationType.SMALL_IMAGE
+            ),
+            DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+            ComplicationBounds(RectF(0.0f, 0.4f, 0.4f, 0.6f)),
+            edgeComplicationHitTester
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
@@ -852,6 +877,36 @@ public class WatchFaceServiceTest {
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
         assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(testWatchFaceService.singleTapCount).isEqualTo(3)
+    }
+
+    @Test
+    public fun edgeComplication_tap() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(edgeComplication),
+            UserStyleSchema(emptyList()),
+            tapListener = tapListener
+        )
+
+        assertThat(complicationDrawableEdge.isHighlighted).isFalse()
+
+        `when`(
+            edgeComplicationHitTester.hitTest(
+                edgeComplication,
+                ONE_HUNDRED_BY_ONE_HUNDRED_RECT,
+                0,
+                50
+            )
+        ).thenReturn(true)
+
+        // Tap the edge complication.
+        tapAt(0, 50)
+        assertThat(complicationDrawableEdge.isHighlighted).isTrue()
+        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
+        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(EDGE_COMPLICATION_ID)
+
+        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
+        assertThat(complicationDrawableEdge.isHighlighted).isFalse()
     }
 
     @Test

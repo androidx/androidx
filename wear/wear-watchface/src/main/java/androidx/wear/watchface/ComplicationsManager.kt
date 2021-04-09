@@ -32,8 +32,8 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.watchface.data.ComplicationBoundsType
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
 import java.lang.ref.WeakReference
@@ -318,10 +318,14 @@ public class ComplicationsManager(
      * @return The complication at coordinates x, y or {@code null} if there isn't one
      */
     public fun getComplicationAt(@Px x: Int, @Px y: Int): Complication? =
-        complications.entries.firstOrNull {
-            it.value.enabled && it.value.boundsType != ComplicationBoundsType.BACKGROUND &&
-                it.value.computeBounds(renderer.screenBounds).contains(x, y)
-        }?.value
+        complications.values.firstOrNull { complication ->
+            complication.enabled && complication.tapFilter.hitTest(
+                complication,
+                renderer.screenBounds,
+                x,
+                y
+            )
+        }
 
     /**
      * Returns the background complication if there is one or `null` otherwise.
