@@ -27,6 +27,8 @@
   <!-- For PlaceListMapTemplate -->
   <uses-permission android:name="androidx.car.app.MAP_TEMPLATES"/>
 
+  <uses-feature android:name="android.software.car.templates_host" />
+
   <application
       android:label="@string/app_name"
       android:icon="@drawable/ic_launcher">
