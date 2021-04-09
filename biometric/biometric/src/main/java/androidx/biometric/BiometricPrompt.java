@@ -17,7 +17,6 @@
 package androidx.biometric;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
@@ -35,7 +34,6 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -803,8 +801,9 @@ public class BiometricPrompt {
             throw new IllegalArgumentException("AuthenticationCallback must not be null.");
         }
 
+        final FragmentActivity activity = fragment.getActivity();
         final FragmentManager fragmentManager = fragment.getChildFragmentManager();
-        final BiometricViewModel viewModel = getViewModel(fragment.getContext());
+        final BiometricViewModel viewModel = getViewModel(activity);
         addObservers(fragment, viewModel);
         init(fragmentManager, viewModel, null /* executor */, callback);
     }
@@ -884,8 +883,9 @@ public class BiometricPrompt {
             throw new IllegalArgumentException("AuthenticationCallback must not be null.");
         }
 
+        final FragmentActivity activity = fragment.getActivity();
         final FragmentManager fragmentManager = fragment.getChildFragmentManager();
-        final BiometricViewModel viewModel = getViewModel(fragment.getContext());
+        final BiometricViewModel viewModel = getViewModel(activity);
         addObservers(fragment, viewModel);
         init(fragmentManager, viewModel, executor, callback);
     }
@@ -1019,15 +1019,15 @@ public class BiometricPrompt {
     }
 
     /**
-     * Gets the biometric view model instance for the given context, creating one if necessary.
+     * Gets the biometric view model instance for the given activity, creating one if necessary.
      *
-     * @param context The client context that will (directly or indirectly) host the prompt.
+     * @param activity The client activity that will (directly or indirectly) host the prompt.
      * @return A biometric view model tied to the lifecycle of the given activity.
      */
     @Nullable
-    static BiometricViewModel getViewModel(@Nullable Context context) {
-        return  context instanceof ViewModelStoreOwner
-                ? new ViewModelProvider((ViewModelStoreOwner) context).get(BiometricViewModel.class)
+    private static BiometricViewModel getViewModel(@Nullable FragmentActivity activity) {
+        return activity != null
+                ? new ViewModelProvider(activity).get(BiometricViewModel.class)
                 : null;
     }
 
