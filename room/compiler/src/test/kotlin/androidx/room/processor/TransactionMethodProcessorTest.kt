@@ -30,7 +30,6 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import toSources
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -268,7 +267,7 @@ class TransactionMethodProcessorTest {
             COMMON.LIVE_DATA, COMMON.RX2_FLOWABLE, COMMON.PUBLISHER, COMMON.RX2_COMPLETABLE,
             COMMON.RX2_SINGLE, COMMON.RX3_FLOWABLE, COMMON.RX3_COMPLETABLE,
             COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE
-        ).toSources()
+        )
         runProcessorTest(
             sources = inputSource + otherSources
         ) { invocation ->

@@ -571,7 +571,7 @@ class DatabaseProcessorTest {
                 public abstract class MyDb extends RoomDatabase {
                 }
                 """,
-            entity1, Source.fromJavaFileObject(COMMON.USER)
+            entity1, COMMON.USER
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -607,7 +607,7 @@ class DatabaseProcessorTest {
                 public abstract class MyDb extends RoomDatabase {
                 }
                 """,
-            entity1, Source.fromJavaFileObject(COMMON.USER)
+            entity1, COMMON.USER
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(

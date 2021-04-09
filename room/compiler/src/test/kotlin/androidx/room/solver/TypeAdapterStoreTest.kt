@@ -63,7 +63,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import testCodeGenScope
-import toSources
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -499,7 +498,7 @@ class TypeAdapterStoreTest {
     fun testMissingRx2Room() {
         @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         runProcessorTest(
-            sources = listOf(COMMON.PUBLISHER, COMMON.RX2_FLOWABLE).toSources()
+            sources = listOf(COMMON.PUBLISHER, COMMON.RX2_FLOWABLE)
         ) { invocation ->
             val publisherElement = invocation.processingEnv
                 .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
@@ -520,7 +519,7 @@ class TypeAdapterStoreTest {
     fun testMissingRx3Room() {
         @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         runProcessorTest(
-            sources = listOf(COMMON.PUBLISHER, COMMON.RX3_FLOWABLE).toSources()
+            sources = listOf(COMMON.PUBLISHER, COMMON.RX3_FLOWABLE)
         ) { invocation ->
             val publisherElement = invocation.processingEnv
                 .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
@@ -545,7 +544,7 @@ class TypeAdapterStoreTest {
         ).forEach { (rxTypeSrc, rxRoomSrc) ->
             @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             runProcessorTest(
-                sources = listOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc).toSources()
+                sources = listOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)
             ) { invocation ->
                 val publisher = invocation.processingEnv
                     .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
@@ -568,7 +567,7 @@ class TypeAdapterStoreTest {
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
             @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             runProcessorTest(
-                sources = listOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc).toSources()
+                sources = listOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)
             ) { invocation ->
                 val flowable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
@@ -589,7 +588,7 @@ class TypeAdapterStoreTest {
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
             @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             runProcessorTest(
-                sources = listOf(rxTypeSrc, rxRoomSrc).toSources()
+                sources = listOf(rxTypeSrc, rxRoomSrc)
             ) { invocation ->
                 val observable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(observable, notNullValue())
@@ -610,7 +609,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX3_SINGLE, COMMON.RX3_ROOM, RxJava3TypeNames.SINGLE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
             @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-            runProcessorTest(sources = listOf(rxTypeSrc).toSources()) { invocation ->
+            runProcessorTest(sources = listOf(rxTypeSrc)) { invocation ->
                 val single = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(single, notNullValue())
                 assertThat(
@@ -629,7 +628,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_MAYBE, COMMON.RX2_ROOM, RxJava2TypeNames.MAYBE),
             Triple(COMMON.RX3_MAYBE, COMMON.RX3_ROOM, RxJava3TypeNames.MAYBE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
-            runProcessorTest(sources = listOf(rxTypeSrc).toSources()) { invocation ->
+            runProcessorTest(sources = listOf(rxTypeSrc)) { invocation ->
                 val maybe = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
@@ -647,7 +646,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_COMPLETABLE, COMMON.RX2_ROOM, RxJava2TypeNames.COMPLETABLE),
             Triple(COMMON.RX3_COMPLETABLE, COMMON.RX3_ROOM, RxJava3TypeNames.COMPLETABLE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
-            runProcessorTest(sources = listOf(rxTypeSrc).toSources()) { invocation ->
+            runProcessorTest(sources = listOf(rxTypeSrc)) { invocation ->
                 val completable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
@@ -661,7 +660,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindInsertListenableFuture() {
-        runProcessorTest(sources = listOf(COMMON.LISTENABLE_FUTURE).toSources()) {
+        runProcessorTest(sources = listOf(COMMON.LISTENABLE_FUTURE)) {
             invocation ->
             val future = invocation.processingEnv
                 .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
@@ -676,7 +675,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateSingle() {
-        runProcessorTest(sources = listOf(COMMON.RX2_SINGLE).toSources()) { invocation ->
+        runProcessorTest(sources = listOf(COMMON.RX2_SINGLE)) { invocation ->
             val single = invocation.processingEnv.requireTypeElement(RxJava2TypeNames.SINGLE)
             assertThat(single, notNullValue())
             assertThat(
@@ -690,7 +689,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateMaybe() {
-        runProcessorTest(sources = listOf(COMMON.RX2_MAYBE).toSources()) {
+        runProcessorTest(sources = listOf(COMMON.RX2_MAYBE)) {
             invocation ->
             val maybe = invocation.processingEnv.requireTypeElement(RxJava2TypeNames.MAYBE)
             assertThat(maybe, notNullValue())
@@ -705,7 +704,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateCompletable() {
-        runProcessorTest(sources = listOf(COMMON.RX2_COMPLETABLE).toSources()) {
+        runProcessorTest(sources = listOf(COMMON.RX2_COMPLETABLE)) {
             invocation ->
             val completable = invocation.processingEnv
                 .requireTypeElement(RxJava2TypeNames.COMPLETABLE)
@@ -722,7 +721,7 @@ class TypeAdapterStoreTest {
     @Test
     fun testFindDeleteOrUpdateListenableFuture() {
         runProcessorTest(
-            sources = listOf(COMMON.LISTENABLE_FUTURE).toSources()
+            sources = listOf(COMMON.LISTENABLE_FUTURE)
         ) { invocation ->
             val future = invocation.processingEnv
                 .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
@@ -738,7 +737,7 @@ class TypeAdapterStoreTest {
     @Test
     fun testFindLiveData() {
         runProcessorTest(
-            sources = listOf(COMMON.COMPUTABLE_LIVE_DATA, COMMON.LIVE_DATA).toSources()
+            sources = listOf(COMMON.COMPUTABLE_LIVE_DATA, COMMON.LIVE_DATA)
         ) { invocation ->
             val liveData = invocation.processingEnv
                 .requireTypeElement(LifecyclesTypeNames.LIVE_DATA)
@@ -828,7 +827,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun findDataSourceFactory() {
-        runProcessorTest(sources = listOf(COMMON.DATA_SOURCE_FACTORY).toSources()) {
+        runProcessorTest(sources = listOf(COMMON.DATA_SOURCE_FACTORY)) {
             invocation ->
             val pagedListProvider = invocation.processingEnv
                 .requireTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY)

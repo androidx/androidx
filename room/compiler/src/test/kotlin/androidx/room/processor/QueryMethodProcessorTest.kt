@@ -63,7 +63,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito
-import toSources
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(Parameterized::class)
@@ -684,7 +683,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 @Query("select * from user")
                 abstract ${KotlinTypeNames.CHANNEL}<User> getUsersChannel();
                 """,
-            additionalSources = listOf(COMMON.CHANNEL).toSources()
+            additionalSources = listOf(COMMON.CHANNEL)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -703,7 +702,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 @Query("select * from user")
                 abstract ${KotlinTypeNames.SEND_CHANNEL}<User> getUsersChannel();
                 """,
-            additionalSources = listOf(COMMON.SEND_CHANNEL).toSources()
+            additionalSources = listOf(COMMON.SEND_CHANNEL)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -722,7 +721,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 @Query("select * from user")
                 abstract ${KotlinTypeNames.RECEIVE_CHANNEL}<User> getUsersChannel();
                 """,
-            additionalSources = listOf(COMMON.RECEIVE_CHANNEL).toSources()
+            additionalSources = listOf(COMMON.RECEIVE_CHANNEL)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -1230,7 +1229,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         val commonSources = listOf(
             COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK,
             COMMON.NOT_AN_ENTITY
-        ).toSources()
+        )
         runProcessorTest(
             sources = additionalSources + commonSources + inputSource,
             options = options

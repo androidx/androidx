@@ -110,7 +110,7 @@ class RemoveUnusedColumnsTest {
             annotateDao = annotateDao,
             annotateDb = annotateDb,
             annotateMethod = annotateMethod
-        ) + Source.fromJavaFileObject(COMMON.USER)
+        ) + COMMON.USER
 
         runProcessorTest(
             sources = sources,
