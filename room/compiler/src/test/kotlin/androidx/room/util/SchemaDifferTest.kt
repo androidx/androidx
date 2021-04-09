@@ -34,7 +34,12 @@ class SchemaDifferTest {
     fun testPrimaryKeyChanged() {
         val diffResult = SchemaDiffer(
             fromSchemaBundle = from.database,
-            toSchemaBundle = toChangeInPrimaryKey.database
+            toSchemaBundle = toChangeInPrimaryKey.database,
+            className = "MyAutoMigration",
+            renameColumnEntries = listOf(),
+            deleteColumnEntries = listOf(),
+            renameTableEntries = listOf(),
+            deleteTableEntries = listOf()
         ).diffSchemas()
 
         assertThat(diffResult.complexChangedTables.keys).contains("Song")
@@ -44,31 +49,42 @@ class SchemaDifferTest {
     fun testForeignKeyFieldChanged() {
         val diffResult = SchemaDiffer(
             fromSchemaBundle = from.database,
-            toSchemaBundle = toForeignKeyAdded.database
+            toSchemaBundle = toForeignKeyAdded.database,
+            className = "MyAutoMigration",
+            renameColumnEntries = listOf(),
+            deleteColumnEntries = listOf(),
+            renameTableEntries = listOf(),
+            deleteTableEntries = listOf()
         ).diffSchemas()
 
-        assertThat(diffResult.complexChangedTables.isNotEmpty())
-        assertThat(diffResult.complexChangedTables["Song"]?.foreignKeyChanged).isTrue()
-        assertThat(diffResult.complexChangedTables["Song"]?.indexChanged).isFalse()
+        assertThat(diffResult.complexChangedTables["Song"] != null)
     }
 
     @Test
     fun testComplexChangeInvolvingIndex() {
         val diffResult = SchemaDiffer(
             fromSchemaBundle = from.database,
-            toSchemaBundle = toIndexAdded.database
+            toSchemaBundle = toIndexAdded.database,
+            className = "MyAutoMigration",
+            renameColumnEntries = listOf(),
+            deleteColumnEntries = listOf(),
+            renameTableEntries = listOf(),
+            deleteTableEntries = listOf()
         ).diffSchemas()
 
-        assertThat(diffResult.complexChangedTables.isNotEmpty())
-        assertThat(diffResult.complexChangedTables["Song"]?.foreignKeyChanged).isFalse()
-        assertThat(diffResult.complexChangedTables["Song"]?.indexChanged).isTrue()
+        assertThat(diffResult.complexChangedTables["Song"] != null)
     }
 
     @Test
     fun testColumnAddedWithColumnInfoDefaultValue() {
         val schemaDiffResult = SchemaDiffer(
             fromSchemaBundle = from.database,
-            toSchemaBundle = toColumnAddedWithColumnInfoDefaultValue.database
+            toSchemaBundle = toColumnAddedWithColumnInfoDefaultValue.database,
+            className = "MyAutoMigration",
+            renameColumnEntries = listOf(),
+            deleteColumnEntries = listOf(),
+            renameTableEntries = listOf(),
+            deleteTableEntries = listOf()
         ).diffSchemas()
         assertThat(schemaDiffResult.addedColumns["artistId"]?.fieldBundle?.columnName)
             .isEqualTo("artistId")
@@ -79,7 +95,12 @@ class SchemaDifferTest {
         try {
             SchemaDiffer(
                 fromSchemaBundle = from.database,
-                toSchemaBundle = toColumnAddedWithNoDefaultValue.database
+                toSchemaBundle = toColumnAddedWithNoDefaultValue.database,
+                className = "MyAutoMigration",
+                renameColumnEntries = listOf(),
+                deleteColumnEntries = listOf(),
+                renameTableEntries = listOf(),
+                deleteTableEntries = listOf()
             ).diffSchemas()
             fail("DiffException should have been thrown.")
         } catch (ex: DiffException) {
@@ -93,10 +114,15 @@ class SchemaDifferTest {
     fun testTableAddedWithColumnInfoDefaultValue() {
         val schemaDiffResult = SchemaDiffer(
             fromSchemaBundle = from.database,
-            toSchemaBundle = toTableAddedWithColumnInfoDefaultValue.database
+            toSchemaBundle = toTableAddedWithColumnInfoDefaultValue.database,
+            className = "MyAutoMigration",
+            renameColumnEntries = listOf(),
+            deleteColumnEntries = listOf(),
+            renameTableEntries = listOf(),
+            deleteTableEntries = listOf()
         ).diffSchemas()
-        assertThat(schemaDiffResult.addedTables[0].entityBundle.tableName).isEqualTo("Artist")
-        assertThat(schemaDiffResult.addedTables[1].entityBundle.tableName).isEqualTo("Album")
+        assertThat(schemaDiffResult.addedTables.toList()[0].entityBundle.tableName)
+            .isEqualTo("Album")
     }
 
     @Test
@@ -104,12 +130,17 @@ class SchemaDifferTest {
         try {
             SchemaDiffer(
                 fromSchemaBundle = from.database,
-                toSchemaBundle = toColumnRenamed.database
+                toSchemaBundle = toColumnRenamed.database,
+                className = "MyAutoMigration",
+                renameColumnEntries = listOf(),
+                deleteColumnEntries = listOf(),
+                renameTableEntries = listOf(),
+                deleteTableEntries = listOf()
             ).diffSchemas()
             fail("DiffException should have been thrown.")
         } catch (ex: DiffException) {
             assertThat(ex.errorMessage).isEqualTo(
-                ProcessorErrors.removedOrRenamedColumnFound("length")
+                ProcessorErrors.deletedOrRenamedColumnFound("MyAutoMigration", "length", "Song")
             )
         }
     }
@@ -119,12 +150,57 @@ class SchemaDifferTest {
         try {
             SchemaDiffer(
                 fromSchemaBundle = from.database,
-                toSchemaBundle = toColumnRemoved.database
+                toSchemaBundle = toColumnRemoved.database,
+                className = "MyAutoMigration",
+                renameColumnEntries = listOf(),
+                deleteColumnEntries = listOf(),
+                renameTableEntries = listOf(),
+                deleteTableEntries = listOf()
             ).diffSchemas()
             fail("DiffException should have been thrown.")
         } catch (ex: DiffException) {
             assertThat(ex.errorMessage).isEqualTo(
-                ProcessorErrors.removedOrRenamedColumnFound("length")
+                ProcessorErrors.deletedOrRenamedColumnFound("MyAutoMigration", "length", "Song")
+            )
+        }
+    }
+
+    @Test
+    fun testTableRenamedWithoutAnnotation() {
+        try {
+            SchemaDiffer(
+                fromSchemaBundle = from.database,
+                toSchemaBundle = toTableRenamed.database,
+                className = "MyAutoMigration",
+                renameColumnEntries = listOf(),
+                deleteColumnEntries = listOf(),
+                renameTableEntries = listOf(),
+                deleteTableEntries = listOf()
+            ).diffSchemas()
+            fail("DiffException should have been thrown.")
+        } catch (ex: DiffException) {
+            assertThat(ex.errorMessage).isEqualTo(
+                ProcessorErrors.deletedOrRenamedTableFound("MyAutoMigration", "Artist")
+            )
+        }
+    }
+
+    @Test
+    fun testTableRemovedWithoutAnnotation() {
+        try {
+            SchemaDiffer(
+                fromSchemaBundle = from.database,
+                toSchemaBundle = toTableDeleted.database,
+                className = "MyAutoMigration",
+                renameColumnEntries = listOf(),
+                deleteColumnEntries = listOf(),
+                renameTableEntries = listOf(),
+                deleteTableEntries = listOf()
+            ).diffSchemas()
+            fail("DiffException should have been thrown.")
+        } catch (ex: DiffException) {
+            assertThat(ex.errorMessage).isEqualTo(
+                ProcessorErrors.deletedOrRenamedTableFound("MyAutoMigration", "Artist")
             )
         }
     }
@@ -168,6 +244,40 @@ class SchemaDifferTest {
                     ),
                     mutableListOf(),
                     mutableListOf()
+                ),
+                EntityBundle(
+                    "Artist",
+                    "CREATE TABLE IF NOT EXISTS `Artist` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
                 )
             ),
             mutableListOf(),
@@ -176,6 +286,132 @@ class SchemaDifferTest {
     )
 
     /** Valid "to" Schemas */
+    val toTableRenamed = SchemaBundle(
+        2,
+        DatabaseBundle(
+            2,
+            "",
+            mutableListOf(
+                EntityBundle(
+                    "Song",
+                    "CREATE TABLE IF NOT EXISTS `Song` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
+                ),
+                EntityBundle(
+                    "Album",
+                    "CREATE TABLE IF NOT EXISTS `Song` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
+                )
+            ),
+            mutableListOf(),
+            mutableListOf()
+        )
+    )
+
+    val toTableDeleted = SchemaBundle(
+        2,
+        DatabaseBundle(
+            2,
+            "",
+            mutableListOf(
+                EntityBundle(
+                    "Song",
+                    "CREATE TABLE IF NOT EXISTS `Song` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
+                )
+            ),
+            mutableListOf(),
+            mutableListOf()
+        )
+    )
+
     val toColumnAddedWithColumnInfoDefaultValue = SchemaBundle(
         2,
         DatabaseBundle(
@@ -223,6 +459,40 @@ class SchemaDifferTest {
                     ),
                     emptyList(),
                     emptyList()
+                ),
+                EntityBundle(
+                    "Artist",
+                    "CREATE TABLE IF NOT EXISTS `Artist` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
                 )
             ),
             mutableListOf(),
@@ -268,6 +538,40 @@ class SchemaDifferTest {
                     ),
                     emptyList(),
                     emptyList()
+                ),
+                EntityBundle(
+                    "Artist",
+                    "CREATE TABLE IF NOT EXISTS `Artist` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
                 )
             ),
             mutableListOf(),
@@ -327,6 +631,40 @@ class SchemaDifferTest {
                     ),
                     emptyList(),
                     emptyList()
+                ),
+                EntityBundle(
+                    "Artist",
+                    "CREATE TABLE IF NOT EXISTS `Artist` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
                 )
             ),
             mutableListOf(),
@@ -379,6 +717,40 @@ class SchemaDifferTest {
                     ),
                     mutableListOf(),
                     mutableListOf()
+                ),
+                EntityBundle(
+                    "Artist",
+                    "CREATE TABLE IF NOT EXISTS `Artist` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
                 )
             ),
             mutableListOf(),
@@ -390,7 +762,6 @@ class SchemaDifferTest {
      * The affinity of a length column is changed from Integer to Text. No columns are
      * added/removed.
      */
-    // TODO: We currently do not support column affinity changes.
     val toColumnAffinityChanged = SchemaBundle(
         2,
         DatabaseBundle(
@@ -423,6 +794,40 @@ class SchemaDifferTest {
                             "TEXT",
                             true,
                             "length"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
+                ),
+                EntityBundle(
+                    "Artist",
+                    "CREATE TABLE IF NOT EXISTS `Artist` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
                         )
                     ),
                     PrimaryKeyBundle(
@@ -480,20 +885,37 @@ class SchemaDifferTest {
                 ),
                 EntityBundle(
                     "Artist",
-                    "CREATE TABLE IF NOT EXISTS `Artist` (`artistId` INTEGER NOT NULL, `name` " +
-                        "TEXT NOT NULL, PRIMARY KEY(`artistId`))",
+                    "CREATE TABLE IF NOT EXISTS `Artist` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
                     listOf(
                         FieldBundle(
-                            "artistId",
-                            "artistId",
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
                             "INTEGER",
                             true,
                             "1"
                         )
                     ),
-                    PrimaryKeyBundle(true, listOf("artistId")),
-                    listOf(),
-                    listOf()
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
                 ),
                 EntityBundle(
                     "Album",
@@ -575,6 +997,40 @@ class SchemaDifferTest {
                             listOf("artistId")
                         )
                     )
+                ),
+                EntityBundle(
+                    "Artist",
+                    "CREATE TABLE IF NOT EXISTS `Artist` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
                 )
             ),
             mutableListOf(),
@@ -629,6 +1085,40 @@ class SchemaDifferTest {
                         )
                     ),
                     mutableListOf()
+                ),
+                EntityBundle(
+                    "Artist",
+                    "CREATE TABLE IF NOT EXISTS `Artist` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
                 )
             ),
             mutableListOf(),
@@ -672,6 +1162,40 @@ class SchemaDifferTest {
                     PrimaryKeyBundle(
                         false,
                         mutableListOf("title")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
+                ),
+                EntityBundle(
+                    "Artist",
+                    "CREATE TABLE IF NOT EXISTS `Artist` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
                     ),
                     mutableListOf(),
                     mutableListOf()

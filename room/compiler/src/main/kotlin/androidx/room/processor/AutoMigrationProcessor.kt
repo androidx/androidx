@@ -16,22 +16,30 @@
 
 package androidx.room.processor
 
-import androidx.room.AutoMigration
+import androidx.room.DeleteColumn
+import androidx.room.DeleteTable
+import androidx.room.RenameColumn
+import androidx.room.RenameTable
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle.deserialize
+import androidx.room.processor.ProcessorErrors.AUTOMIGRATION_CALLBACK_MUST_BE_INTERFACE
+import androidx.room.processor.ProcessorErrors.autoMigrationElementMustExtendCallback
+import androidx.room.processor.ProcessorErrors.autoMigrationToVersionMustBeGreaterThanFrom
 import androidx.room.util.DiffException
 import androidx.room.util.SchemaDiffer
 import androidx.room.vo.AutoMigrationResult
 import java.io.File
 
 // TODO: (b/183435544) Support downgrades in AutoMigrations.
-// TODO: (b/183007590) Use the callback in the AutoMigration annotation while end-to-end
-//  testing, when column/table rename/deletes are supported
 class AutoMigrationProcessor(
-    val context: Context,
     val element: XTypeElement,
+    val context: Context,
+    val from: Int,
+    val to: Int,
+    val callback: XType,
     val latestDbSchema: DatabaseBundle
 ) {
     /**
@@ -41,41 +49,36 @@ class AutoMigrationProcessor(
      * @return the AutoMigrationResult containing the schema changes detected
      */
     fun process(): AutoMigrationResult? {
-        if (!element.isInterface()) {
-            context.logger.e(
-                ProcessorErrors.AUTOMIGRATION_ANNOTATED_TYPE_ELEMENT_MUST_BE_INTERFACE,
-                element
-            )
-            return null
-        }
+        val callbackElement = callback.typeElement
+        if (!callback.isTypeOf(Any::class)) {
+            if (callbackElement == null) {
+                context.logger.e(element, AUTOMIGRATION_CALLBACK_MUST_BE_INTERFACE)
+                return null
+            }
 
-        if (!context.processingEnv
-            .requireType(RoomTypeNames.AUTO_MIGRATION_CALLBACK)
-            .isAssignableFrom(element.type)
-        ) {
-            context.logger.e(
-                ProcessorErrors.AUTOMIGRATION_ELEMENT_MUST_IMPLEMENT_AUTOMIGRATION_CALLBACK,
-                element
-            )
-            return null
-        }
+            if (!callbackElement.isInterface()) {
+                context.logger.e(
+                    callbackElement,
+                    AUTOMIGRATION_CALLBACK_MUST_BE_INTERFACE
+                )
+                return null
+            }
 
-        val annotationBox = element.getAnnotation(AutoMigration::class)
-        if (annotationBox == null) {
-            context.logger.e(
-                element,
-                ProcessorErrors.AUTOMIGRATION_ANNOTATION_MISSING
-            )
-            return null
+            val extendsMigrationCallback =
+                context.processingEnv.requireType(RoomTypeNames.AUTO_MIGRATION_CALLBACK)
+                    .isAssignableFrom(callback)
+            if (!extendsMigrationCallback) {
+                context.logger.e(
+                    callbackElement,
+                    autoMigrationElementMustExtendCallback(callbackElement.className.simpleName())
+                )
+                return null
+            }
         }
-
-        val from = annotationBox.value.from
-        val to = annotationBox.value.to
 
         if (to <= from) {
             context.logger.e(
-                ProcessorErrors.autoMigrationToVersionMustBeGreaterThanFrom(to, from),
-                element
+                autoMigrationToVersionMustBeGreaterThanFrom(to, from)
             )
             return null
         }
@@ -94,10 +97,52 @@ class AutoMigrationProcessor(
             }
         }
 
+        val callbackClassName = callbackElement?.className?.simpleName()
+        val deleteColumnEntries = callbackElement?.let { element ->
+            element.getAnnotations(DeleteColumn::class).map {
+                AutoMigrationResult.DeletedColumn(
+                    tableName = it.value.tableName,
+                    columnName = it.value.deletedColumnName
+                )
+            }
+        } ?: emptyList()
+
+        val deleteTableEntries = callbackElement?.let { element ->
+            element.getAnnotations(DeleteTable::class).map {
+                AutoMigrationResult.DeletedTable(
+                    deletedTableName = it.value.deletedTableName
+                )
+            }
+        } ?: emptyList()
+
+        val renameTableEntries = callbackElement?.let { element ->
+            element.getAnnotations(RenameTable::class).map {
+                AutoMigrationResult.RenamedTable(
+                    originalTableName = it.value.originalTableName,
+                    newTableName = it.value.newTableName
+                )
+            }
+        } ?: emptyList()
+
+        val renameColumnEntries = callbackElement?.let { element ->
+            element.getAnnotations(RenameColumn::class).map {
+                AutoMigrationResult.RenamedColumn(
+                    tableName = it.value.tableName,
+                    originalColumnName = it.value.originalColumnName,
+                    newColumnName = it.value.newColumnName
+                )
+            }
+        } ?: emptyList()
+
         val schemaDiff = try {
             SchemaDiffer(
                 fromSchemaBundle = fromSchemaBundle,
-                toSchemaBundle = toSchemaBundle
+                toSchemaBundle = toSchemaBundle,
+                className = callbackClassName,
+                deleteColumnEntries = deleteColumnEntries,
+                deleteTableEntries = deleteTableEntries,
+                renameTableEntries = renameTableEntries,
+                renameColumnEntries = renameColumnEntries
             ).diffSchemas()
         } catch (ex: DiffException) {
             context.logger.e(ex.errorMessage)
@@ -116,13 +161,13 @@ class AutoMigrationProcessor(
     private fun getValidatedSchemaFile(version: Int): File? {
         val schemaFile = File(
             context.schemaOutFolder,
-            "${element.className.enclosingClassName()}/$version.json"
+            "${element.className.canonicalName()}/$version.json"
         )
         if (!schemaFile.exists()) {
             context.logger.e(
                 ProcessorErrors.autoMigrationSchemasNotFound(
                     context.schemaOutFolder.toString(),
-                    "${element.className.enclosingClassName()}/$version.json"
+                    "${element.className.canonicalName()}/$version.json"
                 ),
                 element
             )
