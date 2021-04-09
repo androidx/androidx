@@ -190,7 +190,7 @@ public class AppSearchCompilerTest {
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Field cannot be read: it is private and we failed to find a suitable getter "
-                        + "named \"getPrice\"");
+                        + "for field \"price\"");
     }
 
     @Test
@@ -205,7 +205,7 @@ public class AppSearchCompilerTest {
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Field cannot be read: it is private and we failed to find a suitable getter "
-                        + "named \"getPrice\"");
+                        + "for field \"price\"");
         CompilationSubject.assertThat(compilation).hadWarningContaining(
                 "Getter cannot be used: private visibility");
     }
@@ -222,7 +222,7 @@ public class AppSearchCompilerTest {
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Field cannot be read: it is private and we failed to find a suitable getter "
-                        + "named \"getPrice\"");
+                        + "for field \"price\"");
         CompilationSubject.assertThat(compilation).hadWarningContaining(
                 "Getter cannot be used: should take no parameters");
     }
@@ -244,6 +244,28 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testGetterAndSetterFunctions_withFieldName() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Property private int price;\n"
+                        + "  int price() { return 0; }\n"
+                        + "  void price(int n) {}\n"
+                        + "}\n");
+
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        // Check setter function is identified correctly.
+        checkResultContains(/* className= */ "Gift.java",
+                /* content= */ "builder.setPropertyLong(\"price\", document.price());");
+        // Check getter function is identified correctly.
+        checkResultContains(/* className= */ "Gift.java",
+                /* content= */ "document.price(priceConv);");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
     public void testCantWrite_noSetter() {
         Compilation compilation = compile(
                 "@Document\n"
@@ -256,7 +278,7 @@ public class AppSearchCompilerTest {
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Failed to find any suitable constructors to build this class");
         CompilationSubject.assertThat(compilation).hadWarningContainingMatch(
-                "Field cannot be written .* failed to find a suitable setter named \"setPrice\"");
+                "Field cannot be written .* failed to find a suitable setter for field \"price\"");
         CompilationSubject.assertThat(compilation).hadWarningContaining(
                 "Cannot use this constructor to construct the class: This constructor doesn't have "
                         + "parameters for the following fields: [price]");
@@ -276,7 +298,7 @@ public class AppSearchCompilerTest {
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Failed to find any suitable constructors to build this class");
         CompilationSubject.assertThat(compilation).hadWarningContainingMatch(
-                "Field cannot be written .* failed to find a suitable setter named \"setPrice\"");
+                "Field cannot be written .* failed to find a suitable setter for field \"price\"");
         CompilationSubject.assertThat(compilation).hadWarningContaining(
                 "Setter cannot be used: private visibility");
         CompilationSubject.assertThat(compilation).hadWarningContaining(
@@ -298,7 +320,7 @@ public class AppSearchCompilerTest {
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Failed to find any suitable constructors to build this class");
         CompilationSubject.assertThat(compilation).hadWarningContainingMatch(
-                "Field cannot be written .* failed to find a suitable setter named \"setPrice\"");
+                "Field cannot be written .* failed to find a suitable setter for field \"price\"");
         CompilationSubject.assertThat(compilation).hadWarningContaining(
                 "Setter cannot be used: takes 0 parameters instead of 1");
         CompilationSubject.assertThat(compilation).hadWarningContaining(
@@ -805,5 +827,17 @@ public class AppSearchCompilerTest {
             // Now produce the real exception for the test runner.
             Truth.assertThat(actual).isEqualTo(expected);
         }
+    }
+
+    private boolean checkResultContains(String className, String content) throws IOException {
+        // Get the actual file contents
+        File actualPackageDir = new File(mGenFilesDir, "com/example/appsearch");
+        File actualPath =
+                new File(actualPackageDir, IntrospectionHelper.GEN_CLASS_PREFIX + className);
+        Truth.assertWithMessage("Path " + actualPath + " is not a file")
+                .that(actualPath.isFile()).isTrue();
+        String actual = Files.asCharSource(actualPath, StandardCharsets.UTF_8).read();
+
+        return actual.contains(content);
     }
 }
