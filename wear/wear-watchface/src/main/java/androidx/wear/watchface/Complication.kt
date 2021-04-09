@@ -25,11 +25,12 @@ import android.icu.util.Calendar
 import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
+import androidx.annotation.Px
 import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
@@ -128,8 +129,9 @@ public open class CanvasComplicationDrawable(
                 drawable.draw(canvas)
                 drawable.isHighlighted = wasHighlighted
 
-                // It's only sensible to render a highlight for non-background complications.
-                if (attachedComplication?.boundsType != ComplicationBoundsType.BACKGROUND) {
+                // It's only sensible to render a highlight for non-background, non-fixed
+                // complications.
+                if (!attachedComplication!!.fixedComplicationProvider) {
                     drawOutline(canvas, bounds, calendar, renderParameters.outlineTint)
                 }
             }
@@ -138,8 +140,13 @@ public open class CanvasComplicationDrawable(
     }
 
     /**
-     * Used (indirectly) by the editor, draws a dashed line around the complication unless the.
-     * [Complication] is fixed in which case it does nothing.
+     * Used (indirectly) by the editor to highlight a complication by drawing a (dashed) line
+     * around it.
+     *
+     * @param canvas The [Canvas] to render into.
+     * @param bounds The screen space bounding [Rect] of the complication in pixels.
+     * @param calendar The [Calendar] to use for rendering any time dependent properties.
+     * @param color The color to use when rendering the outline.
      */
     public open fun drawOutline(
         canvas: Canvas,
@@ -196,6 +203,45 @@ public open class CanvasComplicationDrawable(
     }
 }
 
+/** Interface for determining whether a tap hits a complication. */
+public interface ComplicationTapFilter {
+    /**
+     * Performs a hit test, returning `true` if the supplied coordinates in pixels are within the
+     * the provided [complication] scaled to [screenBounds].
+     *
+     * @param complication The [Complication] to perform a hit test for.
+     * @param screenBounds A [Rect] describing the bounds of the display.
+     * @param x The screen space X coordinate in pixels.
+     * @param y The screen space Y coordinate in pixels.
+     */
+    public fun hitTest(
+        complication: Complication,
+        screenBounds: Rect,
+        @Px x: Int,
+        @Px y: Int
+    ): Boolean
+}
+
+/** Default [ComplicationTapFilter] for [ComplicationBoundsType.ROUND_RECT] complications. */
+public class RoundRectComplicationTapFilter : ComplicationTapFilter {
+    override fun hitTest(
+        complication: Complication,
+        screenBounds: Rect,
+        @Px x: Int,
+        @Px y: Int
+    ): Boolean = complication.computeBounds(screenBounds).contains(x, y)
+}
+
+/** Default [ComplicationTapFilter] for [ComplicationBoundsType.BACKGROUND] complications. */
+public class BackgroundComplicationTapFilter : ComplicationTapFilter {
+    override fun hitTest(
+        complication: Complication,
+        screenBounds: Rect,
+        @Px x: Int,
+        @Px y: Int
+    ): Boolean = false
+}
+
 /**
  * Represents a individual complication on the screen. The number of complications is fixed
  * (see [ComplicationsManager]) but complications can be enabled or disabled via
@@ -220,6 +266,8 @@ public open class CanvasComplicationDrawable(
  * @param fixedComplicationProvider  Whether or not the complication provider is fixed (i.e.
  *     can't be changed by the user).  This is useful for watch faces built around specific
  *     complications.
+ * @param tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
+ *     complication.
  */
 public class Complication internal constructor(
     internal val id: Int,
@@ -233,16 +281,16 @@ public class Complication internal constructor(
     public val initiallyEnabled: Boolean,
     public val configExtras: Bundle,
     @get:JvmName("isFixedComplicationProvider")
-    public val fixedComplicationProvider: Boolean
+    public val fixedComplicationProvider: Boolean,
+    public val tapFilter: ComplicationTapFilter
 ) {
     public companion object {
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
 
         /**
          * Constructs a [Builder] for a complication with bounds type
-         * [ComplicationBoundsType.ROUND_RECT]. This is the most common type of complication.
-         * These can be single tapped by the user to either trigger the associated intent or
-         * double tapped to open the provider selector.
+         * [ComplicationBoundsType.ROUND_RECT]. This is the most common type of complication. These
+         * can be tapped by the user to trigger the associated intent.
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
          *     unique within the watch face.
@@ -268,7 +316,8 @@ public class Complication internal constructor(
             supportedTypes,
             defaultProviderPolicy,
             ComplicationBoundsType.ROUND_RECT,
-            bounds
+            bounds,
+            RoundRectComplicationTapFilter()
         )
 
         /**
@@ -300,7 +349,50 @@ public class Complication internal constructor(
             supportedTypes,
             defaultProviderPolicy,
             ComplicationBoundsType.BACKGROUND,
-            ComplicationBounds(RectF(0f, 0f, 1f, 1f))
+            ComplicationBounds(RectF(0f, 0f, 1f, 1f)),
+            BackgroundComplicationTapFilter()
+        )
+
+        /**
+         * Constructs a [Builder] for a complication with bounds type [ComplicationBoundsType.EDGE].
+         *
+         * An edge complication is drawn around the border of the display and has custom hit test
+         * logic (see [complicationTapFilter]). When tapped the associated intent is
+         * dispatched. Edge complications should have a custom [renderer] with
+         * [CanvasComplicationDrawable.drawEdgeOutline] overridden.
+         *
+         * Note we don't support edge complication hit testing from an editor.
+         *
+         * @param id The watch face's ID for this complication. Can be any integer but should be
+         *     unique within the watch face.
+         * @param renderer The [CanvasComplicationDrawable] to use for rendering. Note renderers
+         *     should not be shared between complications.
+         * @param supportedTypes The types of complication supported by this Complication. Passed
+         *     into [ComplicationHelperActivity.createProviderChooserHelperIntent] during
+         *     complication configuration. This list should be non-empty.
+         * @param defaultProviderPolicy The [DefaultComplicationProviderPolicy] used to select
+         *     the initial complication provider when the watch is first installed.
+         * @param bounds The complication's [ComplicationBounds]. Its likely the bounding rect will
+         *     be much larger than the complication and shouldn't directly be used for hit testing.
+         * @param complicationTapFilter The [ComplicationTapFilter] used to determine whether or
+         *     not a tap hit the complication.
+         */
+        @JvmStatic
+        public fun createEdgeComplicationBuilder(
+            id: Int,
+            renderer: CanvasComplicationDrawable,
+            supportedTypes: List<ComplicationType>,
+            defaultProviderPolicy: DefaultComplicationProviderPolicy,
+            bounds: ComplicationBounds,
+            complicationTapFilter: ComplicationTapFilter
+        ): Builder = Builder(
+            id,
+            renderer,
+            supportedTypes,
+            defaultProviderPolicy,
+            ComplicationBoundsType.EDGE,
+            bounds,
+            complicationTapFilter
         )
     }
 
@@ -318,6 +410,8 @@ public class Complication internal constructor(
      *     the initial complication provider when the watch is first installed.
      * @param boundsType The [ComplicationBoundsType] of the complication.
      * @param bounds The complication's [ComplicationBounds].
+     * @param complicationTapFilter The [ComplicationTapFilter] used to perform hit testing for this
+     *     complication.
      */
     public class Builder internal constructor(
         private val id: Int,
@@ -325,7 +419,8 @@ public class Complication internal constructor(
         private val supportedTypes: List<ComplicationType>,
         private val defaultProviderPolicy: DefaultComplicationProviderPolicy,
         @ComplicationBoundsType private val boundsType: Int,
-        private val bounds: ComplicationBounds
+        private val bounds: ComplicationBounds,
+        private val complicationTapFilter: ComplicationTapFilter
     ) {
         private var defaultProviderType = ComplicationType.NOT_CONFIGURED
         private var initiallyEnabled = true
@@ -381,7 +476,8 @@ public class Complication internal constructor(
             defaultProviderType,
             initiallyEnabled,
             configExtras,
-            fixedComplicationProvider
+            fixedComplicationProvider,
+            complicationTapFilter
         )
     }
 
