@@ -269,7 +269,7 @@ public abstract class ComplicationProviderService extends Service {
     @SuppressLint("SyntheticAccessor")
     @Override
     @Nullable
-    public IBinder onBind(@NonNull Intent intent) {
+    public final IBinder onBind(@NonNull Intent intent) {
         if (ACTION_COMPLICATION_UPDATE_REQUEST.equals(intent.getAction())) {
             if (mWrapper == null) {
                 mWrapper = new IComplicationProviderWrapper();
