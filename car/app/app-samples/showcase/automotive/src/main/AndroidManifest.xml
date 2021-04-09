@@ -31,6 +31,7 @@
   <!-- For the navigation demos. -->
   <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES"/>
   <uses-permission android:name="androidx.car.app.ACCESS_SURFACE"/>
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
   <uses-feature android:name="android.software.car.templates_host" />
 
