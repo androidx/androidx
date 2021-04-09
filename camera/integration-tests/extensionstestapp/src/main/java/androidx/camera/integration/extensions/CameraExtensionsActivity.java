@@ -28,6 +28,8 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -36,9 +38,13 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
 import androidx.camera.extensions.Extensions;
 import androidx.camera.extensions.ExtensionsManager;
@@ -47,6 +53,7 @@ import androidx.camera.view.PreviewView;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.math.MathUtils;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.common.base.Preconditions;
@@ -275,6 +282,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
         StrictMode.setVmPolicy(policy);
         mPreviewView = findViewById(R.id.previewView);
+        setupPinchToZoomAndTapToFocus(mPreviewView);
 
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                 ProcessCameraProvider.getInstance(this);
@@ -344,6 +352,63 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 },
                 ContextCompat.getMainExecutor(CameraExtensionsActivity.this)
         );
+    }
+
+    ScaleGestureDetector.SimpleOnScaleGestureListener mScaleGestureListener =
+            new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                @Override
+                public boolean onScale(ScaleGestureDetector detector) {
+                    if (mCamera == null) {
+                        return true;
+                    }
+
+                    CameraInfo cameraInfo = mCamera.getCameraInfo();
+                    CameraControl cameraControl = mCamera.getCameraControl();
+                    float newZoom =
+                            cameraInfo.getZoomState().getValue().getZoomRatio()
+                                    * detector.getScaleFactor();
+                    float clampedNewZoom = MathUtils.clamp(newZoom,
+                            cameraInfo.getZoomState().getValue().getMinZoomRatio(),
+                            cameraInfo.getZoomState().getValue().getMaxZoomRatio());
+
+                    ListenableFuture<Void> listenableFuture = cameraControl.setZoomRatio(
+                            clampedNewZoom);
+                    Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
+                        @Override
+                        public void onSuccess(@Nullable Void result) {
+                            Log.d(TAG, "setZoomRatio onSuccess: " + clampedNewZoom);
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                            Log.d(TAG, "setZoomRatio failed, " + t);
+                        }
+                    }, ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
+                    return true;
+                }
+            };
+
+    private void setupPinchToZoomAndTapToFocus(PreviewView previewView) {
+        ScaleGestureDetector scaleDetector = new ScaleGestureDetector(this, mScaleGestureListener);
+
+        previewView.setOnTouchListener((view, motionEvent) -> {
+            scaleDetector.onTouchEvent(motionEvent);
+
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                if (mCamera == null) {
+                    return true;
+                }
+                MeteringPoint point =
+                        previewView.getMeteringPointFactory().createPoint(
+                                motionEvent.getX(), motionEvent.getY());
+
+                mCamera.getCameraControl().startFocusAndMetering(
+                        new FocusMeteringAction.Builder(point).build())
+                        .addListener(() -> {},
+                                ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
+            }
+            return true;
+        });
     }
 
     private ListenableFuture<Boolean> setupPermissions() {
