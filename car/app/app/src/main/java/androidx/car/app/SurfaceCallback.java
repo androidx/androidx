@@ -19,6 +19,8 @@ package androidx.car.app;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 
 /** A callback for changes on the {@link SurfaceContainer} and its attributes. */
 public interface SurfaceCallback {
@@ -69,4 +71,41 @@ public interface SurfaceCallback {
      * @param surfaceContainer the {@link SurfaceContainer} being destroyed
      */
     void onSurfaceDestroyed(@NonNull SurfaceContainer surfaceContainer);
+
+    /**
+     * Provides information about a scroll touch event on the car screen.
+     *
+     * @param distanceX The distance in pixels along the X axis that has been scrolled since the
+     *                  last touch position during the scroll event.
+     * @param distanceY The distance in pixels along the Y axis that has been scrolled since the
+     *                  last touch position during the scroll event.
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(2)
+    default void onScroll(float distanceX, float distanceY) {
+    }
+
+    /**
+     * Provides information about a fling touch event on the car screen.
+     *
+     * @param velocityX The velocity of this fling measured in pixels per second along the x axis.
+     * @param velocityY The velocity of this fling measured in pixels per second along the y axis.
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(2)
+    default void onFling(float velocityX, float velocityY) {
+    }
+
+    /**
+     * Provides information about a scale touch event on the car screen.
+     *
+     * @param focusX X coordinate of the focal point in pixels.
+     * @param focusY Y coordinate of the focal point in pixels.
+     * @param scaleFactor The scaling factor from the previous state to the current
+     *                    state during the scale event.
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(2)
+    default void onScale(float focusX, float focusY, float scaleFactor) {
+    }
 }

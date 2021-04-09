@@ -18,6 +18,7 @@ package androidx.car.app;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -372,6 +373,75 @@ public final class AppManagerTest {
 
         verify(mSurfaceCallback, never()).onSurfaceDestroyed(surfaceContainer);
         verify(mMockOnDoneCallback).onFailure(any());
+    }
+
+    @Test
+    public void onSurfaceScroll_dispatches()
+            throws RemoteException, BundlerException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+
+        mSurfaceCallbackCaptor.getValue().onScroll(1, 2);
+
+        verify(mSurfaceCallback).onScroll(1, 2);
+    }
+
+    @Test
+    public void onSurfaceScroll_lifecycleNotCreated_doesNotDispatch()
+            throws RemoteException, BundlerException {
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+
+        mSurfaceCallbackCaptor.getValue().onScroll(1, 2);
+
+        verify(mSurfaceCallback, never()).onScroll(anyFloat(), anyFloat());
+    }
+
+    @Test
+    public void onSurfaceFling_dispatches()
+            throws RemoteException, BundlerException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+
+        mSurfaceCallbackCaptor.getValue().onFling(1, 2);
+
+        verify(mSurfaceCallback).onFling(1, 2);
+    }
+
+    @Test
+    public void onSurfaceFling_lifecycleNotCreated_doesNotDispatch()
+            throws RemoteException, BundlerException {
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+
+        mSurfaceCallbackCaptor.getValue().onFling(1, 2);
+
+        verify(mSurfaceCallback, never()).onFling(anyFloat(), anyFloat());
+    }
+
+    @Test
+    public void onSurfaceScale_dispatches()
+            throws RemoteException, BundlerException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+
+        mSurfaceCallbackCaptor.getValue().onScale(1, 2, 3);
+
+        verify(mSurfaceCallback).onScale(1, 2, 3);
+    }
+
+    @Test
+    public void onSurfaceScale_lifecycleNotCreated_doesNotDispatch()
+            throws RemoteException, BundlerException {
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+
+        mSurfaceCallbackCaptor.getValue().onScale(1, 2, 3);
+
+        verify(mSurfaceCallback, never()).onScale(anyFloat(), anyFloat(), anyFloat());
     }
 
     private static class NonBundleableTemplate implements Template {
