@@ -182,7 +182,7 @@ private class InternalQueryProcessor(
         context.checker.check(
             resultBinder.adapter != null,
             executableElement,
-            ProcessorErrors.cannotFindPreparedQueryResultAdapter(returnType.toString(), query.type)
+            ProcessorErrors.cannotFindPreparedQueryResultAdapter(returnType.typeName, query.type)
         )
 
         val parameters = delegate.extractQueryParams(query)

@@ -727,7 +727,7 @@ object ProcessorErrors {
         "perform the query."
 
     fun cannotFindPreparedQueryResultAdapter(
-        returnType: String,
+        returnType: TypeName,
         type: QueryType
     ) = StringBuilder().apply {
         append("Not sure how to handle query method's return type ($returnType). ")
