@@ -16,24 +16,19 @@
 
 package androidx.room.processor
 
-import androidx.annotation.NonNull
-import androidx.room.compiler.processing.isTypeElement
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.ParserErrors
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.testing.TestInvocation
-import androidx.room.testing.TestProcessor
+import androidx.room.testing.context
 import androidx.room.verifier.ColumnInfo
 import androidx.room.vo.DatabaseView
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import createVerifierFromEntitiesAndViews
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class DatabaseViewProcessorTest {
@@ -47,7 +42,7 @@ class DatabaseViewProcessorTest {
         """
 
         val ENTITIES = listOf(
-            JavaFileObjects.forSourceString(
+            Source.java(
                 "foo.bar.Team",
                 DATABASE_PREFIX + """
                     @Entity
@@ -58,7 +53,7 @@ class DatabaseViewProcessorTest {
                     }
                 """
             ),
-            JavaFileObjects.forSourceString(
+            Source.java(
                 "foo.bar.Employee",
                 DATABASE_PREFIX + """
                     @Entity
@@ -99,7 +94,7 @@ class DatabaseViewProcessorTest {
                 ColumnInfo("name", SQLTypeAffinity.TEXT)
             )
             assertThat(view.viewName).isEqualTo("MyView")
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -113,7 +108,7 @@ class DatabaseViewProcessorTest {
         """
         ) { view, _ ->
             assertThat(view.viewName).isEqualTo("abc")
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -126,8 +121,11 @@ class DatabaseViewProcessorTest {
             }
         """,
             verify = false
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.VIEW_NAME_CANNOT_START_WITH_SQLITE)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.VIEW_NAME_CANNOT_START_WITH_SQLITE)
+            }
+        }
     }
 
     @Test
@@ -140,8 +138,11 @@ class DatabaseViewProcessorTest {
             }
         """,
             verify = false
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.VIEW_QUERY_MUST_BE_SELECT)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.VIEW_QUERY_MUST_BE_SELECT)
+            }
+        }
     }
 
     @Test
@@ -154,8 +155,13 @@ class DatabaseViewProcessorTest {
             }
         """,
             verify = false
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ProcessorErrors.VIEW_QUERY_CANNOT_TAKE_ARGUMENTS)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.VIEW_QUERY_CANNOT_TAKE_ARGUMENTS
+                )
+            }
+        }
     }
 
     @Test
@@ -168,8 +174,13 @@ class DatabaseViewProcessorTest {
             }
         """,
             verify = false
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(ParserErrors.NOT_ONE_QUERY)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ParserErrors.NOT_ONE_QUERY
+                )
+            }
+        }
     }
 
     @Test
@@ -181,15 +192,18 @@ class DatabaseViewProcessorTest {
             }
         """,
             verify = false
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW
+                )
+            }
+        }
     }
 
     @Test
     fun referenceOtherView() {
-        val summary = JavaFileObjects.forSourceString(
+        val summary = Source.java(
             "foo.bar.EmployeeSummary",
             DATABASE_PREFIX + """
                     @DatabaseView("SELECT id, name, managerId FROM Employee")
@@ -212,47 +226,32 @@ class DatabaseViewProcessorTest {
             ENTITIES + summary
         ) { view, _ ->
             assertThat(view.viewName).isEqualTo("EmployeeName")
-        }.compilesWithoutError()
+        }
     }
 
     private fun singleView(
         name: String,
         input: String,
-        jfos: List<JavaFileObject> = ENTITIES,
+        sources: List<Source> = ENTITIES,
         verify: Boolean = true,
-        handler: (view: DatabaseView, invocation: TestInvocation) -> Unit
-    ): CompileTester {
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(jfos + JavaFileObjects.forSourceString(name, DATABASE_PREFIX + input))
-            .processedWith(
-                TestProcessor.builder()
-                    .forAnnotations(
-                        androidx.room.DatabaseView::class,
-                        androidx.room.Entity::class,
-                        androidx.room.PrimaryKey::class,
-                        androidx.room.Embedded::class,
-                        androidx.room.ColumnInfo::class,
-                        NonNull::class
-                    )
-                    .nextRunHandler { invocation ->
-                        val view = invocation.roundEnv
-                            .rootElements
-                            .first { it.toString() == name }
-                        check(view.isTypeElement())
-                        val verifier = if (verify) {
-                            createVerifierFromEntitiesAndViews(invocation)
-                        } else null
-                        val processor = DatabaseViewProcessor(
-                            invocation.context,
-                            view
-                        )
-                        val processedView = processor.process()
-                        processedView.query.resultInfo =
-                            verifier?.analyze(processedView.query.original)
-                        handler(processedView, invocation)
-                        true
-                    }
-                    .build()
+        handler: (view: DatabaseView, invocation: XTestInvocation) -> Unit
+    ) {
+        runProcessorTest(
+            sources = sources + Source.java(name, DATABASE_PREFIX + input)
+        ) { invocation ->
+            val view = invocation.processingEnv
+                .requireTypeElement(name)
+            val verifier = if (verify) {
+                createVerifierFromEntitiesAndViews(invocation)
+            } else null
+            val processor = DatabaseViewProcessor(
+                invocation.context,
+                view
             )
+            val processedView = processor.process()
+            processedView.query.resultInfo =
+                verifier?.analyze(processedView.query.original)
+            handler(processedView, invocation)
+        }
     }
 }
