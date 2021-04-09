@@ -101,7 +101,7 @@ internal class DataStoreSingletonDelegate<T> internal constructor(
                 val applicationContext = thisRef.applicationContext
                 INSTANCE = DataStoreFactory.create(
                     serializer = serializer,
-                    produceFile = { thisRef.dataStoreFile(fileName) },
+                    produceFile = { applicationContext.dataStoreFile(fileName) },
                     corruptionHandler = corruptionHandler,
                     migrations = produceMigrations(applicationContext),
                     scope = scope
