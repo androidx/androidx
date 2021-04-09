@@ -3800,6 +3800,14 @@ package androidx.core.widget {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final boolean PLATFORM_SUPPORTS_AUTOSIZE;
   }
 
+  public final class CheckedTextViewCompat {
+    method public static android.graphics.drawable.Drawable? getCheckMarkDrawable(android.widget.CheckedTextView);
+    method public static android.content.res.ColorStateList? getCheckMarkTintList(android.widget.CheckedTextView);
+    method public static android.graphics.PorterDuff.Mode? getCheckMarkTintMode(android.widget.CheckedTextView);
+    method public static void setCheckMarkTintList(android.widget.CheckedTextView, android.content.res.ColorStateList?);
+    method public static void setCheckMarkTintMode(android.widget.CheckedTextView, android.graphics.PorterDuff.Mode?);
+  }
+
   public final class CompoundButtonCompat {
     method public static android.graphics.drawable.Drawable? getButtonDrawable(android.widget.CompoundButton);
     method public static android.content.res.ColorStateList? getButtonTintList(android.widget.CompoundButton);
@@ -3979,6 +3987,13 @@ package androidx.core.widget {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TextViewOnReceiveContentListener implements androidx.core.view.OnReceiveContentListener {
     ctor public TextViewOnReceiveContentListener();
     method public androidx.core.view.ContentInfoCompat? onReceiveContent(android.view.View, androidx.core.view.ContentInfoCompat);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface TintableCheckedTextView {
+    method public android.content.res.ColorStateList? getSupportCheckMarkTintList();
+    method public android.graphics.PorterDuff.Mode? getSupportCheckMarkTintMode();
+    method public void setSupportCheckMarkTintList(android.content.res.ColorStateList?);
+    method public void setSupportCheckMarkTintMode(android.graphics.PorterDuff.Mode?);
   }
 
   public interface TintableCompoundButton {

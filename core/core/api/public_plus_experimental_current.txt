@@ -3339,6 +3339,14 @@ package androidx.core.widget {
     field public static final float RELATIVE_UNSPECIFIED = 0.0f;
   }
 
+  public final class CheckedTextViewCompat {
+    method public static android.graphics.drawable.Drawable? getCheckMarkDrawable(android.widget.CheckedTextView);
+    method public static android.content.res.ColorStateList? getCheckMarkTintList(android.widget.CheckedTextView);
+    method public static android.graphics.PorterDuff.Mode? getCheckMarkTintMode(android.widget.CheckedTextView);
+    method public static void setCheckMarkTintList(android.widget.CheckedTextView, android.content.res.ColorStateList?);
+    method public static void setCheckMarkTintMode(android.widget.CheckedTextView, android.graphics.PorterDuff.Mode?);
+  }
+
   public final class CompoundButtonCompat {
     method public static android.graphics.drawable.Drawable? getButtonDrawable(android.widget.CompoundButton);
     method public static android.content.res.ColorStateList? getButtonTintList(android.widget.CompoundButton);
