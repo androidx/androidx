@@ -35,7 +35,6 @@ import androidx.room.ext.RxJava3TypeNames
 import androidx.room.processor.DatabaseViewProcessor
 import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
-import androidx.room.testing.TestInvocation
 import androidx.room.testing.context
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.writer.ClassWriter
@@ -229,13 +228,6 @@ fun loadTestSource(fileName: String, qName: String): Source {
     return Source.load(contents, qName, fileName)
 }
 
-fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVerifier {
-    return DatabaseVerifier.create(
-        invocation.context, mock(XElement::class.java),
-        invocation.getEntities(), invocation.getViews()
-    )!!
-}
-
 fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVerifier {
     return DatabaseVerifier.create(
         invocation.context, mock(XElement::class.java),
@@ -252,23 +244,6 @@ fun XTestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
 }
 
 fun XTestInvocation.getEntities(): List<androidx.room.vo.Entity> {
-    val entities = roundEnv.getElementsAnnotatedWith(Entity::class.qualifiedName!!)
-        .filterIsInstance<XTypeElement>()
-        .map {
-            TableEntityProcessor(context, it).process()
-        }
-    return entities
-}
-
-fun TestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
-    return roundEnv.getElementsAnnotatedWith(DatabaseView::class.qualifiedName!!)
-        .filterIsInstance<XTypeElement>()
-        .map {
-            DatabaseViewProcessor(context, it).process()
-        }
-}
-
-fun TestInvocation.getEntities(): List<androidx.room.vo.Entity> {
     val entities = roundEnv.getElementsAnnotatedWith(Entity::class.qualifiedName!!)
         .filterIsInstance<XTypeElement>()
         .map {
