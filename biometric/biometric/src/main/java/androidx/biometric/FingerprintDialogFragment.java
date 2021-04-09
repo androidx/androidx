@@ -43,7 +43,9 @@ import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -249,12 +251,13 @@ public class FingerprintDialogFragment extends DialogFragment {
      * fragment.
      */
     private void connectViewModel() {
-        final Context context = getContext();
-        if (context == null) {
+        final FragmentActivity activity = getActivity();
+        if (activity == null) {
             return;
         }
 
-        mViewModel = BiometricPrompt.getViewModel(context);
+        mViewModel = new ViewModelProvider(activity).get(BiometricViewModel.class);
+
         mViewModel.getFingerprintDialogState().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(@State Integer state) {
@@ -357,7 +360,8 @@ public class FingerprintDialogFragment extends DialogFragment {
      */
     private int getThemedColorFor(int attr) {
         final Context context = getContext();
-        if (context == null) {
+        final FragmentActivity activity = getActivity();
+        if (context == null || activity == null) {
             Log.w(TAG, "Unable to get themed color. Context or activity is null.");
             return 0;
         }
@@ -365,7 +369,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         TypedValue tv = new TypedValue();
         Resources.Theme theme = context.getTheme();
         theme.resolveAttribute(attr, tv, true /* resolveRefs */);
-        TypedArray arr = context.obtainStyledAttributes(tv.data, new int[] {attr});
+        TypedArray arr = activity.obtainStyledAttributes(tv.data, new int[] {attr});
 
         final int color = arr.getColor(0 /* index */, 0 /* defValue */);
         arr.recycle();
