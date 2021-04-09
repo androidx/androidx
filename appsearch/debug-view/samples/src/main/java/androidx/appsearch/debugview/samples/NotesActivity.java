@@ -16,8 +16,11 @@
 
 package androidx.appsearch.debugview.samples;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -105,6 +108,25 @@ public class NotesActivity extends AppCompatActivity {
                         Log.e(TAG, "Failed to insert notes into AppSearch.", t);
                     }
                 }, ContextCompat.getMainExecutor(this));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+        getMenuInflater().inflate(R.menu.debug_menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case (R.id.app_search_debug):
+                Intent intent = new Intent(this, androidx.appsearch.debugview.MainActivity.class);
+                startActivity(intent);
+                return true;
+        }
+
+        return false;
     }
 
     @Override
