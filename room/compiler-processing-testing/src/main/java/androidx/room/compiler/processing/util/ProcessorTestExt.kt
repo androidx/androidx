@@ -312,12 +312,14 @@ fun runKspTest(
  * @param options The annotation processor arguments
  * @param annotationProcessors The list of Java annotation processors to run with compilation
  * @param symbolProcessors The list of Kotlin symbol processors to run with compilation
+ * @param javacArguments The command line arguments that will be passed into javac
  */
 fun compileFiles(
     sources: List<Source>,
     options: Map<String, String> = emptyMap(),
     annotationProcessors: List<Processor> = emptyList(),
-    symbolProcessors: List<SymbolProcessor> = emptyList()
+    symbolProcessors: List<SymbolProcessor> = emptyList(),
+    javacArguments: List<String> = emptyList()
 ): File {
     val outputStream = ByteArrayOutputStream()
     val compilation = KotlinCompilationUtil.prepareCompilation(
@@ -330,6 +332,7 @@ fun compileFiles(
     if (symbolProcessors.isNotEmpty()) {
         compilation.kspArgs.putAll(options)
     }
+    compilation.javacArguments.addAll(javacArguments)
     compilation.annotationProcessors = annotationProcessors
     compilation.symbolProcessors = symbolProcessors
     val result = compilation.compile()

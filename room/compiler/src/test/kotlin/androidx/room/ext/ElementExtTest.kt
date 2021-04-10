@@ -19,21 +19,19 @@ package androidx.room.ext
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
-/**
- * TODO: Make this run with pre-compiled sources as well.
- * https://github.com/google/ksp/issues/231
- * b/184588339
- */
-@RunWith(JUnit4::class)
-class ElementExtTest {
+@RunWith(Parameterized::class)
+class ElementExtTest(
+    private val preCompile: Boolean
+) {
     @Test
     fun methodsInClass() {
         val parentCode = Source.java(
@@ -67,7 +65,7 @@ class ElementExtTest {
             """.trimIndent()
         )
 
-        runProcessorTest(
+        runTest(
             sources = listOf(parentCode, childCode)
         ) {
             val parent = it.processingEnv.requireTypeElement("foo.bar.Parent")
@@ -144,7 +142,7 @@ class ElementExtTest {
             """.trimIndent()
         )
 
-        runProcessorTest(
+        runTest(
             sources = listOf(parentCode, childCode)
         ) {
             // NOTE: technically, an interface should show all methods it receives from Object
@@ -200,7 +198,7 @@ class ElementExtTest {
             """.trimIndent()
         )
 
-        runProcessorTest(
+        runTest(
             sources = listOf(testCode)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -231,7 +229,7 @@ class ElementExtTest {
             TypeName.FLOAT,
             TypeName.DOUBLE
         )
-        runProcessorTest { invocation ->
+        runTest { invocation ->
             val processingEnv = invocation.processingEnv
             primitiveTypeNames.forEach { primitiveTypeName ->
                 val typeMirror = processingEnv.requireType(primitiveTypeName)
@@ -243,6 +241,23 @@ class ElementExtTest {
         }
     }
 
+    @Suppress("NAME_SHADOWING") // intentional
+    private fun runTest(
+        sources: List<Source> = emptyList(),
+        handler: (XTestInvocation) -> Unit
+    ) {
+        val (sources, classpath) = if (preCompile && sources.isNotEmpty()) {
+            emptyList<Source>() to listOf(compileFiles(sources))
+        } else {
+            sources to emptyList()
+        }
+        runProcessorTest(
+            sources = sources,
+            classpath = classpath,
+            handler = handler
+        )
+    }
+
     private fun XTestInvocation.objectMethodNames(): List<String> {
         return processingEnv.requireTypeElement("java.lang.Object")
             .getAllMethods().map {
@@ -251,4 +266,10 @@ class ElementExtTest {
     }
 
     private fun List<XMethodElement>.names() = map { it.name }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "preCompile_{0}")
+        fun params() = arrayOf(false, true)
+    }
 }
