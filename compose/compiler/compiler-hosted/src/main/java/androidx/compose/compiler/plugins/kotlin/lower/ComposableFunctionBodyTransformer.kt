@@ -3070,8 +3070,8 @@ class ComposableFunctionBodyTransformer(
         val endBlock = mutableStatementContainer()
         encounteredReturn(expression.returnTargetSymbol) { endBlock.statements.add(it) }
         return if (expression.value.type
-            .also { if (it is IrSimpleType) it.classifier }
-            .isUnitOrNullableUnit()
+                .also { if (it is IrSimpleType) it.classifier }
+                .isUnitOrNullableUnit()
         ) {
             expression.wrap(listOf(endBlock))
         } else {
@@ -3145,6 +3145,7 @@ class ComposableFunctionBodyTransformer(
         var needsWrappingGroup = false
         var someResultsHaveCalls = false
         var hasElseBranch = false
+        var multipleResultsHaveCalls = false
 
         val transformed = IrWhenImpl(
             expression.startOffset,
@@ -3163,6 +3164,9 @@ class ComposableFunctionBodyTransformer(
                     condScopes.add(Scope.BranchScope())
                     resultScopes.add(resultScope)
 
+                    multipleResultsHaveCalls =
+                        multipleResultsHaveCalls || (someResultsHaveCalls &&
+                            resultScope.hasComposableCalls)
                     someResultsHaveCalls = someResultsHaveCalls || resultScope.hasComposableCalls
                     transformed.branches.add(
                         IrElseBranchImpl(
@@ -3187,6 +3191,9 @@ class ComposableFunctionBodyTransformer(
                     // it doesn't necessitate a group
                     needsWrappingGroup =
                         needsWrappingGroup || (index != 0 && condScope.hasComposableCalls)
+                    multipleResultsHaveCalls =
+                        multipleResultsHaveCalls || (someResultsHaveCalls &&
+                            resultScope.hasComposableCalls)
                     someResultsHaveCalls = someResultsHaveCalls || resultScope.hasComposableCalls
                     transformed.branches.add(
                         IrBranchImpl(
@@ -3241,16 +3248,18 @@ class ComposableFunctionBodyTransformer(
             if (
                 // if no wrapping group but some results have calls, we have to have every result
                 // be a group so that we have a consistent number of groups during execution
-                (someResultsHaveCalls && !needsWrappingGroup) ||
+                (multipleResultsHaveCalls && !needsWrappingGroup) ||
                 // if we are wrapping the if with a group, then we only need to add a group when
                 // the block has composable calls
                 (needsWrappingGroup && resultScope.hasComposableCalls)
             ) {
                 it.result = it.result.asReplaceableGroup(resultScope)
             }
-        }
 
-        return if (needsWrappingGroup) {
+        }
+        return if (needsWrappingGroup ||
+            (someResultsHaveCalls && !multipleResultsHaveCalls)
+        ) {
             transformed.asCoalescableGroup(whenScope)
         } else {
             transformed
@@ -3441,7 +3450,7 @@ class ComposableFunctionBodyTransformer(
                         super.calculateSourceInfo(sourceInformationEnabled)
                     } else {
                         "${callInformation()}${parameterInformation()}${
-                        super.calculateSourceInfo(sourceInformationEnabled) ?: ""
+                            super.calculateSourceInfo(sourceInformationEnabled) ?: ""
                         }:${sourceFileInformation()}"
                     }
                 } else {
@@ -3597,7 +3606,7 @@ class ComposableFunctionBodyTransformer(
                         val lineNumber = fileEntry?.getLineNumber(it.element.startOffset) ?: ""
                         val offset = if (it.element.startOffset < it.element.endOffset) {
                             "@${it.element.startOffset}L${
-                            it.element.endOffset - it.element.startOffset
+                                it.element.endOffset - it.element.startOffset
                             }"
                         } else "@${it.element.startOffset}"
                         if (it.repeatable && !markedRepeatable) {
@@ -3647,12 +3656,14 @@ class ComposableFunctionBodyTransformer(
             private var shouldRealizeCoalescableChild = false
             private var coalescableChild: BlockScope? = null
         }
+
         class ClassScope(name: Name) : Scope("class ${name.asString()}")
         class PropertyScope(name: Name) : Scope("val ${name.asString()}")
         class FieldScope(name: Name) : Scope("field ${name.asString()}")
         class FileScope(val declaration: IrFile) : Scope("file ${declaration.name}") {
             override val fileScope: FileScope? get() = this
         }
+
         class LoopScope(val loop: IrLoop) : BlockScope("loop") {
             private val jumpEndLocations = mutableListOf<(IrExpression) -> Unit>()
             var needsGroupPerIteration = false
@@ -3690,6 +3701,7 @@ class ComposableFunctionBodyTransformer(
                 }
             }
         }
+
         class WhenScope : BlockScope("when")
         class BranchScope : BlockScope("branch")
         class CaptureScope : BlockScope("capture") {
@@ -3706,6 +3718,7 @@ class ComposableFunctionBodyTransformer(
                         get() = true
                 }
         }
+
         class ParametersScope : BlockScope("parameters")
         class ComposableLambdaScope : BlockScope("composableLambda") {
             override fun calculateHasSourceInformation(sourceInformationEnabled: Boolean): Boolean {
@@ -3715,7 +3728,7 @@ class ComposableFunctionBodyTransformer(
             override fun calculateSourceInfo(sourceInformationEnabled: Boolean): String? =
                 if (sourceInformationEnabled) {
                     "C${
-                    super.calculateSourceInfo(sourceInformationEnabled) ?: ""
+                        super.calculateSourceInfo(sourceInformationEnabled) ?: ""
                     }:${functionScope?.sourceFileInformation() ?: ""}"
                 } else {
                     null
@@ -3984,10 +3997,13 @@ private fun IrType.isClassType(fqName: FqNameUnsafe, hasQuestionMark: Boolean? =
     if (hasQuestionMark != null && this.hasQuestionMark != hasQuestionMark) return false
     return classifier.isClassWithFqName(fqName)
 }
+
 private fun IrType.isNotNullClassType(fqName: FqNameUnsafe) =
     isClassType(fqName, hasQuestionMark = false)
+
 private fun IrType.isNullableClassType(fqName: FqNameUnsafe) =
     isClassType(fqName, hasQuestionMark = true)
+
 fun IrType.isNullableUnit() = isNullableClassType(StandardNames.FqNames.unit)
 fun IrType.isUnitOrNullableUnit() = this.isUnit() || this.isNullableUnit()
 
