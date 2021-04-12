@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import androidx.navigation.plusAssign
 import androidx.navigation.truth.test.R
 import androidx.navigation.truth.NavControllerSubject.Companion.assertThat
+import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestNavigator
@@ -31,6 +32,7 @@ import org.junit.Test
 class NavControllerSubjectTest {
     private lateinit var navController: NavController
 
+    @UiThreadTest
     @Before
     fun setUp() {
         navController = NavController(ApplicationProvider.getApplicationContext()).apply {
