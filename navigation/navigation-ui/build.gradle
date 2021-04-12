@@ -40,7 +40,7 @@ dependencies {
     implementation("androidx.transition:transition:1.3.0")
 
     androidTestImplementation(project(":internal-testutils-navigation"), {
-        exclude group: "androidx.navigation", module: "navigation-common-ktx"
+        exclude group: "androidx.navigation", module: "navigation-common"
     })
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

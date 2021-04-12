@@ -28,10 +28,10 @@ plugins {
 }
 
 dependencies {
-    api(project(":navigation:navigation-runtime-ktx"))
+    api(project(":navigation:navigation-runtime"))
 
     androidTestImplementation(project(":internal-testutils-navigation"), {
-        exclude group: "androidx.navigation", module: "navigation-common-ktx"
+        exclude group: "androidx.navigation", module: "navigation-common"
     })
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

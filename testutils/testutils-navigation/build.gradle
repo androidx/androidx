@@ -27,7 +27,7 @@ plugins {
 }
 
 dependencies {
-    api(projectOrArtifact(":navigation:navigation-common-ktx"))
+    api(projectOrArtifact(":navigation:navigation-common"))
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
