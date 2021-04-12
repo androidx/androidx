@@ -111,7 +111,6 @@ dependencies {
     docs("androidx.gridlayout:gridlayout:1.0.0")
     docs("androidx.heifwriter:heifwriter:1.1.0-alpha01")
     docs("androidx.hilt:hilt-common:1.0.0-beta01")
-    docs("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
     docs("androidx.hilt:hilt-navigation:1.0.0-beta01")
     docs("androidx.hilt:hilt-navigation-compose:1.0.0-alpha01")
     docs("androidx.hilt:hilt-navigation-fragment:1.0.0-beta01")
