@@ -4,6 +4,8 @@
 # Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
 # > Task :docs-runner:dokkaJavaPublicDocs
 (logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
+WARN: The registry key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' accessed, but not loaded yet
+PROGRESS: Rendering
 No docs found on supertype with \{@inheritDoc\} method .*
 Can't find node by signature .*
 Exception while resolving link to Module: Package:androidx\.compose\.material Function:animateElevation Receiver:<this>
@@ -460,6 +462,7 @@ w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-s
 Html results of .* zipped into.*\.zip
 # > Task :annotation:annotation-experimental-lint:test
 WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/com/google/devsite/dackka/[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+/dackka\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$OUT_DIR/androidx/compose/compiler/compiler\-hosted/integration\-tests/kotlin\-compiler\-repackaged/build/repackaged/kotlin\-compiler\-repackaged\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING\: Illegal reflective access using Lookup on org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper \(file\:\$GRADLE_USER_HOME\/caches\/[0-9]+\.[0-9]+\.[0-9]+\/generated\-gradle\-jars\/gradle\-api\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to class java\.lang\.ClassLoader
 WARNING\: Please consider reporting this to the maintainers of org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper
@@ -623,3 +626,105 @@ Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/b
 # > Task :docs-public:doclavaDocs
 \$OUT_DIR/androidx/docs\-public/build/unzippedDocsSources/androidx/window/ExtensionAdapter\.java:[0-9]+: error: cannot find symbol
 import androidx\.window\.extensions\.ExtensionDeviceState;
+# > Task :docs-public:dackkaDocs
+PROGRESS: Initializing plugins
+Loaded plugins: \[org\.jetbrains\.dokka\.base\.DokkaBase, com\.google\.devsite\.DevsitePlugin\]
+Loaded: \[
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/immediateHtmlCommandConsumer,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/pageTransformer,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/htmlPreprocessors,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/outputWriter,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/externalLocationProviderFactory,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/locationProviderFactory,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/kotlinAnalysis,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/renderer,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/tabSortingStrategy,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/pageMergerStrategy,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/commentsToContentConverter,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/documentableToPageTranslator,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/documentableTransformer,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/signatureProvider,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/preMergeDocumentableTransformer,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/documentableMerger,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/sourceToDocumentableTranslator,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/generation,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/pathToRootConsumer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/resolveLinkConsumer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/defaultSamplesTransformer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sourceSetMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/pageMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/rootCreator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sourcesetDependencyAppender,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/packageListCreator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/assetsInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/stylesInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/scriptsInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/customResourceInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/navigationSearchInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/navigationPageInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sourceLinksTransformer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/baseSearchbarDataInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/fileWriter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/dokkaLocationProvider,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/javadocLocationProvider,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/locationProvider,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/defaultKotlinAnalysis,
+Extension: com\.google\.devsite\.DevsitePlugin/renderer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/defaultTabSortingStrategy,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sameMethodNameMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/fallbackMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/docTagToContentConverter,
+Extension: com\.google\.devsite\.DevsitePlugin/translator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/extensionsExtractor,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/undocumentedCodeReporter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/inheritorsExtractor,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sinceKotlinTransformer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/actualTypealiasAdder,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/kotlinSignatureProvider,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/modulesAndPackagesDocumentation,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/obviousFunctionsVisbilityFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/documentableVisibilityFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/suppressedBySuppressTagDocumentableFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/suppressedDocumentableFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/deprecatedDocumentableFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/emptyPackagesFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/emptyModulesFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/documentableMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/psiToDocumentableTranslator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/descriptorToDocumentableTranslator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/singleGeneration
+\]
+Suppressed: \[
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/documentableToPageTranslator by Extension: com\.google\.devsite\.DevsitePlugin/translator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/htmlRenderer by Extension: com\.google\.devsite\.DevsitePlugin/renderer
+PROGRESS: Dokka is performing: documentation for
+PROGRESS: Validity check
+PROGRESS: Creating documentation models
+# > Task :docs-tip-of-tree:dackkaDocs
+Conflicting documentation for .*
+PROGRESS: Transforming documentation model before merging
+PROGRESS: Merging documentation models
+PROGRESS: Transforming documentation model after merging
+PROGRESS: Creating pages
+PROGRESS: Transforming pages
+Unused extension points found:.*
+generation completed successfully
+PROGRESS:
+=== TIME MEASUREMENT ===
+Initializing plugins\:   [0-9]+
+Validity check\:     [0-9]+
+Initializing plugins:  [0-9]+
+Validity check:    [0-9]+
+Creating documentation models: [0-9]+
+Transforming documentation model before merging\:    [0-9]+
+Merging documentation models\:     [0-9]+
+Transforming documentation model before merging:   [0-9]+
+Merging documentation models:    [0-9]+
+Transforming documentation model after merging\:    [0-9]+
+Creating pages\:     [0-9]+
+Transforming pages\:    [0-9]+
+Rendering\:  [0-9]+
+Transforming documentation model after merging:   [0-9]+
+Creating pages:    [0-9]+
+Transforming pages:   [0-9]+
+Rendering: [0-9]+
