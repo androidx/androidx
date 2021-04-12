@@ -41,9 +41,7 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
             import androidx.annotation.NonNull;
             import androidx.annotation.Nullable;
             import androidx.fragment.app.DialogFragment;
-            
             public class TestFragment extends DialogFragment {
-            
                 @NonNull
                 @Override
                 public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -60,7 +58,6 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
             import android.app.Dialog
             import android.os.Bundle
             import androidx.fragment.app.DialogFragment
-            
             class Test : DialogFragment() {
                 override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
                     layoutInflater.inflate(R.layout.some_layout, null)
@@ -81,9 +78,7 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
             import androidx.annotation.NonNull;
             import androidx.annotation.Nullable;
             import androidx.fragment.app.DialogFragment;
-            
             public class TestFragment extends DialogFragment {
-            
                 @Nullable
                 @Override
                 public View onCreateView(@NonNull LayoutInflater inflater, 
@@ -109,9 +104,7 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
             import androidx.annotation.NonNull;
             import androidx.annotation.Nullable;
             import androidx.fragment.app.DialogFragment;
-            
             public class TestFragment extends Fragment {
-            
                 @Nullable
                 @Override
                 public View onCreateView(@NonNull LayoutInflater inflater, 
@@ -134,9 +127,7 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
             import androidx.annotation.NonNull
             import androidx.annotation.Nullable
             import androidx.fragment.app.DialogFragment
-            
             class TestFragment : DialogFragment() {
-
                 override fun onCreateView(inflater: LayoutInflater, 
                                             container: ViewGroup?, 
                                             savedInstanceState: Bundle?): View? {
@@ -157,9 +148,7 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
             import androidx.annotation.NonNull
             import androidx.annotation.Nullable
             import androidx.fragment.app.DialogFragment
-            
             class TestFragment : Fragment() {
-
                 fun someFunction() {
                     val li = LayoutInflater.from(requireContext())
                 }
@@ -173,7 +162,7 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-src/foo/TestFragment.java:18: Warning: Use of LayoutInflater.from(requireContext()) detected. Consider using getLayoutInflater() instead [UseGetLayoutInflater]
+src/foo/TestFragment.java:16: Warning: Use of LayoutInflater.from(requireContext()) detected. Consider using getLayoutInflater() instead [UseGetLayoutInflater]
         LayoutInflater li = LayoutInflater.from(requireContext());
                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
@@ -182,8 +171,8 @@ src/foo/TestFragment.java:18: Warning: Use of LayoutInflater.from(requireContext
             .expectWarningCount(1)
             .expectFixDiffs(
                 """
-                    Fix for src/foo/TestFragment.java line 18: Replace with getLayoutInflater():
-                    @@ -18 +18
+                    Fix for src/foo/TestFragment.java line 16: Replace with getLayoutInflater():
+                    @@ -16 +16
                     -         LayoutInflater li = LayoutInflater.from(requireContext());
                     +         LayoutInflater li = getLayoutInflater();
                 """.trimIndent()
@@ -210,7 +199,7 @@ src/foo/TestFragment.java:18: Warning: Use of LayoutInflater.from(requireContext
             .run()
             .expect(
                 """
-src/foo/TestFragment.kt:15: Warning: Use of LayoutInflater.from(Context) detected. Consider using layoutInflater instead [UseGetLayoutInflater]
+src/foo/TestFragment.kt:13: Warning: Use of LayoutInflater.from(Context) detected. Consider using layoutInflater instead [UseGetLayoutInflater]
         val li = LayoutInflater.from(requireContext())
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
