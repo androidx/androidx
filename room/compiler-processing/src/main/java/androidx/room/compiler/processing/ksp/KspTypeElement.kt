@@ -339,8 +339,6 @@ internal sealed class KspTypeElement(
         declaration: KSClassDeclaration
     ) : KspTypeElement(env, declaration), XEnumTypeElement {
         override val enumConstantNames: Set<String> by lazy {
-            // TODO this does not work for java sources
-            // https://github.com/google/ksp/issues/234
             declaration.declarations.filter {
                 it is KSClassDeclaration && it.classKind == ClassKind.ENUM_ENTRY
             }.mapTo(mutableSetOf()) {
