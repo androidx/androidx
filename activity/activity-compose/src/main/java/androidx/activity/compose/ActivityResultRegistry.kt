@@ -113,7 +113,8 @@ public fun <I, O> rememberLauncherForActivityResult(
     contract: ActivityResultContract<I, O>,
     onResult: (O) -> Unit
 ): ActivityResultLauncher<I> {
-    // Keep track of the current onResult listener
+    // Keep track of the current contract and onResult listener
+    val currentContract = rememberUpdatedState(contract)
     val currentOnResult = rememberUpdatedState(onResult)
 
     // It doesn't really matter what the key is, just that it is unique
@@ -123,8 +124,8 @@ public fun <I, O> rememberLauncherForActivityResult(
     val activityResultRegistry = checkNotNull(LocalActivityResultRegistryOwner.current) {
         "No ActivityResultRegistryOwner was provided via LocalActivityResultRegistryOwner"
     }.activityResultRegistry
-    val realLauncher = remember(contract) { ActivityResultLauncherHolder<I>() }
-    val returnedLauncher = remember(contract) {
+    val realLauncher = remember { ActivityResultLauncherHolder<I>() }
+    val returnedLauncher = remember {
         object : ActivityResultLauncher<I>() {
             override fun launch(input: I, options: ActivityOptionsCompat?) {
                 realLauncher.launch(input, options)
@@ -135,7 +136,7 @@ public fun <I, O> rememberLauncherForActivityResult(
             }
 
             @Suppress("UNCHECKED_CAST")
-            override fun getContract() = contract as ActivityResultContract<I, *>
+            override fun getContract() = currentContract.value as ActivityResultContract<I, *>
         }
     }
 
