@@ -17,6 +17,7 @@
 package androidx.navigation.testing
 
 import android.os.Bundle
+import androidx.test.annotation.UiThreadTest
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
@@ -45,6 +46,7 @@ class TestNavHostControllerTest {
         navController = TestNavHostController(ApplicationProvider.getApplicationContext())
     }
 
+    @UiThreadTest
     @Test
     fun testStartBackStack() {
         navController.setGraph(R.navigation.test_graph)
@@ -54,6 +56,7 @@ class TestNavHostControllerTest {
         assertThat(backStack[1].destination.id).isEqualTo(R.id.start_test)
     }
 
+    @UiThreadTest
     @Test
     fun testNavigateBackStack() {
         navController.setGraph(R.navigation.test_graph)
@@ -63,6 +66,7 @@ class TestNavHostControllerTest {
         assertThat(backStack[2].destination.id).isEqualTo(R.id.second_test)
     }
 
+    @UiThreadTest
     @Test
     fun testCustomNavigator() {
         navController.navigatorProvider += TestNavigator()
@@ -72,6 +76,7 @@ class TestNavHostControllerTest {
         assertThat(backStack[1].destination).isInstanceOf(TestNavigator.Destination::class.java)
     }
 
+    @UiThreadTest
     @Test
     fun testDsl() {
         navController.navigatorProvider += NoOpActivityNavigator()
@@ -85,6 +90,7 @@ class TestNavHostControllerTest {
             .isInstanceOf(ActivityNavigator.Destination::class.java)
     }
 
+    @UiThreadTest
     @Test
     fun testSetDestinationId() {
         navController.setGraph(R.navigation.test_graph)
@@ -96,6 +102,7 @@ class TestNavHostControllerTest {
         assertThat(backStack[2].destination.id).isEqualTo(R.id.third_test)
     }
 
+    @UiThreadTest
     @Test
     fun testSetDestinationWithArgs() {
         navController.setGraph(R.navigation.test_graph)
