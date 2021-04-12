@@ -35,9 +35,8 @@ dependencies {
     implementation(KOTLIN_KSP)
     implementation(GOOGLE_COMPILE_TESTING)
     implementation(KOTLIN_COMPILE_TESTING_KSP)
-    // specify these because KSP do not specify them and we might get an older version from kotlin
-    // compile testing
-    // https://github.com/google/ksp/issues/187
+    // specify these to match the kotlin compiler version in AndroidX rather than what KSP or KCT
+    // uses
     implementation(KOTLIN_COMPILER_EMBEDDABLE)
     implementation(KOTLIN_COMPILER_DAEMON_EMBEDDABLE)
     implementation(KOTLIN_ANNOTATION_PROCESSING_EMBEDDABLE)
