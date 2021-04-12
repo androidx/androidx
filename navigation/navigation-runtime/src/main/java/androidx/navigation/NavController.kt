@@ -239,6 +239,7 @@ public open class NavController(
      * @return true if the stack was popped at least once and the user has been navigated to
      * another destination, false otherwise
      */
+    @MainThread
     public open fun popBackStack(): Boolean {
         return if (backQueue.isEmpty()) {
             // Nothing to pop if the back stack is empty
@@ -257,6 +258,7 @@ public open class NavController(
      * @return true if the stack was popped at least once and the user has been navigated to
      * another destination, false otherwise
      */
+    @MainThread
     public open fun popBackStack(@IdRes destinationId: Int, inclusive: Boolean): Boolean {
         val popped = popBackStackInternal(destinationId, inclusive)
         // Only return true if the pop succeeded and we've dispatched
@@ -274,6 +276,7 @@ public open class NavController(
      * @return true if the stack was popped at least once, false otherwise
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @MainThread
     public fun popBackStackInternal(@IdRes destinationId: Int, inclusive: Boolean): Boolean {
         if (backQueue.isEmpty()) {
             // Nothing to pop if the back stack is empty
@@ -340,6 +343,7 @@ public open class NavController(
      *
      * @return true if navigation was successful, false otherwise
      */
+    @MainThread
     public open fun navigateUp(): Boolean {
         return if (destinationCountOnBackStack == 1) {
             // If there's only one entry, then we've deep linked into a specific destination
