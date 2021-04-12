@@ -1669,13 +1669,17 @@ public class WindowInsetsCompat {
             if (mInsetsTypeMask != null) {
                 Insets statusBars = mInsetsTypeMask[Type.indexOf(Type.STATUS_BARS)];
                 Insets navigationBars = mInsetsTypeMask[Type.indexOf(Type.NAVIGATION_BARS)];
-                if (statusBars != null && navigationBars != null) {
-                    setSystemWindowInsets(Insets.max(statusBars, navigationBars));
-                } else if (statusBars != null) {
-                    setSystemWindowInsets(statusBars);
-                } else if (navigationBars != null) {
-                    setSystemWindowInsets(navigationBars);
+
+                // If the insets are not set in the builder, default to the insets passed in
+                // the builder parameter to avoid accidentally setting them to 0
+                if (navigationBars == null) {
+                    navigationBars = mInsets.getInsets(Type.NAVIGATION_BARS);
                 }
+                if (statusBars == null) {
+                    statusBars = mInsets.getInsets(Type.STATUS_BARS);
+                }
+
+                setSystemWindowInsets(Insets.max(statusBars, navigationBars));
 
                 Insets i = mInsetsTypeMask[Type.indexOf(Type.SYSTEM_GESTURES)];
                 if (i != null) setSystemGestureInsets(i);
@@ -1707,21 +1711,22 @@ public class WindowInsetsCompat {
         private static Constructor<WindowInsets> sConstructor;
         private static boolean sConstructorFetched = false;
 
-        private WindowInsets mInsets;
+        private WindowInsets mPlatformInsets;
         private Insets mStableInsets;
 
         BuilderImpl20() {
-            mInsets = createWindowInsetsInstance();
+            mPlatformInsets = createWindowInsetsInstance();
         }
 
         BuilderImpl20(@NonNull WindowInsetsCompat insets) {
-            mInsets = insets.toWindowInsets();
+            super(insets);
+            mPlatformInsets = insets.toWindowInsets();
         }
 
         @Override
         void setSystemWindowInsets(@NonNull Insets insets) {
-            if (mInsets != null) {
-                mInsets = mInsets.replaceSystemWindowInsets(
+            if (mPlatformInsets != null) {
+                mPlatformInsets = mPlatformInsets.replaceSystemWindowInsets(
                         insets.left, insets.top, insets.right, insets.bottom);
             }
         }
@@ -1736,7 +1741,7 @@ public class WindowInsetsCompat {
         WindowInsetsCompat build() {
             applyInsetTypes();
             WindowInsetsCompat windowInsetsCompat = WindowInsetsCompat.toWindowInsetsCompat(
-                    mInsets);
+                    mPlatformInsets);
             windowInsetsCompat.setOverriddenInsets(this.mInsetsTypeMask);
             windowInsetsCompat.setStableInsets(mStableInsets);
             return windowInsetsCompat;
@@ -1801,10 +1806,12 @@ public class WindowInsetsCompat {
         final WindowInsets.Builder mPlatBuilder;
 
         BuilderImpl29() {
+            super();
             mPlatBuilder = new WindowInsets.Builder();
         }
 
         BuilderImpl29(@NonNull WindowInsetsCompat insets) {
+            super(insets);
             final WindowInsets platInsets = insets.toWindowInsets();
             mPlatBuilder = platInsets != null
                     ? new WindowInsets.Builder(platInsets)
