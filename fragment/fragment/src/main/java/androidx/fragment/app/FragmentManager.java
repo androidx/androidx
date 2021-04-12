@@ -3737,7 +3737,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     /** Returns the current policy for this FragmentManager. If no policy is set, returns null. */
     @Nullable
-    @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO: Make API public as soon as we have a few checks
     public FragmentStrictMode.Policy getStrictModePolicy() {
         return mStrictModePolicy;
     }
@@ -3750,7 +3749,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
      *
      * @param policy the policy to put into place
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO: Make API public as soon as we have a few checks
     public void setStrictModePolicy(@Nullable FragmentStrictMode.Policy policy) {
         mStrictModePolicy = policy;
     }
