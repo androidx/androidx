@@ -16,9 +16,6 @@
 
 package androidx.fragment.app.strictmode;
 
-import androidx.annotation.RestrictTo;
-
 /** See #{@link FragmentStrictMode.Policy.Builder#detectSetUserVisibleHint()}. */
-@RestrictTo(RestrictTo.Scope.LIBRARY) // TODO: Make API public as soon as we have a few checks
 public final class SetUserVisibleHintViolation extends Violation {
 }
