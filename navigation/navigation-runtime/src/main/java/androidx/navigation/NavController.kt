@@ -239,6 +239,7 @@ public open class NavController(
      * @return true if the stack was popped at least once and the user has been navigated to
      * another destination, false otherwise
      */
+    @MainThread
     public open fun popBackStack(): Boolean {
         return if (backQueue.isEmpty()) {
             // Nothing to pop if the back stack is empty
@@ -257,7 +258,31 @@ public open class NavController(
      * @return true if the stack was popped at least once and the user has been navigated to
      * another destination, false otherwise
      */
+    @MainThread
     public open fun popBackStack(@IdRes destinationId: Int, inclusive: Boolean): Boolean {
+        return popBackStack(destinationId, inclusive, false)
+    }
+
+    /**
+     * Attempts to pop the controller's back stack back to a specific destination.
+     *
+     * @param destinationId The topmost destination to retain
+     * @param inclusive Whether the given destination should also be popped.
+     * @param saveState Whether the back stack and the state of all destinations between the
+     * current destination and the [destinationId] should be saved for later
+     * restoration via [NavOptions.Builder.setRestoreState] or the `restoreState` attribute using
+     * the same [destinationId] (note: this matching ID is true whether
+     * [inclusive] is true or false).
+     *
+     * @return true if the stack was popped at least once and the user has been navigated to
+     * another destination, false otherwise
+     */
+    @MainThread
+    public open fun popBackStack(
+        @IdRes destinationId: Int,
+        inclusive: Boolean,
+        saveState: Boolean
+    ): Boolean {
         val popped = popBackStackInternal(destinationId, inclusive)
         // Only return true if the pop succeeded and we've dispatched
         // the change to a new destination
@@ -274,6 +299,7 @@ public open class NavController(
      * @return true if the stack was popped at least once, false otherwise
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @MainThread
     public fun popBackStackInternal(@IdRes destinationId: Int, inclusive: Boolean): Boolean {
         if (backQueue.isEmpty()) {
             // Nothing to pop if the back stack is empty
@@ -340,6 +366,7 @@ public open class NavController(
      *
      * @return true if navigation was successful, false otherwise
      */
+    @MainThread
     public open fun navigateUp(): Boolean {
         return if (destinationCountOnBackStack == 1) {
             // If there's only one entry, then we've deep linked into a specific destination
