@@ -19,6 +19,7 @@ package androidx.camera.view;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Display;
@@ -219,7 +220,7 @@ public abstract class CameraController {
     private final ListenableFuture<Void> mInitializationFuture;
 
     CameraController(@NonNull Context context) {
-        mAppContext = context.getApplicationContext();
+        mAppContext = getApplicationContext(context);
         mPreview = new Preview.Builder().build();
         mImageCapture = new ImageCapture.Builder().build();
         mImageAnalysis = new ImageAnalysis.Builder().build();
@@ -246,6 +247,21 @@ public abstract class CameraController {
                 mVideoCapture.setTargetRotation(rotation);
             }
         };
+    }
+
+    /**
+     * Gets the application context and preserves the attribution tag.
+     *
+     * TODO(b/185272953): instrument test getting attribution tag once the view artifact depends
+     * on a core version that has the fix.
+     */
+    private static Context getApplicationContext(@NonNull Context context) {
+        Context applicationContext = context.getApplicationContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return applicationContext.createAttributionContext(context.getAttributionTag());
+        } else {
+            return applicationContext;
+        }
     }
 
     /**
