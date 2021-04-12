@@ -276,7 +276,7 @@ public final class AppSearchImpl implements Closeable {
                 return;
             }
 
-            persistToDisk();
+            persistToDisk(PersistType.Code.FULL);
             mIcingSearchEngineLocked.close();
             mClosedLocked = true;
         } catch (AppSearchException e) {
@@ -1075,22 +1075,32 @@ public final class AppSearchImpl implements Closeable {
     /**
      * Persists all update/delete requests to the disk.
      *
-     * <p>If the app crashes after a call to PersistToDisk(), Icing would be able to fully recover
-     * all data written up to this point without a costly recovery process.
+     * <p>If the app crashes after a call to PersistToDisk with {@link PersistType.Code#FULL}, Icing
+     * would be able to fully recover all data written up to this point without a costly recovery
+     * process.
      *
-     * <p>If the app crashes before a call to PersistToDisk(), Icing would trigger a costly
-     * recovery process in next initialization. After that, Icing would still be able to recover
-     * all written data.
+     * <p>If the app crashes after a call to PersistToDisk with {@link PersistType.Code#LITE}, Icing
+     * would trigger a costly recovery process in next initialization. After that, Icing would still
+     * be able to recover all written data - excepting Usage data. Usage data is only guaranteed
+     * to be safe after a call to PersistToDisk with {@link PersistType.Code#FULL}
+     *
+     * <p>If the app crashes after an update/delete request has been made, but before any call to
+     * PersistToDisk, then all data in Icing will be lost.
+     *
+     * @param persistType the amount of data to persist. {@link PersistType.Code#LITE} will only
+     *                   persist the minimal amount of data to ensure all data can be recovered.
+     *                   {@link PersistType.Code#FULL} will persist all data necessary to
+     *                    prevent data loss without needing data recovery.
      *
      * @throws AppSearchException on any error that AppSearch persist data to disk.
      */
-    public void persistToDisk() throws AppSearchException {
+    public void persistToDisk(@NonNull PersistType.Code persistType) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
 
             PersistToDiskResultProto persistToDiskResultProto =
-                    mIcingSearchEngineLocked.persistToDisk(PersistType.Code.FULL);
+                    mIcingSearchEngineLocked.persistToDisk(persistType);
             checkSuccess(persistToDiskResultProto.getStatus());
         } finally {
             mReadWriteLock.writeLock().unlock();

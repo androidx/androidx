@@ -44,6 +44,7 @@ import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
+import com.google.android.icing.proto.PersistType;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
@@ -217,6 +218,8 @@ class SearchSessionImpl implements AppSearchSession {
                     resultBuilder.setResult(document.getUri(), throwableToFailedResult(t));
                 }
             }
+            // Now that the batch has been written. Persist the newly written data.
+            mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
             mIsMutated = true;
             return resultBuilder.build();
         });
@@ -304,6 +307,8 @@ class SearchSessionImpl implements AppSearchSession {
                     resultBuilder.setResult(uri, throwableToFailedResult(t));
                 }
             }
+            // Now that the batch has been written. Persist the newly written data.
+            mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
             mIsMutated = true;
             return resultBuilder.build();
         });
@@ -320,6 +325,8 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         ListenableFuture<Void> future = execute(() -> {
             mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, queryExpression, searchSpec);
+            // Now that the batch has been written. Persist the newly written data.
+            mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
             mIsMutated = true;
             return null;
         });
@@ -338,7 +345,7 @@ class SearchSessionImpl implements AppSearchSession {
     @Override
     public ListenableFuture<Void> maybeFlush() {
         return execute(() -> {
-            mAppSearchImpl.persistToDisk();
+            mAppSearchImpl.persistToDisk(PersistType.Code.FULL);
             return null;
         });
     }
@@ -349,7 +356,7 @@ class SearchSessionImpl implements AppSearchSession {
         if (mIsMutated && !mIsClosed) {
             // No future is needed here since the method is void.
             FutureUtil.execute(mExecutor, () -> {
-                mAppSearchImpl.persistToDisk();
+                mAppSearchImpl.persistToDisk(PersistType.Code.FULL);
                 mIsClosed = true;
                 return null;
             });
