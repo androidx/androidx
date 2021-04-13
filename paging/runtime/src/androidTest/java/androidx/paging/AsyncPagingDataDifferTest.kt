@@ -49,6 +49,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 private class ListUpdateCapture : ListUpdateCallback {
+    private var lastEventsListIndex = -1
+
     val events = mutableListOf<ListUpdateEvent>()
 
     override fun onChanged(position: Int, count: Int, payload: Any?) {
@@ -65,6 +67,12 @@ private class ListUpdateCapture : ListUpdateCallback {
 
     override fun onRemoved(position: Int, count: Int) {
         events.add(Removed(position, count))
+    }
+
+    fun newEvents(): List<ListUpdateEvent> {
+        return events.drop(lastEventsListIndex + 1).also {
+            lastEventsListIndex = events.lastIndex
+        }
     }
 }
 
@@ -242,30 +250,40 @@ class AsyncPagingDataDifferTest {
             // Load REFRESH [50, 51]
             advanceUntilIdle()
 
-            // Load END [52] to fulfill prefetch distance
+            assertEvents(
+                listOf(
+                    Inserted(0, 100), // [(50 placeholders), 50, 51, (48 placeholders)]
+                ),
+                listUpdateCapture.newEvents()
+            )
+
+            // Load APPEND [52] to fulfill prefetch distance
             differ.getItem(51)
             advanceUntilIdle()
 
+            assertEvents(
+                // TODO(b/182510751): Every change event here should have payload.
+                listOf(
+                    Changed(52, 1, null), // [(50 placeholders), 50, 51, 52, (47 placeholders)]
+                ),
+                listUpdateCapture.newEvents()
+            )
+
             // Load REFRESH [51, 52]
-            // Load START [50] to fulfill prefetch distance of transformed index
+            // Load PREPEND [50] to fulfill prefetch distance of transformed index
             currentPagedSource!!.invalidate()
             advanceUntilIdle()
 
-            // TODO every change event here should have payload and we should also not dispatch
-            //  events with 0 count
-            //  b/182510751
-            val expected = listOf(
-                Inserted(0, 100), // [(50 placeholders), 50, 51, (48 placeholders)]
-                Changed(52, 1, null), // [(50 placeholders), 50, 51, 52, (47 placeholders)]
-                Inserted(53, 0), // ignored
-                // refresh
-                Changed(50, 1, ITEM_TO_PLACEHOLDER), // 50 got unloaded
-                // fix prefetch, 50 got reloaded
-                Changed(50, 1, null), // [(50 placeholders), 50, 51, 52, (47 placeholders)]
-                Inserted(0, 0) // ignored
+            assertEvents(
+                // TODO(b/182510751): Every change event here should have payload.
+                listOf(
+                    // refresh
+                    Changed(50, 1, ITEM_TO_PLACEHOLDER), // 50 got unloaded
+                    // fix prefetch, 50 got reloaded
+                    Changed(50, 1, null), // [(50 placeholders), 50, 51, 52, (47 placeholders)]
+                ),
+                listUpdateCapture.newEvents()
             )
-
-            assertEvents(expected, listUpdateCapture.events)
 
             job.cancel()
         }
