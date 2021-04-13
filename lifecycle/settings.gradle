@@ -20,7 +20,6 @@ apply from: "../playground-common/playground-include-settings.gradle"
 setupPlayground(this, "..")
 selectProjectsFromAndroidX({ name ->
     if (name.startsWith(":lifecycle")) return true
-    if (name == ":activity:activity-compose") return true
     if (name == ":annotation:annotation") return true
     if (name == ":internal-testutils-runtime") return true
     if (name == ":internal-testutils-truth") return true
