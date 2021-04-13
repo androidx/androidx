@@ -2047,6 +2047,19 @@ package androidx.core.provider {
 
 }
 
+package androidx.core.telephony {
+
+  @RequiresApi(22) public class SubscriptionManagerCompat {
+    method public static int getSlotIndex(int);
+  }
+
+  public class TelephonyManagerCompat {
+    method @RequiresPermission(android.Manifest.permission.READ_PHONE_STATE) public static String? getImei(android.telephony.TelephonyManager);
+    method public static int getSubscriptionId(android.telephony.TelephonyManager);
+  }
+
+}
+
 package androidx.core.telephony.mbms {
 
   public final class MbmsHelper {
