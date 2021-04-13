@@ -1711,15 +1711,10 @@ public abstract class Transition implements Cloneable {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void pause(View sceneRoot) {
         if (!mEnded) {
-            ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
-            int numOldAnims = runningAnimators.size();
-            WindowIdImpl windowId = ViewUtils.getWindowId(sceneRoot);
-            for (int i = numOldAnims - 1; i >= 0; i--) {
-                AnimationInfo info = runningAnimators.valueAt(i);
-                if (info.mView != null && windowId.equals(info.mWindowId)) {
-                    Animator anim = runningAnimators.keyAt(i);
-                    AnimatorUtils.pause(anim);
-                }
+            int numAnimators = mCurrentAnimators.size();
+            for (int i = numAnimators - 1; i >= 0; i--) {
+                Animator animator = mCurrentAnimators.get(i);
+                AnimatorUtils.pause(animator);
             }
             if (mListeners != null && mListeners.size() > 0) {
                 @SuppressWarnings("unchecked") ArrayList<TransitionListener> tmpListeners =
@@ -1744,15 +1739,10 @@ public abstract class Transition implements Cloneable {
     public void resume(View sceneRoot) {
         if (mPaused) {
             if (!mEnded) {
-                ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
-                int numOldAnims = runningAnimators.size();
-                WindowIdImpl windowId = ViewUtils.getWindowId(sceneRoot);
-                for (int i = numOldAnims - 1; i >= 0; i--) {
-                    AnimationInfo info = runningAnimators.valueAt(i);
-                    if (info.mView != null && windowId.equals(info.mWindowId)) {
-                        Animator anim = runningAnimators.keyAt(i);
-                        AnimatorUtils.resume(anim);
-                    }
+                int numAnimators = mCurrentAnimators.size();
+                for (int i = numAnimators - 1; i >= 0; i--) {
+                    Animator animator = mCurrentAnimators.get(i);
+                    AnimatorUtils.resume(animator);
                 }
                 if (mListeners != null && mListeners.size() > 0) {
                     @SuppressWarnings("unchecked") ArrayList<TransitionListener> tmpListeners =
