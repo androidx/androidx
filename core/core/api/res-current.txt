@@ -10,6 +10,8 @@ attr fontProviderSystemFontFamily
 attr fontStyle
 attr fontVariationSettings
 attr fontWeight
+attr queryPatterns
+attr shortcutMatchRequired
 attr ttcIndex
 style TextAppearance_Compat_Notification
 style TextAppearance_Compat_Notification_Info
