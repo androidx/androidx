@@ -1,10 +1,10 @@
 // Signature format: 4.0
 package androidx.wear.tiles.manager {
 
-  public final class TileManager implements java.lang.AutoCloseable {
-    ctor public TileManager(android.content.Context context, android.content.ComponentName component, android.view.ViewGroup parentView);
+  public final class TileClient implements java.lang.AutoCloseable {
+    ctor public TileClient(android.content.Context context, android.content.ComponentName component, android.view.ViewGroup parentView);
     method @MainThread public void close();
-    method @MainThread public void create();
+    method @MainThread public void connect();
   }
 
 }

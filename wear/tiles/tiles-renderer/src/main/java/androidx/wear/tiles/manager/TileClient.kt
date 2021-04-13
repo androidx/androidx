@@ -50,14 +50,15 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 
 /**
- * UI manager for a single tile. This handles binding to a Tile Provider, and inflating the given
+ * UI client for a single tile. This handles binding to a Tile Provider, and inflating the given
  * tile contents into the provided parentView. This also handles requested updates, re-fetching the
  * tile on-demand.
  *
- * After creation, you should call {@link #create} to start the initial fetch. Likewise, when the
- * owning activity is destroyed, you should call {@link #close} to shut the manager down.
+ * After creation, you should call {@link #connect} to connect and start the initial fetch.
+ * Likewise, when the owning activity is destroyed, you should call {@link #close} to disconnect
+ * and release resources.
  */
-public class TileManager(
+public class TileClient(
     private val context: Context,
     component: ComponentName,
     private val parentView: ViewGroup
@@ -92,7 +93,7 @@ public class TileManager(
      * the tile provider and request the first tile. It will also trigger any requested updates.
      */
     @MainThread
-    public fun create() {
+    public fun connect() {
         if (isRunning) {
             return
         }
