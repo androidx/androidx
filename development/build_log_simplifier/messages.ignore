@@ -700,6 +700,8 @@ Extension: org\.jetbrains\.dokka\.base\.DokkaBase/htmlRenderer by Extension: com
 PROGRESS: Dokka is performing: documentation for
 PROGRESS: Validity check
 PROGRESS: Creating documentation models
+ERROR: An attempt to write .*
+Generation completed with.*
 # > Task :docs-tip-of-tree:dackkaDocs
 Conflicting documentation for .*
 PROGRESS: Transforming documentation model before merging
