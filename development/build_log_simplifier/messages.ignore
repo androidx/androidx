@@ -713,20 +713,12 @@ Unused extension points found:.*
 generation completed successfully
 PROGRESS:
 === TIME MEASUREMENT ===
-Initializing plugins\:   [0-9]+
-Validity check\:     [0-9]+
-Initializing plugins:  [0-9]+
-Validity check:    [0-9]+
-Creating documentation models: [0-9]+
-Transforming documentation model before merging\:    [0-9]+
-Merging documentation models\:     [0-9]+
-Transforming documentation model before merging:   [0-9]+
-Merging documentation models:    [0-9]+
-Transforming documentation model after merging\:    [0-9]+
-Creating pages\:     [0-9]+
-Transforming pages\:    [0-9]+
-Rendering\:  [0-9]+
-Transforming documentation model after merging:   [0-9]+
-Creating pages:    [0-9]+
-Transforming pages:   [0-9]+
-Rendering: [0-9]+
+Initializing plugins\: *[0-9]+
+Validity check\: *[0-9]+
+Creating documentation models: *[0-9]+
+Transforming documentation model before merging\: *[0-9]+
+Merging documentation models\: *[0-9]+
+Transforming documentation model after merging\: *[0-9]+
+Creating pages\: *[0-9]+
+Transforming pages\: *[0-9]+
+Rendering\: *[0-9]+
