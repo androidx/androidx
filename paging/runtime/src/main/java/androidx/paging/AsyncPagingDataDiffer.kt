@@ -49,15 +49,25 @@ class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
     @Suppress("MemberVisibilityCanBePrivate") // synthetic access
     internal val differCallback = object : DifferCallback {
         override fun onInserted(position: Int, count: Int) {
-            updateCallback.onInserted(position, count)
+            // Ignore if count == 0 as it makes this event a no-op.
+            if (count > 0) {
+                updateCallback.onInserted(position, count)
+            }
         }
 
-        override fun onRemoved(position: Int, count: Int) =
-            updateCallback.onRemoved(position, count)
+        override fun onRemoved(position: Int, count: Int) {
+            // Ignore if count == 0 as it makes this event a no-op.
+            if (count > 0) {
+                updateCallback.onRemoved(position, count)
+            }
+        }
 
         override fun onChanged(position: Int, count: Int) {
-            // NOTE: pass a null payload to convey null -> item, or item -> null
-            updateCallback.onChanged(position, count, null)
+            // Ignore if count == 0 as it makes this event a no-op.
+            if (count > 0) {
+                // NOTE: pass a null payload to convey null -> item, or item -> null
+                updateCallback.onChanged(position, count, null)
+            }
         }
     }
 
