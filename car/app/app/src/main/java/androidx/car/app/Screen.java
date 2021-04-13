@@ -314,6 +314,12 @@ public abstract class Screen implements LifecycleOwner {
     void dispatchLifecycleEvent(Event event) {
         ThreadUtils.runOnMain(
                 () -> {
+                    State currentState = mLifecycleRegistry.getCurrentState();
+                    // Avoid handling further events if the screen is already marked as destroyed.
+                    if (!currentState.isAtLeast(State.INITIALIZED)) {
+                        return;
+                    }
+
                     if (event == Event.ON_DESTROY) {
                         mOnScreenResultListener.onScreenResult(mResult);
                     }
