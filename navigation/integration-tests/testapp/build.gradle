@@ -35,7 +35,7 @@ dependencies {
     implementation(project(":navigation:navigation-fragment-ktx"))
     implementation(project(":navigation:navigation-ui-ktx"))
     implementation(project(":internal-testutils-navigation"), {
-        exclude group: "androidx.navigation", module: "navigation-common-ktx"
+        exclude group: "androidx.navigation", module: "navigation-common"
     })
 }
 
