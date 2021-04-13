@@ -19,6 +19,7 @@ package androidx.car.app;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -29,6 +30,7 @@ import androidx.car.app.model.Template;
 import androidx.car.app.testing.ScreenController;
 import androidx.car.app.testing.TestCarContext;
 import androidx.car.app.testing.TestScreenManager;
+import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.test.core.app.ApplicationProvider;
@@ -125,6 +127,38 @@ public final class ScreenTest {
     public void onDestroy_expectedLifecycleChange() {
         mScreen.dispatchLifecycleEvent(Event.ON_DESTROY);
         assertThat(mScreen.getLifecycle().getCurrentState()).isEqualTo(State.DESTROYED);
+    }
+
+    @Test
+    public void alreadyDestroyed_willNotDispatchMoreEvents() {
+        mScreen.dispatchLifecycleEvent(Event.ON_DESTROY);
+
+        DefaultLifecycleObserver observer = mock(DefaultLifecycleObserver.class);
+        mScreen.getLifecycle().addObserver(observer);
+
+        mScreen.dispatchLifecycleEvent(Event.ON_CREATE);
+        mScreen.dispatchLifecycleEvent(Event.ON_START);
+        mScreen.dispatchLifecycleEvent(Event.ON_RESUME);
+        mScreen.dispatchLifecycleEvent(Event.ON_PAUSE);
+        mScreen.dispatchLifecycleEvent(Event.ON_STOP);
+        mScreen.dispatchLifecycleEvent(Event.ON_DESTROY);
+
+        assertThat(mScreen.getLifecycle().getCurrentState()).isEqualTo(State.DESTROYED);
+        verify(observer, never()).onCreate(any());
+        verify(observer, never()).onStart(any());
+        verify(observer, never()).onResume(any());
+        verify(observer, never()).onPause(any());
+        verify(observer, never()).onStop(any());
+        verify(observer, never()).onDestroy(any());
+    }
+
+    @Test
+    public void alreadyDestroyed_willNotSendResults() {
+        mScreen.dispatchLifecycleEvent(Event.ON_DESTROY);
+        mScreen.setOnScreenResultListener(mMockOnScreenResultListener);
+        mScreen.dispatchLifecycleEvent(Event.ON_RESUME);
+        mScreen.dispatchLifecycleEvent(Event.ON_DESTROY);
+        verify(mMockOnScreenResultListener, never()).onScreenResult(any());
     }
 
     @Test
