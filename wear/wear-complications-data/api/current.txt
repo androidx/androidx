@@ -215,6 +215,11 @@ package androidx.wear.complications.data {
     method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);
     method public boolean isAlwaysEmpty();
     method public boolean returnsSameText(long firstDateTimeMillis, long secondDateTimeMillis);
+    field public static final androidx.wear.complications.data.ComplicationText.Companion Companion;
+    field public static final androidx.wear.complications.data.ComplicationText EMPTY;
+  }
+
+  public static final class ComplicationText.Companion {
   }
 
   public enum ComplicationType {
@@ -304,9 +309,8 @@ package androidx.wear.complications.data {
   }
 
   public static final class MonochromaticImageComplicationData.Builder {
-    ctor public MonochromaticImageComplicationData.Builder(androidx.wear.complications.data.MonochromaticImage monochromaticImage);
+    ctor public MonochromaticImageComplicationData.Builder(androidx.wear.complications.data.MonochromaticImage monochromaticImage, androidx.wear.complications.data.ComplicationText contentDescription);
     method public androidx.wear.complications.data.MonochromaticImageComplicationData build();
-    method public androidx.wear.complications.data.MonochromaticImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.MonochromaticImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.MonochromaticImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
   }
@@ -354,9 +358,8 @@ package androidx.wear.complications.data {
   }
 
   public static final class PhotoImageComplicationData.Builder {
-    ctor public PhotoImageComplicationData.Builder(android.graphics.drawable.Icon photoImage);
+    ctor public PhotoImageComplicationData.Builder(android.graphics.drawable.Icon photoImage, androidx.wear.complications.data.ComplicationText contentDescription);
     method public androidx.wear.complications.data.PhotoImageComplicationData build();
-    method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
   }
@@ -453,9 +456,8 @@ package androidx.wear.complications.data {
   }
 
   public static final class SmallImageComplicationData.Builder {
-    ctor public SmallImageComplicationData.Builder(androidx.wear.complications.data.SmallImage smallImage);
+    ctor public SmallImageComplicationData.Builder(androidx.wear.complications.data.SmallImage smallImage, androidx.wear.complications.data.ComplicationText contentDescription);
     method public androidx.wear.complications.data.SmallImageComplicationData build();
-    method public androidx.wear.complications.data.SmallImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.SmallImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.SmallImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
   }
