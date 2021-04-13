@@ -757,7 +757,6 @@ public abstract class NavType<T> internal constructor(
                 }
                 if (enumConstant.name.equals(value, ignoreCase = true)) {
                     caseInsensitiveMatch = constant
-                    break
                 }
             }
             if (caseInsensitiveMatch != null) return caseInsensitiveMatch
