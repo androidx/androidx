@@ -145,7 +145,6 @@ package androidx.navigation {
     method @MainThread public boolean popBackStack();
     method @MainThread public boolean popBackStack(@IdRes int destinationId, boolean inclusive);
     method @MainThread public boolean popBackStack(@IdRes int destinationId, boolean inclusive, boolean saveState);
-    method @MainThread @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final boolean popBackStackInternal(@IdRes int destinationId, boolean inclusive);
     method public void removeOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener listener);
     method @CallSuper public void restoreState(android.os.Bundle? navState);
     method @CallSuper public android.os.Bundle? saveState();
