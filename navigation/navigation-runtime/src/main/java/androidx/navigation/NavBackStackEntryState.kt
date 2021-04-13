@@ -16,9 +16,11 @@
 package androidx.navigation
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import android.os.Parcel
+import androidx.lifecycle.LifecycleOwner
 import java.util.UUID
 
 @SuppressLint("BanParcelableUsage")
@@ -41,6 +43,22 @@ internal class NavBackStackEntryState : Parcelable {
         destinationId = inParcel.readInt()
         args = inParcel.readBundle(javaClass.classLoader)
         savedState = inParcel.readBundle(javaClass.classLoader)!!
+    }
+
+    fun instantiate(
+        context: Context,
+        destination: NavDestination,
+        lifecycleOwner: LifecycleOwner?,
+        viewModel: NavControllerViewModel?
+    ): NavBackStackEntry {
+        val args = args?.apply {
+            classLoader = context.classLoader
+        }
+        return NavBackStackEntry(
+            context, destination, args,
+            lifecycleOwner, viewModel,
+            uuid, savedState
+        )
     }
 
     override fun describeContents(): Int {

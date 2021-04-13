@@ -108,6 +108,7 @@ public open class NavController(
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val backQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
+    private val backStackStates = mutableMapOf<Int, ArrayDeque<NavBackStackEntryState>>()
     private var lifecycleOwner: LifecycleOwner? = null
     private var viewModel: NavControllerViewModel? = null
     private val onDestinationChangedListeners =
@@ -283,7 +284,7 @@ public open class NavController(
         inclusive: Boolean,
         saveState: Boolean
     ): Boolean {
-        val popped = popBackStackInternal(destinationId, inclusive)
+        val popped = popBackStackInternal(destinationId, inclusive, saveState)
         // Only return true if the pop succeeded and we've dispatched
         // the change to a new destination
         return popped && dispatchOnDestinationChanged()
@@ -295,12 +296,20 @@ public open class NavController(
      *
      * @param destinationId The topmost destination to retain
      * @param inclusive Whether the given destination should also be popped.
+     * @param saveState Whether the back stack and the state of all destinations between the
+     * current destination and the [destinationId] should be saved for later
+     * restoration via [NavOptions.Builder.setRestoreState] or the `restoreState` attribute using
+     * the same [destinationId] (note: this matching ID is true whether
+     * [inclusive] is true or false).
      *
      * @return true if the stack was popped at least once, false otherwise
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @MainThread
-    public fun popBackStackInternal(@IdRes destinationId: Int, inclusive: Boolean): Boolean {
+    private fun popBackStackInternal(
+        @IdRes destinationId: Int,
+        inclusive: Boolean,
+        saveState: Boolean = false
+    ): Boolean {
         if (backQueue.isEmpty()) {
             // Nothing to pop if the back stack is empty
             return false
@@ -335,18 +344,30 @@ public open class NavController(
             return false
         }
         var popped = false
+        val savedState = ArrayDeque<NavBackStackEntryState>()
         for (navigator in popOperations) {
             if (navigator.popBackStack()) {
                 val entry = backQueue.removeLast()
                 if (entry.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+                    if (saveState) {
+                        // Move the state through STOPPED
+                        entry.maxLifecycle = Lifecycle.State.CREATED
+                        // Then save the state of the NavBackStackEntry
+                        savedState.addFirst(NavBackStackEntryState(entry))
+                    }
                     entry.maxLifecycle = Lifecycle.State.DESTROYED
                 }
-                viewModel?.clear(entry.id)
+                if (!saveState) {
+                    viewModel?.clear(entry.id)
+                }
                 popped = true
             } else {
                 // The pop did not complete successfully, so stop immediately
                 break
             }
+        }
+        if (popped && saveState) {
+            backStackStates[destinationId] = savedState
         }
         updateOnBackPressedCallbackEnabled()
         return popped
@@ -615,14 +636,7 @@ public open class NavController(
                             "found from the current destination $currentDestination"
                     )
                 }
-                val args = state.args?.apply {
-                    classLoader = context.classLoader
-                }
-                val entry = NavBackStackEntry(
-                    context, node, args,
-                    lifecycleOwner, viewModel,
-                    state.uuid, state.savedState
-                )
+                val entry = state.instantiate(context, node, lifecycleOwner, viewModel)
                 backQueue.add(entry)
             }
             updateOnBackPressedCallbackEnabled()
@@ -1112,7 +1126,8 @@ public open class NavController(
             if (navOptions.popUpTo != -1) {
                 popped = popBackStackInternal(
                     navOptions.popUpTo,
-                    navOptions.isPopUpToInclusive()
+                    navOptions.isPopUpToInclusive(),
+                    navOptions.shouldPopUpToSaveState()
                 )
             }
         }
@@ -1284,6 +1299,22 @@ public open class NavController(
             }
             b.putParcelableArray(KEY_BACK_STACK, backStack)
         }
+        if (backStackStates.isNotEmpty()) {
+            if (b == null) {
+                b = Bundle()
+            }
+            val backStackStateIds = IntArray(backStackStates.size)
+            var index = 0
+            for ((id, backStackStates) in backStackStates) {
+                backStackStateIds[index++] = id
+                val states = arrayOfNulls<Parcelable>(backStackStates.size)
+                backStackStates.forEachIndexed { stateIndex, backStackState ->
+                    states[stateIndex] = backStackState
+                }
+                b.putParcelableArray(KEY_BACK_STACK_STATES_PREFIX + id, states)
+            }
+            b.putIntArray(KEY_BACK_STACK_STATES_IDS, backStackStateIds)
+        }
         if (deepLinkHandled) {
             if (b == null) {
                 b = Bundle()
@@ -1310,6 +1341,20 @@ public open class NavController(
         navState.classLoader = context.classLoader
         navigatorStateToRestore = navState.getBundle(KEY_NAVIGATOR_STATE)
         backStackToRestore = navState.getParcelableArray(KEY_BACK_STACK)
+        backStackStates.clear()
+        val backStackStateIds = navState.getIntArray(KEY_BACK_STACK_STATES_IDS)
+        backStackStateIds?.forEach { id ->
+            val backStackState = navState.getParcelableArray(KEY_BACK_STACK_STATES_PREFIX + id)
+            if (backStackState != null) {
+                backStackStates[id] = ArrayDeque<NavBackStackEntryState>(
+                    backStackState.size
+                ).apply {
+                    for (parcelable in backStackState) {
+                        add(parcelable as NavBackStackEntryState)
+                    }
+                }
+            }
+        }
         deepLinkHandled = navState.getBoolean(KEY_DEEP_LINK_HANDLED)
     }
 
@@ -1438,6 +1483,10 @@ public open class NavController(
         private const val KEY_NAVIGATOR_STATE_NAMES =
             "android-support-nav:controller:navigatorState:names"
         private const val KEY_BACK_STACK = "android-support-nav:controller:backStack"
+        private const val KEY_BACK_STACK_STATES_IDS =
+            "android-support-nav:controller:backStackStates"
+        private const val KEY_BACK_STACK_STATES_PREFIX =
+            "android-support-nav:controller:backStackStates:"
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_DEEP_LINK_IDS: String = "android-support-nav:controller:deepLinkIds"
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
