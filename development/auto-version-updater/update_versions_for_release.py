@@ -287,7 +287,7 @@ def commit_updates(release_date):
         return
     msg = "'Update versions for release id %s\n\nThis commit was generated from the command:\n%s\n\n%s'" % (release_date, " ".join(sys.argv), "Test: ./gradlew checkApi")
     subprocess.check_call(['git', 'commit', '-m', msg])
-    subprocess.check_call(['yes', '|', 'repo', 'upload', '.', '--cbr', '--label', 'Presubmit-Ready+1'])
+    subprocess.check_output('yes | repo upload . --current-branch --no-verify --label Presubmit-Ready+1', stderr=subprocess.STDOUT, shell=True)
 
 def main(args):
     # Parse arguments and check for existence of build ID or file
