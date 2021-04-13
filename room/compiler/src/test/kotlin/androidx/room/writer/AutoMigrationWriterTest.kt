@@ -35,9 +35,9 @@ class AutoMigrationWriterTest {
             "foo.bar.ValidAutoMigrationWithDefault",
             """
             package foo.bar;
-            import androidx.room.migration.AutoMigrationCallback;
+            import androidx.room.migration.AutoMigrationSpec;
             import androidx.sqlite.db.SupportSQLiteDatabase;
-            interface ValidAutoMigrationWithDefault extends AutoMigrationCallback {}
+            public class ValidAutoMigrationWithDefault implements AutoMigrationSpec {}
             """.trimIndent()
         )
 
@@ -70,6 +70,9 @@ class AutoMigrationWriterTest {
                     renamedTables = mapOf(),
                     deletedTables = listOf()
                 ),
+                specElement = invocation.processingEnv.requireTypeElement(
+                    "foo.bar.ValidAutoMigrationWithDefault"
+                ),
             )
             AutoMigrationWriter(
                 autoMigrationResultWithNewAddedColumn.element,
@@ -95,9 +98,9 @@ class AutoMigrationWriterTest {
             "foo.bar.ValidAutoMigrationWithoutDefault",
             """
             package foo.bar;
-            import androidx.room.migration.AutoMigrationCallback;
+            import androidx.room.migration.AutoMigrationSpec;
             import androidx.sqlite.db.SupportSQLiteDatabase;
-            interface ValidAutoMigrationWithoutDefault extends AutoMigrationCallback {}
+            public class ValidAutoMigrationWithoutDefault implements AutoMigrationSpec {}
             """.trimIndent()
         )
 
@@ -129,6 +132,9 @@ class AutoMigrationWriterTest {
                     complexChangedTables = mapOf(),
                     renamedTables = mapOf(),
                     deletedTables = listOf()
+                ),
+                specElement = invocation.processingEnv.requireTypeElement(
+                    "foo.bar.ValidAutoMigrationWithoutDefault"
                 ),
             )
             AutoMigrationWriter(

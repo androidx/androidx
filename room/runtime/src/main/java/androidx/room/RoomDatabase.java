@@ -190,7 +190,7 @@ public abstract class RoomDatabase {
             boolean migrationExists = configuration.migrationContainer.getMigrations()
                             .containsKey(autoMigration.startVersion);
             if (!migrationExists) {
-                configuration.migrationContainer.addMigrations(autoMigrations);
+                configuration.migrationContainer.addMigrations(autoMigration);
             }
         }
 

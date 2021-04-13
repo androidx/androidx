@@ -188,7 +188,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
 
     @Override
     protected List<Migration> getAutoMigrations() {
-        return Arrays.asList(  );
+        return Arrays.asList();
     }
 
     @Override

@@ -25,8 +25,9 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle.deserialize
-import androidx.room.processor.ProcessorErrors.AUTOMIGRATION_CALLBACK_MUST_BE_INTERFACE
-import androidx.room.processor.ProcessorErrors.autoMigrationElementMustExtendCallback
+import androidx.room.processor.ProcessorErrors.AUTOMIGRATION_SPEC_MUST_BE_CLASS
+import androidx.room.processor.ProcessorErrors.INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC
+import androidx.room.processor.ProcessorErrors.autoMigrationElementMustImplementSpec
 import androidx.room.processor.ProcessorErrors.autoMigrationToVersionMustBeGreaterThanFrom
 import androidx.room.util.DiffException
 import androidx.room.util.SchemaDiffer
@@ -39,7 +40,7 @@ class AutoMigrationProcessor(
     val context: Context,
     val from: Int,
     val to: Int,
-    val callback: XType,
+    val spec: XType,
     val latestDbSchema: DatabaseBundle
 ) {
     /**
@@ -49,31 +50,39 @@ class AutoMigrationProcessor(
      * @return the AutoMigrationResult containing the schema changes detected
      */
     fun process(): AutoMigrationResult? {
-        val callbackElement = callback.typeElement
-        if (!callback.isTypeOf(Any::class)) {
-            if (callbackElement == null) {
-                context.logger.e(element, AUTOMIGRATION_CALLBACK_MUST_BE_INTERFACE)
+        val specElement = if (!spec.isTypeOf(Any::class)) {
+            val typeElement = spec.typeElement
+            if (typeElement == null || typeElement.isInterface() || typeElement.isAbstract()) {
+                context.logger.e(element, AUTOMIGRATION_SPEC_MUST_BE_CLASS)
                 return null
             }
 
-            if (!callbackElement.isInterface()) {
-                context.logger.e(
-                    callbackElement,
-                    AUTOMIGRATION_CALLBACK_MUST_BE_INTERFACE
-                )
-                return null
-            }
+            val constructors = element.getConstructors()
+            context.checker.check(
+                constructors.isEmpty() || constructors.any { it.parameters.isEmpty() },
+                element,
+                ProcessorErrors.AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR
+            )
 
-            val extendsMigrationCallback =
-                context.processingEnv.requireType(RoomTypeNames.AUTO_MIGRATION_CALLBACK)
-                    .isAssignableFrom(callback)
-            if (!extendsMigrationCallback) {
+            context.checker.check(
+                typeElement.enclosingTypeElement == null || typeElement.isStatic(),
+                typeElement,
+                INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC
+            )
+
+            val implementsMigrationSpec =
+                context.processingEnv.requireType(RoomTypeNames.AUTO_MIGRATION_SPEC)
+                    .isAssignableFrom(spec)
+            if (!implementsMigrationSpec) {
                 context.logger.e(
-                    callbackElement,
-                    autoMigrationElementMustExtendCallback(callbackElement.className.simpleName())
+                    typeElement,
+                    autoMigrationElementMustImplementSpec(typeElement.className.simpleName())
                 )
                 return null
             }
+            typeElement
+        } else {
+            null
         }
 
         if (to <= from) {
@@ -97,39 +106,39 @@ class AutoMigrationProcessor(
             }
         }
 
-        val callbackClassName = callbackElement?.className?.simpleName()
-        val deleteColumnEntries = callbackElement?.let { element ->
+        val specClassName = specElement?.className?.simpleName()
+        val deleteColumnEntries = specElement?.let { element ->
             element.getAnnotations(DeleteColumn::class).map {
                 AutoMigrationResult.DeletedColumn(
                     tableName = it.value.tableName,
-                    columnName = it.value.deletedColumnName
+                    columnName = it.value.columnName
                 )
             }
         } ?: emptyList()
 
-        val deleteTableEntries = callbackElement?.let { element ->
+        val deleteTableEntries = specElement?.let { element ->
             element.getAnnotations(DeleteTable::class).map {
                 AutoMigrationResult.DeletedTable(
-                    deletedTableName = it.value.deletedTableName
+                    deletedTableName = it.value.tableName
                 )
             }
         } ?: emptyList()
 
-        val renameTableEntries = callbackElement?.let { element ->
+        val renameTableEntries = specElement?.let { element ->
             element.getAnnotations(RenameTable::class).map {
                 AutoMigrationResult.RenamedTable(
-                    originalTableName = it.value.originalTableName,
-                    newTableName = it.value.newTableName
+                    originalTableName = it.value.fromTableName,
+                    newTableName = it.value.toTableName
                 )
             }
         } ?: emptyList()
 
-        val renameColumnEntries = callbackElement?.let { element ->
+        val renameColumnEntries = specElement?.let { element ->
             element.getAnnotations(RenameColumn::class).map {
                 AutoMigrationResult.RenamedColumn(
                     tableName = it.value.tableName,
-                    originalColumnName = it.value.originalColumnName,
-                    newColumnName = it.value.newColumnName
+                    originalColumnName = it.value.fromColumnName,
+                    newColumnName = it.value.toColumnName
                 )
             }
         } ?: emptyList()
@@ -138,7 +147,7 @@ class AutoMigrationProcessor(
             SchemaDiffer(
                 fromSchemaBundle = fromSchemaBundle,
                 toSchemaBundle = toSchemaBundle,
-                className = callbackClassName,
+                className = specClassName,
                 deleteColumnEntries = deleteColumnEntries,
                 deleteTableEntries = deleteTableEntries,
                 renameTableEntries = renameTableEntries,
@@ -153,7 +162,8 @@ class AutoMigrationProcessor(
             element = element,
             from = fromSchemaBundle.version,
             to = toSchemaBundle.version,
-            schemaDiff = schemaDiff
+            schemaDiff = schemaDiff,
+            specElement = specElement
         )
     }
 

@@ -23,62 +23,127 @@ import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.migration.bundle.PrimaryKeyBundle
 import androidx.room.migration.bundle.SchemaBundle
-import androidx.room.processor.ProcessorErrors.autoMigrationElementMustExtendCallback
+import androidx.room.processor.ProcessorErrors.AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR
+import androidx.room.processor.ProcessorErrors.INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC
 import androidx.room.testing.context
 import org.junit.Test
 
 class AutoMigrationProcessorTest {
     @Test
-    fun testElementIsInterface() {
+    fun testElementHasNoArgConstructor() {
         val source = Source.java(
             "foo.bar.MyAutoMigration",
             """
             package foo.bar;
-            import androidx.room.AutoMigration;
-            class MyAutoMigration implements AutoMigration {}
+            import androidx.room.migration.AutoMigrationSpec;
+            public class MyAutoMigration {
+                public MyAutoMigration (int x) {}
+            }
             """.trimIndent()
         )
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
-                invocation.context,
-                1,
-                2,
-                invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
-                from.database
+                element = invocation.processingEnv.requireTypeElement(
+                    "foo.bar.MyAutoMigration"
+                ),
+                context = invocation.context,
+                from = 1,
+                to = 2,
+                spec = invocation.processingEnv.requireType(
+                    "foo.bar.MyAutoMigration"
+                ),
+                latestDbSchema = from.database
             ).process()
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.AUTOMIGRATION_CALLBACK_MUST_BE_INTERFACE)
+                hasError(AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR)
             }
         }
     }
 
     @Test
-    fun testInterfaceExtendsAutoMigrationInterface() {
+    fun testElementIsClass() {
         val source = Source.java(
             "foo.bar.MyAutoMigration",
             """
             package foo.bar;
-            import androidx.room.migration.AutoMigrationCallback;
-            import androidx.room.AutoMigration;
-            import androidx.sqlite.db.SupportSQLiteDatabase;
-            interface MyAutoMigration {}
+            import androidx.room.migration.AutoMigrationSpec;
+            public interface MyAutoMigration extends AutoMigrationSpec {}
             """.trimIndent()
         )
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
-                invocation.context,
-                1,
-                2,
-                invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
-                from.database
+                element = invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
+                context = invocation.context,
+                from = 1,
+                to = 2,
+                spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
+                latestDbSchema = from.database
+            ).process()
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.AUTOMIGRATION_SPEC_MUST_BE_CLASS)
+            }
+        }
+    }
+
+    @Test
+    fun testInnerClassMustBeStatic() {
+        val source = Source.java(
+            "foo.bar.MyAutoMigrationDb",
+            """
+            package foo.bar;
+            import androidx.room.migration.AutoMigrationSpec;
+            public class MyAutoMigrationDb {
+                class MyAutoMigration implements AutoMigrationSpec {}
+            }
+            """.trimIndent()
+        )
+
+        runProcessorTest(listOf(source)) { invocation ->
+            AutoMigrationProcessor(
+                element = invocation.processingEnv.requireTypeElement(
+                    "foo.bar.MyAutoMigrationDb.MyAutoMigration"
+                ),
+                context = invocation.context,
+                from = 1,
+                to = 2,
+                spec = invocation.processingEnv.requireType(
+                    "foo.bar.MyAutoMigrationDb.MyAutoMigration"
+                ),
+                latestDbSchema = from.database
+            ).process()
+            invocation.assertCompilationResult {
+                hasError(INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC)
+            }
+        }
+    }
+
+    @Test
+    fun testClassImplementsAutoMigrationSpec() {
+        val source = Source.java(
+            "foo.bar.MyAutoMigration",
+            """
+            package foo.bar;
+            import androidx.room.migration.AutoMigrationSpec;
+            import androidx.room.AutoMigration;
+            import androidx.sqlite.db.SupportSQLiteDatabase;
+            public class MyAutoMigration {}
+            """.trimIndent()
+        )
+
+        runProcessorTest(listOf(source)) { invocation ->
+            AutoMigrationProcessor(
+                element = invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
+                context = invocation.context,
+                from = 1,
+                to = 2,
+                spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
+                latestDbSchema = from.database
             ).process()
             invocation.assertCompilationResult {
                 hasError(
-                    autoMigrationElementMustExtendCallback("MyAutoMigration")
+                    ProcessorErrors.autoMigrationElementMustImplementSpec("MyAutoMigration")
                 )
             }
         }

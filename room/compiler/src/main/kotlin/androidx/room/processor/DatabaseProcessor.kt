@@ -142,7 +142,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 context = context,
                 from = autoMigration.from,
                 to = autoMigration.to,
-                callback = it.getAsType("callback")!!,
+                spec = it.getAsType("spec")!!,
                 latestDbSchema = latestDbSchema
             ).process()
         }

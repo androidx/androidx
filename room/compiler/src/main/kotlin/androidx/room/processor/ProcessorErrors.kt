@@ -35,6 +35,7 @@ object ProcessorErrors {
     private fun String.trim(): String {
         return this.trimIndent().replace("\n", " ")
     }
+
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
     val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"
@@ -112,6 +113,7 @@ object ProcessorErrors {
         "Query for @DatabaseView must be a SELECT."
     val VIEW_QUERY_CANNOT_TAKE_ARGUMENTS =
         "Query for @DatabaseView cannot take any arguments."
+
     fun viewCircularReferenceDetected(views: List<String>): String {
         return "Circular reference detected among views: ${views.joinToString(", ")}"
     }
@@ -216,6 +218,7 @@ object ProcessorErrors {
 
     private val DUPLICATE_TABLES_OR_VIEWS =
         "The name \"%s\" is used by multiple entities or views: %s"
+
     fun duplicateTableNames(tableName: String, entityNames: List<String>): String {
         return DUPLICATE_TABLES_OR_VIEWS.format(tableName, entityNames.joinToString(", "))
     }
@@ -809,12 +812,12 @@ object ProcessorErrors {
         return "Invalid query argument: $typeName. It must be a class or an interface."
     }
 
-    val AUTOMIGRATION_CALLBACK_MUST_BE_INTERFACE = "The @AutoMigration callback " +
-        "type must be an interface."
+    val AUTOMIGRATION_SPEC_MUST_BE_CLASS = "The AutoMigration spec " +
+        "type must be a class."
 
-    fun autoMigrationElementMustExtendCallback(callback: String): String {
-        return "The AutoMigration callback " +
-            "$callback must extend the AutoMigrationCallback interface."
+    fun autoMigrationElementMustImplementSpec(spec: String): String {
+        return "The AutoMigration spec " +
+            "$spec must implement the AutoMigrationSpec interface."
     }
 
     // TODO: (b/180389433) If the files don't exist the getSchemaFile() method should return
@@ -855,37 +858,33 @@ object ProcessorErrors {
             AutoMigration Failure in ‘$className’: Column ‘$columnName’ in table ‘$tableName’ has
             been either removed or renamed. Please annotate ‘$className’ with the @RenameColumn
             or @RemoveColumn annotation to specify the change to be performed:
-            1) RENAME: @RenameColumn.Entries(
-                    @RenameColumn(
+            1) RENAME:
+                @RenameColumn(
                         tableName = "$tableName",
                         originalColumnName = "$columnName",
                         newColumnName = <NEW_COLUMN_NAME>
-                    )
                 )
-            2) DELETE: @DeleteColumn.Entries(
-                    @DeleteColumn=(
+            2) DELETE:
+                @DeleteColumn=(
                         tableName = "$tableName",
                         deletedColumnName = "$columnName"
-                    )
                 )
             """
         } else {
             """
-            AutoMigration Failure: Please declare an interface extending 'AutoMigrationCallback',
+            AutoMigration Failure: Please declare an interface extending 'AutoMigrationSpec',
             and annotate with the @RenameColumn or @RemoveColumn annotation to specify the
             change to be performed:
-            1) RENAME: @RenameColumn.Entries(
-                    @RenameColumn(
+            1) RENAME:
+                @RenameColumn(
                         tableName = "$tableName",
                         originalColumnName = "$columnName",
                         newColumnName = <NEW_COLUMN_NAME>
-                    )
                 )
-            2) DELETE: @DeleteColumn.Entries(
-                    @DeleteColumn=(
+            2) DELETE:
+                @DeleteColumn=(
                         tableName = "$tableName",
                         deletedColumnName = "$columnName"
-                    )
                 )
             """
         }
@@ -901,16 +900,16 @@ object ProcessorErrors {
             renamed. Please annotate '$className' with the @RenameTable or @RemoveTable
             annotation to specify the change to be performed:
             1) RENAME: @RenameTable.Entries(
-                    @RenameTable(originalTableName = "$tableName", newTableName = <NEW_TABLE_NAME>))
+                @RenameTable(originalTableName = "$tableName", newTableName = <NEW_TABLE_NAME>))
             2) DELETE: @DeleteTable.Entries(@DeleteTable(deletedTableName = "$tableName"))
             """
         } else {
             """
-            AutoMigration Failure: Please declare an interface extending 'AutoMigrationCallback',
+            AutoMigration Failure: Please declare an interface extending 'AutoMigrationSpec',
             and annotate with the @RenameTable or @RemoveTable
             annotation to specify the change to be performed:
             1) RENAME: @RenameTable.Entries(
-                    @RenameTable(originalTableName = "$tableName", newTableName = <NEW_TABLE_NAME>))
+                @RenameTable(originalTableName = "$tableName", newTableName = <NEW_TABLE_NAME>))
             2) DELETE: @DeleteTable.Entries(@DeleteTable(deletedTableName = "$tableName"))
             """
         }
@@ -929,6 +928,7 @@ object ProcessorErrors {
     fun conflictingRenameTableAnnotationsFound(annotations: String): String {
         return "Conflicting @RenameTable annotations found: [$annotations]"
     }
+
     fun conflictingRenameColumnAnnotationsFound(annotations: String): String {
         return "Conflicting @RenameColumn annotations found: [$annotations]"
     }
@@ -944,4 +944,10 @@ object ProcessorErrors {
 
     val FTS_TABLE_NOT_CURRENTLY_SUPPORTED = "Schemas involving FTS tables are not currently " +
         "supported."
+    val INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC = "An inner class AutoMigrationSpec must be" +
+        " static."
+
+    val AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR = "Classes that are used as " +
+        "AutoMigrationSpec " +
+        "implementations must have no-argument public constructors."
 }

@@ -16,8 +16,6 @@
 
 package androidx.room;
 
-import androidx.annotation.RestrictTo;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -25,26 +23,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Repeatable annotation to be used by the user in specifying deleted tables between the old and
- * new versions of one database.
+ * Repeatable annotation declaring the deleted tables in the {@link AutoMigration#to} version of
+ * an auto migration.
  *
- * @hide
+ * @see AutoMigration
  */
 @Repeatable(DeleteTable.Entries.class)
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public @interface DeleteTable {
     /**
-     * Name of the table in the previous version of the database to be deleted.
+     * Name of the table in the {@link AutoMigration#from} version of the database to be deleted.
      *
      * @return Name of the table.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    String deletedTableName();
+    String tableName();
 
+    /**
+     * Container annotation for the repeatable annotation {@link DeleteTable}.
+     */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.CLASS)
     @interface Entries {

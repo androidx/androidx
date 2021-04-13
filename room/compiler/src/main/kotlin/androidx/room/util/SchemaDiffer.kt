@@ -61,7 +61,7 @@ data class SchemaDiffResult(
  *
  * @param fromSchemaBundle Original database schema to migrate from
  * @param toSchemaBundle New database schema to migrate to
- * @param className Name of the user implemented AutoMigrationCallback interface, if available
+ * @param className Name of the user implemented AutoMigrationSpec interface, if available
  * @param renameColumnEntries List of repeatable annotations specifying column renames
  * @param deleteColumnEntries List of repeatable annotations specifying column deletes
  * @param renameTableEntries List of repeatable annotations specifying table renames

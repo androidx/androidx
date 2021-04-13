@@ -16,8 +16,6 @@
 
 package androidx.room;
 
-import androidx.annotation.RestrictTo;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -25,36 +23,33 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Repeatable annotation to be used by the user in specifying deleted columns in the new versions
- * of one database.
+ * Repeatable annotation declaring the deleted columns in the {@link AutoMigration#to} version of
+ * an auto migration.
  *
- * @hide
+ * @see AutoMigration
  */
 @Repeatable(DeleteColumn.Entries.class)
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public @interface DeleteColumn {
     /**
-     * Name of the table in the previous version of the database the column was deleted from.
+     * Name of the table in the {@link AutoMigration#from} version of the database the column was
+     * deleted from.
      *
      * @return Name of the table
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     String tableName();
 
     /**
-     * Name of the column deleted in the new version of the database.
+     * Name of the column deleted in the {@link AutoMigration#to} version of the database.
      *
      * @return Name of the column.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    String deletedColumnName();
+    String columnName();
 
+    /**
+     * Container annotation for the repeatable annotation {@link DeleteColumn}.
+     */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.CLASS)
     @interface Entries {
