@@ -16,8 +16,6 @@
 
 package androidx.room;
 
-import androidx.annotation.RestrictTo;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -25,46 +23,41 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Repeatable annotation to be used by the user in specifying renamed columns between the old and
- * new versions of one database.
+ * Repeatable annotation declaring the renamed columns in the {@link AutoMigration#to} version of
+ * an auto migration.
  *
- * @hide
+ * @see AutoMigration
  */
 @Repeatable(RenameColumn.Entries.class)
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public @interface RenameColumn {
     /**
-     * Name of the table the renamed column is found in.
+     * Name of the table in the {@link AutoMigration#from} version of the database the renamed
+     * column is found in. The name in {@link AutoMigration#from} version is used in case the table
+     * was renamed in the {@link AutoMigration#to} version.
      *
      * @return Name of the table
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     String tableName();
 
     /**
-     * Original name of the column to be renamed from.
+     * Name of the column in the {@link AutoMigration#from} version of the database.
      *
-     * @return Name of the column in the previous version of the database.
-     *
-     * @hide
+     * @return Name of the column.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    String originalColumnName();
+    String fromColumnName();
 
     /**
-     * New name of the column to be renamed to.
+     * Name of the column in the {@link AutoMigration#to} version of the database.
      *
-     * @return Name of the column in the new version of the database.
-     *
-     * @hide
+     * @return Name of the column.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    String newColumnName();
+    String toColumnName();
 
+    /**
+     * Container annotation for the repeatable annotation {@link RenameColumn}.
+     */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.CLASS)
     @interface Entries {

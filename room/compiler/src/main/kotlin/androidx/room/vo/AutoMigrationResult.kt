@@ -29,6 +29,7 @@ data class AutoMigrationResult(
     val element: XTypeElement,
     val from: Int?,
     val to: Int?,
+    val specElement: XTypeElement?,
     val schemaDiff: SchemaDiffResult
 ) {
     val implTypeName: ClassName by lazy {
@@ -37,6 +38,8 @@ data class AutoMigrationResult(
             "AutoMigration_${from}_${to}_Impl"
         )
     }
+
+    val specClassName = specElement?.className
 
     /**
      * Stores the table name and the relevant field bundle of a column that was added to a

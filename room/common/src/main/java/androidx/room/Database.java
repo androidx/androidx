@@ -57,13 +57,19 @@ import java.lang.annotation.Target;
  * <p>
  * Room also verifies all of your queries in {@link Dao} classes while the application is being
  * compiled so that if there is a problem in one of the queries, you will be notified instantly.
+ * <p>
+ * To automatically generate a migration between two versions of the database, assuming you have
+ * the relevant schema files, you are recommended to use {@link AutoMigration} annotations. Note
+ * that if an autoMigration is defined in a database, {@code exportSchema} must be {@code true}.
+ *
  * @see Dao
  * @see Entity
+ * @see AutoMigration
  * @see androidx.room.RoomDatabase RoomDatabase
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
-public @interface  Database {
+public @interface Database {
     /**
      * The list of entities included in the database. Each entity turns into a table in the
      * database.
