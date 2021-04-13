@@ -285,7 +285,7 @@ def commit_updates(release_date):
     staged_changes = subprocess.check_output('git diff --cached', stderr=subprocess.STDOUT, shell=True)
     if not staged_changes:
         return
-    msg = "Update versions for release id %s\n\nThis commit was generated from the command:\n%s\n\n%s" % (release_date, " ".join(sys.argv), 'Test: ./gradlew checkApi')
+    msg = "'Update versions for release id %s\n\nThis commit was generated from the command:\n%s\n\n%s'" % (release_date, " ".join(sys.argv), "Test: ./gradlew checkApi")
     subprocess.check_call(['git', 'commit', '-m', msg])
     subprocess.check_call(['yes', '|', 'repo', 'upload', '.', '--cbr', '--label', 'Presubmit-Ready+1'])
 
