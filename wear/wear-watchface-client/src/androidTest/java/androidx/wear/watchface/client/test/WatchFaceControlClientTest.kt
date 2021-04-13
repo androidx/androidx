@@ -250,7 +250,7 @@ public class WatchFaceControlClientTest {
         assertThat(leftComplicationDetails.bounds).isEqualTo(Rect(80, 160, 160, 240))
         assertThat(leftComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
         assertThat(leftComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
-            SystemProviders.DAY_OF_WEEK
+            SystemProviders.PROVIDER_DAY_OF_WEEK
         )
         assertThat(leftComplicationDetails.defaultProviderType).isEqualTo(
             ComplicationType.SHORT_TEXT
@@ -270,7 +270,7 @@ public class WatchFaceControlClientTest {
         assertThat(rightComplicationDetails.bounds).isEqualTo(Rect(240, 160, 320, 240))
         assertThat(rightComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
         assertThat(rightComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
-            SystemProviders.STEP_COUNT
+            SystemProviders.PROVIDER_STEP_COUNT
         )
         assertThat(rightComplicationDetails.defaultProviderType).isEqualTo(
             ComplicationType.SHORT_TEXT
@@ -450,7 +450,7 @@ public class WatchFaceControlClientTest {
         assertThat(leftComplicationDetails.bounds).isEqualTo(Rect(80, 160, 160, 240))
         assertThat(leftComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
         assertThat(leftComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
-            SystemProviders.DAY_OF_WEEK
+            SystemProviders.PROVIDER_DAY_OF_WEEK
         )
         assertThat(leftComplicationDetails.defaultProviderType).isEqualTo(
             ComplicationType.SHORT_TEXT
@@ -473,7 +473,7 @@ public class WatchFaceControlClientTest {
         assertThat(rightComplicationDetails.bounds).isEqualTo(Rect(240, 160, 320, 240))
         assertThat(rightComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
         assertThat(rightComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
-            SystemProviders.STEP_COUNT
+            SystemProviders.PROVIDER_STEP_COUNT
         )
         assertThat(rightComplicationDetails.defaultProviderType).isEqualTo(
             ComplicationType.SHORT_TEXT

@@ -182,7 +182,7 @@ public class WatchFaceServiceTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
             ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
@@ -203,7 +203,7 @@ public class WatchFaceServiceTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
             ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
@@ -225,7 +225,7 @@ public class WatchFaceServiceTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
             ComplicationBounds(RectF(0.0f, 0.4f, 0.4f, 0.6f)),
             edgeComplicationHitTester
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
@@ -1572,7 +1572,7 @@ public class WatchFaceServiceTest {
             DefaultComplicationProviderPolicy(
                 provider1,
                 provider2,
-                SystemProviders.SUNRISE_SUNSET
+                SystemProviders.PROVIDER_SUNRISE_SUNSET
             ),
             ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
@@ -1584,7 +1584,7 @@ public class WatchFaceServiceTest {
         verify(iWatchFaceService).setDefaultComplicationProviderWithFallbacks(
             LEFT_COMPLICATION_ID,
             listOf(provider1, provider2),
-            SystemProviders.SUNRISE_SUNSET,
+            SystemProviders.PROVIDER_SUNRISE_SUNSET,
             ComplicationData.TYPE_SHORT_TEXT
         )
     }
@@ -1600,7 +1600,7 @@ public class WatchFaceServiceTest {
             DefaultComplicationProviderPolicy(
                 provider1,
                 provider2,
-                SystemProviders.SUNRISE_SUNSET
+                SystemProviders.PROVIDER_SUNRISE_SUNSET
             ),
             ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
@@ -1621,7 +1621,9 @@ public class WatchFaceServiceTest {
             LEFT_COMPLICATION_ID, provider1, ComplicationData.TYPE_SHORT_TEXT
         )
         verify(iWatchFaceService).setDefaultSystemComplicationProvider(
-            LEFT_COMPLICATION_ID, SystemProviders.SUNRISE_SUNSET, ComplicationData.TYPE_SHORT_TEXT
+            LEFT_COMPLICATION_ID,
+            SystemProviders.PROVIDER_SUNRISE_SUNSET,
+            ComplicationData.TYPE_SHORT_TEXT
         )
     }
 
