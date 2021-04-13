@@ -1,5 +1,3 @@
-import static androidx.build.dependencies.DependenciesKt.getKOTLIN_STDLIB
-
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -16,23 +14,17 @@ import static androidx.build.dependencies.DependenciesKt.getKOTLIN_STDLIB
  * limitations under the License.
  */
 
-plugins {
-    id("AndroidXPlugin")
-    id("com.android.library")
-}
+package androidx.car.app.connection;
 
-android {
-    defaultConfig {
-        minSdkVersion 23
+import androidx.car.app.connection.ConnectionToCar.ConnectionType;
+import androidx.lifecycle.LiveData;
+
+/**
+ * A {@link LiveData} that always returns that it is connected natively to a car head unit.
+ */
+final class AutomotiveConnectionToCarTypeLiveData extends LiveData<@ConnectionType Integer> {
+    @Override
+    protected void onActive() {
+        setValue(ConnectionToCar.NATIVE);
     }
-}
-
-dependencies {
-    implementation(project(":car:app:app"))
-
-    api(KOTLIN_STDLIB)
-    implementation 'androidx.core:core:1.5.0-alpha01'
-    implementation project(path: ':annotation:annotation-experimental')
-    implementation 'androidx.lifecycle:lifecycle-livedata:2.3.1'
-    implementation 'androidx.activity:activity:1.2.3'
 }
