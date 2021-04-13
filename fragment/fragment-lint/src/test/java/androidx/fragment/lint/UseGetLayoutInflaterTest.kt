@@ -81,13 +81,12 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
             public class TestFragment extends DialogFragment {
                 @Nullable
                 @Override
-                public View onCreateView(@NonNull LayoutInflater inflater, 
-                                            @Nullable ViewGroup container, 
+                public View onCreateView(@NonNull LayoutInflater inflater,
+                                            @Nullable ViewGroup container,
                                             @Nullable Bundle savedInstanceState) {
                     LayoutInflater li = LayoutInflater.from(requireContext());
-                    
                     // this  will not be triggered
-                    LayoutInflater123 li123 = LayoutInflater123.from(requireContext()); 
+                    LayoutInflater123 li123 = LayoutInflater123.from(requireContext());
                     return super.onCreateView(inflater, container, savedInstanceState);
                 }
             }
@@ -107,8 +106,8 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
             public class TestFragment extends Fragment {
                 @Nullable
                 @Override
-                public View onCreateView(@NonNull LayoutInflater inflater, 
-                                            @Nullable ViewGroup container, 
+                public View onCreateView(@NonNull LayoutInflater inflater,
+                                            @Nullable ViewGroup container,
                                             @Nullable Bundle savedInstanceState) {
                     LayoutInflater li = LayoutInflater.from(requireContext());
                     return super.onCreateView(inflater, container, savedInstanceState);
@@ -128,8 +127,8 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
             import androidx.annotation.Nullable
             import androidx.fragment.app.DialogFragment
             class TestFragment : DialogFragment() {
-                override fun onCreateView(inflater: LayoutInflater, 
-                                            container: ViewGroup?, 
+                override fun onCreateView(inflater: LayoutInflater,
+                                            container: ViewGroup?,
                                             savedInstanceState: Bundle?): View? {
                     val li = LayoutInflater.from(requireContext())
                     return super.onCreateView(inflater, container, savedInstanceState)
