@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
- * Holder for ProtoTiles' TileEnterEvent class, to be parceled and transferred to a tile provider.
+ * Holder for Tiles' TileEnterEvent class, to be parceled and transferred to a tile provider.
  *
  * <p>All this does is to serialize TileEnterEvent as a protobuf and transmit it.
  *

@@ -3,7 +3,6 @@ syntax = "proto3";
 
 package androidx.wear.tiles.proto;
 
-
 option java_package = "androidx.wear.tiles.proto";
 option java_outer_classname = "EventProto";
 

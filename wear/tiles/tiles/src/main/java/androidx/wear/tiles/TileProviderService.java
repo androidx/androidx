@@ -93,7 +93,7 @@ public abstract class TileProviderService extends Service {
      * this may be called from a background thread.
      *
      * @param requestParams Parameters about the request. See {@link ResourcesRequest} for more
-     *                      info.
+     *     info.
      */
     @MainThread
     @NonNull
@@ -104,8 +104,7 @@ public abstract class TileProviderService extends Service {
      * Called when a tile provided by this Tile Provider is added to the carousel. Note that this
      * may be called from a background thread.
      *
-     * @param requestParams Parameters about the request. See {@link TileAddEvent} for more
-     *     info.
+     * @param requestParams Parameters about the request. See {@link TileAddEvent} for more info.
      */
     @MainThread
     protected void onTileAddEvent(@NonNull TileAddEvent requestParams) {}
@@ -114,8 +113,7 @@ public abstract class TileProviderService extends Service {
      * Called when a tile provided by this Tile Provider is removed from the carousel. Note that
      * this may be called from a background thread.
      *
-     * @param requestParams Parameters about the request. See {@link TileRemoveEvent} for more
-     *     info.
+     * @param requestParams Parameters about the request. See {@link TileRemoveEvent} for more info.
      */
     @MainThread
     protected void onTileRemoveEvent(@NonNull TileRemoveEvent requestParams) {}
@@ -124,8 +122,7 @@ public abstract class TileProviderService extends Service {
      * Called when a tile provided by this Tile Provider becomes into view, on screen. Note that
      * this may be called from a background thread.
      *
-     * @param requestParams Parameters about the request. See {@link TileEnterEvent} for more
-     *     info.
+     * @param requestParams Parameters about the request. See {@link TileEnterEvent} for more info.
      */
     @MainThread
     protected void onTileEnterEvent(@NonNull TileEnterEvent requestParams) {}
@@ -134,8 +131,7 @@ public abstract class TileProviderService extends Service {
      * Called when a tile provided by this Tile Provider goes out of view, on screen. Note that this
      * may be called from a background thread.
      *
-     * @param requestParams Parameters about the request. See {@link TileLeaveEvent} for more
-     *     info.
+     * @param requestParams Parameters about the request. See {@link TileLeaveEvent} for more info.
      */
     @MainThread
     protected void onTileLeaveEvent(@NonNull TileLeaveEvent requestParams) {}

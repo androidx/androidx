@@ -73,17 +73,18 @@ public class TilesTimelineManager {
             @NonNull TimelineBuilders.Timeline timeline,
             int token,
             @NonNull Executor listenerExecutor,
-            @NonNull Listener listener
-    ) {
-        mManager = new TilesTimelineManagerInternal(
-                alarmManager,
-                () -> clock.getCurrentTimeMillis(),
-                timeline.toProto(),
-                token,
-                listenerExecutor,
-                (t, entry) -> listener.onLayoutUpdate(t,
-                        LayoutElementBuilders.Layout.fromProto(entry.getLayout()))
-        );
+            @NonNull Listener listener) {
+        mManager =
+                new TilesTimelineManagerInternal(
+                        alarmManager,
+                        () -> clock.getCurrentTimeMillis(),
+                        timeline.toProto(),
+                        token,
+                        listenerExecutor,
+                        (t, entry) ->
+                                listener.onLayoutUpdate(
+                                        t,
+                                        LayoutElementBuilders.Layout.fromProto(entry.getLayout())));
     }
 
     /**

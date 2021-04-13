@@ -53,7 +53,7 @@ import androidx.wear.tiles.renderer.R;
  * concatenate multiple curved texts, also layout together with other widgets such as icons.
  */
 // TODO(b/174649543): Replace this with the actual androidx.wear.widget.WearCurvedTextView when
-// we've reconciled the two.
+// the next stable release of it is ready.
 public final class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutWidget {
     private static final float UNSET_ANCHOR_DEGREE = -1f;
     private static final int UNSET_ANCHOR_TYPE = -1;
@@ -145,7 +145,7 @@ public final class WearCurvedTextView extends View implements WearArcLayout.ArcL
 
         // read the other supported TextView attributes
         if (a.hasValue(R.styleable.WearCurvedTextView_android_text)) {
-            mText = a.getString(R.styleable.WearCurvedTextView_android_text);
+            mText = nullToEmpty(a.getString(R.styleable.WearCurvedTextView_android_text));
         }
 
         int textEllipsize = a.getInt(R.styleable.WearCurvedTextView_android_ellipsize, 0);
@@ -564,7 +564,7 @@ public final class WearCurvedTextView extends View implements WearArcLayout.ArcL
         // setFontFeatureSettings does accept null, but is not annotated as such. Empty string does
         // the
         // same thing though.
-        mPaint.setFontFeatureSettings(attributes.mFontFeatureSettings);
+        mPaint.setFontFeatureSettings(nullToEmpty(attributes.mFontFeatureSettings));
         mFontFeatureSettings = attributes.mFontFeatureSettings;
         if (Build.VERSION.SDK_INT >= 26 && attributes.mFontVariationSettings != null) {
             Api26Impl.paintSetFontVariationSettings(mPaint, attributes.mFontVariationSettings);
@@ -726,7 +726,7 @@ public final class WearCurvedTextView extends View implements WearArcLayout.ArcL
 
     /** sets the text to be rendered */
     public void setText(@Nullable String value) {
-        mText = value == null ? "" : value;
+        mText = nullToEmpty(value);
         doUpdate();
     }
 
@@ -912,6 +912,15 @@ public final class WearCurvedTextView extends View implements WearArcLayout.ArcL
         if (mPaint.getFlags() != flags) {
             mPaint.setFlags(flags);
             doUpdate();
+        }
+    }
+
+    @NonNull
+    private String nullToEmpty(@Nullable String str) {
+        if (str == null) {
+            return "";
+        } else {
+            return str;
         }
     }
 

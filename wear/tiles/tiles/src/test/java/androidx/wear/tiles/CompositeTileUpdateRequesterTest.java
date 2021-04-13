@@ -46,8 +46,9 @@ public class CompositeTileUpdateRequesterTest {
         mFakeUpdateRequester1 = new FakeUpdateRequester();
         mFakeUpdateRequester2 = new FakeUpdateRequester();
 
-        mCompositeTileUpdateRequesterUnderTest = new CompositeTileUpdateRequester(
-                List.of(mFakeUpdateRequester1, mFakeUpdateRequester2));
+        mCompositeTileUpdateRequesterUnderTest =
+                new CompositeTileUpdateRequester(
+                        List.of(mFakeUpdateRequester1, mFakeUpdateRequester2));
     }
 
     @Test
@@ -62,8 +63,7 @@ public class CompositeTileUpdateRequesterTest {
         @Nullable Class<? extends Service> mCalledService = null;
 
         @Override
-        public void requestUpdate(
-                @NonNull Class<? extends Service> tileProvider) {
+        public void requestUpdate(@NonNull Class<? extends Service> tileProvider) {
             this.mCalledService = tileProvider;
         }
     }

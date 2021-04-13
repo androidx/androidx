@@ -42,7 +42,7 @@ public class ResourceAccessors {
     @Nullable private final InlineImageResourceAccessor mInlineImageResourceAccessor;
 
     ResourceAccessors(
-            ResourceProto.Resources protoResources,
+            @NonNull ResourceProto.Resources protoResources,
             @Nullable AndroidImageResourceByResIdAccessor androidImageResourceByResIdAccessor,
             @Nullable InlineImageResourceAccessor inlineImageResourceAccessor) {
         this.mProtoResources = protoResources;
@@ -83,17 +83,14 @@ public class ResourceAccessors {
 
     /** Get the drawable corresponding to the given resource ID. */
     @NonNull
-    @SuppressLint("RestrictedApi") // TODO(b/183006740): Remove when prefix check is fixed.
     public ListenableFuture<Drawable> getDrawable(@NonNull String protoResourceId) {
-        ResolvableFuture<Drawable> errorFuture = ResolvableFuture.create();
         ResourceProto.ImageResource imageResource =
                 mProtoResources.getIdToImageMap().get(protoResourceId);
 
         if (imageResource == null) {
-            errorFuture.setException(
+            return createFailedFuture(
                     new IllegalArgumentException(
                             "Resource " + protoResourceId + " is not defined in resources bundle"));
-            return errorFuture;
         }
 
         if (imageResource.hasAndroidResourceByResid()
@@ -107,19 +104,32 @@ public class ResourceAccessors {
             return accessor.getDrawable(imageResource.getInlineResource());
         }
 
-        errorFuture.setException(
-                new IllegalArgumentException(
-                        new ResourceAccessException("Can't find accessor for image resource.")));
+        return createFailedFuture(
+                new ResourceAccessException(
+                        "Can't find accessor for image resource " + protoResourceId));
+    }
+
+    @SuppressLint("RestrictedApi") // TODO(b/183006740): Remove when prefix check is fixed.
+    static <T> ListenableFuture<T> createImmediateFuture(@NonNull T value) {
+        ResolvableFuture<T> future = ResolvableFuture.create();
+        future.set(value);
+        return future;
+    }
+
+    @SuppressLint("RestrictedApi") // TODO(b/183006740): Remove when prefix check is fixed.
+    static <T> ListenableFuture<T> createFailedFuture(@NonNull Throwable throwable) {
+        ResolvableFuture<T> errorFuture = ResolvableFuture.create();
+        errorFuture.setException(throwable);
         return errorFuture;
     }
 
     /** Builder for ResourceProviders */
     public static final class Builder {
-        private final ResourceProto.Resources mProtoResources;
+        @NonNull private final ResourceProto.Resources mProtoResources;
         @Nullable private AndroidImageResourceByResIdAccessor mAndroidImageResourceByResIdAccessor;
         @Nullable private InlineImageResourceAccessor mInlineImageResourceAccessor;
 
-        Builder(ResourceProto.Resources protoResources) {
+        Builder(@NonNull ResourceProto.Resources protoResources) {
             this.mProtoResources = protoResources;
         }
 
