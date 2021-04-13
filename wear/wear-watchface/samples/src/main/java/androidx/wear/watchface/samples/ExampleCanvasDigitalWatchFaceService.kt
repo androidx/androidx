@@ -43,7 +43,6 @@ import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
@@ -53,6 +52,7 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -765,7 +765,8 @@ class ExampleDigitalWatchCanvasRenderer(
                     // the styles are defined in XML so we need to replace the complication's
                     // drawables.
                     for ((_, complication) in complicationsManager.complications) {
-                        complication.renderer.drawable = watchFaceColorStyle.getDrawable(context)!!
+                        (complication.renderer as CanvasComplicationDrawable).drawable =
+                            watchFaceColorStyle.getDrawable(context)!!
                     }
 
                     clearDigitBitmapCache()
