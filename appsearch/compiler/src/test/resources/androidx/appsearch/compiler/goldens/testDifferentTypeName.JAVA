@@ -6,7 +6,9 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Override;
 import java.lang.String;
+import javax.annotation.Generated;
 
+@Generated("androidx.appsearch.compiler.AppSearchCompiler")
 public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public static final String SCHEMA_NAME = "DifferentType";
 

@@ -18,6 +18,7 @@ package androidx.appsearch.compiler;
 
 import androidx.annotation.NonNull;
 
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -27,6 +28,7 @@ import com.squareup.javapoet.TypeSpec;
 import java.io.File;
 import java.io.IOException;
 
+import javax.annotation.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 
@@ -95,6 +97,12 @@ class CodeGenerator {
                 .addOriginatingElement(mModel.getClassElement())
                 .addModifiers(Modifier.PUBLIC)
                 .addSuperinterface(factoryType);
+
+        // Add the @Generated annotation to avoid static analysis running on these files
+        genClass.addAnnotation(
+                AnnotationSpec.builder(Generated.class)
+                        .addMember("value", "$S", AppSearchCompiler.class.getCanonicalName())
+                        .build());
 
         SchemaCodeGenerator.generate(mEnv, mModel, genClass);
         ToGenericDocumentCodeGenerator.generate(mEnv, mModel, genClass);

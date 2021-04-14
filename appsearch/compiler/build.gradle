@@ -26,6 +26,7 @@ plugins {
 
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
+    api(JSR250)
     implementation(AUTO_COMMON)
     implementation(JAVAPOET)
 

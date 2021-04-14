@@ -9,7 +9,9 @@ import java.lang.Override;
 import java.lang.String;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Generated;
 
+@Generated("androidx.appsearch.compiler.AppSearchCompiler")
 public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public static final String SCHEMA_NAME = "Gift";
 
