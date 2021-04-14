@@ -83,7 +83,7 @@ internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
     // 10 is just a random number that limits the size of the candidate list
     val heapSize = 10
     // min heap that will hold [heapSize] many words with max length
-    val longestWordCandidates = PriorityQueue<Pair<Int, Int>>(
+    val longestWordCandidates = PriorityQueue(
         heapSize,
         Comparator<Pair<Int, Int>> { left, right ->
             (left.second - left.first) - (right.second - right.first)
