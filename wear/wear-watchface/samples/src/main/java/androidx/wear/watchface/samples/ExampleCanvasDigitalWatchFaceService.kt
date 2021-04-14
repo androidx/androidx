@@ -48,13 +48,12 @@ import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
-import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.style.Layer
+import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
@@ -493,7 +492,11 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
             ),
-            listOf(Layer.BASE, Layer.COMPLICATIONS, Layer.COMPLICATIONS_OVERLAY)
+            listOf(
+                WatchFaceLayer.BASE,
+                WatchFaceLayer.COMPLICATIONS,
+                WatchFaceLayer.COMPLICATIONS_OVERLAY
+            )
         )
         val userStyleRepository = CurrentUserStyleRepository(
             UserStyleSchema(listOf(colorStyleSetting))
@@ -827,13 +830,13 @@ class ExampleDigitalWatchCanvasRenderer(
 
         applyColorStyleAndDrawMode(renderParameters.drawMode)
 
-        if (renderParameters.layerParameters[Layer.BASE] != LayerMode.HIDE) {
+        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.BASE)) {
             drawBackground(canvas)
         }
 
         drawComplications(canvas, calendar)
 
-        if (renderParameters.layerParameters[Layer.BASE] != LayerMode.HIDE) {
+        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.BASE)) {
             val is24Hour: Boolean = DateFormat.is24HourFormat(context)
 
             nextSecondTime.timeInMillis = calendar.timeInMillis
@@ -977,6 +980,12 @@ class ExampleDigitalWatchCanvasRenderer(
         }
     }
 
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+        canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
+
+        drawComplicationHighlights(canvas, calendar)
+    }
+
     override fun getMainClockElementBounds() = clockBounds
 
     private fun recalculateBoundsIfChanged(bounds: Rect, calendar: Calendar) {
@@ -1092,6 +1101,13 @@ class ExampleDigitalWatchCanvasRenderer(
         for (i in FOREGROUND_COMPLICATION_IDS) {
             val complication = complicationsManager[i] as Complication
             complication.render(canvas, calendar, renderParameters)
+        }
+    }
+
+    private fun drawComplicationHighlights(canvas: Canvas, calendar: Calendar) {
+        for (i in FOREGROUND_COMPLICATION_IDS) {
+            val complication = complicationsManager[i] as Complication
+            complication.renderHighlightLayer(canvas, calendar, renderParameters)
         }
     }
 

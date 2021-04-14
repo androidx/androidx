@@ -8,13 +8,13 @@ package androidx.wear.watchface {
 
   public class CanvasComplicationDrawable {
     ctor public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable _drawable, androidx.wear.watchface.WatchState watchState);
-    method public void drawOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, @ColorInt int color);
+    method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, android.icu.util.Calendar calendar, @ColorInt int color);
     method public final androidx.wear.complications.data.ComplicationData? getData();
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
     method @UiThread public final boolean isHighlighted();
     method @CallSuper public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
     method @UiThread public final void onAttach(androidx.wear.watchface.Complication complication);
-    method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters, int complicationId);
+    method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
     method public final void setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable value);
     method @UiThread public final void setIsHighlighted(boolean value);
     property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
@@ -41,6 +41,7 @@ package androidx.wear.watchface {
     method public boolean isFixedComplicationProvider();
     method public boolean isInitiallyEnabled();
     method @UiThread public void render(android.graphics.Canvas canvas, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
+    method @UiThread public void renderHighlightLayer(android.graphics.Canvas canvas, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
     property public final int boundsType;
     property @UiThread public final androidx.wear.complications.ComplicationBounds complicationBounds;
     property public final androidx.wear.watchface.ObservableWatchData<androidx.wear.complications.data.ComplicationData> complicationData;
@@ -70,14 +71,14 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.Complication.Builder createRoundRectComplicationBuilder(int id, androidx.wear.watchface.CanvasComplicationDrawable renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.ComplicationBounds bounds);
   }
 
-  public final class ComplicationOutlineRenderer {
-    ctor public ComplicationOutlineRenderer();
-    method public static void drawComplicationOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
-    field public static final androidx.wear.watchface.ComplicationOutlineRenderer.Companion Companion;
+  public final class ComplicationHighlightRenderer {
+    ctor public ComplicationHighlightRenderer();
+    method public static void drawComplicationHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
+    field public static final androidx.wear.watchface.ComplicationHighlightRenderer.Companion Companion;
   }
 
-  public static final class ComplicationOutlineRenderer.Companion {
-    method public void drawComplicationOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
+  public static final class ComplicationHighlightRenderer.Companion {
+    method public void drawComplicationHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
   }
 
   public interface ComplicationTapFilter {
@@ -120,12 +121,6 @@ package androidx.wear.watchface {
     property public final int id;
   }
 
-  public enum LayerMode {
-    enum_constant public static final androidx.wear.watchface.LayerMode DRAW;
-    enum_constant public static final androidx.wear.watchface.LayerMode DRAW_OUTLINED;
-    enum_constant public static final androidx.wear.watchface.LayerMode HIDE;
-  }
-
   public final class MutableObservableWatchData<T> extends androidx.wear.watchface.ObservableWatchData<T> {
     ctor public MutableObservableWatchData(T? initialValue);
     ctor public MutableObservableWatchData();
@@ -147,23 +142,52 @@ package androidx.wear.watchface {
     method public void onChanged(T);
   }
 
+  public final class RenderBufferTextureKt {
+  }
+
   public final class RenderParameters {
-    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Map<androidx.wear.watchface.style.Layer,? extends androidx.wear.watchface.LayerMode> layerParameters, Integer? selectedComplicationId, @ColorInt int outlineTint);
-    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Map<androidx.wear.watchface.style.Layer,? extends androidx.wear.watchface.LayerMode> layerParameters, Integer? selectedComplicationId);
+    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers, optional androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer);
+    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers);
     method public androidx.wear.watchface.DrawMode getDrawMode();
-    method public java.util.Map<androidx.wear.watchface.style.Layer,androidx.wear.watchface.LayerMode> getLayerParameters();
-    method @ColorInt public int getOutlineTint();
-    method public Integer? getSelectedComplicationId();
+    method public androidx.wear.watchface.RenderParameters.HighlightLayer? getHighlightLayer();
+    method public java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> getWatchFaceLayers();
     property public final androidx.wear.watchface.DrawMode drawMode;
-    property public final java.util.Map<androidx.wear.watchface.style.Layer,androidx.wear.watchface.LayerMode> layerParameters;
-    property @ColorInt public final int outlineTint;
-    property public final Integer? selectedComplicationId;
+    property public final androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer;
+    property public final java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers;
     field public static final androidx.wear.watchface.RenderParameters.Companion Companion;
     field public static final androidx.wear.watchface.RenderParameters DEFAULT_INTERACTIVE;
-    field public static final java.util.Map<androidx.wear.watchface.style.Layer,androidx.wear.watchface.LayerMode> DRAW_ALL_LAYERS;
   }
 
   public static final class RenderParameters.Companion {
+  }
+
+  public static final class RenderParameters.HighlightLayer {
+    ctor public RenderParameters.HighlightLayer(androidx.wear.watchface.RenderParameters.HighlightedElement highlightedElement, @ColorInt int highlightTint, @ColorInt int backgroundTint);
+    method @ColorInt public int getBackgroundTint();
+    method @ColorInt public int getHighlightTint();
+    method public androidx.wear.watchface.RenderParameters.HighlightedElement getHighlightedElement();
+    property @ColorInt public final int backgroundTint;
+    property @ColorInt public final int highlightTint;
+    property public final androidx.wear.watchface.RenderParameters.HighlightedElement highlightedElement;
+  }
+
+  public abstract static sealed class RenderParameters.HighlightedElement {
+  }
+
+  public static final class RenderParameters.HighlightedElement.AllComplications extends androidx.wear.watchface.RenderParameters.HighlightedElement {
+    field public static final androidx.wear.watchface.RenderParameters.HighlightedElement.AllComplications INSTANCE;
+  }
+
+  public static final class RenderParameters.HighlightedElement.Complication extends androidx.wear.watchface.RenderParameters.HighlightedElement {
+    ctor public RenderParameters.HighlightedElement.Complication(int id);
+    method public int getId();
+    property public final int id;
+  }
+
+  public static final class RenderParameters.HighlightedElement.UserStyle extends androidx.wear.watchface.RenderParameters.HighlightedElement {
+    ctor public RenderParameters.HighlightedElement.UserStyle(androidx.wear.watchface.style.UserStyleSetting.Id id);
+    method public androidx.wear.watchface.style.UserStyleSetting.Id getId();
+    property public final androidx.wear.watchface.style.UserStyleSetting.Id id;
   }
 
   public abstract sealed class Renderer {
@@ -191,6 +215,7 @@ package androidx.wear.watchface {
   public abstract static class Renderer.CanvasRenderer extends androidx.wear.watchface.Renderer {
     ctor public Renderer.CanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis);
     method @UiThread public abstract void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
+    method @UiThread public abstract void renderHighlightLayer(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
   }
 
   public abstract static class Renderer.GlesRenderer extends androidx.wear.watchface.Renderer {
@@ -204,6 +229,7 @@ package androidx.wear.watchface {
     method @UiThread public void onGlContextCreated();
     method @UiThread public void onGlSurfaceCreated(@Px int width, @Px int height);
     method @UiThread public abstract void render(android.icu.util.Calendar calendar);
+    method @UiThread public abstract void renderHighlightLayer(android.icu.util.Calendar calendar);
     method public final void setEglConfig(android.opengl.EGLConfig p);
     method public final void setEglContext(android.opengl.EGLContext? p);
     method public final void setEglDisplay(android.opengl.EGLDisplay? p);

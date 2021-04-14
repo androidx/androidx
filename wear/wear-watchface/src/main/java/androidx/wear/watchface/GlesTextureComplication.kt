@@ -54,7 +54,7 @@ public class GlesTextureComplication(
     /** Renders [canvasComplication] to an OpenGL texture. */
     public fun renderToTexture(calendar: Calendar, renderParameters: RenderParameters) {
         canvas.drawColor(Color.BLACK)
-        canvasComplication.render(canvas, bounds, calendar, renderParameters, id)
+        canvasComplication.render(canvas, bounds, calendar, renderParameters)
         bind()
         GLUtils.texImage2D(textureType, 0, bitmap, 0)
     }

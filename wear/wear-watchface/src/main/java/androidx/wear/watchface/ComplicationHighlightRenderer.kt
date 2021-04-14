@@ -18,20 +18,28 @@ package androidx.wear.watchface
 
 import android.content.res.Resources
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.RectF
 import android.util.TypedValue
 import androidx.annotation.ColorInt
 
 /**
- * Helper for rendering a thick outline around a complication. Intended for use with
- * [LayerMode#DRAW_OUTLINED].
+ * Helper for rendering a thick outline around a complication to highlight it.
  */
-public class ComplicationOutlineRenderer {
+public class ComplicationHighlightRenderer {
     public companion object {
         internal const val EXPANSION_PX = 6
         internal const val STROKE_WIDTH_DP = 3.0f
+        internal val transparentWhitePaint = Paint().apply {
+            style = Paint.Style.FILL
+            color = Color.argb(0, 255, 255, 255) // Transparent white
+            xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
+            isAntiAlias = true
+        }
         internal val outlinePaint = Paint().apply {
             style = Paint.Style.STROKE
             strokeWidth = TypedValue.applyDimension(
@@ -42,9 +50,14 @@ public class ComplicationOutlineRenderer {
             isAntiAlias = true
         }
 
-        /** Draws a thick line around the complication with the given bounds. */
+        /**
+         * Intended for use by [CanvasComplicationDrawable.drawHighlight]. Draws a thick line
+         * around the complication with [color] and with the given bounds.  Fills the center of the
+         * complication with transparent white. When composited on top of the underlying watchface
+         * the complication's original pixels will be preserved with their original brightness.
+         */
         @JvmStatic
-        public fun drawComplicationOutline(
+        public fun drawComplicationHighlight(
             canvas: Canvas,
             bounds: Rect,
             @ColorInt color: Int
@@ -56,9 +69,28 @@ public class ComplicationOutlineRenderer {
                     bounds.exactCenterX() + 1.0f, // Offset necessary to properly center.
                     bounds.exactCenterY(),
                     radius + EXPANSION_PX,
+                    transparentWhitePaint
+                )
+
+                canvas.drawCircle(
+                    bounds.exactCenterX() + 1.0f, // Offset necessary to properly center.
+                    bounds.exactCenterY(),
+                    radius + EXPANSION_PX,
                     outlinePaint
                 )
             } else {
+                canvas.drawRoundRect(
+                    RectF(
+                        (bounds.left - EXPANSION_PX).toFloat(),
+                        (bounds.top - EXPANSION_PX).toFloat(),
+                        (bounds.right + EXPANSION_PX).toFloat(),
+                        (bounds.bottom + EXPANSION_PX).toFloat()
+                    ),
+                    radius,
+                    radius,
+                    transparentWhitePaint
+                )
+
                 canvas.drawRoundRect(
                     RectF(
                         (bounds.left - EXPANSION_PX).toFloat(),

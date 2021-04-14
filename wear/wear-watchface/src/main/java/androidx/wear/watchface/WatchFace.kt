@@ -23,7 +23,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Rect
 import android.icu.util.Calendar
@@ -47,6 +46,7 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleWireFormat
@@ -802,12 +802,7 @@ internal class WatchFaceImpl(
             newDrawMode = DrawMode.MUTE
         }
         renderer.renderParameters =
-            RenderParameters(
-                newDrawMode,
-                RenderParameters.DRAW_ALL_LAYERS,
-                null,
-                Color.BLACK // Required by the constructor but unused.
-            )
+            RenderParameters(newDrawMode, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null)
     }
 
     /** @hide */

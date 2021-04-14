@@ -46,7 +46,7 @@ public class UserStyleSettingTest {
                 null,
                 0.0,
                 1.0,
-                listOf(Layer.BASE),
+                listOf(WatchFaceLayer.BASE),
                 defaultValue
             )
 
@@ -87,7 +87,7 @@ public class UserStyleSettingTest {
                 null,
                 0.0,
                 1.0,
-                listOf(Layer.BASE),
+                listOf(WatchFaceLayer.BASE),
                 defaultValue
             )
 

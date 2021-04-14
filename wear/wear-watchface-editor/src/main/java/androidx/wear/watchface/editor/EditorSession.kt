@@ -43,6 +43,7 @@ import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
 import androidx.wear.utility.launchWithTracing
+import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.ComplicationState
@@ -141,7 +142,7 @@ public abstract class EditorSession : AutoCloseable {
     /**
      * Renders the watch face to a [Bitmap] using the current [userStyle].
      *
-     * @param renderParameters The [RenderParameters] to render with
+     * @param renderParameters The [RenderParameters] to render with. Must be [DrawMode.INTERACTIVE]
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with
      * @param idToComplicationData The [ComplicationData] for each complication to render with
      */
@@ -348,7 +349,11 @@ public abstract class BaseEditorSession internal constructor(
         pendingComplicationProviderChooserResult = CompletableDeferred<Boolean>()
         pendingComplicationProviderId = complicationId
         chooseComplicationProvider.launch(
-            ComplicationProviderChooserRequest(this, complicationId, watchFaceId.id)
+            ComplicationProviderChooserRequest(
+                this,
+                complicationId,
+                watchFaceId.id
+            )
         )
         return pendingComplicationProviderChooserResult!!.await()
     }
@@ -568,6 +573,9 @@ internal class OnWatchFaceEditorSessionImpl(
         idToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap {
         requireNotClosed()
+        require(renderParameters.drawMode == DrawMode.INTERACTIVE) {
+            "Currently only DrawMode.INTERACTIVE is supported"
+        }
         return editorDelegate.renderWatchFaceToBitmap(
             renderParameters,
             calendarTimeMillis,

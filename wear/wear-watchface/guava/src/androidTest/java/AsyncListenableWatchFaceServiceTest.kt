@@ -49,8 +49,9 @@ private class FakeRenderer(
     CanvasType.SOFTWARE,
     16
 ) {
-    override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {
-    }
+    override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
+
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
 }
 
 private class TestAsyncListenableWatchFaceService(private val handler: Handler) :
