@@ -34,6 +34,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 /** The main activity. */
 public class MainActivity extends AppCompatActivity {
@@ -158,10 +159,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void startFragment(int titleRes, Fragment fragment) {
         getSupportActionBar().setTitle(titleRes);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content, fragment)
-                .commit();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.content, fragment);
+        if (mCheckedPermissions && Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
+            // For the codes, check the b/182981155 for the detail.
+            fragmentTransaction.commitAllowingStateLoss();
+        } else {
+            fragmentTransaction.commit();
+        }
     }
 
     private void report(String msg) {
