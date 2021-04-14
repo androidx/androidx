@@ -21,14 +21,14 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertNotNull
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 
 /**
  * Tests for [ExtensionCompat] implementation of [ExtensionInterfaceCompat] that are
@@ -51,17 +51,15 @@ public class ExtensionCompatDeviceTest : WindowTestBase(), CompatDeviceTestInter
         val activity = activityTestRule.launchActivity(Intent())
         val windowToken = getActivityWindowToken(activity)
         assertNotNull(windowToken)
-        val callbackInterface = mock(
-            ExtensionCallbackInterface::class.java
-        )
+        val callbackInterface = mock<ExtensionCallbackInterface>()
         extensionCompat.setExtensionCallback(callbackInterface)
         extensionCompat.onWindowLayoutChangeListenerAdded(activity)
         verify(callbackInterface)
-            .onWindowLayoutChanged(ArgumentMatchers.any(), ArgumentMatchers.any())
+            .onWindowLayoutChanged(any(), any())
     }
 
     private fun assumeExtensionV1_0() {
-        val extensionVersion = ExtensionCompat.getExtensionVersion()
+        val extensionVersion = ExtensionCompat.extensionVersion
         Assume.assumeTrue(
             extensionVersion != null && Version.VERSION_1_0 <= extensionVersion
         )

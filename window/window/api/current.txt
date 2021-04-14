@@ -36,8 +36,8 @@ package androidx.window {
   }
 
   public interface WindowBackend {
-    method public void registerLayoutChangeCallback(android.app.Activity, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
-    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+    method public void registerLayoutChangeCallback(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> callback);
+    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo> callback);
   }
 
   public final class WindowLayoutInfo {
@@ -61,8 +61,9 @@ package androidx.window {
   }
 
   public final class WindowMetrics {
-    ctor public WindowMetrics(android.graphics.Rect);
+    ctor public WindowMetrics(android.graphics.Rect bounds);
     method public android.graphics.Rect getBounds();
+    property public final android.graphics.Rect bounds;
   }
 
 }

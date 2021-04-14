@@ -62,7 +62,7 @@ internal class TestWindowBoundsHelper : WindowBoundsHelper() {
             ?: super.computeCurrentWindowBounds(activity)
     }
 
-    public override fun computeMaximumWindowBounds(activity: Activity): Rect {
+    override fun computeMaximumWindowBounds(activity: Activity): Rect {
         val bounds = overriddenMaximumBounds[activity]
         return bounds ?: super.computeMaximumWindowBounds(activity)
     }

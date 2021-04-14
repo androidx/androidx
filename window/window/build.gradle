@@ -68,6 +68,7 @@ dependencies {
     testImplementation(TRUTH)
     testImplementation(ROBOLECTRIC)
     testImplementation(MOCKITO_CORE)
+    testImplementation(MOCKITO_KOTLIN)
     testImplementation(compileOnly(project(":window:window-extensions")))
     testImplementation(compileOnly(project(":window:window-sidecar")))
 
