@@ -100,6 +100,7 @@
       </intent-filter>
       <meta-data android:name="androidx.car.app.CAR_APP_SERVICE"
           android:value="androidx.car.app.sample.showcase.common.ShowcaseService" />
+      <meta-data android:name="distractionOptimized" android:value="true"/>
     </activity-alias>
 
   </application>
