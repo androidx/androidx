@@ -592,7 +592,6 @@ No documentation for .*
 Found an unresolved type in androidx\.hilt\.navigation\.compose\$hiltNavGraphViewModel\(androidx\.navigation\.NavController, kotlin\.String\) \(NavHostController\.kt:[0-9]+\)
 Unresolved link to .*
 Unresolved function .*
-at java.base.*
 # > Task :compose:ui:ui-inspection:externalNativeBuildDebug
 Build compose_inspection_jni_.*
 # > Task :security:security-identity-credential:lintDebug
