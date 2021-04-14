@@ -63,6 +63,7 @@
       </intent-filter>
       <meta-data android:name="androidx.car.app.CAR_APP_SERVICE"
           android:value="androidx.car.app.sample.places.common.PlacesCarAppService" />
+      <meta-data android:name="distractionOptimized" android:value="true"/>
     </activity-alias>
 
   </application>
