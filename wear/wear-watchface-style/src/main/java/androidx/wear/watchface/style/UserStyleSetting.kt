@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
+import androidx.wear.watchface.style.UserStyleSetting.Id.Companion.MAX_LENGTH
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
@@ -51,20 +52,19 @@ import java.security.InvalidParameterException
  * as a result the size of serialized UserStyleSettings could become an issue if large.
  *
  * @param id Identifier for the element, must be unique. Styling data gets shared with the companion
- *     (typically via bluetooth) so size is a consideration and short ids are encouraged. There is a
- *     maximum length see [maxIdLength].
+ * (typically via bluetooth) so size is a consideration and short ids are encouraged. There is a
+ * maximum length see [MAX_LENGTH].
  * @param displayName Localized human readable name for the element, used in the userStyle selection
- *     UI.
+ * UI.
  * @param description Localized description string displayed under the displayName.
  * @param icon Icon for use in the style selection UI.
  * @param options List of options for this UserStyleSetting. Depending on the type of
- *     UserStyleSetting this may be an exhaustive list, or just examples to populate a ListView
- *     in case the UserStyleSetting isn't supported by the UI (e.g. a new WatchFace with an old
- *     Companion).
+ * UserStyleSetting this may be an exhaustive list, or just examples to populate a ListView in case
+ * the UserStyleSetting isn't supported by the UI (e.g. a new WatchFace with an old Companion).
  * @param defaultOptionIndex The default option index, used if nothing has been selected within the
- *     [options] list.
+ * [options] list.
  * @param affectedWatchFaceLayers Used by the style configuration UI. Describes which rendering layers this
- *     style affects.
+ * style affects.
  */
 public sealed class UserStyleSetting(
     public val id: Id,
@@ -247,10 +247,10 @@ public sealed class UserStyleSetting(
      * categories that can't sensibly be fully enumerated (e.g. a full 24-bit color picker).
      *
      * @param optionId The ID of the option
-     * @return An [Option] corresponding to the name. This could either be one of the
-     *     options from userStyleSettings or a newly constructed Option depending on the nature
-     *     of the UserStyleSetting. If optionName is unrecognized then the default value for the
-     *     setting should be returned.
+     * @return An [Option] corresponding to the name. This could either be one of the options from
+     * [UserStyleSetting]s or a newly constructed Option depending on the nature of the
+     * UserStyleSetting. If optionName is unrecognized then the default value for the setting should
+     * be returned.
      */
     public open fun getOptionForId(optionId: ByteArray): Option =
         options.find { it.id.value.contentEquals(optionId) } ?: options[defaultOptionIndex]
@@ -263,7 +263,7 @@ public sealed class UserStyleSetting(
          *
          * @param id [Id] for the element, must be unique.
          * @param displayName Localized human readable name for the element, used in the userStyle
-         *     selection UI.
+         * selection UI.
          * @param description Localized description string displayed under the displayName.
          * @param icon [Icon] for use in the userStyle selection UI.
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
@@ -355,9 +355,9 @@ public sealed class UserStyleSetting(
          *
          * @param complicationId The [Id] of the complication to configure.
          * @param enabled If non null, whether the complication should be enabled for this
-         *     configuration. If null then no changes are made.
+         * configuration. If null then no changes are made.
          * @param complicationBounds If non null, the new [ComplicationBounds] for this
-         *     configuration. If null then no changes are made.
+         * configuration. If null then no changes are made.
          */
         public class ComplicationOverlay constructor(
             public val complicationId: Int,
@@ -419,7 +419,7 @@ public sealed class UserStyleSetting(
          *
          * @param id [Id] for the element, must be unique.
          * @param displayName Localized human readable name for the element, used in the userStyle
-         *     selection UI.
+         * selection UI.
          * @param description Localized description string displayed under the displayName.
          * @param icon [Icon] for use in the userStyle selection UI.
          * @param complicationConfig The configuration for affected complications.
@@ -427,7 +427,7 @@ public sealed class UserStyleSetting(
          * face rendering layers this style affects, must include
          * [WatchFaceLayer.COMPLICATIONS].
          * @param defaultOption The default option, used when data isn't persisted. Optional
-         *     parameter which defaults to the first element of [complicationConfig].
+         * parameter which defaults to the first element of [complicationConfig].
          */
         @JvmOverloads
         public constructor (
@@ -486,11 +486,11 @@ public sealed class UserStyleSetting(
              *
              * @param id [Id] for the element, must be unique.
              * @param displayName Localized human readable name for the element, used in the
-             *     userStyle selection UI.
+             * userStyle selection UI.
              * @param icon [Icon] for use in the style selection UI.
              * @param complicationOverlays Overlays to be applied when this ComplicationsOption is
-             *     selected. If this is empty then the net result is the initial complication
-             *     configuration.
+             * selected. If this is empty then the net result is the initial complication
+             * configuration.
              */
             public constructor(
                 id: Id,
@@ -557,8 +557,8 @@ public sealed class UserStyleSetting(
          * Constructs a [DoubleRangeUserStyleSetting].
          *
          * @param id [Id] for the element, must be unique.
-         * @param displayName Localized human readable name for the element, used in the
-         *     userStyle selection UI.
+         * @param displayName Localized human readable name for the element, used in the user style
+         * selection UI.
          * @param description Localized description string displayed under the displayName.
          * @param icon [Icon] for use in the style selection UI.
          * @param minimumValue Minimum value (inclusive).
@@ -673,7 +673,7 @@ public sealed class UserStyleSetting(
          *
          * @param id [Id] for the element, must be unique.
          * @param displayName Localized human readable name for the element, used in the userStyle
-         *     selection UI.
+         * selection UI.
          * @param description Localized description string displayed under the displayName.
          * @param icon [Icon] for use in the userStyle selection UI.
          * @param options List of all options for this ListUserStyleSetting.
@@ -729,9 +729,9 @@ public sealed class UserStyleSetting(
              * Constructs a [ListOption].
              *
              * @param id The [Id] of this [ListOption], must be unique within the
-             *     [ListUserStyleSetting].
+             * [ListUserStyleSetting].
              * @param displayName Localized human readable name for the setting, used in the style
-             *     selection UI.
+             * selection UI.
              * @param icon [Icon] for use in the style selection UI.
              */
             public constructor(id: Id, displayName: CharSequence, icon: Icon?) : super(id) {
@@ -793,7 +793,7 @@ public sealed class UserStyleSetting(
          *
          * @param id [Id] for the element, must be unique.
          * @param displayName Localized human readable name for the element, used in the userStyle
-         *     selection UI.
+         * selection UI.
          * @param description Localized description string displayed under the displayName.
          * @param icon [Icon] for use in the userStyle selection UI.
          * @param minimumValue Minimum value (inclusive).
@@ -960,7 +960,7 @@ public sealed class UserStyleSetting(
              * Constructs a [CustomValueOption].
              *
              * @param customValue The [ByteArray] [id] and value of this [CustomValueOption]. This
-             *     may not exceed [Id.MAX_LENGTH].
+             * may not exceed [Id.MAX_LENGTH].
              */
             public constructor(customValue: ByteArray) : super(Id(customValue))
 

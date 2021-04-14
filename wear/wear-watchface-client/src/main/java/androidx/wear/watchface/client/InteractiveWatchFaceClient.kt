@@ -65,9 +65,9 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * @param calendarTimeMillis The UTC time in milliseconds since the epoch to render with.
      * @param userStyle Optional [UserStyle] to render with, if null the current style is used.
      * @param idAndComplicationData Map of complication ids to [ComplicationData] to render with, or
-     *     if null then the existing complication data if any is used.
+     * if null then the existing complication data if any is used.
      * @return A shared memory backed [Bitmap] containing a screenshot of the watch  face with the
-     *     given settings.
+     * given settings.
      */
     @RequiresApi(27)
     public fun renderWatchFaceToBitmap(
@@ -157,7 +157,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * @param text [ComplicationText] associated with the region, to be read by the screen reader.
      * @param bounds [Rect] describing the area of the feature on screen.
      * @param tapAction [PendingIntent] to be used if the screen reader's user triggers a tap
-     *     action.
+     * action.
      */
     public class ContentDescriptionLabel(
         private val text: ComplicationText,

@@ -1,6 +1,21 @@
 // Signature format: 4.0
 package androidx.wear.watchface.complications.rendering {
 
+  public class CanvasComplicationDrawable implements androidx.wear.watchface.CanvasComplication {
+    ctor public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable _drawable, androidx.wear.watchface.WatchState watchState);
+    method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, android.icu.util.Calendar calendar, @ColorInt int color);
+    method public androidx.wear.complications.data.ComplicationData? getData();
+    method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
+    method public boolean isHighlighted();
+    method @CallSuper public void loadData(androidx.wear.complications.data.ComplicationData? complicationData, boolean loadDrawablesAsynchronous);
+    method public void onAttach(androidx.wear.watchface.Complication complication);
+    method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
+    method public final void setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable value);
+    method public void setHighlighted(boolean value);
+    property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
+    property public boolean isHighlighted;
+  }
+
   public final class ComplicationDrawable extends android.graphics.drawable.Drawable {
     ctor public ComplicationDrawable();
     ctor public ComplicationDrawable(android.content.Context);
@@ -33,6 +48,16 @@ package androidx.wear.watchface.complications.rendering {
     method public void setLowBitAmbient(boolean);
     method public void setNoDataText(CharSequence?);
     method public void setRangedValueProgressHidden(boolean);
+  }
+
+  public final class ComplicationHighlightRenderer {
+    ctor public ComplicationHighlightRenderer();
+    method public static void drawComplicationHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
+    field public static final androidx.wear.watchface.complications.rendering.ComplicationHighlightRenderer.Companion Companion;
+  }
+
+  public static final class ComplicationHighlightRenderer.Companion {
+    method public void drawComplicationHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
   }
 
   public class ComplicationStyle {
@@ -85,6 +110,16 @@ package androidx.wear.watchface.complications.rendering {
   }
 
   @IntDef({androidx.wear.watchface.complications.rendering.ComplicationStyle.BORDER_STYLE_NONE, androidx.wear.watchface.complications.rendering.ComplicationStyle.BORDER_STYLE_SOLID, androidx.wear.watchface.complications.rendering.ComplicationStyle.BORDER_STYLE_DASHED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ComplicationStyle.BorderStyle {
+  }
+
+  public final class GlesTextureComplication {
+    ctor public GlesTextureComplication(androidx.wear.watchface.CanvasComplication canvasComplication, @Px int textureWidth, @Px int textureHeight, int textureType, int id);
+    method public void bind();
+    method public androidx.wear.watchface.CanvasComplication getCanvasComplication();
+    method public int getId();
+    method public void renderToTexture(android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
+    property public final androidx.wear.watchface.CanvasComplication canvasComplication;
+    property public final int id;
   }
 
 }

@@ -170,7 +170,7 @@ public abstract class EditorSession : AutoCloseable {
          * @param activity The [ComponentActivity] associated with the [EditorSession].
          * @param editIntent The [Intent] sent by SysUI to launch the editing session.
          * @return Deferred<EditorSession?> which is resolved with either the [EditorSession] or
-         *    `null` if it can't be constructed.
+         * `null` if it can't be constructed.
          */
         @SuppressWarnings("ExecutorRegistration")
         @JvmStatic

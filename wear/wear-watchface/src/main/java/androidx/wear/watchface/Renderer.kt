@@ -102,11 +102,11 @@ private val HIGHLIGHT_LAYER_COMPOSITE_PAINT = Paint().apply {
  * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
  * @param watchState The associated [WatchState].
  * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
- *     interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
- *     rate will be clamped to 10fps. Watch faces are recommended to use lower frame rates if
- *     possible for better battery life. Variable frame rates can also help preserve battery
- *     life, e.g. if a watch face has a short animation once per second it can adjust the frame
- *     rate inorder to sleep when not animating.
+ * interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame rate
+ * will be clamped to 10fps. Watch faces are recommended to use lower frame rates if possible for
+ * better battery life. Variable frame rates can also help preserve battery life, e.g. if a watch
+ * face has a short animation once per second it can adjust the frame rate inorder to sleep when
+ * not animating.
  */
 public sealed class Renderer(
     public val surfaceHolder: SurfaceHolder,
@@ -271,16 +271,16 @@ public sealed class Renderer(
      * Watch faces that require [Canvas] rendering should extend their [Renderer] from this class.
      *
      * @param surfaceHolder The [SurfaceHolder] from which a [Canvas] to will be obtained and passed
-     *     into [render].
+     * into [render].
      * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
      * @param canvasType The type of canvas to request.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
-     *     interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the
-     *     frame rate will be clamped to 10fps. Watch faces are recommended to use lower frame
-     *     rates if possible for better battery life. Variable frame rates can also help preserve
-     *     battery life, e.g. if a watch face has a short animation once per second it can adjust
-     *     the frame rate inorder to sleep when not animating.
+     * interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
+     * rate will be clamped to 10fps. Watch faces are recommended to use lower frame rates if
+     * possible for better battery life. Variable frame rates can also help preserve battery
+     * life, e.g. if a watch face has a short animation once per second it can adjust the frame
+     * rate inorder to sleep when not animating.
      */
     public abstract class CanvasRenderer(
         surfaceHolder: SurfaceHolder,
@@ -367,7 +367,7 @@ public sealed class Renderer(
          * in favor of any other ways of getting the time.
          *
          * @param canvas The [Canvas] to render into. Don't assume this is always the canvas from
-         *     the [SurfaceHolder] backing the display
+         * the [SurfaceHolder] backing the display
          * @param bounds A [Rect] describing the bonds of the canvas to draw into
          * @param calendar The current [Calendar]
          */
@@ -388,7 +388,7 @@ public sealed class Renderer(
          * function must use the supplied [Calendar] in favor of any other ways of getting the time.
          *
          * @param canvas The [Canvas] to render into. Don't assume this is always the canvas from
-         *     the [SurfaceHolder] backing the display
+         * the [SurfaceHolder] backing the display
          * @param bounds A [Rect] describing the bonds of the canvas to draw into
          * @param calendar The current [Calendar]
          */
@@ -418,19 +418,19 @@ public sealed class Renderer(
      * Before passing to the [WatchFace] constructor [initOpenGlContext] must be called.
      *
      * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
-     *     into.
+     * into.
      * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
      * @param watchState The associated [WatchState].
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
-     *     interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the
-     *     frame rate will be clamped to 10fps. Watch faces are recommended to use lower frame
-     *     rates if possible for better battery life. Variable frame rates can also help preserve
-     *     battery life, e.g. if a watch face has a short animation once per second it can adjust
-     *     the frame rate inorder to sleep when not animating.
+     * interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
+     * rate will be clamped to 10fps. Watch faces are recommended to use lower frame rates if
+     * possible for better battery life. Variable frame rates can also help preserve battery life,
+     * e.g. if a watch face has a short animation once per second it can adjust the frame rate
+     * inorder to sleep when not animating.
      * @param eglConfigAttribList Attributes for [EGL14.eglChooseConfig]. By default this selects an
-     *     RGBA8888 back buffer.
+     * RGBA8888 back buffer.
      * @param eglSurfaceAttribList The attributes to be passed to [EGL14.eglCreateWindowSurface]. By
-     *     default this is empty.
+     * default this is empty.
      */
     public abstract class GlesRenderer @JvmOverloads constructor(
         surfaceHolder: SurfaceHolder,
