@@ -46,8 +46,8 @@ public class UserStyle(
      * settings default option.
      *
      * @param userStyle The [UserStyle] represented as a [UserStyleData].
-     * @param styleSchema The  for this UserStyle, describes how we interpret
-     *     [userStyle].
+     * @param styleSchema The [UserStyleSchema] for this UserStyle, describes how we interpret
+     * [userStyle].
      */
     public constructor(
         userStyle: UserStyleData,
@@ -141,8 +141,8 @@ public class UserStyleData(
 /**
  * Describes the list of [UserStyleSetting]s the user can configure.
  *
- * @param userStyleSettings The user configurable style categories associated with this watch
- *     face. Empty if the watch face doesn't support user styling.
+ * @param userStyleSettings The user configurable style categories associated with this watch face.
+ * Empty if the watch face doesn't support user styling.
  */
 public class UserStyleSchema(
     public val userStyleSettings: List<UserStyleSetting>
@@ -184,7 +184,7 @@ public class UserStyleSchema(
  * [UserStyleSchema].
  *
  * @param schema The [UserStyleSchema] for this CurrentUserStyleRepository which describes the
- *     available style categories.
+ * available style categories.
  */
 public class CurrentUserStyleRepository(
     public val schema: UserStyleSchema

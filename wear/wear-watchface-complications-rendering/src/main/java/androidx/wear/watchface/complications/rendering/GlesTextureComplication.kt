@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface
+package androidx.wear.watchface.complications.rendering
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -24,19 +24,22 @@ import android.icu.util.Calendar
 import android.opengl.GLES20
 import android.opengl.GLUtils
 import androidx.annotation.Px
+import androidx.wear.watchface.CanvasComplication
+import androidx.wear.watchface.Complication
+import androidx.wear.watchface.RenderParameters
 
 /**
- * Helper for rendering a [CanvasComplicationDrawable] to a GLES20 texture. To use call
- * [renderToTexture] and then [bind] before drawing.
+ * Helper for rendering a [CanvasComplication] to a GLES20 texture. To use call [renderToTexture]
+ * and then [bind] before drawing.
  *
- * @param canvasComplication The [CanvasComplicationDrawable] to render to texture.
+ * @param canvasComplication The [CanvasComplication] to render to texture.
  * @param textureWidth The width of the texture in pixels to create.
  * @param textureHeight The height of the texture in pixels to create.
  * @param textureType The texture type, e.g. [GLES20.GL_TEXTURE_2D].
  * @param id The id of the associated [Complication].
  */
 public class GlesTextureComplication(
-    public val canvasComplication: CanvasComplicationDrawable,
+    public val canvasComplication: CanvasComplication,
     @Px textureWidth: Int,
     @Px textureHeight: Int,
     private val textureType: Int,

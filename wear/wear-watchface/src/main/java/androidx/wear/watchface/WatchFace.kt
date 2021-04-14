@@ -31,6 +31,7 @@ import android.os.BatteryManager
 import android.os.Build
 import android.support.wearable.watchface.WatchFaceStyle
 import android.util.Base64
+import android.view.Gravity
 import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
 import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
@@ -117,7 +118,7 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
  * complications and state observers.
  *
  * @param watchFaceType The type of watch face, whether it's digital or analog. Used to determine
- *     the default time for editor preview screenshots.
+ * the default time for editor preview screenshots.
  * @param currentUserStyleRepository The [CurrentUserStyleRepository] for this WatchFace.
  * @param renderer The [Renderer] for this WatchFace.
  * @param complicationsManager The [ComplicationsManager] for this WatchFace.
@@ -266,22 +267,20 @@ public class WatchFace @JvmOverloads constructor(
     /**
      * Legacy Wear 2.0 watch face styling. These settings will be ignored on Wear 3.0 devices.
      *
-     * @param viewProtectionMode The view protection mode bit field, must be a combination of
-     *     zero or more of [PROTECT_STATUS_BAR], [PROTECT_HOTWORD_INDICATOR],
-     *     [PROTECT_WHOLE_SCREEN].
+     * @param viewProtectionMode The view protection mode bit field, must be a combination of zero
+     * or more of [WatchFaceStyle.PROTECT_STATUS_BAR], [WatchFaceStyle.PROTECT_HOTWORD_INDICATOR],
+     * [WatchFaceStyle.PROTECT_WHOLE_SCREEN].
      * @param statusBarGravity Controls the position of status icons (battery state, lack of
-     *     connection) on the screen. This must be any combination of horizontal Gravity constant:
-     *         ([Gravity.LEFT], [Gravity.CENTER_HORIZONTAL], [Gravity.RIGHT])
-     *         and vertical Gravity constants ([Gravity.TOP], [Gravity,CENTER_VERTICAL},
-     *         [Gravity,BOTTOM]), e.g. {@code Gravity.LEFT | Gravity.BOTTOM}. On circular screens,
-     *          only the vertical gravity is respected.
+     * connection) on the screen. This must be any combination of horizontal Gravity constant:
+     * ([Gravity.LEFT], [Gravity.CENTER_HORIZONTAL], [Gravity.RIGHT]) and vertical Gravity
+     * constants ([Gravity.TOP], [Gravity.CENTER_VERTICAL], [Gravity.BOTTOM]), e.g.
+     * `[Gravity.LEFT] | [Gravity.BOTTOM]`. On circular screens, only the vertical gravity is
+     * respected.
      * @param tapEventsAccepted Controls whether this watch face accepts tap events. Watchfaces
-     *     that set this {@code true} are indicating they are prepared to receive
-     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_DOWN],
-     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_CANCEL], and
-     *     [IInteractiveWatchFaceSysUI.TAP_TYPE_UP] events.
+     * that set this `true` are indicating they are prepared to receive [TapType.DOWN],
+     * [TapType.CANCEL], and [TapType.UP] events.
      * @param accentColor The accent color which will be used when drawing the unread notification
-     *     indicator. Default color is white.
+     * indicator. Default color is white.
      * @throws IllegalArgumentException if [viewProtectionMode] has an unexpected value
      */
     public class LegacyWatchFaceOverlayStyle @JvmOverloads constructor(
@@ -862,8 +861,7 @@ internal class WatchFaceImpl(
     /**
      * Called when new complication data is received.
      *
-     * @param watchFaceComplicationId The id of the complication that the data relates to. This will
-     *     be an id that was previously sent in a call to [setActiveComplications].
+     * @param watchFaceComplicationId The id of the complication that the data relates to.
      * @param data The [ComplicationData] that should be displayed in the complication.
      */
     @UiThread

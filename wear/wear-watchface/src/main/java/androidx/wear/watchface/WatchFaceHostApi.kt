@@ -100,11 +100,11 @@ public interface WatchFaceHostApi {
      *
      * @param watchFaceComplicationId The watch face's ID for the complication
      * @param providers The list of non-system providers to try in order before falling back to
-     *     fallbackSystemProvider. This list may be null.
-     * @param fallbackSystemProvider The system provider to use if none of the providers could
-     *     be used.
-     * @param type The type of complication data that should be provided. Must be one of the
-     *     types defined in [ComplicationData]
+     * fallbackSystemProvider. This list may be null.
+     * @param fallbackSystemProvider The system provider to use if none of the providers could be
+     * used.
+     * @param type The type of complication data that should be provided. Must be one of the types
+     * defined in [ComplicationData].
      */
     public fun setDefaultComplicationProviderWithFallbacks(
         watchFaceComplicationId: Int,

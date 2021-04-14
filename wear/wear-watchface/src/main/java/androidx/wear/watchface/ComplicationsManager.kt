@@ -49,7 +49,7 @@ private fun getComponentName(context: Context) = ComponentName(
  *
  * @param complicationCollection The complications associated with the watch face, may be empty.
  * @param currentUserStyleRepository The [CurrentUserStyleRepository] used to listen for
- *     [ComplicationsUserStyleSetting] changes and apply them.
+ * [ComplicationsUserStyleSetting] changes and apply them.
  */
 public class ComplicationsManager(
     complicationCollection: Collection<Complication>,
@@ -260,10 +260,9 @@ public class ComplicationsManager(
     /**
      * Called when new complication data is received.
      *
-     * @param watchFaceComplicationId The id of the complication that the data relates to. This
-     *     will be an id that was previously sent in a call to [setActiveComplications]. If this id
-     *     is unrecognized the call will be a NOP, the only circumstance when that happens is if
-     *     the watch face changes it's complication config between runs e.g. during development.
+     * @param watchFaceComplicationId The id of the complication that the data relates to. If this
+     * id is unrecognized the call will be a NOP, the only circumstance when that happens is if the
+     * watch face changes it's complication config between runs e.g. during development.
      * @param data The [ComplicationData] that should be displayed in the complication.
      */
     @UiThread

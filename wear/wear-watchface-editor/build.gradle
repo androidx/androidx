@@ -37,6 +37,7 @@ dependencies {
 
     implementation("androidx.core:core:1.1.0")
 
+    androidTestImplementation(project(":wear:wear-watchface-complications-rendering"))
     androidTestImplementation(project(":wear:wear-watchface-editor-guava"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

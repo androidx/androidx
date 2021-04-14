@@ -31,13 +31,13 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
-import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
