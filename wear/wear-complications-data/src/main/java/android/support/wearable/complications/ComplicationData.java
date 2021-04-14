@@ -39,7 +39,8 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>A {@link androidx.wear.complications.ComplicationProviderService} should create instances of
  * this class using {@link ComplicationData.Builder} and send them to the complication system in
- * response to {@link androidx.wear.complications.ComplicationProviderService#onComplicationUpdate}.
+ * response to
+ * {@link androidx.wear.complications.ComplicationProviderService#onComplicationRequest}.
  * Depending on the type of complication data, some fields will be required and some will be
  * optional - see the documentation for each type, and for the builder's set methods, for details.
  *

@@ -32,7 +32,7 @@ public class ProviderUpdateRequester(
 ) {
     /**
      * Requests that the system call
-     * [onComplicationUpdate][ComplicationProviderService.onComplicationUpdate] on the specified
+     * [onComplicationUpdate][ComplicationProviderService.onComplicationRequest] on the specified
      * provider, for all active complications using that provider.
      *
      * This will do nothing if no active complications are configured to use the specified
@@ -55,13 +55,13 @@ public class ProviderUpdateRequester(
 
     /**
      * Requests that the system call
-     * [onComplicationUpdate][ComplicationProviderService.onComplicationUpdate] on the specified
+     * [onComplicationUpdate][ComplicationProviderService.onComplicationRequest] on the specified
      * provider, for the given complication ids. Inactive complications are ignored, as are
      * complications configured to use a different provider.
      *
      * @param complicationIds the ids of the complications to be updated, as provided in calls to
      * [ComplicationProviderService.onComplicationActivated] and
-     * [ComplicationProviderService.onComplicationUpdate].
+     * [ComplicationProviderService.onComplicationRequest].
      */
     @SuppressLint("PendingIntentMutability")
     public fun requestUpdate(vararg complicationIds: Int) {

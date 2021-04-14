@@ -34,9 +34,20 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.ComplicationType.Companion.fromWireType
 
 /**
+ * Data associated with complication request in [ComplicationProviderService.onComplicationRequest].
+ * @param complicationId The id of the requested complication. Note this ID is distinct from
+ * ids used by the watch face itself.
+ * @param complicationType The type of complication data requested.
+ */
+public class ComplicationRequest(
+    public val complicationId: Int,
+    public val complicationType: ComplicationType
+)
+
+/**
  * Class for providers of complication data.
  *
- * A provider service must implement [onComplicationUpdate] to respond to requests for updates
+ * A provider service must implement [onComplicationRequest] to respond to requests for updates
  * from the complication system.
  *
  * Manifest requirements:
@@ -138,7 +149,7 @@ public abstract class ComplicationProviderService : Service() {
      * This occurs when the watch face calls setActiveComplications, or when this provider is
      * chosen for a complication which is already active.
      *
-     * This will usually be followed by a call to [onComplicationUpdate].
+     * This will usually be followed by a call to [onComplicationRequest].
      *
      * This will be called on the main thread.
      */
@@ -151,21 +162,18 @@ public abstract class ComplicationProviderService : Service() {
      * displayed. If the request can not be fulfilled or no update is needed then null should be
      * passed to the callback.
      *
-     * The callback doesn't have be called within onComplicationUpdate but it should be called
+     * The callback doesn't have be called within onComplicationRequest but it should be called
      * soon after. If this does not occur within around 20 seconds (exact timeout length subject to
      * change), then the system will unbind from this service which may cause your eventual update
      * to not be received.
      *
-     * @param complicationId The id of the requested complication. Note this ID is distinct from ids
-     * used by the watch face itself.
-     * @param type The type of complication data requested.
+     * @param request The details about the complication that has been requested.
      * @param listener The callback to pass the result to the system.
      */
     @UiThread
-    public abstract fun onComplicationUpdate(
-        complicationId: Int,
-        type: ComplicationType,
-        listener: ComplicationUpdateListener
+    public abstract fun onComplicationRequest(
+        request: ComplicationRequest,
+        listener: ComplicationRequestListener
     )
 
     /**
@@ -181,15 +189,15 @@ public abstract class ComplicationProviderService : Service() {
      */
     public abstract fun getPreviewData(type: ComplicationType): ComplicationData?
 
-    /** Callback for [onComplicationUpdate]. */
-    public interface ComplicationUpdateListener {
+    /** Callback for [onComplicationRequest]. */
+    public interface ComplicationRequestListener {
         /**
          * Sends the complicationData to the system. If null is passed then any previous
          * complication data will not be overwritten. Can be called on any thread. Should only be
          * called once.
          */
         @Throws(RemoteException::class)
-        public fun onUpdateComplication(complicationData: ComplicationData?)
+        public fun onComplicationData(complicationData: ComplicationData?)
     }
 
     /**
@@ -209,11 +217,10 @@ public abstract class ComplicationProviderService : Service() {
             val complicationType = fromWireType(type)
             val iComplicationManager = IComplicationManager.Stub.asInterface(manager)
             mainThreadHandler.post {
-                onComplicationUpdate(
-                    complicationId,
-                    complicationType,
-                    object : ComplicationUpdateListener {
-                        override fun onUpdateComplication(complicationData: ComplicationData?) {
+                onComplicationRequest(
+                    ComplicationRequest(complicationId, complicationType),
+                    object : ComplicationRequestListener {
+                        override fun onComplicationData(complicationData: ComplicationData?) {
                             // This can be run on an arbitrary thread, but that's OK.
                             val dataType = complicationData?.type ?: ComplicationType.NO_DATA
                             require(
