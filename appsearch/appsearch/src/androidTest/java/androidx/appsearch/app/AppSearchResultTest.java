@@ -33,7 +33,6 @@ public class AppSearchResultTest {
         assertThat(result.getResultCode()).isEqualTo(AppSearchResult.RESULT_INTERNAL_ERROR);
         // Makes sure the exception name is included in the string. Some exceptions have terse or
         // missing strings so it's confusing to read the output without the exception name.
-        assertThat(result.getErrorMessage())
-                .startsWith("NullPointerException: Attempt to invoke virtual method");
+        assertThat(result.getErrorMessage()).startsWith("NullPointerException");
     }
 }
