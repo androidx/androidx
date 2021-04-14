@@ -25,8 +25,8 @@ import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
 import androidx.room.migration.bundle.EntityBundle
+import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.vo.AutoMigrationResult
-import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -37,7 +37,6 @@ import javax.lang.model.element.Modifier
 /**
  * Writes the implementation of migrations that were annotated with @AutoMigration.
  */
-// TODO: (b/181777611) Handle FTS tables
 class AutoMigrationWriter(
     private val dbElement: XElement,
     val autoMigrationResult: AutoMigrationResult
@@ -65,9 +64,9 @@ class AutoMigrationWriter(
                         "new $T()", autoMigrationResult.specClassName
                     ).build()
                 )
-                addMethod(createConstructor())
             }
-            addMethod(createMigrateMethod(autoMigrationResult.specClassName))
+            addMethod(createConstructor())
+            addMethod(createMigrateMethod())
         }
         return builder
     }
@@ -84,7 +83,7 @@ class AutoMigrationWriter(
         }.build()
     }
 
-    private fun createMigrateMethod(specClassName: ClassName?): MethodSpec? {
+    private fun createMigrateMethod(): MethodSpec? {
         val migrateFunctionBuilder: MethodSpec.Builder = MethodSpec.methodBuilder("migrate")
             .apply {
                 addParameter(
@@ -97,7 +96,7 @@ class AutoMigrationWriter(
                 addModifiers(Modifier.PUBLIC)
                 returns(TypeName.VOID)
                 addAutoMigrationResultToMigrate(this)
-                if (specClassName != null) {
+                if (autoMigrationResult.specClassName != null) {
                     addStatement("callback.onPostMigrate(database)")
                 }
             }
@@ -112,8 +111,8 @@ class AutoMigrationWriter(
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
     private fun addAutoMigrationResultToMigrate(migrateBuilder: MethodSpec.Builder) {
-        addComplexChangeStatements(migrateBuilder)
         addSimpleChangeStatements(migrateBuilder)
+        addComplexChangeStatements(migrateBuilder)
     }
 
     /**
@@ -123,7 +122,11 @@ class AutoMigrationWriter(
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
     private fun addComplexChangeStatements(migrateBuilder: MethodSpec.Builder) {
-        complexChangedTables.values.forEach {
+        // Create a collection that is sorted such that FTS bundles are handled after the normal
+        // tables have been processed
+        complexChangedTables.values.sortedBy {
+            it.newVersionEntityBundle is FtsEntityBundle
+        }.forEach {
             (
                 _,
                 tableNameWithNewPrefix,
@@ -132,26 +135,80 @@ class AutoMigrationWriter(
                 renamedColumnsMap
             ) ->
 
-            addStatementsToCreateNewTable(newEntityBundle, migrateBuilder)
-            addStatementsToContentTransfer(
-                oldEntityBundle.tableName,
-                tableNameWithNewPrefix,
-                oldEntityBundle,
-                newEntityBundle,
-                renamedColumnsMap,
-                migrateBuilder
-            )
-            addStatementsToDropTableAndRenameTempTable(
-                oldEntityBundle.tableName,
-                newEntityBundle.tableName,
-                tableNameWithNewPrefix,
-                migrateBuilder
-            )
-            addStatementsToRecreateIndexes(newEntityBundle, migrateBuilder)
-            if (newEntityBundle.foreignKeys.isNotEmpty()) {
-                addStatementsToCheckForeignKeyConstraint(newEntityBundle.tableName, migrateBuilder)
+            if (oldEntityBundle is FtsEntityBundle &&
+                !oldEntityBundle.ftsOptions.contentTable.isNullOrBlank()
+            ) {
+                addStatementsToMigrateFtsTable(
+                    migrateBuilder,
+                    oldEntityBundle,
+                    newEntityBundle,
+                    renamedColumnsMap
+                )
+            } else {
+                addStatementsToCreateNewTable(newEntityBundle, migrateBuilder)
+                addStatementsToContentTransfer(
+                    oldEntityBundle.tableName,
+                    tableNameWithNewPrefix,
+                    oldEntityBundle,
+                    newEntityBundle,
+                    renamedColumnsMap,
+                    migrateBuilder
+                )
+                addStatementsToDropTableAndRenameTempTable(
+                    oldEntityBundle.tableName,
+                    newEntityBundle.tableName,
+                    tableNameWithNewPrefix,
+                    migrateBuilder
+                )
+                addStatementsToRecreateIndexes(newEntityBundle, migrateBuilder)
+                if (newEntityBundle.foreignKeys.isNotEmpty()) {
+                    addStatementsToCheckForeignKeyConstraint(
+                        newEntityBundle.tableName,
+                        migrateBuilder
+                    )
+                }
             }
         }
+    }
+
+    private fun addStatementsToMigrateFtsTable(
+        migrateBuilder: MethodSpec.Builder,
+        oldTable: EntityBundle,
+        newTable: EntityBundle,
+        renamedColumnsMap: MutableMap<String, String>
+    ) {
+        addDatabaseExecuteSqlStatement(migrateBuilder, "DROP TABLE `${oldTable.tableName}`")
+        addDatabaseExecuteSqlStatement(migrateBuilder, newTable.createTable())
+
+        // Transfer contents of the FTS table, using the content table if available.
+        val newColumnSequence = oldTable.fieldsByColumnName.keys.filter {
+            oldTable.fieldsByColumnName.keys.contains(it) ||
+                renamedColumnsMap.containsKey(it)
+        }.toMutableList()
+        val oldColumnSequence = mutableListOf<String>()
+        newColumnSequence.forEach { column ->
+            oldColumnSequence.add(renamedColumnsMap[column] ?: column)
+        }
+        if (oldTable is FtsEntityBundle) {
+            oldColumnSequence.add("rowid")
+            newColumnSequence.add("docid")
+        }
+        val contentTable = (newTable as FtsEntityBundle).ftsOptions.contentTable
+        val selectFromTable = if (contentTable.isEmpty()) {
+            oldTable.tableName
+        } else {
+            contentTable
+        }
+        addDatabaseExecuteSqlStatement(
+            migrateBuilder,
+            buildString {
+                append(
+                    "INSERT INTO `${newTable.tableName}` (${newColumnSequence.joinToString(",")})" +
+                        " SELECT ${oldColumnSequence.joinToString(",")} FROM " +
+                        "`$selectFromTable`",
+                )
+            }
+        )
     }
 
     /**
@@ -205,7 +262,7 @@ class AutoMigrationWriter(
         val newColumnSequence = newEntityBundle.fieldsByColumnName.keys.filter {
             oldEntityBundle.fieldsByColumnName.keys.contains(it) ||
                 renamedColumnsMap.containsKey(it)
-        }
+        }.toMutableList()
         val oldColumnSequence = mutableListOf<String>()
         newColumnSequence.forEach { column ->
             oldColumnSequence.add(renamedColumnsMap[column] ?: column)
@@ -215,8 +272,10 @@ class AutoMigrationWriter(
             migrateBuilder,
             buildString {
                 append(
-                    "INSERT INTO `$tableNameWithNewPrefix` (${newColumnSequence.joinToString(",")
-                    }) SELECT ${oldColumnSequence.joinToString(",")} FROM `$oldTableName`",
+                    "INSERT INTO `$tableNameWithNewPrefix` " +
+                        "(${newColumnSequence.joinToString(",")})" +
+                        " SELECT ${oldColumnSequence.joinToString(",")} FROM " +
+                        "`$oldTableName`",
                 )
             }
         )
