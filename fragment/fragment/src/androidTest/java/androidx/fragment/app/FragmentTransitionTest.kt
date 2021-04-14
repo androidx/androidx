@@ -784,6 +784,9 @@ class FragmentTransitionTest(
         fragment1.waitForTransition()
         fragment2.waitForTransition()
         fragment1.exitTransition.endAnimatorCountDownLatch.await(1000, TimeUnit.MILLISECONDS)
+        if (stateManager is NewStateManager) {
+            assertThat(listener.isGoneAtTransitionStart).isFalse()
+        }
 
         val endGreen = findViewById(fragment2, R.id.greenSquare)
         val endBlue = findViewById(fragment2, R.id.blueSquare)
@@ -1648,12 +1651,14 @@ class FragmentTransitionTest(
     ) : TestTransitionFragmentListener(
         fragment
     ) {
+        var isGoneAtTransitionStart = false
         override fun onTransitionEnd(transition: Transition) {
             fragment.endTransitionCountDownLatch.countDown()
             fragment.startTransitionCountDownLatch = CountDownLatch(1)
         }
 
         override fun onTransitionStart(transition: Transition) {
+            isGoneAtTransitionStart = fragment.requireView().visibility == View.GONE
             fragment.startTransitionCountDownLatch.countDown()
             transition.removeListener(this)
             transition.addListener(this)
