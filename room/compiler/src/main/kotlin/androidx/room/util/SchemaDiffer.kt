@@ -115,7 +115,7 @@ class SchemaDiffer(
                 if (fromTable is FtsEntityBundle &&
                     fromTable.ftsOptions.contentTable.isNotEmpty()
                 ) {
-                    contentTableToFtsEntities.getOrElse(fromTable.ftsOptions.contentTable) {
+                    contentTableToFtsEntities.getOrPut(fromTable.ftsOptions.contentTable) {
                         mutableListOf()
                     }.add(fromTable)
                 }
