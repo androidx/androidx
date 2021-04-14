@@ -17,7 +17,10 @@
 package androidx.camera.extensions
 
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.extensions.internal.ExtensionVersion
+import androidx.camera.extensions.internal.Version
 import androidx.camera.extensions.internal.VersionName
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -206,5 +209,108 @@ class ExtensionsManagerTest(
 
         var extensionsConfig = camera.extendedConfig as ExtensionsConfig
         assertThat(extensionsConfig.extensionMode).isEqualTo(extensionMode)
+    }
+
+    @Test
+    fun getEstimatedCaptureLatencyRangeThrowsException_whenExtensionAvailabilityIsNotAvailable() {
+        extensionsManager = ExtensionsManager.getInstance(
+            context,
+            VersionName("99.0.0")
+        )[10000, TimeUnit.MILLISECONDS]
+
+        assumeTrue(
+            extensionsManager.extensionsAvailability
+                != ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE
+        )
+
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        assertThrows<IllegalArgumentException> {
+            extensionsManager.getEstimatedCaptureLatencyRange(
+                cameraProvider,
+                baseCameraSelector,
+                extensionMode,
+                null
+            )
+        }
+    }
+
+    @Test
+    fun getEstimatedCaptureLatencyRangeReturnNull_belowVersion1_2() {
+        assumeTrue(
+            ExtensionVersion.getRuntimeVersion()!!.compareTo(Version.VERSION_1_2) < 0
+        )
+
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        assumeTrue(
+            extensionsManager.isExtensionAvailable(
+                cameraProvider,
+                baseCameraSelector,
+                extensionMode
+            )
+        )
+
+        // This call should not cause any exception even if the vendor library doesn't implement
+        // the getEstimatedCaptureLatencyRange function.
+        val latencyInfo = extensionsManager.getEstimatedCaptureLatencyRange(
+            cameraProvider,
+            baseCameraSelector,
+            extensionMode,
+            null
+        )
+
+        assertThat(latencyInfo).isNull()
+    }
+
+    @Test
+    fun getEstimatedCaptureLatencyRangeSameAsImplClass_aboveVersion1_2() {
+        assumeTrue(
+            ExtensionVersion.getRuntimeVersion()!!.compareTo(Version.VERSION_1_2) >= 0
+        )
+
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        assumeTrue(
+            extensionsManager.isExtensionAvailable(
+                cameraProvider,
+                baseCameraSelector,
+                extensionMode
+            )
+        )
+
+        // This call should not cause any exception even if the vendor library doesn't implement
+        // the getEstimatedCaptureLatencyRange function.
+        val latencyInfo = extensionsManager.getEstimatedCaptureLatencyRange(
+            cameraProvider,
+            baseCameraSelector,
+            extensionMode,
+            null
+        )
+
+        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(effectMode, lensFacing)
+        val expectedLatencyInfo = impl.getEstimatedCaptureLatencyRange(null)
+
+        assertThat(latencyInfo).isEqualTo(expectedLatencyInfo)
+    }
+
+    @Test
+    fun getEstimatedCaptureLatencyRangeThrowsException_whenNoCameraCanBeFound() {
+        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+
+        val emptyCameraSelector = CameraSelector.Builder()
+            .addCameraFilter { _ -> ArrayList<CameraInfo>() }
+            .build()
+
+        assertThrows<IllegalArgumentException> {
+            extensionsManager.getEstimatedCaptureLatencyRange(
+                cameraProvider,
+                emptyCameraSelector,
+                extensionMode,
+                null
+            )
+        }
     }
 }
