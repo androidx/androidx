@@ -20,9 +20,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
+import androidx.appsearch.localstorage.util.PrefixUtil;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.PropertyProto;
+import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SnippetMatchProto;
 import com.google.android.icing.proto.SnippetProto;
@@ -30,19 +32,30 @@ import com.google.android.icing.proto.SnippetProto;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.Map;
 
 public class SnippetTest {
+    private static final String SCHEMA_TYPE = "schema1";
+    private static final String PACKAGE_NAME = "packageName";
+    private static final String DATABASE_NAME = "databaseName";
+    private static final String PREFIX = PrefixUtil.createPrefix(PACKAGE_NAME, DATABASE_NAME);
+    private static final SchemaTypeConfigProto SCHEMA_TYPE_CONFIG_PROTO =
+            SchemaTypeConfigProto.newBuilder()
+                    .setSchemaType(PREFIX + SCHEMA_TYPE)
+                    .build();
+    private static final Map<String, Map<String, SchemaTypeConfigProto>> SCHEMA_MAP =
+            Collections.singletonMap(PREFIX,
+                    Collections.singletonMap(PREFIX + SCHEMA_TYPE,
+                            SCHEMA_TYPE_CONFIG_PROTO));
 
     // TODO(tytytyww): Add tests for Double and Long Snippets.
     @Test
     public void testSingleStringSnippet() {
-
         final String propertyKeyString = "content";
         final String propertyValueString = "A commonly used fake word is foo.\n"
                 + "   Another nonsense word that’s used a lot\n"
                 + "   is bar.\n";
         final String uri = "uri1";
-        final String schemaType = "schema1";
         final String searchWord = "foo";
         final String exactMatch = "foo";
         final String window = "is foo";
@@ -54,7 +67,7 @@ public class SnippetTest {
                 .build();
         DocumentProto documentProto = DocumentProto.newBuilder()
                 .setUri(uri)
-                .setSchema(schemaType)
+                .setSchema(SCHEMA_TYPE)
                 .addProperties(property)
                 .build();
         SnippetProto snippetProto = SnippetProto.newBuilder()
@@ -79,8 +92,8 @@ public class SnippetTest {
         // Making ResultReader and getting Snippet values.
         SearchResultPage searchResultPage =
                 SearchResultToProtoConverter.toSearchResultPage(searchResultProto,
-                        Collections.singletonList("packageName"), Collections.singletonList(
-                                "databaseName"));
+                        Collections.singletonList(PACKAGE_NAME), Collections.singletonList(
+                                DATABASE_NAME), SCHEMA_MAP);
         for (SearchResult result : searchResultPage.getResults()) {
             SearchResult.MatchInfo match = result.getMatches().get(0);
             assertThat(match.getPropertyPath()).isEqualTo(propertyKeyString);
@@ -104,7 +117,6 @@ public class SnippetTest {
                 + "   Another nonsense word that’s used a lot\n"
                 + "   is bar.\n";
         final String uri = "uri1";
-        final String schemaType = "schema1";
         final String searchWord = "foo";
         final String exactMatch = "foo";
         final String window = "is foo";
@@ -116,7 +128,7 @@ public class SnippetTest {
                 .build();
         DocumentProto documentProto = DocumentProto.newBuilder()
                 .setUri(uri)
-                .setSchema(schemaType)
+                .setSchema(SCHEMA_TYPE)
                 .addProperties(property)
                 .build();
         SearchResultProto.ResultProto resultProto = SearchResultProto.ResultProto.newBuilder()
@@ -128,8 +140,8 @@ public class SnippetTest {
 
         SearchResultPage searchResultPage =
                 SearchResultToProtoConverter.toSearchResultPage(searchResultProto,
-                        Collections.singletonList("packageName"), Collections.singletonList(
-                                "databaseName"));
+                        Collections.singletonList(PACKAGE_NAME), Collections.singletonList(
+                                DATABASE_NAME), SCHEMA_MAP);
         for (SearchResult result : searchResultPage.getResults()) {
             assertThat(result.getMatches()).isEmpty();
         }
@@ -150,7 +162,7 @@ public class SnippetTest {
                 .build();
         DocumentProto documentProto = DocumentProto.newBuilder()
                 .setUri("uri1")
-                .setSchema("schema1")
+                .setSchema(SCHEMA_TYPE)
                 .addProperties(property1)
                 .addProperties(property2)
                 .build();
@@ -190,8 +202,8 @@ public class SnippetTest {
         // Making ResultReader and getting Snippet values.
         SearchResultPage searchResultPage =
                 SearchResultToProtoConverter.toSearchResultPage(searchResultProto,
-                        Collections.singletonList("packageName"), Collections.singletonList(
-                                "databaseName"));
+                        Collections.singletonList(PACKAGE_NAME), Collections.singletonList(
+                                DATABASE_NAME), SCHEMA_MAP);
         for (SearchResult result : searchResultPage.getResults()) {
 
             SearchResult.MatchInfo match1 = result.getMatches().get(0);

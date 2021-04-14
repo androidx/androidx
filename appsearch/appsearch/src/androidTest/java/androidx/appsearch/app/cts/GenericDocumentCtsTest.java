@@ -253,11 +253,21 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    public void testDocument_setEmptyValues() {
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "uri1", "schemaType1")
+                .setPropertyBoolean("testKey")
+                .build();
+        assertThat(document.getPropertyBooleanArray("testKey")).isEmpty();
+    }
+
+    @Test
     public void testDocumentInvalid() {
         GenericDocument.Builder<?> builder = new GenericDocument.Builder<>("namespace", "uri1",
                 "schemaType1");
+        String nullString = null;
+
         assertThrows(
                 IllegalArgumentException.class,
-                () -> builder.setPropertyBoolean("test", new boolean[]{}));
+                () -> builder.setPropertyString("testKey", "string1", nullString));
     }
 }
