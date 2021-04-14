@@ -17,10 +17,12 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.params.MeteringRectangle
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
@@ -51,6 +53,11 @@ interface UseCaseCamera {
 
     // 3A
     suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A>
+    suspend fun startFocusAndMeteringAsync(
+        aeRegions: List<MeteringRectangle>,
+        afRegions: List<MeteringRectangle>,
+        awbRegions: List<MeteringRectangle>
+    ): Deferred<Result3A>
 
     // Capture
 
@@ -96,6 +103,21 @@ class UseCaseCameraImpl(
                     true -> TorchState.ON
                     false -> TorchState.OFF
                 }
+            )
+        }
+    }
+
+    override suspend fun startFocusAndMeteringAsync(
+        aeRegions: List<MeteringRectangle>,
+        afRegions: List<MeteringRectangle>,
+        awbRegions: List<MeteringRectangle>
+    ): Deferred<Result3A> {
+        return cameraGraph.acquireSession().use {
+            it.lock3A(
+                aeRegions = aeRegions,
+                afRegions = afRegions,
+                awbRegions = awbRegions,
+                afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN
             )
         }
     }

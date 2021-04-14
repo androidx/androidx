@@ -19,16 +19,16 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CaptureResult
+import android.util.Rational
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.config.CameraScope
-import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
+import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseManager
+import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
@@ -67,6 +67,12 @@ class CameraControlAdapter @Inject constructor(
 ) : CameraControlInternal {
     private var interopConfig: Config = MutableOptionsBundle.create()
     private var imageCaptureFlashMode: Int = ImageCapture.FLASH_MODE_OFF
+
+    private val focusMeteringControl = FocusMeteringControl(
+        cameraProperties,
+        useCaseManager,
+        threads
+    )
 
     override fun getSensorRect(): Rect {
         return cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
@@ -108,8 +114,9 @@ class CameraControlAdapter @Inject constructor(
     override fun startFocusAndMetering(
         action: FocusMeteringAction
     ): ListenableFuture<FocusMeteringResult> {
-        warn { "TODO: startFocusAndMetering is not yet supported" }
-        return Futures.immediateFuture(FocusMeteringResult.emptyInstance())
+        // TODO(sushilnath@): use preview aspect ratio instead of sensor active array aspect ratio.
+        val sensorAspectRatio = Rational(sensorRect.width(), sensorRect.height())
+        return focusMeteringControl.startFocusAndMetering(action, sensorAspectRatio)
     }
 
     override fun cancelFocusAndMetering(): ListenableFuture<Void> {
@@ -181,24 +188,5 @@ class CameraControlAdapter @Inject constructor(
 
     override fun submitCaptureRequests(captureConfigs: MutableList<CaptureConfig>) {
         warn { "TODO: submitCaptureRequests is not yet supported" }
-    }
-
-    /**
-     * Give whether auto focus trigger was desired, this method transforms a [Result3A] into
-     * [FocusMeteringResult] by checking if the auto focus was locked in a focused state.
-     *
-     * TODO(sushilnath): Move this to an adapter class specific to 3A operations.
-     */
-    private fun Result3A.toFocusMeteringResult(shouldTriggerAf: Boolean): FocusMeteringResult {
-        if (this.status != Result3A.Status.OK) {
-            return FocusMeteringResult.create(false)
-        }
-        val isFocusSuccessful =
-            if (shouldTriggerAf)
-                this.frameMetadata?.get(CaptureResult.CONTROL_AF_STATE) ==
-                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
-            else true
-
-        return FocusMeteringResult.create(isFocusSuccessful)
     }
 }
