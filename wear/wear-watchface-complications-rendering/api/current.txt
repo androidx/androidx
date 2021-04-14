@@ -14,6 +14,8 @@ package androidx.wear.watchface.complications.rendering {
     method public void setHighlighted(boolean value);
     property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
     property public boolean isHighlighted;
+    field public static final float EXPANSION_DP = 6.0f;
+    field public static final float STROKE_WIDTH_DP = 3.0f;
   }
 
   public final class ComplicationDrawable extends android.graphics.drawable.Drawable {
@@ -51,12 +53,7 @@ package androidx.wear.watchface.complications.rendering {
   }
 
   public final class ComplicationHighlightRenderer {
-    ctor public ComplicationHighlightRenderer();
-    method public static void drawComplicationHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
-    field public static final androidx.wear.watchface.complications.rendering.ComplicationHighlightRenderer.Companion Companion;
-  }
-
-  public static final class ComplicationHighlightRenderer.Companion {
+    ctor public ComplicationHighlightRenderer(@Px float outlineExpansion, @Px float outlineStrokeWidth);
     method public void drawComplicationHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
   }
 
