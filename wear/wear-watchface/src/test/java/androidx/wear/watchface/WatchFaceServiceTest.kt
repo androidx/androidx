@@ -20,7 +20,6 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Insets
 import android.graphics.Rect
 import android.graphics.RectF
@@ -55,7 +54,7 @@ import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.Layer
+import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
@@ -70,7 +69,6 @@ import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -139,7 +137,7 @@ public class WatchFaceServiceTest {
         "Watchface colorization", /* icon = */
         null,
         colorStyleList,
-        listOf(Layer.BASE)
+        listOf(WatchFaceLayer.BASE)
     )
 
     private val classicStyleOption =
@@ -160,7 +158,7 @@ public class WatchFaceServiceTest {
         "Hand visual look", /* icon = */
         null,
         watchHandStyleList,
-        listOf(Layer.COMPLICATIONS_OVERLAY)
+        listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
     )
 
     private val badStyleOption =
@@ -293,7 +291,7 @@ public class WatchFaceServiceTest {
     )
     private val complicationsStyleSetting = ComplicationsUserStyleSetting(
         UserStyleSetting.Id("complications_style_setting"),
-        "Complications",
+        "AllComplications",
         "Number and position",
         icon = null,
         complicationConfig = listOf(
@@ -302,7 +300,7 @@ public class WatchFaceServiceTest {
             leftComplicationsOption,
             rightComplicationsOption
         ),
-        affectsLayers = listOf(Layer.COMPLICATIONS)
+        affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
     )
 
     private lateinit var renderer: TestRenderer
@@ -1854,7 +1852,7 @@ public class WatchFaceServiceTest {
         )
         val complicationsStyleSetting = ComplicationsUserStyleSetting(
             UserStyleSetting.Id("complications_style_setting"),
-            "Complications",
+            "AllComplications",
             "Number and position",
             icon = null,
             complicationConfig = listOf(
@@ -1862,7 +1860,7 @@ public class WatchFaceServiceTest {
                 leftOnlyComplicationsOption,
                 rightOnlyComplicationsOption
             ),
-            affectsLayers = listOf(Layer.COMPLICATIONS)
+            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
         )
 
         initEngine(
@@ -1923,14 +1921,14 @@ public class WatchFaceServiceTest {
         )
         val complicationsStyleSetting = ComplicationsUserStyleSetting(
             UserStyleSetting.Id("complications_style_setting"),
-            "Complications",
+            "AllComplications",
             "Number and position",
             icon = null,
             complicationConfig = listOf(
                 leftOnlyComplicationsOption, // The default value which should be applied.
                 bothComplicationsOption,
             ),
-            affectsLayers = listOf(Layer.COMPLICATIONS)
+            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
         )
 
         initEngine(
@@ -2245,42 +2243,6 @@ public class WatchFaceServiceTest {
         engineWrapper.onDestroy()
 
         assertNull(InteractiveInstanceManager.getAndRetainInstance(instanceId))
-    }
-
-    @Test
-    public fun renderParameters_secondaryConstructor() {
-        val params = RenderParameters(
-            DrawMode.INTERACTIVE,
-            mapOf(
-                Layer.BASE to LayerMode.DRAW,
-                Layer.COMPLICATIONS to LayerMode.DRAW,
-                Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
-            ),
-            null
-        )
-
-        assertThat(params.drawMode).isEqualTo(DrawMode.INTERACTIVE)
-        assertThat(params.outlineTint).isEqualTo(Color.RED)
-        assertNull(params.selectedComplicationId)
-    }
-
-    @Test
-    public fun renderParameters_secondaryConstructorEnforcesNoDrawOutlined() {
-        try {
-            RenderParameters(
-                DrawMode.INTERACTIVE,
-                mapOf(
-                    Layer.BASE to LayerMode.DRAW,
-                    Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
-                    Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
-                ),
-                null
-            )
-
-            fail("Should have thrown an exception due to LayerMode.DRAW_OUTLINED")
-        } catch (e: Exception) {
-            // Expected.
-        }
     }
 
     @Test

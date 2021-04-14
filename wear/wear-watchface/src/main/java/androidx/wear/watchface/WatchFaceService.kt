@@ -696,8 +696,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     Canvas(complicationBitmap),
                     Rect(0, 0, bounds.width(), bounds.height()),
                     calendar,
-                    RenderParameters(params.renderParametersWireFormat),
-                    params.complicationId
+                    RenderParameters(params.renderParametersWireFormat)
                 )
 
                 // Restore previous ComplicationData & style if required.

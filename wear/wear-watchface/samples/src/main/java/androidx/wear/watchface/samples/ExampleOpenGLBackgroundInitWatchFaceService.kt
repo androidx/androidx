@@ -17,6 +17,7 @@
 package androidx.wear.watchface.samples
 
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.icu.util.Calendar
 import android.opengl.EGL14
 import android.opengl.GLES20
@@ -314,5 +315,16 @@ internal class MainThreadRenderer(
         hourHandQuad.draw(vpMatrix)
 
         triangleTextureProgram.unbindAttribs()
+    }
+
+    override fun renderHighlightLayer(calendar: Calendar) {
+        val highlightLayer = renderParameters.highlightLayer!!
+        GLES20.glClearColor(
+            Color.red(highlightLayer.backgroundTint).toFloat() / 256.0f,
+            Color.green(highlightLayer.backgroundTint).toFloat() / 256.0f,
+            Color.blue(highlightLayer.backgroundTint).toFloat() / 256.0f,
+            Color.alpha(highlightLayer.backgroundTint).toFloat() / 256.0f
+        )
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
     }
 }

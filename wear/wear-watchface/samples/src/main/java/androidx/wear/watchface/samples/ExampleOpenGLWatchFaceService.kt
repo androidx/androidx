@@ -17,6 +17,7 @@
 package androidx.wear.watchface.samples
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.icu.util.Calendar
@@ -36,13 +37,12 @@ import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.GlesTextureComplication
-import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.style.Layer
+import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
@@ -110,7 +110,7 @@ fun createExampleOpenGLWatchFaceBuilder(
                 Icon.createWithResource(context, R.drawable.green_style)
             )
         ),
-        listOf(Layer.BASE, Layer.COMPLICATIONS_OVERLAY)
+        listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
     )
     val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
     val complicationsManager = ComplicationsManager(
@@ -216,6 +216,7 @@ class ExampleOpenGLRenderer(
     private lateinit var textureTriangleProgram: Gles2TexturedTriangleList.Program
 
     private lateinit var complicationTriangles: Gles2TexturedTriangleList
+    private lateinit var complicationHighlightTriangles: Gles2ColoredTriangleList
 
     override fun onGlContextCreated() {
         // Create program for drawing triangles.
@@ -229,6 +230,14 @@ class ExampleOpenGLRenderer(
         textureTriangleProgram = Gles2TexturedTriangleList.Program()
         complicationTriangles = createComplicationQuad(
             textureTriangleProgram,
+            -0.9f,
+            -0.1f,
+            0.6f,
+            0.6f
+        )
+
+        complicationHighlightTriangles = createComplicationHighlightQuad(
+            coloredTriangleProgram,
             -0.9f,
             -0.1f,
             0.6f,
@@ -510,6 +519,50 @@ class ExampleOpenGLRenderer(
         )
     )
 
+    /**
+     * Creates a triangle list for the complication highlight quad.
+     */
+    private fun createComplicationHighlightQuad(
+        program: Gles2ColoredTriangleList.Program,
+        left: Float,
+        top: Float,
+        width: Float,
+        height: Float
+    ) = Gles2ColoredTriangleList(
+        program,
+        floatArrayOf(
+            top + 0.0f,
+            left + 0.0f,
+            0.0f,
+
+            top + 0.0f,
+            left + width,
+            0.0f,
+
+            top + height,
+            left + 0.0f,
+            0.0f,
+
+            top + 0.0f,
+            left + width,
+            0.0f,
+
+            top + height,
+            left + 0.0f,
+            0.0f,
+
+            top + height,
+            left + width,
+            0.0f
+        ),
+        floatArrayOf(
+            1.0f /* red */,
+            1.0f /* green */,
+            1.0f /* blue */,
+            0.0f /* alpha */
+        )
+    )
+
     private fun getMajorTickTriangleCoords(index: Int): FloatArray {
         return getTickTriangleCoords(
             0.03f /* width */, 0.09f /* length */,
@@ -588,8 +641,7 @@ class ExampleOpenGLRenderer(
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         // Draw the complication first.
-        // TODO(alexclarke): Implement LayerMode.DRAW_OUTLINED
-        if (renderParameters.layerParameters[Layer.COMPLICATIONS] != LayerMode.HIDE) {
+        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS)) {
             complicationTexture.renderToTexture(calendar, renderParameters)
 
             textureTriangleProgram.bindProgramAndAttribs()
@@ -614,7 +666,8 @@ class ExampleOpenGLRenderer(
         val hoursIndex = (hours / 12f * 360f).toInt()
 
         // Render hands.
-        if (renderParameters.layerParameters[Layer.COMPLICATIONS_OVERLAY] != LayerMode.HIDE) {
+        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS_OVERLAY)
+        ) {
             Matrix.multiplyMM(
                 mvpMatrix,
                 0,
@@ -650,9 +703,30 @@ class ExampleOpenGLRenderer(
             }
         }
 
-        if (renderParameters.layerParameters[Layer.BASE] != LayerMode.HIDE) {
+        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.BASE)) {
             majorTickTriangles.draw(vpMatrix)
             minorTickTriangles.draw(vpMatrix)
+            coloredTriangleProgram.unbindAttribs()
+        }
+    }
+
+    override fun renderHighlightLayer(calendar: Calendar) {
+        val cameraIndex = (calendar.timeInMillis / FRAME_PERIOD_MS % numCameraAngles).toInt()
+        val vpMatrix = vpMatrices[cameraIndex]
+
+        val highlightLayer = renderParameters.highlightLayer!!
+        GLES20.glClearColor(
+            Color.red(highlightLayer.backgroundTint).toFloat() / 256.0f,
+            Color.green(highlightLayer.backgroundTint).toFloat() / 256.0f,
+            Color.blue(highlightLayer.backgroundTint).toFloat() / 256.0f,
+            Color.alpha(highlightLayer.backgroundTint).toFloat() / 256.0f
+        )
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+
+        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS)) {
+            GLES20.glEnable(GLES20.GL_BLEND)
+            GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
+            complicationHighlightTriangles.draw(vpMatrix)
             coloredTriangleProgram.unbindAttribs()
         }
     }
@@ -667,8 +741,8 @@ class Gles2ColoredTriangleList(
     private val color: FloatArray
 ) {
     init {
-        require(triangleCoords.size % (VERTICE_PER_TRIANGLE * COORDS_PER_VERTEX) == 0) {
-            ("must be multiple of VERTICE_PER_TRIANGLE * COORDS_PER_VERTEX coordinates")
+        require(triangleCoords.size % (VERTICES_PER_TRIANGLE * COORDS_PER_VERTEX) == 0) {
+            ("must be multiple of VERTICES_PER_TRIANGLE * COORDS_PER_VERTEX coordinates")
         }
         require(color.size == NUM_COLOR_COMPONENTS) { "wrong number of color components" }
     }
@@ -870,7 +944,7 @@ class Gles2ColoredTriangleList(
         private const val VERTEX_STRIDE = COORDS_PER_VERTEX * BYTES_PER_FLOAT
 
         /** Triangles have three vertices.  */
-        private const val VERTICE_PER_TRIANGLE = 3
+        private const val VERTICES_PER_TRIANGLE = 3
 
         /**
          * Number of components in an OpenGL color. The components are:
@@ -951,12 +1025,12 @@ class Gles2TexturedTriangleList(
     private val textureCoords: FloatArray
 ) {
     init {
-        require(triangleCoords.size % (VERTICE_PER_TRIANGLE * COORDS_PER_VERTEX) == 0) {
-            ("must be multiple of VERTICE_PER_TRIANGLE * COORDS_PER_VERTEX coordinates")
+        require(triangleCoords.size % (VERTICES_PER_TRIANGLE * COORDS_PER_VERTEX) == 0) {
+            ("must be multiple of VERTICES_PER_TRIANGLE * COORDS_PER_VERTEX coordinates")
         }
-        require(textureCoords.size % (VERTICE_PER_TRIANGLE * TEXTURE_COORDS_PER_VERTEX) == 0) {
+        require(textureCoords.size % (VERTICES_PER_TRIANGLE * TEXTURE_COORDS_PER_VERTEX) == 0) {
             (
-                "must be multiple of VERTICE_PER_TRIANGLE * NUM_TEXTURE_COMPONENTS texture " +
+                "must be multiple of VERTICES_PER_TRIANGLE * NUM_TEXTURE_COMPONENTS texture " +
                     "coordinates"
                 )
         }
@@ -1199,7 +1273,7 @@ class Gles2TexturedTriangleList(
         private const val TEXTURE_COORDS_VERTEX_STRIDE = TEXTURE_COORDS_PER_VERTEX * BYTES_PER_FLOAT
 
         /** Triangles have three vertices. */
-        private const val VERTICE_PER_TRIANGLE = 3
+        private const val VERTICES_PER_TRIANGLE = 3
 
         /**
          * Checks if any of the GL calls since the last time this method was called set an error

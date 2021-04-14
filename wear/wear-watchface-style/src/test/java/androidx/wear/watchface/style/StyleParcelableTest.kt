@@ -58,7 +58,7 @@ public class StyleParcelableTest {
             "description",
             settingIcon,
             listOf(option1, option2, option3),
-            listOf(Layer.BASE)
+            listOf(WatchFaceLayer.BASE)
         )
 
         val parcel = Parcel.obtain()
@@ -78,8 +78,8 @@ public class StyleParcelableTest {
         assertThat(unparceled.displayName).isEqualTo("displayName")
         assertThat(unparceled.description).isEqualTo("description")
         assertThat(unparceled.icon!!.uri.toString()).isEqualTo("settingIcon")
-        assertThat(unparceled.affectedLayers.size).isEqualTo(1)
-        assertThat(unparceled.affectedLayers.first()).isEqualTo(Layer.BASE)
+        assertThat(unparceled.affectedWatchFaceLayers.size).isEqualTo(1)
+        assertThat(unparceled.affectedWatchFaceLayers.first()).isEqualTo(WatchFaceLayer.BASE)
         val optionArray = unparceled.options.filterIsInstance<ListOption>().toTypedArray()
         assertThat(optionArray.size).isEqualTo(3)
         assertThat(optionArray[0].id.value.decodeToString()).isEqualTo("1")
@@ -124,7 +124,7 @@ public class StyleParcelableTest {
             "description1",
             settingIcon1,
             listOf(option1, option2),
-            listOf(Layer.BASE)
+            listOf(WatchFaceLayer.BASE)
         )
         val styleSetting2 = ListUserStyleSetting(
             UserStyleSetting.Id("id2"),
@@ -132,18 +132,18 @@ public class StyleParcelableTest {
             "description2",
             settingIcon2,
             listOf(option3, option4),
-            listOf(Layer.COMPLICATIONS_OVERLAY)
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
         )
         val styleSetting3 = BooleanUserStyleSetting(
             UserStyleSetting.Id("id3"),
             "displayName3",
             "description3",
             null,
-            listOf(Layer.BASE),
+            listOf(WatchFaceLayer.BASE),
             true
         )
         val styleSetting4 = CustomValueUserStyleSetting(
-            listOf(Layer.BASE),
+            listOf(WatchFaceLayer.BASE),
             "default".encodeToByteArray()
         )
 
@@ -170,8 +170,10 @@ public class StyleParcelableTest {
         assertThat(schema.userStyleSettings[0].displayName).isEqualTo("displayName1")
         assertThat(schema.userStyleSettings[0].description).isEqualTo("description1")
         assertThat(schema.userStyleSettings[0].icon!!.uri.toString()).isEqualTo("settingIcon1")
-        assertThat(schema.userStyleSettings[0].affectedLayers.size).isEqualTo(1)
-        assertThat(schema.userStyleSettings[0].affectedLayers.first()).isEqualTo(Layer.BASE)
+        assertThat(schema.userStyleSettings[0].affectedWatchFaceLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[0].affectedWatchFaceLayers.first()).isEqualTo(
+            WatchFaceLayer.BASE
+        )
         val optionArray1 =
             schema.userStyleSettings[0].options.filterIsInstance<ListOption>().toTypedArray()
         assertThat(optionArray1.size).isEqualTo(2)
@@ -187,9 +189,9 @@ public class StyleParcelableTest {
         assertThat(schema.userStyleSettings[1].displayName).isEqualTo("displayName2")
         assertThat(schema.userStyleSettings[1].description).isEqualTo("description2")
         assertThat(schema.userStyleSettings[1].icon!!.uri.toString()).isEqualTo("settingIcon2")
-        assertThat(schema.userStyleSettings[1].affectedLayers.size).isEqualTo(1)
-        assertThat(schema.userStyleSettings[1].affectedLayers.first()).isEqualTo(
-            Layer.COMPLICATIONS_OVERLAY
+        assertThat(schema.userStyleSettings[1].affectedWatchFaceLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[1].affectedWatchFaceLayers.first()).isEqualTo(
+            WatchFaceLayer.COMPLICATIONS_OVERLAY
         )
         val optionArray2 =
             schema.userStyleSettings[1].options.filterIsInstance<ListOption>().toTypedArray()
@@ -206,14 +208,18 @@ public class StyleParcelableTest {
         assertThat(schema.userStyleSettings[2].displayName).isEqualTo("displayName3")
         assertThat(schema.userStyleSettings[2].description).isEqualTo("description3")
         assertThat(schema.userStyleSettings[2].icon).isEqualTo(null)
-        assertThat(schema.userStyleSettings[2].affectedLayers.size).isEqualTo(1)
-        assertThat(schema.userStyleSettings[2].affectedLayers.first()).isEqualTo(Layer.BASE)
+        assertThat(schema.userStyleSettings[2].affectedWatchFaceLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[2].affectedWatchFaceLayers.first()).isEqualTo(
+            WatchFaceLayer.BASE
+        )
 
         assert(schema.userStyleSettings[3] is CustomValueUserStyleSetting)
         assertThat(schema.userStyleSettings[3].defaultOption.id.value.decodeToString())
             .isEqualTo("default")
-        assertThat(schema.userStyleSettings[3].affectedLayers.size).isEqualTo(1)
-        assertThat(schema.userStyleSettings[3].affectedLayers.first()).isEqualTo(Layer.BASE)
+        assertThat(schema.userStyleSettings[3].affectedWatchFaceLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[3].affectedWatchFaceLayers.first()).isEqualTo(
+            WatchFaceLayer.BASE
+        )
     }
 
     @Test
@@ -226,7 +232,7 @@ public class StyleParcelableTest {
             "description1",
             settingIcon1,
             listOf(option1, option2),
-            listOf(Layer.BASE)
+            listOf(WatchFaceLayer.BASE)
         )
         val styleSetting2 = ListUserStyleSetting(
             UserStyleSetting.Id("id2"),
@@ -234,7 +240,7 @@ public class StyleParcelableTest {
             "description2",
             settingIcon2,
             listOf(option3, option4),
-            listOf(Layer.COMPLICATIONS_OVERLAY)
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
         )
         val schema = UserStyleSchema(listOf(styleSetting1, styleSetting2))
         val userStyle = UserStyle(
@@ -267,7 +273,7 @@ public class StyleParcelableTest {
             "displayName2",
             "description2",
             null,
-            listOf(Layer.BASE),
+            listOf(WatchFaceLayer.BASE),
             true
         )
         assertTrue(booleanUserStyleSettingDefaultTrue.getDefaultValue())
@@ -277,7 +283,7 @@ public class StyleParcelableTest {
             "displayName2",
             "description2",
             null,
-            listOf(Layer.BASE),
+            listOf(WatchFaceLayer.BASE),
             false
         )
         assertFalse(booleanUserStyleSettingDefaultFalse.getDefaultValue())
@@ -292,7 +298,7 @@ public class StyleParcelableTest {
             null,
             -1.0,
             1.0,
-            listOf(Layer.BASE),
+            listOf(WatchFaceLayer.BASE),
             -1.0
         )
         assertThat(doubleRangeUserStyleSettingDefaultMin.defaultValue).isEqualTo(-1.0)
@@ -304,7 +310,7 @@ public class StyleParcelableTest {
             null,
             -1.0,
             1.0,
-            listOf(Layer.BASE),
+            listOf(WatchFaceLayer.BASE),
             0.5
         )
         assertThat(doubleRangeUserStyleSettingDefaultMid.defaultValue).isEqualTo(0.5)
@@ -316,7 +322,7 @@ public class StyleParcelableTest {
             null,
             -1.0,
             1.0,
-            listOf(Layer.BASE),
+            listOf(WatchFaceLayer.BASE),
             1.0
         )
         assertThat(doubleRangeUserStyleSettingDefaultMax.defaultValue).isEqualTo(1.0)
@@ -331,7 +337,7 @@ public class StyleParcelableTest {
             null,
             -1,
             10,
-            listOf(Layer.BASE),
+            listOf(WatchFaceLayer.BASE),
             -1,
         )
         assertThat(longRangeUserStyleSettingDefaultMin.defaultValue).isEqualTo(-1)
@@ -343,7 +349,7 @@ public class StyleParcelableTest {
             null,
             -1,
             10,
-            listOf(Layer.BASE),
+            listOf(WatchFaceLayer.BASE),
             5
         )
         assertThat(longRangeUserStyleSettingDefaultMid.defaultValue).isEqualTo(5)
@@ -355,7 +361,7 @@ public class StyleParcelableTest {
             null,
             -1,
             10,
-            listOf(Layer.BASE),
+            listOf(WatchFaceLayer.BASE),
             10
         )
         assertThat(longRangeUserStyleSettingDefaultMax.defaultValue).isEqualTo(10)
@@ -415,7 +421,7 @@ public class StyleParcelableTest {
                     )
                 )
             ),
-            listOf(Layer.COMPLICATIONS)
+            listOf(WatchFaceLayer.COMPLICATIONS)
         )
 
         val parcel = Parcel.obtain()
@@ -469,7 +475,7 @@ public class StyleParcelableTest {
             "description1",
             settingIcon1,
             listOf(option1, option2),
-            listOf(Layer.BASE)
+            listOf(WatchFaceLayer.BASE)
         )
         val styleSetting2 = ListUserStyleSetting(
             UserStyleSetting.Id("id2"),
@@ -477,18 +483,18 @@ public class StyleParcelableTest {
             "description2",
             settingIcon2,
             listOf(option3, option4),
-            listOf(Layer.COMPLICATIONS_OVERLAY)
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
         )
         val styleSetting3 = BooleanUserStyleSetting(
             UserStyleSetting.Id("id3"),
             "displayName3",
             "description3",
             null,
-            listOf(Layer.BASE),
+            listOf(WatchFaceLayer.BASE),
             true
         )
         val styleSetting4 = CustomValueUserStyleSetting(
-            listOf(Layer.BASE),
+            listOf(WatchFaceLayer.BASE),
             "default".encodeToByteArray()
         )
 
@@ -517,7 +523,7 @@ public class StyleParcelableTest {
             "description1",
             settingIcon1,
             listOf(option1, option2),
-            listOf(Layer.BASE)
+            listOf(WatchFaceLayer.BASE)
         )
         val styleSetting2 = ListUserStyleSetting(
             UserStyleSetting.Id("id2"),
@@ -525,7 +531,7 @@ public class StyleParcelableTest {
             "description2",
             settingIcon2,
             listOf(option3, option4),
-            listOf(Layer.COMPLICATIONS_OVERLAY)
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
         )
         val style = UserStyle(
             mapOf(

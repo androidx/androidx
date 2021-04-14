@@ -20,7 +20,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.os.Handler
@@ -56,6 +55,7 @@ import androidx.wear.watchface.samples.EXAMPLE_OPENGL_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.samples.ExampleOpenGLWatchFaceService
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -88,6 +88,12 @@ internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
                 16
             ) {
                 override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
+
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    calendar: Calendar
+                ) {}
             }
         )
     }
@@ -160,9 +166,8 @@ public class WatchFaceControlServiceTest {
                 WatchFaceRenderParams(
                     RenderParameters(
                         DrawMode.INTERACTIVE,
-                        RenderParameters.DRAW_ALL_LAYERS,
-                        null,
-                        Color.RED
+                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                        null
                     ).toWireFormat(),
                     1234567890,
                     null,
@@ -203,9 +208,8 @@ public class WatchFaceControlServiceTest {
                 WatchFaceRenderParams(
                     RenderParameters(
                         DrawMode.INTERACTIVE,
-                        RenderParameters.DRAW_ALL_LAYERS,
-                        null,
-                        Color.RED
+                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                        null
                     ).toWireFormat(),
                     1234567890,
                     null,
@@ -238,9 +242,8 @@ public class WatchFaceControlServiceTest {
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                     RenderParameters(
                         DrawMode.AMBIENT,
-                        RenderParameters.DRAW_ALL_LAYERS,
+                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                         null,
-                        Color.RED
                     ).toWireFormat(),
                     123456789,
                     ShortTextComplicationData.Builder(PlainComplicationText.Builder("Mon").build())

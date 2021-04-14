@@ -59,7 +59,7 @@ import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.Layer
+import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
@@ -251,7 +251,7 @@ public class EditorSessionTest {
         "Watchface colorization", /* icon = */
         null,
         colorStyleList,
-        listOf(Layer.BASE)
+        listOf(WatchFaceLayer.BASE)
     )
 
     private val classicStyleOption = ListOption(Option.Id("classic_style"), "Classic", icon = null)
@@ -269,7 +269,7 @@ public class EditorSessionTest {
         "Hand visual look", /* icon = */
         null,
         watchHandStyleList,
-        listOf(Layer.COMPLICATIONS_OVERLAY)
+        listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
     )
 
     private val placeholderWatchState = MutableWatchState().asWatchState()

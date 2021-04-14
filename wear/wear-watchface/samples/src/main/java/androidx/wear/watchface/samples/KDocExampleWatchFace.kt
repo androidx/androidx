@@ -38,7 +38,7 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.style.Layer
+import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
@@ -79,7 +79,11 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                     icon = null
                                 )
                             ),
-                            listOf(Layer.BASE, Layer.COMPLICATIONS, Layer.COMPLICATIONS_OVERLAY)
+                            listOf(
+                                WatchFaceLayer.BASE,
+                                WatchFaceLayer.COMPLICATIONS,
+                                WatchFaceLayer.COMPLICATIONS_OVERLAY
+                            )
                         ),
                         ListUserStyleSetting(
                             UserStyleSetting.Id("hand_style_setting"),
@@ -99,7 +103,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                     icon = null
                                 )
                             ),
-                            listOf(Layer.COMPLICATIONS_OVERLAY)
+                            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
                         )
                     )
                 )
@@ -166,6 +170,16 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                     bounds: Rect,
                     calendar: Calendar
                 ) {
+                    // ...
+                }
+
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    calendar: Calendar
+                ) {
+                    canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
+
                     // ...
                 }
             }
