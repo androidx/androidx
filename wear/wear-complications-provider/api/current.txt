@@ -27,10 +27,14 @@ package androidx.wear.complications {
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void onUpdateComplication(androidx.wear.complications.data.ComplicationData? complicationData) throws android.os.RemoteException;
   }
 
-  public class ProviderUpdateRequester {
-    ctor public ProviderUpdateRequester(android.content.Context, android.content.ComponentName);
-    method public void requestUpdate(int...);
+  public final class ProviderUpdateRequester {
+    ctor public ProviderUpdateRequester(android.content.Context context, android.content.ComponentName providerComponent);
+    method public void requestUpdate(int... complicationIds);
     method public void requestUpdateAll();
+    field public static final androidx.wear.complications.ProviderUpdateRequester.Companion Companion;
+  }
+
+  public static final class ProviderUpdateRequester.Companion {
   }
 
 }
