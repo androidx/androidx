@@ -942,8 +942,6 @@ object ProcessorErrors {
             " a different name."
     }
 
-    val FTS_TABLE_NOT_CURRENTLY_SUPPORTED = "Schemas involving FTS tables are not currently " +
-        "supported."
     val INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC = "An inner class AutoMigrationSpec must be" +
         " static."
 
