@@ -631,7 +631,7 @@ public class Complication internal constructor(
             ComplicationType.NO_DATA -> false
             ComplicationType.NO_PERMISSION -> false
             ComplicationType.EMPTY -> false
-            else -> complicationData.value.isActiveAt(dateTimeMillis)
+            else -> complicationData.value.validTimeRange.contains(dateTimeMillis)
         }
     }
 
