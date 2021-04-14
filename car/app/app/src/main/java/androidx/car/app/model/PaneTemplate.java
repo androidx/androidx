@@ -218,18 +218,20 @@ public final class PaneTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 2 {@link Row}s and 2 {@link Action}s in the {@link Pane}.
-         * The host
+         * The number of items in the {@link ItemList} should be smaller or equal than the limit
+         * provided by
+         * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_PANE}. The host
          * will ignore any rows over that limit. Each {@link Row}s can add up to 2 lines of texts
-         * via
-         * {@link Row.Builder#addText} and cannot contain either a {@link Toggle} or a {@link
+         * via {@link Row.Builder#addText} and cannot contain either a {@link Toggle} or a {@link
          * OnClickListener}.
          *
-         * <p>Either a header {@link Action} or title must be set on the template.
+         * <p>Up to 2 {@link Action}s are allowed in the {@link Pane}, and either a header
+         * {@link Action} or title must be set on the template.
          *
          * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
          * @throws IllegalStateException    if the template does not have either a title or header
          *                                  {@link Action} set
+         * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull
         public PaneTemplate build() {

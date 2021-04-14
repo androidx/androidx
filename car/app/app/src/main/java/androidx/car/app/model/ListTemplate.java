@@ -340,9 +340,11 @@ public final class ListTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 6 {@link Row}s total in the {@link ItemList}(s). The host will
-         * ignore any items over that limit. Each {@link Row}s can add up to 2 lines of texts via
-         * {@link Row.Builder#addText}.
+         * The number of items in the {@link ItemList} should be smaller or equal than the limit
+         * provided by
+         * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_LIST}. The
+         * host will ignore any items over that limit. Each {@link Row}s can add up to 2 lines of
+         * texts via {@link Row.Builder#addText}.
          *
          * <p>Either a header {@link Action} or the title must be set on the template.
          *
@@ -351,6 +353,7 @@ public final class ListTemplate implements Template {
          *                                  not have either a title or header {@link Action} set
          * @throws IllegalArgumentException if the added {@link ItemList}(s) do not meet the
          *                                  template's requirements
+         * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull
         public ListTemplate build() {
