@@ -19,6 +19,7 @@ package androidx.camera.extensions.impl;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.Nullable;
@@ -80,5 +81,22 @@ public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
      */
     @Nullable
     List<Pair<Integer, Size[]>> getSupportedResolutions();
+
+    /**
+     * Returns the estimated capture latency range in milliseconds for the target capture
+     * resolution.
+     *
+     * <p> This includes the time spent processing the multi-frame capture request along with any
+     * additional time for encoding of the processed buffer in the framework if necessary.
+     *
+     * @param captureOutputSize size of the capture output surface. If it is null or not in the
+     *                          supported output sizes, maximum capture output size is used for
+     *                          the estimation.
+     * @return the range of estimated minimal and maximal capture latency in milliseconds.
+     * Returns null if no capture latency info can be provided.
+     * @since 1.2
+     */
+    @Nullable
+    Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize);
 }
 

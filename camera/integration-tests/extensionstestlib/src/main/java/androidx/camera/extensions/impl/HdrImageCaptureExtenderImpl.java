@@ -24,6 +24,7 @@ import android.media.ImageWriter;
 import android.os.Build;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 
@@ -261,4 +262,9 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         return null;
     }
 
+    @Nullable
+    @Override
+    public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize) {
+        return new Range<>(300L, 1000L);
+    }
 }
