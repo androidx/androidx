@@ -112,8 +112,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         }
 
         // Start transition special effects
-        Map<Operation, Boolean> startedTransitions = startTransitions(transitions, isPop,
-                firstOut, lastIn);
+        Map<Operation, Boolean> startedTransitions = startTransitions(transitions,
+                awaitingContainerChanges, isPop, firstOut, lastIn);
         boolean startedAnyTransition = startedTransitions.containsValue(true);
 
         // Start animation special effects
@@ -282,6 +282,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
 
     @NonNull
     private Map<Operation, Boolean> startTransitions(@NonNull List<TransitionInfo> transitionInfos,
+            @NonNull List<Operation> awaitingContainerChanges,
             final boolean isPop, @Nullable final Operation firstOut,
             @Nullable final Operation lastIn) {
         Map<Operation, Boolean> startedTransitions = new HashMap<>();
@@ -565,6 +566,11 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                             null, null, null, null);
                     if (operation.getFinalState() == Operation.State.GONE) {
                         // We're hiding the Fragment. This requires a bit of extra work
+                        // First, we need to avoid immediately applying the container change as
+                        // that will stop the Transition from occurring.
+                        awaitingContainerChanges.remove(operation);
+                        // Then schedule the actual hide of the fragment's view,
+                        // essentially doing what applyState() would do for us
                         transitionImpl.scheduleHideFragmentView(transition,
                                 operation.getFragment().mView,
                                 transitioningViews);
