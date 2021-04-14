@@ -58,6 +58,15 @@ dependencies {
 
     kapt(DAGGER_COMPILER)
 
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
+    testImplementation(ROBOLECTRIC)
+    testImplementation(KOTLIN_COROUTINES_TEST)
+    testImplementation(project(":camera:camera-camera2-pipe-testing"))
+    testImplementation(project(":internal-testutils-truth"))
+
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
