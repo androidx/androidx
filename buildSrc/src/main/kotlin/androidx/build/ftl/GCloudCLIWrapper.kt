@@ -19,7 +19,7 @@ package androidx.build.ftl
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
-import org.gradle.api.Project
+import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.Locale
@@ -34,8 +34,9 @@ import java.util.Locale
  * documentation for FTL:
  * https://cloud.google.com/sdk/gcloud/reference/firebase/test/android/run
  */
+@Suppress("UnstableApiUsage") // ExecOperations
 internal class GCloudCLIWrapper(
-    private val rootProject: Project
+    private val execOperations: ExecOperations
 ) {
     private val gson = Gson()
 
@@ -44,7 +45,7 @@ internal class GCloudCLIWrapper(
      */
     private val executable: String by lazy {
         val output = ByteArrayOutputStream()
-        rootProject.exec {
+        execOperations.exec {
             it.commandLine("which", "gcloud")
             it.standardOutput = output
             it.errorOutput = System.err
@@ -56,7 +57,7 @@ internal class GCloudCLIWrapper(
         vararg params: String
     ): T {
         val output = ByteArrayOutputStream()
-        rootProject.exec {
+        execOperations.exec {
             it.executable = executable
             it.args = params.toList() + "--format=json"
             it.standardOutput = output

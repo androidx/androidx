@@ -71,8 +71,10 @@ internal class FirebaseTestLabHelper(
          */
         private val AGP_PLUGIN_IDS = listOf(
             "com.android.application",
-            "com.android.library",
-            "com.android.dynamic-feature"
+            // TODO enable library and dynamic feature when we can synthesize
+            //  an APK for them
+            //  "com.android.library",
+            //  "com.android.dynamic-feature"
         )
     }
 }
