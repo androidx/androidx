@@ -33,6 +33,7 @@ import android.view.DragEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -48,15 +49,16 @@ final class AppCompatReceiveContentHelper {
     private static final String LOG_TAG = "ReceiveContent";
 
     /**
-     * If the menu action is either "Paste" or "Paste as plain text" and the view has a
-     * {@link androidx.core.view.OnReceiveContentListener}, use the listener to handle the paste.
+     * If the SDK is <= 30 and the view has a {@link androidx.core.view.OnReceiveContentListener},
+     * use the listener to handle the "Paste" and "Paste as plain text" actions.
      *
      * @return true if the action was handled; false otherwise
      */
     static boolean maybeHandleMenuActionViaPerformReceiveContent(@NonNull TextView view,
-            int menuItemId) {
-        if (!(menuItemId == android.R.id.paste || menuItemId == android.R.id.pasteAsPlainText)
-                || ViewCompat.getOnReceiveContentMimeTypes(view) == null) {
+            int actionId) {
+        if (Build.VERSION.SDK_INT >= 31
+                || ViewCompat.getOnReceiveContentMimeTypes(view) == null
+                || !(actionId == android.R.id.paste || actionId == android.R.id.pasteAsPlainText)) {
             return false;
         }
         ClipboardManager cm = (ClipboardManager) view.getContext().getSystemService(
@@ -64,7 +66,7 @@ final class AppCompatReceiveContentHelper {
         ClipData clip = (cm == null) ? null : cm.getPrimaryClip();
         if (clip != null && clip.getItemCount() > 0) {
             ContentInfoCompat payload = new ContentInfoCompat.Builder(clip, SOURCE_CLIPBOARD)
-                    .setFlags((menuItemId == android.R.id.paste) ? 0 : FLAG_CONVERT_TO_PLAIN_TEXT)
+                    .setFlags((actionId == android.R.id.paste) ? 0 : FLAG_CONVERT_TO_PLAIN_TEXT)
                     .build();
             ViewCompat.performReceiveContent(view, payload);
         }
@@ -72,14 +74,16 @@ final class AppCompatReceiveContentHelper {
     }
 
     /**
-     * If the given view has a {@link androidx.core.view.OnReceiveContentListener}, try to handle
-     * drag-and-drop via the listener.
+     * If the SDK is <= 30 (but >= 24) and the view has a
+     * {@link androidx.core.view.OnReceiveContentListener}, try to handle drag-and-drop via the
+     * listener.
      *
      * @return true if the event was handled; false otherwise
      */
     static boolean maybeHandleDragEventViaPerformReceiveContent(@NonNull View view,
             @NonNull DragEvent event) {
-        if (Build.VERSION.SDK_INT < 24
+        if (Build.VERSION.SDK_INT >= 31
+                || Build.VERSION.SDK_INT < 24
                 || event.getLocalState() != null
                 || ViewCompat.getOnReceiveContentMimeTypes(view) == null) {
             return false;
@@ -113,6 +117,7 @@ final class AppCompatReceiveContentHelper {
     private static final class OnDropApi24Impl {
         private OnDropApi24Impl() {}
 
+        @DoNotInline
         static boolean onDropForTextView(@NonNull DragEvent event, @NonNull TextView view,
                 @NonNull Activity activity) {
             activity.requestDragAndDropPermissions(event);
@@ -129,6 +134,7 @@ final class AppCompatReceiveContentHelper {
             return true;
         }
 
+        @DoNotInline
         static boolean onDropForView(@NonNull DragEvent event, @NonNull View view,
                 @NonNull Activity activity) {
             activity.requestDragAndDropPermissions(event);
