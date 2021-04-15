@@ -41,7 +41,8 @@ public abstract class MediaStoreOutputOptions extends OutputOptions {
     /** Returns a builder for this MediaStoreOutputOptions. */
     @NonNull
     public static Builder builder() {
-        return new AutoValue_MediaStoreOutputOptions.Builder();
+        return new AutoValue_MediaStoreOutputOptions.Builder()
+                .setFileSizeLimit(FILE_SIZE_UNLIMITED);
     }
 
     /**
@@ -74,7 +75,12 @@ public abstract class MediaStoreOutputOptions extends OutputOptions {
         @NonNull
         public abstract Builder setUri(@NonNull Uri uri);
 
-        /** Sets the limit for the file length in bytes. */
+        /**
+         * Sets the limit for the file length in bytes. Zero or negative values are considered
+         * unlimited.
+         *
+         * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
+         */
         @NonNull
         public abstract Builder setFileSizeLimit(int bytes);
 
