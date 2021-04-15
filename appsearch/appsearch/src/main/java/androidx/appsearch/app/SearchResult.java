@@ -429,16 +429,13 @@ public final class SearchResult {
         private static String getPropertyValues(GenericDocument document, String propertyName) {
             // In IcingLib snippeting is available for only 3 data types i.e String, double and
             // long, so we need to check which of these three are requested.
-            // TODO (tytytyww): getPropertyStringArray takes property name, handle for property
-            //  path.
             // TODO (tytytyww): support double[] and long[].
-            String[] values = document.getPropertyStringArray(propertyName);
-            if (values == null) {
-                throw new IllegalStateException("No content found for requested property path!");
+            String result = document.getPropertyString(propertyName);
+            if (result == null) {
+                throw new IllegalStateException(
+                        "No content found for requested property path: " + propertyName);
             }
-
-            // TODO(b/175146044): Return the proper match based on the index in the propertyName.
-            return values[0];
+            return result;
         }
 
         /** Builder for {@link MatchInfo} objects. */
