@@ -34,12 +34,13 @@ public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTe
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
         return PlatformStorage.createSearchSession(
-                new PlatformStorage.SearchContext.Builder(context).setDatabaseName(dbName).build());
+                new PlatformStorage.SearchContext.Builder(context, dbName).build());
     }
 
     @Override
     protected ListenableFuture<GlobalSearchSession> createGlobalSearchSession() {
         Context context = ApplicationProvider.getApplicationContext();
-        return PlatformStorage.createGlobalSearchSession(context);
+        return PlatformStorage.createGlobalSearchSession(
+                new PlatformStorage.GlobalSearchContext.Builder(context).build());
     }
 }

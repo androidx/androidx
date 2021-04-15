@@ -92,13 +92,12 @@ public final class RequestToPlatformConverter {
                 .addMigratedTypes(platformResponse.getMigratedTypes());
         for (android.app.appsearch.SetSchemaResponse.MigrationFailure migrationFailure :
                 platformResponse.getMigrationFailures()) {
-            jetpackBuilder.addMigrationFailure(new SetSchemaResponse.MigrationFailure.Builder()
-                    .setSchemaType(migrationFailure.getSchemaType())
-                    .setNamespace(migrationFailure.getNamespace())
-                    .setUri(migrationFailure.getUri())
-                    .setAppSearchResult(
-                            AppSearchResultToPlatformConverter.platformAppSearchResultToJetpack(
-                                    migrationFailure.getAppSearchResult())).build());
+            jetpackBuilder.addMigrationFailure(new SetSchemaResponse.MigrationFailure(
+                    migrationFailure.getNamespace(),
+                    migrationFailure.getUri(),
+                    migrationFailure.getSchemaType(),
+                    AppSearchResultToPlatformConverter.platformAppSearchResultToJetpack(
+                            migrationFailure.getAppSearchResult())));
         }
         return jetpackBuilder.build();
     }

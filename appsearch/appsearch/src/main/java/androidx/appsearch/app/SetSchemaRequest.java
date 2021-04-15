@@ -536,7 +536,6 @@ public final class SetSchemaRequest {
         @NonNull
         public SetSchemaRequest build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBuilt = true;
 
             // Verify that any schema types with display or visibility settings refer to a real
             // schema.
@@ -554,6 +553,7 @@ public final class SetSchemaRequest {
                         "Schema types " + referencedSchemas + " referenced, but were not added.");
             }
 
+            mBuilt = true;
             return new SetSchemaRequest(mSchemas, mSchemasNotDisplayedBySystem,
                     mSchemasVisibleToPackages, mMigrators, mForceOverride, mVersion);
         }

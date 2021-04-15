@@ -31,7 +31,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 /**
  * Platform implementation of {@link SearchResults} which proxies to the platform's
@@ -42,20 +42,20 @@ import java.util.concurrent.ExecutorService;
 @RequiresApi(Build.VERSION_CODES.S)
 class SearchResultsImpl implements SearchResults {
     private final android.app.appsearch.SearchResults mPlatformResults;
-    private final ExecutorService mExecutorService;
+    private final Executor mExecutor;
 
     SearchResultsImpl(
             @NonNull android.app.appsearch.SearchResults platformResults,
-            @NonNull ExecutorService executorService) {
+            @NonNull Executor executor) {
         mPlatformResults = Preconditions.checkNotNull(platformResults);
-        mExecutorService = Preconditions.checkNotNull(executorService);
+        mExecutor = Preconditions.checkNotNull(executor);
     }
 
     @Override
     @NonNull
     public ListenableFuture<List<SearchResult>> getNextPage() {
         ResolvableFuture<List<SearchResult>> future = ResolvableFuture.create();
-        mPlatformResults.getNextPage(mExecutorService, result -> {
+        mPlatformResults.getNextPage(mExecutor, result -> {
             if (result.isSuccess()) {
                 List<android.app.appsearch.SearchResult> frameworkResults = result.getResultValue();
                 List<SearchResult> jetpackResults = new ArrayList<>(frameworkResults.size());

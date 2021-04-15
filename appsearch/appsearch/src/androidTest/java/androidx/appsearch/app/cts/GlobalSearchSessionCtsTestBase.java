@@ -735,8 +735,8 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         new ReportSystemUsageRequest.Builder(
                                 firstResult.getPackageName(),
                                 firstResult.getDatabaseName(),
-                                firstResult.getGenericDocument().getNamespace())
-                                .setUri(firstResult.getGenericDocument().getUri())
+                                firstResult.getGenericDocument().getNamespace(),
+                                firstResult.getGenericDocument().getUri())
                                 .build()).get());
         assertThat(exception).hasCauseThat().isInstanceOf(AppSearchException.class);
         AppSearchException ase = (AppSearchException) exception.getCause();

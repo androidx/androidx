@@ -87,31 +87,20 @@ public final class ReportSystemUsageRequest {
         private final String mPackageName;
         private final String mDatabase;
         private final String mNamespace;
-        private String mUri;
+        private final String mUri;
         private Long mUsageTimeMillis;
         private boolean mBuilt = false;
 
         /** Creates a {@link ReportSystemUsageRequest.Builder} instance. */
         public Builder(
-                @NonNull String packageName, @NonNull String database, @NonNull String namespace) {
+                @NonNull String packageName,
+                @NonNull String database,
+                @NonNull String namespace,
+                @NonNull String uri) {
             mPackageName = Preconditions.checkNotNull(packageName);
             mDatabase = Preconditions.checkNotNull(database);
             mNamespace = Preconditions.checkNotNull(namespace);
-        }
-
-        /**
-         * Sets the URI of the document being used.
-         *
-         * <p>This field is required.
-         *
-         * @throws IllegalStateException if the builder has already been used
-         */
-        @NonNull
-        public ReportSystemUsageRequest.Builder setUri(@NonNull String uri) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(uri);
-            mUri = uri;
-            return this;
+            mUri = Preconditions.checkNotNull(uri);
         }
 
         /**
@@ -135,13 +124,11 @@ public final class ReportSystemUsageRequest {
         /**
          * Builds a new {@link ReportSystemUsageRequest}.
          *
-         * @throws NullPointerException if {@link #setUri} has never been called
          * @throws IllegalStateException if the builder has already been used
          */
         @NonNull
         public ReportSystemUsageRequest build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(mUri, "ReportUsageRequest is missing a URI");
             if (mUsageTimeMillis == null) {
                 mUsageTimeMillis = System.currentTimeMillis();
             }

@@ -32,7 +32,6 @@ public class AnnotationProcessorPlatformTest extends AnnotationProcessorTestBase
     protected ListenableFuture<AppSearchSession> createSearchSession(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
         return PlatformStorage.createSearchSession(
-                new PlatformStorage.SearchContext.Builder(context)
-                        .setDatabaseName(dbName).build());
+                new PlatformStorage.SearchContext.Builder(context, dbName).build());
     }
 }
