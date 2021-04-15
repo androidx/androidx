@@ -19,7 +19,7 @@ import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 
 import static androidx.build.dependencies.DependenciesKt.CONSTRAINT_LAYOUT
-
+import static androidx.build.dependencies.DependenciesKt.GUAVA_ANDROID
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -33,9 +33,13 @@ android {
 }
 
 dependencies {
-    implementation(CONSTRAINT_LAYOUT, { transitive = true })
+    implementation project(':appsearch:appsearch')
+    implementation project(':appsearch:appsearch-local-storage')
     implementation('androidx.appcompat:appcompat:1.2.0')
+    implementation('androidx.concurrent:concurrent-futures:1.0.0')
     implementation('com.google.android.material:material:1.0.0')
+    implementation(CONSTRAINT_LAYOUT, { transitive = true })
+    implementation(GUAVA_ANDROID)
 }
 
 androidx {

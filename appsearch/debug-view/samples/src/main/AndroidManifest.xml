@@ -32,7 +32,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="androidx.appsearch.debugview.MainActivity" />
+        <activity android:name="androidx.appsearch.debugview.view.AppSearchDebugActivity" />
     </application>
 
 </manifest>
