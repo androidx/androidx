@@ -17,10 +17,12 @@
 package androidx.wear.watchface.complications.rendering
 
 import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
+import android.util.TypedValue
 import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
 import androidx.wear.complications.data.ComplicationData
@@ -45,6 +47,28 @@ public open class CanvasComplicationDrawable(
     _drawable: ComplicationDrawable,
     private val watchState: WatchState
 ) : CanvasComplication {
+
+    private companion object {
+        const val EXPANSION_DP = 6.0f
+        const val STROKE_WIDTH_DP = 3.0f
+    }
+
+    private val complicationHighlightRenderer by lazy {
+        ComplicationHighlightRenderer(
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                EXPANSION_DP,
+                Resources.getSystem().displayMetrics
+            ),
+
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                STROKE_WIDTH_DP,
+                Resources.getSystem().displayMetrics
+            )
+        )
+    }
+
     init {
         _drawable.callback = object :
             Drawable.Callback {
@@ -107,7 +131,7 @@ public open class CanvasComplicationDrawable(
         @ColorInt color: Int
     ) {
         if (boundsType == ComplicationBoundsType.ROUND_RECT) {
-            ComplicationHighlightRenderer.drawComplicationHighlight(
+            complicationHighlightRenderer.drawComplicationHighlight(
                 canvas,
                 bounds,
                 color
