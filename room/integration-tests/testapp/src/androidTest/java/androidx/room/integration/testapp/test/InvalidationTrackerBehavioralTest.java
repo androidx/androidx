@@ -155,7 +155,7 @@ public class InvalidationTrackerBehavioralTest {
                                 //
                                 // If we see non-null here instead of null due to a race then
                                 // our long delay was just too short and we'll need to adjust it
-                                // because the test will have failed. latch.countdown() happens
+                                // because the test will have failed. latch.countDown() happens
                                 // too late in this case but it has no particular effect.
                                 final CountDownLatch latch = mLatch;
                                 if (latch == null) {
@@ -181,7 +181,7 @@ public class InvalidationTrackerBehavioralTest {
                 try {
                     // Resets latch and updates missedInvalidations when change notification failed
                     for (int i = 0; i < iterations; ++i) {
-                        // The Counter table exists just to make InvalidationTracker's life more
+                        // The Counter1 table exists just to make InvalidationTracker's life more
                         // difficult, we are not interested in notifications from this one;
                         // inserts may trigger undefined invalidation callback behavior,
                         // depending on table update timing
@@ -210,7 +210,7 @@ public class InvalidationTrackerBehavioralTest {
                         });
 
                         // Use sufficient delay to give invalidation tracker ample time to catch up;
-                        // this would need to be increased if the test has false positives.
+                        // this would need to be increased if the test had false positives.
                         try {
                             if (!latch.await(10L, TimeUnit.SECONDS)) {
                                 // The tracker still has not been called, log an error
