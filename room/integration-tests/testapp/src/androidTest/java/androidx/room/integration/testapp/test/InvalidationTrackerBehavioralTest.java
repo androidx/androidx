@@ -234,7 +234,7 @@ public class InvalidationTrackerBehavioralTest {
 
     @Database(entities = { Counter1.class, Counter2.class }, version = 1, exportSchema = false)
     abstract static class DB extends RoomDatabase {
-        static final String NAME = "invalidationtrackerconcurrencytest";
+        static final String NAME = "invalidationtrackerbehavioraltest";
 
         abstract CounterDao counterDao();
     }
