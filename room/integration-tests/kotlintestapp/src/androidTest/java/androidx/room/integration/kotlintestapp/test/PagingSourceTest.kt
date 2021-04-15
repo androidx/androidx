@@ -408,11 +408,18 @@ class PagingSourceTest {
                     .collect {
                         val current = generation.value
                         generation.value = current.copy(
-                            id = current.id + 1,
                             initialLoadCompleted = true,
                         )
                     }
             }
+        }
+
+        private fun incrementGeneration() {
+            val current = generation.value
+            generation.value = current.copy(
+                initialLoadCompleted = false,
+                id = current.id + 1,
+            )
         }
 
         fun peekItems() = (0 until asyncDiffer.itemCount).map {
@@ -430,6 +437,7 @@ class PagingSourceTest {
         }
 
         suspend fun collectFrom(data: PagingData<PagingEntity>) {
+            incrementGeneration()
             asyncDiffer.submitData(data)
         }
 
