@@ -23,12 +23,12 @@
     android:minHeight="42px" >
 
     <TextView
-        android:id="@+id/document_uri"
+        android:id="@+id/doc_item_uri"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <TextView
-        android:id="@+id/document_namespace"
+        android:id="@+id/doc_item_namespace"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

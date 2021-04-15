@@ -62,7 +62,7 @@ public class DocumentListItemAdapter extends
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.document_list_item, parent, /*attachToRoot=*/false);
+                .inflate(R.layout.adapter_document_list_item, parent, /*attachToRoot=*/false);
 
         return new ViewHolder(view);
     }
@@ -91,8 +91,8 @@ public class DocumentListItemAdapter extends
 
             Preconditions.checkNotNull(view);
 
-            mUriLabel = (TextView) view.findViewById(R.id.document_uri);
-            mNamespaceLabel = (TextView) view.findViewById(R.id.document_namespace);
+            mUriLabel = (TextView) view.findViewById(R.id.doc_item_uri);
+            mNamespaceLabel = (TextView) view.findViewById(R.id.doc_item_namespace);
         }
 
         @NonNull

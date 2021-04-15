@@ -17,32 +17,19 @@
 package androidx.appsearch.debugview.view;
 
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.debugview.DebugAppSearchManager;
 import androidx.appsearch.debugview.R;
-import androidx.appsearch.debugview.model.DocumentsModel;
-import androidx.core.content.ContextCompat;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
-import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
 /**
@@ -73,49 +60,20 @@ import java.util.concurrent.Executors;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AppSearchDebugActivity extends AppCompatActivity {
     private static final String DB_INTENT_KEY = "databaseName";
-    private static final String TAG = "AppSearchDebugActivity";
 
-    private RecyclerView mDocumentListRecyclerView;
-    private TextView mLoadingView;
     private String mDbName;
     private ListenableFuture<DebugAppSearchManager> mDebugAppSearchManager;
     private ListeningExecutorService mBackgroundExecutor;
-
-    protected int mPrevDocsSize = 0;
-    protected boolean mLoadingPage = false;
-    protected boolean mAdditionalPages = true;
-
-    @Nullable
-    protected DocumentsModel mDocumentsModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_appsearchdebug);
 
-        mDocumentListRecyclerView = findViewById(R.id.document_list_recycler_view);
-        mLoadingView = findViewById(R.id.loading_text_view);
-
         mBackgroundExecutor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
         mDbName = getIntent().getExtras().getString(DB_INTENT_KEY);
         mDebugAppSearchManager = DebugAppSearchManager.create(
                 getApplicationContext(), mBackgroundExecutor, mDbName);
-
-        Futures.addCallback(mDebugAppSearchManager, new FutureCallback<DebugAppSearchManager>() {
-            @Override
-            public void onSuccess(DebugAppSearchManager debugAppSearchManager) {
-                readDocuments(debugAppSearchManager);
-            }
-
-            @Override
-            public void onFailure(@NonNull Throwable t) {
-                Toast.makeText(AppSearchDebugActivity.this,
-                        "Failed to initialize AppSearch: " + t.getMessage(),
-                        Toast.LENGTH_LONG).show();
-                Log.e(TAG, "Failed to initialize AppSearch. Verify that the database name has been"
-                        + " provided in the intent with key: databaseName", t);
-            }
-        }, ContextCompat.getMainExecutor(this));
     }
 
     @Override
@@ -129,62 +87,18 @@ public class AppSearchDebugActivity extends AppCompatActivity {
     }
 
     /**
-     * Initializes a {@link DocumentsModel} ViewModel instance and sets observer for updating UI
-     * with document data.
+     * Gets the {@link DebugAppSearchManager} instance created by the activity.
      */
-    protected void readDocuments(@NonNull DebugAppSearchManager debugAppSearchManager) {
-        mDocumentsModel =
-                new ViewModelProvider(this,
-                        new DocumentsModel.DocumentsModelFactory(mBackgroundExecutor,
-                                debugAppSearchManager)).get(DocumentsModel.class);
-
-        mDocumentsModel.getAllDocumentsSearchResults().observe(this, results -> {
-            mLoadingView.setVisibility(View.GONE);
-            initDocumentListRecyclerView(results);
-        });
+    @NonNull
+    public ListenableFuture<DebugAppSearchManager> getDebugAppSearchManager() {
+        return mDebugAppSearchManager;
     }
 
-    private void initDocumentListRecyclerView(@NonNull SearchResults searchResults) {
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
-
-        DocumentListItemAdapter documentListItemAdapter = new DocumentListItemAdapter(
-                new ArrayList<>());
-        mDocumentListRecyclerView.setAdapter(documentListItemAdapter);
-
-        mDocumentListRecyclerView.setLayoutManager(linearLayoutManager);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this,
-                linearLayoutManager.getOrientation());
-        mDocumentListRecyclerView.addItemDecoration(dividerItemDecoration);
-
-        mDocumentsModel.addAdditionalResultsPage(searchResults).observe(this, docs -> {
-            // Check if there are additional documents still being added.
-            if (docs.size() - mPrevDocsSize == 0) {
-                mAdditionalPages = false;
-                return;
-            }
-            documentListItemAdapter.setDocuments(docs);
-            mPrevDocsSize = docs.size();
-            mLoadingPage = false;
-        });
-
-        mDocumentListRecyclerView.addOnScrollListener(
-                new ScrollListener(linearLayoutManager) {
-                    @Override
-                    public void loadNextPage() {
-                        mLoadingPage = true;
-                        mDocumentsModel.addAdditionalResultsPage(searchResults);
-                    }
-
-                    @Override
-                    public boolean isLoading() {
-                        return mLoadingPage;
-                    }
-
-                    @Override
-                    public boolean hasAdditionalPages() {
-                        return mAdditionalPages;
-                    }
-                });
+    /**
+     * Gets the {@link ListeningExecutorService} instance created by the activity.
+     */
+    @NonNull
+    public ListeningExecutorService getBackgroundExecutor() {
+        return mBackgroundExecutor;
     }
 }

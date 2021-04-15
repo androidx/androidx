@@ -87,6 +87,9 @@ public class DebugAppSearchManager implements Closeable {
     /**
      * Searches for all documents in the AppSearch database.
      *
+     * <p>Each {@link GenericDocument} object is truncated of its properties by adding
+     * projection to the request.
+     *
      * @return the {@link SearchResults} instance for exploring pages of results. Call
      * {@link #getNextPage} to retrieve the {@link GenericDocument} objects for each page.
      */

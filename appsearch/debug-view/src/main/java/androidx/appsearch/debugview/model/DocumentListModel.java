@@ -39,24 +39,25 @@ import java.util.concurrent.ExecutorService;
 /**
  * Documents ViewModel for the database's {@link GenericDocument} objects.
  *
- * <p>Instances of the ViewModel are created by {@link DocumentsModelFactory}.
+ * <p>This model captures the data for displaying lists of {@link GenericDocument} objects. Each
+ * {@link GenericDocument} object is truncated of all properties.
+ *
+ * <p>Instances of {@link DocumentListModel} are created by {@link DocumentListModelFactory}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class DocumentsModel extends ViewModel {
-    private static final String TAG = "DocumentsModel";
+public class DocumentListModel extends ViewModel {
+    private static final String TAG = "DocumentListModel";
 
     private final ExecutorService mExecutor;
     private final DebugAppSearchManager mDebugAppSearchManager;
-
     final MutableLiveData<List<GenericDocument>> mDocumentsLiveData =
             new MutableLiveData<>();
-
     final MutableLiveData<SearchResults> mDocumentsSearchResultsLiveData =
             new MutableLiveData<>();
 
-    public DocumentsModel(@NonNull ExecutorService executor,
+    public DocumentListModel(@NonNull ExecutorService executor,
             @NonNull DebugAppSearchManager debugAppSearchManager) {
         mExecutor = Preconditions.checkNotNull(executor);
         mDebugAppSearchManager = Preconditions.checkNotNull(debugAppSearchManager);
@@ -120,13 +121,13 @@ public class DocumentsModel extends ViewModel {
     }
 
     /**
-     * Factory for creating a {@link DocumentsModel} instance.
+     * Factory for creating a {@link DocumentListModel} instance.
      */
-    public static class DocumentsModelFactory extends ViewModelProvider.NewInstanceFactory {
+    public static class DocumentListModelFactory extends ViewModelProvider.NewInstanceFactory {
         private final DebugAppSearchManager mDebugAppSearchManager;
         private final ListeningExecutorService mExecutorService;
 
-        public DocumentsModelFactory(@NonNull ListeningExecutorService executor,
+        public DocumentListModelFactory(@NonNull ListeningExecutorService executor,
                 @NonNull DebugAppSearchManager debugAppSearchManager) {
             mDebugAppSearchManager = debugAppSearchManager;
             mExecutorService = executor;
@@ -136,10 +137,10 @@ public class DocumentsModel extends ViewModel {
         @NonNull
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            if (modelClass == DocumentsModel.class) {
-                return (T) new DocumentsModel(mExecutorService, mDebugAppSearchManager);
+            if (modelClass == DocumentListModel.class) {
+                return (T) new DocumentListModel(mExecutorService, mDebugAppSearchManager);
             } else {
-                throw new IllegalArgumentException("Expected class: DocumentsModel.");
+                throw new IllegalArgumentException("Expected class: DocumentListModel.");
             }
         }
     }
