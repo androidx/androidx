@@ -26,10 +26,14 @@ import java.io.Closeable;
 import java.util.Set;
 
 /**
- * Represents a connection to an AppSearch storage system where {@link GenericDocument}s can be
- * placed and queried.
+ * Provides a connection to a single AppSearch database.
  *
- * All implementations of this interface must be thread safe.
+ * <p>An {@link AppSearchSession} instance provides access to database operations such as setting
+ * a schema, adding documents, and searching.
+ *
+ * <p>All implementations of this interface must be thread safe.
+ *
+ * @see GlobalSearchSession
  */
 public interface AppSearchSession extends Closeable {
 
