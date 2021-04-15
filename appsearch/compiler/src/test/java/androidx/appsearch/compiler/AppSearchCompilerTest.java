@@ -16,11 +16,12 @@
 
 package androidx.appsearch.compiler;
 
+import static com.google.testing.compile.CompilationSubject.assertThat;
+
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.common.truth.Truth;
 import com.google.testing.compile.Compilation;
-import com.google.testing.compile.CompilationSubject;
 import com.google.testing.compile.Compiler;
 import com.google.testing.compile.JavaFileObjects;
 
@@ -59,7 +60,8 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public interface Gift {}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "annotation on something other than a class");
     }
 
@@ -72,8 +74,8 @@ public class AppSearchCompilerTest {
                         + "private class Gift {}\n"
                         + "}  // Wrapper\n"
         );
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "annotated class is private");
+
+        assertThat(compilation).hadErrorContaining("annotated class is private");
     }
 
     @Test
@@ -83,7 +85,8 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "must have exactly one field annotated with @Id");
     }
 
@@ -96,7 +99,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.Id String id1;\n"
                         + "  @Document.Id String id2;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "contains multiple fields annotated @Id");
     }
 
@@ -110,7 +114,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.CreationTimestampMillis long ts1;\n"
                         + "  @Document.CreationTimestampMillis long ts2;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "contains multiple fields annotated @CreationTimestampMillis");
     }
 
@@ -121,7 +126,8 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Id String id;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "must have exactly one field annotated with @Namespace");
     }
 
@@ -134,7 +140,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.Namespace String ns2;\n"
                         + "  @Document.Id String id;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "contains multiple fields annotated @Namespace");
     }
 
@@ -148,7 +155,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.TtlMillis long ts1;\n"
                         + "  @Document.TtlMillis long ts2;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "contains multiple fields annotated @TtlMillis");
     }
 
@@ -162,7 +170,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.Score int score1;\n"
                         + "  @Document.Score int score2;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "contains multiple fields annotated @Score");
     }
 
@@ -175,7 +184,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.Id String id;\n"
                         + "  @Document.Int64Property private int getPrice() { return 0; }\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "annotation type not applicable to this kind of declaration");
     }
 
@@ -188,7 +198,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.Id String id;\n"
                         + "  @Document.Int64Property private int price;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "Field cannot be read: it is private and we failed to find a suitable getter "
                         + "for field \"price\"");
     }
@@ -203,11 +214,11 @@ public class AppSearchCompilerTest {
                         + "  @Document.Int64Property private int price;\n"
                         + "  private int getPrice() { return 0; }\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "Field cannot be read: it is private and we failed to find a suitable getter "
                         + "for field \"price\"");
-        CompilationSubject.assertThat(compilation).hadWarningContaining(
-                "Getter cannot be used: private visibility");
+        assertThat(compilation).hadWarningContaining("Getter cannot be used: private visibility");
     }
 
     @Test
@@ -220,10 +231,11 @@ public class AppSearchCompilerTest {
                         + "  @Document.Int64Property private int price;\n"
                         + "  int getPrice(int n) { return 0; }\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "Field cannot be read: it is private and we failed to find a suitable getter "
                         + "for field \"price\"");
-        CompilationSubject.assertThat(compilation).hadWarningContaining(
+        assertThat(compilation).hadWarningContaining(
                 "Getter cannot be used: should take no parameters");
     }
 
@@ -239,7 +251,8 @@ public class AppSearchCompilerTest {
                         + "  int getPrice() { return 0; }\n"
                         + "  void setPrice(int n) {}\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -255,7 +268,7 @@ public class AppSearchCompilerTest {
                         + "  void price(int n) {}\n"
                         + "}\n");
 
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        assertThat(compilation).succeededWithoutWarnings();
         // Check setter function is identified correctly.
         checkResultContains(/* className= */ "Gift.java",
                 /* content= */ "builder.setPropertyLong(\"price\", document.price());");
@@ -275,12 +288,13 @@ public class AppSearchCompilerTest {
                         + "  @Document.Int64Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable constructors to build this class");
-        CompilationSubject.assertThat(compilation).hadWarningContainingMatch(
+
+        assertThat(compilation).hadErrorContaining(
+                "Failed to find any suitable creation methods to build this class");
+        assertThat(compilation).hadWarningContainingMatch(
                 "Field cannot be written .* failed to find a suitable setter for field \"price\"");
-        CompilationSubject.assertThat(compilation).hadWarningContaining(
-                "Cannot use this constructor to construct the class: This constructor doesn't have "
+        assertThat(compilation).hadWarningContaining(
+                "Cannot use this creation method to construct the class: This method doesn't have "
                         + "parameters for the following fields: [price]");
     }
 
@@ -295,14 +309,15 @@ public class AppSearchCompilerTest {
                         + "  int getPrice() { return price; }\n"
                         + "  private void setPrice(int n) {}\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable constructors to build this class");
-        CompilationSubject.assertThat(compilation).hadWarningContainingMatch(
+
+        assertThat(compilation).hadErrorContaining(
+                "Failed to find any suitable creation methods to build this class");
+        assertThat(compilation).hadWarningContainingMatch(
                 "Field cannot be written .* failed to find a suitable setter for field \"price\"");
-        CompilationSubject.assertThat(compilation).hadWarningContaining(
+        assertThat(compilation).hadWarningContaining(
                 "Setter cannot be used: private visibility");
-        CompilationSubject.assertThat(compilation).hadWarningContaining(
-                "Cannot use this constructor to construct the class: This constructor doesn't have "
+        assertThat(compilation).hadWarningContaining(
+                "Cannot use this creation method to construct the class: This method doesn't have "
                         + "parameters for the following fields: [price]");
     }
 
@@ -317,14 +332,15 @@ public class AppSearchCompilerTest {
                         + "  int getPrice() { return price; }\n"
                         + "  void setPrice() {}\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable constructors to build this class");
-        CompilationSubject.assertThat(compilation).hadWarningContainingMatch(
+
+        assertThat(compilation).hadErrorContaining(
+                "Failed to find any suitable creation methods to build this class");
+        assertThat(compilation).hadWarningContainingMatch(
                 "Field cannot be written .* failed to find a suitable setter for field \"price\"");
-        CompilationSubject.assertThat(compilation).hadWarningContaining(
+        assertThat(compilation).hadWarningContaining(
                 "Setter cannot be used: takes 0 parameters instead of 1");
-        CompilationSubject.assertThat(compilation).hadWarningContaining(
-                "Cannot use this constructor to construct the class: This constructor doesn't have "
+        assertThat(compilation).hadWarningContaining(
+                "Cannot use this creation method to construct the class: This method doesn't have "
                         + "parameters for the following fields: [price]");
     }
 
@@ -340,7 +356,8 @@ public class AppSearchCompilerTest {
                         + "  void setPrice() {}\n"
                         + "  void setPrice(int n) {}\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -354,10 +371,10 @@ public class AppSearchCompilerTest {
                         + "  @Document.Id String id;\n"
                         + "  @Document.Int64Property int price;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable constructors to build this class");
-        CompilationSubject.assertThat(compilation).hadWarningContaining(
-                "Constructor is private");
+
+        assertThat(compilation).hadErrorContaining(
+                "Failed to find any suitable creation methods to build this class");
+        assertThat(compilation).hadWarningContaining("Creation method is private");
     }
 
     @Test
@@ -370,10 +387,108 @@ public class AppSearchCompilerTest {
                         + "  @Document.Id final String id;\n"
                         + "  @Document.Int64Property int price;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable constructors to build this class");
-        CompilationSubject.assertThat(compilation).hadWarningContaining(
+
+        assertThat(compilation).hadErrorContaining(
+                "Failed to find any suitable creation methods to build this class");
+        assertThat(compilation).hadWarningContaining(
                 "doesn't have parameters for the following fields: [id]");
+    }
+
+    @Test
+    public void testWrite_factoryMethodOnly() throws IOException {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  private Gift(int price, String id, String namespace) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.price = price;\n"
+                        + "  }\n"
+                        + "  public static Gift create(String id, String namespace, int price) {\n"
+                        + "    return new Gift(price, id, namespace);"
+                        + "  }\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id final String id;\n"
+                        + "  @Document.Int64Property int price;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains(/* className= */ "Gift.java",
+                /* content= */ "Gift document = Gift.create(idConv, namespaceConv, priceConv);");
+    }
+
+    @Test
+    // With golden class for factory method.
+    public void testWrite_bothUsableFactoryMethodAndConstructor_picksFirstUsableCreationMethod()
+            throws IOException {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  Gift(String id, String namespace, int price) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.price = price;\n"
+                        + "  }\n"
+                        + "  public static Gift create(String id, String namespace, int price) {\n"
+                        + "    return new Gift(id, namespace, price);"
+                        + "  }\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Int64Property int price;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains(/* className= */ "Gift.java",
+                /* content= */ "Gift document = new Gift(idConv, namespaceConv, priceConv);");
+    }
+
+    @Test
+    public void testWrite_usableFactoryMethod_unusableConstructor()
+            throws IOException {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  private Gift(String id, String namespace, int price) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.price = price;\n"
+                        + "  }\n"
+                        + "  public static Gift create(String id, String namespace, int price) {\n"
+                        + "    return new Gift(id, namespace, price);"
+                        + "  }\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id final String id;\n"
+                        + "  @Document.Int64Property int price;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains(/* className= */ "Gift.java",
+                /* content= */ "Gift document = Gift.create(idConv, namespaceConv, priceConv);");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testWrite_unusableFactoryMethod_usableConstructor()
+            throws IOException {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  Gift(String id, String namespace, int price) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.price = price;\n"
+                        + "  }\n"
+                        + "  private static Gift create(String id, String namespace, int price){\n"
+                        + "    return new Gift(id, namespace, price);"
+                        + "  }\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id final String id;\n"
+                        + "  @Document.Int64Property int price;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains(/* className= */ "Gift.java",
+                /* content= */ "Gift document = new Gift(idConv, namespaceConv, priceConv);");
     }
 
     @Test
@@ -390,9 +505,10 @@ public class AppSearchCompilerTest {
                         + "  @Document.Id final String id;\n"
                         + "  @Document.Int64Property int price;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable constructors to build this class");
-        CompilationSubject.assertThat(compilation).hadWarningContaining(
+
+        assertThat(compilation).hadErrorContaining(
+                "Failed to find any suitable creation methods to build this class");
+        assertThat(compilation).hadWarningContaining(
                 "Parameter \"unknownParam\" is not an AppSearch parameter; don't know how to "
                         + "supply it");
     }
@@ -415,7 +531,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.BooleanProperty private final boolean dog;\n"
                         + "  public boolean getDog() { return dog; }\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -427,7 +544,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -444,7 +562,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.BytesProperty byte[][] repeatedByteArray;\n"
                         + "  @Document.BytesProperty byte[] byteArray;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -461,7 +580,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.DoubleProperty(required=true) Float req;\n"
                         + "  @Document.DoubleProperty(required=false) Float noReq;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -483,7 +603,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.BytesProperty byte[] bytesProp;\n"
                         //+ "  @Document.Property Gift documentProp;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -500,7 +621,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.StringProperty(tokenizerType=0) String tokNone;\n"
                         + "  @Document.StringProperty(tokenizerType=1) String tokPlain;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -517,7 +639,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.StringProperty(indexingType=1, tokenizerType=100)\n"
                         + "  String str;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining("Unknown tokenizer type 100");
+
+        assertThat(compilation).hadErrorContaining("Unknown tokenizer type 100");
     }
 
     @Test
@@ -534,7 +657,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.StringProperty(indexingType=1) String indexExact;\n"
                         + "  @Document.StringProperty(indexingType=2) String indexPrefix;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -551,7 +675,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.StringProperty(indexingType=100, tokenizerType=1)\n"
                         + "  String str;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining("Unknown indexing type 100");
+
+        assertThat(compilation).hadErrorContaining("Unknown indexing type 100");
     }
 
     @Test
@@ -564,7 +689,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.Id String id;\n"
                         + "  @Document.StringProperty(name=\"newName\") String oldName;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -620,7 +746,8 @@ public class AppSearchCompilerTest {
                         + "  @BytesProperty byte[] unboxByteArr;\n"  // 3a
                         + "  @DocumentProperty Gift gift;\n"            // 3c
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -634,7 +761,8 @@ public class AppSearchCompilerTest {
                         + "  @Id String id;\n"
                         + "  @BooleanProperty String[] arrString;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+
+        assertThat(compilation).hadErrorContaining(
                 "Property Annotation androidx.appsearch.annotation.Document.BooleanProperty "
                         + "doesn't accept the data type of property field arrString");
     }
@@ -649,7 +777,7 @@ public class AppSearchCompilerTest {
                         + "  @Id String id;\n"
                         + "  @BytesProperty Collection<Byte[]> collectBoxByteArr;\n" // 1x
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+        assertThat(compilation).hadErrorContaining(
                 "Unhandled out property type (1x): java.util.Collection<java.lang.Byte[]>");
 
         compilation = compile(
@@ -660,7 +788,7 @@ public class AppSearchCompilerTest {
                         + "  @Id String id;\n"
                         + "  @BytesProperty Collection<Byte> collectByte;\n" // 1x
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+        assertThat(compilation).hadErrorContaining(
                 "Unhandled out property type (1x): java.util.Collection<java.lang.Byte>");
 
         compilation = compile(
@@ -671,7 +799,7 @@ public class AppSearchCompilerTest {
                         + "  @Id String id;\n"
                         + "  @BytesProperty Byte[][] arrBoxByteArr;\n" // 2x
                         + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
+        assertThat(compilation).hadErrorContaining(
                 "Unhandled out property type (2x): java.lang.Byte[][]");
     }
 
@@ -687,7 +815,8 @@ public class AppSearchCompilerTest {
                         + "  @Document.Int64Property int price;\n"
                         + "  @Document.Score int score;\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -719,7 +848,8 @@ public class AppSearchCompilerTest {
                         + "  public int getPrice() { return price; }\n"
                         + "  public void setPrice(int price) { this.price = price; }\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
     }
 
@@ -736,7 +866,8 @@ public class AppSearchCompilerTest {
                         + "    @StringProperty String[] arrString;\n"        // 2b
                         + "  }\n"
                         + "}\n");
-        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+
+        assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift$$__InnerGift.java");
     }
 
@@ -811,7 +942,7 @@ public class AppSearchCompilerTest {
         }
     }
 
-    private boolean checkResultContains(String className, String content) throws IOException {
+    private void checkResultContains(String className, String content) throws IOException {
         // Get the actual file contents
         File actualPackageDir = new File(mGenFilesDir, "com/example/appsearch");
         File actualPath =
@@ -820,6 +951,6 @@ public class AppSearchCompilerTest {
                 .that(actualPath.isFile()).isTrue();
         String actual = Files.asCharSource(actualPath, StandardCharsets.UTF_8).read();
 
-        return actual.contains(content);
+        Truth.assertThat(actual).contains(content);
     }
 }
