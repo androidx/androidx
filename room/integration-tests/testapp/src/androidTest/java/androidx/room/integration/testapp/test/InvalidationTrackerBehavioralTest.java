@@ -228,8 +228,10 @@ public class InvalidationTrackerBehavioralTest {
             }
         }).get();
 
-        assertThat("Missed invalidations", missedInvalidations.get(), is(0));
-        assertThat("Spurious invalidations", spuriousInvalidations.get(), is(0));
+        assertThat("Missed invalidations on " + iterations + " iterations with delay of " +
+                delayMillis + " ms, " + delayNanos + " ns", missedInvalidations.get(), is(0));
+        assertThat("Spurious invalidations on " + iterations + " iterations with delay of " +
+                delayMillis + " ms, " + delayNanos + " ns", spuriousInvalidations.get(), is(0));
     }
 
     @Database(entities = { Counter1.class, Counter2.class }, version = 1, exportSchema = false)
