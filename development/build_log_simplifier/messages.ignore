@@ -286,6 +286,9 @@ w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthS
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'b'\. This may cause problems when calling this function with named arguments\.
 # > Task :benchmark:benchmark-common:runErrorProne
 \^
+symbol\:   static FLAG_MUTABLE
+location\: class PendingIntent
+\$OUT_DIR\/androidx\/docs\-public\/build\/unzippedDocsSources\/androidx\/work\/impl\/utils\/ForceStopRunnable\.java\:[0-9]+\: error\: cannot find symbol
 symbol:   class ExtensionDeviceState
 location: package androidx\.window\.extensions
 DeviceState translate\(ExtensionDeviceState deviceState\) \{
@@ -623,6 +626,8 @@ Error processing \$CHECKOUT\/prebuilts\/androidx\/external\/org\/bouncycastle\/b
 # > Task :compose:ui:ui-graphics:ui-graphics-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR\/androidx\/compose\/ui\/ui\-graphics\/ui\-graphics\-benchmark\/build\/intermediates\/tmp\/manifest\/androidTest\/release\/manifestMerger[0-9]+\.xml\:[0-9]+\:[0-9]+\-[0-9]+\:[0-9]+ Warning\:
 # > Task :docs-public:doclavaDocs
+\$OUT_DIR\/androidx\/docs\-public\/build\/unzippedDocsSources\/androidx\/work\/impl\/WorkManagerImpl\.java\:[0-9]+\: error\: cannot find symbol
+import static android\.app\.PendingIntent\.FLAG_MUTABLE\;
 \$OUT_DIR/androidx/docs\-public/build/unzippedDocsSources/androidx/window/ExtensionAdapter\.java:[0-9]+: error: cannot find symbol
 import androidx\.window\.extensions\.ExtensionDeviceState;
 # > Task :docs-public:dackkaDocs
