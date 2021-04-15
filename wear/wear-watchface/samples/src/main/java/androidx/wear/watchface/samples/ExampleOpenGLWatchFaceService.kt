@@ -125,7 +125,7 @@ fun createExampleOpenGLWatchFaceBuilder(
                     ComplicationType.MONOCHROMATIC_IMAGE,
                     ComplicationType.SMALL_IMAGE
                 ),
-                DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+                DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
                 ComplicationBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
             ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                 .build()

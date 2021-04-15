@@ -123,7 +123,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.MONOCHROMATIC_IMAGE,
                             ComplicationType.SMALL_IMAGE
                         ),
-                        DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+                        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
                         ComplicationBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
                     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build(),
@@ -140,7 +140,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.MONOCHROMATIC_IMAGE,
                             ComplicationType.SMALL_IMAGE
                         ),
-                        DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT),
+                        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_STEP_COUNT),
                         ComplicationBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
                     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build()

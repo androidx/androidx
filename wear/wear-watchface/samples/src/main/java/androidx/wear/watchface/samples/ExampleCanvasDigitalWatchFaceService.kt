@@ -510,7 +510,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.WATCH_BATTERY),
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_WATCH_BATTERY),
             ComplicationBounds(
                 createBoundsRect(
                     LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
@@ -528,7 +528,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.DATE),
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DATE),
             ComplicationBounds(
                 createBoundsRect(
                     RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
@@ -550,7 +550,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             ComplicationID.UPPER.ordinal,
             CanvasComplicationDrawable(watchFaceStyle.getDrawable(this)!!, watchState),
             upperAndLowerComplicationTypes,
-            DefaultComplicationProviderPolicy(SystemProviders.WORLD_CLOCK),
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_WORLD_CLOCK),
             ComplicationBounds(
                 ComplicationType.values().associateWith {
                     if (it == ComplicationType.LONG_TEXT) {
@@ -572,7 +572,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             ComplicationID.LOWER.ordinal,
             CanvasComplicationDrawable(watchFaceStyle.getDrawable(this)!!, watchState),
             upperAndLowerComplicationTypes,
-            DefaultComplicationProviderPolicy(SystemProviders.NEXT_EVENT),
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_NEXT_EVENT),
             ComplicationBounds(
                 ComplicationType.values().associateWith {
                     if (it == ComplicationType.LONG_TEXT) {
