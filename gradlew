@@ -29,7 +29,7 @@ if [ -n "$DIST_DIR" ]; then
 
     #Set the initial heap size to match the max heap size,
     #by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
-    MAX_MEM=16g
+    MAX_MEM=24g
     ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEM -Xmx$MAX_MEM/")"
 
     # tell Gradle where to put a heap dump on failure
