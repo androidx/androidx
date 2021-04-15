@@ -119,7 +119,7 @@ public class WatchFaceServiceImageTest {
     private val handler = Handler(Looper.getMainLooper())
 
     private val complicationProviders = mapOf(
-        SystemProviders.DAY_OF_WEEK to
+        SystemProviders.PROVIDER_DAY_OF_WEEK to
             ShortTextComplicationData.Builder(PlainComplicationText.Builder("Mon").build())
                 .setTitle(PlainComplicationText.Builder("23rd").build())
                 .setTapAction(
@@ -136,7 +136,7 @@ public class WatchFaceServiceImageTest {
                 )
                 .build()
                 .asWireComplicationData(),
-        SystemProviders.STEP_COUNT to
+        SystemProviders.PROVIDER_STEP_COUNT to
             ShortTextComplicationData.Builder(PlainComplicationText.Builder("100").build())
                 .setTitle(PlainComplicationText.Builder("Steps").build())
                 .build()

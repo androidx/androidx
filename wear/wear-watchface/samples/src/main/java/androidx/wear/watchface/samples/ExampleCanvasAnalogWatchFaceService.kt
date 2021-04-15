@@ -231,7 +231,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
         ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
         .build()
@@ -245,7 +245,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT),
+        DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_STEP_COUNT),
         ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
         .build()
