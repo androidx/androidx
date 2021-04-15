@@ -139,7 +139,7 @@ public class InvalidationTrackerBehavioralTest {
                 // To be close to a real use case we only register the observer once,
                 // we do not re-register for each loop iteration.
                 db.getInvalidationTracker().addObserver(
-                        // Resets newValue when change notification received, increments
+                        // Releases latch when change notification received, increments
                         // spuriousInvalidations when notification received without a recent change
                         new InvalidationTracker.Observer(Counter2.TABLE_NAME) {
                             @Override
