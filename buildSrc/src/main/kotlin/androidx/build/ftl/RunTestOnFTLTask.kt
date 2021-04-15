@@ -16,8 +16,8 @@
 
 package androidx.build.ftl
 
+import com.android.build.gradle.api.ApkVariant
 import com.android.build.gradle.api.ApkVariantOutput
-import com.android.build.gradle.api.LibraryVariant
 import com.android.build.gradle.api.TestVariant
 import com.google.gson.Gson
 import org.gradle.api.DefaultTask
@@ -26,8 +26,15 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.process.ExecOperations
+import org.gradle.workers.WorkAction
+import org.gradle.workers.WorkParameters
+import org.gradle.workers.WorkerExecutor
+import javax.inject.Inject
 
 /**
  * Task to run instrumentation tests on FTL.
@@ -38,48 +45,69 @@ import org.gradle.api.tasks.TaskProvider
  * Due to the limitations of FTL, this task only support application instrumentation tests for now.
  */
 @Suppress("UnstableApiUsage") // for gradle property APIs
-abstract class RunTestOnFTLTask : DefaultTask() {
+abstract class RunTestOnFTLTask @Inject constructor(
+    private val workerExecutor: WorkerExecutor
+) : DefaultTask() {
     /**
      * The test APK for the instrumentation test.
      */
-    @InputFile
-    val testApk: RegularFileProperty = project.objects.fileProperty()
+    @get:[InputFile PathSensitive(PathSensitivity.RELATIVE)]
+    abstract val testApk: RegularFileProperty
 
     /**
      * The tested application APK.
      */
-    @InputFile
-    val testedApk: RegularFileProperty = project.objects.fileProperty()
+    @get:[InputFile PathSensitive(PathSensitivity.RELATIVE)]
+    abstract val testedApk: RegularFileProperty
 
     /**
      * Output file to write the results
      */
-    @OutputFile
-    val testResults: RegularFileProperty = project.objects.fileProperty()
+    @get:[OutputFile PathSensitive(PathSensitivity.RELATIVE)]
+    abstract val testResults: RegularFileProperty
     @TaskAction
     fun executeTest() {
-        val testApk = testApk.asFile.get()
-        val testedApk = testedApk.asFile.get()
-        println(testApk.path + "/" + testedApk.path)
-        val gcloud = GCloudCLIWrapper(project)
-        val result = gcloud.runTest(
-            testedApk = testedApk,
-            testApk = testApk
-        )
-        val outFile = testResults.asFile.get()
-        outFile.parentFile.mkdirs()
-        val gson = Gson()
-        outFile.bufferedWriter(Charsets.UTF_8).use {
-            gson.toJson(
-                result,
-                it
+        workerExecutor.noIsolation().submit(
+            RunFTLTestWorkAction::class.java
+        ) {
+            it.testApk.set(testApk)
+            it.testedApk.set(testedApk)
+            it.testResults.set(testResults)
+        }
+    }
+
+    interface RunFTLTestParams : WorkParameters {
+        val testApk: RegularFileProperty
+        val testedApk: RegularFileProperty
+        val testResults: RegularFileProperty
+    }
+
+    abstract class RunFTLTestWorkAction @Inject constructor(
+        private val execOperations: ExecOperations
+    ): WorkAction<RunFTLTestParams> {
+        override fun execute() {
+            val testApk = parameters.testApk.asFile.get()
+            val testedApk = parameters.testedApk.asFile.get()
+            val gcloud = GCloudCLIWrapper(execOperations)
+            val result = gcloud.runTest(
+                testedApk = testedApk,
+                testApk = testApk
             )
-        }
-        val failed = result.filterNot {
-            it.passed
-        }
-        if (failed.isNotEmpty()) {
-            throw GradleException("These tests failed: $failed")
+            val outFile = parameters.testResults.asFile.get()
+            outFile.parentFile.mkdirs()
+            val gson = Gson()
+            outFile.bufferedWriter(Charsets.UTF_8).use {
+                gson.toJson(
+                    result,
+                    it
+                )
+            }
+            val failed = result.filterNot {
+                it.passed
+            }
+            if (failed.isNotEmpty()) {
+                throw GradleException("These tests failed: $failed")
+            }
         }
     }
 
@@ -93,12 +121,11 @@ abstract class RunTestOnFTLTask : DefaultTask() {
          * library projects.
          */
         fun create(project: Project, testVariant: TestVariant): TaskProvider<RunTestOnFTLTask>? {
-            if (testVariant.testedVariant is LibraryVariant) {
-                // TODO add support for library project, which might require synthesizing another
-                //  APK :facepalm:
-                // see: // https://stackoverflow.com/questions/59827750/execute-instrumented-test-for-an-android-library-with-firebase-test-lab
-                return null
-            }
+            // TODO add support for library project, which might require synthesizing another
+            //  APK :facepalm:
+            // see: // https://stackoverflow.com/questions/59827750/execute-instrumented-test-for-an-android-library-with-firebase-test-lab
+            val testedVariant = testVariant.testedVariant as? ApkVariant
+                ?: return null
             val taskName = testVariant.name + TASK_SUFFIX
             return project.tasks.register(taskName, RunTestOnFTLTask::class.java) { task ->
                 task.description = "Run ${testVariant.name} tests on Firebase Test Lab"
@@ -110,15 +137,17 @@ abstract class RunTestOnFTLTask : DefaultTask() {
                         it.file(TEST_OUTPUT_FILE_NAME)
                     }
                 )
-                task.dependsOn(testVariant.assembleProvider)
-                task.dependsOn(testVariant.testedVariant.assembleProvider)
-                testVariant.outputs.withType(ApkVariantOutput::class.java).firstOrNull()
+                task.dependsOn(testVariant.packageApplicationProvider)
+                task.dependsOn(testedVariant.packageApplicationProvider)
+
                 task.testApk.set(
-                    testVariant.outputs.withType(ApkVariantOutput::class.java).firstOrNull()
+                    testVariant.outputs
+                        .withType(ApkVariantOutput::class.java)
+                        .firstOrNull()
                         ?.outputFile
                 )
                 task.testedApk.set(
-                    testVariant.testedVariant.outputs
+                    testedVariant.outputs
                         .withType(ApkVariantOutput::class.java)
                         .firstOrNull()
                         ?.outputFile
