@@ -98,7 +98,22 @@ public class RenderParameters @JvmOverloads constructor(
         public object AllComplications : HighlightedElement()
 
         /** A single [Complication] with the specified [id] will be highlighted. */
-        public class Complication(public val id: Int) : HighlightedElement()
+        public class Complication(public val id: Int) : HighlightedElement() {
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (javaClass != other?.javaClass) return false
+
+                other as Complication
+
+                if (id != other.id) return false
+
+                return true
+            }
+
+            override fun hashCode(): Int {
+                return id
+            }
+        }
 
         /**
          * A [UserStyleSetting] to highlight. E.g. for a setting that controls watch hands, the
@@ -106,7 +121,21 @@ public class RenderParameters @JvmOverloads constructor(
          *
          * @param id The [UserStyleSetting.Id] of the [UserStyleSetting] to highlight.
          */
-        public class UserStyle(public val id: UserStyleSetting.Id) : HighlightedElement()
+        public class UserStyle(public val id: UserStyleSetting.Id) : HighlightedElement() {
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (javaClass != other?.javaClass) return false
+
+                other as UserStyle
+
+                if (id != other.id) return false
+                return true
+            }
+
+            override fun hashCode(): Int {
+                return id.hashCode()
+            }
+        }
     }
 
     /**
@@ -136,7 +165,27 @@ public class RenderParameters @JvmOverloads constructor(
         @ColorInt
         @get:ColorInt
         public val backgroundTint: Int
-    )
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as HighlightLayer
+
+            if (highlightedElement != other.highlightedElement) return false
+            if (highlightTint != other.highlightTint) return false
+            if (backgroundTint != other.backgroundTint) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = highlightedElement.hashCode()
+            result = 31 * result + highlightTint
+            result = 31 * result + backgroundTint
+            return result
+        }
+    }
 
     public companion object {
         /** Default RenderParameters which draws everything in interactive mode. */
@@ -277,5 +326,25 @@ public class RenderParameters @JvmOverloads constructor(
             writer.decreaseIndent()
         }
         writer.decreaseIndent()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as RenderParameters
+
+        if (drawMode != other.drawMode) return false
+        if (watchFaceLayers != other.watchFaceLayers) return false
+        if (highlightLayer != other.highlightLayer) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = drawMode.hashCode()
+        result = 31 * result + watchFaceLayers.hashCode()
+        result = 31 * result + (highlightLayer?.hashCode() ?: 0)
+        return result
     }
 }
