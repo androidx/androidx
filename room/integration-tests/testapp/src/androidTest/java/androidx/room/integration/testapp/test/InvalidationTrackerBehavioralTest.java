@@ -179,13 +179,13 @@ public class InvalidationTrackerBehavioralTest {
                         // difficult, we are not interested in notifications from this one;
                         // inserts may trigger undefined invalidation callback behavior,
                         // depending on table update timing
-                        db.counter1Dao().insert(new Counter1());
+                        db.counterDao().insert(new Counter1());
 
                         // Use variable delay to detect different kinds of timing-related problems
                         Thread.sleep(delayMillis, delayNanos);
 
                         db.runInTransaction(() -> {
-                            db.counter2Dao().insert(new Counter2());
+                            db.counterDao().insert(new Counter2());
 
                             // Flag that we have inserted a new value, expect invalidation callback;
                             // do this as late as possible prior to the end of the transaction;
@@ -220,8 +220,7 @@ public class InvalidationTrackerBehavioralTest {
     abstract static class DB extends RoomDatabase {
         static final String NAME = "invalidationtrackerconcurrencytest";
 
-        abstract Counter1Dao counter1Dao();
-        abstract Counter2Dao counter2Dao();
+        abstract CounterDao counterDao();
     }
 
     @Entity(tableName = Counter1.TABLE_NAME)
@@ -241,13 +240,10 @@ public class InvalidationTrackerBehavioralTest {
     }
 
     @Dao
-    abstract static class Counter1Dao {
+    abstract static class CounterDao {
         @Insert
         abstract void insert(Counter1 entity);
-    }
 
-    @Dao
-    abstract static class Counter2Dao {
         @Insert
         abstract void insert(Counter2 entity);
     }
