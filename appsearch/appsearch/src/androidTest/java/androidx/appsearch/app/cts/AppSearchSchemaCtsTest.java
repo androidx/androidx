@@ -22,7 +22,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.exceptions.IllegalSchemaException;
@@ -37,17 +36,11 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    public void testMissingFields() {
-        DocumentPropertyConfig.Builder builder = new DocumentPropertyConfig.Builder("test");
-        IllegalSchemaException e = assertThrows(IllegalSchemaException.class, builder::build);
-        assertThat(e).hasMessageThat().contains("Missing field: schemaType");
-
-        builder.setSchemaType("TestType");
-        e = assertThrows(IllegalSchemaException.class, builder::build);
-        assertThat(e).hasMessageThat().contains("Missing field: cardinality");
-
-        builder.setCardinality(PropertyConfig.CARDINALITY_REPEATED);
-        builder.build();
+    public void testDefaultValues() {
+        StringPropertyConfig builder = new StringPropertyConfig.Builder("test").build();
+        assertThat(builder.getIndexingType()).isEqualTo(StringPropertyConfig.INDEXING_TYPE_NONE);
+        assertThat(builder.getTokenizerType()).isEqualTo(StringPropertyConfig.TOKENIZER_TYPE_NONE);
+        assertThat(builder.getCardinality()).isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
     }
 
     @Test

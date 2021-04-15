@@ -99,11 +99,12 @@ package androidx.appsearch.app {
   }
 
   public static final class AppSearchSchema.DocumentPropertyConfig.Builder {
-    ctor public AppSearchSchema.DocumentPropertyConfig.Builder(String);
+    ctor public AppSearchSchema.DocumentPropertyConfig.Builder(String, String);
+    ctor @Deprecated public AppSearchSchema.DocumentPropertyConfig.Builder(String);
     method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig build();
     method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setCardinality(int);
     method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setIndexNestedProperties(boolean);
-    method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setSchemaType(String);
+    method @Deprecated public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setSchemaType(String);
   }
 
   public static final class AppSearchSchema.DoublePropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {

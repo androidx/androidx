@@ -174,9 +174,9 @@ public final class SchemaToProtoConverter {
     @NonNull
     private static AppSearchSchema.DocumentPropertyConfig toDocumentPropertyConfig(
             @NonNull PropertyConfigProto proto) {
-        return new AppSearchSchema.DocumentPropertyConfig.Builder(proto.getPropertyName())
+        return new AppSearchSchema.DocumentPropertyConfig.Builder(
+                proto.getPropertyName(), proto.getSchemaType())
                 .setCardinality(proto.getCardinality().getNumber())
-                .setSchemaType(proto.getSchemaType())
                 .setIndexNestedProperties(
                         proto.getDocumentIndexingConfig().getIndexNestedProperties())
                 .build();
