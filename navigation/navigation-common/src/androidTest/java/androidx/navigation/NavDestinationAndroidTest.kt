@@ -112,6 +112,26 @@ class NavDestinationAndroidTest {
     }
 
     @Test
+    fun matchDeepLinkBestMatchPathTail() {
+        val destination = NoOpNavigator().createDestination()
+
+        destination.addArgument("id", stringArgument())
+        destination.addDeepLink("www.example.com/users/{id}")
+        destination.addDeepLink("www.example.com/users/{id}/posts")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.example.com/users/u43/posts")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link should extract id argument correctly")
+            .that(match?.matchingArgs?.getString("id"))
+            .isEqualTo("u43")
+    }
+
+    @Test
     fun matchDeepLinkBestMimeType() {
         val destination = NoOpNavigator().createDestination()
 
@@ -173,6 +193,18 @@ class NavDestinationAndroidTest {
         val destination = NoOpNavigator().createDestination()
 
         val deepLink = Uri.parse("android-app://androidx.navigation.test/invalid")
+
+        assertWithMessage("Deep link should not match")
+            .that(destination.hasDeepLink(deepLink)).isFalse()
+    }
+
+    @Test
+    fun testIsValidDeepLinkInvalidLinkPathTail() {
+        val destination = NoOpNavigator().createDestination()
+        destination.addArgument("testString", stringArgument())
+        destination.addDeepLink("android-app://androidx.navigation.test/{testString}")
+
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test/extra")
 
         assertWithMessage("Deep link should not match")
             .that(destination.hasDeepLink(deepLink)).isFalse()
