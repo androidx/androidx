@@ -46,8 +46,8 @@ public class UserStyle(
      * settings default option.
      *
      * @param userStyle The [UserStyle] represented as a [UserStyleData].
-     * @param styleSchema The  for this UserStyle, describes how we interpret
-     *     [userStyle].
+     * @param styleSchema The [UserStyleSchema] for this UserStyle, describes how we interpret
+     * [userStyle].
      */
     public constructor(
         userStyle: UserStyleData,
@@ -59,7 +59,7 @@ public class UserStyle(
                 if (option != null) {
                     this[styleSetting] = styleSetting.getSettingOptionForId(option)
                 } else {
-                    this[styleSetting] = styleSetting.getDefaultOption()
+                    this[styleSetting] = styleSetting.defaultOption
                 }
             }
         }
@@ -82,7 +82,7 @@ public class UserStyle(
 
     override fun toString(): String =
         "[" + selectedOptions.entries.joinToString(
-            transform = { it.key.id.value + " -> " + it.value.id.value }
+            transform = { "${it.key.id} -> ${it.value}" }
         ) + "]"
 }
 
@@ -99,13 +99,15 @@ public class UserStyleData(
         userStyle: UserStyleWireFormat
     ) : this(userStyle.mUserStyle)
 
-    override fun toString(): String = "{" + userStyleMap.map {
-        try {
-            it.key + "=" + it.value.decodeToString()
-        } catch (e: Exception) {
-            it.key + "=" + it.value
+    override fun toString(): String = "{" + userStyleMap.entries.joinToString(
+        transform = {
+            try {
+                it.key + "=" + it.value.decodeToString()
+            } catch (e: Exception) {
+                it.key + "=" + it.value
+            }
         }
-    }.joinToString() + "}"
+    ) + "}"
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -139,8 +141,8 @@ public class UserStyleData(
 /**
  * Describes the list of [UserStyleSetting]s the user can configure.
  *
- * @param userStyleSettings The user configurable style categories associated with this watch
- *     face. Empty if the watch face doesn't support user styling.
+ * @param userStyleSettings The user configurable style categories associated with this watch face.
+ * Empty if the watch face doesn't support user styling.
  */
 public class UserStyleSchema(
     public val userStyleSettings: List<UserStyleSetting>
@@ -182,7 +184,7 @@ public class UserStyleSchema(
  * [UserStyleSchema].
  *
  * @param schema The [UserStyleSchema] for this CurrentUserStyleRepository which describes the
- *     available style categories.
+ * available style categories.
  */
 public class CurrentUserStyleRepository(
     public val schema: UserStyleSchema
@@ -205,7 +207,7 @@ public class CurrentUserStyleRepository(
     public var userStyle: UserStyle = UserStyle(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
             for (setting in schema.userStyleSettings) {
-                this[setting] = setting.getDefaultOption()
+                this[setting] = setting.defaultOption
             }
         }
     )

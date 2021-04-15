@@ -31,6 +31,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(project(":wear:wear-complications-data"))
+    api(project(":wear:wear-watchface"))
 
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.preference:preference:1.1.0")

@@ -16,7 +16,7 @@
 
 package androidx.camera.view;
 
-import static androidx.camera.view.transform.OutputTransform.getNormalizedToBuffer;
+import static androidx.camera.view.TransformUtils.getNormalizedToBuffer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -873,7 +873,7 @@ public final class PreviewView extends FrameLayout {
             Logger.d(TAG, "Transform info is not ready");
             return null;
         }
-        // Map it to the normalized space (0, 0) - (1, 1).
+        // Map it to the normalized space (-1, -1) - (1, 1).
         matrix.preConcat(getNormalizedToBuffer(surfaceCropRect));
 
         // Add the custom transform applied by the app. e.g. View#setScaleX.

@@ -80,7 +80,7 @@ object SegmentBreaker {
         val iter = CharSequenceCharacterIterator(text, 0, text.length)
 
         val res = mutableListOf(0)
-        breaker.setText(iter)
+        breaker.text = iter
         while (breaker.next() != BreakIterator.DONE) {
             res.add(breaker.current())
         }
@@ -245,7 +245,7 @@ object SegmentBreaker {
             // Drop trailing space is the line does not end with this word.
             var left = min(startPos, endPos)
             var right = max(startPos, endPos)
-            if (dropSpaces && end != 0 && layout.text.get(end - 1) == ' ') {
+            if (dropSpaces && end != 0 && layout.text[end - 1] == ' ') {
                 val lineEnd = layout.getLineEnd(lineNo)
                 if (lineEnd != end) {
                     if (runRtl) {
@@ -276,7 +276,7 @@ object SegmentBreaker {
             val layout = layoutHelper.layout
 
             if (dropSpaces && end == start + 1 &&
-                layoutHelper.isLineEndSpace(layout.text.get(start))
+                layoutHelper.isLineEndSpace(layout.text[start])
             )
                 return@lambda
             val lineNo = layout.getLineForOffset(start, false /* downstream */)

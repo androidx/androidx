@@ -20,10 +20,12 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.annotations.CarProtocol;
 
 /**
  * A host-side interface for reporting to clients that the visibility state has changed.
  */
+@CarProtocol
 public interface OnItemVisibilityChangedDelegate {
     /**
      * Notifies that the items in the list within the specified indices have become visible.

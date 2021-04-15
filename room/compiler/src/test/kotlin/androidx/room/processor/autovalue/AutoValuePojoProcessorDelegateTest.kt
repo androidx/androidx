@@ -99,31 +99,29 @@ class AutoValuePojoProcessorDelegateTest {
                     $HEADER
                     @AutoValue.CopyAnnotations
                     @PrimaryKey
-                    abstract long getArg0();
-                    static MyPojo create(long arg0) { return new AutoValue_MyPojo(arg0); }
+                    abstract long getValue();
+                    static MyPojo create(long value) { return new AutoValue_MyPojo(value); }
                     $FOOTER
                     """
                 )
             ),
             annotationProcessors = listOf(
                 AutoValueProcessor()
-            )
+            ),
+            // keep parameters as the naming convention for parameters is not the same
+            // between javac (argN) and kotlinc (pN).
+            javacArguments = listOf("-parameters")
         )
         runProcessorTest(
             sources = emptyList(),
             classpath = listOf(libraryClasspath),
         ) { invocation: XTestInvocation ->
-            if (!invocation.isKsp) {
-                // TODO KSP loses JAVA_STATIC modifier in compiled code which means we cannot
-                //  find the factory method for Auto Value
-                //  https://github.com/google/ksp/issues/231
-                PojoProcessor.createFor(
-                    context = invocation.context,
-                    element = invocation.processingEnv.requireTypeElement(MY_POJO),
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                    parent = null
-                ).process()
-            }
+            PojoProcessor.createFor(
+                context = invocation.context,
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
+                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                parent = null
+            ).process()
             invocation.assertCompilationResult {
                 hasNoWarnings()
             }

@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -76,6 +77,7 @@ import java.util.Objects;
  * <p>In order to use this template your car app <b>MUST</b> declare that it uses the {@code
  * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
  */
+@CarProtocol
 public final class RoutePreviewNavigationTemplate implements Template {
     @Keep
     private final boolean mIsLoading;

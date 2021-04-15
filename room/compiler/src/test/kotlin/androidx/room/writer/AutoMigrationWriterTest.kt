@@ -16,7 +16,6 @@
 
 package androidx.room.writer
 
-import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.migration.bundle.FieldBundle
@@ -26,7 +25,6 @@ import loadTestSource
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.mock
 
 @RunWith(JUnit4::class)
 class AutoMigrationWriterTest {
@@ -37,10 +35,9 @@ class AutoMigrationWriterTest {
             "foo.bar.ValidAutoMigrationWithDefault",
             """
             package foo.bar;
-            import androidx.room.migration.AutoMigrationCallback;
-            import androidx.room.AutoMigration;
+            import androidx.room.migration.AutoMigrationSpec;
             import androidx.sqlite.db.SupportSQLiteDatabase;
-            interface ValidAutoMigrationWithDefault extends AutoMigrationCallback {}
+            public class ValidAutoMigrationWithDefault implements AutoMigrationSpec {}
             """.trimIndent()
         )
 
@@ -67,13 +64,20 @@ class AutoMigrationWriterTest {
                             )
                         )
                     ),
-                    removedOrRenamedColumns = listOf(),
-                    addedTables = listOf(),
+                    deletedColumns = listOf(),
+                    addedTables = setOf(),
                     complexChangedTables = mapOf(),
-                    removedOrRenamedTables = listOf()
+                    renamedTables = mapOf(),
+                    deletedTables = listOf()
+                ),
+                specElement = invocation.processingEnv.requireTypeElement(
+                    "foo.bar.ValidAutoMigrationWithDefault"
                 ),
             )
-            AutoMigrationWriter(mock(XElement::class.java), autoMigrationResultWithNewAddedColumn)
+            AutoMigrationWriter(
+                autoMigrationResultWithNewAddedColumn.element,
+                autoMigrationResultWithNewAddedColumn
+            )
                 .write(invocation.processingEnv)
 
             invocation.assertCompilationResult {
@@ -81,7 +85,7 @@ class AutoMigrationWriterTest {
                     loadTestSource(
                         "autoMigrationWriter/output/ValidAutoMigrationWithDefault" +
                             ".java",
-                        "foo.bar.ValidAutoMigrationWithDefault_Impl"
+                        "foo.bar.AutoMigration_1_2_Impl"
                     )
                 )
             }
@@ -94,11 +98,9 @@ class AutoMigrationWriterTest {
             "foo.bar.ValidAutoMigrationWithoutDefault",
             """
             package foo.bar;
-            import androidx.room.migration.AutoMigrationCallback;
-            import androidx.room.AutoMigration;
+            import androidx.room.migration.AutoMigrationSpec;
             import androidx.sqlite.db.SupportSQLiteDatabase;
-            @AutoMigration(from=1, to=2)
-            interface ValidAutoMigrationWithoutDefault extends AutoMigrationCallback {}
+            public class ValidAutoMigrationWithoutDefault implements AutoMigrationSpec {}
             """.trimIndent()
         )
 
@@ -125,20 +127,27 @@ class AutoMigrationWriterTest {
                             )
                         )
                     ),
-                    removedOrRenamedColumns = listOf(),
-                    addedTables = listOf(),
+                    deletedColumns = listOf(),
+                    addedTables = setOf(),
                     complexChangedTables = mapOf(),
-                    removedOrRenamedTables = listOf()
+                    renamedTables = mapOf(),
+                    deletedTables = listOf()
+                ),
+                specElement = invocation.processingEnv.requireTypeElement(
+                    "foo.bar.ValidAutoMigrationWithoutDefault"
                 ),
             )
-            AutoMigrationWriter(mock(XElement::class.java), autoMigrationResultWithNewAddedColumn)
+            AutoMigrationWriter(
+                autoMigrationResultWithNewAddedColumn.element,
+                autoMigrationResultWithNewAddedColumn
+            )
                 .write(invocation.processingEnv)
 
             invocation.assertCompilationResult {
                 generatedSource(
                     loadTestSource(
                         "autoMigrationWriter/output/ValidAutoMigrationWithoutDefault.java",
-                        "foo.bar.ValidAutoMigrationWithoutDefault_Impl"
+                        "foo.bar.AutoMigration_1_2_Impl"
                     )
                 )
             }

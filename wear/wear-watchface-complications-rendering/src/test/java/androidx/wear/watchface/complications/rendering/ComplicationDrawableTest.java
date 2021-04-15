@@ -729,10 +729,12 @@ public class ComplicationDrawableTest {
                             surfaceHolder, currentUserStyleRepository, watchState,
                             CanvasType.SOFTWARE, 16L) {
                         @Override
-                        public void render(@NonNull Canvas canvas, @NonNull Rect bounds,
-                                @NonNull Calendar calendar) {
+                        public void renderHighlightLayer(@NonNull Canvas canvas,
+                                @NonNull Rect bounds, @NonNull Calendar calendar) {}
 
-                        }
+                        @Override
+                        public void render(@NonNull Canvas canvas, @NonNull Rect bounds,
+                                @NonNull Calendar calendar) {}
                     }
             );
         }

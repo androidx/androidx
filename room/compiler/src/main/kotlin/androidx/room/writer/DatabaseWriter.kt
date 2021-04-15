@@ -27,6 +27,7 @@ import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.compiler.processing.MethodSpecHelper
 import androidx.room.compiler.processing.addOriginatingElement
+import androidx.room.ext.W
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
@@ -310,12 +311,12 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             addAnnotation(Override::class.java)
             returns(ParameterizedTypeName.get(CommonTypeNames.LIST, RoomTypeNames.MIGRATION))
             val autoMigrationsList = database.autoMigrations.map {
-                CodeBlock.of("new $L()", it.implTypeName)
+                CodeBlock.of("new $T()", it.implTypeName)
             }
             addStatement(
-                "return $T.asList( $L )",
+                "return $T.asList($L)",
                 CommonTypeNames.ARRAYS,
-                CodeBlock.join(autoMigrationsList, ",")
+                CodeBlock.join(autoMigrationsList, ",$W")
             )
         }.build()
     }

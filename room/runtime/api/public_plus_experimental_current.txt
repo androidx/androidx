@@ -116,6 +116,7 @@ package androidx.room {
     method public void addMigrations(androidx.room.migration.Migration!...);
     method public void addMigrations(java.util.List<androidx.room.migration.Migration!>);
     method public java.util.List<androidx.room.migration.Migration!>? findMigrationPath(int, int);
+    method public java.util.Map<java.lang.Integer!,java.util.Map<java.lang.Integer!,androidx.room.migration.Migration!>!> getMigrations();
   }
 
   public abstract static class RoomDatabase.PrepackagedDatabaseCallback {
@@ -130,6 +131,10 @@ package androidx.room {
 }
 
 package androidx.room.migration {
+
+  public interface AutoMigrationSpec {
+    method public default void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase);
+  }
 
   public abstract class Migration {
     ctor public Migration(int, int);

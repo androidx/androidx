@@ -32,6 +32,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.core.graphics.drawable.IconCompat;
@@ -92,6 +93,7 @@ import java.util.Objects;
  * </resources>
  * }</pre>
  */
+@CarProtocol
 public final class CarIcon {
     /** Matches with {@link android.graphics.drawable.Icon#TYPE_RESOURCE} */
     private static final int TYPE_RESOURCE = 2;

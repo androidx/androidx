@@ -22,6 +22,6 @@
     <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- תהיה לה אפשרות לקרוא מידע מ-<xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- תהיה לה יכולת לנקוט פעולה בתוך <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="abc_slice_permission_checkbox" msgid="5696872682700058611">"יש לאשר ל-<xliff:g id="APP">%1$s</xliff:g> להראות חלקים מכל אפליציה שהיא"</string>
-    <string name="abc_slice_permission_allow" msgid="5024599872061409708">"יש אישור"</string>
+    <string name="abc_slice_permission_allow" msgid="5024599872061409708">"אישור"</string>
     <string name="abc_slice_permission_deny" msgid="3819478292430407705">"אני לא מרשה"</string>
 </resources>

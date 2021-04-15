@@ -55,16 +55,6 @@ public class ExtensionCompatDeviceTest extends WindowTestBase implements CompatD
 
     @Test
     @Override
-    public void testDeviceStateCallback() {
-        ExtensionCallbackInterface callbackInterface = mock(ExtensionCallbackInterface.class);
-        mExtensionCompat.setExtensionCallback(callbackInterface);
-        mExtensionCompat.onDeviceStateListenersChanged(false);
-
-        verify(callbackInterface).onDeviceStateChanged(any());
-    }
-
-    @Test
-    @Override
     public void testWindowLayoutCallback() {
         TestActivity activity = mActivityTestRule.launchActivity(new Intent());
         IBinder windowToken = getActivityWindowToken(activity);

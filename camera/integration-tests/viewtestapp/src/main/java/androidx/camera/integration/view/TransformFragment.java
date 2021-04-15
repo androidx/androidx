@@ -16,6 +16,9 @@
 
 package androidx.camera.integration.view;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.round;
+
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -29,16 +32,19 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
@@ -73,6 +79,7 @@ public final class TransformFragment extends Fragment {
     private static final String TAG = "TransformFragment";
 
     private static final int TILE_COUNT = 4;
+    public static final RectF NORMALIZED_RECT = new RectF(-1, -1, 1, 1);
 
     private LifecycleCameraController mCameraController;
     private ExecutorService mExecutorService;
@@ -96,8 +103,10 @@ public final class TransformFragment extends Fragment {
     @SuppressWarnings("WeakerAccess")
     RectF mBrightestTile;
 
-    private final FileTransformFactory mFileTransformFactory =
+    private final FileTransformFactory mFileTransformFactoryWithoutExif =
             new FileTransformFactory.Builder().build();
+    private final FileTransformFactory mFileTransformFactoryWithExif =
+            new FileTransformFactory.Builder().setUseExifOrientation(true).build();
 
     private final ImageAnalysis.Analyzer mAnalyzer = new ImageAnalysis.Analyzer() {
 
@@ -105,7 +114,7 @@ public final class TransformFragment extends Fragment {
                 new ImageProxyTransformFactory.Builder().build();
 
         @Override
-        @UseExperimental(markerClass = TransformExperimental.class)
+        @OptIn(markerClass = TransformExperimental.class)
         @SuppressWarnings("RestrictedApi")
         public void analyze(@NonNull ImageProxy imageProxy) {
             // Find the brightest tile to highlight.
@@ -121,25 +130,86 @@ public final class TransformFragment extends Fragment {
             // Calculate PreviewView transform on UI thread.
             mOverlayView.post(() -> {
                 // Calculate the transform.
-                OutputTransform previewViewTransform = mPreviewView.getOutputTransform();
-                if (previewViewTransform == null) {
+                RectF brightestTileInPreviewView = getBrightestTileInPreviewView(
+                        imageProxyTransform, brightestTile);
+                if (brightestTileInPreviewView == null) {
                     // PreviewView transform info is not ready. No-op.
                     return;
                 }
-                CoordinateTransform transform = new CoordinateTransform(
-                        imageProxyTransform,
-                        previewViewTransform);
-                Matrix analysisToPreview = new Matrix();
-                transform.getTransform(analysisToPreview);
 
-                // Map the tile to PreviewView coordinates.
-                analysisToPreview.mapRect(brightestTile);
                 // Draw the tile on top of PreviewView.
-                mOverlayView.setTileRect(brightestTile);
+                mOverlayView.setTileRect(brightestTileInPreviewView);
                 mOverlayView.postInvalidate();
             });
         }
     };
+
+    /**
+     * Gets the transform matrix based on exif orientation.
+     *
+     * <p> A forked version of {@code TransformUtil#getExifTransform} to make the test app
+     * self-contained.
+     */
+    @NonNull
+    public static Matrix getExifTransform(int exifOrientation, int width, int height) {
+        Matrix matrix = new Matrix();
+
+        // Map the bitmap to a normalized space (-1, -1) - (1, 1) and perform transform in the
+        // normalized space.
+        RectF rect = new RectF(0, 0, width, height);
+        matrix.setRectToRect(rect, NORMALIZED_RECT, Matrix.ScaleToFit.FILL);
+
+        // A flag that check if the image has been rotated 90/270.
+        boolean isWidthHeightSwapped = false;
+
+        // Transform the normalized space based on exif orientation.
+        switch (exifOrientation) {
+            case android.media.ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.postScale(-1f, 1f);
+                break;
+            case android.media.ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.postRotate(180);
+                break;
+            case android.media.ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.postScale(1f, -1f);
+                break;
+            case android.media.ExifInterface.ORIENTATION_TRANSPOSE:
+                // Flipped about top-left <--> bottom-right axis, it can also be represented by
+                // flip horizontally and then rotate 270 degree clockwise.
+                matrix.postScale(-1f, 1f);
+                matrix.postRotate(270);
+                isWidthHeightSwapped = true;
+                break;
+            case android.media.ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.postRotate(90);
+                isWidthHeightSwapped = true;
+                break;
+            case android.media.ExifInterface.ORIENTATION_TRANSVERSE:
+                // Flipped about top-right <--> bottom-left axis, it can also be
+                // represented by flip horizontally and then rotate 90 degree clockwise.
+                matrix.postScale(-1f, 1f);
+                matrix.postRotate(90);
+                isWidthHeightSwapped = true;
+                break;
+            case android.media.ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.postRotate(270);
+                isWidthHeightSwapped = true;
+                break;
+            case android.media.ExifInterface.ORIENTATION_NORMAL:
+                // Fall-through
+            case android.media.ExifInterface.ORIENTATION_UNDEFINED:
+                // Fall-through
+            default:
+                break;
+        }
+
+        // Map the normalized space back to the bitmap coordinates.
+        RectF restoredRect = isWidthHeightSwapped ? new RectF(0, 0, height, width) : rect;
+        Matrix restore = new Matrix();
+        restore.setRectToRect(NORMALIZED_RECT, restoredRect, Matrix.ScaleToFit.FILL);
+        matrix.postConcat(restore);
+        return matrix;
+    }
 
     /**
      * Finds the brightest tile in the given {@link ImageProxy}.
@@ -223,6 +293,9 @@ public final class TransformFragment extends Fragment {
         view.findViewById(R.id.capture).setOnClickListener(
                 v -> saveHighlightedFilePreservingExif());
 
+        view.findViewById(R.id.capture_and_transform).setOnClickListener(
+                v -> saveHighlightedUriWithoutExif());
+
         updateMirrorState();
         updateCameraOrientation();
         return view;
@@ -233,6 +306,116 @@ public final class TransformFragment extends Fragment {
     void showToast(String message) {
         requireActivity().runOnUiThread(
                 () -> Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show());
+    }
+
+    private void createDefaultPictureFolderIfNotExist() {
+        File pictureFolder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        if (!pictureFolder.exists()) {
+            if (!pictureFolder.mkdir()) {
+                Log.e(TAG, "Failed to create directory: " + pictureFolder);
+            }
+        }
+    }
+
+    /**
+     * Takes a picture, applies the exif info, highlights the brightest tile and saves it to
+     * MediaStore without exif info.
+     */
+    private void saveHighlightedUriWithoutExif() {
+        // Take a picture and save to MediaStore
+        createDefaultPictureFolderIfNotExist();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(
+                        requireContext().getContentResolver(),
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues).build();
+
+        mCameraController.takePicture(outputFileOptions, mExecutorService,
+                new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(
+                            @NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        if (mImageProxyTransform == null || mBrightestTile == null) {
+                            Logger.d(TAG, "ImageAnalysis result not ready.");
+                            return;
+                        }
+                        Uri uri = outputFileResults.getSavedUri();
+                        if (uri == null) {
+                            showToast("Saved URI should not be null.");
+                            return;
+                        }
+                        try {
+                            RectF tileInUri = getBrightestTileInUriWithExif(
+                                    uri,
+                                    mImageProxyTransform,
+                                    mBrightestTile);
+                            Bitmap bitmap = loadBitmapWithExifApplied(uri);
+                            drawRectOnBitmap(bitmap, tileInUri);
+                            saveBitmapToUri(bitmap, uri);
+                            showToast("Image saved.");
+                        } catch (IOException e) {
+                            showToast("Failed to draw on file. " + e);
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        showToast("Failed to capture image. " + exception);
+                    }
+                });
+    }
+
+    /**
+     * Loads {@link Bitmap} from the given {@link Uri} and applies exif info to the {@link Bitmap}.
+     */
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @NonNull
+    Bitmap loadBitmapWithExifApplied(Uri uri) throws IOException {
+        // Loads bitmap.
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inMutable = true;
+        Bitmap original;
+        try (InputStream inputStream = requireContext().getContentResolver().openInputStream(uri)) {
+            original = BitmapFactory.decodeStream(inputStream, /*outPadding*/ null, options);
+        }
+
+        // Reads exif orientation.
+        int exifOrientation;
+        try (InputStream inputStream = requireContext().getContentResolver().openInputStream(uri)) {
+            ExifInterface exifInterface = new ExifInterface(inputStream);
+            exifOrientation = exifInterface.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+        }
+        Matrix matrix = getExifTransform(exifOrientation, original.getWidth(),
+                original.getHeight());
+
+        // Calculate the bitmap size with exif applied.
+        float[] sizeVector = new float[]{original.getWidth(), original.getHeight()};
+        matrix.mapVectors(sizeVector);
+
+        // Create a new bitmap with exif applied.
+        Bitmap bitmapWithExif = Bitmap.createBitmap(
+                round(abs(sizeVector[0])),
+                round(abs(sizeVector[1])),
+                Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmapWithExif);
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        canvas.drawBitmap(original, matrix, paint);
+        return bitmapWithExif;
+    }
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    void saveBitmapToUri(@NonNull Bitmap bitmap, @NonNull Uri uri) throws IOException {
+        try (OutputStream outputStream =
+                     requireContext().getContentResolver().openOutputStream(uri)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+        }
     }
 
     /**
@@ -263,7 +446,7 @@ public final class TransformFragment extends Fragment {
                             return;
                         }
                         try {
-                            RectF tileInFile = getBrightestTileInFile(
+                            RectF tileInFile = getBrightestTileInFileWithoutExif(
                                     tempFile,
                                     mImageProxyTransform,
                                     mBrightestTile);
@@ -275,11 +458,10 @@ public final class TransformFragment extends Fragment {
                             drawRectOnBitmap(bitmap, tileInFile);
                             saveBitmapToFilePreservingExif(tempFile, bitmap);
                             insertFileToMediaStore(tempFile);
+                            showToast("Image saved.");
                         } catch (IOException e) {
                             showToast("Failed to draw on file. " + e);
-                            return;
                         }
-                        showToast("Image saved.");
                     }
 
                     @Override
@@ -359,13 +541,50 @@ public final class TransformFragment extends Fragment {
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
-    @UseExperimental(markerClass = TransformExperimental.class)
-    RectF getBrightestTileInFile(@NonNull File file,
+    @OptIn(markerClass = TransformExperimental.class)
+    @NonNull
+    RectF getBrightestTileInFileWithoutExif(@NonNull File file,
             @NonNull OutputTransform imageProxyTransform,
             @NonNull RectF imageProxyTile) throws IOException {
-        OutputTransform fileTransform = mFileTransformFactory.getOutputTransform(file);
-        CoordinateTransform transform = new CoordinateTransform(
-                imageProxyTransform, fileTransform);
+        return getBrightestTile(
+                imageProxyTransform,
+                mFileTransformFactoryWithoutExif.getOutputTransform(file),
+                imageProxyTile);
+    }
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @OptIn(markerClass = TransformExperimental.class)
+    @NonNull
+    RectF getBrightestTileInUriWithExif(@NonNull Uri uri,
+            @NonNull OutputTransform imageProxyTransform,
+            @NonNull RectF imageProxyTile) throws IOException {
+        OutputTransform uriTransform = mFileTransformFactoryWithExif.getOutputTransform(
+                requireContext().getContentResolver(), uri);
+        return getBrightestTile(imageProxyTransform, uriTransform, imageProxyTile);
+    }
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @OptIn(markerClass = TransformExperimental.class)
+    @MainThread
+    @Nullable
+    RectF getBrightestTileInPreviewView(@NonNull OutputTransform imageProxyTransform,
+            @NonNull RectF imageProxyTile) {
+        OutputTransform previewViewTransform = mPreviewView.getOutputTransform();
+        if (previewViewTransform == null) {
+            // PreviewView transform info is not ready. No-op.
+            return null;
+        }
+        return getBrightestTile(imageProxyTransform, previewViewTransform, imageProxyTile);
+    }
+
+    @OptIn(markerClass = TransformExperimental.class)
+    @NonNull
+    private RectF getBrightestTile(@NonNull OutputTransform source,
+            @NonNull OutputTransform target,
+            @NonNull RectF imageProxyTile) {
+        CoordinateTransform transform = new CoordinateTransform(source, target);
         Matrix matrix = new Matrix();
         transform.getTransform(matrix);
         matrix.mapRect(imageProxyTile);

@@ -1075,7 +1075,8 @@ package androidx.core.content.pm {
 
   public static class ShortcutInfoCompat.Builder {
     ctor public ShortcutInfoCompat.Builder(android.content.Context, String);
-    method public androidx.core.content.pm.ShortcutInfoCompat.Builder addCapabilityBinding(String, java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!>?);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder addCapabilityBinding(String);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder addCapabilityBinding(String, String, java.util.List<java.lang.String!>);
     method public androidx.core.content.pm.ShortcutInfoCompat build();
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setActivity(android.content.ComponentName);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setAlwaysBadged();
@@ -1699,6 +1700,19 @@ package androidx.core.provider {
     field public static final int FAIL_REASON_PROVIDER_NOT_FOUND = -1; // 0xffffffff
     field public static final int FAIL_REASON_SECURITY_VIOLATION = -4; // 0xfffffffc
     field public static final int FAIL_REASON_WRONG_CERTIFICATES = -2; // 0xfffffffe
+  }
+
+}
+
+package androidx.core.telephony {
+
+  @RequiresApi(22) public class SubscriptionManagerCompat {
+    method public static int getSlotIndex(int);
+  }
+
+  public class TelephonyManagerCompat {
+    method @RequiresPermission(android.Manifest.permission.READ_PHONE_STATE) public static String? getImei(android.telephony.TelephonyManager);
+    method public static int getSubscriptionId(android.telephony.TelephonyManager);
   }
 
 }
@@ -3338,6 +3352,14 @@ package androidx.core.widget {
     field public static final float NO_MAX = 3.4028235E38f;
     field public static final float NO_MIN = 0.0f;
     field public static final float RELATIVE_UNSPECIFIED = 0.0f;
+  }
+
+  public final class CheckedTextViewCompat {
+    method public static android.graphics.drawable.Drawable? getCheckMarkDrawable(android.widget.CheckedTextView);
+    method public static android.content.res.ColorStateList? getCheckMarkTintList(android.widget.CheckedTextView);
+    method public static android.graphics.PorterDuff.Mode? getCheckMarkTintMode(android.widget.CheckedTextView);
+    method public static void setCheckMarkTintList(android.widget.CheckedTextView, android.content.res.ColorStateList?);
+    method public static void setCheckMarkTintMode(android.widget.CheckedTextView, android.graphics.PorterDuff.Mode?);
   }
 
   public final class CompoundButtonCompat {

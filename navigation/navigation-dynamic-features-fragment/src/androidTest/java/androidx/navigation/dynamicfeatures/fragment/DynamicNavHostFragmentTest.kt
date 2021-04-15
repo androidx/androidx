@@ -19,6 +19,7 @@ package androidx.navigation.dynamicfeatures.fragment
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.dynamicfeatures.fragment.test.R
+import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -42,9 +43,10 @@ public class DynamicNavHostFragmentTest {
 
     @Test
     public fun createSplitInstallManager() {
-        val fragment = TestDynamicNavHostFragment()
+        lateinit var fragment: TestDynamicNavHostFragment
         with(ActivityScenario.launch(NavigationActivity::class.java)) {
             withActivity {
+                fragment = TestDynamicNavHostFragment()
                 supportFragmentManager.beginTransaction()
                     .add(R.id.nav_host, fragment, null)
                     .setPrimaryNavigationFragment(fragment)
@@ -54,12 +56,14 @@ public class DynamicNavHostFragmentTest {
         assertEquals(fragment.createSplitInstallManager(), fragment.createSplitInstallManager())
     }
 
+    @UiThreadTest
     @Test
     public fun create_noArgs() {
         val fragment = DynamicNavHostFragment.create(R.id.nav_host)
         assertEquals(fragment.arguments!!.size(), 1)
     }
 
+    @UiThreadTest
     @Test
     public fun create_withArgs() {
         val fragment = DynamicNavHostFragment.create(

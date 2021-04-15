@@ -27,6 +27,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
+import androidx.annotation.MainThread
 import androidx.annotation.NavigationRes
 import androidx.annotation.RestrictTo
 import androidx.core.app.TaskStackBuilder
@@ -36,6 +37,11 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
 /**
  * NavController manages app navigation within a [NavHost].
@@ -68,6 +74,7 @@ public open class NavController(
          * @see NavController.setGraph
          * @throws IllegalStateException if called before `setGraph()`.
          */
+        @MainThread
         get() {
             checkNotNull(_graph) { "You must call setGraph() before calling getGraph()" }
             return _graph as NavGraph
@@ -83,6 +90,7 @@ public open class NavController(
          * @see NavController.setGraph
          * @see NavController.getGraph
          */
+        @MainThread
         @CallSuper
         set(graph) {
             setGraph(graph, null)
@@ -100,6 +108,7 @@ public open class NavController(
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val backQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
+    private val backStackStates = mutableMapOf<Int, ArrayDeque<NavBackStackEntryState>>()
     private var lifecycleOwner: LifecycleOwner? = null
     private var viewModel: NavControllerViewModel? = null
     private val onDestinationChangedListeners =
@@ -231,6 +240,7 @@ public open class NavController(
      * @return true if the stack was popped at least once and the user has been navigated to
      * another destination, false otherwise
      */
+    @MainThread
     public open fun popBackStack(): Boolean {
         return if (backQueue.isEmpty()) {
             // Nothing to pop if the back stack is empty
@@ -249,8 +259,32 @@ public open class NavController(
      * @return true if the stack was popped at least once and the user has been navigated to
      * another destination, false otherwise
      */
+    @MainThread
     public open fun popBackStack(@IdRes destinationId: Int, inclusive: Boolean): Boolean {
-        val popped = popBackStackInternal(destinationId, inclusive)
+        return popBackStack(destinationId, inclusive, false)
+    }
+
+    /**
+     * Attempts to pop the controller's back stack back to a specific destination.
+     *
+     * @param destinationId The topmost destination to retain
+     * @param inclusive Whether the given destination should also be popped.
+     * @param saveState Whether the back stack and the state of all destinations between the
+     * current destination and the [destinationId] should be saved for later
+     * restoration via [NavOptions.Builder.setRestoreState] or the `restoreState` attribute using
+     * the same [destinationId] (note: this matching ID is true whether
+     * [inclusive] is true or false).
+     *
+     * @return true if the stack was popped at least once and the user has been navigated to
+     * another destination, false otherwise
+     */
+    @MainThread
+    public open fun popBackStack(
+        @IdRes destinationId: Int,
+        inclusive: Boolean,
+        saveState: Boolean
+    ): Boolean {
+        val popped = popBackStackInternal(destinationId, inclusive, saveState)
         // Only return true if the pop succeeded and we've dispatched
         // the change to a new destination
         return popped && dispatchOnDestinationChanged()
@@ -262,11 +296,20 @@ public open class NavController(
      *
      * @param destinationId The topmost destination to retain
      * @param inclusive Whether the given destination should also be popped.
+     * @param saveState Whether the back stack and the state of all destinations between the
+     * current destination and the [destinationId] should be saved for later
+     * restoration via [NavOptions.Builder.setRestoreState] or the `restoreState` attribute using
+     * the same [destinationId] (note: this matching ID is true whether
+     * [inclusive] is true or false).
      *
      * @return true if the stack was popped at least once, false otherwise
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun popBackStackInternal(@IdRes destinationId: Int, inclusive: Boolean): Boolean {
+    @MainThread
+    private fun popBackStackInternal(
+        @IdRes destinationId: Int,
+        inclusive: Boolean,
+        saveState: Boolean = false
+    ): Boolean {
         if (backQueue.isEmpty()) {
             // Nothing to pop if the back stack is empty
             return false
@@ -301,18 +344,30 @@ public open class NavController(
             return false
         }
         var popped = false
+        val savedState = ArrayDeque<NavBackStackEntryState>()
         for (navigator in popOperations) {
             if (navigator.popBackStack()) {
                 val entry = backQueue.removeLast()
                 if (entry.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+                    if (saveState) {
+                        // Move the state through STOPPED
+                        entry.maxLifecycle = Lifecycle.State.CREATED
+                        // Then save the state of the NavBackStackEntry
+                        savedState.addFirst(NavBackStackEntryState(entry))
+                    }
                     entry.maxLifecycle = Lifecycle.State.DESTROYED
                 }
-                viewModel?.clear(entry.id)
+                if (!saveState) {
+                    viewModel?.clear(entry.id)
+                }
                 popped = true
             } else {
                 // The pop did not complete successfully, so stop immediately
                 break
             }
+        }
+        if (popped && saveState) {
+            backStackStates[destinationId] = savedState
         }
         updateOnBackPressedCallbackEnabled()
         return popped
@@ -332,6 +387,7 @@ public open class NavController(
      *
      * @return true if navigation was successful, false otherwise
      */
+    @MainThread
     public open fun navigateUp(): Boolean {
         return if (destinationCountOnBackStack == 1) {
             // If there's only one entry, then we've deep linked into a specific destination
@@ -504,6 +560,7 @@ public open class NavController(
      * @see NavController.setGraph
      * @see NavController.getGraph
      */
+    @MainThread
     @CallSuper
     public open fun setGraph(@NavigationRes graphResId: Int) {
         setGraph(navInflater.inflate(graphResId), null)
@@ -522,6 +579,7 @@ public open class NavController(
      * @see NavController.setGraph
      * @see NavController.getGraph
      */
+    @MainThread
     @CallSuper
     public open fun setGraph(@NavigationRes graphResId: Int, startDestinationArgs: Bundle?) {
         setGraph(navInflater.inflate(graphResId), startDestinationArgs)
@@ -537,6 +595,7 @@ public open class NavController(
      * @see NavController.setGraph
      * @see NavController.getGraph
      */
+    @MainThread
     @CallSuper
     public open fun setGraph(graph: NavGraph, startDestinationArgs: Bundle?) {
         _graph?.let { previousGraph ->
@@ -547,6 +606,7 @@ public open class NavController(
         onGraphCreated(startDestinationArgs)
     }
 
+    @MainThread
     private fun onGraphCreated(startDestinationArgs: Bundle?) {
         navigatorStateToRestore?.let { navigatorStateToRestore ->
             val navigatorNames = navigatorStateToRestore.getStringArrayList(
@@ -576,14 +636,7 @@ public open class NavController(
                             "found from the current destination $currentDestination"
                     )
                 }
-                val args = state.args?.apply {
-                    classLoader = context.classLoader
-                }
-                val entry = NavBackStackEntry(
-                    context, node, args,
-                    lifecycleOwner, viewModel,
-                    state.uuid, state.savedState
-                )
+                val entry = state.instantiate(context, node, lifecycleOwner, viewModel)
                 backQueue.add(entry)
             }
             updateOnBackPressedCallbackEnabled()
@@ -624,6 +677,7 @@ public open class NavController(
      * @throws IllegalStateException if deep link cannot be accessed from the current destination
      * @see NavDestination.addDeepLink
      */
+    @MainThread
     public open fun handleDeepLink(intent: Intent?): Boolean {
         if (intent == null) {
             return false
@@ -824,6 +878,7 @@ public open class NavController(
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
+    @MainThread
     public open fun navigate(@IdRes resId: Int) {
         navigate(resId, null)
     }
@@ -840,6 +895,7 @@ public open class NavController(
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
+    @MainThread
     public open fun navigate(@IdRes resId: Int, args: Bundle?) {
         navigate(resId, args, null)
     }
@@ -857,6 +913,7 @@ public open class NavController(
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
+    @MainThread
     public open fun navigate(@IdRes resId: Int, args: Bundle?, navOptions: NavOptions?) {
         navigate(resId, args, navOptions, null)
     }
@@ -875,6 +932,7 @@ public open class NavController(
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
+    @MainThread
     public open fun navigate(
         @IdRes resId: Int,
         args: Bundle?,
@@ -942,6 +1000,7 @@ public open class NavController(
      * @param deepLink deepLink to the destination reachable from the current NavGraph
      * @see NavController.navigate
      */
+    @MainThread
     public open fun navigate(deepLink: Uri) {
         navigate(NavDeepLinkRequest(deepLink, null, null))
     }
@@ -957,6 +1016,7 @@ public open class NavController(
      * @param navOptions special options for this navigation operation
      * @see NavController.navigate
      */
+    @MainThread
     public open fun navigate(deepLink: Uri, navOptions: NavOptions?) {
         navigate(NavDeepLinkRequest(deepLink, null, null), navOptions, null)
     }
@@ -973,6 +1033,7 @@ public open class NavController(
      * @param navigatorExtras extras to pass to the Navigator
      * @see NavController.navigate
      */
+    @MainThread
     public open fun navigate(
         deepLink: Uri,
         navOptions: NavOptions?,
@@ -992,6 +1053,7 @@ public open class NavController(
      *
      * @throws IllegalArgumentException if the given deep link request is invalid
      */
+    @MainThread
     public open fun navigate(request: NavDeepLinkRequest) {
         navigate(request, null)
     }
@@ -1008,6 +1070,7 @@ public open class NavController(
      *
      * @throws IllegalArgumentException if the given deep link request is invalid
      */
+    @MainThread
     public open fun navigate(request: NavDeepLinkRequest, navOptions: NavOptions?) {
         navigate(request, navOptions, null)
     }
@@ -1025,6 +1088,7 @@ public open class NavController(
      *
      * @throws IllegalArgumentException if the given deep link request is invalid
      */
+    @MainThread
     public open fun navigate(
         request: NavDeepLinkRequest,
         navOptions: NavOptions?,
@@ -1049,6 +1113,7 @@ public open class NavController(
         }
     }
 
+    @MainThread
     private fun navigate(
         node: NavDestination,
         args: Bundle?,
@@ -1061,7 +1126,8 @@ public open class NavController(
             if (navOptions.popUpTo != -1) {
                 popped = popBackStackInternal(
                     navOptions.popUpTo,
-                    navOptions.isPopUpToInclusive()
+                    navOptions.isPopUpToInclusive(),
+                    navOptions.shouldPopUpToSaveState()
                 )
             }
         }
@@ -1233,6 +1299,22 @@ public open class NavController(
             }
             b.putParcelableArray(KEY_BACK_STACK, backStack)
         }
+        if (backStackStates.isNotEmpty()) {
+            if (b == null) {
+                b = Bundle()
+            }
+            val backStackStateIds = IntArray(backStackStates.size)
+            var index = 0
+            for ((id, backStackStates) in backStackStates) {
+                backStackStateIds[index++] = id
+                val states = arrayOfNulls<Parcelable>(backStackStates.size)
+                backStackStates.forEachIndexed { stateIndex, backStackState ->
+                    states[stateIndex] = backStackState
+                }
+                b.putParcelableArray(KEY_BACK_STACK_STATES_PREFIX + id, states)
+            }
+            b.putIntArray(KEY_BACK_STACK_STATES_IDS, backStackStateIds)
+        }
         if (deepLinkHandled) {
             if (b == null) {
                 b = Bundle()
@@ -1259,6 +1341,20 @@ public open class NavController(
         navState.classLoader = context.classLoader
         navigatorStateToRestore = navState.getBundle(KEY_NAVIGATOR_STATE)
         backStackToRestore = navState.getParcelableArray(KEY_BACK_STACK)
+        backStackStates.clear()
+        val backStackStateIds = navState.getIntArray(KEY_BACK_STACK_STATES_IDS)
+        backStackStateIds?.forEach { id ->
+            val backStackState = navState.getParcelableArray(KEY_BACK_STACK_STATES_PREFIX + id)
+            if (backStackState != null) {
+                backStackStates[id] = ArrayDeque<NavBackStackEntryState>(
+                    backStackState.size
+                ).apply {
+                    for (parcelable in backStackState) {
+                        add(parcelable as NavBackStackEntryState)
+                    }
+                }
+            }
+        }
         deepLinkHandled = navState.getBoolean(KEY_DEEP_LINK_HANDLED)
     }
 
@@ -1387,6 +1483,10 @@ public open class NavController(
         private const val KEY_NAVIGATOR_STATE_NAMES =
             "android-support-nav:controller:navigatorState:names"
         private const val KEY_BACK_STACK = "android-support-nav:controller:backStack"
+        private const val KEY_BACK_STACK_STATES_IDS =
+            "android-support-nav:controller:backStackStates"
+        private const val KEY_BACK_STACK_STATES_PREFIX =
+            "android-support-nav:controller:backStackStates:"
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_DEEP_LINK_IDS: String = "android-support-nav:controller:deepLinkIds"
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1406,3 +1506,29 @@ public open class NavController(
             "android-support-nav:controller:deepLinkIntent"
     }
 }
+
+/**
+ * Construct a new [NavGraph]
+ */
+public inline fun NavController.createGraph(
+    @IdRes id: Int = 0,
+    @IdRes startDestination: Int,
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = navigatorProvider.navigation(id, startDestination, builder)
+
+/**
+ * Creates and returns a [Flow] that will emit the currently active [NavBackStackEntry] whenever
+ * it changes. If there is no active [NavBackStackEntry], no item will be emitted.
+ */
+@ExperimentalCoroutinesApi
+public val NavController.currentBackStackEntryFlow: Flow<NavBackStackEntry>
+    get() = callbackFlow {
+        val listener = NavController.OnDestinationChangedListener { controller, _, _ ->
+            controller.currentBackStackEntry?.let { sendBlocking(it) }
+        }
+
+        addOnDestinationChangedListener(listener)
+        awaitClose {
+            removeOnDestinationChangedListener(listener)
+        }
+    }

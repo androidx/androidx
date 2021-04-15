@@ -21,6 +21,9 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.opengl.EGL14
@@ -88,6 +91,10 @@ private val EGL_CONTEXT_ATTRIB_LIST =
 
 internal val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
 
+private val HIGHLIGHT_LAYER_COMPOSITE_PAINT = Paint().apply {
+    xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)
+}
+
 /**
  * The base class for [CanvasRenderer] and [GlesRenderer].
  *
@@ -95,11 +102,11 @@ internal val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
  * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
  * @param watchState The associated [WatchState].
  * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
- *     interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
- *     rate will be clamped to 10fps. Watch faces are recommended to use lower frame rates if
- *     possible for better battery life. Variable frame rates can also help preserve battery
- *     life, e.g. if a watch face has a short animation once per second it can adjust the frame
- *     rate inorder to sleep when not animating.
+ * interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame rate
+ * will be clamped to 10fps. Watch faces are recommended to use lower frame rates if possible for
+ * better battery life. Variable frame rates can also help preserve battery life, e.g. if a watch
+ * face has a short animation once per second it can adjust the frame rate inorder to sleep when
+ * not animating.
  */
 public sealed class Renderer(
     public val surfaceHolder: SurfaceHolder,
@@ -264,16 +271,16 @@ public sealed class Renderer(
      * Watch faces that require [Canvas] rendering should extend their [Renderer] from this class.
      *
      * @param surfaceHolder The [SurfaceHolder] from which a [Canvas] to will be obtained and passed
-     *     into [render].
+     * into [render].
      * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
      * @param canvasType The type of canvas to request.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
-     *     interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the
-     *     frame rate will be clamped to 10fps. Watch faces are recommended to use lower frame
-     *     rates if possible for better battery life. Variable frame rates can also help preserve
-     *     battery life, e.g. if a watch face has a short animation once per second it can adjust
-     *     the frame rate inorder to sleep when not animating.
+     * interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
+     * rate will be clamped to 10fps. Watch faces are recommended to use lower frame rates if
+     * possible for better battery life. Variable frame rates can also help preserve battery
+     * life, e.g. if a watch face has a short animation once per second it can adjust the frame
+     * rate inorder to sleep when not animating.
      */
     public abstract class CanvasRenderer(
         surfaceHolder: SurfaceHolder,
@@ -301,7 +308,7 @@ public sealed class Renderer(
                 ) ?: return
             try {
                 if (watchState.isVisible.value) {
-                    render(canvas, surfaceHolder.surfaceFrame, calendar)
+                    renderAndComposite(canvas, calendar)
                 } else {
                     canvas.drawColor(Color.BLACK)
                 }
@@ -322,23 +329,71 @@ public sealed class Renderer(
             )
             val prevRenderParameters = this.renderParameters
             this.renderParameters = renderParameters
-            render(Canvas(bitmap), screenBounds, calendar)
+            renderAndComposite(Canvas(bitmap), calendar)
             this.renderParameters = prevRenderParameters
             return bitmap
         }
 
+        private fun renderAndComposite(canvas: Canvas, calendar: Calendar) {
+            // Usually renderParameters.watchFaceWatchFaceLayers will be non-empty.
+            if (renderParameters.watchFaceLayers.isNotEmpty()) {
+                render(canvas, screenBounds, calendar)
+
+                // Render and composite the HighlightLayer
+                if (renderParameters.highlightLayer != null) {
+                    val highlightLayer = Bitmap.createBitmap(
+                        screenBounds.width(),
+                        screenBounds.height(),
+                        Bitmap.Config.ARGB_8888
+                    )
+                    renderHighlightLayer(Canvas(highlightLayer), screenBounds, calendar)
+                    canvas.drawBitmap(highlightLayer, 0f, 0f, HIGHLIGHT_LAYER_COMPOSITE_PAINT)
+                    highlightLayer.recycle()
+                }
+            } else {
+                require(renderParameters.highlightLayer != null) {
+                    "We don't support empty renderParameters.watchFaceWatchFaceLayers without a " +
+                        "non-null renderParameters.highlightLayer"
+                }
+                renderHighlightLayer(canvas, screenBounds, calendar)
+            }
+        }
+
         /**
-         * Sub-classes should override this to implement their rendering logic which should respect
-         * the current [DrawMode]. For correct functioning the CanvasRenderer must use the supplied
-         * [Calendar] in favor of any other ways of getting the time.
+         * Sub-classes should override this to implement their watch face rendering logic which
+         * should respect the current [renderParameters]. Any highlights due to
+         * [RenderParameters.highlightLayer] should be rendered by [renderHighlightLayer] instead
+         * where possible. For correct behavior this function must use the supplied [Calendar]
+         * in favor of any other ways of getting the time.
          *
          * @param canvas The [Canvas] to render into. Don't assume this is always the canvas from
-         *     the [SurfaceHolder] backing the display
+         * the [SurfaceHolder] backing the display
          * @param bounds A [Rect] describing the bonds of the canvas to draw into
          * @param calendar The current [Calendar]
          */
         @UiThread
         public abstract fun render(
+            canvas: Canvas,
+            bounds: Rect,
+            calendar: Calendar
+        )
+
+        /**
+         * Sub-classes should override this to implement their watch face highlight layer rendering
+         * logic for the [RenderParameters.highlightLayer] aspect of [renderParameters]. Typically
+         * the implementation will clear [canvas] to
+         * [RenderParameters.HighlightLayer.backgroundTint] before rendering a transparent highlight
+         * or a solid outline around the [RenderParameters.HighlightLayer.highlightedElement]. This
+         * will be composited as needed on top of the results of [render]. For correct behavior this
+         * function must use the supplied [Calendar] in favor of any other ways of getting the time.
+         *
+         * @param canvas The [Canvas] to render into. Don't assume this is always the canvas from
+         * the [SurfaceHolder] backing the display
+         * @param bounds A [Rect] describing the bonds of the canvas to draw into
+         * @param calendar The current [Calendar]
+         */
+        @UiThread
+        public abstract fun renderHighlightLayer(
             canvas: Canvas,
             bounds: Rect,
             calendar: Calendar
@@ -363,19 +418,19 @@ public sealed class Renderer(
      * Before passing to the [WatchFace] constructor [initOpenGlContext] must be called.
      *
      * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
-     *     into.
+     * into.
      * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
      * @param watchState The associated [WatchState].
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
-     *     interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the
-     *     frame rate will be clamped to 10fps. Watch faces are recommended to use lower frame
-     *     rates if possible for better battery life. Variable frame rates can also help preserve
-     *     battery life, e.g. if a watch face has a short animation once per second it can adjust
-     *     the frame rate inorder to sleep when not animating.
+     * interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
+     * rate will be clamped to 10fps. Watch faces are recommended to use lower frame rates if
+     * possible for better battery life. Variable frame rates can also help preserve battery life,
+     * e.g. if a watch face has a short animation once per second it can adjust the frame rate
+     * inorder to sleep when not animating.
      * @param eglConfigAttribList Attributes for [EGL14.eglChooseConfig]. By default this selects an
-     *     RGBA8888 back buffer.
+     * RGBA8888 back buffer.
      * @param eglSurfaceAttribList The attributes to be passed to [EGL14.eglCreateWindowSurface]. By
-     *     default this is empty.
+     * default this is empty.
      */
     public abstract class GlesRenderer @JvmOverloads constructor(
         surfaceHolder: SurfaceHolder,
@@ -429,6 +484,12 @@ public sealed class Renderer(
 
         private var eglSurface: EGLSurface? = null
         private var calledOnGlContextCreated = false
+        private val renderBufferTexture by lazy {
+            RenderBufferTexture(
+                surfaceHolder.surfaceFrame.width(),
+                surfaceHolder.surfaceFrame.height()
+            )
+        }
         internal var initDone = false
 
         /**
@@ -583,7 +644,8 @@ public sealed class Renderer(
             calendar: Calendar
         ) {
             makeContextCurrent()
-            render(calendar)
+            GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
+            renderAndComposite(calendar)
             if (!EGL14.eglSwapBuffers(eglDisplay, eglSurface)) {
                 Log.w(TAG, "eglSwapBuffers failed")
             }
@@ -600,7 +662,8 @@ public sealed class Renderer(
             makeContextCurrent()
             val prevRenderParameters = this.renderParameters
             this.renderParameters = renderParameters
-            render(calendar)
+            GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
+            renderAndComposite(calendar)
             this.renderParameters = prevRenderParameters
             GLES20.glFinish()
             GLES20.glReadPixels(
@@ -618,6 +681,30 @@ public sealed class Renderer(
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             bitmap.copyPixelsFromBuffer(pixelBuf)
             return bitmap
+        }
+
+        private fun renderAndComposite(calendar: Calendar) {
+            // Usually renderParameters.watchFaceWatchFaceLayers will be non-empty.
+            if (renderParameters.watchFaceLayers.isNotEmpty()) {
+                render(calendar)
+
+                // Render and composite the HighlightLayer
+                if (renderParameters.highlightLayer != null) {
+                    renderBufferTexture.bindFrameBuffer()
+                    GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
+                    renderHighlightLayer(calendar)
+                    GLES20.glFlush()
+
+                    GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
+                    renderBufferTexture.compositeQuad()
+                }
+            } else {
+                require(renderParameters.highlightLayer != null) {
+                    "We don't support empty renderParameters.watchFaceWatchFaceLayers without a " +
+                        "non-null renderParameters.highlightLayer"
+                }
+                renderHighlightLayer(calendar)
+            }
         }
 
         private fun verticalFlip(
@@ -648,14 +735,30 @@ public sealed class Renderer(
         }
 
         /**
-         * Sub-classes should override this to implement their rendering logic which should respect
-         * the current [DrawMode]. For correct functioning the GlesRenderer must use the supplied
-         * [Calendar] in favor of any other ways of getting the time.
+         * Sub-classes should override this to implement their watch face rendering logic which
+         * should respect the current [renderParameters]. Any highlights due to
+         * [RenderParameters.highlightLayer] should be rendered by [renderHighlightLayer] instead
+         * where possible. For correct behavior this function must use the supplied [Calendar]
+         * in favor of any other ways of getting the time.
          *
          * @param calendar The current [Calendar]
          */
         @UiThread
         public abstract fun render(calendar: Calendar)
+
+        /**
+         * Sub-classes should override this to implement their watch face highlight layer rendering
+         * logic for the [RenderParameters.highlightLayer] aspect of [renderParameters]. Typically
+         * the implementation will clear the buffer to
+         * [RenderParameters.HighlightLayer.backgroundTint] before rendering a transparent highlight
+         * or a solid outline around the [RenderParameters.HighlightLayer.highlightedElement]. This
+         * will be composited as needed on top of the results of [render]. For correct behavior this
+         * function must use the supplied [Calendar] in favor of any other ways of getting the time.
+         *
+         * @param calendar The current [Calendar]
+         */
+        @UiThread
+        public abstract fun renderHighlightLayer(calendar: Calendar)
 
         internal override fun dump(writer: IndentingPrintWriter) {
             writer.println("GlesRenderer:")

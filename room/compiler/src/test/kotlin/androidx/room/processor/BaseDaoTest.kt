@@ -1,24 +1,22 @@
 package androidx.room.processor
 
 import COMMON
-import androidx.room.ext.RoomTypeNames
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.testing.context
 import androidx.room.vo.Dao
 import androidx.room.writer.DaoWriter
-import com.google.testing.compile.JavaFileObjects
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import simpleRun
 
 /**
  * we don't assert much in these tests since if type resolution fails, compilation fails.
  */
 @RunWith(JUnit4::class)
 class BaseDaoTest {
-    private fun String.toJFO(qName: String) = JavaFileObjects.forSourceLines(qName, this)
-
     @Test
     fun insert() {
         baseDao(
@@ -164,32 +162,51 @@ class BaseDaoTest {
     }
 
     fun baseDao(code: String, handler: (Dao) -> Unit) {
-        val baseClass = """
-            package foo.bar;
-            import androidx.room.*;
-            import java.util.List;
+        val baseClass = Source.java(
+            "foo.bar.BaseDao",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                import java.util.List;
 
-            interface BaseDao<K, T> {
-                $code
-            }
-        """.toJFO("foo.bar.BaseDao")
-        val extension = """
-            package foo.bar;
-            import androidx.room.*;
-            @Dao
-            interface MyDao extends BaseDao<Integer, User> {
-            }
-        """.toJFO("foo.bar.MyDao")
-        simpleRun(baseClass, extension, COMMON.USER) { invocation ->
+                interface BaseDao<K, T> {
+                    $code
+                }
+            """
+        )
+        val extension = Source.java(
+            "foo.bar.MyDao",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @Dao
+                interface MyDao extends BaseDao<Integer, User> {
+                }
+            """
+        )
+        val fakeDb = Source.java(
+            "foo.bar.MyDb",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                // we need a RoomDatabase subclass in sources to match incremental compilation
+                // check requirements
+                abstract class MyDb extends RoomDatabase {
+                }
+            """
+        )
+        runProcessorTest(
+            sources = listOf(baseClass, extension, COMMON.USER, fakeDb)
+        ) { invocation ->
             val daoElm = invocation.processingEnv.requireTypeElement("foo.bar.MyDao")
             val dbElm = invocation.context.processingEnv
-                .requireTypeElement(RoomTypeNames.ROOM_DB)
+                .requireTypeElement("foo.bar.MyDb")
             val dbType = dbElm.type
             val processedDao = DaoProcessor(
                 invocation.context, daoElm, dbType, null
             ).process()
             handler(processedDao)
             DaoWriter(processedDao, dbElm, invocation.processingEnv).write(invocation.processingEnv)
-        }.compilesWithoutError()
+        }
     }
 }

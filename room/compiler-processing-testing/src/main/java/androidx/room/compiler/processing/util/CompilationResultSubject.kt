@@ -27,7 +27,6 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
 import com.google.testing.compile.Compilation
-import com.google.testing.compile.CompileTester
 import com.tschuchort.compiletesting.KotlinCompilation
 import java.io.File
 import javax.tools.Diagnostic
@@ -90,7 +89,7 @@ abstract class CompilationResult internal constructor(
  * see: [XTestInvocation.assertCompilationResult]
  */
 @ExperimentalProcessingApi
-class CompilationResultSubject(
+class CompilationResultSubject internal constructor(
     failureMetadata: FailureMetadata,
     val compilationResult: CompilationResult,
 ) : Subject<CompilationResultSubject, CompilationResult>(
@@ -107,14 +106,14 @@ class CompilationResultSubject(
      *
      * @see hasError
      */
-    fun compilationDidFail() = chain {
+    fun compilationDidFail() = apply {
         shouldSucceed = false
     }
 
     /**
      * Asserts free form output from the compilation output.
      */
-    fun hasRawOutputContaining(expected: String) = chain {
+    fun hasRawOutputContaining(expected: String) = apply {
         val found = compilationResult.rawOutput().contains(expected)
         if (!found) {
             failWithActual(
@@ -138,7 +137,7 @@ class CompilationResultSubject(
      */
     fun hasWarningCount(expected: Int) = hasDiagnosticCount(Diagnostic.Kind.WARNING, expected)
 
-    private fun hasDiagnosticCount(kind: Diagnostic.Kind, expected: Int) = chain {
+    private fun hasDiagnosticCount(kind: Diagnostic.Kind, expected: Int) = apply {
         val actual = compilationResult.diagnosticsOfKind(kind).size
         if (actual != expected) {
             failWithActual(
@@ -152,7 +151,7 @@ class CompilationResultSubject(
      * @see hasError
      * @see hasNote
      */
-    fun hasWarning(expected: String) = chain {
+    fun hasWarning(expected: String) = apply {
         hasDiagnosticWithMessage(
             kind = Diagnostic.Kind.WARNING,
             expected = expected,
@@ -168,7 +167,7 @@ class CompilationResultSubject(
      * @see hasErrorContaining
      * @see hasNoteContaining
      */
-    fun hasWarningContaining(expected: String) = chain {
+    fun hasWarningContaining(expected: String) = apply {
         hasDiagnosticWithMessage(
             kind = Diagnostic.Kind.WARNING,
             expected = expected,
@@ -184,7 +183,7 @@ class CompilationResultSubject(
      * @see hasError
      * @see hasWarning
      */
-    fun hasNote(expected: String) = chain {
+    fun hasNote(expected: String) = apply {
         hasDiagnosticWithMessage(
             kind = Diagnostic.Kind.NOTE,
             expected = expected,
@@ -200,7 +199,7 @@ class CompilationResultSubject(
      * @see hasErrorContaining
      * @see hasWarningContaining
      */
-    fun hasNoteContaining(expected: String) = chain {
+    fun hasNoteContaining(expected: String) = apply {
         hasDiagnosticWithMessage(
             kind = Diagnostic.Kind.NOTE,
             expected = expected,
@@ -216,7 +215,7 @@ class CompilationResultSubject(
      * @see hasWarning
      * @see hasNote
      */
-    fun hasError(expected: String) = chain {
+    fun hasError(expected: String) = apply {
         shouldSucceed = false
         hasDiagnosticWithMessage(
             kind = Diagnostic.Kind.ERROR,
@@ -233,7 +232,7 @@ class CompilationResultSubject(
      * @see hasWarningContaining
      * @see hasNoteContaining
      */
-    fun hasErrorContaining(expected: String) = chain {
+    fun hasErrorContaining(expected: String) = apply {
         shouldSucceed = false
         hasDiagnosticWithMessage(
             kind = Diagnostic.Kind.ERROR,
@@ -250,9 +249,9 @@ class CompilationResultSubject(
      * @see compilationDidFail
      * @see hasWarning
      */
-    fun hasError() = chain {
+    fun hasError() = apply {
         shouldSucceed = false
-        if (actual().diagnosticsOfKind(Diagnostic.Kind.ERROR).isEmpty()) {
+        if (compilationResult.diagnosticsOfKind(Diagnostic.Kind.ERROR).isEmpty()) {
             failWithActual(
                 simpleFact("expected at least one failure message")
             )
@@ -260,20 +259,37 @@ class CompilationResultSubject(
     }
 
     /**
+     * Asserts that a file with the given [relativePath] was generated.
+     *
+     * @see generatedSource
+     */
+    fun generatedSourceFileWithPath(relativePath: String) = apply {
+        val match = compilationResult.generatedSources.firstOrNull {
+            it.relativePath == relativePath
+        }
+        if (match == null) {
+            failWithActual(
+                simpleFact("Didn't generate file with path: $relativePath")
+            )
+        }
+    }
+    /**
      * Asserts that the given source file is generated.
      *
      * Unlike Java compile testing, which does structural comparison, this method executes a line
      * by line comparison and is only able to ignore spaces and empty lines.
+     *
+     * @see generatedSourceFileWithPath
      */
-    fun generatedSource(source: Source) = chain {
-        val match = actual().generatedSources.firstOrNull {
+    fun generatedSource(source: Source) = apply {
+        val match = compilationResult.generatedSources.firstOrNull {
             it.relativePath == source.relativePath
         }
         if (match == null) {
             failWithActual(
                 simpleFact("Didn't generate $source")
             )
-            return@chain
+            return@apply
         }
         val mismatch = source.findMismatch(match)
         if (mismatch != null) {
@@ -341,15 +357,6 @@ class CompilationResultSubject(
         failWithActual(simpleFact(buildErrorMessage()))
     }
 
-    private fun chain(
-        block: () -> Unit
-    ): CompileTester.ChainingClause<CompilationResultSubject> {
-        block()
-        return CompileTester.ChainingClause<CompilationResultSubject> {
-            this
-        }
-    }
-
     /**
      * Helper method to create an exception that does not include the stack trace from the test
      * infra, instead, it just reports the stack trace of the actual error with added log.
@@ -378,6 +385,7 @@ class CompilationResultSubject(
         }
     }
 }
+
 @ExperimentalProcessingApi
 internal class JavaCompileTestingCompilationResult(
     testRunner: CompilationTestRunner,

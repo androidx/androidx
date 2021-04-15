@@ -50,6 +50,8 @@ class ShortcutUtils {
     public static final String ID_KEY = "id";
     public static final String CAPABILITY_PARAM_SEPARATOR = "/";
     public static final String SHORTCUT_TAG_KEY = "shortcutTag";
+    public static final String SHORTCUT_LISTENER_INTENT_FILTER_ACTION = "androidx.core.content.pm"
+            + ".SHORTCUT_LISTENER";
 
     private static final String TAG = "ShortcutUtils";
     private static final String APP_ACTION_CAPABILITY_PREFIX = "actions.intent.";
@@ -68,6 +70,7 @@ class ShortcutUtils {
      */
     public static String getIndexableUrl(@NonNull Context context, @NonNull String shortcutId) {
         Intent intent = new Intent(context, TrampolineActivity.class);
+        intent.setAction(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
         intent.putExtra(ID_KEY, shortcutId);
 
         return intent.toUri(Intent.URI_INTENT_SCHEME);
@@ -106,6 +109,7 @@ class ShortcutUtils {
 
             Intent trampolineIntent = new Intent(context, TrampolineActivity.class);
             trampolineIntent.setPackage(context.getPackageName());
+            trampolineIntent.setAction(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
             trampolineIntent.putExtra(SHORTCUT_URL_KEY, shortcutUrl);
             trampolineIntent.putExtra(SHORTCUT_TAG_KEY, tagString);
 

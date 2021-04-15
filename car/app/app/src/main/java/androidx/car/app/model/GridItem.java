@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 
@@ -39,6 +40,7 @@ import java.util.Objects;
 /**
  * Represents a grid item with an image and an optional title.
  */
+@CarProtocol
 public final class GridItem implements Item {
     /**
      * The type of images supported within grid items.

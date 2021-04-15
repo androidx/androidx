@@ -16,6 +16,7 @@
 
 package androidx.navigation.compose
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
 import androidx.compose.foundation.layout.Column
@@ -182,6 +183,8 @@ class NavHostTest {
         composeTestRule.setContent {
             state = remember { mutableStateOf("first") }
             val context = LocalContext.current
+            // added to avoid lint error b/184349025
+            @SuppressLint("RememberReturnType")
             navController = remember { TestNavHostController(context) }
 
             NavHost(navController, startDestination = state.value) {
@@ -209,6 +212,8 @@ class NavHostTest {
         composeTestRule.setContent {
             val context = LocalContext.current
             state = remember { mutableStateOf(0) }
+            // added to avoid lint error b/184349025
+            @SuppressLint("RememberReturnType")
             navController = remember { TestNavHostController(context) }
             if (state.value == 0) {
                 NavHost(navController, startDestination = "first") {

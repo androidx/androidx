@@ -23,7 +23,11 @@ import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.T
+import androidx.room.migration.bundle.EntityBundle
+import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.vo.AutoMigrationResult
+import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
@@ -33,23 +37,34 @@ import javax.lang.model.element.Modifier
 /**
  * Writes the implementation of migrations that were annotated with @AutoMigration.
  */
-// TODO: (b/181777611) Handle FTS tables
 class AutoMigrationWriter(
     private val dbElement: XElement,
     val autoMigrationResult: AutoMigrationResult
 ) : ClassWriter(autoMigrationResult.implTypeName) {
-    val addedColumns = autoMigrationResult.schemaDiff.addedColumns
-    val removedOrRenamedColumns = autoMigrationResult.schemaDiff.removedOrRenamedColumns
-    val addedTables = autoMigrationResult.schemaDiff.addedTables
-    val complexChangedTables = autoMigrationResult.schemaDiff.complexChangedTables
-    val removedOrRenamedTables = autoMigrationResult.schemaDiff.removedOrRenamedTables
+    private val addedColumns = autoMigrationResult.schemaDiff.addedColumns
+    private val addedTables = autoMigrationResult.schemaDiff.addedTables
+    private val renamedTables = autoMigrationResult.schemaDiff.renamedTables
+    private val complexChangedTables = autoMigrationResult.schemaDiff.complexChangedTables
+    private val deletedTables = autoMigrationResult.schemaDiff.deletedTables
 
     override fun createTypeSpecBuilder(): TypeSpec.Builder {
         val builder = TypeSpec.classBuilder(autoMigrationResult.implTypeName)
         builder.apply {
             addOriginatingElement(dbElement)
-            addSuperinterface(RoomTypeNames.AUTO_MIGRATION_CALLBACK)
             superclass(RoomTypeNames.MIGRATION)
+
+            if (autoMigrationResult.specClassName != null) {
+                builder.addField(
+                    FieldSpec.builder(
+                        autoMigrationResult.specClassName,
+                        "callback",
+                        Modifier.PRIVATE,
+                        Modifier.FINAL
+                    ).initializer(
+                        "new $T()", autoMigrationResult.specClassName
+                    ).build()
+                )
+            }
             addMethod(createConstructor())
             addMethod(createMigrateMethod())
         }
@@ -81,7 +96,9 @@ class AutoMigrationWriter(
                 addModifiers(Modifier.PUBLIC)
                 returns(TypeName.VOID)
                 addAutoMigrationResultToMigrate(this)
-                addStatement("onPostMigrate(database)")
+                if (autoMigrationResult.specClassName != null) {
+                    addStatement("callback.onPostMigrate(database)")
+                }
             }
         return migrateFunctionBuilder.build()
     }
@@ -94,10 +111,8 @@ class AutoMigrationWriter(
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
     private fun addAutoMigrationResultToMigrate(migrateBuilder: MethodSpec.Builder) {
-        if (complexChangedTables.isNotEmpty()) {
-            addComplexChangeStatements(migrateBuilder)
-        }
         addSimpleChangeStatements(migrateBuilder)
+        addComplexChangeStatements(migrateBuilder)
     }
 
     /**
@@ -107,16 +122,93 @@ class AutoMigrationWriter(
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
     private fun addComplexChangeStatements(migrateBuilder: MethodSpec.Builder) {
-        val tablesToProcess = complexChangedTables
-        tablesToProcess.forEach { table ->
-            // TODO: (b/183007590) Check for column / table renames here before processing
-            //  complex changes
-            addStatementsToCreateNewTable(table.value, migrateBuilder)
-            addStatementsToContentTransfer(table.value, migrateBuilder)
-            addStatementsToDropTableAndRenameTempTable(table.value, migrateBuilder)
-            addStatementsToRecreateIndexes(table.value, migrateBuilder)
-            addStatementsToCheckForeignKeyConstraint(table.value, migrateBuilder)
+        // Create a collection that is sorted such that FTS bundles are handled after the normal
+        // tables have been processed
+        complexChangedTables.values.sortedBy {
+            it.newVersionEntityBundle is FtsEntityBundle
+        }.forEach {
+            (
+                _,
+                tableNameWithNewPrefix,
+                oldEntityBundle,
+                newEntityBundle,
+                renamedColumnsMap
+            ) ->
+
+            if (oldEntityBundle is FtsEntityBundle &&
+                !oldEntityBundle.ftsOptions.contentTable.isNullOrBlank()
+            ) {
+                addStatementsToMigrateFtsTable(
+                    migrateBuilder,
+                    oldEntityBundle,
+                    newEntityBundle,
+                    renamedColumnsMap
+                )
+            } else {
+                addStatementsToCreateNewTable(newEntityBundle, migrateBuilder)
+                addStatementsToContentTransfer(
+                    oldEntityBundle.tableName,
+                    tableNameWithNewPrefix,
+                    oldEntityBundle,
+                    newEntityBundle,
+                    renamedColumnsMap,
+                    migrateBuilder
+                )
+                addStatementsToDropTableAndRenameTempTable(
+                    oldEntityBundle.tableName,
+                    newEntityBundle.tableName,
+                    tableNameWithNewPrefix,
+                    migrateBuilder
+                )
+                addStatementsToRecreateIndexes(newEntityBundle, migrateBuilder)
+                if (newEntityBundle.foreignKeys.isNotEmpty()) {
+                    addStatementsToCheckForeignKeyConstraint(
+                        newEntityBundle.tableName,
+                        migrateBuilder
+                    )
+                }
+            }
         }
+    }
+
+    private fun addStatementsToMigrateFtsTable(
+        migrateBuilder: MethodSpec.Builder,
+        oldTable: EntityBundle,
+        newTable: EntityBundle,
+        renamedColumnsMap: MutableMap<String, String>
+    ) {
+        addDatabaseExecuteSqlStatement(migrateBuilder, "DROP TABLE `${oldTable.tableName}`")
+        addDatabaseExecuteSqlStatement(migrateBuilder, newTable.createTable())
+
+        // Transfer contents of the FTS table, using the content table if available.
+        val newColumnSequence = oldTable.fieldsByColumnName.keys.filter {
+            oldTable.fieldsByColumnName.keys.contains(it) ||
+                renamedColumnsMap.containsKey(it)
+        }.toMutableList()
+        val oldColumnSequence = mutableListOf<String>()
+        newColumnSequence.forEach { column ->
+            oldColumnSequence.add(renamedColumnsMap[column] ?: column)
+        }
+        if (oldTable is FtsEntityBundle) {
+            oldColumnSequence.add("rowid")
+            newColumnSequence.add("docid")
+        }
+        val contentTable = (newTable as FtsEntityBundle).ftsOptions.contentTable
+        val selectFromTable = if (contentTable.isEmpty()) {
+            oldTable.tableName
+        } else {
+            contentTable
+        }
+        addDatabaseExecuteSqlStatement(
+            migrateBuilder,
+            buildString {
+                append(
+                    "INSERT INTO `${newTable.tableName}` (${newColumnSequence.joinToString(",")})" +
+                        " SELECT ${oldColumnSequence.joinToString(",")} FROM " +
+                        "`$selectFromTable`",
+                )
+            }
+        )
     }
 
     /**
@@ -126,55 +218,64 @@ class AutoMigrationWriter(
      *
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
-    // TODO: (b/183007590) Handle column/table renames here
     private fun addSimpleChangeStatements(migrateBuilder: MethodSpec.Builder) {
-
-        if (addedColumns.isNotEmpty()) {
-            addNewColumnStatements(migrateBuilder)
-        }
-
-        if (addedTables.isNotEmpty()) {
-            addNewTableStatements(migrateBuilder)
-        }
+        addDeleteTableStatements(migrateBuilder)
+        addRenameTableStatements(migrateBuilder)
+        addNewColumnStatements(migrateBuilder)
+        addNewTableStatements(migrateBuilder)
     }
 
     /**
      * Adds the SQL statements for creating a new table in the desired revised format of table.
      *
+     * @param newTable Schema of the new table to be created
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
     private fun addStatementsToCreateNewTable(
-        table: AutoMigrationResult.ComplexChangedTable,
+        newTable: EntityBundle,
         migrateBuilder: MethodSpec.Builder
     ) {
         addDatabaseExecuteSqlStatement(
             migrateBuilder,
-            table.newVersionEntityBundle.createNewTable()
+            newTable.createNewTable()
         )
     }
 
     /**
      * Adds the SQL statements for transferring the contents of the old table to the new version.
      *
+     * @param oldTableName Name of the table in the old version of the database
+     * @param tableNameWithNewPrefix Name of the table with the '_new_' prefix added
+     * @param oldEntityBundle Entity bundle of the table in the old version of the database
+     * @param newEntityBundle Entity bundle of the table in the new version of the database
+     * @param renamedColumnsMap Map of the renamed columns of the table (new name -> old name)
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
     private fun addStatementsToContentTransfer(
-        table: AutoMigrationResult.ComplexChangedTable,
+        oldTableName: String,
+        tableNameWithNewPrefix: String,
+        oldEntityBundle: EntityBundle,
+        newEntityBundle: EntityBundle,
+        renamedColumnsMap: MutableMap<String, String>,
         migrateBuilder: MethodSpec.Builder
     ) {
-        // TODO: (b/183007590) Account for renames and deletes here as ordering is important.
-        val oldColumnSequence = table.oldVersionEntityBundle.fieldsByColumnName.keys
-            .joinToString(",") { "`$it`" }
-        val newColumnSequence = (
-            table.newVersionEntityBundle.fieldsByColumnName.keys - addedColumns.keys
-            ).joinToString(",") { "`$it`" }
+        val newColumnSequence = newEntityBundle.fieldsByColumnName.keys.filter {
+            oldEntityBundle.fieldsByColumnName.keys.contains(it) ||
+                renamedColumnsMap.containsKey(it)
+        }.toMutableList()
+        val oldColumnSequence = mutableListOf<String>()
+        newColumnSequence.forEach { column ->
+            oldColumnSequence.add(renamedColumnsMap[column] ?: column)
+        }
 
         addDatabaseExecuteSqlStatement(
             migrateBuilder,
             buildString {
                 append(
-                    "INSERT INTO `${table.newTableName}` ($newColumnSequence) " +
-                        "SELECT $oldColumnSequence FROM `${table.tableName}`"
+                    "INSERT INTO `$tableNameWithNewPrefix` " +
+                        "(${newColumnSequence.joinToString(",")})" +
+                        " SELECT ${oldColumnSequence.joinToString(",")} FROM " +
+                        "`$oldTableName`",
                 )
             }
         )
@@ -184,32 +285,38 @@ class AutoMigrationWriter(
      * Adds the SQL statements for dropping the table at the old version and renaming the
      * temporary table to the name of the original table.
      *
+     * @param oldTableName Name of the table in the old version of the database
+     * @param newTableName Name of the table in the new version of the database
+     * @param tableNameWithNewPrefix Name of the table with the '_new_' prefix added
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
     private fun addStatementsToDropTableAndRenameTempTable(
-        table: AutoMigrationResult.ComplexChangedTable,
+        oldTableName: String,
+        newTableName: String,
+        tableNameWithNewPrefix: String,
         migrateBuilder: MethodSpec.Builder
     ) {
         addDatabaseExecuteSqlStatement(
             migrateBuilder,
-            "DROP TABLE `${table.tableName}`"
+            "DROP TABLE `$oldTableName`"
         )
         addDatabaseExecuteSqlStatement(
             migrateBuilder,
-            "ALTER TABLE `${table.newTableName}` RENAME TO `${table.tableName}`"
+            "ALTER TABLE `$tableNameWithNewPrefix` RENAME TO `$newTableName`"
         )
     }
 
     /**
      * Adds the SQL statements for recreating indexes.
      *
+     * @param table The table the indexes of which will be recreated
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
     private fun addStatementsToRecreateIndexes(
-        table: AutoMigrationResult.ComplexChangedTable,
+        table: EntityBundle,
         migrateBuilder: MethodSpec.Builder
     ) {
-        table.newVersionEntityBundle.indices.forEach { index ->
+        table.indices.forEach { index ->
             addDatabaseExecuteSqlStatement(
                 migrateBuilder,
                 index.getCreateSql(table.tableName)
@@ -220,16 +327,55 @@ class AutoMigrationWriter(
     /**
      * Adds the SQL statement for checking the foreign key constraints.
      *
+     * @param tableName Name of the table
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
     private fun addStatementsToCheckForeignKeyConstraint(
-        table: AutoMigrationResult.ComplexChangedTable,
+        tableName: String,
         migrateBuilder: MethodSpec.Builder
     ) {
         addDatabaseExecuteSqlStatement(
             migrateBuilder,
-            "PRAGMA foreign_key_check(`${table.tableName}`)"
+            "PRAGMA foreign_key_check(`$tableName`)"
         )
+    }
+
+    /**
+     * Adds the SQL statements for removing a table.
+     *
+     * @param migrateBuilder Builder for the migrate() function to be generated
+     */
+    private fun addDeleteTableStatements(migrateBuilder: MethodSpec.Builder) {
+        deletedTables.forEach { tableName ->
+            val deleteTableSql = buildString {
+                append(
+                    "DROP TABLE `$tableName`"
+                )
+            }
+            addDatabaseExecuteSqlStatement(
+                migrateBuilder,
+                deleteTableSql
+            )
+        }
+    }
+
+    /**
+     * Adds the SQL statements for renaming a table.
+     *
+     * @param migrateBuilder Builder for the migrate() function to be generated
+     */
+    private fun addRenameTableStatements(migrateBuilder: MethodSpec.Builder) {
+        renamedTables.forEach { (oldName, newName) ->
+            val renameTableSql = buildString {
+                append(
+                    "ALTER TABLE `$oldName` RENAME TO `$newName`"
+                )
+            }
+            addDatabaseExecuteSqlStatement(
+                migrateBuilder,
+                renameTableSql
+            )
+        }
     }
 
     /**
@@ -276,13 +422,15 @@ class AutoMigrationWriter(
      * database.
      *
      * @param migrateBuilder Builder for the migrate() function to be generated
+     * @param sql The SQL statement to be executed by the database
      */
     private fun addDatabaseExecuteSqlStatement(
         migrateBuilder: MethodSpec.Builder,
         sql: String
     ) {
         migrateBuilder.addStatement(
-            "database.execSQL($S)", sql
+            "database.execSQL($S)",
+            sql
         )
     }
 }

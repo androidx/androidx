@@ -33,7 +33,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.AfterClass
@@ -157,11 +156,6 @@ class ExistingActivityLifecycleTest {
                 // Switch camera.
                 Espresso.onView(ViewMatchers.withId(R.id.direction_toggle))
                     .perform(ViewActions.click())
-
-                // TODO(b/159257773): Currently have no reliable way of checking that camera has
-                //  switched. Delay to ensure previous camera has stopped streaming and the
-                //  idling resource actually is becoming idle due to frames from front camera.
-                delay(500)
 
                 // Check front camera is now idle
                 withActivity { resetViewIdlingResource() }

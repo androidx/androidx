@@ -59,7 +59,7 @@ internal data class KmConstructor(
     private val flags: Flags,
     override val parameters: List<KmValueParameter>
 ) : KmExecutable {
-    fun isPrimary() = Flag.Constructor.IS_PRIMARY(flags)
+    fun isPrimary() = !Flag.Constructor.IS_SECONDARY(flags)
 }
 
 internal data class KmProperty(

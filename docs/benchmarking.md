@@ -7,6 +7,10 @@ The public documentation at
 the library - this page focuses on specifics to writing libraries in the
 AndroidX repo, and our continuous testing / triage process.
 
+This page is for MICRO benchmarks measuring CPU performance of small sections of
+code. If you're looking for measuring startup or jank, see the guide for
+MACRObenchmarks [here](macrobenchmarking).
+
 ### Writing the benchmark
 
 Benchmarks are just regular instrumentation tests! Just use the
@@ -67,9 +71,8 @@ public class ViewBenchmark {
 As in the public documentation, benchmarks in the AndroidX repo are test-only
 library modules. Differences for AndroidX repo:
 
+1.  Module must live in `integration-tests` group directory
 1.  Module name must end with `-benchmark` in `settings.gradle`.
-2.  You do not need to apply the benchmark plugin (it's pulled in automatically
-    from source)
 
 ### I'm lazy and want to start quickly
 

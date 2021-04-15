@@ -28,11 +28,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":resourceinspection:resourceinspection-annotation"))
-    implementation(project(":annotation:annotation"))
-
-    // TODO(183520738): Upgrade auto-common dependency to newest version 0.11.
-    implementation("com.google.auto:auto-common:0.10")
+    implementation(AUTO_COMMON)
     implementation(AUTO_SERVICE_ANNOTATIONS)
     implementation(GRADLE_INCAP_HELPER)
     implementation(GUAVA)
@@ -42,6 +38,8 @@ dependencies {
     kapt(GRADLE_INCAP_HELPER_PROCESSOR)
     kapt(AUTO_SERVICE_PROCESSOR)
 
+    testImplementation(project(":resourceinspection:resourceinspection-annotation"))
+    testImplementation(project(":annotation:annotation"))
     testImplementation(INTELLIJ_ANNOTATIONS)
     testImplementation(JUNIT)
     testImplementation(JSR250)

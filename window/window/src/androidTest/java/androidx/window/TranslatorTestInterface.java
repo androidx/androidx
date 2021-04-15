@@ -22,7 +22,6 @@ package androidx.window;
  */
 public interface TranslatorTestInterface {
     void testTranslate_validFeature();
-    void testTranslateDeviceState();
     void testTranslateWindowLayoutInfo_filterRemovesHingeFeatureNotSpanningFullDimension();
     void testTranslateWindowLayoutInfo_filterRemovesFoldFeatureNotSpanningFullDimension();
     void testTranslateWindowLayoutInfo_filterRemovesUnknownFeature();

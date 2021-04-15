@@ -16,10 +16,10 @@
 
 package androidx.camera.view.transform;
 
-import static androidx.camera.view.TransformUtils.min;
+import static androidx.camera.view.TransformUtils.getNormalizedToBuffer;
+import static androidx.camera.view.TransformUtils.getRectToRect;
+import static androidx.camera.view.TransformUtils.is90or270;
 import static androidx.camera.view.TransformUtils.rectToSize;
-import static androidx.camera.view.TransformUtils.rectToVertices;
-import static androidx.camera.view.transform.OutputTransform.getNormalizedToBuffer;
 
 import android.graphics.Matrix;
 import android.graphics.RectF;
@@ -60,13 +60,11 @@ public class ImageProxyTransformFactory {
      */
     @NonNull
     public OutputTransform getOutputTransform(@NonNull ImageProxy imageProxy) {
-        Matrix matrix = new Matrix();
-
         // Map the viewport to output.
-        float[] cropRectVertices = rectToVertices(getCropRect(imageProxy));
-        float[] outputVertices = getRotatedVertices(cropRectVertices,
-                getRotationDegrees(imageProxy));
-        matrix.setPolyToPoly(cropRectVertices, 0, outputVertices, 0, 4);
+        int rotationDegrees = getRotationDegrees(imageProxy);
+        RectF source = getCropRect(imageProxy);
+        RectF target = getRotatedCropRect(source, rotationDegrees);
+        Matrix matrix = getRectToRect(source, target, rotationDegrees);
 
         // Map the normalized space to viewport.
         matrix.preConcat(getNormalizedToBuffer(imageProxy.getCropRect()));
@@ -97,40 +95,13 @@ public class ImageProxyTransformFactory {
     }
 
     /**
-     * Rotates the crop rect with given degrees.
-     *
-     * <p> Rotate the vertices, then align the top left corner to (0, 0).
-     *
-     * <pre>
-     *         (0, 0)                          (0, 0)
-     * Before  +-----Surface-----+     After:  a--------------------b
-     *         |                 |             |          ^         |
-     *         |  d-crop rect-a  |             |          |         |
-     *         |  |           |  |             d--------------------c
-     *         |  |           |  |
-     *         |  |    -->    |  |    Rotation:        <-----+
-     *         |  |           |  |                       270°|
-     *         |  |           |  |                           |
-     *         |  c-----------b  |
-     *         +-----------------+
-     * </pre>
+     * Rotates the rect and align it to (0, 0).
      */
-    static float[] getRotatedVertices(float[] cropRectVertices, int rotationDegrees) {
-        // Rotate the vertices. The pivot point doesn't matter since we are gong to align it to
-        // the origin afterwards.
-        float[] vertices = cropRectVertices.clone();
-        Matrix matrix = new Matrix();
-        matrix.setRotate(rotationDegrees);
-        matrix.mapPoints(vertices);
-
-        // Align the rotated vertices to origin. The transformed output always starts at (0, 0).
-        float left = min(vertices[0], vertices[2], vertices[4], vertices[6]);
-        float top = min(vertices[1], vertices[3], vertices[5], vertices[7]);
-        for (int i = 0; i < vertices.length; i += 2) {
-            vertices[i] -= left;
-            vertices[i + 1] -= top;
+    static RectF getRotatedCropRect(RectF rect, int rotationDegrees) {
+        if (is90or270(rotationDegrees)) {
+            return new RectF(0, 0, rect.height(), rect.width());
         }
-        return vertices;
+        return new RectF(0, 0, rect.width(), rect.height());
     }
 
     /**

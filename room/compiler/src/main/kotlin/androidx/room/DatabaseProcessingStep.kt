@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XTypeElement
@@ -33,11 +34,12 @@ import java.io.File
 class DatabaseProcessingStep : XProcessingStep {
     override fun process(
         env: XProcessingEnv,
-        elementsByAnnotation: Map<String, List<XTypeElement>>
+        elementsByAnnotation: Map<String, Set<XElement>>
     ): Set<XTypeElement> {
         val context = Context(env)
         val rejectedElements = mutableSetOf<XTypeElement>()
         val databases = elementsByAnnotation[Database::class.qualifiedName]
+            ?.filterIsInstance<XTypeElement>()
             ?.mapNotNull {
                 try {
                     DatabaseProcessor(

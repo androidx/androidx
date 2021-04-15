@@ -11,9 +11,9 @@ plugins {
 }
 
 dependencies {
-    api("androidx.core:core:1.3.0-rc01")
     api(project(":emoji2:emoji2"))
     implementation(project(":emoji2:emoji2-views-helper"))
+    api("androidx.core:core:1.3.0")
 
     implementation("androidx.collection:collection:1.1.0")
 
@@ -30,11 +30,7 @@ dependencies {
 android {
     sourceSets {
         main {
-            // We use a non-standard manifest path.
-            manifest.srcFile 'AndroidManifest.xml'
             res.srcDirs += 'src/main/res-public'
-            // TODO(seanmcq): rewrite the tests to avoid needing the font / license files
-            // removed to avoid dupe files
         }
     }
 }

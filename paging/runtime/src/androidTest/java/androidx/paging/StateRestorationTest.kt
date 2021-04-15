@@ -193,9 +193,8 @@ class StateRestorationTest {
             measureAndLayout()
             scrollToPosition(50)
             saveAndRestore()
-            assertThat(
-                layoutManager.restoredState
-            ).isFalse()
+            assertThat(layoutManager.restoredState).isFalse()
+
             val emptyPager = createPager(
                 pageSize = 10,
                 itemCount = 0,
@@ -203,9 +202,7 @@ class StateRestorationTest {
             )
             collectPagesAsync(emptyPager.flow)
             measureAndLayout()
-            assertThat(
-                layoutManager.restoredState
-            ).isTrue()
+            assertThat(layoutManager.restoredState).isTrue()
         }
     }
 

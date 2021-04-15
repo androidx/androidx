@@ -32,6 +32,8 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.R;
 
 import java.util.ArrayList;
@@ -99,6 +101,8 @@ public final class FragmentContainerView extends FrameLayout {
     private ArrayList<View> mDisappearingFragmentChildren;
 
     private ArrayList<View> mTransitioningFragmentViews;
+
+    private OnApplyWindowInsetsListener mApplyWindowInsetsListener;
 
     // Used to indicate whether the FragmentContainerView should override the default ViewGroup
     // drawing order.
@@ -207,6 +211,11 @@ public final class FragmentContainerView extends FrameLayout {
                         + "animateLayoutChanges=\"true\".");
     }
 
+    @Override
+    public void setOnApplyWindowInsetsListener(@NonNull OnApplyWindowInsetsListener listener) {
+        mApplyWindowInsetsListener = listener;
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -215,11 +224,17 @@ public final class FragmentContainerView extends FrameLayout {
     @NonNull
     @RequiresApi(20)
     @Override
-    public WindowInsets onApplyWindowInsets(@NonNull WindowInsets insets) {
-        for (int i = 0; i < getChildCount(); i++) {
-            View child = getChildAt(i);
-            // Give child views fresh insets.
-            child.dispatchApplyWindowInsets(new WindowInsets(insets));
+    public WindowInsets dispatchApplyWindowInsets(@NonNull WindowInsets insets) {
+        WindowInsetsCompat insetsCompat = WindowInsetsCompat.toWindowInsetsCompat(insets);
+        WindowInsetsCompat dispatchInsets = mApplyWindowInsetsListener != null
+                ? WindowInsetsCompat.toWindowInsetsCompat(
+                        mApplyWindowInsetsListener.onApplyWindowInsets(this, insets)
+        ) : ViewCompat.onApplyWindowInsets(this, insetsCompat);
+        if (!dispatchInsets.isConsumed()) {
+            int count = getChildCount();
+            for (int i = 0; i < count; i++) {
+                ViewCompat.dispatchApplyWindowInsets(getChildAt(i), dispatchInsets);
+            }
         }
         return insets;
     }

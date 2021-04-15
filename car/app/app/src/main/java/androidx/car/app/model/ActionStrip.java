@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.Action.ActionType;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -41,6 +42,7 @@ import java.util.Set;
  * <p>See the documentation of individual {@link Template}s on restrictions around what actions are
  * supported.
  */
+@CarProtocol
 public final class ActionStrip {
     @Keep
     private final List<Action> mActions;

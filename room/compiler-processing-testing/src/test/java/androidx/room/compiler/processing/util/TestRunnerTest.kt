@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.room.compiler.processing.ExperimentalProcessingApi
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.JavaFile
@@ -23,12 +24,26 @@ import com.squareup.javapoet.TypeSpec
 import org.junit.Test
 import javax.tools.Diagnostic
 
+@OptIn(ExperimentalProcessingApi::class)
 class TestRunnerTest {
     @Test
     fun generatedBadCode_expected() = generatedBadCode(assertFailure = true)
 
     @Test(expected = AssertionError::class)
     fun generatedBadCode_unexpected() = generatedBadCode(assertFailure = false)
+
+    @Test
+    fun options() {
+        val testOptions = mapOf(
+            "a" to "b",
+            "c" to "d"
+        )
+        runProcessorTest(
+            options = testOptions
+        ) {
+            assertThat(it.processingEnv.options).containsAtLeastEntriesIn(testOptions)
+        }
+    }
 
     private fun generatedBadCode(assertFailure: Boolean) {
         runProcessorTest {

@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
@@ -37,6 +38,7 @@ import java.util.Objects;
  * <p>Example of steps are turning onto a street, taking a highway exit and merging onto a different
  * highway, or continuing straight through a roundabout.
  */
+@CarProtocol
 public final class Step {
     @Keep
     @Nullable

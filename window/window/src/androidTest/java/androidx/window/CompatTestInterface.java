@@ -20,11 +20,9 @@ package androidx.window;
  * The list of tests that every implementation of {@link ExtensionInterfaceCompat} should pass.
  */
 interface CompatTestInterface {
-    void testGetDeviceState();
     void testGetWindowLayout();
     void testExtensionCallback_filterRemovesInvalidValues();
     void testSetExtensionCallback();
     void testOnWindowLayoutChangeListenerAdded();
     void testOnWindowLayoutChangeListenerRemoved();
-    void testOnDeviceStateListenersChanged();
 }

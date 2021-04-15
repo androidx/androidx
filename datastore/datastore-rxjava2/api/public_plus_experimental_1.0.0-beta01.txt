@@ -1,0 +1,44 @@
+// Signature format: 4.0
+package androidx.datastore.rxjava2 {
+
+  public interface RxDataMigration<T> {
+    method public io.reactivex.Completable cleanUp();
+    method public io.reactivex.Single<T!> migrate(T?);
+    method public io.reactivex.Single<java.lang.Boolean!> shouldMigrate(T?);
+  }
+
+  public final class RxDataStore<T> implements io.reactivex.disposables.Disposable {
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public io.reactivex.Flowable<T> data();
+    method public void dispose();
+    method public boolean isDisposed();
+    method public io.reactivex.Completable shutdownComplete();
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public io.reactivex.Single<T> updateDataAsync(io.reactivex.functions.Function<T,io.reactivex.Single<T>> transform);
+  }
+
+  public final class RxDataStoreBuilder<T> {
+    ctor public RxDataStoreBuilder(java.util.concurrent.Callable<java.io.File> produceFile, androidx.datastore.core.Serializer<T> serializer);
+    ctor public RxDataStoreBuilder(android.content.Context context, String fileName, androidx.datastore.core.Serializer<T> serializer);
+    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> addDataMigration(androidx.datastore.core.DataMigration<T> dataMigration);
+    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> addRxDataMigration(androidx.datastore.rxjava2.RxDataMigration<T> rxDataMigration);
+    method public androidx.datastore.rxjava2.RxDataStore<T> build();
+    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setCorruptionHandler(androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T> corruptionHandler);
+    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setIoScheduler(io.reactivex.Scheduler ioScheduler);
+  }
+
+  public final class RxDataStoreDelegateKt {
+    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<T>> rxDataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<T>>> produceMigrations, optional io.reactivex.Scheduler scheduler);
+  }
+
+  public interface RxSharedPreferencesMigration<T> {
+    method public io.reactivex.Single<T> migrate(androidx.datastore.migrations.SharedPreferencesView sharedPreferencesView, T? currentData);
+    method public default io.reactivex.Single<java.lang.Boolean> shouldMigrate(T? currentData);
+  }
+
+  public final class RxSharedPreferencesMigrationBuilder<T> {
+    ctor public RxSharedPreferencesMigrationBuilder(android.content.Context context, String sharedPreferencesName, androidx.datastore.rxjava2.RxSharedPreferencesMigration<T> rxSharedPreferencesMigration);
+    method public androidx.datastore.core.DataMigration<T> build();
+    method public androidx.datastore.rxjava2.RxSharedPreferencesMigrationBuilder<T> setKeysToMigrate(java.lang.String... keys);
+  }
+
+}
+

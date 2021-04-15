@@ -16,6 +16,8 @@
 
 package androidx.navigation
 
+import androidx.annotation.IdRes
+
 /**
  * A host is a single context or container for navigation via a [NavController].
  *
@@ -49,3 +51,12 @@ public interface NavHost {
      */
     public val navController: NavController
 }
+
+/**
+ * Construct a new [NavGraph]
+ */
+public inline fun NavHost.createGraph(
+    @IdRes id: Int = 0,
+    @IdRes startDestination: Int,
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = navController.createGraph(id, startDestination, builder)

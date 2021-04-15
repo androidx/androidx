@@ -245,14 +245,21 @@ package androidx.wear.watchface.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class RenderParametersWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public RenderParametersWireFormat(int, java.util.List<androidx.wear.watchface.data.LayerParameterWireFormat!>, Integer?, @ColorInt int);
+    ctor public RenderParametersWireFormat(int, int, int, int, String?, @ColorInt int, @ColorInt int);
     method public int describeContents();
+    method @ColorInt public int getBackgroundTint();
     method public int getDrawMode();
-    method public java.util.List<androidx.wear.watchface.data.LayerParameterWireFormat!> getLayerParameters();
-    method @ColorInt public int getOutlineTint();
-    method public Integer? getSelectedComplicationId();
+    method public int getElementComplicationId();
+    method public int getElementType();
+    method public String? getElementUserStyleSettingId();
+    method @ColorInt public int getHighlightTint();
+    method public int getWatchFaceLayerSetBitfield();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.RenderParametersWireFormat!>! CREATOR;
+    field public static int ELEMENT_TYPE_ALL_COMPLICATIONS;
+    field public static int ELEMENT_TYPE_COMPLICATION;
+    field public static int ELEMENT_TYPE_NONE;
+    field public static int ELEMENT_TYPE_USER_STYLE;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true) public final class WatchUiState implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {

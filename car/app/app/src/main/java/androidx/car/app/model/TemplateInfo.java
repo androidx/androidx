@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.util.Objects;
 
@@ -30,6 +31,7 @@ import java.util.Objects;
  *
  * <p><strong>This class is for use by host implementations and not by apps.</strong>
  */
+@CarProtocol
 public final class TemplateInfo {
     @Keep
     @Nullable

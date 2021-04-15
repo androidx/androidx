@@ -37,7 +37,6 @@ import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
-import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
@@ -55,10 +54,10 @@ import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.samples.GREEN_STYLE
 import androidx.wear.watchface.samples.NO_COMPLICATIONS
 import androidx.wear.watchface.samples.WATCH_HAND_LENGTH_STYLE_SETTING
-import androidx.wear.watchface.style.Layer
+import androidx.wear.watchface.style.WatchFaceLayer
+import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
-import androidx.wear.watchface.style.UserStyleData
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -182,9 +181,8 @@ public class WatchFaceControlClientTest {
         val bitmap = headlessInstance.renderWatchFaceToBitmap(
             RenderParameters(
                 DrawMode.INTERACTIVE,
-                RenderParameters.DRAW_ALL_LAYERS,
-                null,
-                Color.RED
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                null
             ),
             1234567,
             null,
@@ -215,13 +213,12 @@ public class WatchFaceControlClientTest {
         val bitmap = headlessInstance.renderWatchFaceToBitmap(
             RenderParameters(
                 DrawMode.INTERACTIVE,
-                mapOf(
-                    Layer.BASE to LayerMode.DRAW,
-                    Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
-                    Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
-                ),
-                null,
-                Color.YELLOW
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                RenderParameters.HighlightLayer(
+                    RenderParameters.HighlightedElement.AllComplications,
+                    Color.YELLOW,
+                    Color.argb(128, 0, 0, 0) // Darken everything else.
+                )
             ),
             1234567,
             null,
@@ -229,6 +226,42 @@ public class WatchFaceControlClientTest {
         )
 
         bitmap.assertAgainstGolden(screenshotRule, "yellowComplicationHighlights")
+
+        headlessInstance.close()
+    }
+
+    @Test
+    public fun highlightOnlyLayer() {
+        val headlessInstance = service.createHeadlessWatchFaceClient(
+            ComponentName(
+                "androidx.wear.watchface.samples.test",
+                "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService"
+            ),
+            DeviceConfig(
+                false,
+                false,
+                0,
+                0
+            ),
+            400,
+            400
+        )!!
+        val bitmap = headlessInstance.renderWatchFaceToBitmap(
+            RenderParameters(
+                DrawMode.INTERACTIVE,
+                emptySet(),
+                RenderParameters.HighlightLayer(
+                    RenderParameters.HighlightedElement.AllComplications,
+                    Color.YELLOW,
+                    Color.argb(128, 0, 0, 0) // Darken everything else.
+                )
+            ),
+            1234567,
+            null,
+            complications
+        )
+
+        bitmap.assertAgainstGolden(screenshotRule, "highlightOnlyLayer")
 
         headlessInstance.close()
     }
@@ -250,7 +283,7 @@ public class WatchFaceControlClientTest {
         assertThat(leftComplicationDetails.bounds).isEqualTo(Rect(80, 160, 160, 240))
         assertThat(leftComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
         assertThat(leftComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
-            SystemProviders.DAY_OF_WEEK
+            SystemProviders.PROVIDER_DAY_OF_WEEK
         )
         assertThat(leftComplicationDetails.defaultProviderType).isEqualTo(
             ComplicationType.SHORT_TEXT
@@ -270,7 +303,7 @@ public class WatchFaceControlClientTest {
         assertThat(rightComplicationDetails.bounds).isEqualTo(Rect(240, 160, 320, 240))
         assertThat(rightComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
         assertThat(rightComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
-            SystemProviders.STEP_COUNT
+            SystemProviders.PROVIDER_STEP_COUNT
         )
         assertThat(rightComplicationDetails.defaultProviderType).isEqualTo(
             ComplicationType.SHORT_TEXT
@@ -349,9 +382,8 @@ public class WatchFaceControlClientTest {
         val bitmap = interactiveInstance.renderWatchFaceToBitmap(
             RenderParameters(
                 DrawMode.INTERACTIVE,
-                RenderParameters.DRAW_ALL_LAYERS,
-                null,
-                Color.RED
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                null
             ),
             1234567,
             null,
@@ -394,9 +426,8 @@ public class WatchFaceControlClientTest {
         val bitmap = interactiveInstance.renderWatchFaceToBitmap(
             RenderParameters(
                 DrawMode.INTERACTIVE,
-                RenderParameters.DRAW_ALL_LAYERS,
-                null,
-                Color.RED
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                null
             ),
             1234567,
             null,
@@ -450,7 +481,7 @@ public class WatchFaceControlClientTest {
         assertThat(leftComplicationDetails.bounds).isEqualTo(Rect(80, 160, 160, 240))
         assertThat(leftComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
         assertThat(leftComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
-            SystemProviders.DAY_OF_WEEK
+            SystemProviders.PROVIDER_DAY_OF_WEEK
         )
         assertThat(leftComplicationDetails.defaultProviderType).isEqualTo(
             ComplicationType.SHORT_TEXT
@@ -473,7 +504,7 @@ public class WatchFaceControlClientTest {
         assertThat(rightComplicationDetails.bounds).isEqualTo(Rect(240, 160, 320, 240))
         assertThat(rightComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
         assertThat(rightComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
-            SystemProviders.STEP_COUNT
+            SystemProviders.PROVIDER_STEP_COUNT
         )
         assertThat(rightComplicationDetails.defaultProviderType).isEqualTo(
             ComplicationType.SHORT_TEXT
@@ -681,9 +712,8 @@ public class WatchFaceControlClientTest {
         val bitmap = interactiveInstance.renderWatchFaceToBitmap(
             RenderParameters(
                 DrawMode.INTERACTIVE,
-                RenderParameters.DRAW_ALL_LAYERS,
-                null,
-                Color.RED
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                null
             ),
             1234567,
             null,

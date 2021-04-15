@@ -72,6 +72,11 @@ public interface ComplicationText {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireComplicationText(): WireComplicationText
+
+    public companion object {
+        @JvmField
+        public val EMPTY: ComplicationText = PlainComplicationText.Builder("").build()
+    }
 }
 
 /** A [ComplicationText] that contains plain text. */

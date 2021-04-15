@@ -29,15 +29,17 @@ data class AutoMigrationResult(
     val element: XTypeElement,
     val from: Int?,
     val to: Int?,
+    val specElement: XTypeElement?,
     val schemaDiff: SchemaDiffResult
 ) {
-
     val implTypeName: ClassName by lazy {
         ClassName.get(
             element.className.packageName(),
-            "${element.className.simpleNames().joinToString("_")}_Impl"
+            "AutoMigration_${from}_${to}_Impl"
         )
     }
+
+    val specClassName = specElement?.className
 
     /**
      * Stores the table name and the relevant field bundle of a column that was added to a
@@ -46,14 +48,19 @@ data class AutoMigrationResult(
     data class AddedColumn(val tableName: String, val fieldBundle: FieldBundle)
 
     /**
-     * Stores the table name and the relevant field bundle of a column that was present in the
-     * old version of a database but is not present in a new version of the same database, either
-     * because it was removed or renamed.
-     *
-     * In the current implementation, we cannot differ between whether the column was removed or
-     * renamed.
+     * Stores the table name, original name, and the new name of a column that was renamed in the
+     * new version of the database.
      */
-    data class RemovedOrRenamedColumn(val tableName: String, val fieldBundle: FieldBundle)
+    data class RenamedColumn(
+        val tableName: String,
+        val originalColumnName: String,
+        val newColumnName: String
+    )
+
+    /**
+     * Stores the table name and the column name of a column that was deleted from the database.
+     */
+    data class DeletedColumn(val tableName: String, val columnName: String)
 
     /**
      * Stores the table that was added to a database in a newer version.
@@ -61,33 +68,36 @@ data class AutoMigrationResult(
     data class AddedTable(val entityBundle: EntityBundle)
 
     /**
-     * Stores the table name that contains a change in the primary key, foreign key(s) or index(es)
-     * in a newer version. Explicitly provides information on whether a foreign key change and/or
-     * an index change has occurred.
+     * Stores the table that contains a change in the primary key, foreign key(s) or index(es)
+     * in a newer version, as well as any complex changes and renames on the column-level.
      *
      * As it is possible to have a table with only simple (non-complex) changes, which will be
-     * categorized as "AddedColumn" or "RemovedColumn" changes, all other
+     * categorized as "AddedColumn" or "DeletedColumn" changes, all other
      * changes at the table level are categorized as "complex" changes, using the category
      * "ComplexChangedTable".
      *
-     * At the column level, any change that is not a column add or a
-     * removal will be categorized as "ChangedColumn".
+     * The renamed columns map contains a mapping from the NEW name of the column to the OLD name
+     * of the column.
      */
     data class ComplexChangedTable(
         val tableName: String,
-        val newTableName: String,
+        val tableNameWithNewPrefix: String,
         val oldVersionEntityBundle: EntityBundle,
         val newVersionEntityBundle: EntityBundle,
-        val foreignKeyChanged: Boolean,
-        val indexChanged: Boolean
+        val renamedColumnsMap: MutableMap<String, String>
     )
 
     /**
-     * Stores the table that was present in the old version of a database but is not present in a
-     * new version of the same database, either because it was removed or renamed.
+     * Stores the original name and the new name of a table that was renamed in the
+     * new version of the database.
      *
-     * In the current implementation, we cannot differ between whether the table was removed or
-     * renamed.
+     * This container will only be used for tables that got renamed, but do not have any complex
+     * changes on it, both on the table and column level.
      */
-    data class RemovedOrRenamedTable(val entityBundle: EntityBundle)
+    data class RenamedTable(val originalTableName: String, val newTableName: String)
+
+    /**
+     * Stores the name of the table that was deleted from the database.
+     */
+    data class DeletedTable(val deletedTableName: String)
 }

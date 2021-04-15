@@ -28,13 +28,6 @@ plugins {
 
 dependencies {
     api(project(":navigation:navigation-ui"))
-    // Ensure that the -ktx dependency graph mirrors the Java dependency graph
-    api(project(":navigation:navigation-runtime-ktx"))
-    api(KOTLIN_STDLIB)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
 }
 
 androidx {

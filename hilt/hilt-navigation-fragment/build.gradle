@@ -51,7 +51,7 @@ dependencies {
     kaptAndroidTest(HILT_COMPILER)
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-navigation"), {
-        exclude group: 'androidx.navigation', module: 'navigation-common-ktx'
+        exclude group: 'androidx.navigation', module: 'navigation-common'
     })
 }
 

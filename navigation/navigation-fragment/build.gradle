@@ -27,21 +27,21 @@ plugins {
 }
 
 dependencies {
-    api("androidx.fragment:fragment-ktx:1.2.4")
-    api(project(":navigation:navigation-runtime-ktx"))
+    api(projectOrArtifact(":fragment:fragment-ktx"))
+    api(project(":navigation:navigation-runtime"))
 
     api(KOTLIN_STDLIB)
+    androidTestImplementation(projectOrArtifact(":fragment:fragment-testing"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
-    androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.fragment", module: "fragment"
     })
     androidTestImplementation(project(":internal-testutils-navigation"), {
-        exclude group: "androidx.navigation", module: "navigation-common-ktx"
+        exclude group: "androidx.navigation", module: "navigation-common"
     })
 }
 

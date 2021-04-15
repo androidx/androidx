@@ -24,6 +24,7 @@ import static androidx.car.app.utils.LogTags.TAG;
 
 import static java.util.Objects.requireNonNull;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -40,12 +41,14 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.car.app.versioning.CarAppApiLevel;
 import androidx.car.app.versioning.CarAppApiLevels;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -54,6 +57,9 @@ import androidx.lifecycle.LifecycleOwner;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.security.InvalidParameterException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * The CarContext class is a {@link ContextWrapper} subclass accessible to your {@link
@@ -120,14 +126,30 @@ public class CarContext extends ContextWrapper {
      *
      * <p>Used as the {@link Intent}'s action for starting a navigation via {@link #startCarApp}.
      */
-    public static final String ACTION_NAVIGATE =
-            "androidx.car.app.action.NAVIGATE";
+    public static final String ACTION_NAVIGATE = "androidx.car.app.action.NAVIGATE";
+
+    /**
+     * Action for requesting permissions on the car app activity.
+     */
+    static final String REQUEST_PERMISSIONS_ACTION = "androidx.car.app.action.REQUEST_PERMISSIONS";
+
+    /**
+     * Key for string array extra for permissions to request.
+     */
+    static final String EXTRA_PERMISSIONS_KEY = "androidx.car.app.action.EXTRA_PERMISSIONS_KEY";
+
+    /**
+     * Key for binder extra for permission result callback.
+     */
+    static final String EXTRA_ON_REQUEST_PERMISSIONS_RESULT_CALLBACK_KEY =
+            "androidx.car.app.action.EXTRA_ON_REQUEST_PERMISSIONS_RESULT_CALLBACK_KEY";
 
     private final AppManager mAppManager;
     private final NavigationManager mNavigationManager;
     private final ScreenManager mScreenManager;
     private final OnBackPressedDispatcher mOnBackPressedDispatcher;
     private final HostDispatcher mHostDispatcher;
+    private final Lifecycle mLifecycle;
 
     /** API level, updated once host connection handshake is completed. */
     @CarAppApiLevel
@@ -359,6 +381,120 @@ public class CarContext extends ContextWrapper {
     }
 
     /**
+     * Retrieves the API level negotiated with the host.
+     *
+     * <p>API levels are used during client and host connection handshake to negotiate a common set
+     * of elements that both processes can understand. Different devices might have different host
+     * versions. Each of these hosts will support a range of API levels, as a way to provide
+     * backwards compatibility.
+     *
+     * <p>Applications can also provide forward compatibility, by declaring support for a
+     * {@link AppInfo#getMinCarAppApiLevel()} lower than {@link AppInfo#getLatestCarAppApiLevel()}.
+     * See {@link AppInfo#getMinCarAppApiLevel()} for more details.
+     *
+     * <p>Clients must ensure no elements annotated with a {@link RequiresCarApi} value higher
+     * than returned by this method is used at runtime.
+     *
+     * <p>Please refer to {@link RequiresCarApi} description for more details on how to
+     * implement forward compatibility.
+     *
+     * @return a value between {@link AppInfo#getMinCarAppApiLevel()} and
+     * {@link AppInfo#getLatestCarAppApiLevel()}. In case of incompatibility, the host will
+     * disconnect from the service before completing the handshake
+     * @throws IllegalStateException if invoked before the connection handshake with the host has
+     *                               been completed (for example, before
+     *                               {@link Session#onCreateScreen(Intent)})
+     */
+    @CarAppApiLevel
+    public int getCarAppApiLevel() {
+        if (mCarAppApiLevel == CarAppApiLevels.UNKNOWN) {
+            throw new IllegalStateException("Car App API level hasn't been established yet");
+        }
+        return mCarAppApiLevel;
+    }
+
+    /**
+     * Requests the provided {@code permissions} from the user.
+     *
+     * <p>When the result is available, the {@code callback} provided will be called on the main
+     * thread.
+     *
+     * <p>This method should be called using a parked only listener.
+     *
+     * <p>If this method is calle while the host deems it is unsafe (for example, when the user
+     * is driving), the permission(s) may not be requested from the user, automatically rejecting
+     * the permissions requested.
+     *
+     * <p>If the Session is destroyed before the user accepts or rejects the permissions, the
+     * callback will not be executed.
+     *
+     * @param permissions the runtime permissions to request from the user
+     * @param callback    callback that will be notified when the user takes action on the
+     *                    permission request
+     * @throws NullPointerException if either {@code permissions} or {@code callback} are {@code
+     *                              null}
+     */
+    @ExperimentalCarApi
+    public void requestPermissions(@NonNull List<String> permissions,
+            @NonNull OnRequestPermissionsCallback callback) {
+        requestPermissions(ContextCompat.getMainExecutor(this), permissions, callback);
+    }
+
+    /**
+     * Requests the provided {@code permissions} from the user.
+     *
+     * <p>When the result is available, the {@code callback} provided will be called using the
+     * {@link Executor} provided.
+     *
+     * <p>This method should be called using a parked only listener.
+     *
+     * <p>If this method is calle while the host deems it is unsafe (for example, when the user
+     * is driving), the permission(s) may not be requested from the user, automatically rejecting
+     * the permissions requested.
+     *
+     * <p>If the Session is destroyed before the user accepts or rejects the permissions, the
+     * callback will not be executed.
+     *
+     * @param executor    the executor that will be used for calling the {@code callback} provided
+     * @param permissions the runtime permissions to request from the user
+     * @param callback    callback that will be notified when the user takes action on the
+     *                    permission request
+     * @throws NullPointerException if any of {@code executor}, {@code permissions} or
+     *                              {@code callback} are {@code null}
+     */
+    @ExperimentalCarApi
+    public void requestPermissions(@NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull List<String> permissions, @NonNull OnRequestPermissionsCallback callback) {
+        requireNonNull(executor);
+        requireNonNull(permissions);
+        requireNonNull(callback);
+
+        ComponentName appActivityComponent = new ComponentName(this, CarAppInternalActivity.class);
+
+        Lifecycle lifecycle = mLifecycle;
+        Bundle extras = new Bundle(2);
+        extras.putBinder(EXTRA_ON_REQUEST_PERMISSIONS_RESULT_CALLBACK_KEY,
+                new IOnRequestPermissionsCallback.Stub() {
+                    @Override
+                    public void onRequestPermissionsResult(String[] approvedPermissions,
+                            String[] rejectedPermissions) {
+                        if (lifecycle.getCurrentState().isAtLeast(Lifecycle.State.CREATED)) {
+                            List<String> approved = Arrays.asList(approvedPermissions);
+                            List<String> rejected = Arrays.asList(rejectedPermissions);
+                            executor.execute(() -> callback.onRequestPermissionsResult(approved,
+                                    rejected));
+                        }
+                    }
+                }.asBinder());
+        extras.putStringArray(EXTRA_PERMISSIONS_KEY, permissions.toArray(new String[0]));
+        Intent intent =
+                new Intent(REQUEST_PERMISSIONS_ACTION).setComponent(appActivityComponent)
+                        .putExtras(extras)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    /**
      * Copies the fields from the provided {@link Configuration} into the {@link Configuration}
      * contained in this object.
      *
@@ -442,39 +578,6 @@ public class CarContext extends ContextWrapper {
         mHostDispatcher.setCarHost(requireNonNull(carHost));
     }
 
-    /**
-     * Retrieves the API level negotiated with the host.
-     *
-     * <p>API levels are used during client and host connection handshake to negotiate a common set
-     * of elements that both processes can understand. Different devices might have different host
-     * versions. Each of these hosts will support a range of API levels, as a way to provide
-     * backwards compatibility.
-     *
-     * <p>Applications can also provide forward compatibility, by declaring support for a
-     * {@link AppInfo#getMinCarAppApiLevel()} lower than {@link AppInfo#getLatestCarAppApiLevel()}.
-     * See {@link AppInfo#getMinCarAppApiLevel()} for more details.
-     *
-     * <p>Clients must ensure no elements annotated with a {@link RequiresCarApi} value higher
-     * than returned by this method is used at runtime.
-     *
-     * <p>Please refer to {@link RequiresCarApi} description for more details on how to
-     * implement forward compatibility.
-     *
-     * @return a value between {@link AppInfo#getMinCarAppApiLevel()} and
-     * {@link AppInfo#getLatestCarAppApiLevel()}. In case of incompatibility, the host will
-     * disconnect from the service before completing the handshake
-     * @throws IllegalStateException if invoked before the connection handshake with the host has
-     *                               been completed (for example, before
-     *                               {@link Session#onCreateScreen(Intent)})
-     */
-    @CarAppApiLevel
-    public int getCarAppApiLevel() {
-        if (mCarAppApiLevel == CarAppApiLevels.UNKNOWN) {
-            throw new IllegalStateException("Car App API level hasn't been established yet");
-        }
-        return mCarAppApiLevel;
-    }
-
     /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     @SuppressWarnings({
@@ -490,6 +593,7 @@ public class CarContext extends ContextWrapper {
         mScreenManager = ScreenManager.create(this, lifecycle);
         mOnBackPressedDispatcher =
                 new OnBackPressedDispatcher(() -> getCarService(ScreenManager.class).pop());
+        mLifecycle = lifecycle;
 
         LifecycleObserver observer = new DefaultLifecycleObserver() {
             @Override

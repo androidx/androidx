@@ -19,9 +19,9 @@ import androidx.room.Entity
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.getSystemClasspathFiles
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -35,26 +35,13 @@ import androidx.room.ext.RxJava3TypeNames
 import androidx.room.processor.DatabaseViewProcessor
 import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
-import androidx.room.testing.TestInvocation
-import androidx.room.testing.TestProcessor
 import androidx.room.testing.context
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.writer.ClassWriter
-import com.google.common.io.Files
-import com.google.common.truth.Truth
-import com.google.common.truth.Truth.assertThat
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ClassName
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import java.io.File
-import java.nio.charset.StandardCharsets.UTF_8
-import java.util.Locale
-import javax.tools.JavaFileObject
-import javax.tools.StandardLocation
-import javax.tools.ToolProvider.getSystemJavaCompiler
 
 object COMMON {
     val USER by lazy {
@@ -224,50 +211,19 @@ object COMMON {
         )
     }
 }
+
 fun testCodeGenScope(): CodeGenScope {
     return CodeGenScope(mock(ClassWriter::class.java))
 }
 
-fun simpleRun(
-    vararg jfos: JavaFileObject,
-    classpathFiles: Set<File> = emptySet(),
-    options: List<String> = emptyList(),
-    f: (TestInvocation) -> Unit
-): CompileTester {
-    return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-        .that(jfos.toList() + JavaFileObjects.forSourceLines("NoOp", "final class NoOp {}"))
-        .apply {
-            if (classpathFiles.isNotEmpty()) {
-                withClasspath(classpathFiles)
-            }
-        }
-        .withCompilerOptions(options)
-        .processedWith(
-            TestProcessor.builder()
-                .nextRunHandler {
-                    f(it)
-                    true
-                }
-                .forAnnotations("*")
-                .build()
-        )
-}
-
-fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
+fun loadJavaCode(fileName: String, qName: String): Source {
     val contents = File("src/test/data/$fileName").readText(Charsets.UTF_8)
-    return JavaFileObjects.forSourceString(qName, contents)
+    return Source.java(qName, contents)
 }
 
 fun loadTestSource(fileName: String, qName: String): Source {
     val contents = File("src/test/data/$fileName")
     return Source.load(contents, qName, fileName)
-}
-
-fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVerifier {
-    return DatabaseVerifier.create(
-        invocation.context, mock(XElement::class.java),
-        invocation.getEntities(), invocation.getViews()
-    )!!
 }
 
 fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVerifier {
@@ -278,28 +234,19 @@ fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVer
 }
 
 fun XTestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
-    return roundEnv.getTypeElementsAnnotatedWith(DatabaseView::class.qualifiedName!!).map {
-        DatabaseViewProcessor(context, it).process()
-    }
+    return roundEnv.getElementsAnnotatedWith(DatabaseView::class.qualifiedName!!)
+        .filterIsInstance<XTypeElement>()
+        .map {
+            DatabaseViewProcessor(context, it).process()
+        }
 }
 
 fun XTestInvocation.getEntities(): List<androidx.room.vo.Entity> {
-    val entities = roundEnv.getTypeElementsAnnotatedWith(Entity::class.qualifiedName!!).map {
-        TableEntityProcessor(context, it).process()
-    }
-    return entities
-}
-
-fun TestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
-    return roundEnv.getTypeElementsAnnotatedWith(DatabaseView::class.qualifiedName!!).map {
-        DatabaseViewProcessor(context, it).process()
-    }
-}
-
-fun TestInvocation.getEntities(): List<androidx.room.vo.Entity> {
-    val entities = roundEnv.getTypeElementsAnnotatedWith(Entity::class.qualifiedName!!).map {
-        TableEntityProcessor(context, it).process()
-    }
+    val entities = roundEnv.getElementsAnnotatedWith(Entity::class.qualifiedName!!)
+        .filterIsInstance<XTypeElement>()
+        .map {
+            TableEntityProcessor(context, it).process()
+        }
     return entities
 }
 
@@ -313,31 +260,3 @@ fun mockElementAndType(): Pair<XFieldElement, XType> {
     doReturn(type).`when`(element).type
     return element to type
 }
-
-fun compileLibrarySource(sourceName: String, code: String): Set<File> {
-    val sourceCode = """
-        package test.library;
-        import androidx.room.*;
-        $code
-        """
-    return compileLibrarySources(JavaFileObjects.forSourceString(sourceName, sourceCode))
-}
-
-/**
- * Compiles an array of sources and returns a set of files to be used as classpath pointing
- * to the .class files generated by the compilation. This method is useful for creating an
- * environment where the annotation processor has to process compiled classes from a library.
- */
-fun compileLibrarySources(vararg sources: JavaFileObject): Set<File> {
-    val lib = Files.createTempDir()
-    val compiler = getSystemJavaCompiler()
-    val fileManager = compiler.getStandardFileManager(null, Locale.getDefault(), UTF_8)
-    fileManager.setLocation(StandardLocation.CLASS_OUTPUT, listOf(lib))
-    val task = compiler.getTask(null, fileManager, null, emptyList(), null, listOf(*sources))
-    assertThat(task.call()).isTrue()
-    return getSystemClasspathFiles() + lib
-}
-
-fun String.toJFO(qName: String): JavaFileObject = JavaFileObjects.forSourceLines(qName, this)
-
-fun Collection<JavaFileObject>.toSources() = map(Source::fromJavaFileObject)

@@ -23,6 +23,7 @@ import android.text.style.ForegroundColorSpan;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarColorConstraints;
 
 import java.util.Objects;
@@ -46,6 +47,7 @@ import java.util.Objects;
  * @see CarColor
  * @see ForegroundColorSpan
  */
+@CarProtocol
 public final class ForegroundCarColorSpan extends CarSpan {
     @Keep
     private final CarColor mCarColor;

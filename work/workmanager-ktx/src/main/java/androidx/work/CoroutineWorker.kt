@@ -77,8 +77,11 @@ public abstract class CoroutineWorker(
     }
 
     /**
-     * A suspending method to do your work.  This function runs on the coroutine context specified
-     * by [coroutineContext].
+     * A suspending method to do your work.
+     * <p>
+     * To specify which [CoroutineDispatcher] your work should run on, use `withContext()`
+     * within `doWork()`.
+     * If there is no other dispatcher declared, [Dispatchers.Default] will be used.
      * <p>
      * A CoroutineWorker is given a maximum of ten minutes to finish its execution and return a
      * [ListenableWorker.Result].  After this time has expired, the worker will be signalled to

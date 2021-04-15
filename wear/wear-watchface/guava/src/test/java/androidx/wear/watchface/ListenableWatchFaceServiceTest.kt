@@ -54,6 +54,12 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
                     16
                 ) {
                     override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
+
+                    override fun renderHighlightLayer(
+                        canvas: Canvas,
+                        bounds: Rect,
+                        calendar: Calendar
+                    ) {}
                 }
             ).apply { setOverridePreviewReferenceTimeMillis(REFERENCE_PREVIEW_TIME) }
         )

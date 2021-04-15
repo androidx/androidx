@@ -32,9 +32,12 @@ import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
+import androidx.room.compiler.processing.ksp.findEnclosingTypeElement
 import androidx.room.compiler.processing.ksp.overrides
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
+import com.google.devtools.ksp.symbol.KSPropertyGetter
+import com.google.devtools.ksp.symbol.KSPropertySetter
 import java.util.Locale
 
 /**
@@ -235,6 +238,37 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 } else {
                     "set${propName.capitalize(Locale.US)}"
                 }
+            }
+        }
+    }
+
+    companion object {
+
+        fun create(
+            env: KspProcessingEnv,
+            propertyAccessor: KSPropertyAccessor
+        ): KspSyntheticPropertyMethodElement {
+            val enclosingType = propertyAccessor.receiver.findEnclosingTypeElement(env)
+
+            checkNotNull(enclosingType) {
+                "XProcessing does not currently support annotations on top level " +
+                    "properties with KSP. Cannot process $propertyAccessor."
+            }
+
+            val field = KspFieldElement(
+                env,
+                propertyAccessor.receiver,
+                enclosingType
+            )
+
+            return when (propertyAccessor) {
+                is KSPropertyGetter -> {
+                    Getter(env, field)
+                }
+                is KSPropertySetter -> {
+                    Setter(env, field)
+                }
+                else -> error("Unsupported property accessor $propertyAccessor")
             }
         }
     }

@@ -16,7 +16,6 @@
 
 package androidx.ads.identifier.provider;
 
-import static androidx.ads.identifier.provider.AdvertisingIdProviderManager.OPEN_SETTINGS_ACTION;
 import static androidx.ads.identifier.testing.MockPackageManagerHelper.createActivityResolveInfo;
 import static androidx.ads.identifier.testing.MockPackageManagerHelper.createServiceResolveInfo;
 
@@ -43,6 +42,7 @@ import java.util.concurrent.Callable;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SuppressWarnings("deprecation")
 public class AdvertisingIdProviderManagerTest {
 
     private static final Correspondence<AdvertisingIdProviderInfo, AdvertisingIdProviderInfo>
@@ -118,13 +118,17 @@ public class AdvertisingIdProviderManagerTest {
                 .containsExactly(
                         AdvertisingIdProviderInfo.builder()
                                 .setPackageName(mContext.getPackageName())
-                                .setSettingsIntent(new Intent(OPEN_SETTINGS_ACTION)
+                                .setSettingsIntent(new Intent(
+                                        androidx.ads.identifier.provider
+                                                .AdvertisingIdProviderManager.OPEN_SETTINGS_ACTION)
                                         .setClassName(mContext.getPackageName(), "Activity"))
                                 .setHighestPriority(true)
                                 .build(),
                         AdvertisingIdProviderInfo.builder()
                                 .setPackageName("com.a")
-                                .setSettingsIntent(new Intent(OPEN_SETTINGS_ACTION)
+                                .setSettingsIntent(new Intent(
+                                        androidx.ads.identifier.provider
+                                                .AdvertisingIdProviderManager.OPEN_SETTINGS_ACTION)
                                         .setClassName("com.a", "A"))
                                 .build());
     }
@@ -147,13 +151,17 @@ public class AdvertisingIdProviderManagerTest {
                 .containsExactly(
                         AdvertisingIdProviderInfo.builder()
                                 .setPackageName(mContext.getPackageName())
-                                .setSettingsIntent(new Intent(OPEN_SETTINGS_ACTION)
+                                .setSettingsIntent(new Intent(
+                                        androidx.ads.identifier.provider
+                                                .AdvertisingIdProviderManager.OPEN_SETTINGS_ACTION)
                                         .setClassName(mContext.getPackageName(), "Activity"))
                                 .setHighestPriority(true)
                                 .build(),
                         AdvertisingIdProviderInfo.builder()
                                 .setPackageName("com.a")
-                                .setSettingsIntent(new Intent(OPEN_SETTINGS_ACTION)
+                                .setSettingsIntent(new Intent(
+                                        androidx.ads.identifier.provider
+                                                .AdvertisingIdProviderManager.OPEN_SETTINGS_ACTION)
                                         .setClassName("com.a", "A"))
                                 .build(),
                         AdvertisingIdProviderInfo.builder()
@@ -179,13 +187,17 @@ public class AdvertisingIdProviderManagerTest {
                 .containsExactly(
                         AdvertisingIdProviderInfo.builder()
                                 .setPackageName(mContext.getPackageName())
-                                .setSettingsIntent(new Intent(OPEN_SETTINGS_ACTION)
+                                .setSettingsIntent(new Intent(
+                                        androidx.ads.identifier.provider
+                                                .AdvertisingIdProviderManager.OPEN_SETTINGS_ACTION)
                                         .setClassName(mContext.getPackageName(), "Activity"))
                                 .setHighestPriority(true)
                                 .build(),
                         AdvertisingIdProviderInfo.builder()
                                 .setPackageName("com.a")
-                                .setSettingsIntent(new Intent(OPEN_SETTINGS_ACTION)
+                                .setSettingsIntent(new Intent(
+                                        androidx.ads.identifier.provider
+                                                .AdvertisingIdProviderManager.OPEN_SETTINGS_ACTION)
                                         .setClassName("com.a", "A"))
                                 .build());
     }

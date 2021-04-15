@@ -375,12 +375,12 @@ constructor(
     }
 
     /**
-     * Returns the destination ID for a given action. This will recursively check the
+     * Returns the [NavAction] for the given action ID. This will recursively check the
      * [parent][.getParent] of this destination if the action destination is not found in
      * this destination.
      *
      * @param id action ID to fetch
-     * @return destination ID mapped to the given action id, or 0 if none
+     * @return the [NavAction] mapped to the given action id, or null if one has not been set
      */
     public fun getAction(@IdRes id: Int): NavAction? {
         val destination = if (actions.isEmpty) null else actions[id]
@@ -389,7 +389,7 @@ constructor(
     }
 
     /**
-     * Sets a destination ID for an action ID.
+     * Creates a [NavAction] for the given [destId] and associates it with the [actionId].
      *
      * @param actionId action ID to bind
      * @param destId destination ID for the given action
@@ -399,11 +399,12 @@ constructor(
     }
 
     /**
-     * Sets a destination ID for an action ID.
+     * Sets the [NavAction] destination for an action ID.
      *
      * @param actionId action ID to bind
      * @param action action to associate with this action ID
-     * @throws UnsupportedOperationException if destination is terminal
+     * @throws UnsupportedOperationException this destination is considered a terminal destination
+     * and does not support actions
      */
     public fun putAction(@IdRes actionId: Int, action: NavAction) {
         if (!supportsActions()) {
@@ -418,7 +419,7 @@ constructor(
     }
 
     /**
-     * Unsets the destination ID for an action ID.
+     * Unsets the [NavAction] for an action ID.
      *
      * @param actionId action ID to remove
      */

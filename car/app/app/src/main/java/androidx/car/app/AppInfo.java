@@ -31,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.versioning.CarAppApiLevel;
 import androidx.car.app.versioning.CarAppApiLevels;
 
@@ -56,6 +57,7 @@ import androidx.car.app.versioning.CarAppApiLevels;
  *
  * @see CarContext#getCarAppApiLevel()
  */
+@CarProtocol
 public final class AppInfo {
     // TODO(b/174803562): Automatically update the this version using Gradle
     private static final String LIBRARY_VERSION = "1.1.0-alpha01";

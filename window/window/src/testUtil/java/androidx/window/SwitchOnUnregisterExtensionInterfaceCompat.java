@@ -68,11 +68,6 @@ public final class SwitchOnUnregisterExtensionInterfaceCompat implements Extensi
         }
     }
 
-    @Override
-    public void onDeviceStateListenersChanged(boolean isEmpty) {
-
-    }
-
     WindowLayoutInfo currentWindowLayoutInfo() {
         return new WindowLayoutInfo(Collections.singletonList(currentFoldingFeature()));
     }

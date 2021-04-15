@@ -20,8 +20,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-import androidx.ads.identifier.provider.AdvertisingIdProvider;
-import androidx.ads.identifier.provider.AdvertisingIdProviderManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
@@ -30,6 +28,7 @@ import java.util.concurrent.Callable;
 /**
  * The internal service of AndroidX Advertising ID Provider library to provide the Advertising ID.
  */
+@SuppressWarnings("deprecation")
 public class AdvertisingIdService extends Service {
 
     private AdvertisingIdAidlServiceImpl mAdvertisingIdAidlServiceImpl;
@@ -48,13 +47,13 @@ public class AdvertisingIdService extends Service {
 
     @VisibleForTesting
     @NonNull
-    static AdvertisingIdProvider getAdvertisingIdProvider() {
-        Callable<AdvertisingIdProvider> providerCallable =
-                AdvertisingIdProviderManager.getProviderCallable();
+    static androidx.ads.identifier.provider.AdvertisingIdProvider getAdvertisingIdProvider() {
+        Callable<androidx.ads.identifier.provider.AdvertisingIdProvider> providerCallable =
+                androidx.ads.identifier.provider.AdvertisingIdProviderManager.getProviderCallable();
         if (providerCallable == null) {
             throw new IllegalStateException("Advertising ID Provider not registered.");
         }
-        AdvertisingIdProvider advertisingIdProvider;
+        androidx.ads.identifier.provider.AdvertisingIdProvider advertisingIdProvider;
         try {
             advertisingIdProvider = providerCallable.call();
         } catch (Exception e) {

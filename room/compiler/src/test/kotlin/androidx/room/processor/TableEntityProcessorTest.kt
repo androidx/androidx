@@ -18,6 +18,8 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.getSystemClasspathFiles
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import androidx.room.vo.CallType
@@ -31,14 +33,12 @@ import androidx.room.vo.columnNames
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
-import compileLibrarySource
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import toSources
 
 @RunWith(JUnit4::class)
 class TableEntityProcessorTest : BaseEntityParserTest() {
@@ -91,21 +91,27 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
 
     @Test
     fun noGetterInLibraryClass() {
-        val libraryClasspath = compileLibrarySource(
-            "test.library.MissingGetterEntity",
-            """
-                @Entity
-                public class MissingGetterEntity {
-                    @PrimaryKey
-                    private long id;
-                    public void setId(int id) {this.id = id;}
-                }
-                """
+        val libraryClasspath = compileFiles(
+            sources = listOf(
+                Source.java(
+                    "test.library.MissingGetterEntity",
+                    """
+                    package test.library;
+                    import androidx.room.*;
+                    @Entity
+                    public class MissingGetterEntity {
+                        @PrimaryKey
+                        private long id;
+                        public void setId(int id) {this.id = id;}
+                    }
+                    """
+                )
+            )
         )
         singleEntity(
             "",
             baseClass = "test.library.MissingGetterEntity",
-            classpathFiles = libraryClasspath.toList()
+            classpathFiles = listOf(libraryClasspath) + getSystemClasspathFiles()
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasError(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
@@ -1923,7 +1929,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 java.util.List<User> users;
                 """,
-            sources = listOf(COMMON.USER).toSources()
+            sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasError(RELATION_IN_ENTITY)
@@ -1948,7 +1954,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasError(ProcessorErrors.INVALID_FOREIGN_KEY_ACTION)
@@ -1972,7 +1978,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 compilationDidFail()
@@ -1997,7 +2003,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.NOT_AN_ENTITY).toSources()
+            attributes = annotation, sources = listOf(COMMON.NOT_AN_ENTITY)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasError(
@@ -2025,7 +2031,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasError(
@@ -2053,7 +2059,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasError(
@@ -2081,7 +2087,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasError(ProcessorErrors.FOREIGN_KEY_EMPTY_CHILD_COLUMN_LIST)
@@ -2105,7 +2111,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasError(ProcessorErrors.FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST)
@@ -2132,7 +2138,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { entity, _ ->
             assertThat(entity.foreignKeys.size, `is`(1))
             val fKey = entity.foreignKeys.first()
@@ -2165,7 +2171,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasNoWarnings()
@@ -2194,7 +2200,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 String lName;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { entity, invocation ->
             assertThat(entity.indices.size, `is`(1))
             invocation.assertCompilationResult {
@@ -2224,7 +2230,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 String lName;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { entity, invocation ->
             assertThat(entity.indices.size, `is`(1))
             invocation.assertCompilationResult {
@@ -2252,7 +2258,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { entity, invocation ->
             assertThat(entity.indices, `is`(emptyList()))
             invocation.assertCompilationResult {
@@ -2278,7 +2284,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 String lName;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { entity, invocation ->
             assertThat(entity.indices, `is`(emptyList()))
             invocation.assertCompilationResult {
@@ -2313,7 +2319,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { entity, invocation ->
             assertThat(entity.indices, `is`(emptyList()))
             invocation.assertCompilationResult {
@@ -2421,7 +2427,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { entity, _ ->
             assertThat(entity.tableName).isEqualTo("foo bar")
         }
@@ -2436,7 +2442,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 String name;
                 """,
-            attributes = annotation, sources = listOf(COMMON.USER).toSources()
+            attributes = annotation, sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasError(ProcessorErrors.INVALID_TABLE_NAME)
@@ -2453,7 +2459,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @ColumnInfo(name = "\"foo bar\"")
                 String name;
                 """,
-            sources = listOf(COMMON.USER).toSources()
+            sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasError(ProcessorErrors.INVALID_COLUMN_NAME)

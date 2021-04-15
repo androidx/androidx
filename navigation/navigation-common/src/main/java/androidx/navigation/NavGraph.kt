@@ -291,3 +291,48 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
         return sb.toString()
     }
 }
+
+/**
+ * Returns the destination with `id`.
+ *
+ * @throws IllegalArgumentException if no destination is found with that id.
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline operator fun NavGraph.get(@IdRes id: Int): NavDestination =
+    findNode(id) ?: throw IllegalArgumentException("No destination for $id was found in $this")
+
+/** Returns `true` if a destination with `id` is found in this navigation graph. */
+public operator fun NavGraph.contains(@IdRes id: Int): Boolean = findNode(id) != null
+
+/**
+ * Adds a destination to this NavGraph. The destination must have an
+ * [id][NavDestination.getId] set.
+ *
+ * The destination must not have a [parent][NavDestination.getParent] set. If
+ * the destination is already part of a [NavGraph], call
+ * [NavGraph.remove] before calling this method.</p>
+ *
+ * @param node destination to add
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline operator fun NavGraph.plusAssign(node: NavDestination) {
+    addDestination(node)
+}
+
+/**
+ * Add all destinations from another collection to this one. As each destination has at most
+ * one parent, the destinations will be removed from the given NavGraph.
+ *
+ * @param other collection of destinations to add. All destinations will be removed from the
+ * parameter graph after being added to this graph.
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline operator fun NavGraph.plusAssign(other: NavGraph) {
+    addAll(other)
+}
+
+/** Removes `node` from this navigation graph. */
+@Suppress("NOTHING_TO_INLINE")
+public inline operator fun NavGraph.minusAssign(node: NavDestination) {
+    remove(node)
+}

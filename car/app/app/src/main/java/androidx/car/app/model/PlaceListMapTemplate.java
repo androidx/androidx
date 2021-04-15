@@ -25,6 +25,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 
 import java.util.Collections;
@@ -50,6 +51,7 @@ import java.util.Objects;
  *       between the previous and new {@link ItemList}s have not changed.
  * </ul>
  */
+@CarProtocol
 public final class PlaceListMapTemplate implements Template {
     @Keep
     private final boolean mIsLoading;

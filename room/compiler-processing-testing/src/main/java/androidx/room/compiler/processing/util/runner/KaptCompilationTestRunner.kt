@@ -41,6 +41,7 @@ internal object KaptCompilationTestRunner : CompilationTestRunner {
             outputStream = outputStream,
             classpaths = params.classpath
         )
+        compilation.kaptArgs.putAll(params.options)
         compilation.annotationProcessors = listOf(syntheticJavacProcessor)
         val result = compilation.compile()
         return KotlinCompileTestingCompilationResult(

@@ -20,10 +20,8 @@ import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
 import androidx.annotation.CallSuper
-import androidx.annotation.RestrictTo
 import androidx.core.content.res.use
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -123,12 +121,12 @@ public class DialogFragmentNavigator(
         }
     }
 
-    // TODO: Switch to FragmentOnAttachListener once we depend on Fragment 1.3
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun onAttachFragment(childFragment: Fragment) {
-        val needToAddObserver = restoredTagsAwaitingAttach.remove(childFragment.tag)
-        if (needToAddObserver) {
-            childFragment.lifecycle.addObserver(observer)
+    init {
+        fragmentManager.addFragmentOnAttachListener { _, childFragment ->
+            val needToAddObserver = restoredTagsAwaitingAttach.remove(childFragment.tag)
+            if (needToAddObserver) {
+                childFragment.lifecycle.addObserver(observer)
+            }
         }
     }
 

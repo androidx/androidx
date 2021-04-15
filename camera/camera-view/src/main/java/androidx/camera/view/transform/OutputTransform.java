@@ -17,8 +17,6 @@
 package androidx.camera.view.transform;
 
 import android.graphics.Matrix;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -40,9 +38,6 @@ import androidx.camera.view.TransformExperimental;
 @TransformExperimental
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class OutputTransform {
-
-    // Normalized space that maps to the viewport rect.
-    private static final RectF NORMALIZED_RECT = new RectF(0, 0, 1, 1);
 
     @NonNull
     final Matrix mMatrix;
@@ -78,22 +73,4 @@ public class OutputTransform {
         return mViewPortSize;
     }
 
-    /**
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static Matrix getNormalizedToBuffer(@NonNull Rect viewPortRect) {
-        return getNormalizedToBuffer(new RectF(viewPortRect));
-    }
-
-    /**
-     * Gets the transform from a normalized space (0, 0) - (1, 1) to viewport rect.
-     */
-    @NonNull
-    static Matrix getNormalizedToBuffer(@NonNull RectF viewPortRect) {
-        Matrix normalizedToBuffer = new Matrix();
-        normalizedToBuffer.setRectToRect(NORMALIZED_RECT, viewPortRect, Matrix.ScaleToFit.FILL);
-        return normalizedToBuffer;
-    }
 }
