@@ -79,7 +79,7 @@ public class NavDeepLink internal constructor(
             arguments.add(argName)
             // Use Pattern.quote() to treat the input string as a literal
             uriRegex.append(Pattern.quote(uri.substring(appendPos, matcher.start())))
-            uriRegex.append("(.+?)")
+            uriRegex.append("([^/]+?)")
             appendPos = matcher.end()
             exactDeepLink = false
         }
