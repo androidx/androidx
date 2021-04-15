@@ -55,19 +55,6 @@ final class ExtensionWindowBackend implements WindowBackend {
     final List<WindowLayoutChangeCallbackWrapper> mWindowLayoutChangeCallbacks =
             new CopyOnWriteArrayList<>();
 
-    /**
-     * List of all registered callbacks for window layout info. Not protected by {@link #sLock} to
-     * allow iterating and callback execution without holding the global lock.
-     */
-    @VisibleForTesting
-    final List<DeviceStateChangeCallbackWrapper> mDeviceStateChangeCallbacks =
-            new CopyOnWriteArrayList<>();
-
-    /** Device state that was last reported through callbacks, used to filter out duplicates. */
-    @GuardedBy("sLock")
-    @VisibleForTesting
-    DeviceState mLastReportedDeviceState;
-
     private static final String TAG = "WindowServer";
 
     @VisibleForTesting
@@ -173,24 +160,6 @@ final class ExtensionWindowBackend implements WindowBackend {
 
     @VisibleForTesting
     class ExtensionListenerImpl implements ExtensionInterfaceCompat.ExtensionCallbackInterface {
-        @Override
-        @SuppressLint("SyntheticAccessor")
-        public void onDeviceStateChanged(@NonNull DeviceState newDeviceState) {
-            synchronized (sLock) {
-                if (newDeviceState.equals(mLastReportedDeviceState)) {
-                    // Skipping, value already reported
-                    if (DEBUG) {
-                        Log.w(TAG, "Extension reported old layout value");
-                    }
-                    return;
-                }
-                mLastReportedDeviceState = newDeviceState;
-            }
-
-            for (DeviceStateChangeCallbackWrapper callbackWrapper : mDeviceStateChangeCallbacks) {
-                callbackWrapper.accept(newDeviceState);
-            }
-        }
 
         @Override
         @SuppressLint("SyntheticAccessor")
@@ -224,25 +193,6 @@ final class ExtensionWindowBackend implements WindowBackend {
 
         void accept(WindowLayoutInfo layoutInfo) {
             mExecutor.execute(() -> mCallback.accept(layoutInfo));
-        }
-    }
-
-    /**
-     * Wrapper around {@link Consumer<DeviceState>} that also includes the {@link Executor} on
-     * which the callback should run.
-     */
-    private static class DeviceStateChangeCallbackWrapper {
-        final Executor mExecutor;
-        final Consumer<DeviceState> mCallback;
-
-        DeviceStateChangeCallbackWrapper(@NonNull Executor executor,
-                @NonNull Consumer<DeviceState> callback) {
-            mExecutor = executor;
-            mCallback = callback;
-        }
-
-        void accept(DeviceState state) {
-            mExecutor.execute(() -> mCallback.accept(state));
         }
     }
 

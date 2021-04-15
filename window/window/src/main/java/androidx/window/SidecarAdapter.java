@@ -16,8 +16,6 @@
 
 package androidx.window;
 
-import static androidx.window.DeviceState.POSTURE_MAX_KNOWN;
-import static androidx.window.DeviceState.POSTURE_UNKNOWN;
 import static androidx.window.ExtensionCompat.DEBUG;
 
 import android.annotation.SuppressLint;
@@ -138,28 +136,20 @@ final class SidecarAdapter {
         return new WindowLayoutInfo(displayFeatures);
     }
 
-    @NonNull
-    DeviceState translate(@NonNull SidecarDeviceState sidecarDeviceState) {
-        int posture = postureFromSidecar(sidecarDeviceState);
-        return new DeviceState(posture);
-    }
 
-    @DeviceState.Posture
-    private static int postureFromSidecar(SidecarDeviceState sidecarDeviceState) {
-        int sidecarPosture = getSidecarDevicePosture(sidecarDeviceState);
-        if (sidecarPosture > POSTURE_MAX_KNOWN) {
-            if (DEBUG) {
-                Log.d(TAG, "Unknown posture reported, WindowManager library should be updated");
-            }
-            return POSTURE_UNKNOWN;
+    private static int getSidecarDevicePosture(SidecarDeviceState sidecarDeviceState) {
+        int rawPosture = getRawSidecarDevicePosture(sidecarDeviceState);
+        if (rawPosture < SidecarDeviceState.POSTURE_UNKNOWN
+                || rawPosture > SidecarDeviceState.POSTURE_FLIPPED) {
+            return SidecarDeviceState.POSTURE_UNKNOWN;
         }
-        return sidecarPosture;
+        return rawPosture;
     }
 
     // TODO(b/172620880): Workaround for Sidecar API implementation issue.
     @SuppressLint("BanUncheckedReflection")
     @VisibleForTesting
-    static int getSidecarDevicePosture(SidecarDeviceState sidecarDeviceState) {
+    static int getRawSidecarDevicePosture(SidecarDeviceState sidecarDeviceState) {
         try {
             return sidecarDeviceState.posture;
         } catch (NoSuchFieldError error) {

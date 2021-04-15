@@ -63,8 +63,9 @@ internal class BroadcastReceivers private constructor(private val context: Conte
     companion object {
         val broadcastEventObservers = HashSet<BroadcastEventObserver>()
 
-        /* We don't leak due to balanced calls to[addBroadcastEventObserver] and
-        [removeBroadcastEventObserver] which sets this back to null.
+        /**
+         * We don't leak due to balanced calls to [addBroadcastEventObserver] and
+         * [removeBroadcastEventObserver] which sets this back to null.
          */
         @SuppressWarnings("StaticFieldLeak")
         var broadcastReceivers: BroadcastReceivers? = null

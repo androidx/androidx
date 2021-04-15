@@ -17,6 +17,7 @@
 package androidx.room.writer
 
 import COMMON
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -28,7 +29,6 @@ import loadTestSource
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import toSources
 import java.util.Locale
 
 @RunWith(JUnit4::class)
@@ -134,19 +134,19 @@ class DaoWriterTest {
             COMMON.RX2_MAYBE, COMMON.RX2_COMPLETABLE, COMMON.USER_SUMMARY,
             COMMON.RX2_ROOM, COMMON.PARENT, COMMON.CHILD1, COMMON.CHILD2,
             COMMON.INFO, COMMON.LISTENABLE_FUTURE, COMMON.GUAVA_ROOM
-        ).toSources() + inputs
+        ) + inputs
         runProcessorTest(
             sources = sources
         ) { invocation ->
             val dao = invocation.roundEnv
-                .getTypeElementsAnnotatedWith(
+                .getElementsAnnotatedWith(
                     androidx.room.Dao::class.qualifiedName!!
-                ).firstOrNull()
+                ).filterIsInstance<XTypeElement>().firstOrNull()
             if (dao != null) {
                 val db = invocation.roundEnv
-                    .getTypeElementsAnnotatedWith(
+                    .getElementsAnnotatedWith(
                         androidx.room.Database::class.qualifiedName!!
-                    ).firstOrNull()
+                    ).filterIsInstance<XTypeElement>().firstOrNull()
                     ?: invocation.context.processingEnv
                         .requireTypeElement(RoomTypeNames.ROOM_DB)
                 val dbType = db.type

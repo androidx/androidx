@@ -20,6 +20,7 @@ import android.graphics.Rect;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -148,11 +149,10 @@ public class FoldingFeature implements DisplayFeature {
     /**
      * Returns type that is either {@link FoldingFeature#TYPE_FOLD} or
      * {@link FoldingFeature#TYPE_HINGE}
-     * @deprecated visibility will be reduced.
      */
     @Type
-    @Deprecated
-    public int getType() {
+    @VisibleForTesting
+    int getType() {
         return mType;
     }
 

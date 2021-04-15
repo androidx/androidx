@@ -27,6 +27,8 @@ import androidx.annotation.NonNull;
  * the device. It can intrude into the application window space and create a visual distortion,
  * visual or touch discontinuity, make some area invisible or create a logical divider or separation
  * in the screen space.
+ *
+ * @see FoldingFeature that represents a screen fold that intersects the application window.
  */
 public interface DisplayFeature {
 
@@ -38,65 +40,4 @@ public interface DisplayFeature {
      */
     @NonNull
     Rect getBounds();
-
-    /**
-     * @deprecated Will be removed in the next alpha. Cast to a {@link FoldingFeature}.
-     *
-     * @return TYPE_FOLD or TYPE_HINGE depending on the feature returned.
-     */
-    @Deprecated
-    int getType();
-
-    /**
-     * @deprecated Will be removed in the next alpha. See {@link FoldingFeature}.
-     */
-    @Deprecated
-    int TYPE_FOLD = 1;
-
-    /**
-     * @deprecated Will be removed in the next alpha. See {@link FoldingFeature}
-     */
-    @Deprecated
-    int TYPE_HINGE = 2;
-
-    /**
-     * @deprecated Will be removed in the next alpha.
-     */
-    @Deprecated
-    class Builder {
-        private Rect mBounds = new Rect();
-        private int mType = 0;
-
-        /**
-         * Update the bounds in the builder.
-         *
-         * @param bounds for the {@link DisplayFeature}
-         * @return {@code this} with the bounds updated.
-         */
-        @NonNull
-        public Builder setBounds(@NonNull Rect bounds) {
-            mBounds = bounds;
-            return this;
-        }
-
-        /**
-         * Update the type in the builder.
-         *
-         * @param type for the {@link DisplayFeature}
-         * @return {@code this} with the type updated.
-         */
-        @NonNull
-        public Builder setType(int type) {
-            mType = type;
-            return this;
-        }
-
-        /**
-         * @return {@link DisplayFeature} with the bounds and type from the builder.
-         */
-        @NonNull
-        public DisplayFeature build() {
-            return new DisplayFeatureCompat(mBounds, mType);
-        }
-    }
 }

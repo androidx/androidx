@@ -27,7 +27,6 @@ import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import toSources
 
 @RunWith(Enclosed::class)
 class DatabaseWriterTest {
@@ -145,7 +144,7 @@ private fun singleDb(
         COMMON.USER, COMMON.USER_SUMMARY, COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA,
         COMMON.PARENT, COMMON.CHILD1, COMMON.CHILD2, COMMON.INFO, COMMON.GUAVA_ROOM,
         COMMON.LISTENABLE_FUTURE
-    ).toSources() + inputs
+    ) + inputs
     runProcessorTest(
         sources = sources,
         handler = DatabaseProcessingStep().asTestInvocationHandler(handler)

@@ -568,6 +568,54 @@ class XAnnotationBoxTest(
         }
     }
 
+    @Test
+    fun javaRepeatableAnnotation_notRepeated() {
+        val javaSrc = Source.java(
+            "JavaSubject",
+            """
+            import ${RepeatableJavaAnnotation::class.qualifiedName};
+            @RepeatableJavaAnnotation("x")
+            public class JavaSubject {}
+            """.trimIndent()
+        )
+        val kotlinSrc = Source.kotlin(
+            "KotlinSubject.kt",
+            """
+            import ${RepeatableJavaAnnotation::class.qualifiedName}
+            @RepeatableJavaAnnotation("x")
+            public class KotlinSubject
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(javaSrc, kotlinSrc)
+        ) { invocation ->
+            listOf("JavaSubject", "KotlinSubject")
+                .map(invocation.processingEnv::requireTypeElement)
+                .forEach { subject ->
+                    if (invocation.isKsp && preCompiled) {
+                        // TODO remove once https://github.com/google/ksp/issues/356 is fixed
+                        // KSP cannot read array of annotation values in compiled code
+                    } else {
+                        val annotations = subject.getAnnotations(
+                            RepeatableJavaAnnotation::class
+                        )
+                        assertThat(
+                            subject.hasAnnotation(
+                                RepeatableJavaAnnotation::class
+                            )
+                        ).isTrue()
+                        val values = annotations
+                            .map {
+                                it.value.value
+                            }
+                        assertWithMessage(subject.qualifiedName)
+                            .that(values)
+                            .containsExactly("x")
+                    }
+                }
+        }
+    }
+
     // helper function to read what we need
     private fun XAnnotated.getSuppressValues(): Array<String>? {
         return this.getAnnotation(TestSuppressWarnings::class)?.value?.value

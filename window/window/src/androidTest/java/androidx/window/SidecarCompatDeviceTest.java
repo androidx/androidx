@@ -17,7 +17,6 @@
 package androidx.window;
 
 import static androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface;
-import static androidx.window.SidecarAdapter.getSidecarDevicePosture;
 import static androidx.window.SidecarAdapter.getSidecarDisplayFeatures;
 import static androidx.window.Version.VERSION_0_1;
 
@@ -36,7 +35,6 @@ import android.os.IBinder;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.window.sidecar.SidecarDeviceState;
 import androidx.window.sidecar.SidecarDisplayFeature;
 import androidx.window.sidecar.SidecarWindowLayoutInfo;
 
@@ -54,36 +52,24 @@ import java.util.List;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class SidecarCompatDeviceTest extends WindowTestBase implements CompatDeviceTestInterface {
-    SidecarCompat mSidecarCompat;
+    private SidecarCompat mSidecarCompat;
+    private TestActivity mTestActivity;
 
     @Before
     public void setUp() {
         assumeExtensionV01();
         mSidecarCompat = new SidecarCompat((Context) ApplicationProvider.getApplicationContext());
-    }
-
-    @Test
-    @Override
-    public void testDeviceStateCallback() {
-        SidecarDeviceState sidecarDeviceState = mSidecarCompat.mSidecar.getDeviceState();
-        ExtensionCallbackInterface callbackInterface = mock(ExtensionCallbackInterface.class);
-        mSidecarCompat.setExtensionCallback(callbackInterface);
-        mSidecarCompat.onDeviceStateListenersChanged(false);
-
-
-        verify(callbackInterface, atLeastOnce()).onDeviceStateChanged(argThat(deviceState ->
-                deviceState.getPosture() == getSidecarDevicePosture(sidecarDeviceState)));
+        mTestActivity = mActivityTestRule.launchActivity(new Intent());
     }
 
     @Test
     @Override
     public void testWindowLayoutCallback() {
-        TestActivity activity = mActivityTestRule.launchActivity(new Intent());
-        IBinder windowToken = getActivityWindowToken(activity);
+        IBinder windowToken = getActivityWindowToken(mTestActivity);
         assertNotNull(windowToken);
         ExtensionCallbackInterface callbackInterface = mock(ExtensionCallbackInterface.class);
         mSidecarCompat.setExtensionCallback(callbackInterface);
-        mSidecarCompat.onWindowLayoutChangeListenerAdded(activity);
+        mSidecarCompat.onWindowLayoutChangeListenerAdded(mTestActivity);
 
         SidecarWindowLayoutInfo sidecarWindowLayoutInfo =
                 mSidecarCompat.mSidecar.getWindowLayoutInfo(windowToken);

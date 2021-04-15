@@ -129,7 +129,7 @@ internal class TestWatchFaceService(
  * IWatchFaceService.Stub implementation that redirects all method calls to a mock so they can be
  * verified. (Using a Spy on the actual stub doesn't work).
  */
-class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
+public class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
     IWatchFaceService.Stub() {
     override fun setStyle(style: WatchFaceStyle) {
         iWatchFaceService.setStyle(style)
@@ -185,7 +185,7 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
     }
 }
 
-open class TestRenderer(
+public open class TestRenderer(
     surfaceHolder: SurfaceHolder,
     currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState,
@@ -197,8 +197,8 @@ open class TestRenderer(
     CanvasType.HARDWARE,
     interactiveFrameRateMs
 ) {
-    var lastOnDrawCalendar: Calendar? = null
-    var lastRenderParamaters = RenderParameters.DEFAULT_INTERACTIVE
+    public var lastOnDrawCalendar: Calendar? = null
+    public var lastRenderParameters: RenderParameters = RenderParameters.DEFAULT_INTERACTIVE
 
     override fun render(
         canvas: Canvas,
@@ -206,11 +206,14 @@ open class TestRenderer(
         calendar: Calendar
     ) {
         lastOnDrawCalendar = calendar
-        lastRenderParamaters = renderParameters
+        lastRenderParameters = renderParameters
+    }
+
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
     }
 }
 
-fun createComplicationData() =
+public fun createComplicationData(): androidx.wear.complications.data.ComplicationData =
     ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
         .setShortText(ComplicationText.plainText("Test Text"))
         .setTapAction(
@@ -223,7 +226,7 @@ fun createComplicationData() =
 /**
  * We need to prevent roboloetric from instrumenting our classes or things break...
  */
-class WatchFaceTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
+public class WatchFaceTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
         InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
             .doNotInstrumentPackage("android.support.wearable.watchface")

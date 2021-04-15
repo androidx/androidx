@@ -16,7 +16,6 @@
 
 package androidx.resourceinspection.processor
 
-import androidx.resourceinspection.annotation.Attribute
 import com.squareup.javapoet.ClassName
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.ExecutableElement
@@ -30,7 +29,7 @@ internal data class ViewIR(
     val className: ClassName = ClassName.get(type)
 }
 
-/** Represents an [Attribute] with its getter. */
+/** Represents an `Attribute` with its getter. */
 internal data class AttributeIR(
     val getter: ExecutableElement,
     val annotation: AnnotationMirror,
@@ -42,7 +41,7 @@ internal data class AttributeIR(
     val qualifiedName: String = "$namespace:$name"
 }
 
-/** Represents an [Attribute.IntMap] entry. */
+/** Represents an `Attribute.IntMap` entry. */
 internal data class IntMapIR(
     val name: String,
     val value: Int,

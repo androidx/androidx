@@ -175,7 +175,9 @@ class FtsTableEntityProcessor internal constructor(
         if (!contentEntityElement.hasAnnotation(androidx.room.Entity::class)) {
             context.logger.e(
                 contentEntityElement,
-                ProcessorErrors.externalContentNotAnEntity(contentEntityElement.toString())
+                ProcessorErrors.externalContentNotAnEntity(
+                    contentEntityElement.className.canonicalName()
+                )
             )
             return null
         }

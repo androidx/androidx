@@ -32,9 +32,10 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.watchface.data.ComplicationBoundsType
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
 import java.lang.ref.WeakReference
 
 private fun getComponentName(context: Context) = ComponentName(
@@ -48,7 +49,7 @@ private fun getComponentName(context: Context) = ComponentName(
  *
  * @param complicationCollection The complications associated with the watch face, may be empty.
  * @param currentUserStyleRepository The [CurrentUserStyleRepository] used to listen for
- *     [ComplicationsUserStyleSetting] changes and apply them.
+ * [ComplicationsUserStyleSetting] changes and apply them.
  */
 public class ComplicationsManager(
     complicationCollection: Collection<Complication>,
@@ -135,7 +136,7 @@ public class ComplicationsManager(
                 object : CurrentUserStyleRepository.UserStyleChangeListener {
                     override fun onUserStyleChanged(userStyle: UserStyle) {
                         val newlySelectedOption =
-                            userStyle[complicationsStyleCategory]?.toComplicationsOption()!!
+                            userStyle[complicationsStyleCategory]!! as ComplicationsOption
                         if (previousOption != newlySelectedOption) {
                             previousOption = newlySelectedOption
                             applyComplicationsStyleCategoryOption(newlySelectedOption)
@@ -259,10 +260,9 @@ public class ComplicationsManager(
     /**
      * Called when new complication data is received.
      *
-     * @param watchFaceComplicationId The id of the complication that the data relates to. This
-     *     will be an id that was previously sent in a call to [setActiveComplications]. If this id
-     *     is unrecognized the call will be a NOP, the only circumstance when that happens is if
-     *     the watch face changes it's complication config between runs e.g. during development.
+     * @param watchFaceComplicationId The id of the complication that the data relates to. If this
+     * id is unrecognized the call will be a NOP, the only circumstance when that happens is if the
+     * watch face changes it's complication config between runs e.g. during development.
      * @param data The [ComplicationData] that should be displayed in the complication.
      */
     @UiThread
@@ -317,10 +317,14 @@ public class ComplicationsManager(
      * @return The complication at coordinates x, y or {@code null} if there isn't one
      */
     public fun getComplicationAt(@Px x: Int, @Px y: Int): Complication? =
-        complications.entries.firstOrNull {
-            it.value.enabled && it.value.boundsType != ComplicationBoundsType.BACKGROUND &&
-                it.value.computeBounds(renderer.screenBounds).contains(x, y)
-        }?.value
+        complications.values.firstOrNull { complication ->
+            complication.enabled && complication.tapFilter.hitTest(
+                complication,
+                renderer.screenBounds,
+                x,
+                y
+            )
+        }
 
     /**
      * Returns the background complication if there is one or `null` otherwise.

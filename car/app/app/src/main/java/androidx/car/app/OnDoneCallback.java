@@ -18,11 +18,13 @@ package androidx.car.app;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.serialization.Bundleable;
 
 /**
  * A host-side interface for handling success and failure scenarios on calls to the client.
  */
+@CarProtocol
 public interface OnDoneCallback {
     /**
      * Notifies that the request has been successfully processed the request and provides a

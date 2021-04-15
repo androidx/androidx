@@ -131,6 +131,7 @@ public class MediaRouteButton extends View {
     private static final int CONNECTION_STATE_CONNECTED =
             MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED;
 
+    private int mLastConnectionState = CONNECTION_STATE_DISCONNECTED;
     private int mConnectionState;
 
     private ColorStateList mButtonTint;
@@ -539,8 +540,28 @@ public class MediaRouteButton extends View {
         if (mRemoteIndicator != null) {
             int[] myDrawableState = getDrawableState();
             mRemoteIndicator.setState(myDrawableState);
+
+            // When DrawableContainer#selectDrawable is called, the selected drawable is reset.
+            // We may need to start the animation or adjust the frame.
+            if (mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
+                AnimationDrawable curDrawable = (AnimationDrawable) mRemoteIndicator.getCurrent();
+                if (mConnectionState == CONNECTION_STATE_CONNECTING
+                        || mLastConnectionState != mConnectionState) {
+                    if (!curDrawable.isRunning()) {
+                        curDrawable.start();
+                    }
+                } else {
+                    // Assuming the last animation of the "connected" animation drawable
+                    // shows "connected" static drawable.
+                    if (mConnectionState == CONNECTION_STATE_CONNECTED
+                            && !curDrawable.isRunning()) {
+                        curDrawable.selectDrawable(curDrawable.getNumberOfFrames() - 1);
+                    }
+                }
+            }
             invalidate();
         }
+        mLastConnectionState = mConnectionState;
     }
 
     /**
@@ -719,20 +740,6 @@ public class MediaRouteButton extends View {
         mRemoteIndicator = d;
 
         refreshDrawableState();
-        if (mAttachedToWindow && mRemoteIndicator != null
-                && mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
-            AnimationDrawable curDrawable = (AnimationDrawable) mRemoteIndicator.getCurrent();
-            if (mConnectionState == CONNECTION_STATE_CONNECTING) {
-                if (!curDrawable.isRunning()) {
-                    curDrawable.start();
-                }
-            } else if (mConnectionState == CONNECTION_STATE_CONNECTED) {
-                if (curDrawable.isRunning()) {
-                    curDrawable.stop();
-                }
-                curDrawable.selectDrawable(curDrawable.getNumberOfFrames() - 1);
-            }
-        }
     }
 
     void refreshVisibility() {
@@ -750,17 +757,12 @@ public class MediaRouteButton extends View {
         final int connectionState = (isRemote ? route.getConnectionState()
                 : CONNECTION_STATE_DISCONNECTED);
 
-        boolean needsRefresh = false;
-
         if (mConnectionState != connectionState) {
             mConnectionState = connectionState;
-            needsRefresh = true;
-        }
-
-        if (needsRefresh) {
             updateContentDescription();
             refreshDrawableState();
         }
+
         if (connectionState == CONNECTION_STATE_CONNECTING) {
             loadRemoteIndicatorIfNeeded();
         }
@@ -768,23 +770,6 @@ public class MediaRouteButton extends View {
         if (mAttachedToWindow) {
             setEnabled(mAlwaysVisible || mRouter.isRouteAvailable(mSelector,
                     MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE));
-        }
-        if (mRemoteIndicator != null
-                && mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
-            AnimationDrawable curDrawable = (AnimationDrawable) mRemoteIndicator.getCurrent();
-            if (mAttachedToWindow) {
-                if ((needsRefresh || connectionState == CONNECTION_STATE_CONNECTING)
-                        && !curDrawable.isRunning()) {
-                    curDrawable.start();
-                }
-            } else if (connectionState == CONNECTION_STATE_CONNECTED) {
-                // When the route is already connected before the view is attached, show the last
-                // frame of the connected animation immediately.
-                if (curDrawable.isRunning()) {
-                    curDrawable.stop();
-                }
-                curDrawable.selectDrawable(curDrawable.getNumberOfFrames() - 1);
-            }
         }
     }
 

@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedPackage: androidx.navigation:
+    Removed package androidx.navigation
+RemovedPackage: androidx.navigation.fragment:
+    Removed package androidx.navigation.fragment

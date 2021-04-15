@@ -29,6 +29,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -42,6 +43,7 @@ import java.util.Objects;
  * supports any content changes as refreshes. This allows apps to interactively update the search
  * results as the user types without the templates being counted against the quota.
  */
+@CarProtocol
 public final class SearchTemplate implements Template {
 
     /** A listener for search updates. */

@@ -46,7 +46,6 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants.TEST_VAL
 import static android.support.mediacompat.testlib.MediaBrowserConstants.TEST_VALUE_3;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.TEST_VALUE_4;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
-import static android.support.mediacompat.testlib.VersionConstants.VERSION_TOT;
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 import static android.support.mediacompat.testlib.util.IntentUtil.callMediaBrowserServiceMethod;
 
@@ -455,11 +454,6 @@ public class MediaBrowserCompatTest {
     @Test
     @SmallTest
     public void testSubscribeWithOptionsIncludingCompatParcelables() throws Exception {
-        if (Build.VERSION.SDK_INT >= 26 && !VERSION_TOT.equals(mServiceVersion)) {
-            // This test will fail on API 26 or newer APIs if the service application uses
-            // support library v27.0.1 or lower versions.
-            return;
-        }
         connectMediaBrowserService();
 
         final String mediaId = "1000";

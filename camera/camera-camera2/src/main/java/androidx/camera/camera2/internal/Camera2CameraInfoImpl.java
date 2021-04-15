@@ -30,6 +30,7 @@ import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraState;
 import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.Logger;
@@ -79,6 +80,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @GuardedBy("mLock")
     @Nullable
     private RedirectableLiveData<ZoomState> mRedirectZoomStateLiveData = null;
+    @NonNull
+    private final RedirectableLiveData<CameraState> mCameraStateLiveData;
     @GuardedBy("mLock")
     @Nullable
     private List<Pair<CameraCaptureCallback, Executor>> mCameraCaptureCallbacks = null;
@@ -100,6 +103,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         mCameraQuirks = CameraQuirks.get(cameraId, cameraCharacteristicsCompat);
         mCamera2CamcorderProfileProvider = new Camera2CamcorderProfileProvider(cameraId,
                 cameraCharacteristicsCompat);
+        mCameraStateLiveData = new RedirectableLiveData<>(
+                CameraState.create(CameraState.Type.CLOSED));
     }
 
     /**
@@ -132,6 +137,14 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
             }
         }
         logDeviceInfo();
+    }
+
+    /**
+     * Sets the source of the {@linkplain CameraState camera states} that will be exposed. When
+     * called more than once, the previous camera state source is overridden.
+     */
+    void setCameraStateSource(@NonNull LiveData<CameraState> cameraStateSource) {
+        mCameraStateLiveData.redirectTo(cameraStateSource);
     }
 
     @NonNull
@@ -289,6 +302,12 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
             }
             return mCamera2CameraControlImpl.getExposureControl().getExposureState();
         }
+    }
+
+    @NonNull
+    @Override
+    public LiveData<CameraState> getCameraState() {
+        return mCameraStateLiveData;
     }
 
     /**

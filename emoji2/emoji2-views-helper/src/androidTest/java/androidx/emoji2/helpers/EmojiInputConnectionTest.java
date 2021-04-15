@@ -32,14 +32,10 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.os.Build;
 import android.text.Editable;
-import android.text.Selection;
-import android.text.SpannableStringBuilder;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
 
-import androidx.emoji2.util.Emoji;
-import androidx.emoji2.util.TestString;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -55,15 +51,13 @@ import org.junit.runner.RunWith;
 public class EmojiInputConnectionTest {
 
     private InputConnection mInputConnection;
-    private TestString mTestString;
     private Editable mEditable;
     private EmojiInputConnection mEmojiEmojiInputConnection;
     private EmojiInputConnection.EmojiCompatDeleteHelper mEmojiCompatDeleteHelper;
 
     @Before
     public void setup() {
-        mTestString = new TestString(Emoji.EMOJI_WITH_ZWJ).withPrefix().withSuffix();
-        mEditable = new SpannableStringBuilder(mTestString.toString());
+        mEditable = mock(Editable.class);
         mInputConnection = mock(InputConnection.class);
         final Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         final TextView textView = spy(new TextView(context));
@@ -87,7 +81,6 @@ public class EmojiInputConnectionTest {
 
     @Test
     public void whenEmojiCompatDelete_doesntDelete_inputConnectionIsCalled() {
-        Selection.setSelection(mEditable, 0, mEditable.length());
         when(mEmojiCompatDeleteHelper.handleDeleteSurroundingText(any(), any(), anyInt(),
                 anyInt(), anyBoolean())).thenReturn(false);
         assertFalse(mEmojiEmojiInputConnection.deleteSurroundingText(1, 0));
@@ -96,7 +89,6 @@ public class EmojiInputConnectionTest {
 
     @Test
     public void whenEmojiCompatDelete_doesDelete_inputConnectionIsNotCalled() {
-        Selection.setSelection(mEditable, mTestString.emojiEndIndex());
         when(mEmojiCompatDeleteHelper.handleDeleteSurroundingText(any(), any(), anyInt(),
                 anyInt(), anyBoolean())).thenReturn(true);
         assertTrue(mEmojiEmojiInputConnection.deleteSurroundingText(1, 0));

@@ -34,9 +34,13 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
@@ -86,28 +90,17 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
             inflater.inflate(R.layout.style_options_layout, container, false)
                 as SwipeDismissFrameLayout
 
-        val styleOptions = styleSetting.options
-        val booleanUserStyleSetting =
-            styleOptions.filterIsInstance<BooleanUserStyleSetting.BooleanOption>()
-        val listUserStyleSetting =
-            styleOptions.filterIsInstance<ListUserStyleSetting.ListOption>()
-        val complicationsUserStyleSetting =
-            styleOptions.filterIsInstance<ComplicationsUserStyleSetting.ComplicationsOption>()
-        val rangeUserStyleSetting =
-            styleOptions.filterIsInstance<DoubleRangeUserStyleSetting.DoubleRangeOption>()
-
         val booleanStyle = view.findViewById<ToggleButton>(R.id.styleToggle)
         val styleOptionsList = view.findViewById<WearableRecyclerView>(R.id.styleOptionsList)
         val rangedStyle = view.findViewById<SeekBar>(R.id.styleRange)
 
-        when {
-            booleanUserStyleSetting.isNotEmpty() -> {
-                booleanStyle.isChecked = userStyle[styleSetting]?.toBooleanOption()!!.value
+        val userStyleOption = userStyle[styleSetting]!!
+        when (styleSetting) {
+            is BooleanUserStyleSetting -> {
+                booleanStyle.isChecked = (userStyleOption as BooleanOption).value
                 booleanStyle.setOnCheckedChangeListener { _, isChecked ->
                     setUserStyleOption(
-                        styleSetting.getOptionForId(
-                            BooleanUserStyleSetting.BooleanOption(isChecked).id.value
-                        )
+                        styleSetting.getOptionForId(BooleanOption(isChecked).id.value)
                     )
                 }
                 styleOptionsList.visibility = View.GONE
@@ -116,13 +109,13 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                 rangedStyle.isEnabled = false
             }
 
-            listUserStyleSetting.isNotEmpty() -> {
+            is ListUserStyleSetting -> {
                 booleanStyle.isEnabled = false
                 booleanStyle.visibility = View.GONE
                 styleOptionsList.adapter =
                     ListStyleSettingViewAdapter(
                         requireContext(),
-                        listUserStyleSetting,
+                        styleSetting.options.filterIsInstance<ListUserStyleSetting.ListOption>(),
                         this@StyleConfigFragment
                     )
                 styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
@@ -130,13 +123,14 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                 rangedStyle.visibility = View.GONE
             }
 
-            complicationsUserStyleSetting.isNotEmpty() -> {
+            is ComplicationsUserStyleSetting -> {
                 booleanStyle.isEnabled = false
                 booleanStyle.visibility = View.GONE
                 styleOptionsList.adapter =
                     ComplicationsStyleSettingViewAdapter(
                         requireContext(),
-                        complicationsUserStyleSetting,
+                        styleSetting.options
+                            .filterIsInstance<ComplicationsUserStyleSetting.ComplicationsOption>(),
                         this@StyleConfigFragment
                     )
                 styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
@@ -144,20 +138,18 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                 rangedStyle.visibility = View.GONE
             }
 
-            rangeUserStyleSetting.isNotEmpty() -> {
+            is CustomValueUserStyleSetting -> {
+                // TODO(alexclarke): Implement.
+            }
+
+            is DoubleRangeUserStyleSetting -> {
                 val rangedStyleSetting = styleSetting as DoubleRangeUserStyleSetting
                 val minValue =
-                    (
-                        rangedStyleSetting.options.first() as
-                            DoubleRangeUserStyleSetting.DoubleRangeOption
-                        ).value
+                    (rangedStyleSetting.options.first() as DoubleRangeOption).value
                 val maxValue =
-                    (
-                        rangedStyleSetting.options.last() as
-                            DoubleRangeUserStyleSetting.DoubleRangeOption
-                        ).value
+                    (rangedStyleSetting.options.last() as DoubleRangeOption).value
                 val delta = (maxValue - minValue) / 100.0f
-                val value = userStyle[styleSetting]!!.toDoubleRangeOption()!!.value.toFloat()
+                val value = (userStyleOption as DoubleRangeOption).value.toFloat()
                 rangedStyle.progress = ((value - minValue) / delta).toInt()
                 rangedStyle.setOnSeekBarChangeListener(
                     object : SeekBar.OnSeekBarChangeListener {
@@ -168,9 +160,8 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                         ) {
                             setUserStyleOption(
                                 rangedStyleSetting.getOptionForId(
-                                    DoubleRangeUserStyleSetting.DoubleRangeOption(
-                                        minValue + delta * progress.toFloat()
-                                    ).id.value
+                                    DoubleRangeOption(minValue + delta * progress.toFloat())
+                                        .id.value
                                 )
                             )
                         }
@@ -185,6 +176,10 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                 styleOptionsList.isEnabled = false
                 styleOptionsList.visibility = View.GONE
             }
+
+            is LongRangeUserStyleSetting -> {
+                // TODO(alexclarke): Implement.
+            }
         }
 
         view.addCallback(object : SwipeDismissFrameLayout.Callback() {
@@ -196,7 +191,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
         return view
     }
 
-    internal fun readOptionsFromArguments() {
+    private fun readOptionsFromArguments() {
         settingId = requireArguments().getCharSequence(SETTING_ID).toString()
 
         styleSchema = UserStyleSchema(

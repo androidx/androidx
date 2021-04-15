@@ -225,7 +225,6 @@ dependencies {
     docs(project(":startup:startup-runtime"))
     docs(project(":legacy-support-core-utils"))
     docs(project(":swiperefreshlayout:swiperefreshlayout"))
-    docs(project(":text:text"))
     docs(project(":textclassifier:textclassifier"))
     docs(project(":tracing:tracing"))
     docs(project(":tracing:tracing-ktx"))

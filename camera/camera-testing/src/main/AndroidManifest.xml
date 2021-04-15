@@ -16,11 +16,28 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.camera.testing">
-
+    <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS"/>
+    <uses-permission android:name="android.permission.CAMERA" />
     <application>
         <activity
             android:name="androidx.camera.testing.activity.ForegroundTestActivity"
             android:label="ForegroundTestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="androidx.camera.testing.activity.CameraXTestActivity"
+            android:label="CameraX TestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="androidx.camera.testing.activity.Camera2TestActivity"
+            android:label="Camera2 TestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />

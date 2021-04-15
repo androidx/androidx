@@ -43,6 +43,9 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation project(':internal-testutils-runtime')
+
+    // view tests that use font are in this module as well; for licensing reasons
+    androidTestImplementation project(":emoji2:emoji2-views")
 }
 
 androidx {

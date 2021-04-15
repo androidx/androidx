@@ -29,6 +29,9 @@ import androidx.annotation.RestrictTo;
  * Allows complication providers to request update calls from the system. This effectively allows
  * providers to push updates to the system outside of the update request cycle.
  */
+// TODO(tneda): Convert this class to Kotlin and update all occurrences of {link
+//  e ComplicationProviderService...} to use [] in KDoc. {@link ComplicationProviderService...}
+//  doesn't work for now as ComplicationProviderService is migrated to Kotlin.
 public class ProviderUpdateRequester {
 
     /** The package of the service that accepts provider requests. */
@@ -59,7 +62,7 @@ public class ProviderUpdateRequester {
 
     /**
      * @param context The provider's context
-     * @param providerComponent the component name of the {@link ComplicationProviderService} that
+     * @param providerComponent the component name of the {link ComplicationProviderService} that
      *     this will request updates for
      */
     public ProviderUpdateRequester(
@@ -75,9 +78,8 @@ public class ProviderUpdateRequester {
     }
 
     /**
-     * Requests that the system call {@link ComplicationProviderService#onComplicationUpdate
-     * onComplicationUpdate} on the specified provider, for all active complications using that
-     * provider.
+     * Requests that the system call {link ComplicationProviderService#onComplicationUpdate} on
+     * the specified provider, for all active complications using that provider.
      *
      * <p>This will do nothing if no active complications are configured to use the specified
      * provider.
@@ -97,13 +99,13 @@ public class ProviderUpdateRequester {
     }
 
     /**
-     * Requests that the system call {@link ComplicationProviderService#onComplicationUpdate
-     * onComplicationUpdate} on the specified provider, for the given complication ids. Inactive
-     * complications are ignored, as are complications configured to use a different provider.
+     * Requests that the system call {link ComplicationProviderService#onComplicationUpdate} on
+     * the specified provider, for the given complication ids. Inactive complications are
+     * ignored, as are complications configured to use a different provider.
      *
      * @param complicationIds the ids of the complications to be updated, as provided in calls to
-     *     {@link ComplicationProviderService#onComplicationActivated} and
-     *     {@link ComplicationProviderService#onComplicationUpdate}.
+     *     {link ComplicationProviderService#onComplicationActivated} and
+     *     {link ComplicationProviderService#onComplicationUpdate}.
      */
     @SuppressLint("PendingIntentMutability")
     public void requestUpdate(@NonNull int... complicationIds) {

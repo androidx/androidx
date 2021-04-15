@@ -113,7 +113,8 @@ dependencies {
     implementation(KOTLIN_METADATA_JVM)
     implementation(APACHE_COMMONS_CODEC)
     implementation(INTELLIJ_ANNOTATIONS)
-    testImplementation(GOOGLE_COMPILE_TESTING)
+    testImplementation(TRUTH)
+    testImplementation(AUTO_VALUE) // to access the processor in tests
     testImplementation(projectOrArtifact(":paging:paging-common"))
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(JUNIT)

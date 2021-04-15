@@ -143,6 +143,15 @@ class ShortcutMethodProcessor(
                                 ProcessorErrors.INVALID_RELATION_IN_PARTIAL_ENTITY
                             )
                         }
+
+                        if (pojo.fields.isEmpty()) {
+                            context.logger.e(
+                                executableElement,
+                                ProcessorErrors.noColumnsInPartialEntity(
+                                    partialEntityName = pojo.typeName.toString()
+                                )
+                            )
+                        }
                         onValidatePartialEntity(targetEntity, pojo)
                     }
                 }

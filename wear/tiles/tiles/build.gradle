@@ -48,6 +48,9 @@ android {
     buildFeatures {
         aidl = true
     }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true

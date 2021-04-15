@@ -22,12 +22,10 @@ import static androidx.window.extensions.ExtensionInterface.ExtensionCallback;
 import android.app.Activity;
 
 import androidx.annotation.NonNull;
-import androidx.window.extensions.ExtensionDeviceState;
 import androidx.window.extensions.ExtensionWindowLayoutInfo;
 
 /**
- * A class to adapt from {@link ExtensionDeviceState} and {@link ExtensionWindowLayoutInfo} to
- * the local classes {@link DeviceState} and {@link WindowLayoutInfo}.
+ * A class to adapt from {@link ExtensionWindowLayoutInfo} to the local classes.
  */
 class ExtensionTranslatingCallback implements ExtensionCallback {
 
@@ -37,11 +35,6 @@ class ExtensionTranslatingCallback implements ExtensionCallback {
     ExtensionTranslatingCallback(ExtensionCallbackInterface callback, ExtensionAdapter adapter) {
         mCallback = callback;
         mAdapter = adapter;
-    }
-
-    @Override
-    public void onDeviceStateChanged(@NonNull ExtensionDeviceState newDeviceState) {
-        mCallback.onDeviceStateChanged(mAdapter.translate(newDeviceState));
     }
 
     @Override

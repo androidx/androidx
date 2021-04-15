@@ -19,8 +19,13 @@ package androidx.wear.watchface.test
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
+import android.graphics.Canvas
+import android.graphics.Rect
+import android.icu.util.Calendar
+import android.os.Handler
+import android.os.Looper
 import android.support.wearable.watchface.SharedMemoryImage
+import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -28,8 +33,14 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceService
+import androidx.wear.watchface.WatchFaceType
+import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.IWatchFaceControlService
 import androidx.wear.watchface.control.WatchFaceControlService
@@ -43,18 +54,57 @@ import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATI
 import androidx.wear.watchface.samples.EXAMPLE_OPENGL_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.samples.ExampleOpenGLWatchFaceService
+import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.WatchFaceLayer
+import androidx.wear.watchface.style.UserStyleSchema
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.withContext
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-private const val API_VERSION = 3
+// This service constructs a WatchFace with a task that's posted on the UI thread.
+internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
+    private val mainThreadCoroutineScope = CoroutineScope(
+        Handler(Looper.getMainLooper()).asCoroutineDispatcher()
+    )
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState
+    ): WatchFace = withContext(mainThreadCoroutineScope.coroutineContext) {
+        val currentUserStyleRepository =
+            CurrentUserStyleRepository(UserStyleSchema(emptyList()))
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            CurrentUserStyleRepository(UserStyleSchema(emptyList())),
+            object : Renderer.CanvasRenderer(
+                surfaceHolder,
+                currentUserStyleRepository,
+                watchState,
+                CanvasType.SOFTWARE,
+                16
+            ) {
+                override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
+
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    calendar: Calendar
+                ) {}
+            }
+        )
+    }
+}
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-class WatchFaceControlServiceTest {
+public class WatchFaceControlServiceTest {
 
     @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule("wear/wear-watchface")
+    internal val screenshotRule = AndroidXScreenshotTestRule("wear/wear-watchface")
 
     private fun createInstance(width: Int, height: Int): IHeadlessWatchFace {
         val instanceService = IWatchFaceControlService.Stub.asInterface(
@@ -109,16 +159,15 @@ class WatchFaceControlServiceTest {
     }
 
     @Test
-    fun createHeadlessWatchFaceInstance() {
+    public fun createHeadlessWatchFaceInstance() {
         val instance = createInstance(100, 100)
         val bitmap = SharedMemoryImage.ashmemReadImageBundle(
             instance.renderWatchFaceToBitmap(
                 WatchFaceRenderParams(
                     RenderParameters(
                         DrawMode.INTERACTIVE,
-                        RenderParameters.DRAW_ALL_LAYERS,
-                        null,
-                        Color.RED
+                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                        null
                     ).toWireFormat(),
                     1234567890,
                     null,
@@ -152,16 +201,15 @@ class WatchFaceControlServiceTest {
     }
 
     @Test
-    fun createHeadlessOpenglWatchFaceInstance() {
+    public fun createHeadlessOpenglWatchFaceInstance() {
         val instance = createOpenGlInstance(400, 400)
         val bitmap = SharedMemoryImage.ashmemReadImageBundle(
             instance.renderWatchFaceToBitmap(
                 WatchFaceRenderParams(
                     RenderParameters(
                         DrawMode.INTERACTIVE,
-                        RenderParameters.DRAW_ALL_LAYERS,
-                        null,
-                        Color.RED
+                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                        null
                     ).toWireFormat(),
                     1234567890,
                     null,
@@ -186,7 +234,7 @@ class WatchFaceControlServiceTest {
     }
 
     @Test
-    fun testCommandTakeComplicationScreenShot() {
+    public fun testCommandTakeComplicationScreenShot() {
         val instance = createInstance(400, 400)
         val bitmap = SharedMemoryImage.ashmemReadImageBundle(
             instance.renderComplicationToBitmap(
@@ -194,9 +242,8 @@ class WatchFaceControlServiceTest {
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                     RenderParameters(
                         DrawMode.AMBIENT,
-                        RenderParameters.DRAW_ALL_LAYERS,
+                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                         null,
-                        Color.RED
                     ).toWireFormat(),
                     123456789,
                     ShortTextComplicationData.Builder(PlainComplicationText.Builder("Mon").build())
@@ -214,5 +261,35 @@ class WatchFaceControlServiceTest {
         )
 
         instance.release()
+    }
+
+    @Test
+    public fun asyncInitWithUiThreadTaskWatchFace() {
+        val instanceService = IWatchFaceControlService.Stub.asInterface(
+            WatchFaceControlService().apply {
+                setContext(ApplicationProvider.getApplicationContext<Context>())
+            }.onBind(
+                Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE)
+            )
+        )
+        // This shouldn't hang.
+        val headlessInstance = instanceService.createHeadlessWatchFaceInstance(
+            HeadlessWatchFaceInstanceParams(
+                ComponentName(
+                    ApplicationProvider.getApplicationContext<Context>(),
+                    AsyncInitWithUiThreadTaskWatchFace::class.java
+                ),
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                100,
+                100
+            )
+        )
+
+        assertThat(headlessInstance.userStyleSchema.mSchema).isEmpty()
     }
 }

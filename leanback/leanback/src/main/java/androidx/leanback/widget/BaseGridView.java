@@ -233,7 +233,7 @@ public abstract class BaseGridView extends RecyclerView {
         void onLayoutCompleted(@NonNull RecyclerView.State state);
     }
 
-    final GridLayoutManager mLayoutManager;
+    GridLayoutManager mLayoutManager;
 
     private SmoothScrollByBehavior mSmoothScrollByBehavior;
 
@@ -897,6 +897,22 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     @Override
+    public void setLayoutManager(@Nullable RecyclerView.LayoutManager layout) {
+        if (layout == null) {
+            super.setLayoutManager(null);
+            if (mLayoutManager != null) {
+                mLayoutManager.setGridView(null);
+            }
+            mLayoutManager = null;
+            return;
+        }
+
+        mLayoutManager = (GridLayoutManager) layout;
+        mLayoutManager.setGridView(this);
+        super.setLayoutManager(layout);
+    }
+
+    @Override
     public boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
         if ((mPrivateFlag & PFLAG_RETAIN_FOCUS_FOR_CHILD) == PFLAG_RETAIN_FOCUS_FOR_CHILD) {
             // dont focus to child if GridView itself retains focus for child
@@ -1152,7 +1168,9 @@ public abstract class BaseGridView extends RecyclerView {
      */
     @Override
     public void onRtlPropertiesChanged(int layoutDirection) {
-        mLayoutManager.onRtlPropertiesChanged(layoutDirection);
+        if (mLayoutManager != null) {
+            mLayoutManager.onRtlPropertiesChanged(layoutDirection);
+        }
     }
 
     /**

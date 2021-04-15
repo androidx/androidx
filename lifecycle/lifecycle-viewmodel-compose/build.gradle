@@ -39,6 +39,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 
     androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
+    androidTestImplementation projectOrArtifact(":compose:test-utils")
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)

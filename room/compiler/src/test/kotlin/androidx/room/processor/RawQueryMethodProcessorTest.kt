@@ -17,30 +17,24 @@
 package androidx.room.processor
 
 import COMMON
-import androidx.room.ColumnInfo
 import androidx.room.Dao
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.Query
 import androidx.room.RawQuery
+import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
-import androidx.room.testing.TestInvocation
-import androidx.room.testing.TestProcessor
+import androidx.room.testing.context
 import androidx.room.vo.RawQueryMethod
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.google.common.truth.Truth
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
-import simpleRun
 
 class RawQueryMethodProcessorTest {
     @Test
@@ -65,7 +59,7 @@ class RawQueryMethodProcessorTest {
                 query.returnType.typeName,
                 `is`(ArrayTypeName.of(TypeName.INT) as TypeName)
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -75,8 +69,11 @@ class RawQueryMethodProcessorTest {
                 @RawQuery
                 abstract public int[] foo(String query);
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(RAW_QUERY_STRING_PARAMETER_REMOVED)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(RAW_QUERY_STRING_PARAMETER_REMOVED)
+            }
+        }
     }
 
     @Test
@@ -99,7 +96,7 @@ class RawQueryMethodProcessorTest {
             )
             assertThat(query.observedTableNames.size, `is`(1))
             assertThat(query.observedTableNames, `is`(setOf("User")))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -109,7 +106,7 @@ class RawQueryMethodProcessorTest {
                 @RawQuery(observedEntities = {})
                 abstract public LiveData<User> foo(SupportSQLiteQuery query);
                 """
-        ) { query, _ ->
+        ) { query, invocation ->
             assertThat(query.name, `is`("foo"))
             assertThat(
                 query.runtimeQueryParam,
@@ -121,8 +118,12 @@ class RawQueryMethodProcessorTest {
                 )
             )
             assertThat(query.observedTableNames, `is`(emptySet()))
-        }.failsToCompile()
-            .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE
+                )
+            }
+        }
     }
 
     @Test
@@ -132,10 +133,13 @@ class RawQueryMethodProcessorTest {
                 @RawQuery
                 abstract public ${PagingTypeNames.DATA_SOURCE_FACTORY}<Integer, User> getOne();
                 """
-        ) { _, _ ->
-            // do nothing
-        }.failsToCompile()
-            .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE
+                )
+            }
+        }
     }
 
     @Test
@@ -145,10 +149,13 @@ class RawQueryMethodProcessorTest {
                 @RawQuery
                 abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE}<User> getOne();
                 """
-        ) { _, _ ->
-            // do nothing
-        }.failsToCompile()
-            .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE
+                )
+            }
+        }
     }
 
     @Test
@@ -161,7 +168,7 @@ class RawQueryMethodProcessorTest {
                 """
         ) { _, _ ->
             // do nothing
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -190,7 +197,7 @@ class RawQueryMethodProcessorTest {
             )
             assertThat(query.returnType.typeName, `is`(pojo))
             assertThat(query.observedTableNames, `is`(emptySet()))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -200,10 +207,13 @@ class RawQueryMethodProcessorTest {
                 @RawQuery
                 abstract public void foo(SupportSQLiteQuery query);
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE
+                )
+            }
+        }
     }
 
     interface RawQuerySuspendUnitDao {
@@ -213,7 +223,7 @@ class RawQueryMethodProcessorTest {
 
     @Test
     fun suspendUnit() {
-        simpleRun { invocation ->
+        runProcessorTest { invocation ->
             val daoElement =
                 invocation.processingEnv.requireTypeElement(RawQuerySuspendUnitDao::class)
             val daoFunctionElement = daoElement.getDeclaredMethods().first()
@@ -222,9 +232,10 @@ class RawQueryMethodProcessorTest {
                 containing = daoElement.type,
                 executableElement = daoFunctionElement
             ).process()
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE
-        )
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE)
+            }
+        }
     }
 
     @Test
@@ -234,10 +245,13 @@ class RawQueryMethodProcessorTest {
                 @RawQuery
                 abstract public int[] foo();
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.RAW_QUERY_BAD_PARAMS
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.RAW_QUERY_BAD_PARAMS
+                )
+            }
+        }
     }
 
     @Test
@@ -248,10 +262,11 @@ class RawQueryMethodProcessorTest {
                 abstract public int[] foo(SupportSQLiteQuery query,
                                           SupportSQLiteQuery query2);
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.RAW_QUERY_BAD_PARAMS
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.RAW_QUERY_BAD_PARAMS)
+            }
+        }
     }
 
     @Test
@@ -261,10 +276,13 @@ class RawQueryMethodProcessorTest {
                 @RawQuery
                 abstract public int[] foo(SupportSQLiteQuery... query);
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.RAW_QUERY_BAD_PARAMS
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.RAW_QUERY_BAD_PARAMS
+                )
+            }
+        }
     }
 
     @Test
@@ -274,10 +292,13 @@ class RawQueryMethodProcessorTest {
                 @RawQuery(observedEntities = {${COMMON.NOT_AN_ENTITY_TYPE_NAME}.class})
                 abstract public int[] foo(SupportSQLiteQuery query);
                 """
-        ) { _, _ ->
-        }.failsToCompile().withErrorContaining(
-            ProcessorErrors.rawQueryBadEntity(COMMON.NOT_AN_ENTITY_TYPE_NAME)
-        )
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.rawQueryBadEntity(COMMON.NOT_AN_ENTITY_TYPE_NAME)
+                )
+            }
+        }
     }
 
     @Test
@@ -297,7 +318,7 @@ class RawQueryMethodProcessorTest {
                 """
         ) { method, _ ->
             assertThat(method.observedTableNames, `is`(setOf("User")))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -314,55 +335,46 @@ class RawQueryMethodProcessorTest {
                 """
         ) { method, _ ->
             assertThat(method.observedTableNames, `is`(setOf("User")))
-        }.compilesWithoutError()
+        }
     }
 
     private fun singleQueryMethod(
         vararg input: String,
-        handler: (RawQueryMethod, TestInvocation) -> Unit
-    ): CompileTester {
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(
-                listOf(
-                    JavaFileObjects.forSourceString(
-                        "foo.bar.MyClass",
-                        DAO_PREFIX +
-                            input.joinToString("\n") +
-                            DAO_SUFFIX
-                    ),
-                    COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER,
-                    COMMON.DATA_SOURCE_FACTORY, COMMON.POSITIONAL_DATA_SOURCE,
-                    COMMON.NOT_AN_ENTITY
-                )
-            )
-            .processedWith(
-                TestProcessor.builder()
-                    .forAnnotations(
-                        Query::class, Dao::class, ColumnInfo::class,
-                        Entity::class, PrimaryKey::class, RawQuery::class
+        handler: (RawQueryMethod, XTestInvocation) -> Unit
+    ) {
+        val inputSource = Source.java(
+            "foo.bar.MyClass",
+            DAO_PREFIX +
+                input.joinToString("\n") +
+                DAO_SUFFIX
+        )
+        val commonSources = listOf(
+            COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER,
+            COMMON.DATA_SOURCE_FACTORY, COMMON.POSITIONAL_DATA_SOURCE,
+            COMMON.NOT_AN_ENTITY
+        )
+        runProcessorTest(
+            sources = commonSources + inputSource
+        ) { invocation ->
+            val (owner, methods) = invocation.roundEnv
+                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
+                .map {
+                    Pair(
+                        it,
+                        it.getAllMethods().filter {
+                            it.hasAnnotation(RawQuery::class)
+                        }
                     )
-                    .nextRunHandler { invocation ->
-                        val (owner, methods) = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Dao::class.qualifiedName!!)
-                            .map {
-                                Pair(
-                                    it,
-                                    it.getAllMethods().filter {
-                                        it.hasAnnotation(RawQuery::class)
-                                    }
-                                )
-                            }.first { it.second.isNotEmpty() }
-                        val parser = RawQueryMethodProcessor(
-                            baseContext = invocation.context,
-                            containing = owner.type,
-                            executableElement = methods.first()
-                        )
-                        val parsedQuery = parser.process()
-                        handler(parsedQuery, invocation)
-                        true
-                    }
-                    .build()
+                }.first { it.second.isNotEmpty() }
+            val parser = RawQueryMethodProcessor(
+                baseContext = invocation.context,
+                containing = owner.type,
+                executableElement = methods.first()
             )
+            val parsedQuery = parser.process()
+            handler(parsedQuery, invocation)
+        }
     }
 
     companion object {

@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -37,7 +38,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 
 import androidx.emoji2.text.EmojiCompat;
-import androidx.emoji2.util.EmojiMatcher;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -143,7 +143,7 @@ public class EmojiExtractTextLayoutTest {
         final String testString = "anytext";
         extractEditText.setText(testString);
 
-        verify(emojiCompat, times(1)).process(EmojiMatcher.sameCharSequence(testString),
+        verify(emojiCompat, times(1)).process(any(),
                 anyInt(),
                 anyInt(),
                 anyInt(),

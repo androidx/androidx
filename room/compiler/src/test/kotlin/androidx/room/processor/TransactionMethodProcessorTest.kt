@@ -19,13 +19,12 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Dao
 import androidx.room.Transaction
-import androidx.room.testing.TestInvocation
-import androidx.room.testing.TestProcessor
+import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.testing.context
 import androidx.room.vo.TransactionMethod
-import com.google.common.truth.Truth
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -58,7 +57,7 @@ class TransactionMethodProcessorTest {
                 """
         ) { transaction, _ ->
             assertThat(transaction.name, `is`("doInTransaction"))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -68,9 +67,14 @@ class TransactionMethodProcessorTest {
                 @Transaction
                 private String doInTransaction(int param) { return null; }
                 """
-        ) { transaction, _ ->
+        ) { transaction, invocation ->
             assertThat(transaction.name, `is`("doInTransaction"))
-        }.failsToCompile().withErrorContaining(ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.TRANSACTION_METHOD_MODIFIERS
+                )
+            }
+        }
     }
 
     @Test
@@ -80,9 +84,12 @@ class TransactionMethodProcessorTest {
                 @Transaction
                 public final String doInTransaction(int param) { return null; }
                 """
-        ) { transaction, _ ->
+        ) { transaction, invocation ->
             assertThat(transaction.name, `is`("doInTransaction"))
-        }.failsToCompile().withErrorContaining(ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
+            }
+        }
     }
 
     @Test
@@ -92,14 +99,16 @@ class TransactionMethodProcessorTest {
                 @Transaction
                 public LiveData<String> doInTransaction(int param) { return null; }
                 """
-        ) { transaction, _ ->
+        ) { transaction, invocation ->
             assertThat(transaction.name, `is`("doInTransaction"))
-        }.failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.transactionMethodAsync(
-                    "androidx.lifecycle.LiveData"
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.transactionMethodAsync(
+                        "androidx.lifecycle.LiveData"
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
@@ -109,14 +118,16 @@ class TransactionMethodProcessorTest {
                 @Transaction
                 public io.reactivex.Flowable<String> doInTransaction(int param) { return null; }
                 """
-        ) { transaction, _ ->
+        ) { transaction, invocation ->
             assertThat(transaction.name, `is`("doInTransaction"))
-        }.failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.transactionMethodAsync(
-                    "io.reactivex.Flowable"
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.transactionMethodAsync(
+                        "io.reactivex.Flowable"
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
@@ -128,14 +139,16 @@ class TransactionMethodProcessorTest {
                     return null; 
                 }
                 """
-        ) { transaction, _ ->
+        ) { transaction, invocation ->
             assertThat(transaction.name, `is`("doInTransaction"))
-        }.failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.transactionMethodAsync(
-                    "io.reactivex.rxjava3.core.Flowable"
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.transactionMethodAsync(
+                        "io.reactivex.rxjava3.core.Flowable"
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
@@ -145,14 +158,16 @@ class TransactionMethodProcessorTest {
                 @Transaction
                 public io.reactivex.Completable doInTransaction(int param) { return null; }
                 """
-        ) { transaction, _ ->
+        ) { transaction, invocation ->
             assertThat(transaction.name, `is`("doInTransaction"))
-        }.failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.transactionMethodAsync(
-                    "io.reactivex.Completable"
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.transactionMethodAsync(
+                        "io.reactivex.Completable"
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
@@ -164,14 +179,16 @@ class TransactionMethodProcessorTest {
                     return null;
                 }
                 """
-        ) { transaction, _ ->
+        ) { transaction, invocation ->
             assertThat(transaction.name, `is`("doInTransaction"))
-        }.failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.transactionMethodAsync(
-                    "io.reactivex.rxjava3.core.Completable"
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.transactionMethodAsync(
+                        "io.reactivex.rxjava3.core.Completable"
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
@@ -181,14 +198,16 @@ class TransactionMethodProcessorTest {
                 @Transaction
                 public io.reactivex.Single<String> doInTransaction(int param) { return null; }
                 """
-        ) { transaction, _ ->
+        ) { transaction, invocation ->
             assertThat(transaction.name, `is`("doInTransaction"))
-        }.failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.transactionMethodAsync(
-                    "io.reactivex.Single"
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.transactionMethodAsync(
+                        "io.reactivex.Single"
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
@@ -200,14 +219,16 @@ class TransactionMethodProcessorTest {
                     return null;
                 }
                 """
-        ) { transaction, _ ->
+        ) { transaction, invocation ->
             assertThat(transaction.name, `is`("doInTransaction"))
-        }.failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.transactionMethodAsync(
-                    "io.reactivex.rxjava3.core.Single"
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.transactionMethodAsync(
+                        "io.reactivex.rxjava3.core.Single"
+                    )
                 )
-            )
+            }
+        }
     }
 
     @Test
@@ -217,14 +238,16 @@ class TransactionMethodProcessorTest {
                 @Transaction
                 public ListenableFuture<String> doInTransaction(int param) { return null; }
                 """
-        ) { transaction, _ ->
+        ) { transaction, invocation ->
             assertThat(transaction.name, `is`("doInTransaction"))
-        }.failsToCompile()
-            .withErrorContaining(
-                ProcessorErrors.transactionMethodAsync(
-                    "com.google.common.util.concurrent.ListenableFuture"
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.transactionMethodAsync(
+                        "com.google.common.util.concurrent.ListenableFuture"
+                    )
                 )
-            )
+            }
+        }
     }
 
     private val TransactionMethod.name: String
@@ -232,44 +255,40 @@ class TransactionMethodProcessorTest {
 
     private fun singleTransactionMethod(
         vararg input: String,
-        handler: (TransactionMethod, TestInvocation) -> Unit
-    ): CompileTester {
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(
-                listOf(
-                    JavaFileObjects.forSourceString(
-                        "foo.bar.MyClass",
-                        DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-                    ),
-                    COMMON.LIVE_DATA, COMMON.RX2_FLOWABLE, COMMON.PUBLISHER, COMMON.RX2_COMPLETABLE,
-                    COMMON.RX2_SINGLE, COMMON.RX3_FLOWABLE, COMMON.RX3_COMPLETABLE,
-                    COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE
-                )
+        handler: (TransactionMethod, XTestInvocation) -> Unit
+    ) {
+        val inputSource = listOf(
+            Source.java(
+                "foo.bar.MyClass",
+                DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
             )
-            .processedWith(
-                TestProcessor.builder()
-                    .forAnnotations(Transaction::class, Dao::class)
-                    .nextRunHandler { invocation ->
-                        val (owner, methods) = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Dao::class.qualifiedName!!)
-                            .map {
-                                Pair(
-                                    it,
-                                    it.getAllMethods().filter {
-                                        it.hasAnnotation(Transaction::class)
-                                    }
-                                )
-                            }.first { it.second.isNotEmpty() }
-                        val processor = TransactionMethodProcessor(
-                            baseContext = invocation.context,
-                            containing = owner.type,
-                            executableElement = methods.first()
-                        )
-                        val processed = processor.process()
-                        handler(processed, invocation)
-                        true
-                    }
-                    .build()
+        )
+        val otherSources = listOf(
+            COMMON.LIVE_DATA, COMMON.RX2_FLOWABLE, COMMON.PUBLISHER, COMMON.RX2_COMPLETABLE,
+            COMMON.RX2_SINGLE, COMMON.RX3_FLOWABLE, COMMON.RX3_COMPLETABLE,
+            COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE
+        )
+        runProcessorTest(
+            sources = inputSource + otherSources
+        ) { invocation ->
+            val (owner, methods) = invocation.roundEnv
+                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
+                .map {
+                    Pair(
+                        it,
+                        it.getAllMethods().filter {
+                            it.hasAnnotation(Transaction::class)
+                        }
+                    )
+                }.first { it.second.isNotEmpty() }
+            val processor = TransactionMethodProcessor(
+                baseContext = invocation.context,
+                containing = owner.type,
+                executableElement = methods.first()
             )
+            val processed = processor.process()
+            handler(processed, invocation)
+        }
     }
 }

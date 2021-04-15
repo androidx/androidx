@@ -15,9 +15,7 @@
  */
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.javac.JavacExecutableElement
-import androidx.room.compiler.processing.ksp.KspElement
 import androidx.room.compiler.processing.ksp.KspMethodElement
 import androidx.room.compiler.processing.ksp.KspMethodType
 import com.squareup.javapoet.ClassName
@@ -51,12 +49,9 @@ internal fun TypeMirror.safeTypeName(): TypeName = if (kind == TypeKind.NONE) {
  * Adds the given element as the originating element for compilation.
  * see [TypeSpec.Builder.addOriginatingElement].
  */
-fun TypeSpec.Builder.addOriginatingElement(element: XElement) {
-    if (element is JavacElement) {
-        this.addOriginatingElement(element.element)
-    } else if (element is KspElement) {
-        element.containingFileAsOriginatingElement()?.let(this::addOriginatingElement)
-    }
+fun TypeSpec.Builder.addOriginatingElement(element: XElement): TypeSpec.Builder {
+    element.originatingElementForPoet()?.let(this::addOriginatingElement)
+    return this
 }
 
 internal fun TypeName.rawTypeName(): TypeName {

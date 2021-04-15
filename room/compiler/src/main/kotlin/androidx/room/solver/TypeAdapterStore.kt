@@ -475,7 +475,7 @@ class TypeAdapterStore private constructor(
             return null
         }
         val typeElement = typeMirror.typeElement
-        if (typeElement != null) {
+        if (typeElement != null && !typeMirror.typeName.isPrimitive) {
             if (typeMirror.typeArguments.isNotEmpty()) {
                 // TODO one day support this
                 return null

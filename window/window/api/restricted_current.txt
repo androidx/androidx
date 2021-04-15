@@ -1,33 +1,8 @@
 // Signature format: 4.0
 package androidx.window {
 
-  @Deprecated public final class DeviceState {
-    method @Deprecated public int getPosture();
-    field @Deprecated public static final int POSTURE_CLOSED = 1; // 0x1
-    field @Deprecated public static final int POSTURE_FLIPPED = 4; // 0x4
-    field @Deprecated public static final int POSTURE_HALF_OPENED = 2; // 0x2
-    field @Deprecated public static final int POSTURE_OPENED = 3; // 0x3
-    field @Deprecated public static final int POSTURE_UNKNOWN = 0; // 0x0
-  }
-
-  @Deprecated public static final class DeviceState.Builder {
-    ctor @Deprecated public DeviceState.Builder();
-    method @Deprecated public androidx.window.DeviceState build();
-    method @Deprecated public androidx.window.DeviceState.Builder setPosture(int);
-  }
-
   public interface DisplayFeature {
     method public android.graphics.Rect getBounds();
-    method @Deprecated public int getType();
-    field @Deprecated public static final int TYPE_FOLD = 1; // 0x1
-    field @Deprecated public static final int TYPE_HINGE = 2; // 0x2
-  }
-
-  @Deprecated public static class DisplayFeature.Builder {
-    ctor @Deprecated public DisplayFeature.Builder();
-    method @Deprecated public androidx.window.DisplayFeature build();
-    method @Deprecated public androidx.window.DisplayFeature.Builder setBounds(android.graphics.Rect);
-    method @Deprecated public androidx.window.DisplayFeature.Builder setType(int);
   }
 
   public class FoldingFeature implements androidx.window.DisplayFeature {
@@ -36,7 +11,6 @@ package androidx.window {
     method public int getOcclusionMode();
     method public int getOrientation();
     method public int getState();
-    method @Deprecated public int getType();
     method public boolean isSeparating();
     field public static final int OCCLUSION_FULL = 1; // 0x1
     field public static final int OCCLUSION_NONE = 0; // 0x0

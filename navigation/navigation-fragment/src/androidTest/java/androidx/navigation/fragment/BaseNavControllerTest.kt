@@ -231,7 +231,9 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         val activity = launchActivity(intent)
         val navController = activity.navController
-        navController.setGraph(R.navigation.nav_deep_link)
+        activityRule.runOnUiThread {
+            navController.setGraph(R.navigation.nav_deep_link)
+        }
 
         assertEquals(destId, navController.currentDestination?.id ?: 0)
         val navigator = navController.navigatorProvider[TestNavigator::class]
@@ -271,7 +273,9 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         // Now launch the deeplink Intent
         val deeplinkActivity = launchActivity(intent)
         val navController = deeplinkActivity.navController
-        navController.setGraph(graphId)
+        activityRule.runOnUiThread {
+            navController.setGraph(graphId)
+        }
 
         return deeplinkActivity
     }

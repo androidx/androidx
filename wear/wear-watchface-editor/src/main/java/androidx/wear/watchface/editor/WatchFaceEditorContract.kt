@@ -43,10 +43,10 @@ internal const val USER_STYLE_VALUES: String = "USER_STYLE_VALUES"
  * @param watchFaceComponentName The [ComponentName] of the watch face being edited.
  * @param editorPackageName The package name of the watch face editor APK.
  * @param initialUserStyle The initial [UserStyle] stored as a [UserStyleData] or `null`. Only
- *     required for a headless [EditorSession].
- * @param watchFaceId Unique ID for the instance of the watch face being edited, only
- *     defined for Android R and beyond, it's `null` on Android P and earlier. Note each distinct
- *     [ComponentName] can have multiple instances.
+ * required for a headless [EditorSession].
+ * @param watchFaceId Unique ID for the instance of the watch face being edited, only defined for
+ * Android R and beyond, it's `null` on Android P and earlier. Note each distinct [ComponentName]
+ * can have multiple instances.
  */
 public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
     public val watchFaceComponentName: ComponentName,
@@ -63,7 +63,7 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
      * @param watchFaceComponentName The [ComponentName] of the watch face being edited.
      * @param editorPackageName The package name of the watch face editor APK.
      * @param initialUserStyle The initial [UserStyle] stored as a [UserStyleData] or `null`. Only
-     *     required for a headless [EditorSession].
+     * required for a headless [EditorSession].
      * [EditorSession].
      */
     @SuppressLint("NewApi")

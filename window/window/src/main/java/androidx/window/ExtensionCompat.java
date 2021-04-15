@@ -75,11 +75,6 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
         mWindowExtension.onWindowLayoutChangeListenerRemoved(activity);
     }
 
-    @Override
-    public void onDeviceStateListenersChanged(boolean isEmpty) {
-        mWindowExtension.onDeviceStateListenersChanged(isEmpty);
-    }
-
     @Nullable
     static Version getExtensionVersion() {
         try {
@@ -111,9 +106,6 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
                 throw new NoSuchMethodException("Illegal return type for 'setExtensionCallback': "
                         + rSetExtensionCallback);
             }
-
-            // extension.onDeviceStateListenersChanged(boolean);
-            mWindowExtension.onDeviceStateListenersChanged(true /* empty */);
 
             // extension.onWindowLayoutChangeListenerAdded(Activity);
             Method methodRegisterWindowLayoutChangeListener = mWindowExtension.getClass()

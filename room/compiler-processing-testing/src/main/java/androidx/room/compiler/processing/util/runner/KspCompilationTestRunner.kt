@@ -25,6 +25,7 @@ import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
+import com.tschuchort.compiletesting.kspArgs
 import com.tschuchort.compiletesting.kspSourcesDir
 import com.tschuchort.compiletesting.symbolProcessors
 import java.io.ByteArrayOutputStream
@@ -57,6 +58,7 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
             outputStream = combinedOutputStream,
             classpaths = params.classpath
         )
+        kspCompilation.kspArgs.putAll(params.options)
         kspCompilation.symbolProcessors = listOf(syntheticKspProcessor)
         kspCompilation.compile()
         // ignore KSP result for now because KSP stops compilation, which might create false

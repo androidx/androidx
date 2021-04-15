@@ -80,6 +80,7 @@ public final class CoreAppTestUtil {
      * Clean up the device UI and back to the home screen for test.
      * @param instrumentation the instrumentation used to run the test
      */
+    @SuppressWarnings("deprecation")
     public static void clearDeviceUI(@NonNull Instrumentation instrumentation) {
         UiDevice device = UiDevice.getInstance(instrumentation);
         // On some devices, its necessary to wake up the device before attempting unlock, otherwise

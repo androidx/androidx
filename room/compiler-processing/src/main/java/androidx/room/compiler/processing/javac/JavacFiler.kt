@@ -22,11 +22,13 @@ import com.squareup.kotlinpoet.FileSpec
 import javax.annotation.processing.ProcessingEnvironment
 
 internal class JavacFiler(val processingEnv: ProcessingEnvironment) : XFiler {
-    override fun write(javaFile: JavaFile) {
+
+    // "mode" is ignored in javac, and only applicable in KSP
+    override fun write(javaFile: JavaFile, mode: XFiler.Mode) {
         javaFile.writeTo(processingEnv.filer)
     }
 
-    override fun write(fileSpec: FileSpec) {
+    override fun write(fileSpec: FileSpec, mode: XFiler.Mode) {
         require(processingEnv.options.containsKey("kapt.kotlin.generated")) {
             val filePath = fileSpec.packageName.replace('.', '/')
             "Could not generate kotlin file $filePath/${fileSpec.name}.kt. The " +

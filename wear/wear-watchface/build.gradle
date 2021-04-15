@@ -30,7 +30,6 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(project(":wear:wear-complications-data"))
-    api(project(":wear:wear-watchface-complications-rendering"))
     api(project(":wear:wear-watchface-data"))
     api(project(":wear:wear-watchface-style"))
     api(KOTLIN_STDLIB)
@@ -48,6 +47,7 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(TRUTH)
 
+    testImplementation(project(":wear:wear-watchface-complications-rendering"))
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RULES)

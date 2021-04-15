@@ -48,10 +48,14 @@ internal object JavacCompilationTestRunner : CompilationTestRunner {
         } else {
             params.sources
         }
+
+        val optionsArg = params.options.entries.map {
+            "-A${it.key}=${it.value}"
+        }
         val compiler = Compiler
             .javac()
             .withProcessors(syntheticJavacProcessor)
-            .withOptions("-Xlint")
+            .withOptions(optionsArg + "-Xlint")
             .let {
                 if (params.classpath.isNotEmpty()) {
                     it.withClasspath(params.classpath)

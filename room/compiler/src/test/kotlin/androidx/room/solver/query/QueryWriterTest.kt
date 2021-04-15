@@ -18,15 +18,14 @@ package androidx.room.solver.query
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.processor.QueryMethodProcessor
-import androidx.room.testing.TestProcessor
+import androidx.room.testing.context
 import androidx.room.writer.QueryWriter
-import com.google.common.truth.Truth
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourceSubjectFactory
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -68,7 +67,7 @@ class QueryWriterTest {
                     """.trimIndent()
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -96,7 +95,7 @@ class QueryWriterTest {
                     """.trimIndent()
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -122,7 +121,7 @@ class QueryWriterTest {
                     """.trimIndent()
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -158,7 +157,7 @@ class QueryWriterTest {
                     """.trimIndent()
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     val collectionOut = """
@@ -195,7 +194,7 @@ class QueryWriterTest {
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().toString().trim(), `is`(collectionOut))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -209,7 +208,7 @@ class QueryWriterTest {
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().toString().trim(), `is`(collectionOut))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -223,7 +222,7 @@ class QueryWriterTest {
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
             assertThat(scope.generate().toString().trim(), `is`(collectionOut))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -249,7 +248,7 @@ class QueryWriterTest {
                     """.trimIndent()
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -290,7 +289,7 @@ class QueryWriterTest {
                     """.trimIndent()
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -335,44 +334,38 @@ class QueryWriterTest {
                     """.trimIndent()
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     fun singleQueryMethod(
         vararg input: String,
         handler: (QueryWriter) -> Unit
-    ): CompileTester {
-        return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
-            .that(
-                JavaFileObjects.forSourceString(
-                    "foo.bar.MyClass",
-                    DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-                )
+    ) {
+        val source = Source.java(
+            "foo.bar.MyClass",
+            DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
+        )
+        runProcessorTest(
+            sources = listOf(source)
+        ) { invocation ->
+            val (owner, methods) = invocation.roundEnv
+                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
+                .map {
+                    Pair(
+                        it,
+                        it.getAllMethods().filter {
+                            it.hasAnnotation(Query::class)
+                        }
+                    )
+                }.first { it.second.isNotEmpty() }
+            val parser = QueryMethodProcessor(
+                baseContext = invocation.context,
+                containing = owner.type,
+                executableElement = methods.first()
             )
-            .processedWith(
-                TestProcessor.builder()
-                    .forAnnotations(Query::class, Dao::class)
-                    .nextRunHandler { invocation ->
-                        val (owner, methods) = invocation.roundEnv
-                            .getTypeElementsAnnotatedWith(Dao::class.qualifiedName!!)
-                            .map {
-                                Pair(
-                                    it,
-                                    it.getAllMethods().filter {
-                                        it.hasAnnotation(Query::class)
-                                    }
-                                )
-                            }.first { it.second.isNotEmpty() }
-                        val parser = QueryMethodProcessor(
-                            baseContext = invocation.context,
-                            containing = owner.type,
-                            executableElement = methods.first()
-                        )
-                        val method = parser.process()
-                        handler(QueryWriter(method))
-                        true
-                    }
-                    .build()
-            )
+            val method = parser.process()
+            handler(QueryWriter(method))
+        }
     }
 }

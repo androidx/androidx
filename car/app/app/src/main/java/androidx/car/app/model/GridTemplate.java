@@ -24,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -43,6 +44,7 @@ import java.util.Objects;
  *       number of grid items and the title of each grid item have not changed.
  * </ul>
  */
+@CarProtocol
 public final class GridTemplate implements Template {
     @Keep
     private final boolean mIsLoading;

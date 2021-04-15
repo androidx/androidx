@@ -30,6 +30,7 @@ class FragmentIssueRegistry : IssueRegistry() {
         FragmentTagDetector.ISSUE,
         UnsafeFragmentLifecycleObserverDetector.BACK_PRESSED_ISSUE,
         UnsafeFragmentLifecycleObserverDetector.LIVEDATA_ISSUE,
-        UseRequireInsteadOfGet.ISSUE
+        UseRequireInsteadOfGet.ISSUE,
+        UseGetLayoutInflater.ISSUE
     )
 }

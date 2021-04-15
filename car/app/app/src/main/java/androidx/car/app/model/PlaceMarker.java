@@ -25,6 +25,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 
@@ -33,6 +34,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 /** Describes how a place is to be displayed on a map. */
+@CarProtocol
 public final class PlaceMarker {
     /**
      * Describes the type of image a marker icon represents.

@@ -186,8 +186,12 @@ public abstract class RoomDatabase {
     public void init(@NonNull DatabaseConfiguration configuration) {
         mOpenHelper = createOpenHelper(configuration);
         List<Migration> autoMigrations = getAutoMigrations();
-        if (autoMigrations.size() > 0) {
-            configuration.migrationContainer.addMigrations(autoMigrations);
+        for (Migration autoMigration : autoMigrations) {
+            boolean migrationExists = configuration.migrationContainer.getMigrations()
+                            .containsKey(autoMigration.startVersion);
+            if (!migrationExists) {
+                configuration.migrationContainer.addMigrations(autoMigration);
+            }
         }
 
         // Configure SqliteCopyOpenHelper if it is available:
@@ -261,13 +265,13 @@ public abstract class RoomDatabase {
         }
     }
 
-    @NonNull
+
     /**
-     * Returns a list of {@link Migration} of a database that have been generated using
-     * {@link AutoMigration}.
+     * Returns a list of {@link Migration} of a database that have been automatically generated.
      *
      * @return A list of migration instances each of which is a generated autoMigration
      */
+    @NonNull
     protected List<Migration> getAutoMigrations() {
         return Arrays.asList();
     }
@@ -1445,10 +1449,20 @@ public abstract class RoomDatabase {
             }
             Migration existing = targetMap.get(end);
             if (existing != null) {
-                // TODO: (b/182251019) Favor user specified migration over generated automigrations
                 Log.w(Room.LOG_TAG, "Overriding migration " + existing + " with " + migration);
             }
             targetMap.put(end, migration);
+        }
+
+        /**
+         * Returns the map of available migrations where the key is the start version of the
+         * migration, and the value is a map of (end version -> Migration).
+         *
+         * @return Map of migrations keyed by the start version
+         */
+        @NonNull
+        public Map<Integer, Map<Integer, Migration>> getMigrations() {
+            return Collections.unmodifiableMap(mMigrations);
         }
 
         /**

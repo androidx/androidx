@@ -24,6 +24,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import java.util.UUID;
  *
  * <p><strong>This class is for use by host implementations and not by apps.</strong>
  */
+@CarProtocol
 public final class TemplateWrapper {
     @Keep
     @Nullable

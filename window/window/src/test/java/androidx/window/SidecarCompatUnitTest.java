@@ -22,7 +22,6 @@ import static androidx.window.TestFoldingFeatureUtil.validFoldBound;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -75,7 +74,7 @@ public final class SidecarCompatUnitTest {
 
         SidecarInterface mockSidecarInterface = mock(SidecarInterface.class);
         when(mockSidecarInterface.getDeviceState()).thenReturn(
-                newDeviceState(DeviceState.POSTURE_FLIPPED));
+                newDeviceState(SidecarDeviceState.POSTURE_FLIPPED));
         when(mockSidecarInterface.getWindowLayoutInfo(any())).thenReturn(
                 newWindowLayoutInfo(new ArrayList<>()));
         mSidecarCompat = new SidecarCompat(mockSidecarInterface, new SidecarAdapter());
@@ -84,21 +83,6 @@ public final class SidecarCompatUnitTest {
     @After
     public void tearDown() {
         WindowBoundsHelper.setForTesting(null);
-    }
-
-    @Test
-    public void testGetDeviceState() {
-        FakeExtensionImp fakeSidecarImp = new FakeExtensionImp();
-        SidecarCompat compat = new SidecarCompat(fakeSidecarImp, new SidecarAdapter());
-        ExtensionInterfaceCompat.ExtensionCallbackInterface mockCallback = mock(
-                ExtensionInterfaceCompat.ExtensionCallbackInterface.class);
-        compat.setExtensionCallback(mockCallback);
-        compat.onDeviceStateListenersChanged(false);
-        SidecarDeviceState deviceState = newDeviceState(SidecarDeviceState.POSTURE_OPENED);
-
-        fakeSidecarImp.triggerDeviceState(deviceState);
-
-        verify(mockCallback).onDeviceStateChanged(new DeviceState(DeviceState.POSTURE_OPENED));
     }
 
     @Test
@@ -193,7 +177,8 @@ public final class SidecarCompatUnitTest {
         IBinder expectedToken = mock(IBinder.class);
         mActivity.getWindow().getAttributes().token = expectedToken;
         mSidecarCompat.onWindowLayoutChangeListenerAdded(mActivity);
-        verify(mSidecarCompat.mSidecar).onWindowLayoutChangeListenerAdded(eq(expectedToken));
+        verify(mSidecarCompat.mSidecar).onWindowLayoutChangeListenerAdded(expectedToken);
+        verify(mSidecarCompat.mSidecar).onDeviceStateListenersChanged(false);
     }
 
     @Test
@@ -226,29 +211,12 @@ public final class SidecarCompatUnitTest {
 
     @Test
     public void testOnWindowLayoutChangeListenerRemoved() {
-        IBinder windowToken = getActivityWindowToken(mActivity);
+        IBinder expectedToken = mock(IBinder.class);
+        mActivity.getWindow().getAttributes().token = expectedToken;
+        mSidecarCompat.onWindowLayoutChangeListenerAdded(mActivity);
         mSidecarCompat.onWindowLayoutChangeListenerRemoved(mActivity);
-        verify(mSidecarCompat.mSidecar).onWindowLayoutChangeListenerRemoved(eq(windowToken));
-    }
-
-    @Test
-    public void testOnDeviceStateListenersChanged() {
-        mSidecarCompat.onDeviceStateListenersChanged(true);
-        verify(mSidecarCompat.mSidecar).onDeviceStateListenersChanged(eq(true));
-    }
-
-    @Test
-    public void testOnDeviceStateListenersAdded_emitInitialValue() {
-        SidecarDeviceState deviceState = new SidecarDeviceState();
-        DeviceState expectedDeviceState = new DeviceState(DeviceState.POSTURE_UNKNOWN);
-        ExtensionInterfaceCompat.ExtensionCallbackInterface listener =
-                mock(ExtensionInterfaceCompat.ExtensionCallbackInterface.class);
-        mSidecarCompat.setExtensionCallback(listener);
-        when(mSidecarCompat.mSidecar.getDeviceState()).thenReturn(deviceState);
-
-        mSidecarCompat.onDeviceStateListenersChanged(false);
-
-        verify(listener).onDeviceStateChanged(expectedDeviceState);
+        verify(mSidecarCompat.mSidecar).onWindowLayoutChangeListenerRemoved(expectedToken);
+        verify(mSidecarCompat.mSidecar).onDeviceStateListenersChanged(true);
     }
 
     @Test

@@ -22,9 +22,9 @@ package androidx.wear.watchface.client
  * @param hasLowBitAmbient Whether or not the watch hardware supports low bit ambient support.
  * @param hasBurnInProtection Whether or not the watch hardware supports burn in protection.
  * @param analogPreviewReferenceTimeMillis UTC reference time for screenshots of analog watch faces
- *     in milliseconds since the epoch.
+ * in milliseconds since the epoch.
  * @param digitalPreviewReferenceTimeMillis UTC reference time for screenshots of digital watch
- *     faces in milliseconds since the epoch.
+ * faces in milliseconds since the epoch.
  */
 public class DeviceConfig(
     @get:JvmName("hasLowBitAmbient")

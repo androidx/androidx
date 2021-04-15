@@ -17,6 +17,7 @@
 package androidx.room.integration.kotlintestapp.test
 
 import androidx.paging.AsyncPagingDataDiffer
+import androidx.paging.LoadState
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -39,15 +40,20 @@ import androidx.test.espresso.base.MainThread
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -71,14 +77,17 @@ import kotlin.concurrent.withLock
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class PagingSourceTest {
-
+    private lateinit var coroutineScope: CoroutineScope
     private lateinit var db: Paging3Db
-    private val itemStore = ItemStore()
+    private lateinit var itemStore: ItemStore
     private val queryExecutor = FilteringExecutor()
     private val mainThreadQueries = mutableListOf<Pair<String, String>>()
 
     @Before
     fun init() {
+        coroutineScope = CoroutineScope(Dispatchers.Main)
+        itemStore = ItemStore(coroutineScope)
+
         val mainThread: Thread = runBlocking(Dispatchers.Main) {
             Thread.currentThread()
         }
@@ -102,8 +111,10 @@ class PagingSourceTest {
     }
 
     @After
-    fun checkNoMainThreadQueriesHappened() {
+    fun tearDown() {
+        // Check no mainThread queries happened.
         assertThat(mainThreadQueries).isEmpty()
+        coroutineScope.cancel()
     }
 
     @Test
@@ -248,18 +259,13 @@ class PagingSourceTest {
         runTest {
             itemStore.awaitGeneration(1)
             itemStore.awaitInitialLoad()
-            assertThat(
-                itemStore.peekItems()
-            ).isEmpty()
+            assertThat(itemStore.peekItems()).isEmpty()
+
             val entity = PagingEntity(id = 1, value = "foo")
-            db.dao.insert(
-                entity
-            )
+            db.dao.insert(entity)
             itemStore.awaitGeneration(2)
             itemStore.awaitInitialLoad()
-            assertThat(
-                itemStore.peekItems()
-            ).containsExactly(entity)
+            assertThat(itemStore.peekItems()).containsExactly(entity)
         }
     }
 
@@ -271,7 +277,7 @@ class PagingSourceTest {
             ),
         block: suspend () -> Unit
     ) {
-        val collection = GlobalScope.launch(Dispatchers.Main) {
+        val collection = coroutineScope.launch(Dispatchers.Main) {
             pager.flow.collectLatest {
                 itemStore.collectFrom(it)
             }
@@ -362,7 +368,7 @@ class PagingSourceTest {
     /**
      * Our fake adapter that holds the items.
      */
-    private class ItemStore {
+    private class ItemStore(private val coroutineScope: CoroutineScope) {
         // We get a new generation each time list changes. This is used to await certain events
         // happening. Each generation have an id that maps to a paging generation.
         // This value is modified only on the main thread.
@@ -392,6 +398,30 @@ class PagingSourceTest {
             }
         )
 
+        init {
+            coroutineScope.launch {
+                asyncDiffer.loadStateFlow
+                    .drop(1) // Ignore initial state
+                    .distinctUntilChangedBy { it.source.refresh }
+                    .map { it.source.refresh }
+                    .filter { it is LoadState.NotLoading }
+                    .collect {
+                        val current = generation.value
+                        generation.value = current.copy(
+                            initialLoadCompleted = true,
+                        )
+                    }
+            }
+        }
+
+        private fun incrementGeneration() {
+            val current = generation.value
+            generation.value = current.copy(
+                initialLoadCompleted = false,
+                id = current.id + 1,
+            )
+        }
+
         fun peekItems() = (0 until asyncDiffer.itemCount).map {
             asyncDiffer.peek(it)
         }
@@ -411,14 +441,9 @@ class PagingSourceTest {
             asyncDiffer.submitData(data)
         }
 
-        private suspend fun incrementGeneration() = withContext(Dispatchers.Main) {
-            val curGenId = generation.value.id
-            generation.value = Generation(curGenId + 1)
-        }
-
         @MainThread
         private fun onDataSetChanged(id: Int) {
-            GlobalScope.launch(Dispatchers.Main) {
+            coroutineScope.launch(Dispatchers.Main) {
                 // deferring this
                 yield()
                 val curGen = generation.value

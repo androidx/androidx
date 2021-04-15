@@ -218,7 +218,7 @@ class DaoProcessor(
             context.logger.e(
                 element,
                 ProcessorErrors.daoMustHaveMatchingConstructor(
-                    element.toString(), dbType.toString()
+                    element.qualifiedName, dbType.typeName.toString()
                 )
             )
         }

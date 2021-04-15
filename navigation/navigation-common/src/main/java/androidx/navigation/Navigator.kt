@@ -34,7 +34,7 @@ import androidx.navigation.Navigator.Name
  * have a name corresponding with the name of the Navigator, e.g., [ActivityNavigator] uses
  * `<declare-styleable name="ActivityNavigator">`
  *
- * @param <D> the subclass of [NavDestination] used with this Navigator which can be used
+ * @param D the subclass of [NavDestination] used with this Navigator which can be used
  * to hold any special data that will be needed to navigate to that destination.
  * Examples include information about an intent to navigate to other activities,
  * or a fragment class name to instantiate and swap to a new fragment.

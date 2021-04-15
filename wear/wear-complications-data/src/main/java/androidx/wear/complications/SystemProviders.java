@@ -38,22 +38,22 @@ public class SystemProviders {
      * @hide
      */
     @IntDef({
-        NO_PROVIDER,
-        WATCH_BATTERY,
-        DATE,
-        TIME_AND_DATE,
-        STEP_COUNT,
-        WORLD_CLOCK,
-        APP_SHORTCUT,
-        UNREAD_NOTIFICATION_COUNT,
-        NEXT_EVENT,
-        RETAIL_STEP_COUNT,
-        RETAIL_CHAT,
-        SUNRISE_SUNSET,
-        DAY_OF_WEEK,
-        FAVORITE_CONTACT,
-        MOST_RECENT_APP,
-        DAY_AND_DATE
+            NO_PROVIDER,
+            PROVIDER_WATCH_BATTERY,
+            PROVIDER_DATE,
+            PROVIDER_TIME_AND_DATE,
+            PROVIDER_STEP_COUNT,
+            PROVIDER_WORLD_CLOCK,
+            PROVIDER_APP_SHORTCUT,
+            PROVIDER_UNREAD_NOTIFICATION_COUNT,
+            PROVIDER_NEXT_EVENT,
+            PROVIDER_RETAIL_STEP_COUNT,
+            PROVIDER_RETAIL_CHAT,
+            PROVIDER_SUNRISE_SUNSET,
+            PROVIDER_DAY_OF_WEEK,
+            PROVIDER_FAVORITE_CONTACT,
+            PROVIDER_MOST_RECENT_APP,
+            PROVIDER_DAY_AND_DATE
     })
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
@@ -73,7 +73,7 @@ public class SystemProviders {
      * ComplicationData#TYPE_LONG_TEXT TYPE_LONG_TEXT}, {@link ComplicationData#TYPE_RANGED_VALUE
      * TYPE_RANGED_VALUE}.
      */
-    public static final int WATCH_BATTERY = 1;
+    public static final int PROVIDER_WATCH_BATTERY = 1;
 
     /**
      * Id for the 'date' complication provider.
@@ -83,7 +83,7 @@ public class SystemProviders {
      *
      * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
      */
-    public static final int DATE = 2;
+    public static final int PROVIDER_DATE = 2;
 
     /**
      * Id for the 'time and date' complication provider.
@@ -93,7 +93,7 @@ public class SystemProviders {
      *
      * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
      */
-    public static final int TIME_AND_DATE = 3;
+    public static final int PROVIDER_TIME_AND_DATE = 3;
 
     /**
      * Id for the 'step count' complication provider.
@@ -104,7 +104,7 @@ public class SystemProviders {
      *
      * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
      */
-    public static final int STEP_COUNT = 4;
+    public static final int PROVIDER_STEP_COUNT = 4;
 
     /**
      * Id for the 'world clock' complication provider.
@@ -114,7 +114,7 @@ public class SystemProviders {
      *
      * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
      */
-    public static final int WORLD_CLOCK = 5;
+    public static final int PROVIDER_WORLD_CLOCK = 5;
 
     /**
      * Id for the 'app shortcut' complication provider.
@@ -125,7 +125,7 @@ public class SystemProviders {
      * <p>This provider supports the following types: {@link ComplicationData#TYPE_SMALL_IMAGE
      * TYPE_SMALL_IMAGE}, {@link ComplicationData#TYPE_LONG_TEXT TYPE_LONG_TEXT}.
      */
-    public static final int APP_SHORTCUT = 6;
+    public static final int PROVIDER_APP_SHORTCUT = 6;
 
     /**
      * Id for the 'unread notification count' complication provider.
@@ -136,7 +136,7 @@ public class SystemProviders {
      * <p>This provider supports the following types: {@link ComplicationData#TYPE_ICON TYPE_ICON},
      * {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
      */
-    public static final int UNREAD_NOTIFICATION_COUNT = 7;
+    public static final int PROVIDER_UNREAD_NOTIFICATION_COUNT = 7;
 
     /**
      * Id for the 'next event' complication provider.
@@ -147,7 +147,7 @@ public class SystemProviders {
      * <p>This provider supports the following types: {@link ComplicationData#TYPE_SHORT_TEXT
      * TYPE_SHORT_TEXT}, {@link ComplicationData#TYPE_LONG_TEXT TYPE_LONG_TEXT}.
      */
-    public static final int NEXT_EVENT = 9;
+    public static final int PROVIDER_NEXT_EVENT = 9;
 
     /**
      * Id for the 'retail mode step count' complication provider.
@@ -157,7 +157,7 @@ public class SystemProviders {
      *
      * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
      */
-    public static final int RETAIL_STEP_COUNT = 10;
+    public static final int PROVIDER_RETAIL_STEP_COUNT = 10;
 
     /**
      * Id for the 'retail mode chat' complication provider.
@@ -168,7 +168,7 @@ public class SystemProviders {
      *
      * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
      */
-    public static final int RETAIL_CHAT = 11;
+    public static final int PROVIDER_RETAIL_CHAT = 11;
 
     /**
      * Id for the 'sunrise sunset' complication provider.
@@ -178,7 +178,7 @@ public class SystemProviders {
      *
      * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
      */
-    public static final int SUNRISE_SUNSET = 12;
+    public static final int PROVIDER_SUNRISE_SUNSET = 12;
 
     /**
      * Id for the 'day of week' complication provider.
@@ -188,7 +188,7 @@ public class SystemProviders {
      *
      * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
      */
-    public static final int DAY_OF_WEEK = 13;
+    public static final int PROVIDER_DAY_OF_WEEK = 13;
 
     /**
      * Id for the 'favorite contact' complication provider.
@@ -198,7 +198,7 @@ public class SystemProviders {
      *
      * <p>This provider supports only {@link ComplicationData#TYPE_SMALL_IMAGE TYPE_SMALL_IMAGE}.
      */
-    public static final int FAVORITE_CONTACT = 14;
+    public static final int PROVIDER_FAVORITE_CONTACT = 14;
 
     /**
      * Id for the 'most recent app' complication provider.
@@ -209,7 +209,7 @@ public class SystemProviders {
      * <p>This provider supports {@link ComplicationData#TYPE_SMALL_IMAGE TYPE_SMALL_IMAGE}, {@link
      * ComplicationData#TYPE_LONG_TEXT TYPE_LONG_TEXT}.
      */
-    public static final int MOST_RECENT_APP = 15;
+    public static final int PROVIDER_MOST_RECENT_APP = 15;
 
     /**
      * Id for the 'day and date' complication provider.
@@ -219,5 +219,5 @@ public class SystemProviders {
      *
      * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
      */
-    public static final int DAY_AND_DATE = 16;
+    public static final int PROVIDER_DAY_AND_DATE = 16;
 }

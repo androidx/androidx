@@ -1193,7 +1193,8 @@ package androidx.core.content.pm {
     ctor public ShortcutInfoCompat.Builder(android.content.Context, String);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ShortcutInfoCompat.Builder(androidx.core.content.pm.ShortcutInfoCompat);
     ctor @RequiresApi(25) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ShortcutInfoCompat.Builder(android.content.Context, android.content.pm.ShortcutInfo);
-    method public androidx.core.content.pm.ShortcutInfoCompat.Builder addCapabilityBinding(String, java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!>?);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder addCapabilityBinding(String);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder addCapabilityBinding(String, String, java.util.List<java.lang.String!>);
     method public androidx.core.content.pm.ShortcutInfoCompat build();
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setActivity(android.content.ComponentName);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setAlwaysBadged();
@@ -2042,6 +2043,19 @@ package androidx.core.provider {
 
   @Deprecated public static interface SelfDestructiveThread.ReplyCallback<T> {
     method @Deprecated public void onReply(T!);
+  }
+
+}
+
+package androidx.core.telephony {
+
+  @RequiresApi(22) public class SubscriptionManagerCompat {
+    method public static int getSlotIndex(int);
+  }
+
+  public class TelephonyManagerCompat {
+    method @RequiresPermission(android.Manifest.permission.READ_PHONE_STATE) public static String? getImei(android.telephony.TelephonyManager);
+    method public static int getSubscriptionId(android.telephony.TelephonyManager);
   }
 
 }
@@ -3799,6 +3813,14 @@ package androidx.core.widget {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final boolean PLATFORM_SUPPORTS_AUTOSIZE;
   }
 
+  public final class CheckedTextViewCompat {
+    method public static android.graphics.drawable.Drawable? getCheckMarkDrawable(android.widget.CheckedTextView);
+    method public static android.content.res.ColorStateList? getCheckMarkTintList(android.widget.CheckedTextView);
+    method public static android.graphics.PorterDuff.Mode? getCheckMarkTintMode(android.widget.CheckedTextView);
+    method public static void setCheckMarkTintList(android.widget.CheckedTextView, android.content.res.ColorStateList?);
+    method public static void setCheckMarkTintMode(android.widget.CheckedTextView, android.graphics.PorterDuff.Mode?);
+  }
+
   public final class CompoundButtonCompat {
     method public static android.graphics.drawable.Drawable? getButtonDrawable(android.widget.CompoundButton);
     method public static android.content.res.ColorStateList? getButtonTintList(android.widget.CompoundButton);
@@ -3971,6 +3993,13 @@ package androidx.core.widget {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TextViewOnReceiveContentListener implements androidx.core.view.OnReceiveContentListener {
     ctor public TextViewOnReceiveContentListener();
     method public androidx.core.view.ContentInfoCompat? onReceiveContent(android.view.View, androidx.core.view.ContentInfoCompat);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface TintableCheckedTextView {
+    method public android.content.res.ColorStateList? getSupportCheckMarkTintList();
+    method public android.graphics.PorterDuff.Mode? getSupportCheckMarkTintMode();
+    method public void setSupportCheckMarkTintList(android.content.res.ColorStateList?);
+    method public void setSupportCheckMarkTintMode(android.graphics.PorterDuff.Mode?);
   }
 
   public interface TintableCompoundButton {

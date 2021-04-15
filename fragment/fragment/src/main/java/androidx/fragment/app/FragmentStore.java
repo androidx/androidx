@@ -403,7 +403,7 @@ class FragmentStore {
 
         if (!mActive.isEmpty()) {
             writer.print(prefix);
-            writer.print("Active Fragments:");
+            writer.println("Active Fragments:");
             for (FragmentStateManager fragmentStateManager : mActive.values()) {
                 writer.print(prefix);
                 if (fragmentStateManager != null) {

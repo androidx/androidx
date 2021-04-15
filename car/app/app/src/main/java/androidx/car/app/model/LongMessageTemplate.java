@@ -158,6 +158,8 @@ public final class LongMessageTemplate implements Template {
     }
 
     /** A builder of {@link LongMessageTemplate}. */
+    @ExperimentalCarApi
+    @RequiresCarApi(2)
     public static final class Builder {
         @Nullable
         CarText mTitle;

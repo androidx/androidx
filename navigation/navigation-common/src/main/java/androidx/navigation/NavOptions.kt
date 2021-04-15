@@ -24,6 +24,7 @@ import androidx.annotation.IdRes
  */
 public class NavOptions internal constructor(
     private val singleTop: Boolean,
+    private val restoreState: Boolean,
     /**
      * The destination to pop up to before navigating. When set, all non-matching destinations
      * should be popped from the back stack.
@@ -31,10 +32,12 @@ public class NavOptions internal constructor(
      * @see Builder.setPopUpTo
      *
      * @see isPopUpToInclusive
+     * @see shouldPopUpToSaveState
      */
     @field:IdRes @get:IdRes @param:IdRes
     public val popUpTo: Int,
     private val popUpToInclusive: Boolean,
+    private val popUpToSaveState: Boolean,
     /**
      * The custom enter Animation/Animator that should be run.
      * @return the resource id of a Animation or Animator or -1 if none.
@@ -75,6 +78,14 @@ public class NavOptions internal constructor(
     }
 
     /**
+     * Whether this navigation action should restore any state previously saved
+     * by [Builder.setPopUpTo] or the `popUpToSaveState` attribute.
+     */
+    public fun shouldRestoreState(): Boolean {
+        return restoreState
+    }
+
+    /**
      * Whether the destination set in [.getPopUpTo] should be popped from the back stack.
      * @see Builder.setPopUpTo
      *
@@ -84,13 +95,26 @@ public class NavOptions internal constructor(
         return popUpToInclusive
     }
 
+    /**
+     * Whether the back stack and the state of all destinations between the
+     * current destination and [popUpTo] should be saved for later restoration via
+     * [Builder.setRestoreState] or the `restoreState` attribute using the same ID
+     * as [popUpTo] (note: this matching ID is true whether [isPopUpToInclusive] is true or
+     * false).
+     */
+    public fun shouldPopUpToSaveState(): Boolean {
+        return popUpToSaveState
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
         val that = other as NavOptions
         return singleTop == that.singleTop &&
+            restoreState == that.restoreState &&
             popUpTo == that.popUpTo &&
             popUpToInclusive == that.popUpToInclusive &&
+            popUpToSaveState == that.popUpToSaveState &&
             enterAnim == that.enterAnim &&
             exitAnim == that.exitAnim &&
             popEnterAnim == that.popEnterAnim &&
@@ -99,8 +123,10 @@ public class NavOptions internal constructor(
 
     override fun hashCode(): Int {
         var result = if (shouldLaunchSingleTop()) 1 else 0
+        result = 31 * result + if (shouldRestoreState()) 1 else 0
         result = 31 * result + popUpTo
         result = 31 * result + if (isPopUpToInclusive()) 1 else 0
+        result = 31 * result + if (shouldPopUpToSaveState()) 1 else 0
         result = 31 * result + enterAnim
         result = 31 * result + exitAnim
         result = 31 * result + popEnterAnim
@@ -113,10 +139,12 @@ public class NavOptions internal constructor(
      */
     public class Builder {
         private var singleTop = false
+        private var restoreState = false
 
         @IdRes
         private var popUpTo = -1
         private var popUpToInclusive = false
+        private var popUpToSaveState = false
 
         @AnimRes
         @AnimatorRes
@@ -147,19 +175,41 @@ public class NavOptions internal constructor(
         }
 
         /**
+         * Whether this navigation action should restore any state previously saved
+         * by [setPopUpTo] or the `popUpToSaveState` attribute. If no state was
+         * previously saved with the destination ID being navigated to, this has no effect.
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        public fun setRestoreState(restoreState: Boolean): Builder {
+            this.restoreState = restoreState
+            return this
+        }
+
+        /**
          * Pop up to a given destination before navigating. This pops all non-matching destinations
          * from the back stack until this destination is found.
          *
          * @param destinationId The destination to pop up to, clearing all intervening destinations.
          * @param inclusive true to also pop the given destination from the back stack.
+         * @param saveState true if the back stack and the state of all destinations between the
+         * current destination and [destinationId] should be saved for later restoration via
+         * [setRestoreState] or the `restoreState` attribute using the same ID
+         * as [popUpTo] (note: this matching ID is true whether [inclusive] is true or
+         * false).
          * @return this Builder
          *
          * @see NavOptions.popUpTo
          * @see NavOptions.isPopUpToInclusive
          */
-        public fun setPopUpTo(@IdRes destinationId: Int, inclusive: Boolean): Builder {
+        @JvmOverloads
+        public fun setPopUpTo(
+            @IdRes destinationId: Int,
+            inclusive: Boolean,
+            saveState: Boolean = false
+        ): Builder {
             popUpTo = destinationId
             popUpToInclusive = inclusive
+            popUpToSaveState = saveState
             return this
         }
 
@@ -226,8 +276,9 @@ public class NavOptions internal constructor(
          */
         public fun build(): NavOptions {
             return NavOptions(
-                singleTop, popUpTo, popUpToInclusive, enterAnim, exitAnim, popEnterAnim,
-                popExitAnim
+                singleTop, restoreState,
+                popUpTo, popUpToInclusive, popUpToSaveState,
+                enterAnim, exitAnim, popEnterAnim, popExitAnim
             )
         }
     }

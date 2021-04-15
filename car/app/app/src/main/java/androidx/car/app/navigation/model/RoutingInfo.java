@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -32,6 +33,7 @@ import java.util.Objects;
  * Represents routing information that can be shown in the {@link NavigationTemplate} during
  * navigation
  */
+@CarProtocol
 public final class RoutingInfo implements NavigationInfo {
     @Keep
     @Nullable

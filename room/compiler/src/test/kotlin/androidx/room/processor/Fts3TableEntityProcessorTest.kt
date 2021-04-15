@@ -63,7 +63,7 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public void setRowId(int id) { this.rowId = rowId; }
             """
         ) { entity, invocation ->
-            assertThat(entity.type.toString(), `is`("foo.bar.MyEntity"))
+            assertThat(entity.type.typeName.toString(), `is`("foo.bar.MyEntity"))
             assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
             val intType = invocation.processingEnv.requireType(TypeName.INT)
@@ -84,7 +84,7 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
             assertThat(entity.primaryKey.fields, `is`(Fields(field)))
             assertThat(entity.shadowTableName, `is`("MyEntity_content"))
             assertThat(entity.ftsVersion, `is`(FtsVersion.FTS3))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -95,7 +95,7 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public String getContent() { return content; }
                 public void setContent(String content) { this.content = content; }
             """
-        ) { _, _ -> }.compilesWithoutError()
+        ) { _, _ -> }
     }
 
     @Test
@@ -107,9 +107,13 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public int getRowId(){ return rowId; }
                 public void setRowId(int rowId) { this.rowId = rowId; }
                 """
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining(ProcessorErrors.MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID
+                )
+            }
+        }
     }
 
     @Test
@@ -121,9 +125,13 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public int getId(){ return id; }
                 public void setId(int id) { this.id = id; }
                 """
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_NAME)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_NAME
+                )
+            }
+        }
     }
 
     @Test
@@ -136,9 +144,13 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public String getRowId(){ return rowId; }
                 public void setRowId(String rowId) { this.rowId = rowId; }
                 """
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY
+                )
+            }
+        }
     }
 
     @Test
@@ -150,9 +162,13 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 @PrimaryKey
                 public int twoId;
                 """
-        ) { _, _ -> }
-            .failsToCompile()
-            .withErrorContaining(ProcessorErrors.TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY
+                )
+            }
+        }
     }
 
     @Test
@@ -168,7 +184,7 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
             ftsAttributes = hashMapOf("tokenizer" to "FtsOptions.TOKENIZER_PORTER")
         ) { entity, _ ->
             assertThat(entity.ftsOptions.tokenizer, `is`(FtsOptions.TOKENIZER_PORTER))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -184,6 +200,6 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
             ftsAttributes = hashMapOf("tokenizer" to "\"customICU\"")
         ) { entity, _ ->
             assertThat(entity.ftsOptions.tokenizer, `is`("customICU"))
-        }.compilesWithoutError()
+        }
     }
 }

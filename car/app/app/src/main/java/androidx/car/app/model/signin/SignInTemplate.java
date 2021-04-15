@@ -237,6 +237,8 @@ public final class SignInTemplate implements Template {
     }
 
     /** A builder of {@link SignInTemplate}. */
+    @ExperimentalCarApi
+    @RequiresCarApi(2)
     public static final class Builder {
         boolean mIsLoading;
         final SignInMethod mSignInMethod;

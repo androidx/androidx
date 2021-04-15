@@ -20,20 +20,19 @@ package androidx.room.solver
 
 import androidx.room.Dao
 import androidx.room.Database
+import androidx.room.DatabaseProcessingStep
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Query
-import androidx.room.RoomProcessor
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import androidx.room.compiler.processing.util.CompilationResultSubject
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.processor.ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT
-import com.google.common.truth.Truth
-import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaFileObjects
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
@@ -46,12 +45,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import javax.lang.model.element.Modifier
-import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class CustomTypeConverterResolutionTest {
-    fun TypeSpec.toJFO(): JavaFileObject {
-        return JavaFileObjects.forSourceString(
+    fun TypeSpec.toSource(): Source {
+        return Source.java(
             "foo.bar.${this.name}",
             "package foo.bar;\n" + toString()
         )
@@ -63,7 +61,7 @@ class CustomTypeConverterResolutionTest {
         val DAO = ClassName.get("foo.bar", "MyDao")
 
         val CUSTOM_TYPE = ClassName.get("foo.bar", "CustomType")
-        val CUSTOM_TYPE_JFO = JavaFileObjects.forSourceLines(
+        val CUSTOM_TYPE_JFO = Source.java(
             CUSTOM_TYPE.toString(),
             """
                 package ${CUSTOM_TYPE.packageName()};
@@ -73,7 +71,7 @@ class CustomTypeConverterResolutionTest {
                 """
         )
         val CUSTOM_TYPE_CONVERTER = ClassName.get("foo.bar", "MyConverter")
-        val CUSTOM_TYPE_CONVERTER_JFO = JavaFileObjects.forSourceLines(
+        val CUSTOM_TYPE_CONVERTER_JFO = Source.java(
             CUSTOM_TYPE_CONVERTER.toString(),
             """
                 package ${CUSTOM_TYPE_CONVERTER.packageName()};
@@ -93,7 +91,7 @@ class CustomTypeConverterResolutionTest {
             ClassName.get(Set::class.java), CUSTOM_TYPE
         )
         val CUSTOM_TYPE_SET_CONVERTER = ClassName.get("foo.bar", "MySetConverter")
-        val CUSTOM_TYPE_SET_CONVERTER_JFO = JavaFileObjects.forSourceLines(
+        val CUSTOM_TYPE_SET_CONVERTER_JFO = Source.java(
             CUSTOM_TYPE_SET_CONVERTER.toString(),
             """
                 package ${CUSTOM_TYPE_SET_CONVERTER.packageName()};
@@ -118,7 +116,9 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true)
         val database = createDatabase(hasConverters = true, hasDao = true)
         val dao = createDao(hasQueryReturningEntity = true, hasQueryWithCustomParam = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
+        runTest(
+            sources = listOf(entity.toSource(), dao.toSource(), database.toSource())
+        )
     }
 
     @Test
@@ -136,7 +136,9 @@ class CustomTypeConverterResolutionTest {
             hasQueryWithCustomParam = false,
             useCollection = true
         )
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
+        runTest(
+            sources = listOf(entity.toSource(), dao.toSource(), database.toSource())
+        )
     }
 
     @Test
@@ -154,7 +156,9 @@ class CustomTypeConverterResolutionTest {
             hasQueryWithCustomParam = true,
             useCollection = true
         )
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
+        runTest(
+            sources = listOf(entity.toSource(), dao.toSource(), database.toSource())
+        )
     }
 
     @Test
@@ -162,7 +166,9 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity()
         val database = createDatabase(hasConverters = true, hasDao = true)
         val dao = createDao(hasQueryWithCustomParam = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
+        runTest(
+            sources = listOf(entity.toSource(), dao.toSource(), database.toSource())
+        )
     }
 
     @Test
@@ -170,7 +176,9 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true)
         val database = createDatabase(hasConverters = true, hasDao = true)
         val dao = createDao(hasQueryReturningEntity = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
+        runTest(
+            sources = listOf(entity.toSource(), dao.toSource(), database.toSource())
+        )
     }
 
     @Test
@@ -181,7 +189,9 @@ class CustomTypeConverterResolutionTest {
             hasConverters = true, hasQueryReturningEntity = true,
             hasQueryWithCustomParam = true
         )
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
+        runTest(
+            sources = listOf(entity.toSource(), dao.toSource(), database.toSource())
+        )
     }
 
     @Test
@@ -189,7 +199,9 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true, hasConverters = true)
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryReturningEntity = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
+        runTest(
+            sources = listOf(entity.toSource(), dao.toSource(), database.toSource())
+        )
     }
 
     @Test
@@ -197,7 +209,9 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true, hasConverterOnField = true)
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryReturningEntity = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
+        runTest(
+            sources = listOf(entity.toSource(), dao.toSource(), database.toSource())
+        )
     }
 
     @Test
@@ -205,8 +219,11 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true, hasConverters = true)
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryWithCustomParam = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO())
-            .failsToCompile().withErrorContaining(CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
+        runTest(
+            sources = listOf(entity.toSource(), dao.toSource(), database.toSource())
+        ) {
+            it.hasErrorContaining(CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
+        }
     }
 
     @Test
@@ -214,8 +231,11 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true, hasConverterOnField = true)
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryWithCustomParam = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO())
-            .failsToCompile().withErrorContaining(CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
+        runTest(
+            sources = listOf(entity.toSource(), dao.toSource(), database.toSource())
+        ) {
+            it.hasErrorContaining(CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
+        }
     }
 
     @Test
@@ -223,7 +243,9 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity()
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryWithCustomParam = true, hasMethodConverters = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
+        runTest(
+            sources = listOf(entity.toSource(), dao.toSource(), database.toSource())
+        )
     }
 
     @Test
@@ -231,16 +253,25 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity()
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryWithCustomParam = true, hasParameterConverters = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
+        runTest(
+            sources = listOf(entity.toSource(), dao.toSource(), database.toSource())
+        )
     }
 
-    fun run(vararg jfos: JavaFileObject): CompileTester {
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(
-                jfos.toList() + CUSTOM_TYPE_JFO + CUSTOM_TYPE_CONVERTER_JFO +
-                    CUSTOM_TYPE_SET_CONVERTER_JFO
-            )
-            .processedWith(RoomProcessor())
+    private fun runTest(
+        sources: List<Source>,
+        onCompilationResult: (CompilationResultSubject) -> Unit = {
+            it.hasErrorCount(0)
+        }
+    ) {
+        runProcessorTest(
+            sources = sources + CUSTOM_TYPE_JFO + CUSTOM_TYPE_CONVERTER_JFO +
+                CUSTOM_TYPE_SET_CONVERTER_JFO,
+            createProcessingStep = {
+                DatabaseProcessingStep()
+            },
+            onCompilationResult = onCompilationResult
+        )
     }
 
     private fun createEntity(

@@ -25,6 +25,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import java.util.Objects;
  * that contain lists of models, such as for example, the list of {@link Row}s in a {@link
  * ListTemplate}.
  */
+@CarProtocol
 public final class ItemList {
     /**
      * A listener for handling selection events for lists with selectable items.

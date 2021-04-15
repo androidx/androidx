@@ -17,6 +17,7 @@
 package androidx.room.testing
 
 import androidx.room.compiler.processing.XProcessingStep
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.XTestInvocation
 
 /**
@@ -27,7 +28,7 @@ fun XProcessingStep.asTestInvocationHandler(
     delegate: (XTestInvocation) -> Unit
 ): (XTestInvocation) -> Unit = { invocation ->
     val elementsByAnnotation = annotations().associateWith {
-        invocation.roundEnv.getTypeElementsAnnotatedWith(it).toList()
+        invocation.roundEnv.getElementsAnnotatedWith(it).filterIsInstance<XTypeElement>().toSet()
     }
     this.process(
         env = invocation.processingEnv,

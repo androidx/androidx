@@ -20,7 +20,7 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
+import android.graphics.Insets
 import android.graphics.Rect
 import android.graphics.RectF
 import android.os.BatteryManager
@@ -35,12 +35,16 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
+import android.view.WindowInsets
+import androidx.annotation.Px
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
@@ -50,9 +54,9 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
-import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.WatchFaceLayer
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
@@ -66,7 +70,6 @@ import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -87,6 +90,7 @@ import java.util.PriorityQueue
 private const val INTERACTIVE_UPDATE_RATE_MS = 16L
 private const val LEFT_COMPLICATION_ID = 1000
 private const val RIGHT_COMPLICATION_ID = 1001
+private const val EDGE_COMPLICATION_ID = 1002
 private const val BACKGROUND_COMPLICATION_ID = 1111
 private const val NO_COMPLICATIONS = "NO_COMPLICATIONS"
 private const val LEFT_COMPLICATION = "LEFT_COMPLICATION"
@@ -114,6 +118,7 @@ public class WatchFaceServiceTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val complicationDrawableLeft = ComplicationDrawable(context)
     private val complicationDrawableRight = ComplicationDrawable(context)
+    private val complicationDrawableEdge = ComplicationDrawable(context)
     private val complicationDrawableBackground = ComplicationDrawable(context)
 
     private val redStyleOption =
@@ -133,7 +138,7 @@ public class WatchFaceServiceTest {
         "Watchface colorization", /* icon = */
         null,
         colorStyleList,
-        listOf(Layer.BASE)
+        listOf(WatchFaceLayer.BASE)
     )
 
     private val classicStyleOption =
@@ -154,7 +159,7 @@ public class WatchFaceServiceTest {
         "Hand visual look", /* icon = */
         null,
         watchHandStyleList,
-        listOf(Layer.COMPLICATIONS_OVERLAY)
+        listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
     )
 
     private val badStyleOption =
@@ -176,7 +181,7 @@ public class WatchFaceServiceTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
             ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
@@ -197,8 +202,31 @@ public class WatchFaceServiceTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
             ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
+            .build()
+
+    private val edgeComplicationHitTester = mock<ComplicationTapFilter>()
+    private val edgeComplication =
+        Complication.createEdgeComplicationBuilder(
+            EDGE_COMPLICATION_ID,
+            CanvasComplicationDrawable(
+                complicationDrawableEdge,
+                watchState.asWatchState()
+            ).apply {
+                loadData(createComplicationData(), false)
+            },
+            listOf(
+                ComplicationType.RANGED_VALUE,
+                ComplicationType.LONG_TEXT,
+                ComplicationType.SHORT_TEXT,
+                ComplicationType.MONOCHROMATIC_IMAGE,
+                ComplicationType.SMALL_IMAGE
+            ),
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+            ComplicationBounds(RectF(0.0f, 0.4f, 0.4f, 0.6f)),
+            edgeComplicationHitTester
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
@@ -264,7 +292,7 @@ public class WatchFaceServiceTest {
     )
     private val complicationsStyleSetting = ComplicationsUserStyleSetting(
         UserStyleSetting.Id("complications_style_setting"),
-        "Complications",
+        "AllComplications",
         "Number and position",
         icon = null,
         complicationConfig = listOf(
@@ -273,7 +301,7 @@ public class WatchFaceServiceTest {
             leftComplicationsOption,
             rightComplicationsOption
         ),
-        affectsLayers = listOf(Layer.COMPLICATIONS)
+        affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
     )
 
     private lateinit var renderer: TestRenderer
@@ -851,6 +879,36 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun edgeComplication_tap() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(edgeComplication),
+            UserStyleSchema(emptyList()),
+            tapListener = tapListener
+        )
+
+        assertThat(complicationDrawableEdge.isHighlighted).isFalse()
+
+        `when`(
+            edgeComplicationHitTester.hitTest(
+                edgeComplication,
+                ONE_HUNDRED_BY_ONE_HUNDRED_RECT,
+                0,
+                50
+            )
+        ).thenReturn(true)
+
+        // Tap the edge complication.
+        tapAt(0, 50)
+        assertThat(complicationDrawableEdge.isHighlighted).isTrue()
+        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
+        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(EDGE_COMPLICATION_ID)
+
+        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
+        assertThat(complicationDrawableEdge.isHighlighted).isFalse()
+    }
+
+    @Test
     public fun tapListener_tap() {
         initEngine(
             WatchFaceType.ANALOG,
@@ -1111,6 +1169,61 @@ public class WatchFaceServiceTest {
             .isEqualTo(
                 gothicStyleOption.id
             )
+    }
+
+    @SdkSuppress(maxSdkVersion = 29)
+    @Test
+    public fun onApplyWindowInsetsBeforeR_setsChinHeight() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList())
+        )
+        // Initially the chin size is set to zero.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(0)
+        // When window insets are delivered to the watch face.
+        engineWrapper.onApplyWindowInsets(getChinWindowInsetsApi25(chinHeight = 12))
+        // Then the chin size is updated.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(12)
+    }
+
+    @SdkSuppress(minSdkVersion = 30)
+    @Test
+    public fun onApplyWindowInsetsRAndAbove_setsChinHeight() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList())
+        )
+        // Initially the chin size is set to zero.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(0)
+        // When window insets are delivered to the watch face.
+        engineWrapper.onApplyWindowInsets(getChinWindowInsetsApi30(chinHeight = 12))
+        // Then the chin size is updated.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(12)
+    }
+
+    @Test
+    public fun onApplyWindowInsetsBeforeR_multipleCallsIgnored() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList())
+        )
+        // Initially the chin size is set to zero.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(0)
+        // When window insets are delivered to the watch face.
+        engineWrapper.onApplyWindowInsets(getChinWindowInsetsApi25(chinHeight = 12))
+        // Then the chin size is updated.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(12)
+        // When the same window insets are delivered to the watch face again.
+        engineWrapper.onApplyWindowInsets(getChinWindowInsetsApi25(chinHeight = 12))
+        // Nothing happens.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(12)
+        // When different window insets are delivered to the watch face again.
+        engineWrapper.onApplyWindowInsets(getChinWindowInsetsApi25(chinHeight = 24))
+        // Nothing happens and the size is unchanged.
+        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(12)
     }
 
     @Test
@@ -1458,7 +1571,7 @@ public class WatchFaceServiceTest {
             DefaultComplicationProviderPolicy(
                 provider1,
                 provider2,
-                SystemProviders.SUNRISE_SUNSET
+                SystemProviders.PROVIDER_SUNRISE_SUNSET
             ),
             ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
@@ -1470,7 +1583,7 @@ public class WatchFaceServiceTest {
         verify(iWatchFaceService).setDefaultComplicationProviderWithFallbacks(
             LEFT_COMPLICATION_ID,
             listOf(provider1, provider2),
-            SystemProviders.SUNRISE_SUNSET,
+            SystemProviders.PROVIDER_SUNRISE_SUNSET,
             ComplicationData.TYPE_SHORT_TEXT
         )
     }
@@ -1486,7 +1599,7 @@ public class WatchFaceServiceTest {
             DefaultComplicationProviderPolicy(
                 provider1,
                 provider2,
-                SystemProviders.SUNRISE_SUNSET
+                SystemProviders.PROVIDER_SUNRISE_SUNSET
             ),
             ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
@@ -1507,7 +1620,9 @@ public class WatchFaceServiceTest {
             LEFT_COMPLICATION_ID, provider1, ComplicationData.TYPE_SHORT_TEXT
         )
         verify(iWatchFaceService).setDefaultSystemComplicationProvider(
-            LEFT_COMPLICATION_ID, SystemProviders.SUNRISE_SUNSET, ComplicationData.TYPE_SHORT_TEXT
+            LEFT_COMPLICATION_ID,
+            SystemProviders.PROVIDER_SUNRISE_SUNSET,
+            ComplicationData.TYPE_SHORT_TEXT
         )
     }
 
@@ -1740,7 +1855,7 @@ public class WatchFaceServiceTest {
         )
         val complicationsStyleSetting = ComplicationsUserStyleSetting(
             UserStyleSetting.Id("complications_style_setting"),
-            "Complications",
+            "AllComplications",
             "Number and position",
             icon = null,
             complicationConfig = listOf(
@@ -1748,7 +1863,7 @@ public class WatchFaceServiceTest {
                 leftOnlyComplicationsOption,
                 rightOnlyComplicationsOption
             ),
-            affectsLayers = listOf(Layer.COMPLICATIONS)
+            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
         )
 
         initEngine(
@@ -1809,14 +1924,14 @@ public class WatchFaceServiceTest {
         )
         val complicationsStyleSetting = ComplicationsUserStyleSetting(
             UserStyleSetting.Id("complications_style_setting"),
-            "Complications",
+            "AllComplications",
             "Number and position",
             icon = null,
             complicationConfig = listOf(
                 leftOnlyComplicationsOption, // The default value which should be applied.
                 bothComplicationsOption,
             ),
-            affectsLayers = listOf(Layer.COMPLICATIONS)
+            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
         )
 
         initEngine(
@@ -2134,42 +2249,6 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun renderParameters_secondaryConstructor() {
-        val params = RenderParameters(
-            DrawMode.INTERACTIVE,
-            mapOf(
-                Layer.BASE to LayerMode.DRAW,
-                Layer.COMPLICATIONS to LayerMode.DRAW,
-                Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
-            ),
-            null
-        )
-
-        assertThat(params.drawMode).isEqualTo(DrawMode.INTERACTIVE)
-        assertThat(params.outlineTint).isEqualTo(Color.RED)
-        assertNull(params.selectedComplicationId)
-    }
-
-    @Test
-    public fun renderParameters_secondaryConstructorEnforcesNoDrawOutlined() {
-        try {
-            RenderParameters(
-                DrawMode.INTERACTIVE,
-                mapOf(
-                    Layer.BASE to LayerMode.DRAW,
-                    Layer.COMPLICATIONS to LayerMode.DRAW_OUTLINED,
-                    Layer.COMPLICATIONS_OVERLAY to LayerMode.DRAW
-                ),
-                null
-            )
-
-            fail("Should have thrown an exception due to LayerMode.DRAW_OUTLINED")
-        } catch (e: Exception) {
-            // Expected.
-        }
-    }
-
-    @Test
     public fun sendComplicationWallpaperCommandPreRFlow() {
         initEngine(
             WatchFaceType.ANALOG,
@@ -2341,6 +2420,7 @@ public class WatchFaceServiceTest {
         assertThat(instance).isNull()
     }
 
+    @Test
     public fun firstOnVisibilityChangedIgnoredPostRFlow() {
         val instanceId = "interactiveInstanceId"
         initWallpaperInteractiveWatchFaceInstance(
@@ -2379,4 +2459,16 @@ public class WatchFaceServiceTest {
         engineWrapper.onVisibilityChanged(false)
         verify(observer).onChanged(true)
     }
+
+    @Suppress("DEPRECATION")
+    private fun getChinWindowInsetsApi25(@Px chinHeight: Int): WindowInsets =
+        WindowInsets.Builder().setSystemWindowInsets(
+            Insets.of(0, 0, 0, chinHeight)
+        ).build()
+
+    private fun getChinWindowInsetsApi30(@Px chinHeight: Int): WindowInsets =
+        WindowInsets.Builder().setInsets(
+            WindowInsets.Type.systemBars(),
+            Insets.of(Rect().apply { bottom = chinHeight })
+        ).build()
 }

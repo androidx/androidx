@@ -30,12 +30,12 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
-import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.WatchFaceId
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
@@ -73,7 +73,7 @@ public class EditorSessionGuavaTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_SUNRISE_SUNSET),
             ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
@@ -91,7 +91,7 @@ public class EditorSessionGuavaTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
             ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
@@ -112,6 +112,9 @@ public class EditorSessionGuavaTest {
         Mockito.`when`(editorDelegate.screenBounds).thenReturn(screenBounds)
         Mockito.`when`(editorDelegate.previewReferenceTimeMillis)
             .thenReturn(previewReferenceTimeMillis)
+
+        OnWatchFaceEditingTestActivity.providerInfoRetrieverProvider =
+            TestProviderInfoRetrieverProvider()
 
         return ActivityScenario.launch(
             WatchFaceEditorContract().createIntent(

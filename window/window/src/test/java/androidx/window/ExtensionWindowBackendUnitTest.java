@@ -34,9 +34,6 @@ import androidx.core.util.Consumer;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Unit tests for {@link ExtensionWindowBackend} that run on the JVM.
  */
@@ -97,8 +94,7 @@ public class ExtensionWindowBackendUnitTest {
     public void testRegisterLayoutChangeCallback_synchronousExtension() {
         WindowLayoutInfo expectedInfo = newTestWindowLayoutInfo();
         ExtensionInterfaceCompat extensionInterfaceCompat =
-                new SynchronousExtensionInterface(expectedInfo,
-                newTestDeviceState());
+                new SynchronousExtensionInterface(expectedInfo);
         ExtensionWindowBackend backend = new ExtensionWindowBackend(extensionInterfaceCompat);
 
         // Check registering the layout change callback
@@ -158,45 +154,15 @@ public class ExtensionWindowBackendUnitTest {
         return builder.build();
     }
 
-    private static DeviceState newTestDeviceState() {
-        DeviceState.Builder builder = new DeviceState.Builder();
-        builder.setPosture(DeviceState.POSTURE_OPENED);
-        return builder.build();
-    }
-
-    private interface DeviceStateConsumer extends Consumer<DeviceState> { }
-
     private interface WindowLayoutInfoConsumer extends Consumer<WindowLayoutInfo> { }
-
-    private static class SimpleConsumer<T> implements Consumer<T> {
-        private final List<T> mValues;
-
-        SimpleConsumer() {
-            mValues = new ArrayList<>();
-        }
-
-        @Override
-        public void accept(T t) {
-            mValues.add(t);
-        }
-
-        T lastValue() {
-            return mValues.get(mValues.size() - 1);
-        }
-    }
 
     private static class SynchronousExtensionInterface implements ExtensionInterfaceCompat {
 
         private ExtensionCallbackInterface mInterface;
-        private final DeviceState mDeviceState;
         private final WindowLayoutInfo mWindowLayoutInfo;
 
-        SynchronousExtensionInterface(WindowLayoutInfo windowLayoutInfo, DeviceState deviceState) {
+        SynchronousExtensionInterface(WindowLayoutInfo windowLayoutInfo) {
             mInterface = new ExtensionCallbackInterface() {
-                @Override
-                public void onDeviceStateChanged(@NonNull DeviceState newDeviceState) {
-
-                }
 
                 @Override
                 public void onWindowLayoutChanged(@NonNull Activity activity,
@@ -205,7 +171,6 @@ public class ExtensionWindowBackendUnitTest {
                 }
             };
             mWindowLayoutInfo = windowLayoutInfo;
-            mDeviceState = deviceState;
         }
 
         @Override
@@ -229,9 +194,5 @@ public class ExtensionWindowBackendUnitTest {
 
         }
 
-        @Override
-        public void onDeviceStateListenersChanged(boolean isEmpty) {
-            mInterface.onDeviceStateChanged(mDeviceState);
-        }
     }
 }

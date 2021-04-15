@@ -26,10 +26,6 @@ import androidx.annotation.NonNull;
  * An empty implementation of {@link ExtensionCallbackInterface} with no-op methods.
  */
 public class EmptyExtensionCallbackInterface implements ExtensionCallbackInterface {
-    @Override
-    public void onDeviceStateChanged(@NonNull DeviceState newDeviceState) {
-
-    }
 
     @Override
     public void onWindowLayoutChanged(@NonNull Activity activity,

@@ -26,7 +26,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
@@ -39,14 +38,13 @@ import android.content.pm.Signature;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.provider.FontRequest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -58,20 +56,11 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class DefaultEmojiCompatConfigTest {
 
-    @Before
-    public void before() {
-        DefaultEmojiCompatConfig.resetInstance();
-    }
-
-    @AfterClass
-    public static void after() {
-        DefaultEmojiCompatConfig.resetInstance();
-    }
-
     @Test
     public void onAllApis_callingDoesntCrash_withRealContext() {
-        EmojiCompat.Config result =
-                DefaultEmojiCompatConfig.create(ApplicationProvider.getApplicationContext());
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory =
+                new DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory(null);
+        EmojiCompat.Config result = factory.create(ApplicationProvider.getApplicationContext());
         if (providerOnSystem()) {
             assertNotNull(result);
         } else {
@@ -92,25 +81,15 @@ public class DefaultEmojiCompatConfigTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    public void whenNoLookup_returnsNull() {
+    public void whenNoLookup_returnsNull() throws PackageManager.NameNotFoundException {
         Context mockContext = mock(Context.class);
         when(mockContext.getPackageManager()).thenReturn(mock(PackageManager.class));
-        EmojiCompat.Config actual = DefaultEmojiCompatConfig.create(mockContext);
+
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory =
+                new DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory(
+                        makeMockHelper(null, generateSignatures(2)));
+        EmojiCompat.Config actual = factory.create(mockContext);
         assertNull(actual);
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 19)
-    public void whenNoLookup_onlyQueriesOnce_onRepeatedQueries() {
-        Context mockContext = mock(Context.class);
-        PackageManager mockPackageManager = mock(PackageManager.class);
-        when(mockContext.getPackageManager()).thenReturn(mockPackageManager);
-
-        DefaultEmojiCompatConfig.create(mockContext);
-        verify(mockPackageManager).queryIntentContentProviders(any(), anyInt());
-
-        DefaultEmojiCompatConfig.create(mockContext);
-        verifyNoMoreInteractions(mockPackageManager);
     }
 
     @Test
@@ -125,37 +104,13 @@ public class DefaultEmojiCompatConfigTest {
         when(mockContext.getPackageManager()).thenReturn(mock(PackageManager.class));
 
         DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper helper = makeMockHelper(
-                info, signatures, true);
+                info, signatures);
 
-        EmojiCompat.Config actual = DefaultEmojiCompatConfig.create(mockContext, helper);
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory =
+                new DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory(helper);
+        EmojiCompat.Config actual = factory.create(mockContext);
 
         assertNotNull("Expected actual emoji compat config from valid lookup", actual);
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 19)
-    public void whenProviderFound_onlyQueriesOnce() throws PackageManager.NameNotFoundException {
-        ResolveInfo info = generateResolveInfo(
-                "some package", "some authority", ApplicationInfo.FLAG_SYSTEM
-        );
-        Signature[] signatures = generateSignatures(3);
-
-        Context mockContext = mock(Context.class);
-        when(mockContext.getPackageManager()).thenReturn(mock(PackageManager.class));
-
-        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper helper = makeMockHelper(
-                info, signatures, true);
-
-        EmojiCompat.Config actual = DefaultEmojiCompatConfig.create(mockContext, helper);
-
-        assertNotNull(actual); // just ensuring test isn't false-positive
-        verify(helper).queryIntentContentProviders(any(), any(), anyInt());
-        verify(helper).getSigningSignatures(any(), any());
-        verify(helper).getProviderInfo(eq(info));
-
-        DefaultEmojiCompatConfig.create(mockContext);
-        verifyNoMoreInteractions(helper);
-
     }
 
     @Test
@@ -170,10 +125,10 @@ public class DefaultEmojiCompatConfigTest {
         Context mockContext = mock(Context.class);
         when(mockContext.getPackageManager()).thenReturn(mock(PackageManager.class));
 
-        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper helper = makeMockHelper(
-                info, signatures, false);
-
-        EmojiCompat.Config actual = DefaultEmojiCompatConfig.create(mockContext, helper);
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory =
+                new DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory(
+                        makeMockHelper(info, signatures));
+        EmojiCompat.Config actual = factory.create(mockContext);
 
         assertNull("Expected no emoji compat config when no system package", actual);
     }
@@ -189,9 +144,11 @@ public class DefaultEmojiCompatConfigTest {
         when(mockContext.getPackageManager()).thenReturn(mock(PackageManager.class));
 
         DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper helper = makeMockHelper(
-                info, generateSignatures(3), false);
+                info, generateSignatures(3));
 
-        DefaultEmojiCompatConfig.create(mockContext, helper);
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory =
+                new DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory(helper);
+        factory.create(mockContext);
 
         ArgumentCaptor<Intent> intentArgumentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(helper).queryIntentContentProviders(any(), intentArgumentCaptor.capture(),
@@ -212,12 +169,12 @@ public class DefaultEmojiCompatConfigTest {
         Context mockContext = mock(Context.class);
         when(mockContext.getPackageManager()).thenReturn(mock(PackageManager.class));
 
-        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper helper = makeMockHelper(
-                info, signatures, true);
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory =
+                new DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory(
+                        makeMockHelper(info, signatures));
 
-        DefaultEmojiCompatConfig.create(mockContext, helper);
-
-        FontRequest request = DefaultEmojiCompatConfig.getFontRequest();
+        FontRequest request = factory.queryForDefaultFontRequest(mockContext);
+        assert request != null;
         assertEquals(packageName, request.getProviderPackage());
         assertEquals(authority, request.getProviderAuthority());
         assertEquals("emojicompat-emoji-font", request.getQuery());
@@ -238,25 +195,30 @@ public class DefaultEmojiCompatConfigTest {
         Context mockContext = mock(Context.class);
         when(mockContext.getPackageManager()).thenReturn(mock(PackageManager.class));
 
-        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper helper = makeMockHelper(
-                info, signatures, true);
-
-        EmojiCompat.Config actual = DefaultEmojiCompatConfig.create(mockContext, helper);
-        EmojiCompat.Config actual2 = DefaultEmojiCompatConfig.create(mockContext, helper);
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory =
+                new DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory(
+                        makeMockHelper(info, signatures));
+        EmojiCompat.Config actual = factory.create(mockContext);
+        EmojiCompat.Config actual2 = factory.create(mockContext);
 
         assertNotSame(actual, actual2);
     }
 
     @NonNull
     private DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper makeMockHelper(
-            @NonNull ResolveInfo info, @NonNull Signature[] signatures, boolean isSystemInstalled)
+            @Nullable ResolveInfo info, @NonNull Signature[] signatures)
             throws PackageManager.NameNotFoundException {
         DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper helper = mock(
                 DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper.class);
         when(helper.getSigningSignatures(any(), any())).thenReturn(signatures);
-        when(helper.queryIntentContentProviders(any(), any(), anyInt())).thenReturn(
-                Collections.singletonList(info));
-        when(helper.getProviderInfo(eq(info))).thenReturn(info.providerInfo);
+        if (info != null) {
+            when(helper.queryIntentContentProviders(any(), any(), anyInt())).thenReturn(
+                    Collections.singletonList(info));
+            when(helper.getProviderInfo(eq(info))).thenReturn(info.providerInfo);
+        } else {
+            when(helper.queryIntentContentProviders(any(), any(), anyInt())).thenReturn(
+                    Collections.emptyList());
+        }
         return helper;
     }
 

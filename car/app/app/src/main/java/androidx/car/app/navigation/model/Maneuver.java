@@ -26,6 +26,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.constraints.CarIconConstraints;
 
@@ -35,6 +36,7 @@ import java.util.Objects;
 
 /** Information about a maneuver that the driver will be required to perform. */
 // TODO(b/154671667): Update when host(s) updates or a scheme for auto sync is established.
+@CarProtocol
 public final class Maneuver {
     /**
      * Possible maneuver types.
