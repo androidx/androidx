@@ -63,8 +63,9 @@ abstract class RunTestOnFTLTask @Inject constructor(
     /**
      * Output file to write the results
      */
-    @get:[OutputFile PathSensitive(PathSensitivity.RELATIVE)]
+    @get:OutputFile
     abstract val testResults: RegularFileProperty
+
     @TaskAction
     fun executeTest() {
         workerExecutor.noIsolation().submit(
