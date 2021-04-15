@@ -137,86 +137,91 @@ public class InvalidationTrackerBehavioralTest {
             @Nullable
             volatile CountDownLatch latch = null;
 
+            // Releases latch when change notification received, increments
+            // spuriousInvalidations when notification received without a recent change
+            final InvalidationTracker.Observer invalidationObserver =
+                    new InvalidationTracker.Observer(Counter2.TABLE_NAME) {
+                        @Override
+                        public void onInvalidated(@NonNull Set<String> tables) {
+                            if (tables.contains(Counter2.TABLE_NAME)) {
+                                // Reading the latch field value is a bit racy,
+                                // but it does not matter:
+                                //
+                                // If we see null here then we're either too early or too late;
+                                // too late means that our long delay was too short, so we'd
+                                // need to adjust it because now the test failed.
+                                // Too early means that we received a spurious invalidation, so
+                                // we need to fail the test.
+                                //
+                                // If we see non-null here instead of null due to a race then
+                                // our long delay was just too short and we'll need to adjust it
+                                // because the test will have failed. latch.countdown() happens
+                                // too late in this case but it has no particular effect.
+                                CountDownLatch localLatch = latch;
+                                if (localLatch == null) {
+                                    // Spurious invalidation callback; this might occur due to a
+                                    // large delay beyond the provisioned margin, or due to a
+                                    // bug in the code under test
+                                    spuriousInvalidations.incrementAndGet();
+                                } else {
+                                    localLatch.countDown();
+                                }
+                            }
+                        }
+                    };
+
             @Override
             public void run() {
                 // Ulterior use of this background thread to add the observer, which is not
                 // legal to do from main thread.
                 // To be close to a real use case we only register the observer once,
                 // we do not re-register for each loop iteration.
-                db.getInvalidationTracker().addObserver(
-                        // Releases latch when change notification received, increments
-                        // spuriousInvalidations when notification received without a recent change
-                        new InvalidationTracker.Observer(Counter2.TABLE_NAME) {
-                            @Override
-                            public void onInvalidated(@NonNull Set<String> tables) {
-                                if (tables.contains(Counter2.TABLE_NAME)) {
-                                    // Reading the latch field value is a bit racy,
-                                    // but it does not matter:
-                                    //
-                                    // If we see null here then we're either too early or too late;
-                                    // too late means that our long delay was too short, so we'd
-                                    // need to adjust it because now the test failed.
-                                    // Too early means that we received a spurious invalidation, so
-                                    // we need to fail the test.
-                                    //
-                                    // If we see non-null here instead of null due to a race then
-                                    // our long delay was just too short and we'll need to adjust it
-                                    // because the test will have failed. latch.countdown() happens
-                                    // too late in this case but it has no particular effect.
-                                    CountDownLatch localLatch = latch;
-                                    if (localLatch == null) {
-                                        // Spurious invalidation callback; this might occur due to a
-                                        // large delay beyond the provisioned margin, or due to a
-                                        // bug in the code under test
-                                        spuriousInvalidations.incrementAndGet();
-                                    } else {
-                                        localLatch.countDown();
-                                    }
-                                }
+                db.getInvalidationTracker().addObserver(invalidationObserver);
+
+                try {
+                    // Resets latch and updates missedInvalidations when change notification failed
+                    for (int i = 0; i < iterations; ++i) {
+                        // The Counter table exists just to make InvalidationTracker's life more
+                        // difficult, we are not interested in notifications from this one;
+                        // inserts may trigger undefined invalidation callback behavior,
+                        // depending on table update timing
+                        db.counterDao().insert(new Counter1());
+
+                        // Use variable delay to detect different kinds of timing-related problems
+                        try {
+                            Thread.sleep(delayMillis, delayNanos);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        db.runInTransaction(() -> {
+                            db.counterDao().insert(new Counter2());
+
+                            // Flag that we have inserted a new value, expect invalidation callback;
+                            // do this as late as possible prior to the end of the transaction;
+                            // this might cause an occasional false negative due to a race,
+                            // where a buggy InvalidationTracker could log successful tracking
+                            // even though the transaction is not completed yet, but it does not
+                            // matter much, as this is an intentionally flaky test; on another run
+                            // it should become apparent that InvalidationTracker is buggy.
+                            latch = new CountDownLatch(1);
+                        });
+
+                        // Use sufficient delay to give invalidation tracker ample time to catch up;
+                        // this would need to be increased if the test has false positives.
+                        try {
+                            if (!latch.await(10L, TimeUnit.SECONDS)) {
+                                // The tracker still has not been called, log an error
+                                missedInvalidations.incrementAndGet();
                             }
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
                         }
-                );
 
-                // Resets latch and updates missedInvalidations when change notification failed
-                for (int i = 0; i < iterations; ++i) {
-                    // The Counter table exists just to make InvalidationTracker's life more
-                    // difficult, we are not interested in notifications from this one;
-                    // inserts may trigger undefined invalidation callback behavior,
-                    // depending on table update timing
-                    db.counterDao().insert(new Counter1());
-
-                    // Use variable delay to detect different kinds of timing-related problems
-                    try {
-                        Thread.sleep(delayMillis, delayNanos);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+                        latch = null;
                     }
-
-                    db.runInTransaction(() -> {
-                        db.counterDao().insert(new Counter2());
-
-                        // Flag that we have inserted a new value, expect invalidation callback;
-                        // do this as late as possible prior to the end of the transaction;
-                        // this might cause an occasional false negative due to a race,
-                        // where a buggy InvalidationTracker could log successful tracking
-                        // even though the transaction is not completed yet, but it does not
-                        // matter much, as this is an intentionally flaky test; on another run
-                        // it should become apparent that InvalidationTracker is buggy.
-                        latch = new CountDownLatch(1);
-                    });
-
-                    // Use sufficient delay to give invalidation tracker ample time to catch up;
-                    // this would need to be increased if the test has false positives.
-                    try {
-                        if (!latch.await(10L, TimeUnit.SECONDS)) {
-                            // The tracker still has not been called, log an error
-                            missedInvalidations.incrementAndGet();
-                        }
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    latch = null;
+                } finally {
+                    db.getInvalidationTracker().removeObserver(invalidationObserver);
                 }
             }
         }).get();
