@@ -75,13 +75,13 @@ public class InvalidationTrackerBehavioralTest {
     }
 
     @Test
-    public void testInsertsJournalModeTruncate() throws ExecutionException, InterruptedException {
+    public void testInserts_JournalModeTruncate() throws ExecutionException, InterruptedException {
         testInserts(RoomDatabase.JournalMode.TRUNCATE);
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
-    public void testInsertsJournalModeWAL() throws ExecutionException, InterruptedException {
+    public void testInserts_JournalModeWAL() throws ExecutionException, InterruptedException {
         testInserts(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING);
     }
 
