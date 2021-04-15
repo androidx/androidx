@@ -185,46 +185,59 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testDocument_toString() {
-        GenericDocument document = new GenericDocument.Builder<>(
-                /*namespace=*/"", "id1", "schemaType1")
-                .setCreationTimestampMillis(5L)
-                .setPropertyLong("longKey1", 1L, 2L, 3L)
-                .setPropertyDouble("doubleKey1", 1.0, 2.0, 3.0)
-                .setPropertyBoolean("booleanKey1", true, false, true)
-                .setPropertyString("stringKey1", "String1", "String2", "String3")
-                .setPropertyBytes("byteKey1", sByteArray1, sByteArray2)
-                .setPropertyDocument("documentKey1", sDocumentProperties1, sDocumentProperties2)
+        GenericDocument nestedDocValue = new GenericDocument.Builder<GenericDocument.Builder<?>>(
+                "namespace", "id2", "schemaType2")
+                .setCreationTimestampMillis(1L)
+                .setScore(1)
+                .setTtlMillis(1L)
+                .setPropertyString("stringKey1", "val1", "val2")
                 .build();
-        String exceptedString = "{ name: 'creationTimestampMillis' value: 5 } "
-                + "{ name: 'id' value: id1 } "
-                + "{ name: 'namespace' value:  } "
-                + "{ name: 'properties' value: "
-                + "{ name: 'booleanKey1' value: [ 'true' 'false' 'true' ] } "
-                + "{ name: 'byteKey1' value: "
-                + "{ name: 'byteArray' value: [ '1' '2' '3' ] } "
-                + "{ name: 'byteArray' value: [ '4' '5' '6' '7' ] }  } "
-                + "{ name: 'documentKey1' value: [ '"
-                + "{ name: 'creationTimestampMillis' value: 12345 } "
-                + "{ name: 'id' value: sDocumentProperties1 } "
-                + "{ name: 'namespace' value: namespace } "
-                + "{ name: 'properties' value:  } "
-                + "{ name: 'schemaType' value: sDocumentPropertiesSchemaType1 } "
-                + "{ name: 'score' value: 0 } "
-                + "{ name: 'ttlMillis' value: 0 } ' '"
-                + "{ name: 'creationTimestampMillis' value: 6789 } "
-                + "{ name: 'id' value: sDocumentProperties2 } "
-                + "{ name: 'namespace' value: namespace } "
-                + "{ name: 'properties' value:  } "
-                + "{ name: 'schemaType' value: sDocumentPropertiesSchemaType2 } "
-                + "{ name: 'score' value: 0 } "
-                + "{ name: 'ttlMillis' value: 0 } ' ] } "
-                + "{ name: 'doubleKey1' value: [ '1.0' '2.0' '3.0' ] } "
-                + "{ name: 'longKey1' value: [ '1' '2' '3' ] } "
-                + "{ name: 'stringKey1' value: [ 'String1' 'String2' 'String3' ] }  } "
-                + "{ name: 'schemaType' value: schemaType1 } "
-                + "{ name: 'score' value: 0 } "
-                + "{ name: 'ttlMillis' value: 0 } ";
-        assertThat(document.toString()).isEqualTo(exceptedString);
+        GenericDocument document =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
+                        "schemaType1")
+                        .setCreationTimestampMillis(1L)
+                        .setScore(1)
+                        .setTtlMillis(1L)
+                        .setPropertyString("stringKey1", "val1", "val2")
+                        .setPropertyBytes("bytesKey1", new byte[]{(byte) 1, (byte) 2})
+                        .setPropertyLong("longKey1", 1L, 2L)
+                        .setPropertyDouble("doubleKey1", 1.0, 2.0)
+                        .setPropertyBoolean("booleanKey1", true, false)
+                        .setPropertyDocument("documentKey1", nestedDocValue)
+                        .build();
+
+        String documentString = document.toString();
+
+        String expectedString = "{\n"
+                + "  namespace: \"namespace\",\n"
+                + "  id: \"id1\",\n"
+                + "  score: 1,\n"
+                + "  schemaType: \"schemaType1\",\n"
+                + "  creationTimestampMillis: 1,\n"
+                + "  timeToLiveMillis: 1,\n"
+                + "  properties: {\n"
+                + "    \"longKey1\": [1, 2],\n"
+                + "    \"bytesKey1\": [[1, 2]],\n"
+                + "    \"booleanKey1\": [true, false],\n"
+                + "    \"stringKey1\": [\"val1\", \"val2\"],\n"
+                + "    \"documentKey1\": [\n"
+                + "      {\n"
+                + "        namespace: \"namespace\",\n"
+                + "        id: \"id2\",\n"
+                + "        score: 1,\n"
+                + "        schemaType: \"schemaType2\",\n"
+                + "        creationTimestampMillis: 1,\n"
+                + "        timeToLiveMillis: 1,\n"
+                + "        properties: {\n"
+                + "          \"stringKey1\": [\"val1\", \"val2\"]\n"
+                + "        }\n"
+                + "      }\n"
+                + "    ],\n"
+                + "    \"doubleKey1\": [1.0, 2.0]\n"
+                + "  }\n"
+                + "}";
+
+        assertThat(documentString).isEqualTo(expectedString);
     }
 
     @Test
