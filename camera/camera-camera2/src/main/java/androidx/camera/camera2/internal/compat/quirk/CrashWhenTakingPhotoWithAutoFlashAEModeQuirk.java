@@ -20,16 +20,24 @@ import android.os.Build;
 
 import androidx.camera.core.impl.Quirk;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Quirk caused by a device bug that occurs on certain devices, like the Samsung A3 devices. It
  * causes the a crash after taking a picture with a
  * {@link android.hardware.camera2.CameraCharacteristics#CONTROL_AE_MODE_ON_AUTO_FLASH}
- * auto-exposure mode. https://issuetracker.google.com/157535165
+ * auto-exposure mode. See https://issuetracker.google.com/157535165 and
+ * https://issuetracker.google.com/161730578
  */
 public class CrashWhenTakingPhotoWithAutoFlashAEModeQuirk implements Quirk {
+    static final List<String> AFFECTED_MODELS = Arrays.asList("5059X");
+
     static boolean load() {
-        return "SAMSUNG".equals(Build.MANUFACTURER.toUpperCase())
-                // Enables it on all A3 models.
-                && android.os.Build.MODEL.toUpperCase().startsWith("SM-A300");
+        // Enables it on all A3 models.
+        boolean isSamsungA3Models = "SAMSUNG".equals(Build.MANUFACTURER.toUpperCase())
+                && Build.MODEL.toUpperCase().startsWith("SM-A300");
+
+        return isSamsungA3Models || AFFECTED_MODELS.contains(Build.MODEL.toUpperCase());
     }
 }
