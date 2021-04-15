@@ -135,11 +135,11 @@ public class InvalidationTrackerBehavioralTest {
         // problem.
         mExecutorService.submit(new Runnable() {
             @Nullable
-            volatile CountDownLatch latch = null;
+            volatile CountDownLatch mLatch = null;
 
             // Releases latch when change notification received, increments
             // spuriousInvalidations when notification received without a recent change
-            final InvalidationTracker.Observer invalidationObserver =
+            final InvalidationTracker.Observer mInvalidationObserver =
                     new InvalidationTracker.Observer(Counter2.TABLE_NAME) {
                         @Override
                         public void onInvalidated(@NonNull Set<String> tables) {
@@ -157,14 +157,14 @@ public class InvalidationTrackerBehavioralTest {
                                 // our long delay was just too short and we'll need to adjust it
                                 // because the test will have failed. latch.countdown() happens
                                 // too late in this case but it has no particular effect.
-                                CountDownLatch localLatch = latch;
-                                if (localLatch == null) {
+                                CountDownLatch latch = mLatch;
+                                if (latch == null) {
                                     // Spurious invalidation callback; this might occur due to a
                                     // large delay beyond the provisioned margin, or due to a
                                     // bug in the code under test
                                     spuriousInvalidations.incrementAndGet();
                                 } else {
-                                    localLatch.countDown();
+                                    latch.countDown();
                                 }
                             }
                         }
@@ -176,7 +176,7 @@ public class InvalidationTrackerBehavioralTest {
                 // legal to do from main thread.
                 // To be close to a real use case we only register the observer once,
                 // we do not re-register for each loop iteration.
-                db.getInvalidationTracker().addObserver(invalidationObserver);
+                db.getInvalidationTracker().addObserver(mInvalidationObserver);
 
                 try {
                     // Resets latch and updates missedInvalidations when change notification failed
@@ -204,13 +204,13 @@ public class InvalidationTrackerBehavioralTest {
                             // even though the transaction is not completed yet, but it does not
                             // matter much, as this is an intentionally flaky test; on another run
                             // it should become apparent that InvalidationTracker is buggy.
-                            latch = new CountDownLatch(1);
+                            mLatch = new CountDownLatch(1);
                         });
 
                         // Use sufficient delay to give invalidation tracker ample time to catch up;
                         // this would need to be increased if the test has false positives.
                         try {
-                            if (!latch.await(10L, TimeUnit.SECONDS)) {
+                            if (!mLatch.await(10L, TimeUnit.SECONDS)) {
                                 // The tracker still has not been called, log an error
                                 missedInvalidations.incrementAndGet();
                             }
@@ -218,10 +218,10 @@ public class InvalidationTrackerBehavioralTest {
                             throw new RuntimeException(e);
                         }
 
-                        latch = null;
+                        mLatch = null;
                     }
                 } finally {
-                    db.getInvalidationTracker().removeObserver(invalidationObserver);
+                    db.getInvalidationTracker().removeObserver(mInvalidationObserver);
                 }
             }
         }).get();
