@@ -172,42 +172,46 @@ public class InvalidationTrackerBehavioralTest {
                         }
                 );
 
-                try {
-                    // Resets latch and updates missedInvalidations when change notification failed
-                    for (int i = 0; i < iterations; ++i) {
-                        // The Counter table exists just to make InvalidationTracker's life more
-                        // difficult, we are not interested in notifications from this one;
-                        // inserts may trigger undefined invalidation callback behavior,
-                        // depending on table update timing
-                        db.counterDao().insert(new Counter1());
+                // Resets latch and updates missedInvalidations when change notification failed
+                for (int i = 0; i < iterations; ++i) {
+                    // The Counter table exists just to make InvalidationTracker's life more
+                    // difficult, we are not interested in notifications from this one;
+                    // inserts may trigger undefined invalidation callback behavior,
+                    // depending on table update timing
+                    db.counterDao().insert(new Counter1());
 
-                        // Use variable delay to detect different kinds of timing-related problems
+                    // Use variable delay to detect different kinds of timing-related problems
+                    try {
                         Thread.sleep(delayMillis, delayNanos);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
 
-                        db.runInTransaction(() -> {
-                            db.counterDao().insert(new Counter2());
+                    db.runInTransaction(() -> {
+                        db.counterDao().insert(new Counter2());
 
-                            // Flag that we have inserted a new value, expect invalidation callback;
-                            // do this as late as possible prior to the end of the transaction;
-                            // this might cause an occasional false negative due to a race,
-                            // where a buggy InvalidationTracker could log successful tracking
-                            // even though the transaction is not completed yet, but it does not
-                            // matter much, as this is an intentionally flaky test; on another run
-                            // it should become apparent that InvalidationTracker is buggy.
-                            latch = new CountDownLatch(1);
-                        });
+                        // Flag that we have inserted a new value, expect invalidation callback;
+                        // do this as late as possible prior to the end of the transaction;
+                        // this might cause an occasional false negative due to a race,
+                        // where a buggy InvalidationTracker could log successful tracking
+                        // even though the transaction is not completed yet, but it does not
+                        // matter much, as this is an intentionally flaky test; on another run
+                        // it should become apparent that InvalidationTracker is buggy.
+                        latch = new CountDownLatch(1);
+                    });
 
-                        // Use sufficient delay to give invalidation tracker ample time to catch up;
-                        // this would need to be increased if the test has false positives.
+                    // Use sufficient delay to give invalidation tracker ample time to catch up;
+                    // this would need to be increased if the test has false positives.
+                    try {
                         if (!latch.await(10L, TimeUnit.SECONDS)) {
                             // The tracker still has not been called, log an error
                             missedInvalidations.incrementAndGet();
                         }
-
-                        latch = null;
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+
+                    latch = null;
                 }
             }
         }).get();
