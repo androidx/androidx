@@ -38,7 +38,8 @@ public abstract class FileDescriptorOutputOptions extends OutputOptions {
     /** Returns a builder for this FileDescriptorOutputOptions. */
     @NonNull
     public static Builder builder() {
-        return new AutoValue_FileDescriptorOutputOptions.Builder();
+        return new AutoValue_FileDescriptorOutputOptions.Builder()
+                .setFileSizeLimit(FILE_SIZE_UNLIMITED);
     }
 
     /**
@@ -62,7 +63,12 @@ public abstract class FileDescriptorOutputOptions extends OutputOptions {
         public abstract Builder setFileDescriptor(
                 @NonNull FileDescriptor fileDescriptor);
 
-        /** Sets the limit for the file length in bytes. */
+        /**
+         * Sets the limit for the file length in bytes. Zero or negative values are considered
+         * unlimited.
+         *
+         * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
+         */
         @NonNull
         public abstract Builder setFileSizeLimit(int bytes);
 

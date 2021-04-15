@@ -34,6 +34,10 @@ import java.io.FileDescriptor
 @RunWith(AndroidJUnit4::class)
 class OutputOptionsTest {
 
+    companion object {
+        private const val FILE_SIZE_LIMIT = 1024
+    }
+
     @Test
     fun canBuildFileOutputOptions() {
         val savedFile = File.createTempFile("CameraX", ".tmp")
@@ -41,13 +45,13 @@ class OutputOptionsTest {
 
         val fileOutputOptions = FileOutputOptions.builder()
             .setFile(savedFile)
-            .setFileSizeLimit(0)
+            .setFileSizeLimit(FILE_SIZE_LIMIT)
             .build()
 
         assertThat(fileOutputOptions).isNotNull()
         assertThat(fileOutputOptions.type).isEqualTo(OutputOptions.Type.FILE)
         assertThat(fileOutputOptions.file).isNotNull()
-        assertThat(fileOutputOptions.fileSizeLimit).isEqualTo(0)
+        assertThat(fileOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
         savedFile.delete()
     }
 
@@ -71,13 +75,13 @@ class OutputOptionsTest {
 
         val mediaStoreOutputOptions = MediaStoreOutputOptions.builder()
             .setContentResolver(contentResolver)
-            .setFileSizeLimit(0)
+            .setFileSizeLimit(FILE_SIZE_LIMIT)
             .setUri(uri!!)
             .build()
 
         assertThat(mediaStoreOutputOptions.uri).isNotNull()
         assertThat(mediaStoreOutputOptions.type).isEqualTo(OutputOptions.Type.MEDIA_STORE)
-        assertThat(mediaStoreOutputOptions.fileSizeLimit).isEqualTo(0)
+        assertThat(mediaStoreOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
         contentResolver.delete(uri, null, null)
     }
 
@@ -91,15 +95,68 @@ class OutputOptionsTest {
         )
         val fd: FileDescriptor = pfd.fileDescriptor
 
-        val fileOutputOptions = FileDescriptorOutputOptions.builder()
+        val fdOutputOptions = FileDescriptorOutputOptions.builder()
             .setFileDescriptor(fd)
-            .setFileSizeLimit(0)
+            .setFileSizeLimit(FILE_SIZE_LIMIT)
             .build()
 
-        assertThat(fileOutputOptions).isNotNull()
-        assertThat(fileOutputOptions.type).isEqualTo(OutputOptions.Type.FILE_DESCRIPTOR)
-        assertThat(fileOutputOptions.fileDescriptor).isNotNull()
-        assertThat(fileOutputOptions.fileSizeLimit).isEqualTo(0)
+        assertThat(fdOutputOptions).isNotNull()
+        assertThat(fdOutputOptions.type).isEqualTo(OutputOptions.Type.FILE_DESCRIPTOR)
+        assertThat(fdOutputOptions.fileDescriptor).isNotNull()
+        assertThat(fdOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
+        pfd.close()
+        savedFile.delete()
+    }
+
+    @Test
+    fun file_builderContainsCorrectDefaults() {
+        val savedFile = File.createTempFile("CameraX", ".tmp")
+        savedFile.deleteOnExit()
+        val fileOutputOptions = FileOutputOptions.builder()
+            .setFile(savedFile)
+            .build()
+
+        assertThat(fileOutputOptions.fileSizeLimit).isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
+        savedFile.delete()
+    }
+
+    @Test
+    fun mediaStore_builderContainsCorrectDefaults() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        val contentResolver: ContentResolver = context.contentResolver
+        val fileName = "OutputOptionTest"
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+            put(MediaStore.Video.Media.TITLE, fileName)
+            put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
+        }
+        val uri = contentResolver.insert(
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        )
+        val mediaStoreOutputOptions = MediaStoreOutputOptions.builder()
+            .setContentResolver(contentResolver)
+            .setUri(uri!!)
+            .build()
+
+        assertThat(mediaStoreOutputOptions.fileSizeLimit)
+            .isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
+        contentResolver.delete(uri, null, null)
+    }
+
+    @Test
+    fun fileDescriptor_builderContainsCorrectDefaults() {
+        val savedFile = File.createTempFile("CameraX", ".tmp")
+        val pfd: ParcelFileDescriptor = ParcelFileDescriptor.open(
+            savedFile,
+            ParcelFileDescriptor.MODE_READ_WRITE
+        )
+        val fd: FileDescriptor = pfd.fileDescriptor
+        val fdOutputOptions = FileDescriptorOutputOptions.builder()
+            .setFileDescriptor(fd)
+            .build()
+
+        assertThat(fdOutputOptions.fileSizeLimit).isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
         pfd.close()
         savedFile.delete()
     }

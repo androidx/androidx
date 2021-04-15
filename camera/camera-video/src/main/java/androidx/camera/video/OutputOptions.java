@@ -23,6 +23,8 @@ import androidx.annotation.NonNull;
  */
 public abstract class OutputOptions {
 
+    public static final int FILE_SIZE_UNLIMITED = 0;
+
     Type mType;
 
     public OutputOptions(@NonNull Type type) {
