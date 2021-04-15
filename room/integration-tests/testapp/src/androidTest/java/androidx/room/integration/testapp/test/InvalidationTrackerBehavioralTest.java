@@ -157,7 +157,7 @@ public class InvalidationTrackerBehavioralTest {
                                 // our long delay was just too short and we'll need to adjust it
                                 // because the test will have failed. latch.countdown() happens
                                 // too late in this case but it has no particular effect.
-                                CountDownLatch latch = mLatch;
+                                final CountDownLatch latch = mLatch;
                                 if (latch == null) {
                                     // Spurious invalidation callback; this might occur due to a
                                     // large delay beyond the provisioned margin, or due to a
@@ -194,6 +194,8 @@ public class InvalidationTrackerBehavioralTest {
                             throw new RuntimeException(e);
                         }
 
+                        final CountDownLatch latch = new CountDownLatch(1);
+
                         db.runInTransaction(() -> {
                             db.counterDao().insert(new Counter2());
 
@@ -204,13 +206,13 @@ public class InvalidationTrackerBehavioralTest {
                             // even though the transaction is not completed yet, but it does not
                             // matter much, as this is an intentionally flaky test; on another run
                             // it should become apparent that InvalidationTracker is buggy.
-                            mLatch = new CountDownLatch(1);
+                            mLatch = latch;
                         });
 
                         // Use sufficient delay to give invalidation tracker ample time to catch up;
                         // this would need to be increased if the test has false positives.
                         try {
-                            if (!mLatch.await(10L, TimeUnit.SECONDS)) {
+                            if (!latch.await(10L, TimeUnit.SECONDS)) {
                                 // The tracker still has not been called, log an error
                                 missedInvalidations.incrementAndGet();
                             }
