@@ -29,10 +29,10 @@ import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(AndroidJUnit4::class)
-class StartupTimingMetricTest {
+public class StartupTimingMetricTest {
     @LargeTest
     @Test
-    fun noResults() {
+    public fun noResults() {
         assumeTrue(PerfettoTraceProcessor.isAbiSupported())
         val packageName = "fake.package.fiction.nostartups"
         val metrics = measureStartup(packageName) {
@@ -43,7 +43,7 @@ class StartupTimingMetricTest {
 
     @LargeTest
     @Test
-    fun validateStartup() {
+    public fun validateStartup() {
         assumeTrue(PerfettoTraceProcessor.isAbiSupported())
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
         val scope = MacrobenchmarkScope(packageName = packageName, launchWithClearTask = true)
@@ -63,7 +63,7 @@ class StartupTimingMetricTest {
     }
 }
 
-fun measureStartup(packageName: String, measureBlock: () -> Unit): Map<String, Long> {
+public fun measureStartup(packageName: String, measureBlock: () -> Unit): Map<String, Long> {
     val wrapper = PerfettoCaptureWrapper()
     val metric = StartupTimingMetric()
     metric.configure(packageName)
