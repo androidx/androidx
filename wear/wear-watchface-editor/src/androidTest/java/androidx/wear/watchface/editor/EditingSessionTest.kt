@@ -44,6 +44,7 @@ import androidx.wear.complications.ProviderChooserIntent
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -200,6 +201,7 @@ public class TestComplicationHelperActivity : Activity() {
 
     public companion object {
         public var lastIntent: Intent? = null
+        public var resultIntent: Intent? = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -207,23 +209,7 @@ public class TestComplicationHelperActivity : Activity() {
 
         lastIntent = intent
 
-        setResult(
-            123,
-            Intent().apply {
-                putExtra(
-                    "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
-                    ComplicationProviderInfo(
-                        "TestProvider3App",
-                        "TestProvider3",
-                        Icon.createWithBitmap(
-                            Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-                        ),
-                        ComplicationType.LONG_TEXT.toWireComplicationType(),
-                        provider3
-                    )
-                )
-            }
-        )
+        setResult(123, resultIntent)
         finish()
     }
 }
@@ -737,6 +723,20 @@ public class EditorSessionTest {
     @Test
     public fun launchComplicationProviderChooser() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent = Intent().apply {
+            putExtra(
+                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                ComplicationProviderInfo(
+                    "TestProvider3App",
+                    "TestProvider3",
+                    Icon.createWithBitmap(
+                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                    ),
+                    ComplicationType.LONG_TEXT.toWireComplicationType(),
+                    provider3
+                )
+            )
+        }
 
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
@@ -776,8 +776,71 @@ public class EditorSessionTest {
     }
 
     @Test
+    public fun launchComplicationProviderChooser_chooseEmpty() {
+        ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent = Intent().apply {}
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication)
+        )
+
+        lateinit var editorSession: EditorSession
+        scenario.onActivity { activity ->
+            editorSession = activity.editorSession
+        }
+
+        runBlocking {
+            /**
+             * Invoke [TestComplicationHelperActivity] which will change the provider (and hence
+             * the preview data) for [LEFT_COMPLICATION_ID].
+             */
+            assertTrue(editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID))
+            assertThat(editorSession.getComplicationsPreviewData()[LEFT_COMPLICATION_ID])
+                .isInstanceOf(EmptyComplicationData::class.java)
+        }
+    }
+
+    @Test
+    public fun launchComplicationProviderChooser_cancel() {
+        ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent = null
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication)
+        )
+
+        lateinit var editorSession: EditorSession
+        scenario.onActivity { activity ->
+            editorSession = activity.editorSession
+        }
+
+        runBlocking {
+            /**
+             * Invoke [TestComplicationHelperActivity] which will simulate the user canceling.
+             */
+            assertFalse(editorSession.openComplicationProviderChooser(LEFT_COMPLICATION_ID))
+        }
+    }
+
+    @Test
     public fun launchComplicationProviderChooser_ComplicationConfigExtras() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent = Intent().apply {
+            putExtra(
+                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                ComplicationProviderInfo(
+                    "TestProvider3App",
+                    "TestProvider3",
+                    Icon.createWithBitmap(
+                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                    ),
+                    ComplicationType.LONG_TEXT.toWireComplicationType(),
+                    provider3
+                )
+            )
+        }
 
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
@@ -1120,5 +1183,71 @@ public class EditorSessionTest {
 
         // Ensure the providerInfoRetriever was closed despite forceClose() being called.
         assertThat(providerInfoRetriever.closed).isTrue()
+    }
+
+    @Test
+    public fun getComplicationsPreviewData() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            listOf(leftComplication, rightComplication)
+        )
+
+        scenario.onActivity { activity ->
+            runBlocking {
+                val previewData = activity.editorSession.getComplicationsPreviewData()
+                assertThat(previewData.size).isEqualTo(2)
+                assertThat(previewData[LEFT_COMPLICATION_ID])
+                    .isInstanceOf(ShortTextComplicationData::class.java)
+                val leftComplicationData =
+                    previewData[LEFT_COMPLICATION_ID] as ShortTextComplicationData
+                assertThat(
+                    leftComplicationData.text.getTextAt(
+                        ApplicationProvider.getApplicationContext<Context>().resources,
+                        0
+                    )
+                ).isEqualTo("Left")
+
+                assertThat(previewData[RIGHT_COMPLICATION_ID])
+                    .isInstanceOf(LongTextComplicationData::class.java)
+                val rightComplicationData =
+                    previewData[RIGHT_COMPLICATION_ID] as LongTextComplicationData
+                assertThat(
+                    rightComplicationData.text.getTextAt(
+                        ApplicationProvider.getApplicationContext<Context>().resources,
+                        0
+                    )
+                ).isEqualTo("Right")
+            }
+        }
+    }
+
+    public fun getComplicationsPreviewData_withEmptyBackgroundComplication() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            listOf(leftComplication, backgroundComplication)
+        )
+
+        scenario.onActivity { activity ->
+            runBlocking {
+                val previewData = activity.editorSession.getComplicationsPreviewData()
+                assertThat(previewData.size).isEqualTo(2)
+                assertThat(previewData[LEFT_COMPLICATION_ID])
+                    .isInstanceOf(ShortTextComplicationData::class.java)
+                val leftComplicationData =
+                    previewData[LEFT_COMPLICATION_ID] as ShortTextComplicationData
+                assertThat(
+                    leftComplicationData.text.getTextAt(
+                        ApplicationProvider.getApplicationContext<Context>().resources,
+                        0
+                    )
+                ).isEqualTo("Left")
+
+                // TestProviderInfoRetrieverProvider isn't configured with a provider for the
+                // background complication which means it behaves as if it was an empty
+                // complication as far as fetching preview data is concerned.
+                assertThat(previewData[BACKGROUND_COMPLICATION_ID])
+                    .isInstanceOf(EmptyComplicationData::class.java)
+            }
+        }
     }
 }
