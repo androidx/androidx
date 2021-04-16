@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-package sample.optin;
+package sample.optin.foo;
 
-@ExperimentalLocation
-class LocationProvider {
-    int getLocation() {
+/**
+ * Class which lives in an experimental package.
+ */
+public class AnnotatedJavaPackage {
+
+    /**
+     * Method that inherits experimental status from its package.
+     */
+    public int method() {
         return -1;
     }
 }

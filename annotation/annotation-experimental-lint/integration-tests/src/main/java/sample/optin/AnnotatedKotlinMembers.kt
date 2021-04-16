@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,29 @@
 
 package sample.optin
 
-@ExperimentalLocationKt
-class LocationProviderKt {
-    fun getLocation(): Int {
+open class AnnotatedKotlinMembers {
+    @ExperimentalKotlinAnnotation
+    val field: Int = -1
+
+    @ExperimentalKotlinAnnotation
+    fun method(): Int {
         return -1
+    }
+
+    @ExperimentalJavaAnnotation
+    fun methodWithJavaMarker(): Int {
+        return -1
+    }
+
+    internal companion object {
+        @JvmStatic
+        @ExperimentalKotlinAnnotation
+        fun methodStatic(): Int {
+            return -1
+        }
+
+        @JvmStatic
+        @ExperimentalKotlinAnnotation
+        val fieldStatic: Int = -1
     }
 }

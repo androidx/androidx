@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,20 @@
 
 package sample.optin;
 
-@ExperimentalDateTime
-class DateProvider {
-    int getDate() {
+/**
+ * Class which is experimental.
+ */
+@ExperimentalJavaAnnotation2
+class AnnotatedJavaClass2 {
+    public static final int FIELD_STATIC = -1;
+
+    public static int methodStatic() {
+        return -1;
+    }
+
+    public final int field = -1;
+
+    public int method() {
         return -1;
     }
 }

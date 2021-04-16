@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,20 @@
 
 package sample.optin
 
-class TimeProviderKt {
-    @ExperimentalDateTimeKt
-    fun getTime(): Int {
+@ExperimentalKotlinAnnotation
+open class AnnotatedKotlinClass {
+    val field: Int = -1
+
+    fun method(): Int {
         return -1
     }
 
-    @ExperimentalDateTime
-    fun getTimeJava(): Int {
-        return -1
-    }
-
-    internal companion object {
+    companion object {
         @JvmStatic
-        @ExperimentalDateTimeKt
-        fun getTimeStatically(): Int {
+        val fieldStatic: Int = -1
+
+        @JvmStatic
+        fun methodStatic(): Int {
             return -1
         }
     }
