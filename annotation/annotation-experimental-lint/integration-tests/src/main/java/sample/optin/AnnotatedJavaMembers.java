@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,25 @@
  * limitations under the License.
  */
 
-package sample.optin
+package sample.optin;
 
-@Suppress("DEPRECATION")
-@RequiresOptIn
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
-annotation class ExperimentalDateTimeKt
+/**
+ * Class which is stable but has experimental members.
+ */
+class AnnotatedJavaMembers {
+    @ExperimentalJavaAnnotation
+    public static final int FIELD_STATIC = -1;
+
+    @ExperimentalJavaAnnotation
+    public static int methodStatic() {
+        return -1;
+    }
+
+    @ExperimentalJavaAnnotation
+    public final int field = -1;
+
+    @ExperimentalJavaAnnotation
+    public int method() {
+        return -1;
+    }
+}
