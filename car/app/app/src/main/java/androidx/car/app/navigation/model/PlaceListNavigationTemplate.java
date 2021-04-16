@@ -195,7 +195,7 @@ public final class PlaceListNavigationTemplate implements Template {
         /**
          * Sets the title of the template.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code title} is null
          * @see CarText
@@ -207,9 +207,9 @@ public final class PlaceListNavigationTemplate implements Template {
         }
 
         /**
-         * Sets the title of the template.
+         * Sets the title of the template, with support for multiple length variants.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code title} is null
          * @see CarText

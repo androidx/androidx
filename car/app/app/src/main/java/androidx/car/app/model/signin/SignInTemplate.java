@@ -30,6 +30,7 @@ import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
+import androidx.car.app.model.ForegroundCarColorSpan;
 import androidx.car.app.model.Template;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -315,6 +316,9 @@ public final class SignInTemplate implements Template {
          *
          * <p>By default, no actions are displayed.
          *
+         * <p>The action's title color can be customized with {@link ForegroundCarColorSpan}
+         * instances, any other spans will be ignored by the host.
+         *
          * <h4>Requirements</h4>
          *
          * This template allows up to 2 {@link Action}s.
@@ -338,7 +342,7 @@ public final class SignInTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code title} is {@code null}
          */

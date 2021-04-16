@@ -284,12 +284,10 @@ public final class Action {
         /**
          * Sets the title to display in the action.
          *
-         * <p>Custom {@link ForegroundCarColorSpan}s are supported in the input string. See the
-         * documentation on where the {@link Action} is added for more details on any
-         * other restriction(s) that might apply.
+         * <p>Support for text spans depends on where the action is used. See the documentation
+         * of the specific APIs taking an {@link Action} for details.
          *
          * @throws NullPointerException if {@code title} is {@code null}
-         * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -298,11 +296,11 @@ public final class Action {
         }
 
         /**
-         * Sets the title to display in the action.
+         * Sets the title to display in the action, with support for multiple length variants.
          *
-         * <p>{@link ForegroundCarColorSpan}s are supported in the input string. See the
-         * documentation on where the {@link Action} is added for more details on any
-         * other restriction(s) that might apply.
+         * <p>Support for text spans depends on where the action is used. For example,
+         * most templates taking an action support {@link ForegroundCarColorSpan}, but this may
+         * vary. See the documentation of the specific APIs taking an {@link Action} for details.
          *
          * @throws NullPointerException if {@code title} is {@code null}
          * @see CarText
@@ -365,7 +363,7 @@ public final class Action {
          *
          * @param backgroundColor the {@link CarColor} to set as background. Use {@link
          *                        CarColor#DEFAULT} to let the host pick a default
-         * @throws NullPointerException     if {@code backgroundColor} is {@code null}
+         * @throws NullPointerException if {@code backgroundColor} is {@code null}
          */
         @NonNull
         public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {

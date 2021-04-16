@@ -225,7 +225,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
         /**
          * Sets the title of the template.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code title} is null
          * @see CarText
@@ -237,9 +237,9 @@ public final class RoutePreviewNavigationTemplate implements Template {
         }
 
         /**
-         * Sets the title of the template.
+         * Sets the title of the template, with support for multiple length variants.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code title} is null
          * @see CarText
@@ -295,7 +295,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * <p>This should not be {@code null} if the template is not in a loading state (see
          * #setIsLoading}), and the {@link Action}'s title must be set.
          *
-         * <p>Any background colors or spans set on the action will be ignored.
+         * <p>Spans are not supported in the navigate action and will be ignored.
          *
          * @throws NullPointerException     if {@code navigateAction} is {@code null}
          * @throws IllegalArgumentException if {@code navigateAction}'s title is {@code null} or

@@ -71,7 +71,6 @@ public final class RemoteUtils {
      * Performs the remote call to the host and handles exceptions thrown by the host.
      *
      * @return the value that the host returns for the IPC
-     *
      * @throws RemoteException   if the host is unresponsive
      * @throws SecurityException as a pass through from the host
      * @throws HostException     if the remote call fails with any other exception
