@@ -20,6 +20,7 @@ import android.content.ComponentName
 import android.os.Handler
 import android.os.Looper
 import androidx.wear.complications.ComplicationProviderService
+import androidx.wear.complications.ComplicationRequest
 import androidx.wear.complications.ProviderUpdateRequester
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
@@ -55,13 +56,12 @@ class BackgroundProviderService : ComplicationProviderService() {
         handler.postDelayed(this::backgroundUpdate, UPDATE_CADEANCE_MS)
     }
 
-    override fun onComplicationUpdate(
-        complicationId: Int,
-        type: ComplicationType,
-        listener: ComplicationUpdateListener
+    override fun onComplicationRequest(
+        request: ComplicationRequest,
+        listener: ComplicationRequestListener
     ) {
-        listener.onUpdateComplication(
-            when (type) {
+        listener.onComplicationData(
+            when (request.complicationType) {
                 ComplicationType.SHORT_TEXT ->
                     ShortTextComplicationData.Builder(plainText("# $counter")).build()
 
