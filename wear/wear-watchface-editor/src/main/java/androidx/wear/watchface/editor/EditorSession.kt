@@ -35,6 +35,7 @@ import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.data.LongTextComplicationData
@@ -422,12 +423,14 @@ public abstract class BaseEditorSession internal constructor(
 
         providerInfo.providerIcon == null ->
             LongTextComplicationData.Builder(
-                PlainComplicationText.Builder(providerInfo.providerName!!).build()
+                PlainComplicationText.Builder(providerInfo.providerName!!).build(),
+                ComplicationText.EMPTY
             ).build()
 
         else ->
             ShortTextComplicationData.Builder(
-                PlainComplicationText.Builder(providerInfo.providerName!!).build()
+                PlainComplicationText.Builder(providerInfo.providerName!!).build(),
+                ComplicationText.EMPTY
             ).setMonochromaticImage(
                 MonochromaticImage.Builder(providerInfo.providerIcon!!).build()
             ).build()
