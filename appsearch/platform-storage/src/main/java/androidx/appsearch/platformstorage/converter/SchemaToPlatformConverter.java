@@ -114,7 +114,7 @@ public final class SchemaToPlatformConverter {
                     documentProperty.getName())
                     .setCardinality(documentProperty.getCardinality())
                     .setSchemaType(documentProperty.getSchemaType())
-                    .setIndexNestedProperties(documentProperty.isIndexNestedProperties())
+                    .setIndexNestedProperties(documentProperty.shouldIndexNestedProperties())
                     .build();
         } else {
             throw new IllegalArgumentException(
@@ -163,7 +163,7 @@ public final class SchemaToPlatformConverter {
                     documentProperty.getName(),
                     documentProperty.getSchemaType())
                     .setCardinality(documentProperty.getCardinality())
-                    .setIndexNestedProperties(documentProperty.isIndexNestedProperties())
+                    .setShouldIndexNestedProperties(documentProperty.isIndexNestedProperties())
                     .build();
         } else {
             throw new IllegalArgumentException(
