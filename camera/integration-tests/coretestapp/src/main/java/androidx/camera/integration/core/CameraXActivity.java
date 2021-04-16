@@ -39,6 +39,7 @@ import android.util.Log;
 import android.util.Range;
 import android.util.Rational;
 import android.view.Display;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -64,12 +65,16 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.ExposureState;
+import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
@@ -142,10 +147,10 @@ public class CameraXActivity extends AppCompatActivity {
 
     // TODO: Move the analysis processing, capture processing to separate threads, so
     // there is smaller impact on the preview.
-    private View mViewFinder;
+    View mViewFinder;
     private List<UseCase> mUseCases;
     private ExecutorService mImageCaptureExecutorService;
-    private Camera mCamera;
+    Camera mCamera;
 
     private ToggleButton mVideoToggle;
     private ToggleButton mPhotoToggle;
@@ -583,7 +588,7 @@ public class CameraXActivity extends AppCompatActivity {
         mTextView = findViewById(R.id.textView);
 
         setUpButtonEvents();
-        setupPinchToZoom();
+        setupViewFinderGestureControls();
 
         mImageAnalysisResult.observe(
                 this,
@@ -914,19 +919,39 @@ public class CameraXActivity extends AppCompatActivity {
                 }
             };
 
-    private void setupPinchToZoom() {
-        ScaleGestureDetector scaleDetector = new ScaleGestureDetector(this, mScaleGestureListener);
-        mViewFinder.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                scaleDetector.onTouchEvent(motionEvent);
+    GestureDetector.OnGestureListener onTapGestureListener =
+            new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    // Since we are showing full camera preview we will be using
+                    // DisplayOrientedMeteringPointFactory to map the view's (x, y) to a
+                    // metering point.
+                    MeteringPointFactory factory =
+                            new DisplayOrientedMeteringPointFactory(
+                                    mViewFinder.getDisplay(),
+                                    mCamera.getCameraInfo(),
+                                    mViewFinder.getWidth(),
+                                    mViewFinder.getHeight());
+                    FocusMeteringAction action = new FocusMeteringAction.Builder(
+                            factory.createPoint(e.getX(), e.getY())
+                    ).build();
+                    Futures.addCallback(
+                            mCamera.getCameraControl().startFocusAndMetering(action),
+                            new FutureCallback<FocusMeteringResult>() {
+                                @Override
+                                public void onSuccess(FocusMeteringResult result) {
+                                    Log.d(TAG, "Focus and metering succeeded.");
+                                }
 
-                return true;
-            }
-        });
-
-
-    }
+                                @Override
+                                public void onFailure(Throwable t) {
+                                    Log.e(TAG, "Focus and metering failed.", t);
+                                }
+                            },
+                            CameraXExecutors.mainThreadExecutor());
+                    return true;
+                }
+            };
 
     private void setupZoomSeeker() {
         CameraControl cameraControl = mCamera.getCameraControl();
@@ -979,6 +1004,16 @@ public class CameraXActivity extends AppCompatActivity {
                 mZoomRatioLabel.setText(str);
                 mZoomSeekBar.setProgress((int) (MAX_SEEKBAR_VALUE * state.getLinearZoom()));
             });
+    }
+
+    private void setupViewFinderGestureControls() {
+        GestureDetector tapGestureDetector = new GestureDetector(this, onTapGestureListener);
+        ScaleGestureDetector scaleDetector = new ScaleGestureDetector(this, mScaleGestureListener);
+        mViewFinder.setOnTouchListener((view, e) -> {
+            boolean tapEventProcessed = tapGestureDetector.onTouchEvent(e);
+            boolean scaleEventProcessed = scaleDetector.onTouchEvent(e);
+            return tapEventProcessed || scaleEventProcessed;
+        });
     }
 
     /** Gets the absolute path from a Uri. */
