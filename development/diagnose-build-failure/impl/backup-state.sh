@@ -3,6 +3,7 @@ set -e
 
 stateDir="$1"
 gradlewDir="$2"
+moveArg="$3"
 
 scriptPath="$(cd $(dirname $0) && pwd)"
 supportRoot="$(cd $scriptPath/../../.. && pwd)"
@@ -22,6 +23,11 @@ if [ "$gradlewDir" == "" ]; then
   usage
 fi
 
+move=false
+if [ "$moveArg" == "--move" ]; then
+  move=true
+fi
+
 rm -rf "$stateDir"
 mkdir -p "$stateDir"
 stateDir="$(cd $stateDir && pwd)"
@@ -37,8 +43,13 @@ function copy() {
   rm "$to" -rf
   if [ -e "$from" ]; then
     mkdir -p "$(dirname $to)"
-    cp --preserve=all -rT "$from" "$to"
+    if [ "$move" == "true" ]; then
+      mv "$from" "$to"
+    else
+      cp --preserve=all -rT "$from" "$to"
+    fi
   fi
+
 }
 
 function backupState() {
