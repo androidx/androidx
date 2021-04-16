@@ -28,10 +28,10 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import org.hamcrest.Matcher
 
-public fun dragRight(): ViewAction? {
+public fun slideClose(): ViewAction? {
     return ViewActions.actionWithAssertions(
         GeneralSwipeAction(
-            Swipe.SLOW,
+            Swipe.FAST,
             GeneralLocation.CENTER_LEFT,
             GeneralLocation.CENTER_RIGHT,
             Press.FINGER
@@ -39,10 +39,10 @@ public fun dragRight(): ViewAction? {
     )
 }
 
-public fun dragLeft(): ViewAction? {
+public fun slideOpen(): ViewAction? {
     return ViewActions.actionWithAssertions(
         GeneralSwipeAction(
-            Swipe.SLOW,
+            Swipe.FAST,
             GeneralLocation.CENTER_RIGHT,
             GeneralLocation.CENTER_LEFT,
             Press.FINGER
