@@ -3982,7 +3982,8 @@ package androidx.core.widget {
     method public static void setPrecomputedText(android.widget.TextView, androidx.core.text.PrecomputedTextCompat);
     method public static void setTextAppearance(android.widget.TextView, @StyleRes int);
     method public static void setTextMetricsParams(android.widget.TextView, androidx.core.text.PrecomputedTextCompat.Params);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.view.ActionMode.Callback wrapCustomSelectionActionModeCallback(android.widget.TextView, android.view.ActionMode.Callback);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.view.ActionMode.Callback? unwrapCustomSelectionActionModeCallback(android.view.ActionMode.Callback?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.view.ActionMode.Callback? wrapCustomSelectionActionModeCallback(android.widget.TextView, android.view.ActionMode.Callback?);
     field public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0; // 0x0
     field public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1; // 0x1
   }

@@ -23,6 +23,9 @@ import static org.junit.Assert.assertTrue;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimatedStateListDrawable;
 import android.graphics.drawable.Drawable;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
 import androidx.appcompat.test.R;
@@ -108,5 +111,41 @@ public class AppCompatCheckedTextViewTest extends AppCompatBaseViewTest<
 
         // Then the drawable should be present
         assertNotNull(checkMark);
+    }
+
+    @Test
+    public void testSetCustomSelectionActionModeCallback() {
+        final AppCompatCheckedTextView view = new AppCompatCheckedTextView(mActivity);
+        final ActionMode.Callback callback = new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+            }
+        };
+
+        // Default value is documented as null.
+        assertNull(view.getCustomSelectionActionModeCallback());
+
+        // Setter and getter should be symmetric.
+        view.setCustomSelectionActionModeCallback(callback);
+        assertEquals(callback, view.getCustomSelectionActionModeCallback());
+
+        // Argument is nullable.
+        view.setCustomSelectionActionModeCallback(null);
+        assertNull(view.getCustomSelectionActionModeCallback());
     }
 }
