@@ -36,12 +36,14 @@ import android.service.wallpaper.WallpaperService
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.SharedMemoryImage
+import android.support.wearable.watchface.accessibility.AccessibilityUtils
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.util.Log
 import android.view.Choreographer
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.WindowInsets
+import android.view.accessibility.AccessibilityManager
 import androidx.annotation.IntDef
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
@@ -62,6 +64,7 @@ import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
+import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
@@ -239,6 +242,10 @@ public abstract class WatchFaceService : WallpaperService() {
 
         // Filename for persisted preferences to be used in a direct boot scenario.
         private const val DIRECT_BOOT_PREFS = "directboot.prefs"
+
+        // The index of the watch element in the content description labels. Usually it will be
+        // first.
+        private const val WATCH_ELEMENT_ACCESSIBILITY_TRAVERSAL_INDEX = -1
     }
 
     /**
@@ -392,7 +399,7 @@ public abstract class WatchFaceService : WallpaperService() {
         private var ignoreNextOnVisibilityChanged = false
 
         internal var lastActiveComplications: IntArray? = null
-        internal var lastA11yLabels: Array<ContentDescriptionLabel>? = null
+        internal var contentDescriptionLabels: Array<ContentDescriptionLabel> = emptyArray()
 
         private var firstOnSurfaceChangedReceived = false
         private var asyncWatchFaceConstructionPending = false
@@ -618,9 +625,8 @@ public abstract class WatchFaceService : WallpaperService() {
                 setActiveComplications(activeComplications)
             }
 
-            val a11yLabels = lastA11yLabels
-            if (a11yLabels != null) {
-                setContentDescriptionLabels(a11yLabels)
+            if (contentDescriptionLabels.isNotEmpty()) {
+                setContentDescriptionLabels(contentDescriptionLabels)
             }
         }
 
@@ -1255,7 +1261,7 @@ public abstract class WatchFaceService : WallpaperService() {
             @ProviderId fallbackSystemProvider: Int,
             type: Int
         ) {
-            // For wear 3.0 watchfaces iWatchFaceService won't have been set.
+            // For android R flow iWatchFaceService won't have been set.
             if (!this::iWatchFaceService.isInitialized) {
                 return
             }
@@ -1292,7 +1298,7 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         override fun setActiveComplications(watchFaceComplicationIds: IntArray) {
-            // For wear 3.0 watchfaces iWatchFaceService won't have been set.
+            // For android R flow iWatchFaceService won't have been set.
             if (!this::iWatchFaceService.isInitialized) {
                 return
             }
@@ -1309,17 +1315,85 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        override fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>) {
-            // For wear 3.0 watchfaces iWatchFaceService won't have been set.
-            if (!this::iWatchFaceService.isInitialized) {
-                return
+        override fun updateContentDescriptionLabels() {
+            val labels = mutableListOf<Pair<Int, ContentDescriptionLabel>>()
+
+            // Add a ContentDescriptionLabel for the main clock element.
+            labels.add(
+                Pair(
+                    WATCH_ELEMENT_ACCESSIBILITY_TRAVERSAL_INDEX,
+                    ContentDescriptionLabel(
+                        watchFaceImpl.renderer.getMainClockElementBounds(),
+                        AccessibilityUtils.makeTimeAsComplicationText(_context)
+                    )
+                )
+            )
+
+            // Add a ContentDescriptionLabel for each enabled complication.
+            val screenBounds = watchFaceImpl.renderer.screenBounds
+            for ((_, complication) in watchFaceImpl.complicationsManager.complications) {
+                if (complication.enabled) {
+                    if (complication.boundsType == ComplicationBoundsType.BACKGROUND) {
+                        ComplicationBoundsType.BACKGROUND
+                    } else {
+                        complication.renderer.getData()?.let {
+                            labels.add(
+                                Pair(
+                                    complication.accessibilityTraversalIndex,
+                                    ContentDescriptionLabel(
+                                        _context,
+                                        complication.computeBounds(screenBounds),
+                                        it.asWireComplicationData()
+                                    )
+                                )
+                            )
+                        }
+                    }
+                }
             }
 
-            lastA11yLabels = labels
-            try {
-                iWatchFaceService.setContentDescriptionLabels(labels)
-            } catch (e: RemoteException) {
-                Log.e(TAG, "Failed to set accessibility labels: ", e)
+            // Add any additional labels defined by the watch face.
+            for (labelPair in watchFaceImpl.renderer.additionalContentDescriptionLabels) {
+                labels.add(
+                    Pair(
+                        labelPair.first,
+                        ContentDescriptionLabel(
+                            labelPair.second.bounds,
+                            labelPair.second.text.toWireComplicationText()
+                        ).apply {
+                            tapAction = labelPair.second.tapAction
+                        }
+                    )
+                )
+            }
+
+            setContentDescriptionLabels(
+                labels.sortedBy { it.first }.map { it.second }.toTypedArray()
+            )
+
+            // From Android R Let SysUI know the labels have changed if the accessibility manager
+            // is enabled.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                getAccessibilityManager().isEnabled
+            ) {
+                // TODO(alexclarke): This should require a permission. See http://b/184717802
+                _context.sendBroadcast(Intent(Constants.ACTION_WATCH_FACE_REFRESH_A11Y_LABELS))
+            }
+        }
+
+        private fun getAccessibilityManager() =
+            _context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+
+        private fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>) {
+            contentDescriptionLabels = labels
+
+            // For the old pre-android R flow.
+            if (this::iWatchFaceService.isInitialized) {
+                try {
+                    iWatchFaceService.setContentDescriptionLabels(contentDescriptionLabels)
+                } catch (e: RemoteException) {
+                    Log.e(TAG, "Failed to set accessibility labels: ", e)
+                }
             }
         }
 

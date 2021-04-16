@@ -16,20 +16,17 @@
 
 package androidx.wear.watchface.client
 
-import android.app.PendingIntent
-import android.content.res.Resources
 import android.graphics.Bitmap
-import android.graphics.Rect
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.AnyThread
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.toApiComplicationText
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.TapType
 import androidx.wear.watchface.control.IInteractiveWatchFace
@@ -41,7 +38,6 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleData
-import java.util.Objects
 import java.util.concurrent.Executor
 
 /**
@@ -150,43 +146,6 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * Sends a tap event to the watch face for processing.
      */
     public fun sendTouchEvent(@Px xPosition: Int, @Px yPosition: Int, @TapType tapType: Int)
-
-    /**
-     * Describes regions of the watch face for use by a screen reader.
-     *
-     * @param text [ComplicationText] associated with the region, to be read by the screen reader.
-     * @param bounds [Rect] describing the area of the feature on screen.
-     * @param tapAction [PendingIntent] to be used if the screen reader's user triggers a tap
-     * action.
-     */
-    public class ContentDescriptionLabel(
-        private val text: ComplicationText,
-        public val bounds: Rect,
-        public val tapAction: PendingIntent?
-    ) {
-        /**
-         * Returns the text that should be displayed for the given timestamp.
-         *
-         * @param resources [Resources] from the current [android.content.Context]
-         * @param dateTimeMillis milliseconds since epoch, e.g. from [System.currentTimeMillis]
-         */
-        public fun getTextAt(resources: Resources, dateTimeMillis: Long): CharSequence =
-            text.getTextAt(resources, dateTimeMillis)
-
-        override fun equals(other: Any?): Boolean =
-            other is ContentDescriptionLabel &&
-                text == other.text &&
-                bounds == other.bounds &&
-                tapAction == other.tapAction
-
-        override fun hashCode(): Int {
-            return Objects.hash(
-                text,
-                bounds,
-                tapAction
-            )
-        }
-    }
 
     /**
      * Returns the [ContentDescriptionLabel]s describing the watch face, for the use by screen
@@ -337,9 +296,9 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         iInteractiveWatchFace.sendTouchEvent(xPosition, yPosition, tapType)
     }
 
-    override val contentDescriptionLabels: List<InteractiveWatchFaceClient.ContentDescriptionLabel>
+    override val contentDescriptionLabels: List<ContentDescriptionLabel>
         get() = iInteractiveWatchFace.contentDescriptionLabels.map {
-            InteractiveWatchFaceClient.ContentDescriptionLabel(
+            ContentDescriptionLabel(
                 it.text.toApiComplicationText(),
                 it.bounds,
                 it.tapAction

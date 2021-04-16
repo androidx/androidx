@@ -169,6 +169,27 @@ public sealed class Renderer(
             }
         }
 
+    /**
+     * Accessibility [ContentDescriptionLabel] for any rendered watch face elements other than the
+     * time and [Complication]s which are generated automatically.
+     *
+     * The [Int] in the `Pair<Int, ContentDescriptionLabel>` is used to sort the
+     * [ContentDescriptionLabel]s. Note the time piece has an accessibility traversal index of -1
+     * and each complication's index is defined by its [Complication.accessibilityTraversalIndex].
+     */
+    public var additionalContentDescriptionLabels:
+        Collection<Pair<Int, ContentDescriptionLabel>> = emptyList()
+            set(value) {
+                field = value
+                for (pair in value) {
+                    require(pair.first >= 0) {
+                        "Each accessibility label index in additionalContentDescriptionLabels " +
+                            "must be >= 0"
+                    }
+                }
+                watchFaceHostApi.updateContentDescriptionLabels()
+            }
+
     /** Called when the Renderer is destroyed. */
     @UiThread
     public open fun onDestroy() {

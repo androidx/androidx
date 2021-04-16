@@ -20,7 +20,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Handler
 import android.support.wearable.complications.ComplicationData
-import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders
@@ -59,8 +58,7 @@ public interface WatchFaceHostApi {
      * This is a fairly expensive operation so use it sparingly (e.g. do not call it in
      * `onDraw()`).
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>)
+    public fun updateContentDescriptionLabels()
 
     /**
      * Sets the complications which are active in the watchface. Complication data will be

@@ -3,6 +3,7 @@ package android.support.wearable.watchface {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class Constants {
     field public static final String ACTION_REQUEST_STATE = "com.google.android.wearable.watchfaces.action.REQUEST_STATE";
+    field public static final String ACTION_WATCH_FACE_REFRESH_A11Y_LABELS = "androidx.watchface.action.WATCH_FACE_A11Y_LABELS_REFRESH";
     field public static final String COMMAND_AMBIENT_UPDATE = "com.google.android.wearable.action.AMBIENT_UPDATE";
     field public static final String COMMAND_BACKGROUND_ACTION = "com.google.android.wearable.action.BACKGROUND_ACTION";
     field public static final String COMMAND_COMPLICATION_DATA = "com.google.android.wearable.action.COMPLICATION_DATA";
@@ -42,6 +43,7 @@ package android.support.wearable.watchface {
     field public static final String KEY_TAP_ACTION = "KEY_TAP_ACTION";
     field public static final String KEY_TEXT = "KEY_TEXT";
     field public static final String KEY_VIEW_PROTECTION_MODE = "viewProtectionMode";
+    field public static final String PERMISSION_BIND_WATCH_FACE_CONTROL = "com.google.android.wearable.permission.BIND_WATCH_FACE_CONTROL";
     field public static final String PROPERTY_BURN_IN_PROTECTION = "burn_in_protection";
     field public static final String PROPERTY_LOW_BIT_AMBIENT = "low_bit_ambient";
     field public static final int PROVIDER_CHOOSER_REQUEST_CODE = 1; // 0x1
@@ -299,13 +301,15 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class ComplicationOverlayWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationOverlayWireFormat(int, Boolean?, java.util.Map<androidx.wear.complications.data.ComplicationType!,android.graphics.RectF!>?);
+    ctor public ComplicationOverlayWireFormat(int, Boolean?, java.util.Map<androidx.wear.complications.data.ComplicationType!,android.graphics.RectF!>?, Integer?);
     method public int describeContents();
+    method public Integer? getAccessibilityTraversalIndex();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.style.data.ComplicationOverlayWireFormat!>! CREATOR;
     field public static final int ENABLED_NO = 0; // 0x0
     field public static final int ENABLED_UNKNOWN = -1; // 0xffffffff
     field public static final int ENABLED_YES = 1; // 0x1
+    field public static final long NULL_ACCESSIBILITY_TRAVERSAL_INDEX = 4294967296L; // 0x100000000L
     field @androidx.versionedparcelable.ParcelField(1) public int mComplicationId;
     field @androidx.versionedparcelable.ParcelField(2) public int mEnabled;
     field @androidx.versionedparcelable.ParcelField(3) public java.util.Map<androidx.wear.complications.data.ComplicationType!,android.graphics.RectF!>? mPerComplicationTypeBounds;
