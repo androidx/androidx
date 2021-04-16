@@ -19,6 +19,7 @@ package androidx.wear.complications.data
 import android.app.PendingIntent
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
+import androidx.wear.complications.ComplicationHelperActivity
 
 /** The wire format for [ComplicationData]. */
 internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
@@ -31,7 +32,14 @@ internal typealias WireComplicationDataBuilder =
 public sealed class ComplicationData constructor(
     public val type: ComplicationType,
     public val tapAction: PendingIntent?,
-    internal var cachedWireComplicationData: WireComplicationData?
+    internal var cachedWireComplicationData: WireComplicationData?,
+    /**
+     * Describes when the complication should be displayed.
+     *
+     * Whether the complication is active and should be displayed at the given time should be
+     * checked with [TimeRange.contains].
+     */
+    public val validTimeRange: TimeRange = TimeRange.ALWAYS
 ) {
     /**
      * Converts this value to [WireComplicationData] object used for serialization.
@@ -42,14 +50,6 @@ public sealed class ComplicationData constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public abstract fun asWireComplicationData(): WireComplicationData
-
-    /**
-     * Returns true if the complication is active and should be displayed at the given time. If this
-     * returns false, the complication should not be displayed.
-     *
-     * This must be checked for any time for which the complication will be displayed.
-     */
-    public abstract fun isActiveAt(dateTimeMillis: Long): Boolean
 
     internal fun createWireComplicationDataBuilder(): WireComplicationDataBuilder =
         cachedWireComplicationData?.let {
@@ -63,8 +63,6 @@ public sealed class ComplicationData constructor(
  * leave the slot empty.
  */
 public class NoDataComplicationData : ComplicationData(TYPE, null, null) {
-    override fun isActiveAt(dateTimeMillis: Long): Boolean = true
-
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
@@ -83,8 +81,6 @@ public class NoDataComplicationData : ComplicationData(TYPE, null, null) {
  * this type.
  */
 public class EmptyComplicationData : ComplicationData(TYPE, null, null) {
-    override fun isActiveAt(dateTimeMillis: Long): Boolean = true
-
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
@@ -104,8 +100,6 @@ public class EmptyComplicationData : ComplicationData(TYPE, null, null) {
  * of this type.
  */
 public class NotConfiguredComplicationData : ComplicationData(TYPE, null, null) {
-    override fun isActiveAt(dateTimeMillis: Long): Boolean = true
-
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
@@ -132,13 +126,11 @@ public class ShortTextComplicationData internal constructor(
     public val monochromaticImage: MonochromaticImage?,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    public val validTimeRange: TimeRange?,
+    validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?
-) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
-
-    public override fun isActiveAt(dateTimeMillis: Long): Boolean =
-        validTimeRange?.contains(dateTimeMillis) ?: true
-
+) : ComplicationData(
+    TYPE, tapAction, cachedWireComplicationData, validTimeRange ?: TimeRange.ALWAYS
+) {
     /**
      * Builder for [ShortTextComplicationData].
      *
@@ -158,6 +150,7 @@ public class ShortTextComplicationData internal constructor(
         }
 
         /** Sets optional time range during which the complication has to be shown. */
+        @Suppress("MissingGetterMatchingBuilder") // b/174052810
         public fun setValidTimeRange(validTimeRange: TimeRange?): Builder = apply {
             this.validTimeRange = validTimeRange
         }
@@ -233,13 +226,11 @@ public class LongTextComplicationData internal constructor(
     public val smallImage: SmallImage?,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    public val validTimeRange: TimeRange?,
+    validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?
-) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
-
-    public override fun isActiveAt(dateTimeMillis: Long): Boolean =
-        validTimeRange?.contains(dateTimeMillis) ?: true
-
+) : ComplicationData(
+    TYPE, tapAction, cachedWireComplicationData, validTimeRange ?: TimeRange.ALWAYS
+) {
     /**
      * Builder for [LongTextComplicationData].
      *
@@ -260,6 +251,7 @@ public class LongTextComplicationData internal constructor(
         }
 
         /** Sets optional time range during which the complication has to be shown. */
+        @Suppress("MissingGetterMatchingBuilder") // b/174052810
         public fun setValidTimeRange(validTimeRange: TimeRange?): Builder = apply {
             this.validTimeRange = validTimeRange
         }
@@ -344,13 +336,11 @@ public class RangedValueComplicationData internal constructor(
     public val text: ComplicationText?,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    public val validTimeRange: TimeRange?,
+    validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?
-) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
-
-    public override fun isActiveAt(dateTimeMillis: Long): Boolean =
-        validTimeRange?.contains(dateTimeMillis) ?: true
-
+) : ComplicationData(
+    TYPE, tapAction, cachedWireComplicationData, validTimeRange ?: TimeRange.ALWAYS
+) {
     /**
      * Builder for [RangedValueComplicationData].
      *
@@ -375,6 +365,7 @@ public class RangedValueComplicationData internal constructor(
         }
 
         /** Sets optional time range during which the complication has to be shown. */
+        @Suppress("MissingGetterMatchingBuilder") // b/174052810
         public fun setValidTimeRange(validTimeRange: TimeRange?): Builder = apply {
             this.validTimeRange = validTimeRange
         }
@@ -458,13 +449,11 @@ public class MonochromaticImageComplicationData internal constructor(
     public val monochromaticImage: MonochromaticImage,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    public val validTimeRange: TimeRange?,
+    validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?
-) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
-
-    public override fun isActiveAt(dateTimeMillis: Long): Boolean =
-        validTimeRange?.contains(dateTimeMillis) ?: true
-
+) : ComplicationData(
+    TYPE, tapAction, cachedWireComplicationData, validTimeRange ?: TimeRange.ALWAYS
+) {
     /**
      * Builder for [MonochromaticImageComplicationData].
      *
@@ -484,6 +473,7 @@ public class MonochromaticImageComplicationData internal constructor(
         }
 
         /** Sets optional time range during which the complication has to be shown. */
+        @Suppress("MissingGetterMatchingBuilder") // b/174052810
         public fun setValidTimeRange(validTimeRange: TimeRange?): Builder = apply {
             this.validTimeRange = validTimeRange
         }
@@ -541,13 +531,11 @@ public class SmallImageComplicationData internal constructor(
     public val smallImage: SmallImage,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    public val validTimeRange: TimeRange?,
+    validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?
-) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
-
-    public override fun isActiveAt(dateTimeMillis: Long): Boolean =
-        validTimeRange?.contains(dateTimeMillis) ?: true
-
+) : ComplicationData(
+    TYPE, tapAction, cachedWireComplicationData, validTimeRange ?: TimeRange.ALWAYS
+) {
     /**
      * Builder for [SmallImageComplicationData].
      *
@@ -567,6 +555,7 @@ public class SmallImageComplicationData internal constructor(
         }
 
         /** Sets optional time range during which the complication has to be shown. */
+        @Suppress("MissingGetterMatchingBuilder") // b/174052810
         public fun setValidTimeRange(validTimeRange: TimeRange?): Builder = apply {
             this.validTimeRange = validTimeRange
         }
@@ -628,13 +617,11 @@ public class PhotoImageComplicationData internal constructor(
     public val photoImage: Icon,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
-    public val validTimeRange: TimeRange?,
+    validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?
-) : ComplicationData(TYPE, tapAction, cachedWireComplicationData) {
-
-    public override fun isActiveAt(dateTimeMillis: Long): Boolean =
-        validTimeRange?.contains(dateTimeMillis) ?: true
-
+) : ComplicationData(
+    TYPE, tapAction, cachedWireComplicationData, validTimeRange ?: TimeRange.ALWAYS
+) {
     /**
      * Builder for [PhotoImageComplicationData].
      *
@@ -714,9 +701,6 @@ public class NoPermissionComplicationData internal constructor(
     public val monochromaticImage: MonochromaticImage?,
     cachedWireComplicationData: WireComplicationData?
 ) : ComplicationData(TYPE, null, cachedWireComplicationData) {
-
-    override fun isActiveAt(dateTimeMillis: Long): Boolean = true
-
     /**
      * Builder for [NoPermissionComplicationData].
      *
