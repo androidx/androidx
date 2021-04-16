@@ -63,6 +63,7 @@ internal class FirebaseTestLabHelper(
 
     companion object {
         const val ANCHOR_TASK_NAME = "firebaseTestLabTests"
+
         /**
          * AGP base plugin is applied before the extension is created so instead we use plugin
          * ids here.

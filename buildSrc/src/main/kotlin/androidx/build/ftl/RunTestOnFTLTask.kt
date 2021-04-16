@@ -85,7 +85,7 @@ abstract class RunTestOnFTLTask @Inject constructor(
 
     abstract class RunFTLTestWorkAction @Inject constructor(
         private val execOperations: ExecOperations
-    ): WorkAction<RunFTLTestParams> {
+    ) : WorkAction<RunFTLTestParams> {
         override fun execute() {
             val testApk = parameters.testApk.asFile.get()
             val testedApk = parameters.testedApk.asFile.get()
