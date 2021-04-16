@@ -95,19 +95,19 @@ public abstract class Navigator<D : NavDestination> {
 
     /**
      * Called to ask for a [Bundle] representing the Navigator's state. This will be
-     * restored in [.onRestoreState].
+     * restored in [onRestoreState].
      */
     public open fun onSaveState(): Bundle? {
         return null
     }
 
     /**
-     * Restore any state previously saved in [.onSaveState]. This will be called before
-     * any calls to [.navigate] or
-     * [.popBackStack].
+     * Restore any state previously saved in [onSaveState]. This will be called before
+     * any calls to [navigate] or
+     * [popBackStack].
      *
-     * Calls to [.createDestination] should not be dependent on any state restored here as
-     * [.createDestination] can be called before the state is restored.
+     * Calls to [createDestination] should not be dependent on any state restored here as
+     * [createDestination] can be called before the state is restored.
      *
      * @param savedState The state previously saved
      */

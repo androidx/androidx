@@ -40,15 +40,15 @@ import kotlin.coroutines.resumeWithException
  * Retrieves [ComplicationProviderInfo] for a watch face's complications.
  *
  *
- * To use construct an instance and call [.retrieveProviderInfo] which returns a [ ].
+ * To use construct an instance and call [retrieveProviderInfo] which returns a [ ].
  *
  *
- * Further calls to [.retrieveProviderInfo] may be made using the same instance of this
- * class, but [.close] must be called when it is no longer needed. Once release has been
+ * Further calls to [retrieveProviderInfo] may be made using the same instance of this
+ * class, but [close] must be called when it is no longer needed. Once release has been
  * called, further retrieval attempts will fail.
  */
 public class ProviderInfoRetriever : AutoCloseable {
-    /** Results for [.retrieveProviderInfo]. */
+    /** Results for [retrieveProviderInfo]. */
     public class ProviderInfo internal constructor(
         /** The id for the complication, as provided to [retrieveProviderInfo].  */
         public val watchFaceComplicationId: Int,
@@ -202,7 +202,7 @@ public class ProviderInfoRetriever : AutoCloseable {
      * be called when the retriever is no longer needed.
      *
      *
-     * Any outstanding or subsequent futures returned by [.retrieveProviderInfo] will
+     * Any outstanding or subsequent futures returned by [retrieveProviderInfo] will
      * resolve with null.
      *
      * This class implements the Java `AutoClosable` interface and
