@@ -19,6 +19,7 @@ package androidx.build.ftl
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
+import org.gradle.api.GradleException
 import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -45,10 +46,20 @@ internal class GCloudCLIWrapper(
      */
     private val executable: String by lazy {
         val output = ByteArrayOutputStream()
-        execOperations.exec {
+        val result = execOperations.exec {
             it.commandLine("which", "gcloud")
             it.standardOutput = output
-            it.errorOutput = System.err
+            it.isIgnoreExitValue = true
+        }
+        if (result.exitValue != 0) {
+            throw GradleException(
+                """
+                Unable to find gcloud CLI executable.
+                `which gcloud` returned exit code ${result.exitValue}.
+                Make sure gcloud CLI is installed, authenticated and is part of your PATH.
+                See https://cloud.google.com/sdk/gcloud for installation instructions.
+                """.trimIndent()
+            )
         }
         output.toString(Charsets.UTF_8).trim()
     }
@@ -72,7 +83,7 @@ internal class GCloudCLIWrapper(
     fun runTest(
         testedApk: File,
         testApk: File
-    ) : List<TestResult> {
+    ): List<TestResult> {
         return executeGcloud(
             "firebase", "test", "android", "run",
             "--type", "instrumentation",
@@ -81,7 +92,6 @@ internal class GCloudCLIWrapper(
             "--num-flaky-test-attempts", "3",
         )
     }
-
 
     /**
      * Data structure format for gcloud FTL command
@@ -98,9 +108,9 @@ internal class GCloudCLIWrapper(
     }
 }
 
-private inline fun<reified T> Gson.parse(
+private inline fun <reified T> Gson.parse(
     input: String
 ): T {
-    val typeToken = object: TypeToken<T>() {}.type
+    val typeToken = object : TypeToken<T>() {}.type
     return this.fromJson(input, typeToken)
 }
