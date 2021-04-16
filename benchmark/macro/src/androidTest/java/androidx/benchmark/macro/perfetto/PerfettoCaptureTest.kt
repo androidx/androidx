@@ -32,20 +32,20 @@ import java.io.File
 
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(AndroidJUnit4::class)
-class PerfettoCaptureTest {
+public class PerfettoCaptureTest {
     private val traceFile = File(Outputs.dirUsableByAppAndShell, "PerfettoCaptureTest.trace")
     private val traceFilePath = traceFile.absolutePath
 
     @Before
     @After
-    fun cleanup() {
+    public fun cleanup() {
         PerfettoCapture().cancel()
         traceFile.delete()
     }
 
     @LargeTest
     @Test
-    fun traceAndCheckFileSize() {
+    public fun traceAndCheckFileSize() {
         val perfettoCapture = PerfettoCapture()
 
         verifyTraceEnable(false)
@@ -66,7 +66,7 @@ class PerfettoCaptureTest {
     }
 }
 
-fun verifyTraceEnable(enabled: Boolean) {
+public fun verifyTraceEnable(enabled: Boolean) {
     // We poll here, since we may need to wait for enable flags to propagate to apps
     verifyWithPolling(
         "Timeout waiting for Trace.isEnabled == $enabled",

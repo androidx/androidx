@@ -43,7 +43,7 @@ public class PerfettoCapture {
      * Kill perfetto process, if it is running.
      */
     public fun cancel() {
-        if (helper.isPerfettoRunning) {
+        if (helper.isPerfettoRunning()) {
             helper.stopPerfetto()
         }
     }

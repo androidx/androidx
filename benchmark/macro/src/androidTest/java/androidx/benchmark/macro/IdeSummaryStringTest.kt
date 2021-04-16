@@ -28,7 +28,7 @@ import kotlin.test.assertFailsWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class IdeSummaryStringTest {
+public class IdeSummaryStringTest {
     private fun createAbsoluteTracePaths(
         @Suppress("SameParameterValue") count: Int
     ) = List(count) {
@@ -36,7 +36,7 @@ class IdeSummaryStringTest {
     }
 
     @Test
-    fun minimalSample() {
+    public fun minimalSample() {
         val stats = Stats(longArrayOf(0, 1, 2), "Metric")
 
         assertEquals(0, stats.minIndex)
@@ -69,7 +69,7 @@ class IdeSummaryStringTest {
     }
 
     @Test
-    fun complexSample() {
+    public fun complexSample() {
         val metric1 = Stats(longArrayOf(0, 1, 2), "Metric1")
         val metric2 = Stats(longArrayOf(222, 111, 0), "Metric2")
         val absoluteTracePaths = createAbsoluteTracePaths(3)
@@ -101,7 +101,7 @@ class IdeSummaryStringTest {
     }
 
     @Test
-    fun warningSample() {
+    public fun warningSample() {
         val stats = Stats(longArrayOf(0, 1, 2), "Metric")
         val absoluteTracePaths = createAbsoluteTracePaths(3)
         val (summaryV1, summaryV2) = ideSummaryStrings(
@@ -134,7 +134,7 @@ class IdeSummaryStringTest {
     }
 
     @Test
-    fun requireNotEmpty() {
+    public fun requireNotEmpty() {
         assertFailsWith<IllegalArgumentException> {
             ideSummaryStrings(
                 warningLines = "",

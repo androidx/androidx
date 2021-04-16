@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class CompilationModeTest {
+public class CompilationModeTest {
     private val vmRunningInterpretedOnly: Boolean
 
     init {
@@ -39,7 +39,7 @@ class CompilationModeTest {
     }
 
     @Test
-    fun names() {
+    public fun names() {
         // We test these names, as they're likely built into parameterized
         // test strings, so stability/brevity are important
         assertEquals("None", CompilationMode.None.toString())
@@ -49,7 +49,7 @@ class CompilationModeTest {
     }
 
     @Test
-    fun isSupportedWithVmSettings_jitEnabled() {
+    public fun isSupportedWithVmSettings_jitEnabled() {
         assumeFalse(vmRunningInterpretedOnly)
 
         assertTrue(CompilationMode.None.isSupportedWithVmSettings())
@@ -59,7 +59,7 @@ class CompilationModeTest {
     }
 
     @Test
-    fun isSupportedWithVmSettings_jitDisabled() {
+    public fun isSupportedWithVmSettings_jitDisabled() {
         assumeTrue(vmRunningInterpretedOnly)
 
         assertFalse(CompilationMode.None.isSupportedWithVmSettings())
