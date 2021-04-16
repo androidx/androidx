@@ -22,6 +22,7 @@ import android.os.Looper
 import androidx.wear.complications.ComplicationProviderService
 import androidx.wear.complications.ComplicationRequest
 import androidx.wear.complications.ProviderUpdateRequester
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -63,10 +64,16 @@ class BackgroundProviderService : ComplicationProviderService() {
         listener.onComplicationData(
             when (request.complicationType) {
                 ComplicationType.SHORT_TEXT ->
-                    ShortTextComplicationData.Builder(plainText("# $counter")).build()
+                    ShortTextComplicationData.Builder(
+                        plainText("# $counter"),
+                        ComplicationText.EMPTY
+                    ).build()
 
                 ComplicationType.LONG_TEXT ->
-                    LongTextComplicationData.Builder(plainText("Count $counter")).build()
+                    LongTextComplicationData.Builder(
+                        plainText("Count $counter"),
+                        ComplicationText.EMPTY
+                    ).build()
 
                 else -> null
             }
@@ -75,10 +82,16 @@ class BackgroundProviderService : ComplicationProviderService() {
 
     override fun getPreviewData(type: ComplicationType) = when (type) {
         ComplicationType.SHORT_TEXT ->
-            ShortTextComplicationData.Builder(plainText("# 123")).build()
+            ShortTextComplicationData.Builder(
+                plainText("# 123"),
+                ComplicationText.EMPTY
+            ).build()
 
         ComplicationType.LONG_TEXT ->
-            LongTextComplicationData.Builder(plainText("Count 123")).build()
+            LongTextComplicationData.Builder(
+                plainText("Count 123"),
+                ComplicationText.EMPTY
+            ).build()
 
         else -> null
     }

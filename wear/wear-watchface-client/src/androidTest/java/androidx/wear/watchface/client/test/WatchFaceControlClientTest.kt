@@ -32,6 +32,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
@@ -54,10 +55,10 @@ import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import androidx.wear.watchface.samples.GREEN_STYLE
 import androidx.wear.watchface.samples.NO_COMPLICATIONS
 import androidx.wear.watchface.samples.WATCH_HAND_LENGTH_STYLE_SETTING
-import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
+import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -139,12 +140,16 @@ public class WatchFaceControlClientTest {
 
     private val complications = mapOf(
         EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-            ShortTextComplicationData.Builder(PlainComplicationText.Builder("ID").build())
-                .setTitle(PlainComplicationText.Builder("Left").build())
+            ShortTextComplicationData.Builder(
+                PlainComplicationText.Builder("ID").build(),
+                ComplicationText.EMPTY
+            ).setTitle(PlainComplicationText.Builder("Left").build())
                 .build(),
         EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
-            ShortTextComplicationData.Builder(PlainComplicationText.Builder("ID").build())
-                .setTitle(PlainComplicationText.Builder("Right").build())
+            ShortTextComplicationData.Builder(
+                PlainComplicationText.Builder("ID").build(),
+                ComplicationText.EMPTY
+            ).setTitle(PlainComplicationText.Builder("Right").build())
                 .build()
     )
 
@@ -464,11 +469,13 @@ public class WatchFaceControlClientTest {
             mapOf(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
                     ShortTextComplicationData.Builder(
-                        PlainComplicationText.Builder("Test").build()
+                        PlainComplicationText.Builder("Test").build(),
+                        ComplicationText.EMPTY
                     ).build(),
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
                     LongTextComplicationData.Builder(
-                        PlainComplicationText.Builder("Test").build()
+                        PlainComplicationText.Builder("Test").build(),
+                        ComplicationText.EMPTY
                     ).build()
             )
         )

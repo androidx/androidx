@@ -43,6 +43,7 @@ import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.ProviderChooserIntent
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.data.LongTextComplicationData
@@ -55,17 +56,17 @@ import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.client.asApiEditorState
-import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
+import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.Option
+import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -156,15 +157,18 @@ public open class TestProviderInfoRetrieverProvider :
     private val previewData = mapOf(
         provider1 to
             ShortTextComplicationData.Builder(
-                PlainComplicationText.Builder("Left").build()
+                PlainComplicationText.Builder("Left").build(),
+                ComplicationText.EMPTY
             ).build().asWireComplicationData(),
         provider2 to
             LongTextComplicationData.Builder(
-                PlainComplicationText.Builder("Right").build()
+                PlainComplicationText.Builder("Right").build(),
+                ComplicationText.EMPTY
             ).build().asWireComplicationData(),
         provider3 to
             LongTextComplicationData.Builder(
-                PlainComplicationText.Builder("Provider3").build()
+                PlainComplicationText.Builder("Provider3").build(),
+                ComplicationText.EMPTY
             ).build().asWireComplicationData(),
     )
 
@@ -597,7 +601,8 @@ public class EditorSessionTest {
                     val callback = it.arguments[2] as IPreviewComplicationDataCallback
                     callback.updateComplicationData(
                         ShortTextComplicationData.Builder(
-                            PlainComplicationText.Builder(complicationText).build()
+                            PlainComplicationText.Builder(complicationText).build(),
+                            ComplicationText.EMPTY
                         ).build().asWireComplicationData()
                     )
                     true
