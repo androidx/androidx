@@ -198,7 +198,7 @@ public final class MessageTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code title} is {@code null}
          * @see CarText
@@ -292,6 +292,9 @@ public final class MessageTemplate implements Template {
 
         /**
          * Adds an {@link Action} to display along with the message.
+         *
+         * <p>The action's title color can be customized with {@link ForegroundCarColorSpan}
+         * instances, any other spans will be ignored by the host.
          *
          * <p>Any actions above the maximum limit of 2 will be ignored.
          *

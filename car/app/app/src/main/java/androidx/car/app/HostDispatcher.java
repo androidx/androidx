@@ -57,7 +57,6 @@ public final class HostDispatcher {
      * @param hostType the service to dispatch to
      * @param callName the name of the call for logging purposes
      * @param call     the request to dispatch
-     *
      * @throws RemoteException   if the host is unresponsive
      * @throws SecurityException if the host has thrown it
      * @throws HostException     if the host throws any exception other than
@@ -85,7 +84,6 @@ public final class HostDispatcher {
      * @param hostType the service to dispatch to
      * @param callName the name of the call for logging purposes
      * @param call     the request to dispatch
-     *
      * @throws SecurityException if the host has thrown it
      * @throws HostException     if the host throws any exception other than
      *                           {@link SecurityException}

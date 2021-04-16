@@ -397,7 +397,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * {@link NotificationCompat.Builder#setContentTitle(CharSequence)} for the car
          * screen.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @throws NullPointerException if {@code contentTitle} is {@code null}
          */
@@ -413,7 +413,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * <p>This method is equivalent to
          * {@link NotificationCompat.Builder#setContentText(CharSequence)} for the car screen.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @param contentText override for the notification's content text. If set to an empty
          *                    string, it will be treated as if there is no context text

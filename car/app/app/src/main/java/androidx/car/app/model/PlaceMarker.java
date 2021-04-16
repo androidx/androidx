@@ -215,7 +215,7 @@ public final class PlaceMarker {
          *
          * <p>If an icon is specified with {@link #setIcon}, the icon will take precedence.
          *
-         * <p>Spans are not supported in the input string.
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @param label the text to display inside of the marker. The string must have a maximum
          *              size of 3 characters. Set to {@code null} to let the host choose a
