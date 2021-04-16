@@ -23,6 +23,7 @@ import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
@@ -30,8 +31,8 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.eq
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.mockito.Mockito.doAnswer
 
@@ -66,7 +67,8 @@ public class ProviderInfoRetrieverTest {
             Mockito.`when`(mockService.asBinder()).thenReturn(mockBinder)
 
             val testData: ComplicationData = LongTextComplicationData.Builder(
-                PlainComplicationText.Builder("Test Text").build()
+                PlainComplicationText.Builder("Test Text").build(),
+                ComplicationText.EMPTY
             ).build()
 
             doAnswer {

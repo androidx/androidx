@@ -271,9 +271,8 @@ package androidx.wear.complications.data {
   }
 
   public static final class LongTextComplicationData.Builder {
-    ctor public LongTextComplicationData.Builder(androidx.wear.complications.data.ComplicationText text);
+    ctor public LongTextComplicationData.Builder(androidx.wear.complications.data.ComplicationText text, androidx.wear.complications.data.ComplicationText contentDescription);
     method public androidx.wear.complications.data.LongTextComplicationData build();
-    method public androidx.wear.complications.data.LongTextComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.LongTextComplicationData.Builder setMonochromaticImage(androidx.wear.complications.data.MonochromaticImage? icon);
     method public androidx.wear.complications.data.LongTextComplicationData.Builder setSmallImage(androidx.wear.complications.data.SmallImage? smallImage);
     method public androidx.wear.complications.data.LongTextComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
@@ -379,9 +378,8 @@ package androidx.wear.complications.data {
   }
 
   public static final class RangedValueComplicationData.Builder {
-    ctor public RangedValueComplicationData.Builder(float value, float min, float max);
+    ctor public RangedValueComplicationData.Builder(float value, float min, float max, androidx.wear.complications.data.ComplicationText contentDescription);
     method public androidx.wear.complications.data.RangedValueComplicationData build();
-    method public androidx.wear.complications.data.RangedValueComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setMonochromaticImage(androidx.wear.complications.data.MonochromaticImage? monochromaticImage);
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setText(androidx.wear.complications.data.ComplicationText? text);
@@ -402,9 +400,8 @@ package androidx.wear.complications.data {
   }
 
   public static final class ShortTextComplicationData.Builder {
-    ctor public ShortTextComplicationData.Builder(androidx.wear.complications.data.ComplicationText text);
+    ctor public ShortTextComplicationData.Builder(androidx.wear.complications.data.ComplicationText text, androidx.wear.complications.data.ComplicationText contentDescription);
     method public androidx.wear.complications.data.ShortTextComplicationData build();
-    method public androidx.wear.complications.data.ShortTextComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setMonochromaticImage(androidx.wear.complications.data.MonochromaticImage? monochromaticImage);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setTitle(androidx.wear.complications.data.ComplicationText? title);
