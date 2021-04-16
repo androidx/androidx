@@ -18,8 +18,12 @@ package androidx.wear.watchface.editor
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.RectF
+import android.graphics.drawable.Icon
+import android.support.wearable.complications.ComplicationProviderInfo
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -161,6 +165,20 @@ public class EditorSessionGuavaTest {
     @Test
     public fun listenableOpenComplicationProviderChooser() {
         ComplicationProviderChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent = Intent().apply {
+            putExtra(
+                "android.support.wearable.complications.EXTRA_PROVIDER_INFO",
+                ComplicationProviderInfo(
+                    "TestProvider3App",
+                    "TestProvider3",
+                    Icon.createWithBitmap(
+                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                    ),
+                    ComplicationType.LONG_TEXT.toWireComplicationType(),
+                    provider3
+                )
+            )
+        }
         val scenario = createOnWatchFaceEditingTestActivity(
             emptyList(),
             listOf(leftComplication, rightComplication)
