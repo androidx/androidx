@@ -2466,15 +2466,15 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Email 1 has more usages, but email 2 has more recent usages.
         mDb1.reportUsage(new ReportUsageRequest.Builder("namespace", "uri1")
-                .setUsageTimeMillis(1000).build()).get();
+                .setUsageTimestampMillis(1000).build()).get();
         mDb1.reportUsage(new ReportUsageRequest.Builder("namespace", "uri1")
-                .setUsageTimeMillis(2000).build()).get();
+                .setUsageTimestampMillis(2000).build()).get();
         mDb1.reportUsage(new ReportUsageRequest.Builder("namespace", "uri1")
-                .setUsageTimeMillis(3000).build()).get();
+                .setUsageTimestampMillis(3000).build()).get();
         mDb1.reportUsage(new ReportUsageRequest.Builder("namespace", "uri2")
-                .setUsageTimeMillis(10000).build()).get();
+                .setUsageTimestampMillis(10000).build()).get();
         mDb1.reportUsage(new ReportUsageRequest.Builder("namespace", "uri2")
-                .setUsageTimeMillis(20000).build()).get();
+                .setUsageTimestampMillis(20000).build()).get();
 
         // Query by number of usages
         List<SearchResult> results = retrieveAllSearchResults(

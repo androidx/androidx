@@ -29,12 +29,12 @@ import androidx.core.util.Preconditions;
 public final class ReportUsageRequest {
     private final String mNamespace;
     private final String mUri;
-    private final long mUsageTimeMillis;
+    private final long mUsageTimestampMillis;
 
-    ReportUsageRequest(@NonNull String namespace, @NonNull String uri, long usageTimeMillis) {
+    ReportUsageRequest(@NonNull String namespace, @NonNull String uri, long usageTimestampMillis) {
         mNamespace = Preconditions.checkNotNull(namespace);
         mUri = Preconditions.checkNotNull(uri);
-        mUsageTimeMillis = usageTimeMillis;
+        mUsageTimestampMillis = usageTimestampMillis;
     }
 
     /** Returns the namespace of the document that was used. */
@@ -55,15 +55,16 @@ public final class ReportUsageRequest {
      *
      * <p>The value is in the {@link System#currentTimeMillis} time base.
      */
-    public long getUsageTimeMillis() {
-        return mUsageTimeMillis;
+    /*@exportToFramework:CurrentTimeMillisLong*/
+    public long getUsageTimestampMillis() {
+        return mUsageTimestampMillis;
     }
 
     /** Builder for {@link ReportUsageRequest} objects. */
     public static final class Builder {
         private final String mNamespace;
         private String mUri;
-        private Long mUsageTimeMillis;
+        private Long mUsageTimestampMillis;
         private boolean mBuilt = false;
 
         /** Creates a {@link ReportUsageRequest.Builder} instance. */
@@ -107,9 +108,10 @@ public final class ReportUsageRequest {
          * @throws IllegalStateException if the builder has already been used
          */
         @NonNull
-        public ReportUsageRequest.Builder setUsageTimeMillis(long usageTimeMillis) {
+        public ReportUsageRequest.Builder setUsageTimestampMillis(
+                /*@exportToFramework:CurrentTimeMillisLong*/ long usageTimestampMillis) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mUsageTimeMillis = usageTimeMillis;
+            mUsageTimestampMillis = usageTimestampMillis;
             return this;
         }
 
@@ -123,11 +125,11 @@ public final class ReportUsageRequest {
         public ReportUsageRequest build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(mUri, "ReportUsageRequest is missing a URI");
-            if (mUsageTimeMillis == null) {
-                mUsageTimeMillis = System.currentTimeMillis();
+            if (mUsageTimestampMillis == null) {
+                mUsageTimestampMillis = System.currentTimeMillis();
             }
             mBuilt = true;
-            return new ReportUsageRequest(mNamespace, mUri, mUsageTimeMillis);
+            return new ReportUsageRequest(mNamespace, mUri, mUsageTimestampMillis);
         }
     }
 }
