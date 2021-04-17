@@ -560,15 +560,6 @@ jobs:
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
           wrapper-cache-enabled: true
 
-
-      - name: "upload build artifacts"
-        continue-on-error: true
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: artifacts_${{ env.artifact-id }}
-          path: ~/dist
-
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
@@ -588,6 +579,13 @@ jobs:
           wrapper-directory: ${{ env.project-root }}/gradle/wrapper
           wrapper-cache-enabled: true
 
+      - name: "upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.artifact-id }}
+          path: ~/dist
       - name: "Report job status"
         id: output-status
         if: always()
