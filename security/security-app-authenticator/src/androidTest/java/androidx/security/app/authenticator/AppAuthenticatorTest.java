@@ -79,8 +79,9 @@ public final class AppAuthenticatorTest {
 
     @Test
     public void createFrom_invalidDigestAlgorithm() throws Exception {
-        // Insecure digest algorithms are not supported by the AppAuthenticator; ensure if an
-        // unsupported digest algorithm is specified then an Exception is thrown.
+        // Since the platform currently requires all certificate digests use the SHA-256 digest
+        // algorithm when using the knownSigner permission flag an error should be reported if
+        // an attempt is made to specify any other digest algorithm.
         assertThrows(AppAuthenticatorXmlException.class,
                 () -> AppAuthenticator.createFromResource(mContext, R.xml.invalid_digest_algo));
         assertThrows(AppAuthenticatorXmlException.class,
@@ -319,6 +320,6 @@ public final class AppAuthenticatorTest {
                 "6a8b96e278e58f62cfe3584022cec1d0527fcb85a9e5d2e1694eb0405be5b599"));
         assertTrue(allowedPackageCerts.get("com.android.app2").contains(
                 "d78405f761ff6236cc9b570347a570aba0c62a129a3ac30c831c64d09ad95469"));
-        assertEquals("SHA-512", config.getDigestAlgorithm());
+        assertEquals("SHA-256", config.getDigestAlgorithm());
     }
 }
