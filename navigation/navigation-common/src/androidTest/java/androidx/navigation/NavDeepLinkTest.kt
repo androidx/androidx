@@ -1111,4 +1111,24 @@ class NavDeepLinkTest {
             .that(matchArgs?.isEmpty)
             .isTrue()
     }
+
+    @Test
+    fun deepLinkWithTrailingSlash() {
+        val deepLinkString = "$DEEP_LINK_EXACT_HTTP/users/"
+        val deepLink = NavDeepLink(deepLinkString)
+
+        assertWithMessage("Should match to link without trailing slash")
+            .that(deepLink.matches(Uri.parse(deepLinkString.trimEnd('/'))))
+            .isTrue()
+    }
+
+    @Test
+    fun deepLinkWithoutTrailingSlash() {
+        val deepLinkString = "$DEEP_LINK_EXACT_HTTP/users"
+        val deepLink = NavDeepLink(deepLinkString)
+
+        assertWithMessage("Should match to link with trailing slash")
+            .that(deepLink.matches(Uri.parse("$deepLinkString/")))
+            .isTrue()
+    }
 }

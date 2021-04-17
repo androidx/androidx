@@ -85,8 +85,10 @@ public class NavDeepLink internal constructor(
         }
         if (appendPos < uri.length) {
             // Use Pattern.quote() to treat the input string as a literal
-            uriRegex.append(Pattern.quote(uri.substring(appendPos)))
+            // Also remove trailing slashes if it exists so it should be optional
+            uriRegex.append(Pattern.quote(uri.substring(appendPos).trimEnd('/')))
         }
+        uriRegex.append("/?")
         // Match either the end of string if all params are optional or match the
         // question mark and 0 or more characters after it
         // We do not use '.*' here because the finalregex would replace it with a quoted
