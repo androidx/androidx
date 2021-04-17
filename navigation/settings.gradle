@@ -28,7 +28,9 @@ selectProjectsFromAndroidX({ name ->
     if (name == ":internal-testutils-runtime") return true
     if (name == ":internal-testutils-truth") return true
     if (name == ":compose:lint:common") return true
+    if (name == ":compose:test-utils") return true
     if (name == ":compose:lint:internal-lint-checks") return true
+    if (name == ":test-screenshot") return true
     return false
 })
 
