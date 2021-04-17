@@ -31,9 +31,9 @@ import kotlin.test.assertFailsWith
 @SmallTest
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(AndroidJUnit4::class)
-class PerfettoTraceProcessorTest {
+public class PerfettoTraceProcessorTest {
     @Test
-    fun shellPath() {
+    public fun shellPath() {
         assumeTrue(PerfettoTraceProcessor.isAbiSupported())
         val shellPath = PerfettoTraceProcessor.shellPath
         val device = InstrumentationRegistry.getInstrumentation().device()
@@ -45,7 +45,7 @@ class PerfettoTraceProcessorTest {
     }
 
     @Test
-    fun getJsonMetrics_tracePathWithSpaces() {
+    public fun getJsonMetrics_tracePathWithSpaces() {
         assumeTrue(PerfettoTraceProcessor.isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
             PerfettoTraceProcessor.getJsonMetrics("/a b", "ignored")
@@ -53,7 +53,7 @@ class PerfettoTraceProcessorTest {
     }
 
     @Test
-    fun getJsonMetrics_metricWithSpaces() {
+    public fun getJsonMetrics_metricWithSpaces() {
         assumeTrue(PerfettoTraceProcessor.isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
             PerfettoTraceProcessor.getJsonMetrics("/ignored", "a b")
@@ -61,7 +61,7 @@ class PerfettoTraceProcessorTest {
     }
 
     @Test
-    fun validateAbiNotSupportedBehavior() {
+    public fun validateAbiNotSupportedBehavior() {
         assumeFalse(PerfettoTraceProcessor.isAbiSupported())
         assertFailsWith<IllegalStateException> {
             PerfettoTraceProcessor.shellPath
@@ -73,7 +73,7 @@ class PerfettoTraceProcessorTest {
     }
 
     @Test
-    fun validateTraceProcessorBinariesExist() {
+    public fun validateTraceProcessorBinariesExist() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val suffixes = listOf("aarch64")
         val entries = suffixes.map { "trace_processor_shell_$it" }.toSet()

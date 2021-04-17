@@ -32,10 +32,10 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class MacrobenchmarkScopeTest {
+public class MacrobenchmarkScopeTest {
     @Test
     @Ignore("Apk dependencies not working in presubmit, b/181810492")
-    fun killTest() {
+    public fun killTest() {
         val scope = MacrobenchmarkScope(PACKAGE_NAME, launchWithClearTask = true)
         scope.pressHome()
         scope.startActivityAndWait()
@@ -46,7 +46,7 @@ class MacrobenchmarkScopeTest {
 
     @Test
     @Ignore("Apk dependencies not working in presubmit, b/181810492")
-    fun compile_speedProfile() {
+    public fun compile_speedProfile() {
         val scope = MacrobenchmarkScope(PACKAGE_NAME, launchWithClearTask = true)
         val iterations = 1
         var executions = 0
@@ -61,7 +61,7 @@ class MacrobenchmarkScopeTest {
 
     @Test
     @Ignore("Apk dependencies not working in presubmit, b/181810492")
-    fun compile_speed() {
+    public fun compile_speed() {
         val compilation = CompilationMode.Speed
         compilation.compile(PACKAGE_NAME) {
             fail("Should never be called for $compilation")
@@ -70,7 +70,7 @@ class MacrobenchmarkScopeTest {
 
     @Test
     @Ignore("Apk dependencies not working in presubmit, b/181810492")
-    fun startActivityAndWait_activityNotExported() {
+    public fun startActivityAndWait_activityNotExported() {
         val scope = MacrobenchmarkScope(PACKAGE_NAME, launchWithClearTask = true)
         scope.pressHome()
 
@@ -96,7 +96,7 @@ class MacrobenchmarkScopeTest {
         return processes().any { it.contains(packageName) }
     }
 
-    companion object {
+    public companion object {
         private const val PACKAGE_NAME = "androidx.benchmark.integration.macrobenchmark.target"
     }
 }
