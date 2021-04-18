@@ -151,7 +151,7 @@ public final class TimeDifferenceText implements TimeDependentText {
 
     /** Returns the minimum unit specified, or {@code null} if none has been specified. */
     @Nullable
-    TimeUnit getMinimumUnit() {
+    public TimeUnit getMinimumUnit() {
         return mMinimumUnit;
     }
 
