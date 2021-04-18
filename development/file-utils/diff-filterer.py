@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 #  Copyright (C) 2018 The Android Open Source Project
 #
@@ -72,7 +72,7 @@ class FileIo(object):
 
   def writeScript(self, path, text):
     self.writeFile(path, text)
-    os.chmod(path, 0755)
+    os.chmod(path, stat.S_IRWXU)
 
   def removePath(self, filePath):
     if len(os.path.split(filePath)) < 2:
@@ -108,12 +108,17 @@ class FileIo(object):
   def commonPrefix(self, paths):
     if len(paths) < 1:
       return None
-    result = paths[0]
+    result = None
     for path in paths:
-      prev = result
-      result = self.commonPrefixOf2(result, path)
       if result is None:
-        return result
+        # first iteration
+        result = path
+      else:
+        prev = result
+        result = self.commonPrefixOf2(result, path)
+        if result is None:
+          # the common prefix of two paths was nothing
+          return result
     return result
 
 fileIo = FileIo()
@@ -201,7 +206,7 @@ class FilesState(object):
     self.fileStates = OrderedDict()
 
   def apply(self, filePath):
-    for relPath, state in self.fileStates.iteritems():
+    for relPath, state in self.fileStates.items():
       state.apply(fileIo.join(filePath, relPath))
 
   def add(self, filePath, fileContent):
@@ -219,7 +224,7 @@ class FilesState(object):
   # returns a FilesState resembling <self> but without the keys for which other[key] == self[key]
   def withoutDuplicatesFrom(self, other, checkWithFileSystem=False):
     result = FilesState()
-    for filePath, fileState in self.fileStates.iteritems():
+    for filePath, fileState in self.fileStates.items():
       otherContent = other.getContent(filePath)
       if not fileState.equals(otherContent, checkWithFileSystem):
         result.add(filePath, fileState)
@@ -228,13 +233,13 @@ class FilesState(object):
   # returns self[fromIndex:toIndex]
   def slice(self, fromIndex, toIndex):
     result = FilesState()
-    for filePath in self.fileStates.keys()[fromIndex:toIndex]:
+    for filePath in list(self.fileStates.keys())[fromIndex:toIndex]:
       result.fileStates[filePath] = self.fileStates[filePath]
     return result
 
   def restrictedToKeysIn(self, other):
     result = FilesState()
-    for filePath, fileState in self.fileStates.iteritems():
+    for filePath, fileState in self.fileStates.items():
       if filePath in other.fileStates:
         result.add(filePath, fileState)
     return result
@@ -242,7 +247,7 @@ class FilesState(object):
   # returns a FilesState having the same keys as this FilesState, but with values taken from <other> when it has them, and <self> otherwise
   def withConflictsFrom(self, other, listEmptyDirs = False):
     result = FilesState()
-    for filePath, fileContent in self.fileStates.iteritems():
+    for filePath, fileContent in self.fileStates.items():
       if filePath in other.fileStates:
         result.add(filePath, other.fileStates[filePath])
       else:
@@ -278,7 +283,7 @@ class FilesState(object):
   def listImpliedDirs(self):
     dirs = set()
     empty = MissingFile_FileContent()
-    keys = [key for (key, value) in self.fileStates.iteritems() if not empty.equals(value)]
+    keys = [key for (key, value) in self.fileStates.items() if not empty.equals(value)]
     i = 0
     while i < len(keys):
       path = keys[i]
@@ -303,14 +308,14 @@ class FilesState(object):
 
   def clone(self):
     result = FilesState()
-    for path, content in self.fileStates.iteritems():
+    for path, content in self.fileStates.items():
       result.add(path, content)
     return result
 
   def withoutEmptyEntries(self):
     result = FilesState()
     empty = MissingFile_FileContent()
-    for path, state in self.fileStates.iteritems():
+    for path, state in self.fileStates.items():
       if not empty.equals(state):
         result.add(path, state)
     return result
@@ -334,7 +339,7 @@ class FilesState(object):
       prefixLength = len(commonDir) + 1 # skip the following '/'
     groupsByDir = {}
 
-    for filePath, fileContent in self.fileStates.iteritems():
+    for filePath, fileContent in self.fileStates.items():
       subPath = filePath[prefixLength:]
       slashIndex = subPath.find("/")
       if slashIndex < 0:
@@ -362,7 +367,7 @@ class FilesState(object):
       minIndex = 0
       mergedChildren = []
       for i in range(maxNumChildren):
-        maxIndex = len(children) * (i + 1) / maxNumChildren
+        maxIndex = len(children) * (i + 1) // maxNumChildren
         merge = FilesState()
         for child in children[minIndex:maxIndex]:
           merge.addAllFrom(child)
@@ -387,7 +392,7 @@ class FilesState(object):
     if len(self.fileStates) == 0:
       return "[empty fileState]"
     entries = []
-    for filePath, state in self.fileStates.iteritems():
+    for filePath, state in self.fileStates.items():
       entries.append(filePath + " -> " + str(state))
     if len(self.fileStates) > 1:
       prefix = str(len(entries)) + " entries:\n"
@@ -813,7 +818,7 @@ class DiffRunner(object):
       # display status message
       now = datetime.datetime.now()
       elapsedDuration = now - start
-      minNumTestsRemaining = sum([math.log(box.size(), 2) + 1 for box in availableTestStates + activeTestStatesById.values()]) - numFailuresSinceLastSplitOrSuccess
+      minNumTestsRemaining = sum([math.log(box.size(), 2) + 1 for box in availableTestStates + list(activeTestStatesById.values())]) - numFailuresSinceLastSplitOrSuccess
       estimatedNumTestsRemaining = max(minNumTestsRemaining, 1)
       if numConsecutiveFailures >= 4 and numFailuresSinceLastSplitOrSuccess < 1:
         # If we are splitting often and failing often, then we probably haven't yet

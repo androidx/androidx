@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 #  Copyright (C) 2020 The Android Open Source Project
 #
@@ -45,10 +45,6 @@ class FileIo(object):
     f = open(path, "w+")
     f.write(text)
     f.close()
-
-  def writeScript(self, path, text):
-    self.writeFile(path, text)
-    os.chmod(path, 0755)
 
 fileIo = FileIo()
 
