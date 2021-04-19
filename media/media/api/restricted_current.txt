@@ -768,6 +768,7 @@ package androidx.media.utils {
     field public static final String SESSION_EXTRAS_KEY_ACCOUNT_TYPE = "androidx.media.MediaSessionCompat.Extras.KEY_ACCOUNT_TYPE";
     field public static final String SESSION_EXTRAS_KEY_SLOT_RESERVATION_SKIP_TO_NEXT = "android.media.playback.ALWAYS_RESERVE_SPACE_FOR.ACTION_SKIP_TO_NEXT";
     field public static final String SESSION_EXTRAS_KEY_SLOT_RESERVATION_SKIP_TO_PREV = "android.media.playback.ALWAYS_RESERVE_SPACE_FOR.ACTION_SKIP_TO_PREVIOUS";
+    field public static final String TRANSPORT_CONTROLS_EXTRAS_KEY_SHUFFLE = "androidx.media.MediaControllerCompat.TransportControls.extras.KEY_SHUFFLE";
   }
 
 }
