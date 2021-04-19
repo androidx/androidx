@@ -38,6 +38,7 @@ package androidx.room {
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface Database {
+    method public abstract androidx.room.AutoMigration[] autoMigrations() default {};
     method public abstract Class<?>[] entities();
     method public abstract boolean exportSchema() default true;
     method public abstract int version();
