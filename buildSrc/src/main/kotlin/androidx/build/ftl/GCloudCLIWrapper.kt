@@ -104,7 +104,11 @@ internal class GCloudCLIWrapper(
         val testDetails: String
     ) {
         val passed
-            get() = outcome.toLowerCase(Locale.US) == "passed"
+            get() = outcome.toLowerCase(Locale.US) in SUCCESS_OUTCOMES
+
+        companion object {
+            private val SUCCESS_OUTCOMES = listOf("passed", "flaky")
+        }
     }
 }
 
