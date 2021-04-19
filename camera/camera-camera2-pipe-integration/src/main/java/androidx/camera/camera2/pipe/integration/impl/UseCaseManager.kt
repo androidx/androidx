@@ -100,6 +100,12 @@ class UseCaseManager @Inject constructor(
         }
     }
 
+    fun reset(useCase: UseCase) {
+        if (attachedUseCases.contains(useCase)) {
+            start(attachedUseCases)
+        }
+    }
+
     override fun toString(): String = "UseCaseManager<${cameraConfig.cameraId}>"
 
     private fun invalidate() {
