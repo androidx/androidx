@@ -256,9 +256,7 @@ internal class GCloudCLIWrapper(
 
             private fun requireEnvValue(name: String): String {
                 return System.getenv(name) ?: throw GradleException(
-                    """
-                    Cannot find required environment variable: $name
-                """.trimIndent()
+                    "Cannot find required environment variable: $name"
                 )
             }
         }
