@@ -304,10 +304,9 @@ public abstract class WatchFaceService : WallpaperService() {
         try {
             val directBootContext = context.createDeviceProtectedStorageContext()
             val reader = directBootContext.openFileInput(fileName)
-            val result =
+            reader.use {
                 ParcelUtils.fromInputStream<WallpaperInteractiveWatchFaceInstanceParams>(reader)
-            reader.close()
-            result
+            }
         } catch (e: Exception) {
             null
         }
@@ -320,8 +319,9 @@ public abstract class WatchFaceService : WallpaperService() {
     ): Unit = TraceEvent("WatchFaceService.writeDirectBootPrefs").use {
         val directBootContext = context.createDeviceProtectedStorageContext()
         val writer = directBootContext.openFileOutput(fileName, Context.MODE_PRIVATE)
-        ParcelUtils.toOutputStream(prefs, writer)
-        writer.close()
+        writer.use {
+            ParcelUtils.toOutputStream(prefs, writer)
+        }
     }
 
     internal inner class EngineWrapper(

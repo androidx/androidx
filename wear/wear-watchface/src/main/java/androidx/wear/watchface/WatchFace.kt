@@ -89,12 +89,13 @@ private fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
     val hashMap = HashMap<String, ByteArray>()
     try {
         val reader = InputStreamReader(context.openFileInput(fileName)).buffered()
-        while (true) {
-            val key = reader.readLine() ?: break
-            val value = reader.readLine() ?: break
-            hashMap[key] = Base64.decode(value, Base64.NO_WRAP)
+        reader.use {
+            while (true) {
+                val key = reader.readLine() ?: break
+                val value = reader.readLine() ?: break
+                hashMap[key] = Base64.decode(value, Base64.NO_WRAP)
+            }
         }
-        reader.close()
     } catch (e: FileNotFoundException) {
         // We don't need to do anything special here.
     }
@@ -103,13 +104,14 @@ private fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
 
 private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
     val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE).bufferedWriter()
-    for ((key, value) in style.selectedOptions) {
-        writer.write(key.id.value)
-        writer.newLine()
-        writer.write(Base64.encodeToString(value.id.value, Base64.NO_WRAP))
-        writer.newLine()
+    writer.use {
+        for ((key, value) in style.selectedOptions) {
+            writer.write(key.id.value)
+            writer.newLine()
+            writer.write(Base64.encodeToString(value.id.value, Base64.NO_WRAP))
+            writer.newLine()
+        }
     }
-    writer.close()
 }
 
 /**
