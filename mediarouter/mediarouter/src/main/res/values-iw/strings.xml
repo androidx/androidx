@@ -19,7 +19,7 @@
     <string name="mr_system_route_name" msgid="7449553026175453403">"מערכת"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"מכשירים"</string>
     <string name="mr_button_content_description" msgid="2939063992730535343">"‏העברה (cast)"</string>
-    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"‏העברה (cast). מנותק"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"‏העברה (cast). אין חיבור"</string>
     <string name="mr_cast_button_connecting" msgid="6629927151350192407">"‏העברה (cast). מתבצעת התחברות"</string>
     <string name="mr_cast_button_connected" msgid="6073720094880410356">"‏העברה (cast). מחובר"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"העברה אל"</string>
@@ -33,7 +33,7 @@
     <string name="mr_controller_expand_group" msgid="4521419834052044261">"הרחבה"</string>
     <string name="mr_controller_collapse_group" msgid="2585048604188129749">"כיווץ"</string>
     <string name="mr_controller_album_art" msgid="3330502667672708728">"עטיפת אלבום"</string>
-    <string name="mr_controller_volume_slider" msgid="2955862765169128170">"מחוון עוצמה"</string>
+    <string name="mr_controller_volume_slider" msgid="2955862765169128170">"מחוון עוצמת קול"</string>
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"לא נבחרה מדיה"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"אין מידע זמין"</string>
     <string name="mr_controller_casting_screen" msgid="9171231064758955152">"העברת מסך מתבצעת"</string>
