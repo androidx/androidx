@@ -256,7 +256,7 @@ package androidx.wear.watchface {
   }
 
   public static interface WatchFace.TapListener {
-    method @UiThread public void onTap(int originalTapType, @Px int xPos, @Px int yPos);
+    method @UiThread public void onTap(int tapType, @Px int xPos, @Px int yPos);
   }
 
   public final class WatchFaceKt {
