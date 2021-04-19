@@ -29,12 +29,12 @@ import java.lang.StringBuilder
  *
  * A NavGraph serves as a 'virtual' destination: while the NavGraph itself will not appear
  * on the back stack, navigating to the NavGraph will cause the
- * [starting destination][.getStartDestination] to be added to the back stack.
+ * [starting destination][getStartDestination] to be added to the back stack.
  */
 public open class NavGraph
 /**
  * Construct a new NavGraph. This NavGraph is not valid until you
- * [add a destination][.addDestination] and [set the starting destination][.setStartDestination].
+ * [add a destination][addDestination] and [set the starting destination][setStartDestination].
  *
  * @param navGraphNavigator The [NavGraphNavigator] which this destination will be associated
  *                          with. Generally retrieved via a
@@ -78,7 +78,7 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
      *
      * The destination must not have a [parent][NavDestination.parent] set. If
      * the destination is already part of a [navigation graph][NavGraph], call
-     * [.remove] before calling this method.
+     * [remove] before calling this method.
      *
      * @param node destination to add
      * @throws IllegalArgumentException if destination does not have an id, the destination has
@@ -111,7 +111,7 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
      * [NavDestination.id] id} set.
      *
      * Each destination must not have a [parent][NavDestination.parent] set. If any
-     * destination is already part of a [navigation graph][NavGraph], call [.remove] before
+     * destination is already part of a [navigation graph][NavGraph], call [remove] before
      * calling this method.
      *
      * @param nodes destinations to add
@@ -130,7 +130,7 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
      * [NavDestination.id] id} set.
      *
      * Each destination must not have a [parent][NavDestination.parent] set. If any
-     * destination is already part of a [navigation graph][NavGraph], call [.remove] before
+     * destination is already part of a [navigation graph][NavGraph], call [remove] before
      * calling this method.
      *
      * @param nodes destinations to add
@@ -143,7 +143,7 @@ constructor(navGraphNavigator: Navigator<out NavGraph>) :
 
     /**
      * Finds a destination in the collection by ID. This will recursively check the
-     * [parent][.getParent] of this navigation graph if node is not found in this navigation graph.
+     * [parent][getParent] of this navigation graph if node is not found in this navigation graph.
      *
      * @param resid ID to locate
      * @return the node with ID resid

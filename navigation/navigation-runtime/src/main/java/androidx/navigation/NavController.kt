@@ -51,7 +51,7 @@ import kotlinx.coroutines.flow.callbackFlow
  *
  * Navigation flows and destinations are determined by the
  * [navigation graph][NavGraph] owned by the controller. These graphs are typically
- * [inflated][.getNavInflater] from an Android resource, but, like views, they can also
+ * [inflated][getNavInflater] from an Android resource, but, like views, they can also
  * be constructed or combined programmatically or for the case of dynamic navigation structure.
  * (For example, if the navigation structure of the application is determined by live data obtained'
  * from a remote server.)
@@ -84,7 +84,7 @@ public open class NavController(
          * Sets the [navigation graph][NavGraph] to the specified graph.
          * Any current navigation graph data (including back stack) will be replaced.
          *
-         * The graph can be retrieved later via [.getGraph].
+         * The graph can be retrieved later via [getGraph].
          *
          * @param graph graph to set
          * @see NavController.setGraph
@@ -132,11 +132,11 @@ public open class NavController(
 
     /**
      * OnDestinationChangedListener receives a callback when the
-     * [.getCurrentDestination] or its arguments change.
+     * [getCurrentDestination] or its arguments change.
      */
     public fun interface OnDestinationChangedListener {
         /**
-         * Callback for when the [.getCurrentDestination] or its arguments change.
+         * Callback for when the [getCurrentDestination] or its arguments change.
          * This navigation may be to a destination that has not been seen before, or one that
          * was previously on the back stack. This method is called after navigation is complete,
          * but associated transitions may still be playing.
@@ -203,7 +203,7 @@ public open class NavController(
 
     /**
      * Adds an [OnDestinationChangedListener] to this controller to receive a callback
-     * whenever the [.getCurrentDestination] or its arguments change.
+     * whenever the [getCurrentDestination] or its arguments change.
      *
      * The current destination, if any, will be immediately sent to your listener.
      *
@@ -292,7 +292,7 @@ public open class NavController(
 
     /**
      * Attempts to pop the controller's back stack back to a specific destination. This does
-     * **not** handle calling [.dispatchOnDestinationChanged]
+     * **not** handle calling [dispatchOnDestinationChanged]
      *
      * @param destinationId The topmost destination to retain
      * @param inclusive Whether the given destination should also be popped.
@@ -378,7 +378,7 @@ public open class NavController(
      * user presses the "Up" button marked with a left (or start)-facing arrow in the upper left
      * (or starting) corner of the app UI.
      *
-     * The intended behavior of Up differs from [Back][.popBackStack] when the user
+     * The intended behavior of Up differs from [Back][popBackStack] when the user
      * did not reach the current destination from the application's own task. e.g. if the user
      * is viewing a document or link in the current app in an activity hosted on another app's
      * task where the user clicked the link. In this case the current activity (determined by the
@@ -552,7 +552,7 @@ public open class NavController(
      * Sets the [navigation graph][NavGraph] to the specified resource.
      * Any current navigation graph data (including back stack) will be replaced.
      *
-     * The inflated graph can be retrieved via [.getGraph].
+     * The inflated graph can be retrieved via [getGraph].
      *
      * @param graphResId resource id of the navigation graph to inflate
      *
@@ -570,7 +570,7 @@ public open class NavController(
      * Sets the [navigation graph][NavGraph] to the specified resource.
      * Any current navigation graph data (including back stack) will be replaced.
      *
-     * The inflated graph can be retrieved via [.getGraph].
+     * The inflated graph can be retrieved via [getGraph].
      *
      * @param graphResId resource id of the navigation graph to inflate
      * @param startDestinationArgs arguments to send to the start destination of the graph
@@ -589,7 +589,7 @@ public open class NavController(
      * Sets the [navigation graph][NavGraph] to the specified graph.
      * Any current navigation graph data (including back stack) will be replaced.
      *
-     * The graph can be retrieved later via [.getGraph].
+     * The graph can be retrieved later via [getGraph].
      *
      * @param graph graph to set
      * @see NavController.setGraph
@@ -664,14 +664,14 @@ public open class NavController(
      * The types of Intents that are supported include:
      *
      * Intents created by [NavDeepLinkBuilder] or
-     * [.createDeepLink]. This assumes that the current graph shares
+     * [createDeepLink]. This assumes that the current graph shares
      * the same hierarchy to get to the deep linked destination as when the deep link was
      * constructed.
      * Intents that include a [data Uri][Intent.getData]. This Uri will be checked
      * against the Uri patterns in the [NavDeepLinks][NavDeepLink] added via
      * [NavDestination.addDeepLink].
      *
-     * The [navigation graph][.getGraph] should be set before calling this method.
+     * The [navigation graph][getGraph] should be set before calling this method.
      * @param intent The Intent that may contain a valid deep link
      * @return True if the navigation controller found a valid deep link and navigated to it.
      * @throws IllegalStateException if deep link cannot be accessed from the current destination
@@ -993,7 +993,7 @@ public open class NavController(
     /**
      * Navigate to a destination via the given deep link [Uri].
      * [NavDestination.hasDeepLink] should be called on
-     * [the navigation graph][.getGraph] prior to calling this method to check if the deep
+     * [the navigation graph][getGraph] prior to calling this method to check if the deep
      * link is valid. If an invalid deep link is given, an [IllegalArgumentException] will be
      * thrown.
      *
@@ -1008,7 +1008,7 @@ public open class NavController(
     /**
      * Navigate to a destination via the given deep link [Uri].
      * [NavDestination.hasDeepLink] should be called on
-     * [the navigation graph][.getGraph] prior to calling this method to check if the deep
+     * [the navigation graph][getGraph] prior to calling this method to check if the deep
      * link is valid. If an invalid deep link is given, an [IllegalArgumentException] will be
      * thrown.
      *
@@ -1024,7 +1024,7 @@ public open class NavController(
     /**
      * Navigate to a destination via the given deep link [Uri].
      * [NavDestination.hasDeepLink] should be called on
-     * [the navigation graph][.getGraph] prior to calling this method to check if the deep
+     * [the navigation graph][getGraph] prior to calling this method to check if the deep
      * link is valid. If an invalid deep link is given, an [IllegalArgumentException] will be
      * thrown.
      *
@@ -1045,7 +1045,7 @@ public open class NavController(
     /**
      * Navigate to a destination via the given [NavDeepLinkRequest].
      * [NavDestination.hasDeepLink] should be called on
-     * [the navigation graph][.getGraph] prior to calling this method to check if the deep
+     * [the navigation graph][getGraph] prior to calling this method to check if the deep
      * link is valid. If an invalid deep link is given, an [IllegalArgumentException] will be
      * thrown.
      *
@@ -1061,7 +1061,7 @@ public open class NavController(
     /**
      * Navigate to a destination via the given [NavDeepLinkRequest].
      * [NavDestination.hasDeepLink] should be called on
-     * [the navigation graph][.getGraph] prior to calling this method to check if the deep
+     * [the navigation graph][getGraph] prior to calling this method to check if the deep
      * link is valid. If an invalid deep link is given, an [IllegalArgumentException] will be
      * thrown.
      *
@@ -1078,7 +1078,7 @@ public open class NavController(
     /**
      * Navigate to a destination via the given [NavDeepLinkRequest].
      * [NavDestination.hasDeepLink] should be called on
-     * [the navigation graph][.getGraph] prior to calling this method to check if the deep
+     * [the navigation graph][getGraph] prior to calling this method to check if the deep
      * link is valid. If an invalid deep link is given, an [IllegalArgumentException] will be
      * thrown.
      *
@@ -1266,7 +1266,7 @@ public open class NavController(
      * Saves all navigation controller state to a Bundle.
      *
      * State may be restored from a bundle returned from this method by calling
-     * [.restoreState]. Saving controller state is the responsibility
+     * [restoreState]. Saving controller state is the responsibility
      * of a [NavHost].
      *
      * @return saved state for this controller
@@ -1326,9 +1326,9 @@ public open class NavController(
 
     /**
      * Restores all navigation controller state from a bundle. This should be called before any
-     * call to [.setGraph].
+     * call to [setGraph].
      *
-     * State may be saved to a bundle by calling [.saveState].
+     * State may be saved to a bundle by calling [saveState].
      * Restoring controller state is the responsibility of a [NavHost].
      *
      * @param navState state bundle to restore
@@ -1431,7 +1431,7 @@ public open class NavController(
     /**
      * Gets the topmost [NavBackStackEntry] for a destination id.
      *
-     * This is always safe to use with [the current destination][.getCurrentDestination] or
+     * This is always safe to use with [the current destination][getCurrentDestination] or
      * [its parent][NavDestination.getParent] or grandparent navigation graphs as these
      * destinations are guaranteed to be on the back stack.
      *

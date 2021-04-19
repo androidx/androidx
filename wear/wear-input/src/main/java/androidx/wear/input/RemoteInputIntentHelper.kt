@@ -90,7 +90,7 @@ public class RemoteInputIntentHelper private constructor() {
          * .createActionRemoteInputIntent].
          *
          * @param intent The intent with given data.
-         * @return The array of [RemoteInput] previously added with [.putRemoteInputsExtra] or null
+         * @return The array of [RemoteInput] previously added with [putRemoteInputsExtra] or null
          * which means no user input required.
          */
         @JvmStatic
@@ -107,7 +107,7 @@ public class RemoteInputIntentHelper private constructor() {
 
         /**
          * Adds the array of [RemoteInput] to the given [Intent] that specifies inputs collected
-         * from a user. Should be used with [Intent] created with [.createActionRemoteInputIntent].
+         * from a user. Should be used with [Intent] created with [createActionRemoteInputIntent].
          *
          * @param intent The intent with given data.
          * @param remoteInputs The array of [RemoteInput] to be added.
@@ -124,7 +124,7 @@ public class RemoteInputIntentHelper private constructor() {
          * the confirmation screen to describe the action.
          *
          * @param intent The intent with given data.
-         * @return The string previously added with [.putTitleExtra] or null if no value is found.
+         * @return The string previously added with [putTitleExtra] or null if no value is found.
          */
         @JvmStatic
         @Nullable
@@ -148,7 +148,7 @@ public class RemoteInputIntentHelper private constructor() {
          * cancel the action.
          *
          * @param intent The intent with given data.
-         * @return The string previously added with [.putCancelLabelExtra] or null if no value is
+         * @return The string previously added with [putCancelLabelExtra] or null if no value is
          * found.
          */
         @JvmStatic
@@ -174,7 +174,7 @@ public class RemoteInputIntentHelper private constructor() {
          * confirm that the action should be executed.
          *
          * @param intent The intent with given data.
-         * @return The string previously added with [.putConfirmLabelExtra] or null if no value is
+         * @return The string previously added with [putConfirmLabelExtra] or null if no value is
          * found.
          */
         @JvmStatic
@@ -201,7 +201,7 @@ public class RemoteInputIntentHelper private constructor() {
          * wearable is preparing to automatically execute the action.
          *
          * @param intent The intent with given data.
-         * @return The string previously added with [.putInProgressLabelExtra] or null if no
+         * @return The string previously added with [putInProgressLabelExtra] or null if no
          * value is found.
          */
         @JvmStatic
@@ -228,7 +228,7 @@ public class RemoteInputIntentHelper private constructor() {
          * creating Smart Reply choices within a RemoteInput session.
          *
          * @param intent The intent with given data.
-         * @return The array of [CharSequence] previously added with [.putSmartReplyContext] or [
+         * @return The array of [CharSequence] previously added with [putSmartReplyContext] or [
          * .putSmartReplyContextExtra] or null if no value is found.
          */
         @JvmStatic

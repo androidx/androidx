@@ -91,7 +91,7 @@ public interface WatchFaceHostApi {
      * permission, it will not be able to receive data from the provider unless the provider is
      * from the same app package as the watch face, or the provider lists the watch face as a
      * safe watch face. For system providers that may be used before your watch face has the
-     * permission, use [.setDefaultSystemComplicationProvider] with a safe provider
+     * permission, use [setDefaultSystemComplicationProvider] with a safe provider
      * instead.
      *
      * A provider not satisfying the above conditions may still be set as a default using

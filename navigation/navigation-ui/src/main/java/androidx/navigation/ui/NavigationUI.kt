@@ -159,7 +159,7 @@ public object NavigationUI {
      * destination. On the start destination of your navigation graph, the ActionBar will show
      * the drawer icon if the given Openable layout is non null. On all other destinations,
      * the ActionBar will show the Up button.
-     * Call [.navigateUp] to handle the Up button.
+     * Call [navigateUp] to handle the Up button.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
@@ -193,7 +193,7 @@ public object NavigationUI {
      *
      * The [AppBarConfiguration] you provide controls how the Navigation button is
      * displayed.
-     * Call [.navigateUp] to handle the Up button.
+     * Call [navigateUp] to handle the Up button.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
@@ -226,7 +226,7 @@ public object NavigationUI {
      * destination. On the start destination of your navigation graph, the Toolbar will show
      * the drawer icon if the given Openable layout is non null. On all other destinations,
      * the Toolbar will show the Up button. This method will call
-     * [.navigateUp] when the Navigation button is clicked.
+     * [navigateUp] when the Navigation button is clicked.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
@@ -234,7 +234,7 @@ public object NavigationUI {
      * @param navController The NavController whose navigation actions will be reflected
      * in the title of the Toolbar.
      * @param openableLayout The Openable layout that should be toggled from the Navigation button
-     * @see .setupWithNavController
+     * @see setupWithNavController
      */
     @JvmStatic
     public fun setupWithNavController(
@@ -258,7 +258,7 @@ public object NavigationUI {
      *
      * The [AppBarConfiguration] you provide controls how the Navigation button is
      * displayed and what action is triggered when the Navigation button is tapped. This method
-     * will call [.navigateUp] when the Navigation button
+     * will call [navigateUp] when the Navigation button
      * is clicked.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
@@ -295,7 +295,7 @@ public object NavigationUI {
      * destination. On the start destination of your navigation graph, the Toolbar will show
      * the drawer icon if the given Openable layout is non null. On all other destinations,
      * the Toolbar will show the Up button. This method will call
-     * [.navigateUp] when the Navigation button is clicked.
+     * [navigateUp] when the Navigation button is clicked.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
@@ -330,7 +330,7 @@ public object NavigationUI {
      *
      * The [AppBarConfiguration] you provide controls how the Navigation button is
      * displayed and what action is triggered when the Navigation button is tapped. This method
-     * will call [.navigateUp] when the Navigation button
+     * will call [navigateUp] when the Navigation button
      * is clicked.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
@@ -362,7 +362,7 @@ public object NavigationUI {
 
     /**
      * Sets up a [NavigationView] for use with a [NavController]. This will call
-     * [.onNavDestinationSelected] when a menu item is selected.
+     * [onNavDestinationSelected] when a menu item is selected.
      * The selected item in the NavigationView will automatically be updated when the destination
      * changes.
      *
@@ -443,7 +443,7 @@ public object NavigationUI {
 
     /**
      * Sets up a [BottomNavigationView] for use with a [NavController]. This will call
-     * [.onNavDestinationSelected] when a menu item is selected. The
+     * [onNavDestinationSelected] when a menu item is selected. The
      * selected item in the BottomNavigationView will automatically be updated when the destination
      * changes.
      *

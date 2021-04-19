@@ -137,7 +137,7 @@ public class DialogFragmentNavigator(
     public open class Destination
     /**
      * Construct a new fragment destination. This destination is not valid until you set the
-     * Fragment via [.setClassName].
+     * Fragment via [setClassName].
      *
      * @param fragmentNavigator The [DialogFragmentNavigator] which this destination will be
      *                          associated with. Generally retrieved via a [NavController]'s
@@ -159,7 +159,7 @@ public class DialogFragmentNavigator(
 
         /**
          * Construct a new fragment destination. This destination is not valid until you set the
-         * Fragment via [.setClassName].
+         * Fragment via [setClassName].
          *
          * @param navigatorProvider The [NavController] which this destination
          * will be associated with.

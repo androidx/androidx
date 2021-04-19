@@ -85,11 +85,11 @@ public open class NavHostFragment : Fragment(), NavHost {
 
     /**
      * Returns the [navigation controller][NavController] for this navigation host.
-     * This method will return null until this host fragment's [.onCreate]
+     * This method will return null until this host fragment's [onCreate]
      * has been called and it has had an opportunity to restore from a previous instance state.
      *
      * @return this host's navigation controller
-     * @throws IllegalStateException if called before [.onCreate]
+     * @throws IllegalStateException if called before [onCreate]
      */
     final override val navController: NavController
         get() {
@@ -175,11 +175,11 @@ public open class NavHostFragment : Fragment(), NavHost {
      *
      * By default, this adds a [DialogFragmentNavigator] and [FragmentNavigator].
      *
-     * This is only called once in [.onCreate] and should not be called directly by
+     * This is only called once in [onCreate] and should not be called directly by
      * subclasses.
      *
      * @param navHostController The newly created [NavHostController] that will be
-     * returned by [.getNavController] after
+     * returned by [getNavController] after
      */
     @Suppress("DEPRECATION")
     @CallSuper
@@ -188,13 +188,13 @@ public open class NavHostFragment : Fragment(), NavHost {
     }
 
     /**
-     * Callback for when the [NavController][.getNavController] is created. If you
+     * Callback for when the [NavController][getNavController] is created. If you
      * support any custom destination types, their [Navigator] should be added here to
      * ensure it is available before the navigation graph is inflated / set.
      *
      * By default, this adds a [DialogFragmentNavigator] and [FragmentNavigator].
      *
-     * This is only called once in [.onCreate] and should not be called directly by
+     * This is only called once in [onCreate] and should not be called directly by
      * subclasses.
      *
      * @param navController The newly created [NavController].
@@ -224,7 +224,7 @@ public open class NavHostFragment : Fragment(), NavHost {
      * Create the FragmentNavigator that this NavHostFragment will use. By default, this uses
      * [FragmentNavigator], which replaces the entire contents of the NavHostFragment.
      *
-     * This is only called once in [.onCreate] and should not be called directly by
+     * This is only called once in [onCreate] and should not be called directly by
      * subclasses.
      * @return a new instance of a FragmentNavigator
      */

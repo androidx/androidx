@@ -102,7 +102,7 @@ public class RemoteAuthClient internal constructor(
 
         /**
          * The package name obtained from calling getPackageName() on the context passed into
-         * [.create].
+         * [create].
          * Value type: String
          */
         internal const val KEY_PACKAGE_NAME: String = "packageName"
@@ -115,7 +115,7 @@ public class RemoteAuthClient internal constructor(
 
         /**
          * The error code explaining why the request failed.
-         * Value type: [.ErrorCode]
+         * Value type: [ErrorCode]
          */
         internal const val KEY_ERROR_CODE: String = "errorCode"
 
@@ -142,7 +142,7 @@ public class RemoteAuthClient internal constructor(
         /** Indicates no phone is connected, or the phone connected doesn't support 3p auth */
         public const val ERROR_PHONE_UNAVAILABLE: Int = 1
 
-        /** Errors returned in [.Callback.onAuthorizationError].  */
+        /** Errors returned in [Callback.onAuthorizationError].  */
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(NO_ERROR, ERROR_UNSUPPORTED, ERROR_PHONE_UNAVAILABLE)
         internal annotation class ErrorCode
@@ -194,7 +194,7 @@ public class RemoteAuthClient internal constructor(
         /**
          * Called when an async remote authentication request completes successfully.
          *
-         * see [.sendAuthorizationRequest]
+         * see [sendAuthorizationRequest]
          */
         @UiThread
         public abstract fun onAuthorizationResponse(request: OAuthRequest, response: OAuthResponse)
@@ -202,7 +202,7 @@ public class RemoteAuthClient internal constructor(
         /**
          * Called when an async remote authentication request fails.
          *
-         * see [.sendAuthorizationRequest]
+         * see [sendAuthorizationRequest]
          */
         @UiThread
         public abstract fun onAuthorizationError(@ErrorCode errorCode: Int)
@@ -215,7 +215,7 @@ public class RemoteAuthClient internal constructor(
      * completes.
      *
      * @param request Request that will be sent to the phone. The auth response should redirect
-     * to the Wear OS companion. See [.WEAR_REDIRECT_URL_PREFIX]
+     * to the Wear OS companion. See [WEAR_REDIRECT_URL_PREFIX]
      *
      * @Throws RuntimeException if the service has error to open the request
      */
