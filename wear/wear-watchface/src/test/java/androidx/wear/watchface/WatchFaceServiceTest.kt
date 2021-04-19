@@ -1410,8 +1410,8 @@ public class WatchFaceServiceTest {
 
         // Despite disabling the background complication we should still get a
         // ContentDescriptionLabel for the main clock element.
-        val contentDescriptionLabels =
-            watchFaceImpl.complicationsManager.getContentDescriptionLabels()
+        engineWrapper.updateContentDescriptionLabels()
+        val contentDescriptionLabels = engineWrapper.contentDescriptionLabels
         assertThat(contentDescriptionLabels.size).isEqualTo(3)
         assertThat(contentDescriptionLabels[0].bounds).isEqualTo(
             Rect(
@@ -1437,6 +1437,103 @@ public class WatchFaceServiceTest {
                 95
             )
         ) // Right complication.
+    }
+
+    @Test
+    public fun styleChangesAccessibilityTraversalIndex() {
+        val leftAndRightComplicationsOptionIndexReversed = ComplicationsOption(
+            Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
+            "Both",
+            null,
+            listOf(
+                ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
+                    .setEnabled(true).setAccessibilityTraversalIndex(RIGHT_COMPLICATION_ID).build(),
+                ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID)
+                    .setEnabled(true).setAccessibilityTraversalIndex(LEFT_COMPLICATION_ID).build()
+            )
+        )
+
+        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+            UserStyleSetting.Id("complications_style_setting"),
+            "AllComplications",
+            "Number and position",
+            icon = null,
+            complicationConfig = listOf(
+                leftAndRightComplicationsOption,
+                leftAndRightComplicationsOptionIndexReversed
+            ),
+            affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
+        )
+
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(listOf(complicationsStyleSetting)),
+            4
+        )
+
+        // Despite disabling the background complication we should still get a
+        // ContentDescriptionLabel for the main clock element.
+        engineWrapper.updateContentDescriptionLabels()
+        val contentDescriptionLabels = engineWrapper.contentDescriptionLabels
+        assertThat(contentDescriptionLabels.size).isEqualTo(3)
+        assertThat(contentDescriptionLabels[0].bounds).isEqualTo(
+            Rect(
+                25,
+                25,
+                75,
+                75
+            )
+        ) // Clock element.
+        assertThat(contentDescriptionLabels[1].bounds).isEqualTo(
+            Rect(
+                20,
+                40,
+                40,
+                60
+            )
+        ) // Left complication.
+        assertThat(contentDescriptionLabels[2].bounds).isEqualTo(
+            Rect(
+                60,
+                40,
+                80,
+                60
+            )
+        ) // Right complication.
+
+        // Change the style
+        engineWrapper.watchFaceImpl.userStyleRepository.userStyle = UserStyle(
+            hashMapOf(complicationsStyleSetting to leftAndRightComplicationsOptionIndexReversed)
+        )
+        runPostedTasksFor(0)
+
+        val contentDescriptionLabels2 = engineWrapper.contentDescriptionLabels
+        assertThat(contentDescriptionLabels2.size).isEqualTo(3)
+        assertThat(contentDescriptionLabels2[0].bounds).isEqualTo(
+            Rect(
+                25,
+                25,
+                75,
+                75
+            )
+        ) // Clock element.
+        assertThat(contentDescriptionLabels2[1].bounds).isEqualTo(
+            Rect(
+                60,
+                40,
+                80,
+                60
+            )
+        ) // Right complication.
+        assertThat(contentDescriptionLabels2[2].bounds).isEqualTo(
+            Rect(
+                20,
+                40,
+                40,
+                60
+            )
+        ) // Left complication.
     }
 
     @Test

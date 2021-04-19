@@ -37,8 +37,11 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.WatchFaceControlClient
@@ -657,6 +660,78 @@ public class WatchFaceControlClientTest {
     }
 
     @Test
+    public fun additionalContentDescriptionLabels(): Unit = runBlocking {
+        val deferredInteractiveInstance = async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of InteractiveWatchFaceClient.
+        async { createEngine() }
+
+        // Wait for the instance to be created.
+        withTimeout(CONNECT_TIMEOUT_MILLIS) {
+            deferredInteractiveInstance.await()
+        }
+
+        // Add some additional ContentDescriptionLabels
+        wallpaperService.watchFace.renderer.additionalContentDescriptionLabels = listOf(
+            Pair(
+                0,
+                ContentDescriptionLabel(
+                    PlainComplicationText.Builder("Before").build(),
+                    Rect(10, 10, 20, 20),
+                    null
+                )
+            ),
+            Pair(
+                20000,
+                ContentDescriptionLabel(
+                    PlainComplicationText.Builder("After").build(),
+                    Rect(30, 30, 40, 40),
+                    null
+                )
+            )
+        )
+
+        val sysUiInterface =
+            service.getInteractiveWatchFaceClientInstance("testId")!!
+
+        val contentDescriptionLabels = sysUiInterface.contentDescriptionLabels
+        assertThat(contentDescriptionLabels.size).isEqualTo(5)
+
+        // Central clock element. Note we don't know the timezone this test will be running in
+        // so we can't assert the contents of the clock's test.
+        assertThat(contentDescriptionLabels[0].bounds).isEqualTo(Rect(100, 100, 300, 300))
+        assertThat(contentDescriptionLabels[0].getTextAt(context.resources, 0).isNotEmpty())
+
+        // First additional ContentDescriptionLabel.
+        assertThat(contentDescriptionLabels[1].bounds).isEqualTo(Rect(10, 10, 20, 20))
+        assertThat(contentDescriptionLabels[1].getTextAt(context.resources, 0))
+            .isEqualTo("Before")
+
+        // Left complication.
+        assertThat(contentDescriptionLabels[2].bounds).isEqualTo(Rect(80, 160, 160, 240))
+        assertThat(contentDescriptionLabels[2].getTextAt(context.resources, 0))
+            .isEqualTo("ID Left")
+
+        // Right complication.
+        assertThat(contentDescriptionLabels[3].bounds).isEqualTo(Rect(240, 160, 320, 240))
+        assertThat(contentDescriptionLabels[3].getTextAt(context.resources, 0))
+            .isEqualTo("ID Right")
+
+        // Second additional ContentDescriptionLabel.
+        assertThat(contentDescriptionLabels[4].bounds).isEqualTo(Rect(30, 30, 40, 40))
+        assertThat(contentDescriptionLabels[4].getTextAt(context.resources, 0))
+            .isEqualTo("After")
+    }
+
+    @Test
     public fun updateInstance(): Unit = runBlocking {
         val deferredInteractiveInstance = async {
             service.getOrCreateInteractiveWatchFaceClient(
@@ -769,10 +844,19 @@ internal class TestExampleCanvasAnalogWatchFaceService(
     testContext: Context,
     private var surfaceHolderOverride: SurfaceHolder
 ) : ExampleCanvasAnalogWatchFaceService() {
+    internal lateinit var watchFace: WatchFace
 
     init {
         attachBaseContext(testContext)
     }
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState
+    ): WatchFace {
+        watchFace = super.createWatchFace(surfaceHolder, watchState)
+        return watchFace
+    }
 }
