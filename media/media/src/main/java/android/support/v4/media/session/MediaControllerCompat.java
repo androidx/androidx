@@ -1197,9 +1197,9 @@ public final class MediaControllerCompat {
         public abstract void play();
 
         /**
-         * Request that the player start playback for a specific {@link Uri}.
+         * Request that the player start playback for a specific media id.
          *
-         * @param mediaId The uri of the requested media.
+         * @param mediaId The id of the requested media.
          * @param extras Optional extras that can include extra information
          *            about the media item to be played.
          */
