@@ -122,7 +122,7 @@ function runBuild() {
 function backupState() {
   cd "$scriptPath"
   backupDir="$1"
-  ./impl/backup-state.sh "$backupDir" "$workingDir"
+  ./impl/backup-state.sh "$backupDir" "$workingDir" "$@"
 }
 
 function restoreState() {
@@ -171,7 +171,9 @@ else
   echo "This may mean that there is state stored in a file somewhere, triggering the build to fail."
   echo "We will investigate the possibility of saved state next."
   echo
-  backupState "$tempDir/prev"
+  # We're going to immediately overwrite the user's current state,
+  # so we can simply move the current state into $tempDir/prev rather than copying it
+  backupState "$tempDir/prev" --move
 fi
 
 echo
@@ -231,8 +233,8 @@ echo
 echo "Binary-searching the contents of the two output directories until the relevant differences are identified."
 echo "This may take a while."
 echo
-filtererCommand="$(getBuildCommand "$scriptPath/impl/restore-state.sh . $workingDir && cd $workingDir && ./gradlew --no-daemon $gradleArgs")"
-if $supportRoot/development/file-utils/diff-filterer.py --assume-no-side-effects --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$filtererCommand"; then
+filtererCommand="$(getBuildCommand "$scriptPath/impl/restore-state.sh . $workingDir --move && cd $workingDir && ./gradlew --no-daemon $gradleArgs")"
+if $supportRoot/development/file-utils/diff-filterer.py --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$filtererCommand"; then
   echo
   echo "There should be something wrong with the above file state"
   echo "Hopefully the output from diff-filterer.py above is enough information for you to figure out what is wrong"
