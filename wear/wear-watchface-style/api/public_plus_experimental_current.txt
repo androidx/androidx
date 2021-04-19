@@ -82,10 +82,12 @@ package androidx.wear.watchface.style {
   }
 
   public static final class UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay {
-    ctor public UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay(int complicationId, optional Boolean? enabled, optional androidx.wear.complications.ComplicationBounds? complicationBounds);
+    ctor public UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay(int complicationId, optional Boolean? enabled, optional androidx.wear.complications.ComplicationBounds? complicationBounds, optional Integer? accessibilityTraversalIndex);
+    method public Integer? getAccessibilityTraversalIndex();
     method public androidx.wear.complications.ComplicationBounds? getComplicationBounds();
     method public int getComplicationId();
     method public Boolean? isEnabled();
+    property public final Integer? accessibilityTraversalIndex;
     property public final androidx.wear.complications.ComplicationBounds? complicationBounds;
     property public final int complicationId;
     property public final Boolean? enabled;
@@ -94,6 +96,7 @@ package androidx.wear.watchface.style {
   public static final class UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay.Builder {
     ctor public UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay.Builder(int complicationId);
     method public androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay build();
+    method public androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay.Builder setAccessibilityTraversalIndex(int accessibilityTraversalIndex);
     method public androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay.Builder setComplicationBounds(androidx.wear.complications.ComplicationBounds complicationBounds);
     method public androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay.Builder setEnabled(boolean enabled);
   }

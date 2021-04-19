@@ -123,10 +123,10 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
  * @param complicationsManager The [ComplicationsManager] for this WatchFace.
  */
 public class WatchFace @JvmOverloads constructor(
-    @WatchFaceType internal var watchFaceType: Int,
+    @WatchFaceType public var watchFaceType: Int,
     public val currentUserStyleRepository: CurrentUserStyleRepository,
-    internal val renderer: Renderer,
-    internal var complicationsManager: ComplicationsManager =
+    public val renderer: Renderer,
+    public var complicationsManager: ComplicationsManager =
         ComplicationsManager(emptyList(), currentUserStyleRepository)
 ) {
     internal var tapListener: TapListener? = null

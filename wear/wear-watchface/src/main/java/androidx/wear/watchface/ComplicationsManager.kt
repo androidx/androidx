@@ -21,8 +21,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.icu.util.Calendar
-import android.support.wearable.watchface.accessibility.AccessibilityUtils
-import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.Px
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
@@ -79,7 +77,8 @@ public class ComplicationsManager(
 
     private class InitialComplicationConfig(
         val complicationBounds: ComplicationBounds,
-        val enabled: Boolean
+        val enabled: Boolean,
+        val accessibilityTraversalIndex: Int
     )
 
     // Copy of the original complication configs. This is necessary because the semantics of
@@ -91,7 +90,8 @@ public class ComplicationsManager(
             {
                 InitialComplicationConfig(
                     it.complicationBounds,
-                    it.enabled
+                    it.enabled,
+                    it.accessibilityTraversalIndex
                 )
             }
         )
@@ -161,6 +161,8 @@ public class ComplicationsManager(
                 override?.complicationBounds ?: initialConfig.complicationBounds
             complication.enabled =
                 override?.enabled ?: initialConfig.enabled
+            complication.accessibilityTraversalIndex =
+                override?.accessibilityTraversalIndex ?: initialConfig.accessibilityTraversalIndex
         }
     }
 
@@ -171,40 +173,6 @@ public class ComplicationsManager(
         if (!pendingUpdate.isPending()) {
             pendingUpdate.postUnique(this::updateComplications)
         }
-    }
-
-    internal fun getContentDescriptionLabels(): Array<ContentDescriptionLabel> {
-        val labels = mutableListOf<ContentDescriptionLabel>()
-
-        // Add a ContentDescriptionLabel for the main clock element.
-        labels.add(
-            ContentDescriptionLabel(
-                renderer.getMainClockElementBounds(),
-                AccessibilityUtils.makeTimeAsComplicationText(
-                    watchFaceHostApi.getContext()
-                )
-            )
-        )
-        // Add a ContentDescriptionLabel for each enabled complication.
-        for ((_, complication) in complications) {
-            if (complication.enabled) {
-                if (complication.boundsType == ComplicationBoundsType.BACKGROUND) {
-                    ComplicationBoundsType.BACKGROUND
-                } else {
-                    complication.renderer.getData()?.let {
-                        labels.add(
-                            ContentDescriptionLabel(
-                                watchFaceHostApi.getContext(),
-                                complication.computeBounds(renderer.screenBounds),
-                                it.asWireComplicationData()
-                            )
-                        )
-                    }
-                }
-            }
-        }
-
-        return labels.toTypedArray()
     }
 
     private fun updateComplications() {
@@ -222,7 +190,8 @@ public class ComplicationsManager(
                 activeKeys.add(id)
 
                 labelsDirty =
-                    labelsDirty || complication.dataDirty || complication.complicationBoundsDirty
+                    labelsDirty || complication.dataDirty || complication.complicationBoundsDirty ||
+                    complication.accessibilityTraversalIndexDirty
 
                 if (complication.defaultProviderPolicyDirty ||
                     complication.defaultProviderTypeDirty
@@ -250,10 +219,7 @@ public class ComplicationsManager(
         }
 
         if (labelsDirty) {
-            // Register ContentDescriptionLabels which are used to provide accessibility data.
-            watchFaceHostApi.setContentDescriptionLabels(
-                getContentDescriptionLabels()
-            )
+            watchFaceHostApi.updateContentDescriptionLabels()
         }
     }
 

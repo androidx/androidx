@@ -46,7 +46,7 @@ internal class InteractiveWatchFaceImpl(
         uiThreadHandler.runOnHandlerWithTracing(
             "InteractiveWatchFaceImpl.getContentDescriptionLabels"
         ) {
-            engine.watchFaceImpl.complicationsManager.getContentDescriptionLabels()
+            engine.contentDescriptionLabels
         }
 
     override fun renderWatchFaceToBitmap(params: WatchFaceRenderParams) =

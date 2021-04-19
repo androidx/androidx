@@ -63,8 +63,8 @@ import java.security.InvalidParameterException
  * the UserStyleSetting isn't supported by the UI (e.g. a new WatchFace with an old Companion).
  * @param defaultOptionIndex The default option index, used if nothing has been selected within the
  * [options] list.
- * @param affectedWatchFaceLayers Used by the style configuration UI. Describes which rendering layers this
- * style affects.
+ * @param affectedWatchFaceLayers Used by the style configuration UI. Describes which rendering
+ * layers this style affects.
  */
 public sealed class UserStyleSetting(
     public val id: Id,
@@ -371,14 +371,20 @@ public sealed class UserStyleSetting(
          * @param complicationId The [Id] of the complication to configure.
          * @param enabled If non null, whether the complication should be enabled for this
          * configuration. If null then no changes are made.
-         * @param complicationBounds If non null, the new [ComplicationBounds] for this
+         * @param complicationBounds If non null, the [ComplicationBounds] for this
          * configuration. If null then no changes are made.
+         * @param accessibilityTraversalIndex If non null the accessibility traversal index
+         * for this configuration. This is used to determine the order in which accessibility labels
+         * for the watch face are read to the user.
          */
         public class ComplicationOverlay constructor(
             public val complicationId: Int,
             @get:JvmName("isEnabled")
             public val enabled: Boolean? = null,
-            public val complicationBounds: ComplicationBounds? = null
+            public val complicationBounds: ComplicationBounds? = null,
+            @SuppressWarnings("AutoBoxing")
+            @get:SuppressWarnings("AutoBoxing")
+            public val accessibilityTraversalIndex: Int? = null
         ) {
             public class Builder(
                 /** The id of the complication to configure. */
@@ -386,6 +392,7 @@ public sealed class UserStyleSetting(
             ) {
                 private var enabled: Boolean? = null
                 private var complicationBounds: ComplicationBounds? = null
+                private var accessibilityTraversalIndex: Int? = null
 
                 /** Overrides the complication's enabled flag. */
                 public fun setEnabled(enabled: Boolean): Builder = apply {
@@ -398,11 +405,23 @@ public sealed class UserStyleSetting(
                         this.complicationBounds = complicationBounds
                     }
 
+                /**
+                 * Overrides the complication's accessibility traversal index. This is used to sort
+                 * [androidx.wear.watchface.ContentDescriptionLabel]s. If unset we will order the
+                 * complications by their initial accessibilityTraversalIndex (usually the same
+                 * as their id).
+                 */
+                public fun setAccessibilityTraversalIndex(accessibilityTraversalIndex: Int):
+                    Builder = apply {
+                        this.accessibilityTraversalIndex = accessibilityTraversalIndex
+                    }
+
                 public fun build(): ComplicationOverlay =
                     ComplicationOverlay(
                         complicationId,
                         enabled,
-                        complicationBounds
+                        complicationBounds,
+                        accessibilityTraversalIndex
                     )
             }
 
@@ -418,14 +437,16 @@ public sealed class UserStyleSetting(
                         "Unrecognised wireFormat.mEnabled " + wireFormat.mEnabled
                     )
                 },
-                wireFormat.mPerComplicationTypeBounds?.let { ComplicationBounds(it) }
+                wireFormat.mPerComplicationTypeBounds?.let { ComplicationBounds(it) },
+                wireFormat.accessibilityTraversalIndex
             )
 
             internal fun toWireFormat() =
                 ComplicationOverlayWireFormat(
                     complicationId,
                     enabled,
-                    complicationBounds?.perComplicationTypeBounds
+                    complicationBounds?.perComplicationTypeBounds,
+                    accessibilityTraversalIndex
                 )
         }
 

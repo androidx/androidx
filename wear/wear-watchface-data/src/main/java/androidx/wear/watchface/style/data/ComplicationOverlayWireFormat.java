@@ -40,6 +40,7 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
     public static final int ENABLED_UNKNOWN = -1;
     public static final int ENABLED_YES = 1;
     public static final int ENABLED_NO = 0;
+    public static final long NULL_ACCESSIBILITY_TRAVERSAL_INDEX = 0x100000000L;
 
     @ParcelField(1)
     public int mComplicationId;
@@ -55,13 +56,18 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
     @Nullable
     public Map<ComplicationType, RectF> mPerComplicationTypeBounds;
 
+    /** Ideally this would be Integer but VersionedParcelable doesn't support that. */
+    @ParcelField(4)
+    long mAccessibilityTraversalIndex;
+
     ComplicationOverlayWireFormat() {
     }
 
     public ComplicationOverlayWireFormat(
             int complicationId,
             @Nullable Boolean enabled,
-            @Nullable Map<ComplicationType, RectF> perComplicationTypeBounds
+            @Nullable Map<ComplicationType, RectF> perComplicationTypeBounds,
+            @Nullable Integer accessibilityTraversalIndex
     ) {
         mComplicationId = complicationId;
         if (enabled != null) {
@@ -70,11 +76,29 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
             mEnabled = ENABLED_UNKNOWN;
         }
         mPerComplicationTypeBounds = perComplicationTypeBounds;
+        if (accessibilityTraversalIndex == null) {
+            mAccessibilityTraversalIndex = NULL_ACCESSIBILITY_TRAVERSAL_INDEX;
+        } else {
+            mAccessibilityTraversalIndex = accessibilityTraversalIndex;
+        }
     }
 
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    /**
+     * Returns the optional override to the accessibilityTraversalIndex used for sorting
+     * ContentDescriptionLabels. See ComplicationOverlay for details.
+     */
+    @Nullable
+    public Integer getAccessibilityTraversalIndex() {
+        if (mAccessibilityTraversalIndex == NULL_ACCESSIBILITY_TRAVERSAL_INDEX) {
+            return null;
+        } else {
+            return (int) mAccessibilityTraversalIndex;
+        }
     }
 
     /** Serializes this UserStyleWireFormat to the specified {@link Parcel}. */
