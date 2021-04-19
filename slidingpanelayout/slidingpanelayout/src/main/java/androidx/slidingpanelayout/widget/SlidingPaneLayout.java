@@ -18,6 +18,7 @@ package androidx.slidingpanelayout.widget;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -41,6 +42,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.util.Consumer;
@@ -53,6 +55,7 @@ import androidx.customview.widget.Openable;
 import androidx.customview.widget.ViewDragHelper;
 import androidx.window.DisplayFeature;
 import androidx.window.FoldingFeature;
+import androidx.window.WindowBackend;
 import androidx.window.WindowLayoutInfo;
 import androidx.window.WindowManager;
 
@@ -326,12 +329,20 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         mDragHelper.setMinVelocity(MIN_FLING_VELOCITY * density);
 
         try {
-            mFoldingFeatureObserver = new FoldingFeatureObserver(context);
-            mFoldingFeatureObserver.setOnFoldingFeatureChangeListener(
-                    mOnFoldingFeatureChangeListener);
+            FoldingFeatureObserver foldingFeatureObserver = new FoldingFeatureObserver(context,
+                    null);
+            setFoldingFeatureObserver(foldingFeatureObserver);
         } catch (IllegalArgumentException exception) {
             // Disable fold detection.
         }
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    void setFoldingFeatureObserver(
+            FoldingFeatureObserver foldingFeatureObserver) {
+        mFoldingFeatureObserver = foldingFeatureObserver;
+        mFoldingFeatureObserver.setOnFoldingFeatureChangeListener(
+                mOnFoldingFeatureChangeListener);
     }
 
     /**
@@ -1841,7 +1852,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      * A device folding feature observer is used to notify listener when there is a folding feature
      * change.
      */
-    private static class FoldingFeatureObserver {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    static class FoldingFeatureObserver {
         /**
          * Interface definition for a callback to be invoked when there is a folding feature change
          */
@@ -1883,8 +1895,15 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         private LayoutStateChangeCallback
                 mLayoutStateChangeCallback = new LayoutStateChangeCallback();
 
-        FoldingFeatureObserver(@NonNull Context context) {
-            mWindowManager = new WindowManager(context);
+        /**
+         * Create an instance of a folding feature observer
+         *
+         * @param context A visual context, such as an {@link Activity} or a {@link ContextWrapper}
+         * @param windowBackend A custom implementation of {@link WindowBackend} for testing
+         */
+        FoldingFeatureObserver(@NonNull Context context, @Nullable WindowBackend windowBackend) {
+            mWindowManager = windowBackend == null ? new WindowManager(context) :
+                    new WindowManager(context, windowBackend);
             mExecutor = ContextCompat.getMainExecutor(context);
         }
 

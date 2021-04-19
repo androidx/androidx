@@ -29,6 +29,7 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
@@ -40,6 +41,11 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 public class PanelSlideListenerTest {
+
+    @After
+    public fun tearDown() {
+        TestActivity.onActivityCreated = {}
+    }
 
     @Test
     public fun testAddPanelSlideListener() {
