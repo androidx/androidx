@@ -80,4 +80,13 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
             executor.execute { callback.onCaptureCancelled() }
         }
     }
+
+    // TODO(b/186853278): Look into why onComplete isn't called
+    override fun onTotalCaptureResult(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        totalCaptureResult: FrameInfo
+    ) {
+        onComplete(requestMetadata, frameNumber, totalCaptureResult)
+    }
 }

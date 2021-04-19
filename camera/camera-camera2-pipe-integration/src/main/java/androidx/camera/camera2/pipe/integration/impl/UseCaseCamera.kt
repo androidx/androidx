@@ -28,9 +28,11 @@ import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
@@ -60,6 +62,7 @@ interface UseCaseCamera {
     ): Deferred<Result3A>
 
     // Capture
+    fun capture(captureSequence: List<CaptureConfig>)
 
     // Lifecycle
     fun close()
@@ -72,7 +75,8 @@ class UseCaseCameraImpl(
     private val cameraGraph: CameraGraph,
     private val useCases: List<UseCase>,
     private val surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
-    private val state: UseCaseCameraState
+    private val state: UseCaseCameraState,
+    private val configAdapter: CaptureConfigAdapter,
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val currentParameters = mutableMapOf<CaptureRequest.Key<*>, Any>()
@@ -140,6 +144,11 @@ class UseCaseCameraImpl(
     override fun <T> setParametersAsync(values: Map<CaptureRequest.Key<*>, Any>): Deferred<Unit> {
         currentParameters.putAll(values)
         return state.updateAsync(parameters = currentParameters)
+    }
+
+    override fun capture(captureSequence: List<CaptureConfig>) {
+        val requests = captureSequence.map { configAdapter.mapToRequest(it) }
+        state.capture(requests)
     }
 
     private fun updateUseCases() {
@@ -229,9 +238,11 @@ class UseCaseCameraImpl(
                 }
 
                 val state = UseCaseCameraState(graph, threads)
+                val configAdapter =
+                    CaptureConfigAdapter(surfaceToStreamMap, threads.backgroundExecutor)
 
                 graph.start()
-                return UseCaseCameraImpl(graph, useCases, surfaceToStreamMap, state)
+                return UseCaseCameraImpl(graph, useCases, surfaceToStreamMap, state, configAdapter)
             }
         }
     }
