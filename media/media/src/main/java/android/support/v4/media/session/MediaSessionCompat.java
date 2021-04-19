@@ -124,6 +124,14 @@ import java.util.Set;
 public class MediaSessionCompat {
     static final String TAG = "MediaSessionCompat";
 
+    // TODO(b/182513352): Use PendingIntent.FLAG_MUTABLE instead from S.
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static final int PENDING_INTENT_FLAG_MUTABLE =
+            Build.VERSION.CODENAME.equals("S") ? 0x02000000 : 0;
+
     private final MediaSessionImpl mImpl;
     private final MediaControllerCompat mController;
     private final ArrayList<OnActiveChangeListener> mActiveListeners = new ArrayList<>();
@@ -533,6 +541,7 @@ public class MediaSessionCompat {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
+    @SuppressLint("WrongConstant") // PENDING_INTENT_FLAG_MUTABLE
     public MediaSessionCompat(@NonNull Context context, @NonNull String tag,
             @Nullable ComponentName mbrComponent, @Nullable PendingIntent mbrIntent,
             @Nullable Bundle sessionInfo, @Nullable VersionedParcelable session2Token) {
@@ -557,7 +566,7 @@ public class MediaSessionCompat {
             mediaButtonIntent.setComponent(mbrComponent);
             mbrIntent = PendingIntent.getBroadcast(context,
                     0/* requestCode, ignored */, mediaButtonIntent,
-                    PendingIntent.FLAG_IMMUTABLE);
+                    PENDING_INTENT_FLAG_MUTABLE);
         }
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
