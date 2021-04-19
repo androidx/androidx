@@ -23,7 +23,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
-import android.graphics.Point
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
@@ -436,7 +435,6 @@ internal class WatchFaceImpl(
     private var mockTime = MockTime(1.0, 0, Long.MAX_VALUE)
 
     private var lastTappedComplicationId: Int? = null
-    private var lastTappedPosition: Point? = null
     private var registeredReceivers = false
 
     // True if NotificationManager.INTERRUPTION_FILTER_NONE.
@@ -905,39 +903,21 @@ internal class WatchFaceImpl(
      * Called when a tap or touch related event occurs. Detects double and single taps on
      * complications and triggers the associated action.
      *
-     * @param originalTapType Value representing the event sent to the wallpaper
+     * @param tapType Value representing the event sent to the wallpaper
      * @param x X coordinate of the event
      * @param y Y coordinate of the event
      */
     @UiThread
     internal fun onTapCommand(
-        @TapType originalTapType: Int,
+        @TapType tapType: Int,
         x: Int,
         y: Int
     ) {
         val tappedComplication = complicationsManager.getComplicationAt(x, y)
         if (tappedComplication == null) {
             clearGesture()
-            tapListener?.onTap(originalTapType, x, y)
+            tapListener?.onTap(tapType, x, y)
             return
-        }
-
-        // Unfortunately we don't get MotionEvents so we can't directly use the GestureDetector
-        // to distinguish between single and double taps. Currently we do that ourselves.
-        // TODO(alexclarke): Revisit this
-        var tapType = originalTapType
-        when (tapType) {
-            TapType.DOWN -> {
-                lastTappedPosition = Point(x, y)
-            }
-            TapType.CANCEL -> {
-                lastTappedPosition?.let { safeLastTappedPosition ->
-                    if ((safeLastTappedPosition.x == x) && (safeLastTappedPosition.y == y)) {
-                        tapType = TapType.UP
-                    }
-                }
-                lastTappedPosition = null
-            }
         }
 
         when (tapType) {
@@ -997,7 +977,6 @@ internal class WatchFaceImpl(
         writer.println("pendingSingleTap=${pendingSingleTap.isPending()}")
         writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
         writer.println("lastTappedComplicationId=$lastTappedComplicationId")
-        writer.println("lastTappedPosition=$lastTappedPosition")
         writer.println("currentUserStyleRepository.userStyle=${userStyleRepository.userStyle}")
         writer.println("currentUserStyleRepository.schema=${userStyleRepository.schema}")
         watchState.dump(writer)

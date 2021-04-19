@@ -798,7 +798,7 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun tapCancel_after_tapDown_at_same_location_HandledAsSingleTap() {
+    public fun tapCancel_after_tapDown_CancelsTap() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -808,46 +808,6 @@ public class WatchFaceServiceTest {
         testWatchFaceService.reset()
         // Tap/Cancel left complication
         tapCancelAt(30, 50)
-        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
-    }
-
-    @Test
-    public fun tapDown_then_tapDown_tapCancel_HandledAsSingleTap() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            UserStyleSchema(emptyList())
-        )
-
-        testWatchFaceService.reset()
-        // Tap down left Complication
-        watchFaceImpl.onTapCommand(TapType.DOWN, 30, 50)
-
-        // Tap down at right complication
-        watchFaceImpl.onTapCommand(TapType.DOWN, 70, 50)
-
-        // Now Tap cancel at the second position
-        watchFaceImpl.onTapCommand(TapType.CANCEL, 70, 50)
-        runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(testWatchFaceService.singleTapCount).isEqualTo(1)
-    }
-
-    @Test
-    public fun tapDown_tapCancel_different_positions_CancelsTap() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            UserStyleSchema(emptyList())
-        )
-
-        testWatchFaceService.reset()
-        // Tap down at a position in left Complication
-        watchFaceImpl.onTapCommand(TapType.DOWN, 30, 50)
-        // Tap cancel at different position stillin left Complication
-        watchFaceImpl.onTapCommand(TapType.CANCEL, 32, 50)
-
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
         assertThat(testWatchFaceService.complicationSingleTapped).isNull()
         assertThat(testWatchFaceService.singleTapCount).isEqualTo(0)
