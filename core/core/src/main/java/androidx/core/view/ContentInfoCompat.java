@@ -147,11 +147,11 @@ public final class ContentInfoCompat {
     @Override
     public String toString() {
         return "ContentInfoCompat{"
-                + "clip=" + mClip
+                + "clip=" + mClip.getDescription()
                 + ", source=" + sourceToString(mSource)
                 + ", flags=" + flagsToString(mFlags)
-                + ", linkUri=" + mLinkUri
-                + ", extras=" + mExtras
+                + (mLinkUri == null ? "" : ", hasLinkUri(" + mLinkUri.toString().length() + ")")
+                + (mExtras == null ? "" : ", hasExtras")
                 + "}";
     }
 
