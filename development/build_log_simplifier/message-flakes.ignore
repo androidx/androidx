@@ -84,3 +84,5 @@ at org\.jetbrains\.kotlin\.daemon\.common\.CompileService\$CallResult\$Error\.ge
 at java\.base/java\.util\.concurrent\.FutureTask\.run\(FutureTask\.java:[0-9]+\)
 at java\.base/java\.util\.concurrent\.Executors\$RunnableAdapter\.call\(Executors\.java:[0-9]+\)
 warning: ATTENTION!
+# b/185474400
+at org.gradle.*
