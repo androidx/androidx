@@ -1082,7 +1082,7 @@ Unknown flag --class-dir: Use --help for usage information
 Scanning .+: \.*
 \.+
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
-\$SUPPORT/compose/ui/ui\-tooling/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 .*Unknown issue id.*
 No issues found.*
 Incorrect detector reported disabled issue.*
