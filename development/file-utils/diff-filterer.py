@@ -65,6 +65,11 @@ class FileIo(object):
     else:
       shutil.copy2(fromPath, toPath)
 
+  def hardLink(self, oldPath, newPath):
+    self.ensureDirExists(os.path.dirname(newPath))
+    self.removePath(newPath)
+    os.link(oldPath, newPath)
+
   def writeFile(self, path, text):
     f = open(path, "w+")
     f.write(text)
@@ -123,6 +128,44 @@ class FileIo(object):
 
 fileIo = FileIo()
 
+# Fast file copying
+class FileCopyCache(object):
+  def __init__(self):
+    self.modificationTimes = {}
+
+  # Puts a copy of <sourcePath> at <destPath>
+  # If we already have an unmodified copy, we just hardlink our existing unmodified copy
+  # If we don't have an unmodified copy, we first make a copy
+  def copyFile(self, sourcePath, destPath, cachePath):
+    if cachePath is None:
+      fileIo.copyFile(sourcePath, destPath)
+    else:
+      shareable = self.getShareableFile(sourcePath, cachePath)
+      fileIo.hardLink(shareable, destPath)
+
+  # gets a shareable copy of <sourcePath> in <cachePath> and returns its path
+  def getShareableFile(self, sourcePath, cachePath):
+    # note that absolute sourcePath is supported
+    path = os.path.abspath(cachePath + "/" + sourcePath)
+    if path in self.modificationTimes:
+      # we've already shared this file before; let's check whether it has been modified since then
+      if self.modificationTimes[path] == self.getModificationTime(path):
+        # this file hasn't been modified since we last shared it; we can just reuse it
+        return path
+    # we don't have an existing file that we can reuse, so we have to make one
+    fileIo.copyFile(sourcePath, path)
+    self.modificationTimes[path] = self.getModificationTime(path)
+    return path
+
+  # returns the time at which <path> was last modified
+  def getModificationTime(self, path):
+    if os.path.exists(path):
+      return os.path.getmtime(path)
+    return None
+
+
+fileCopyCache = FileCopyCache()
+
 # Runs a shell command
 class ShellScript(object):
   def __init__(self, commandText, cwd):
@@ -140,7 +183,7 @@ class ShellScript(object):
 
 # Base class that can hold the state of a file
 class FileContent(object):
-  def apply(self, filePath):
+  def apply(self, filePath, cachePath=None):
     pass
 
   def equals(self, other, checkWithFileSystem=False):
@@ -153,8 +196,8 @@ class FileBacked_FileContent(FileContent):
     self.referencePath = referencePath
     self.isLink = os.path.islink(self.referencePath)
 
-  def apply(self, filePath):
-    fileIo.copyFile(self.referencePath, filePath)
+  def apply(self, filePath, cachePath=None):
+    fileCopyCache.copyFile(self.referencePath, filePath, cachePath)
 
   def equals(self, other, checkWithFileSystem=False):
     if not isinstance(other, FileBacked_FileContent):
@@ -177,7 +220,7 @@ class MissingFile_FileContent(FileContent):
   def __init__(self):
     super(MissingFile_FileContent, self).__init__()
 
-  def apply(self, filePath):
+  def apply(self, filePath, cachePath=None):
     fileIo.removePath(filePath)
 
   def equals(self, other, checkWithFileSystem=False):
@@ -191,7 +234,7 @@ class Directory_FileContent(FileContent):
   def __init__(self):
     super(Directory_FileContent, self).__init__()
 
-  def apply(self, filePath):
+  def apply(self, filePath, cachePath=None):
     fileIo.ensureDirExists(filePath)
 
   def equals(self, other, checkWithFileSystem=False):
@@ -205,9 +248,9 @@ class FilesState(object):
   def __init__(self):
     self.fileStates = OrderedDict()
 
-  def apply(self, filePath):
+  def apply(self, filePath, cachePath=None):
     for relPath, state in self.fileStates.items():
-      state.apply(fileIo.join(filePath, relPath))
+      state.apply(fileIo.join(filePath, relPath), cachePath)
 
   def add(self, filePath, fileContent):
     self.fileStates[filePath] = fileContent
@@ -614,15 +657,15 @@ def boxFromList(fileStates):
   return tree
 
 # runs a Job in this process
-def runJobInSameProcess(shellCommand, workPath, full_resetTo_state, assumeNoSideEffects, candidateBox, twoWayPipe):
-  job = Job(shellCommand, workPath, full_resetTo_state, assumeNoSideEffects, candidateBox, twoWayPipe)
+def runJobInSameProcess(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, candidateBox, twoWayPipe):
+  job = Job(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, candidateBox, twoWayPipe)
   job.runAndReport()
 
 # starts a Job in a new process
-def runJobInOtherProcess(shellCommand, workPath, full_resetTo_state, assumeNoSideEffects, candidateBox, queue, identifier):
+def runJobInOtherProcess(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, candidateBox, queue, identifier):
   parentWriter, childReader = multiprocessing.Pipe()
   childInfo = TwoWayPipe(childReader, queue, identifier)
-  process = multiprocessing.Process(target=runJobInSameProcess, args=(shellCommand, workPath, full_resetTo_state, assumeNoSideEffects, candidateBox, childInfo,))
+  process = multiprocessing.Process(target=runJobInSameProcess, args=(shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, candidateBox, childInfo,))
   process.start()
   return parentWriter
 
@@ -634,7 +677,7 @@ class TwoWayPipe(object):
 
 # Stores a subprocess for running tests and some information about which tests to run
 class Job(object):
-  def __init__(self, shellCommand, workPath, full_resetTo_state, assumeNoSideEffects, candidateBox, twoWayPipe):
+  def __init__(self, shellCommand, workPath, cachePath, full_resetTo_state, assumeNoSideEffects, candidateBox, twoWayPipe):
     self.shellCommand = shellCommand
     self.workPath = workPath
     self.full_resetTo_state = full_resetTo_state
@@ -648,6 +691,7 @@ class Job(object):
     self.busy = False
     self.complete = False
     self.pipe = twoWayPipe
+    self.cachePath = cachePath
 
   def runAndReport(self):
     succeeded = False
@@ -666,7 +710,7 @@ class Job(object):
     # If the user told us that we don't have to worry about the possibility of the shell command generating files whose state matters,
     # then we don't reset any unrecognized files (they might even be caches that improve speed)
     testState = self.candidateBox
-    self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState, True).apply(self.workPath)
+    self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState, True).apply(self.workPath, self.cachePath)
 
     # run test
     start = datetime.datetime.now()
@@ -731,6 +775,7 @@ class DiffRunner(object):
             except IOError as e:
               if attempt >= numAttempts - 1:
                 raise Exception("Failed to remove " + path, e)
+    fileIo.removePath(os.path.join(self.workPath, "caches"))
 
   def runnerTest(self, testState, timeout = None):
     workPath = self.getWorkPath(0)
@@ -768,6 +813,9 @@ class DiffRunner(object):
 
   def getWorkPath(self, jobId):
     return os.path.join(self.workPath, "job-" + str(jobId))
+
+  def getFilesCachePath(self, jobId):
+    return os.path.join(self.workPath, "caches", "job-" + str(jobId))
 
   def run(self):
     start = datetime.datetime.now()
@@ -974,7 +1022,8 @@ class DiffRunner(object):
             jobId += 1
           # start job
           workingDir = self.getWorkPath(jobId)
-          runJobInOtherProcess(self.testScript_path, workingDir, self.full_resetTo_state, self.assumeNoSideEffects, box, queue, jobId)
+          cacheDir = self.getFilesCachePath(jobId)
+          runJobInOtherProcess(self.testScript_path, workingDir, cacheDir, self.full_resetTo_state, self.assumeNoSideEffects, box, queue, jobId)
           activeTestStatesById[jobId] = box
           availableTestStates = availableTestStates[1:]
 
