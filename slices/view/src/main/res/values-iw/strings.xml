@@ -19,13 +19,13 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="abc_slice_more_content" msgid="6405516388971241142">"+ <xliff:g id="NUMBER">%1$d</xliff:g>"</string>
     <string name="abc_slice_more" msgid="1983560225998630901">"עוד"</string>
-    <string name="abc_slice_show_more" msgid="1567717014004692768">"הצג יותר"</string>
-    <string name="abc_slice_updated" msgid="8155085405396453848">"עודכן ב-<xliff:g id="TIME">%1$s</xliff:g>"</string>
+    <string name="abc_slice_show_more" msgid="1567717014004692768">"עוד"</string>
+    <string name="abc_slice_updated" msgid="8155085405396453848">"עדכון אחרון: <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
       <item quantity="two">לפני <xliff:g id="ID_2">%d</xliff:g> דק’</item>
       <item quantity="many">לפני <xliff:g id="ID_2">%d</xliff:g> דק’</item>
       <item quantity="other">לפני <xliff:g id="ID_2">%d</xliff:g> דק’</item>
-      <item quantity="one">לפני <xliff:g id="ID_1">%d</xliff:g> דק’</item>
+      <item quantity="one">לפני דקה (<xliff:g id="ID_1">%d</xliff:g>)</item>
     </plurals>
     <plurals name="abc_slice_duration_years" formatted="false" msgid="6212691832333991589">
       <item quantity="two">לפני <xliff:g id="ID_2">%d</xliff:g> שנים</item>
