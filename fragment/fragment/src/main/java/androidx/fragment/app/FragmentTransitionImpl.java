@@ -266,14 +266,16 @@ public abstract class FragmentTransitionImpl {
 
     /**
      * Uses a breadth-first scheme to add startView and all of its children to views.
-     * It won't add a child if it is already in views.
+     * It won't add a child if it is already in views or if it has a transition name.
      */
     protected static void bfsAddViewChildren(final List<View> views, final View startView) {
         final int startIndex = views.size();
         if (containedBeforeIndex(views, startView, startIndex)) {
             return; // This child is already in the list, so all its children are also.
         }
-        views.add(startView);
+        if (ViewCompat.getTransitionName(startView) != null) {
+            views.add(startView);
+        }
         for (int index = startIndex; index < views.size(); index++) {
             final View view = views.get(index);
             if (view instanceof ViewGroup) {
@@ -281,7 +283,8 @@ public abstract class FragmentTransitionImpl {
                 final int childCount =  viewGroup.getChildCount();
                 for (int childIndex = 0; childIndex < childCount; childIndex++) {
                     final View child = viewGroup.getChildAt(childIndex);
-                    if (!containedBeforeIndex(views, child, startIndex)) {
+                    if (!containedBeforeIndex(views, child, startIndex)
+                            && ViewCompat.getTransitionName(child) != null) {
                         views.add(child);
                     }
                 }
