@@ -42,14 +42,14 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
-import androidx.wear.utility.TraceEvent
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
-import androidx.wear.watchface.style.UserStyle
+import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.WatchFaceLayer
-import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
+import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
 import java.io.FileNotFoundException
@@ -255,10 +255,34 @@ public class WatchFace @JvmOverloads constructor(
 
     /** Listens for taps on the watchface which didn't land on [Complication]s. */
     public interface TapListener {
-        /** Called whenever the user taps on the watchface but doesn't hit a [Complication]. */
+        /**
+         * Called whenever the user taps on the watchface but doesn't hit a [Complication].
+         *
+         * The watch face receives three different types of touch events:
+         * - [TapType.DOWN] when the user puts the finger down on the touchscreen
+         * - [TapType.UP] when the user lifts the finger from the touchscreen
+         * - [TapType.CANCEL] when the system detects that the user is performing a gesture other
+         *   than a tap
+         *
+         * Note that the watch face is only given tap events, i.e., events where the user puts
+         * the finger down on the screen and then lifts it at the position. If the user performs any
+         * other type of gesture while their finger in on the touchscreen, the watch face will be
+         * receive a cancel, as all other gestures are reserved by the system.
+         *
+         * Therefore, a [TapType.DOWN] event and the successive [TapType.UP] event are guaranteed
+         * to be close enough to be considered a tap according to the value returned by
+         * [android.view.ViewConfiguration.getScaledTouchSlop].
+         *
+         * If the watch face receives a [TapType.CANCEL] event, it should not trigger any action, as
+         * the system is already processing the gesture.
+         *
+         * @param tapType the type of touch event sent to the watch face
+         * @param xPos the horizontal position in pixels on the screen where the touch happened
+         * @param yPos the vertical position in pixels on the screen where the touch happened
+         */
         @UiThread
         public fun onTap(
-            @TapType originalTapType: Int,
+            @TapType tapType: Int,
             @Px xPos: Int,
             @Px yPos: Int
         )

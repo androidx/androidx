@@ -104,21 +104,31 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
 public annotation class TapType {
     public companion object {
         /**
-         * Used in [WatchFaceImpl#onTapCommand] to indicate a "down" touch event on the watch face.
+         * Used to indicate a "down" touch event on the watch face.
+         *
+         * The watch face will receive an [UP] or a [CANCEL] event to follow this event, to
+         * indicate whether this down event corresponds to a tap gesture to be handled by the watch
+         * face, or a different type of gesture that is handled by the system, respectively.
          */
         public const val DOWN: Int = IInteractiveWatchFace.TAP_TYPE_DOWN
 
         /**
-         * Used in [WatchFaceImpl#onTapCommand] to indicate that a previous [TapType.DOWN] touch
-         * event has been canceled. This generally happens when the watch face is touched but then a
-         * move or long press occurs.
+         * Used in to indicate that a previous [TapType.DOWN] touch event has been canceled. This
+         * generally happens when the watch face is touched but then a move or long press occurs.
+         *
+         * The watch face should not trigger any action, as the system is already processing the
+         * gesture.
          */
         public const val CANCEL: Int = IInteractiveWatchFace.TAP_TYPE_CANCEL
 
         /**
-         * Used in [WatchFaceImpl#onTapCommand] to indicate that an "up" event on the watch face has
-         * occurred that has not been consumed by another activity. A [TapType.DOWN] will always
-         * occur first. This event will not occur if a [TapType.CANCEL] is sent.
+         * Used to indicate that an "up" event on the watch face has occurred that has not been
+         * consumed by the system. A [TapType.DOWN] will always occur first. This event will not
+         * be sent if a [TapType.CANCEL] is sent.
+         *
+         * Therefore, a [TapType.DOWN] event and the successive [TapType.UP] event are guaranteed
+         * to be close enough to be considered a tap according to the value returned by
+         * [android.view.ViewConfiguration.getScaledTouchSlop].
          */
         public const val UP: Int = IInteractiveWatchFace.TAP_TYPE_UP
     }
