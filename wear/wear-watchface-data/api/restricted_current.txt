@@ -46,7 +46,6 @@ package android.support.wearable.watchface {
     field public static final String PERMISSION_BIND_WATCH_FACE_CONTROL = "com.google.android.wearable.permission.BIND_WATCH_FACE_CONTROL";
     field public static final String PROPERTY_BURN_IN_PROTECTION = "burn_in_protection";
     field public static final String PROPERTY_LOW_BIT_AMBIENT = "low_bit_ambient";
-    field public static final int PROVIDER_CHOOSER_REQUEST_CODE = 1; // 0x1
     field public static final String STATUS_AIRPLANE_MODE = "airplane_mode";
     field public static final String STATUS_CHARGING = "charging";
     field public static final String STATUS_CONNECTED = "connected";
