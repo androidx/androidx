@@ -33,6 +33,12 @@ import kotlin.reflect.KClass
 interface XProcessingEnv {
 
     val backend: Backend
+
+    /**
+     * The target language the processor is set to expect
+     */
+    val targetLanguage: Language
+
     /**
      * The logger interface to log messages
      */
@@ -128,12 +134,20 @@ interface XProcessingEnv {
         KSP
     }
 
+    enum class Language {
+        JAVA,
+        KOTLIN
+    }
+
     companion object {
         /**
          * Creates a new [XProcessingEnv] implementation derived from the given Java [env].
          */
         @JvmStatic
-        fun create(env: ProcessingEnvironment): XProcessingEnv = JavacProcessingEnv(env)
+        fun create(
+            env: ProcessingEnvironment,
+            targetLanguage: Language = Language.JAVA
+        ): XProcessingEnv = JavacProcessingEnv(env, targetLanguage)
 
         /**
          * Creates a new [XProcessingEnv] implementation derived from the given KSP environment.
@@ -143,7 +157,8 @@ interface XProcessingEnv {
             options: Map<String, String>,
             resolver: Resolver,
             codeGenerator: CodeGenerator,
-            logger: KSPLogger
+            logger: KSPLogger,
+            targetLanguage: Language = Language.JAVA
         ): XProcessingEnv = KspProcessingEnv(
             options = options,
             codeGenerator = codeGenerator,

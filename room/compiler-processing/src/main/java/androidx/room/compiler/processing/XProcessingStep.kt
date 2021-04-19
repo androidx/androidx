@@ -56,11 +56,13 @@ interface XProcessingStep {
          */
         @JvmStatic
         fun XProcessingStep.asAutoCommonProcessor(
-            env: ProcessingEnvironment
+            env: ProcessingEnvironment,
+            targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.JAVA
         ): BasicAnnotationProcessor.Step {
             return JavacProcessingStepDelegate(
                 env = env,
-                delegate = this
+                delegate = this,
+                targetLanguage = targetLanguage
             )
         }
 
@@ -79,7 +81,8 @@ interface XProcessingStep {
 
 internal class JavacProcessingStepDelegate(
     val env: ProcessingEnvironment,
-    val delegate: XProcessingStep
+    val delegate: XProcessingStep,
+    val targetLanguage: XProcessingEnv.Language
 ) : BasicAnnotationProcessor.Step {
     override fun annotations(): Set<String> = delegate.annotations()
 
@@ -90,7 +93,7 @@ internal class JavacProcessingStepDelegate(
         val converted = mutableMapOf<String, Set<XElement>>()
         // create a new x processing environment for each step to ensure it can freely cache
         // whatever it wants and we don't keep elements references across rounds.
-        val xEnv = JavacProcessingEnv(env)
+        val xEnv = JavacProcessingEnv(env, targetLanguage)
         annotations().forEach { annotation ->
             val elements = elementsByAnnotation[annotation].mapNotNull { element ->
                 xEnv.wrapAnnotatedElement(element, annotation)

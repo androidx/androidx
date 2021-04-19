@@ -39,7 +39,8 @@ import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 
 internal class JavacProcessingEnv(
-    val delegate: ProcessingEnvironment
+    val delegate: ProcessingEnvironment,
+    override val targetLanguage: XProcessingEnv.Language
 ) : XProcessingEnv {
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.JAVAC
 

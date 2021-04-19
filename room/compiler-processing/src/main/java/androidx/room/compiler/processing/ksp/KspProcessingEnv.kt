@@ -44,6 +44,7 @@ internal class KspProcessingEnv(
     val resolver: Resolver
 ) : XProcessingEnv {
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.KSP
+    override val targetLanguage: XProcessingEnv.Language = XProcessingEnv.Language.KOTLIN
     private val ksFileMemberContainers = mutableMapOf<KSFile, KspFileMemberContainer>()
 
     private val typeElementStore =
