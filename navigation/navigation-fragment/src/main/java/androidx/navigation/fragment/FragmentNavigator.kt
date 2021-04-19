@@ -235,7 +235,7 @@ public open class FragmentNavigator(
     public open class Destination
     /**
      * Construct a new fragment destination. This destination is not valid until you set the
-     * Fragment via [.setClassName].
+     * Fragment via [setClassName].
      *
      * @param fragmentNavigator The [FragmentNavigator] which this destination
      * will be associated with. Generally retrieved via a
@@ -247,7 +247,7 @@ public open class FragmentNavigator(
 
         /**
          * Construct a new fragment destination. This destination is not valid until you set the
-         * Fragment via [.setClassName].
+         * Fragment via [setClassName].
          *
          * @param navigatorProvider The [NavController] which this destination
          * will be associated with.

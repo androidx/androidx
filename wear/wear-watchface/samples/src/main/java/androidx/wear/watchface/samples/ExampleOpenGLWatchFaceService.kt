@@ -181,17 +181,17 @@ class ExampleOpenGLRenderer(
     private val modelMatrices = Array(360) { FloatArray(16) }
 
     /**
-     * Products of [.mViewMatrices] and [.mProjectionMatrix]. One matrix per camera
+     * Products of [mViewMatrices] and [mProjectionMatrix]. One matrix per camera
      * position.
      */
     private val vpMatrices = Array(numCameraAngles) { FloatArray(16) }
 
-    /** The product of [.mAmbientViewMatrix] and [.mProjectionMatrix]  */
+    /** The product of [mAmbientViewMatrix] and [mProjectionMatrix]  */
     private val ambientVpMatrix = FloatArray(16)
 
     /**
-     * Product of [.mModelMatrices], [.mViewMatrices], and
-     * [.mProjectionMatrix].
+     * Product of [mModelMatrices], [mViewMatrices], and
+     * [mProjectionMatrix].
      */
     private val mvpMatrix = FloatArray(16)
 

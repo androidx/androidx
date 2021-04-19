@@ -40,7 +40,7 @@ public class BridgingConfig internal constructor(
     public val isBridgingEnabled: Boolean,
     /**
      * The set of excluded tags in the configuration. The bridging mode for these tags is the
-     * opposite of the default mode (returned by [.isBridgingEnabled]).
+     * opposite of the default mode (returned by [isBridgingEnabled]).
      */
     public val excludedTags: MutableSet<String>?
 ) {
