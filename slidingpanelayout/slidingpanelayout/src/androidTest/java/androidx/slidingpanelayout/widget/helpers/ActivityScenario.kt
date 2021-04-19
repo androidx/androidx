@@ -30,6 +30,10 @@ public inline fun <reified A : Activity> ActivityScenario<A>.findViewX(
     return withActivity { findViewById<View>(resId).x }
 }
 
+public inline fun <reified A : Activity> ActivityScenario<A>.findViewById(@IdRes resId: Int): View {
+    return withActivity { findViewById(resId) }
+}
+
 public inline fun <reified A : Activity> ActivityScenario<A>.addWaitForOpenLatch(
     @IdRes resId: Int
 ): CountDownLatch {
