@@ -51,13 +51,13 @@ abstract class RunTestOnFTLTask @Inject constructor(
     /**
      * The test APK for the instrumentation test.
      */
-    @get:[InputFile PathSensitive(PathSensitivity.RELATIVE)]
+    @get:[InputFile PathSensitive(PathSensitivity.NONE)]
     abstract val testApk: RegularFileProperty
 
     /**
      * The tested application APK.
      */
-    @get:[InputFile PathSensitive(PathSensitivity.RELATIVE)]
+    @get:[InputFile PathSensitive(PathSensitivity.NONE)]
     abstract val testedApk: RegularFileProperty
 
     /**
