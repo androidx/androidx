@@ -21,9 +21,11 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -33,6 +35,8 @@ import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
+import android.view.Surface
+import android.view.SurfaceHolder
 import androidx.activity.ComponentActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -49,11 +53,16 @@ import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceHostApi
+import androidx.wear.watchface.WatchFaceImpl
+import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.client.WatchFaceId
 import androidx.wear.watchface.client.asApiEditorState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
@@ -86,6 +95,7 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doAnswer
+import org.mockito.Mockito.mock
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -105,6 +115,7 @@ private const val PROVIDER_CHOOSER_EXTRA_VALUE = "PROVIDER_CHOOSER_EXTRA_VALUE"
 /** Trivial "editor" which exposes the EditorSession for testing. */
 public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
     public lateinit var editorSession: EditorSession
+    public lateinit var onCreateException: Exception
 
     public val listenableEditorSession: ListenableEditorSession by lazy {
         ListenableEditorSession(editorSession)
@@ -120,11 +131,15 @@ public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         immediateCoroutineScope.launch {
-            editorSession = EditorSession.createOnWatchEditingSessionImpl(
-                this@OnWatchFaceEditingTestActivity,
-                intent!!,
-                providerInfoRetrieverProvider!!
-            )!!
+            try {
+                editorSession = EditorSession.createOnWatchEditingSessionImpl(
+                    this@OnWatchFaceEditingTestActivity,
+                    intent!!,
+                    providerInfoRetrieverProvider!!
+                )!!
+            } catch (e: Exception) {
+                onCreateException = e
+            }
         }
     }
 }
@@ -1253,6 +1268,72 @@ public class EditorSessionTest {
                 assertThat(previewData[BACKGROUND_COMPLICATION_ID])
                     .isInstanceOf(EmptyComplicationData::class.java)
             }
+        }
+    }
+
+    @Test
+    public fun testComponentNameMismatch() {
+        val watchFaceId = WatchFaceId("ID-1")
+        val scenario: ActivityScenario<OnWatchFaceEditingTestActivity> = ActivityScenario.launch(
+            WatchFaceEditorContract().createIntent(
+                ApplicationProvider.getApplicationContext<Context>(),
+                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId)
+            ).apply {
+                component = ComponentName(
+                    ApplicationProvider.getApplicationContext<Context>(),
+                    OnWatchFaceEditingTestActivity::class.java
+                )
+            }
+        )
+
+        scenario.onActivity { activity ->
+            val mockWatchFaceHostApi = mock(WatchFaceHostApi::class.java)
+            val mockHandler = mock(Handler::class.java)
+            `when`(mockWatchFaceHostApi.getHandler()).thenReturn(mockHandler)
+            `when`(mockWatchFaceHostApi.getContext()).thenReturn(
+                ApplicationProvider.getApplicationContext<Context>()
+            )
+            val watchState = MutableWatchState().asWatchState()
+            val currentUserStyleRepository =
+                CurrentUserStyleRepository(UserStyleSchema(emptyList()))
+            val mockSurfaceHolder = mock(SurfaceHolder::class.java)
+            val mockSurface = mock(Surface::class.java)
+            `when`(mockSurfaceHolder.surface).thenReturn(mockSurface)
+            `when`(mockSurfaceHolder.surfaceFrame).thenReturn(Rect())
+            `when`(mockSurface.isValid).thenReturn(false)
+
+            // Construct a WatchFaceImpl which creates a delegate whose ComponentName doesn't match
+            // testComponentName.
+            WatchFaceImpl(
+                WatchFace(
+                    WatchFaceType.DIGITAL,
+                    currentUserStyleRepository,
+                    object : Renderer.CanvasRenderer(
+                        mockSurfaceHolder,
+                        currentUserStyleRepository,
+                        watchState, CanvasType.SOFTWARE,
+                        16
+                    ) {
+                        override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {}
+
+                        override fun renderHighlightLayer(
+                            canvas: Canvas,
+                            bounds: Rect,
+                            calendar: Calendar
+                        ) {
+                        }
+                    }
+                ),
+                mockWatchFaceHostApi,
+                watchState
+            )
+
+            assertThat(activity.onCreateException).isInstanceOf(IllegalStateException::class.java)
+            assertThat(activity.onCreateException.message).isEqualTo(
+                "Expected ComponentInfo{test.package/test.class} to be created but " +
+                    "got ComponentInfo{androidx.wear.watchface.editor.test/" +
+                    "android.app.Application}"
+            )
         }
     }
 }
