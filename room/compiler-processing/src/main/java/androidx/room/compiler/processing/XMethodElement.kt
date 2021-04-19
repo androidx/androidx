@@ -41,7 +41,7 @@ interface XMethodElement : XExecutableElement {
 
     override val fallbackLocationText: String
         get() = buildString {
-            append(enclosingTypeElement.qualifiedName)
+            append(enclosingElement.fallbackLocationText)
             append(".")
             append(name)
             append("(")

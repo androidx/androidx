@@ -23,9 +23,11 @@ package androidx.room.compiler.processing
  */
 interface XExecutableElement : XHasModifiers, XElement {
     /**
-     * The [XTypeElement] that declared this executable.
+     * The element that declared this executable.
+     *
+     * @see requireEnclosingTypeElement
      */
-    val enclosingTypeElement: XTypeElement
+    val enclosingElement: XElement
     /**
      * The list of parameters that should be passed into this method.
      *
@@ -36,4 +38,13 @@ interface XExecutableElement : XHasModifiers, XElement {
      * Returns true if this method receives a vararg parameter.
      */
     fun isVarArgs(): Boolean
+}
+
+/**
+ * Checks the enclosing element is a TypeElement and returns it, otherwise,
+ * throws [IllegalStateException].
+ */
+fun XExecutableElement.requireEnclosingTypeElement(): XTypeElement {
+    return enclosingElement as? XTypeElement
+        ?: error("Required enclosing type element for $this but found $enclosingElement")
 }
