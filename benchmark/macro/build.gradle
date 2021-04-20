@@ -36,6 +36,18 @@ android {
                 SupportConfigKt.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/trace_processor_shell"
         )
+        main.assets.srcDirs += new File(
+                SupportConfigKt.getPrebuiltsRoot(project),
+                "androidx/traceprocessor/perfetto"
+        )
+        main.assets.srcDirs += new File(
+                SupportConfigKt.getPrebuiltsRoot(project),
+                "androidx/traceprocessor/traced"
+        )
+        main.assets.srcDirs += new File(
+                SupportConfigKt.getPrebuiltsRoot(project),
+                "androidx/traceprocessor/traced_probes"
+        )
     }
 }
 
