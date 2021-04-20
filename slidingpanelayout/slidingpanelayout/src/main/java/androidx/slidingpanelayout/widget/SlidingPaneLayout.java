@@ -1007,6 +1007,9 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     private boolean closePane(int initialVelocity) {
+        if (!mCanSlide) {
+            mPreservedOpenState = false;
+        }
         if (mFirstLayout || smoothSlideTo(1.f, initialVelocity)) {
             mPreservedOpenState = false;
             return true;
@@ -1015,6 +1018,9 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     private boolean openPane(int initialVelocity) {
+        if (!mCanSlide) {
+            mPreservedOpenState = true;
+        }
         if (mFirstLayout || smoothSlideTo(0.f, initialVelocity)) {
             mPreservedOpenState = true;
             return true;
