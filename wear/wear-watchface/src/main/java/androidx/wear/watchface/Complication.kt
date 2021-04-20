@@ -698,11 +698,12 @@ public class Complication internal constructor(
                 complicationBounds.perComplicationTypeBounds[it.type]
             } ?: complicationBounds.perComplicationTypeBounds[defaultProviderType]!!
         unitSquareBounds.intersect(unitSquare)
+        // We add 0.5 to make toInt() round to the nearest whole number rather than truncating.
         return Rect(
-            (unitSquareBounds.left * screen.width()).toInt(),
-            (unitSquareBounds.top * screen.height()).toInt(),
-            (unitSquareBounds.right * screen.width()).toInt(),
-            (unitSquareBounds.bottom * screen.height()).toInt()
+            (0.5f + unitSquareBounds.left * screen.width()).toInt(),
+            (0.5f + unitSquareBounds.top * screen.height()).toInt(),
+            (0.5f + unitSquareBounds.right * screen.width()).toInt(),
+            (0.5f + unitSquareBounds.bottom * screen.height()).toInt()
         )
     }
 
