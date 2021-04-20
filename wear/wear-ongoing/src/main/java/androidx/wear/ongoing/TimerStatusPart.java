@@ -28,8 +28,8 @@ import java.util.Objects;
 
 /**
  * An Ongoing activity status (or part of it) representing a timer or stopwatch.
- *
- *  Available since wear-ongoing:1.0.0
+ * <p>
+ * Available since wear-ongoing:1.0.0
  */
 @VersionedParcelize
 public class TimerStatusPart extends StatusPart {

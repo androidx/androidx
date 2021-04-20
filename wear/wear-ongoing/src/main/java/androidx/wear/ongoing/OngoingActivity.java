@@ -37,9 +37,10 @@ import java.util.function.Predicate;
  * Main class to access the Ongoing Activities API.
  *
  * It's created with the {@link Builder}. After it's created (and before building and
- * posting the {@link Notification}) {@link OngoingActivity#apply(Context)} apply} needs to be
+ * posting the {@link Notification}) {@link OngoingActivity#apply(Context)} apply needs to be
  * called:
- * {@code
+ *
+ * <pre>{@code
  * NotificationCompat.Builder builder = new NotificationCompat.Builder(context)....
  *
  * OngoingActivity ongoingActivity = new OngoingActivity.Builder(context, notificationId, builder);
@@ -47,11 +48,11 @@ import java.util.function.Predicate;
  * ongoingActivity.apply(context);
  *
  * notificationManager.notify(notificationId, builder.build());
- * }
+ * }</pre>
  *
  * Afterward, {@link OngoingActivity#update(Context, OngoingActivityStatus) update} can be used to
  * update the status.
- *
+ * <p>
  * If saving the {@link OngoingActivity} instance is not convenient, it can be recovered (after the
  * notification is posted) with {@link OngoingActivity#fromExistingOngoingActivity(Context)}
  */
