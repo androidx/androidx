@@ -197,8 +197,8 @@ public class CarAppActivityTest {
                             ActivityLifecycleCallbacks.class);
                     activity.registerActivityLifecycleCallbacks(activityCallback);
                     // Report service connection error.
-                    activity.onServiceConnectionError("fake error",
-                            CarAppActivity.ErrorActionType.FINISH);
+                    activity.mErrorHandler.onError(ErrorHandler.ErrorType.HOST_ERROR,
+                            new Exception("fake error"));
 
                     assertThat(activity.isFinishing()).isEqualTo(false);
 
@@ -251,7 +251,7 @@ public class CarAppActivityTest {
                     // Verify service connection is closed.
                     verify(serviceConnection, times(1)).onServiceDisconnected(
                             mRendererComponent);
-                    assertThat(activity.mRendererService).isNull();
+                    assertThat(activity.mServiceDispatcher.isBound()).isFalse();
                 } catch (RemoteException e) {
                     fail(Log.getStackTraceString(e));
                 }
