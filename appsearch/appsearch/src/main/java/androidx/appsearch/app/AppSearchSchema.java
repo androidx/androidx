@@ -741,32 +741,6 @@ public final class AppSearchSchema {
             }
 
             /**
-             * Creates a new {@link DocumentPropertyConfig.Builder}.
-             *
-             * @param propertyName The logical name of the property in the schema, which will be
-             *                     used as the key for this property in
-             *                     {@link GenericDocument.Builder#setPropertyDocument}.
-             * @deprecated This method exists only for dogfooder transition and must be removed
-             */
-            @Deprecated // TODO(b/184667648): Exists only for dogfooder transition; must be removed
-            public Builder(@NonNull String propertyName) {
-                mBundle.putString(NAME_FIELD, propertyName);
-                mBundle.putInt(DATA_TYPE_FIELD, DATA_TYPE_DOCUMENT);
-                mBundle.putInt(CARDINALITY_FIELD, CARDINALITY_OPTIONAL);
-                mBundle.putBoolean(INDEX_NESTED_PROPERTIES_FIELD, false);
-            }
-
-            /** @deprecated This method exists only for dogfooder transition and must be removed */
-            @Deprecated // TODO(b/184667648): Exists only for dogfooder transition; must be removed
-            @NonNull
-            public DocumentPropertyConfig.Builder setSchemaType(@NonNull String schemaType) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                Preconditions.checkNotNull(schemaType);
-                mBundle.putString(SCHEMA_TYPE_FIELD, schemaType);
-                return this;
-            }
-
-            /**
              * The cardinality of the property (whether it is optional, required or repeated).
              *
              * <p>If this method is not called, the default cardinality is

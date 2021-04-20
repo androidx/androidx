@@ -64,7 +64,7 @@ public final class ReportUsageRequest {
     /** Builder for {@link ReportUsageRequest} objects. */
     public static final class Builder {
         private final String mNamespace;
-        private String mDocumentId;
+        private final String mDocumentId;
         private Long mUsageTimestampMillis;
         private boolean mBuilt = false;
 
@@ -72,29 +72,6 @@ public final class ReportUsageRequest {
         public Builder(@NonNull String namespace, @NonNull String documentId) {
             mNamespace = Preconditions.checkNotNull(namespace);
             mDocumentId = Preconditions.checkNotNull(documentId);
-        }
-
-        /** @deprecated This method exists only for dogfooder transition and must be removed */
-        @Deprecated // TODO(b/184667648): Exists only for dogfooder transition and must be removed
-        public Builder(@NonNull String namespace) {
-            mNamespace = Preconditions.checkNotNull(namespace);
-        }
-
-        /**
-         * Sets the ID of the document being used.
-         *
-         * <p>This field is required.
-         *
-         * @throws IllegalStateException if the builder has already been used
-         * @deprecated This method exists only for dogfooder transition and must be removed
-         */
-        @Deprecated // TODO(b/184667648): Exists only for dogfooder transition and must be removed
-        @NonNull
-        public ReportUsageRequest.Builder setDocumentId(@NonNull String documentId) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(documentId);
-            mDocumentId = documentId;
-            return this;
         }
 
         /**
@@ -119,13 +96,11 @@ public final class ReportUsageRequest {
         /**
          * Builds a new {@link ReportUsageRequest}.
          *
-         * @throws NullPointerException if {@link #setDocumentId} has never been called
          * @throws IllegalStateException if the builder has already been used
          */
         @NonNull
         public ReportUsageRequest build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(mDocumentId, "ReportUsageRequest is missing a document ID");
             if (mUsageTimestampMillis == null) {
                 mUsageTimestampMillis = System.currentTimeMillis();
             }
