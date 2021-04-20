@@ -327,6 +327,15 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
     }
 
     /**
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public TimeDependentText getTimeDependentText() {
+        return mTimeDependentText;
+    }
+
+    /**
      * Note if this ComplicationText contains a TimeDifference text and the {@code dateTimeMillis}
      * is between {@code referencePeriodStart} and {@code referencePeriodEnd}, then the text
      * returned will be "now" (localised to the default locale).  If the time is before
