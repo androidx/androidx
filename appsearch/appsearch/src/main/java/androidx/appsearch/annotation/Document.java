@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  * Marks a class as an entity known to AppSearch containing a data record.
  *
  * <p>Each field annotated with {@link Property @Property} will become an AppSearch searchable
- * property. Fields annotated with other annotations included here (like {@link Uri @Uri}) will have
+ * property. Fields annotated with other annotations included here (like {@link Id @Id}) will have
  * the special behaviour described in that annotation. All other members (those which do not have
  * any of these annotations) will be ignored by AppSearch and will not be persisted or set.
  *
@@ -52,20 +52,19 @@ import java.lang.annotation.Target;
  *     used to populate those fields instead of methods 1 and 2.
  * </ol>
  *
- * <p>The class must also have exactly one member annotated with {@link Uri @Uri}.
+ * <p>The class must also have exactly one member annotated with {@link Id @Id}.
  */
 @Documented
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
 public @interface Document {
     /**
-     * Marks a member field of a document as the document's URI.
+     * Marks a member field of a document as the document's unique identifier (ID).
      *
-     * <p>Indexing a document with a particular {@link java.net.URI} replaces any existing
-     * documents with the same URI in that namespace.
+     * <p>Indexing a document with a particular ID replaces any existing documents with the same
+     * ID in that namespace.
      *
-     * <p>A document must have exactly one such field, and it must be of type {@link String} or
-     * {@link android.net.Uri}.
+     * <p>A document must have exactly one such field, and it must be of type {@link String}.
      *
      * <p>See the class description of {@link Document} for other requirements (i.e. it
      * must be visible, or have a visible getter and setter, or be exposed through a visible
@@ -74,14 +73,14 @@ public @interface Document {
     @Documented
     @Retention(RetentionPolicy.CLASS)
     @Target(ElementType.FIELD)
-    @interface Uri {}
+    @interface Id {}
 
     /**
      * Marks a member field of a document as the document's namespace.
      *
      * <p>The namespace is an arbitrary user-provided string that can be used to group documents
-     * during querying or deletion. Indexing a document with a particular {@link java.net.URI}
-     * replaces any existing documents with the same URI in that namespace.
+     * during querying or deletion. Indexing a document with a particular ID replaces any existing
+     * documents with the same ID in that namespace.
      *
      * <p>A document must have exactly one such field, and it must be of type {@link String}.
      *

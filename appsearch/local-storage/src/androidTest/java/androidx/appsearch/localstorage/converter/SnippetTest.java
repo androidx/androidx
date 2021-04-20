@@ -55,13 +55,13 @@ public class SnippetTest {
         final String propertyValueString = "A commonly used fake word is foo.\n"
                 + "   Another nonsense word that’s used a lot\n"
                 + "   is bar.\n";
-        final String uri = "uri1";
+        final String id = "id1";
         final String exactMatch = "foo";
         final String window = "is foo";
 
         // Building the SearchResult received from query.
         DocumentProto documentProto = DocumentProto.newBuilder()
-                .setUri(uri)
+                .setUri(id)
                 .setSchema(SCHEMA_TYPE)
                 .addProperties(PropertyProto.newBuilder()
                         .setName(propertyKeyString)
@@ -108,11 +108,11 @@ public class SnippetTest {
         final String propertyValueString = "A commonly used fake word is foo.\n"
                 + "   Another nonsense word that’s used a lot\n"
                 + "   is bar.\n";
-        final String uri = "uri1";
+        final String id = "id1";
 
         // Building the SearchResult received from query.
         DocumentProto documentProto = DocumentProto.newBuilder()
-                .setUri(uri)
+                .setUri(id)
                 .setSchema(SCHEMA_TYPE)
                 .addProperties(PropertyProto.newBuilder()
                         .setName(propertyKeyString)
@@ -198,7 +198,7 @@ public class SnippetTest {
     public void testNestedDocumentSnippet() {
         // Building the SearchResult received from query.
         DocumentProto documentProto = DocumentProto.newBuilder()
-                .setUri("uri1")
+                .setUri("id1")
                 .setSchema(SCHEMA_TYPE)
                 .addProperties(PropertyProto.newBuilder()
                         .setName("sender")

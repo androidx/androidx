@@ -88,7 +88,7 @@ public class SetSchemaResponse {
      * <p>A {@link MigrationFailure} will be generated if the system trying to save a post-migrated
      * {@link GenericDocument} but fail.
      *
-     * <p>{@link MigrationFailure} contains the uri, namespace and schemaType of the post-migrated
+     * <p>{@link MigrationFailure} contains the namespace, id and schemaType of the post-migrated
      * {@link GenericDocument} and the error reason. Mostly it will be mismatch the schema it
      * migrated to.
      */
@@ -254,7 +254,7 @@ public class SetSchemaResponse {
     public static class MigrationFailure {
         private static final String SCHEMA_TYPE_FIELD = "schemaType";
         private static final String NAMESPACE_FIELD = "namespace";
-        private static final String URI_FIELD = "uri";
+        private static final String DOCUMENT_ID_FIELD = "id";
         private static final String ERROR_MESSAGE_FIELD = "errorMessage";
         private static final String RESULT_CODE_FIELD = "resultCode";
 
@@ -264,19 +264,19 @@ public class SetSchemaResponse {
          * Constructs a new {@link MigrationFailure}.
          *
          * @param namespace    The namespace of the document which failed to be migrated.
-         * @param uri          The uri of the document which failed to be migrated.
+         * @param documentId   The id of the document which failed to be migrated.
          * @param schemaType   The type of the document which failed to be migrated.
          * @param failedResult The reason why the document failed to be indexed.
          * @throws IllegalArgumentException if the provided {@code failedResult} was not a failure.
          */
         public MigrationFailure(
                 @NonNull String namespace,
-                @NonNull String uri,
+                @NonNull String documentId,
                 @NonNull String schemaType,
                 @NonNull AppSearchResult<?> failedResult) {
             mBundle = new Bundle();
             mBundle.putString(NAMESPACE_FIELD, Preconditions.checkNotNull(namespace));
-            mBundle.putString(URI_FIELD, Preconditions.checkNotNull(uri));
+            mBundle.putString(DOCUMENT_ID_FIELD, Preconditions.checkNotNull(documentId));
             mBundle.putString(SCHEMA_TYPE_FIELD, Preconditions.checkNotNull(schemaType));
 
             Preconditions.checkNotNull(failedResult);
@@ -307,10 +307,10 @@ public class SetSchemaResponse {
             return mBundle.getString(NAMESPACE_FIELD, /*defaultValue=*/"");
         }
 
-        /** Returns the uri of the {@link GenericDocument} that failed to be migrated. */
+        /** Returns the id of the {@link GenericDocument} that failed to be migrated. */
         @NonNull
-        public String getUri() {
-            return mBundle.getString(URI_FIELD, /*defaultValue=*/"");
+        public String getDocumentId() {
+            return mBundle.getString(DOCUMENT_ID_FIELD, /*defaultValue=*/"");
         }
 
         /** Returns the schema type of the {@link GenericDocument} that failed to be migrated. */

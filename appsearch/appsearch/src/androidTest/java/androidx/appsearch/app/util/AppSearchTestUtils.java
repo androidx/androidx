@@ -22,7 +22,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
 
@@ -42,29 +42,29 @@ public class AppSearchTestUtils {
     }
 
     public static List<GenericDocument> doGet(
-            AppSearchSession session, String namespace, String... uris) throws Exception {
+            AppSearchSession session, String namespace, String... ids) throws Exception {
         AppSearchBatchResult<String, GenericDocument> result = checkIsBatchResultSuccess(
-                session.getByUri(
-                        new GetByUriRequest.Builder(namespace).addUris(uris).build()));
-        assertThat(result.getSuccesses()).hasSize(uris.length);
+                session.getByDocumentId(
+                        new GetByDocumentIdRequest.Builder(namespace).addIds(ids).build()));
+        assertThat(result.getSuccesses()).hasSize(ids.length);
         assertThat(result.getFailures()).isEmpty();
-        List<GenericDocument> list = new ArrayList<>(uris.length);
-        for (String uri : uris) {
-            list.add(result.getSuccesses().get(uri));
+        List<GenericDocument> list = new ArrayList<>(ids.length);
+        for (String id : ids) {
+            list.add(result.getSuccesses().get(id));
         }
         return list;
     }
 
     public static List<GenericDocument> doGet(
-            AppSearchSession session, GetByUriRequest request) throws Exception {
+            AppSearchSession session, GetByDocumentIdRequest request) throws Exception {
         AppSearchBatchResult<String, GenericDocument> result = checkIsBatchResultSuccess(
-                session.getByUri(request));
-        Set<String> uris = request.getUris();
-        assertThat(result.getSuccesses()).hasSize(uris.size());
+                session.getByDocumentId(request));
+        Set<String> ids = request.getIds();
+        assertThat(result.getSuccesses()).hasSize(ids.size());
         assertThat(result.getFailures()).isEmpty();
-        List<GenericDocument> list = new ArrayList<>(uris.size());
-        for (String uri : uris) {
-            list.add(result.getSuccesses().get(uri));
+        List<GenericDocument> list = new ArrayList<>(ids.size());
+        for (String id : ids) {
+            list.add(result.getSuccesses().get(id));
         }
         return list;
     }

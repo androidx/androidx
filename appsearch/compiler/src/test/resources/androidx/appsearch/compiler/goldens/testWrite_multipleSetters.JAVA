@@ -29,19 +29,19 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(document.namespace, document.uri, SCHEMA_NAME);
+        new GenericDocument.Builder<>(document.namespace, document.id, SCHEMA_NAME);
     builder.setPropertyLong("price", document.getPrice());
     return builder.build();
   }
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String uriConv = genericDoc.getUri();
+    String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
     int priceConv = (int) genericDoc.getPropertyLong("price");
     Gift document = new Gift();
     document.namespace = namespaceConv;
-    document.uri = uriConv;
+    document.id = idConv;
     document.setPrice(priceConv);
     return document;
   }

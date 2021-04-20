@@ -102,8 +102,8 @@ public class SearchSpecTest {
         @Document.Namespace
         String mNamespace;
 
-        @Document.Uri
-        String mUri;
+        @Document.Id
+        String mId;
 
         @Document.Property
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)

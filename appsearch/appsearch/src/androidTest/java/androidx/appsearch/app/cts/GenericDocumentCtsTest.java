@@ -38,7 +38,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testDocumentEquals_identical() {
-        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "uri1",
+        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setTtlMillis(1L)
@@ -49,7 +49,7 @@ public class GenericDocumentCtsTest {
                 .setPropertyBytes("byteKey1", sByteArray1, sByteArray2)
                 .setPropertyDocument("documentKey1", sDocumentProperties1, sDocumentProperties2)
                 .build();
-        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "uri1",
+        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setTtlMillis(1L)
@@ -66,7 +66,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testDocumentEquals_differentOrder() {
-        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "uri1",
+        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setPropertyLong("longKey1", 1L, 2L, 3L)
@@ -78,7 +78,7 @@ public class GenericDocumentCtsTest {
                 .build();
 
         // Create second document with same parameter but different order.
-        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "uri1",
+        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setPropertyBoolean("booleanKey1", true, false, true)
@@ -94,14 +94,14 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testDocumentEquals_failure() {
-        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "uri1",
+        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setPropertyLong("longKey1", 1L, 2L, 3L)
                 .build();
 
         // Create second document with same order but different value.
-        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "uri1",
+        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setPropertyLong("longKey1", 1L, 2L, 4L) // Different
@@ -112,14 +112,14 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testDocumentEquals_repeatedFieldOrder_failure() {
-        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "uri1",
+        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setPropertyBoolean("booleanKey1", true, false, true)
                 .build();
 
         // Create second document with same order but different value.
-        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "uri1",
+        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setPropertyBoolean("booleanKey1", true, true, false) // Different
@@ -130,7 +130,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testDocumentGetSingleValue() {
-        GenericDocument document = new GenericDocument.Builder<>("namespace", "uri1", "schemaType1")
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setScore(1)
                 .setTtlMillis(1L)
@@ -141,7 +141,7 @@ public class GenericDocumentCtsTest {
                 .setPropertyBytes("byteKey1", sByteArray1)
                 .setPropertyDocument("documentKey1", sDocumentProperties1)
                 .build();
-        assertThat(document.getUri()).isEqualTo("uri1");
+        assertThat(document.getId()).isEqualTo("id1");
         assertThat(document.getTtlMillis()).isEqualTo(1L);
         assertThat(document.getSchemaType()).isEqualTo("schemaType1");
         assertThat(document.getCreationTimestampMillis()).isEqualTo(5);
@@ -157,7 +157,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testDocumentGetArrayValues() {
-        GenericDocument document = new GenericDocument.Builder<>("namespace", "uri1", "schemaType1")
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setPropertyLong("longKey1", 1L, 2L, 3L)
                 .setPropertyDouble("doubleKey1", 1.0, 2.0, 3.0)
@@ -167,7 +167,7 @@ public class GenericDocumentCtsTest {
                 .setPropertyDocument("documentKey1", sDocumentProperties1, sDocumentProperties2)
                 .build();
 
-        assertThat(document.getUri()).isEqualTo("uri1");
+        assertThat(document.getId()).isEqualTo("id1");
         assertThat(document.getSchemaType()).isEqualTo("schemaType1");
         assertThat(document.getPropertyLongArray("longKey1")).asList()
                 .containsExactly(1L, 2L, 3L).inOrder();
@@ -185,7 +185,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testDocument_toString() {
-        GenericDocument document = new GenericDocument.Builder<>("", "uri1", "schemaType1")
+        GenericDocument document = new GenericDocument.Builder<>("", "id1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setPropertyLong("longKey1", 1L, 2L, 3L)
                 .setPropertyDouble("doubleKey1", 1.0, 2.0, 3.0)
@@ -194,7 +194,8 @@ public class GenericDocumentCtsTest {
                 .setPropertyBytes("byteKey1", sByteArray1, sByteArray2)
                 .setPropertyDocument("documentKey1", sDocumentProperties1, sDocumentProperties2)
                 .build();
-        String expectedString = "{ name: 'creationTimestampMillis' value: 5 } "
+        String exceptedString = "{ name: 'creationTimestampMillis' value: 5 } "
+                + "{ name: 'id' value: id1 } "
                 + "{ name: 'namespace' value:  } "
                 + "{ name: 'properties' value: "
                 + "{ name: 'booleanKey1' value: [ 'true' 'false' 'true' ] } "
@@ -203,32 +204,31 @@ public class GenericDocumentCtsTest {
                 + "{ name: 'byteArray' value: [ '4' '5' '6' '7' ] }  } "
                 + "{ name: 'documentKey1' value: [ '"
                 + "{ name: 'creationTimestampMillis' value: 12345 } "
+                + "{ name: 'id' value: sDocumentProperties1 } "
                 + "{ name: 'namespace' value: namespace } "
                 + "{ name: 'properties' value:  } "
                 + "{ name: 'schemaType' value: sDocumentPropertiesSchemaType1 } "
                 + "{ name: 'score' value: 0 } "
-                + "{ name: 'ttlMillis' value: 0 } "
-                + "{ name: 'uri' value: sDocumentProperties1 } ' '"
+                + "{ name: 'ttlMillis' value: 0 } ' '"
                 + "{ name: 'creationTimestampMillis' value: 6789 } "
+                + "{ name: 'id' value: sDocumentProperties2 } "
                 + "{ name: 'namespace' value: namespace } "
                 + "{ name: 'properties' value:  } "
                 + "{ name: 'schemaType' value: sDocumentPropertiesSchemaType2 } "
                 + "{ name: 'score' value: 0 } "
-                + "{ name: 'ttlMillis' value: 0 } "
-                + "{ name: 'uri' value: sDocumentProperties2 } ' ] } "
+                + "{ name: 'ttlMillis' value: 0 } ' ] } "
                 + "{ name: 'doubleKey1' value: [ '1.0' '2.0' '3.0' ] } "
                 + "{ name: 'longKey1' value: [ '1' '2' '3' ] } "
                 + "{ name: 'stringKey1' value: [ 'String1' 'String2' 'String3' ] }  } "
                 + "{ name: 'schemaType' value: schemaType1 } "
                 + "{ name: 'score' value: 0 } "
-                + "{ name: 'ttlMillis' value: 0 } "
-                + "{ name: 'uri' value: uri1 } ";
-        assertThat(document.toString()).isEqualTo(expectedString);
+                + "{ name: 'ttlMillis' value: 0 } ";
+        assertThat(document.toString()).isEqualTo(exceptedString);
     }
 
     @Test
     public void testDocumentGetValues_differentTypes() {
-        GenericDocument document = new GenericDocument.Builder<>("namespace", "uri1", "schemaType1")
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
                 .setScore(1)
                 .setPropertyLong("longKey1", 1L)
                 .setPropertyBoolean("booleanKey1", true, false, true)
@@ -255,7 +255,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testDocument_setEmptyValues() {
-        GenericDocument document = new GenericDocument.Builder<>("namespace", "uri1", "schemaType1")
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
                 .setPropertyBoolean("testKey")
                 .build();
         assertThat(document.getPropertyBooleanArray("testKey")).isEmpty();
@@ -263,7 +263,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testDocumentInvalid() {
-        GenericDocument.Builder<?> builder = new GenericDocument.Builder<>("namespace", "uri1",
+        GenericDocument.Builder<?> builder = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1");
         String nullString = null;
 
@@ -274,7 +274,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testRetrieveTopLevelProperties() {
-        GenericDocument doc = new GenericDocument.Builder<>("namespace", "uri1", "schema1")
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
                 .setScore(42)
                 .setPropertyString("propString", "Goodbye", "Hello")
                 .setPropertyLong("propInts", 3, 1, 4)
@@ -304,14 +304,14 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testRetrieveNestedProperties() {
-        GenericDocument innerDoc = new GenericDocument.Builder<>("namespace", "uri2", "schema2")
+        GenericDocument innerDoc = new GenericDocument.Builder<>("namespace", "id2", "schema2")
                 .setPropertyString("propString", "Goodbye", "Hello")
                 .setPropertyLong("propInts", 3, 1, 4)
                 .setPropertyDouble("propDoubles", 3.14, 0.42)
                 .setPropertyBoolean("propBools", false)
                 .setPropertyBytes("propBytes", new byte[][]{{3, 4}})
                 .build();
-        GenericDocument doc = new GenericDocument.Builder<>("namespace", "uri1", "schema1")
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
                 .setScore(42)
                 .setPropertyDocument("propDocument", innerDoc)
                 .build();
@@ -349,7 +349,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testRetrieveNestedPropertiesMultipleNestedDocuments() {
-        GenericDocument innerDoc0 = new GenericDocument.Builder<>("namespace", "uri2", "schema2")
+        GenericDocument innerDoc0 = new GenericDocument.Builder<>("namespace", "id2", "schema2")
                 .setPropertyString("propString", "Goodbye", "Hello")
                 .setPropertyString("propStringTwo", "Fee", "Fi")
                 .setPropertyLong("propInts", 3, 1, 4)
@@ -357,7 +357,7 @@ public class GenericDocumentCtsTest {
                 .setPropertyBoolean("propBools", false)
                 .setPropertyBytes("propBytes", new byte[][]{{3, 4}})
                 .build();
-        GenericDocument innerDoc1 = new GenericDocument.Builder<>("namespace", "uri3", "schema2")
+        GenericDocument innerDoc1 = new GenericDocument.Builder<>("namespace", "id3", "schema2")
                 .setPropertyString("propString", "Aloha")
                 .setPropertyLong("propInts", 7, 5, 6)
                 .setPropertyLong("propIntsTwo", 8, 6)
@@ -365,7 +365,7 @@ public class GenericDocumentCtsTest {
                 .setPropertyBoolean("propBools", true)
                 .setPropertyBytes("propBytes", new byte[][]{{8, 9}})
                 .build();
-        GenericDocument doc = new GenericDocument.Builder<>("namespace", "uri1", "schema1")
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
                 .setScore(42)
                 .setPropertyDocument("propDocument", innerDoc0, innerDoc1)
                 .build();
@@ -415,7 +415,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testRetrieveTopLevelPropertiesIndex() {
-        GenericDocument doc = new GenericDocument.Builder<>("namespace", "uri1", "schema1")
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
                 .setScore(42)
                 .setPropertyString("propString", "Goodbye", "Hello")
                 .setPropertyLong("propInts", 3, 1, 4)
@@ -446,7 +446,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testRetrieveTopLevelPropertiesIndexOutOfRange() {
-        GenericDocument doc = new GenericDocument.Builder<>("namespace", "uri1", "schema1")
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
                 .setScore(42)
                 .setPropertyString("propString", "Goodbye", "Hello")
                 .setPropertyLong("propInts", 3, 1, 4)
@@ -464,7 +464,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testNestedProperties_unusualPaths() {
-        GenericDocument doc = new GenericDocument.Builder<>("namespace", "uri1", "schema1")
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
                 .setPropertyString("propString", "Hello", "Goodbye")
                 .setPropertyDocument("propDocs1", new GenericDocument.Builder<>("", "", "schema1")
                         .setPropertyString("", "Cat", "Dog")
@@ -498,7 +498,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testNestedProperties_invalidPaths() {
-        GenericDocument doc = new GenericDocument.Builder<>("namespace", "uri1", "schema1")
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
                 .setScore(42)
                 .setPropertyString("propString", "Goodbye", "Hello")
                 .setPropertyLong("propInts", 3, 1, 4)
@@ -540,7 +540,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testRetrieveNestedPropertiesIntermediateIndex() {
-        GenericDocument innerDoc0 = new GenericDocument.Builder<>("namespace", "uri2", "schema2")
+        GenericDocument innerDoc0 = new GenericDocument.Builder<>("namespace", "id2", "schema2")
                 .setPropertyString("propString", "Goodbye", "Hello")
                 .setPropertyString("propStringTwo", "Fee", "Fi")
                 .setPropertyLong("propInts", 3, 1, 4)
@@ -548,7 +548,7 @@ public class GenericDocumentCtsTest {
                 .setPropertyBoolean("propBools", false)
                 .setPropertyBytes("propBytes", new byte[][]{{3, 4}})
                 .build();
-        GenericDocument innerDoc1 = new GenericDocument.Builder<>("namespace", "uri3", "schema2")
+        GenericDocument innerDoc1 = new GenericDocument.Builder<>("namespace", "id3", "schema2")
                 .setPropertyString("propString", "Aloha")
                 .setPropertyLong("propInts", 7, 5, 6)
                 .setPropertyLong("propIntsTwo", 8, 6)
@@ -556,7 +556,7 @@ public class GenericDocumentCtsTest {
                 .setPropertyBoolean("propBools", true)
                 .setPropertyBytes("propBytes", new byte[][]{{8, 9}})
                 .build();
-        GenericDocument doc = new GenericDocument.Builder<>("namespace", "uri1", "schema1")
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
                 .setScore(42)
                 .setPropertyDocument("propDocument", innerDoc0, innerDoc1)
                 .build();
@@ -608,7 +608,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testRetrieveNestedPropertiesLeafIndex() {
-        GenericDocument innerDoc0 = new GenericDocument.Builder<>("namespace", "uri2", "schema2")
+        GenericDocument innerDoc0 = new GenericDocument.Builder<>("namespace", "id2", "schema2")
                 .setPropertyString("propString", "Goodbye", "Hello")
                 .setPropertyString("propStringTwo", "Fee", "Fi")
                 .setPropertyLong("propInts", 3, 1, 4)
@@ -616,7 +616,7 @@ public class GenericDocumentCtsTest {
                 .setPropertyBoolean("propBools", false)
                 .setPropertyBytes("propBytes", new byte[][]{{3, 4}})
                 .build();
-        GenericDocument innerDoc1 = new GenericDocument.Builder<>("namespace", "uri3", "schema2")
+        GenericDocument innerDoc1 = new GenericDocument.Builder<>("namespace", "id3", "schema2")
                 .setPropertyString("propString", "Aloha")
                 .setPropertyLong("propInts", 7, 5, 6)
                 .setPropertyLong("propIntsTwo", 8, 6)
@@ -624,7 +624,7 @@ public class GenericDocumentCtsTest {
                 .setPropertyBoolean("propBools", true)
                 .setPropertyBytes("propBytes", new byte[][]{{8, 9}})
                 .build();
-        GenericDocument doc = new GenericDocument.Builder<>("namespace", "uri1", "schema1")
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
                 .setScore(42)
                 .setPropertyDocument("propDocument", innerDoc0, innerDoc1)
                 .build();
@@ -670,7 +670,7 @@ public class GenericDocumentCtsTest {
 
     @Test
     public void testRetrieveNestedPropertiesIntermediateAndLeafIndices() {
-        GenericDocument innerDoc0 = new GenericDocument.Builder<>("namespace", "uri2", "schema2")
+        GenericDocument innerDoc0 = new GenericDocument.Builder<>("namespace", "id2", "schema2")
                 .setPropertyString("propString", "Goodbye", "Hello")
                 .setPropertyString("propStringTwo", "Fee", "Fi")
                 .setPropertyLong("propInts", 3, 1, 4)
@@ -678,7 +678,7 @@ public class GenericDocumentCtsTest {
                 .setPropertyBoolean("propBools", false)
                 .setPropertyBytes("propBytes", new byte[][]{{3, 4}})
                 .build();
-        GenericDocument innerDoc1 = new GenericDocument.Builder<>("namespace", "uri3", "schema2")
+        GenericDocument innerDoc1 = new GenericDocument.Builder<>("namespace", "id3", "schema2")
                 .setPropertyString("propString", "Aloha")
                 .setPropertyLong("propInts", 7, 5, 6)
                 .setPropertyLong("propIntsTwo", 8, 6)
@@ -686,7 +686,7 @@ public class GenericDocumentCtsTest {
                 .setPropertyBoolean("propBools", true)
                 .setPropertyBytes("propBytes", new byte[][]{{8, 9}})
                 .build();
-        GenericDocument doc = new GenericDocument.Builder<>("namespace", "uri1", "schema1")
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
                 .setScore(42)
                 .setPropertyDocument("propDocument", innerDoc0, innerDoc1)
                 .build();

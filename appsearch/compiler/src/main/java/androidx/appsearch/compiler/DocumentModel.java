@@ -47,7 +47,7 @@ import javax.lang.model.element.VariableElement;
 class DocumentModel {
 
     /** Enumeration of fields that must be handled specially (i.e. are not properties) */
-    enum SpecialField { URI, NAMESPACE, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE }
+    enum SpecialField { ID, NAMESPACE, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE }
     /** Determines how the annotation processor has decided to read the value of a field. */
     enum ReadKind { FIELD, GETTER }
     /** Determines how the annotation processor has decided to write the value of a field. */
@@ -161,8 +161,8 @@ class DocumentModel {
     }
 
     private void scanFields() throws ProcessingException {
-        Element uriField = null;
         Element namespaceField = null;
+        Element idField = null;
         Element creationTimestampField = null;
         Element ttlField = null;
         Element scoreField = null;
@@ -173,13 +173,13 @@ class DocumentModel {
             for (AnnotationMirror annotation : child.getAnnotationMirrors()) {
                 String annotationFq = annotation.getAnnotationType().toString();
                 boolean isAppSearchField = true;
-                if (IntrospectionHelper.URI_CLASS.equals(annotationFq)) {
-                    if (uriField != null) {
+                if (IntrospectionHelper.ID_CLASS.equals(annotationFq)) {
+                    if (idField != null) {
                         throw new ProcessingException(
-                                "Class contains multiple fields annotated @Uri", child);
+                                "Class contains multiple fields annotated @Id", child);
                     }
-                    uriField = child;
-                    mSpecialFieldNames.put(SpecialField.URI, fieldName);
+                    idField = child;
+                    mSpecialFieldNames.put(SpecialField.ID, fieldName);
 
                 } else if (IntrospectionHelper.NAMESPACE_CLASS.equals(annotationFq)) {
                     if (namespaceField != null) {
@@ -228,17 +228,17 @@ class DocumentModel {
             }
         }
 
-        // Every document must always have a URI
-        if (uriField == null) {
-            throw new ProcessingException(
-                    "All @Document classes must have exactly one field annotated with @Uri",
-                    mClass);
-        }
-
         // Every document must always have a namespace
         if (namespaceField == null) {
             throw new ProcessingException(
                     "All @Document classes must have exactly one field annotated with @Namespace",
+                    mClass);
+        }
+
+        // Every document must always have an ID
+        if (idField == null) {
+            throw new ProcessingException(
+                    "All @Document classes must have exactly one field annotated with @Id",
                     mClass);
         }
 

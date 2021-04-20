@@ -49,7 +49,7 @@ class IntrospectionHelper {
     static final String APPSEARCH_EXCEPTION_PKG = "androidx.appsearch.exceptions";
     static final String APPSEARCH_EXCEPTION_SIMPLE_NAME = "AppSearchException";
     static final String DOCUMENT_ANNOTATION_CLASS = "androidx.appsearch.annotation.Document";
-    static final String URI_CLASS = "androidx.appsearch.annotation.Document.Uri";
+    static final String ID_CLASS = "androidx.appsearch.annotation.Document.Id";
     static final String NAMESPACE_CLASS = "androidx.appsearch.annotation.Document.Namespace";
     static final String CREATION_TIMESTAMP_MILLIS_CLASS =
             "androidx.appsearch.annotation.Document.CreationTimestampMillis";

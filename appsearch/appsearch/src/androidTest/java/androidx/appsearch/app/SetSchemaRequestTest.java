@@ -43,8 +43,8 @@ public class SetSchemaRequestTest {
         @Document.Namespace
         String mNamespace;
 
-        @Document.Uri
-        String mUri;
+        @Document.Id
+        String mId;
 
         @Document.Property
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
@@ -60,7 +60,7 @@ public class SetSchemaRequestTest {
             }
             AnnotationProcessorTestBase.Card otherCard = (AnnotationProcessorTestBase.Card) other;
             assertThat(otherCard.mNamespace).isEqualTo(this.mNamespace);
-            assertThat(otherCard.mUri).isEqualTo(this.mUri);
+            assertThat(otherCard.mId).isEqualTo(this.mId);
             return true;
         }
     }
@@ -69,8 +69,8 @@ public class SetSchemaRequestTest {
 
     @Document
     static class King extends Spade {
-        @Document.Uri
-        String mUri;
+        @Document.Id
+        String mId;
 
         @Document.Namespace
         String mNamespace;
@@ -85,8 +85,8 @@ public class SetSchemaRequestTest {
         @Document.Namespace
         String mNamespace;
 
-        @Document.Uri
-        String mUri;
+        @Document.Id
+        String mId;
 
         @Document.Property
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)

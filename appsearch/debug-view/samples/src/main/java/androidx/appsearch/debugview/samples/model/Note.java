@@ -26,24 +26,25 @@ import androidx.core.util.Preconditions;
 @Document
 public class Note {
 
-    Note(@NonNull String uri, @NonNull String namespace, @NonNull String text) {
-        this.uri = Preconditions.checkNotNull(uri);
+    Note(@NonNull String namespace, @NonNull String id, @NonNull String text) {
+        this.id = Preconditions.checkNotNull(id);
         this.namespace = Preconditions.checkNotNull(namespace);
         this.text = Preconditions.checkNotNull(text);
     }
 
     // TODO (b/181623824): Add m-prefix to fields.
-    @Document.Uri private final String uri;
+    @Document.Id
+    private final String id;
 
     @Document.Namespace private final String namespace;
 
     @Document.Property(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     private final String text;
 
-    /** Returns the URI of the {@link Note} object. */
+    /** Returns the ID of the {@link Note} object. */
     @NonNull
-    public String getUri() {
-        return uri;
+    public String getId() {
+        return id;
     }
 
     /** Returns the namespace of the {@link Note} object. */
@@ -70,22 +71,10 @@ public class Note {
      * <p>Once {@link #build} is called, the instance can no longer be used.
      */
     public static final class Builder {
-        private String mUri = "";
         private String mNamespace = "";
+        private String mId = "";
         private String mText = "";
         private boolean mBuilt = false;
-
-        /**
-         * Sets the URI of the {@link Note} object.
-         *
-         * @throws IllegalStateException if the builder has already been used.
-         */
-        @NonNull
-        public Note.Builder setUri(@NonNull String uri) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mUri = Preconditions.checkNotNull(uri);
-            return this;
-        }
 
         /**
          * Sets the namespace of the {@link Note} object.
@@ -96,6 +85,18 @@ public class Note {
         public Note.Builder setNamespace(@NonNull String namespace) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mNamespace = Preconditions.checkNotNull(namespace);
+            return this;
+        }
+
+        /**
+         * Sets the ID of the {@link Note} object.
+         *
+         * @throws IllegalStateException if the builder has already been used.
+         */
+        @NonNull
+        public Note.Builder setId(@NonNull String id) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mId = Preconditions.checkNotNull(id);
             return this;
         }
 
@@ -120,7 +121,7 @@ public class Note {
         public Note build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBuilt = true;
-            return new Note(mUri, mNamespace, mText);
+            return new Note(mNamespace, mId, mText);
         }
     }
 }

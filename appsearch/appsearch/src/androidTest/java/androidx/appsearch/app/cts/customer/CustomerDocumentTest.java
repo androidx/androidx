@@ -43,7 +43,7 @@ public class CustomerDocumentTest {
 
     @Test
     public void testBuildCustomerDocument() {
-        CustomerDocument customerDocument = new CustomerDocument.Builder("namespace", "uri1")
+        CustomerDocument customerDocument = new CustomerDocument.Builder("namespace", "id1")
                 .setScore(1)
                 .setCreationTimestampMillis(0)
                 .setPropertyLong("longKey1", 1L, 2L, 3L)
@@ -55,7 +55,7 @@ public class CustomerDocumentTest {
                 .build();
 
         assertThat(customerDocument.getNamespace()).isEqualTo("namespace");
-        assertThat(customerDocument.getUri()).isEqualTo("uri1");
+        assertThat(customerDocument.getId()).isEqualTo("id1");
         assertThat(customerDocument.getSchemaType()).isEqualTo("customerDocument");
         assertThat(customerDocument.getScore()).isEqualTo(1);
         assertThat(customerDocument.getCreationTimestampMillis()).isEqualTo(0L);
@@ -84,8 +84,8 @@ public class CustomerDocumentTest {
         }
 
         public static class Builder extends GenericDocument.Builder<CustomerDocument.Builder> {
-            private Builder(@NonNull String namespace, @NonNull String uri) {
-                super(namespace, uri, "customerDocument");
+            private Builder(@NonNull String namespace, @NonNull String id) {
+                super(namespace, id, "customerDocument");
             }
 
             @Override

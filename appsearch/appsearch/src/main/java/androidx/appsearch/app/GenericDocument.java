@@ -41,13 +41,13 @@ import java.util.Set;
  * Represents a document unit.
  *
  * <p>Documents contain structured data conforming to their {@link AppSearchSchema} type.
- * Each document is uniquely identified by a URI and namespace.
+ * Each document is uniquely identified by a namespace and a String ID within that namespace.
  *
  * <p>Documents are constructed either by using the {@link GenericDocument.Builder} or providing
  * an annotated {@link Document} data class.
  *
  * @see AppSearchSession#put
- * @see AppSearchSession#getByUri
+ * @see AppSearchSession#getByDocumentId
  * @see AppSearchSession#search
  */
 public class GenericDocument {
@@ -71,7 +71,7 @@ public class GenericDocument {
     private static final String PROPERTIES_FIELD = "properties";
     private static final String BYTE_ARRAY_FIELD = "byteArray";
     private static final String SCHEMA_TYPE_FIELD = "schemaType";
-    private static final String URI_FIELD = "uri";
+    private static final String ID_FIELD = "id";
     private static final String SCORE_FIELD = "score";
     private static final String TTL_MILLIS_FIELD = "ttlMillis";
     private static final String CREATION_TIMESTAMP_MILLIS_FIELD = "creationTimestampMillis";
@@ -111,7 +111,11 @@ public class GenericDocument {
     }
 // @exportToFramework:endStrip()
 
-    /** Contains {@link GenericDocument} basic information (uri, schemaType etc). */
+    /**
+     * Contains all {@link GenericDocument} information in a packaged format.
+     *
+     * <p>Keys are the {@code *_FIELD} constants in this class.
+     */
     @NonNull
     final Bundle mBundle;
 
@@ -120,7 +124,7 @@ public class GenericDocument {
     private final Bundle mProperties;
 
     @NonNull
-    private final String mUri;
+    private final String mId;
     @NonNull
     private final String mSchemaType;
     private final long mCreationTimestampMillis;
@@ -128,11 +132,10 @@ public class GenericDocument {
     private Integer mHashCode;
 
     /**
-     * Rebuilds a {@link GenericDocument} by the a bundle.
+     * Rebuilds a {@link GenericDocument} from a bundle.
      *
-     * @param bundle Contains {@link GenericDocument} basic information (uri, schemaType etc) and
-     *               a properties bundle contains all properties in {@link GenericDocument} to
-     *               support getting properties via name.
+     * @param bundle Packaged {@link GenericDocument} data, such as the result of
+     *               {@link #getBundle}.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -140,7 +143,7 @@ public class GenericDocument {
         Preconditions.checkNotNull(bundle);
         mBundle = bundle;
         mProperties = Preconditions.checkNotNull(bundle.getParcelable(PROPERTIES_FIELD));
-        mUri = Preconditions.checkNotNull(mBundle.getString(URI_FIELD));
+        mId = Preconditions.checkNotNull(mBundle.getString(ID_FIELD));
         mSchemaType = Preconditions.checkNotNull(mBundle.getString(SCHEMA_TYPE_FIELD));
         mCreationTimestampMillis = mBundle.getLong(CREATION_TIMESTAMP_MILLIS_FIELD,
                 System.currentTimeMillis());
@@ -166,10 +169,10 @@ public class GenericDocument {
         return mBundle;
     }
 
-    /** Returns the URI of the {@link GenericDocument}. */
+    /** Returns the unique identifier of the {@link GenericDocument}. */
     @NonNull
-    public String getUri() {
-        return mUri;
+    public String getId() {
+        return mId;
     }
 
     /** Returns the namespace of the {@link GenericDocument}. */
@@ -988,12 +991,12 @@ public class GenericDocument {
          *
          * <p>Once {@link #build} is called, the instance can no longer be used.
          *
-         * <p>URIs are unique within a namespace.
+         * <p>Document IDs are unique within a namespace.
          *
          * <p>The number of namespaces per app should be kept small for efficiency reasons.
          *
          * @param namespace  the namespace to set for the {@link GenericDocument}.
-         * @param uri        the URI to set for the {@link GenericDocument}.
+         * @param id         the unique identifier for the {@link GenericDocument} in its namespace.
          * @param schemaType the {@link AppSearchSchema} type of the {@link GenericDocument}. The
          *                   provided {@code schemaType} must be defined using
          *                   {@link AppSearchSession#setSchema} prior
@@ -1005,14 +1008,13 @@ public class GenericDocument {
          *                   {@link AppSearchResult#RESULT_NOT_FOUND}.
          */
         @SuppressWarnings("unchecked")
-        public Builder(@NonNull String namespace, @NonNull String uri,
-                @NonNull String schemaType) {
+        public Builder(@NonNull String namespace, @NonNull String id, @NonNull String schemaType) {
             Preconditions.checkNotNull(namespace);
-            Preconditions.checkNotNull(uri);
+            Preconditions.checkNotNull(id);
             Preconditions.checkNotNull(schemaType);
             mBuilderTypeInstance = (BuilderType) this;
             mBundle.putString(GenericDocument.NAMESPACE_FIELD, namespace);
-            mBundle.putString(GenericDocument.URI_FIELD, uri);
+            mBundle.putString(GenericDocument.ID_FIELD, id);
             mBundle.putString(GenericDocument.SCHEMA_TYPE_FIELD, schemaType);
             // Set current timestamp for creation timestamp by default.
             mBundle.putLong(GenericDocument.CREATION_TIMESTAMP_MILLIS_FIELD,

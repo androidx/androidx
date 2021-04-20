@@ -152,7 +152,7 @@ public class NotesActivity extends AppCompatActivity {
             JsonArray sampleJsonArr = samplesJson.getAsJsonArray("data");
             for (int i = 0; i < sampleJsonArr.size(); ++i) {
                 JsonObject noteJson = sampleJsonArr.get(i).getAsJsonObject();
-                sampleNotes.add(new Note.Builder().setUri(noteJson.get("uri").getAsString())
+                sampleNotes.add(new Note.Builder().setId(noteJson.get("id").getAsString())
                         .setNamespace(noteJson.get("namespace").getAsString())
                         .setText(noteJson.get("noteText").getAsString())
                         .build()

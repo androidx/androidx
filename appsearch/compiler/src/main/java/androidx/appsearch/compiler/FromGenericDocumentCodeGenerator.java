@@ -773,8 +773,8 @@ class FromGenericDocumentCodeGenerator {
                 continue;  // The document class doesn't have this field, so no need to unpack it.
             }
             switch (specialField) {
-                case URI:
-                    method.addStatement("String $NConv = genericDoc.getUri()", fieldName);
+                case ID:
+                    method.addStatement("String $NConv = genericDoc.getId()", fieldName);
                     break;
                 case NAMESPACE:
                     method.addStatement("String $NConv = genericDoc.getNamespace()", fieldName);

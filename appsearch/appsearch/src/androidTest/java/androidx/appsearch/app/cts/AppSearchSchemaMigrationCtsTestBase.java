@@ -137,12 +137,12 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         mDb.setSchema(new SetSchemaRequest.Builder()
                 .addSchemas(schema).setForceOverride(true).build()).get();
         GenericDocument doc = new GenericDocument.Builder<>(
-                "namespace", "uri0", "testSchema")
+                "namespace", "id0", "testSchema")
                 .setPropertyString("subject", "testPut example1")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
-        assertThat(result.getSuccesses()).containsExactly("uri0", null);
+        assertThat(result.getSuccesses()).containsExactly("id0", null);
         assertThat(result.getFailures()).isEmpty();
     }
 
@@ -344,18 +344,18 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         mDb.setSchema(new SetSchemaRequest.Builder()
                 .addSchemas(schema).setForceOverride(true).build()).get();
 
-        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "uri1", "testSchema")
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
                 .setPropertyString("subject", "testPut example1")
                 .setPropertyString("To", "testTo example1")
                 .build();
-        GenericDocument doc2 = new GenericDocument.Builder<>("namespace", "uri2", "testSchema")
+        GenericDocument doc2 = new GenericDocument.Builder<>("namespace", "id2", "testSchema")
                 .setPropertyString("subject", "testPut example2")
                 .setPropertyString("To", "testTo example2")
                 .build();
 
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc1, doc2).build()));
-        assertThat(result.getSuccesses()).containsExactly("uri1", null, "uri2", null);
+        assertThat(result.getSuccesses()).containsExactly("id1", null, "id2", null);
         assertThat(result.getFailures()).isEmpty();
 
         // create new schema type and upgrade the version number
@@ -381,15 +381,15 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
             @Override
             public GenericDocument onUpgrade(int currentVersion, int finalVersion,
                     @NonNull GenericDocument document) {
-                if (document.getUri().equals("uri2")) {
-                    return new GenericDocument.Builder<>(document.getNamespace(), document.getUri(),
+                if (document.getId().equals("id2")) {
+                    return new GenericDocument.Builder<>(document.getNamespace(), document.getId(),
                             document.getSchemaType())
                             .setPropertyString("subject", "testPut example2")
                             .setPropertyString("to",
                                     "Expect to fail, property not in the schema")
                             .build();
                 }
-                return new GenericDocument.Builder<>(document.getNamespace(), document.getUri(),
+                return new GenericDocument.Builder<>(document.getNamespace(), document.getId(),
                         document.getSchemaType())
                         .setPropertyString("subject", "testPut example1 migrated")
                         .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
@@ -420,11 +420,11 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .containsExactly("testSchema");
 
         // Check migrate the first document is success
-        GenericDocument expected = new GenericDocument.Builder<>("namespace", "uri1", "testSchema")
+        GenericDocument expected = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
                 .setPropertyString("subject", "testPut example1 migrated")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                 .build();
-        assertThat(doGet(mDb, "namespace", "uri1")).containsExactly(expected);
+        assertThat(doGet(mDb, "namespace", "id1")).containsExactly(expected);
 
         // Check migrate the second document is fail.
         assertThat(setSchemaResponse.getMigrationFailures()).hasSize(1);
@@ -432,7 +432,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 setSchemaResponse.getMigrationFailures().get(0);
         assertThat(migrationFailure.getNamespace()).isEqualTo("namespace");
         assertThat(migrationFailure.getSchemaType()).isEqualTo("testSchema");
-        assertThat(migrationFailure.getUri()).isEqualTo("uri2");
+        assertThat(migrationFailure.getDocumentId()).isEqualTo("id2");
     }
 
     @Test
@@ -454,14 +454,14 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         mDb.setSchema(new SetSchemaRequest.Builder()
                 .addSchemas(schema).setForceOverride(true).setVersion(3).build()).get();
 
-        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "uri1", "testSchema")
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
                 .setPropertyString("subject", "testPut example1")
                 .setPropertyString("To", "testTo example1")
                 .build();
 
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc1).build()));
-        assertThat(result.getSuccesses()).containsExactly("uri1", null);
+        assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
 
         // create new schema type and upgrade the version number
@@ -492,7 +492,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
             @Override
             public GenericDocument onDowngrade(int currentVersion, int finalVersion,
                     @NonNull GenericDocument document) {
-                return new GenericDocument.Builder<>(document.getNamespace(), document.getUri(),
+                return new GenericDocument.Builder<>(document.getNamespace(), document.getId(),
                         document.getSchemaType())
                         .setPropertyString("subject", "testPut example1 migrated")
                         .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
@@ -516,11 +516,11 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .containsExactly("testSchema");
 
         // Check migrate is success
-        GenericDocument expected = new GenericDocument.Builder<>("namespace", "uri1", "testSchema")
+        GenericDocument expected = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
                 .setPropertyString("subject", "testPut example1 migrated")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                 .build();
-        assertThat(doGet(mDb, "namespace", "uri1")).containsExactly(expected);
+        assertThat(doGet(mDb, "namespace", "id1")).containsExactly(expected);
     }
 
     @Test
@@ -542,14 +542,14 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         mDb.setSchema(new SetSchemaRequest.Builder()
                 .addSchemas(schema).setForceOverride(true).setVersion(3).build()).get();
 
-        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "uri1", "testSchema")
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
                 .setPropertyString("subject", "testPut example1")
                 .setPropertyString("To", "testTo example1")
                 .build();
 
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc1).build()));
-        assertThat(result.getSuccesses()).containsExactly("uri1", null);
+        assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
 
         // create new schema type with the same version number
@@ -628,14 +628,14 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         mDb.setSchema(new SetSchemaRequest.Builder()
                 .addSchemas(schema).setForceOverride(true).setVersion(2).build()).get();
 
-        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "uri1", "testSchema")
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
                 .setPropertyString("subject", "testPut example1")
                 .setPropertyString("To", "testTo example1")
                 .build();
 
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc1).build()));
-        assertThat(result.getSuccesses()).containsExactly("uri1", null);
+        assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
 
         // create new schema type and upgrade the version number
@@ -691,11 +691,11 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // save a doc to the source type
         GenericDocument doc = new GenericDocument.Builder<>(
-                "namespace", "uri1", "sourceSchema")
+                "namespace", "id1", "sourceSchema")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
-        assertThat(result.getSuccesses()).containsExactly("uri1", null);
+        assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
 
         Migrator migrator_sourceToNowhere = new Migrator() {
@@ -709,7 +709,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
             public GenericDocument onUpgrade(int currentVersion, int finalVersion,
                     @NonNull GenericDocument document) {
                 return new GenericDocument.Builder<>(
-                        "zombieNamespace", "zombieUri", "nonExistSchema")
+                        "zombieNamespace", "zombieId", "nonExistSchema")
                         .build();
             }
 
@@ -850,10 +850,10 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // save a doc to the source type
         GenericDocument doc = new GenericDocument.Builder<>(
-                "namespace", "uri1", "sourceSchema").build();
+                "namespace", "id1", "sourceSchema").build();
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
-        assertThat(result.getSuccesses()).containsExactly("uri1", null);
+        assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
 
         // create the destination type and migrator
@@ -870,7 +870,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
             public GenericDocument onUpgrade(int currentVersion, int finalVersion,
                     @NonNull GenericDocument document) {
                 return new GenericDocument.Builder<>("namespace",
-                        document.getUri(),
+                        document.getId(),
                         "destinationSchema")
                         .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                         .build();
@@ -899,10 +899,10 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // Check successfully migrate the doc to the destination type
         GenericDocument expected = new GenericDocument.Builder<>(
-                "namespace", "uri1", "destinationSchema")
+                "namespace", "id1", "destinationSchema")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                 .build();
-        assertThat(doGet(mDb, "namespace", "uri1")).containsExactly(expected);
+        assertThat(doGet(mDb, "namespace", "id1")).containsExactly(expected);
     }
 
     @Test
@@ -941,13 +941,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                     @NonNull GenericDocument document) {
                 if (document.getPropertyLong("Age") < 21) {
                     return new GenericDocument.Builder<>(
-                            "namespace", "child-uri", "Child")
+                            "namespace", "child-id", "Child")
                             .setPropertyLong("Age", document.getPropertyLong("Age"))
                             .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                             .build();
                 } else {
                     return new GenericDocument.Builder<>(
-                            "namespace", "adult-uri", "Adult")
+                            "namespace", "adult-id", "Adult")
                             .setPropertyLong("Age", document.getPropertyLong("Age"))
                             .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                             .build();
@@ -989,20 +989,20 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // Check successfully migrate the child doc
         GenericDocument expectedInChild = new GenericDocument.Builder<>(
-                "namespace", "child-uri", "Child")
+                "namespace", "child-id", "Child")
                 .setPropertyLong("Age", 6)
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                 .build();
-        assertThat(doGet(mDb, "namespace", "child-uri"))
+        assertThat(doGet(mDb, "namespace", "child-id"))
                 .containsExactly(expectedInChild);
 
         // Check successfully migrate the adult doc
         GenericDocument expectedInAdult = new GenericDocument.Builder<>(
-                "namespace", "adult-uri", "Adult")
+                "namespace", "adult-id", "Adult")
                 .setPropertyLong("Age", 36)
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                 .build();
-        assertThat(doGet(mDb, "namespace", "adult-uri"))
+        assertThat(doGet(mDb, "namespace", "adult-id"))
                 .containsExactly(expectedInAdult);
     }
 
@@ -1026,11 +1026,11 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         PutDocumentsRequest.Builder putRequestBuilder = new PutDocumentsRequest.Builder();
         for (int i = 0; i < 100; i++) {
             GenericDocument docInA = new GenericDocument.Builder<>(
-                    "namespace", "uriA-" + i, "schemaA")
+                    "namespace", "idA-" + i, "schemaA")
                     .setPropertyLong("num", i)
                     .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
             GenericDocument docInB = new GenericDocument.Builder<>(
-                    "namespace", "uriB-" + i, "schemaB")
+                    "namespace", "idB-" + i, "schemaB")
                     .setPropertyLong("num", i)
                     .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
             putRequestBuilder.addGenericDocuments(docInA, docInB);
@@ -1071,13 +1071,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                     @NonNull GenericDocument document) {
                 if (document.getPropertyLong("num") < 50) {
                     return new GenericDocument.Builder<>("namespace",
-                            document.getUri() + "-destC", "schemaC")
+                            document.getId() + "-destC", "schemaC")
                             .setPropertyLong("num", document.getPropertyLong("num"))
                             .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                             .build();
                 } else {
                     return new GenericDocument.Builder<>("namespace",
-                            document.getUri() + "-destD", "schemaD")
+                            document.getId() + "-destD", "schemaD")
                             .setPropertyLong("num", document.getPropertyLong("num"))
                             .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                             .build();
@@ -1106,14 +1106,14 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                     @NonNull GenericDocument document) {
                 if (document.getPropertyLong("num") < 50) {
                     return new GenericDocument.Builder<>("namespace",
-                            document.getUri() + "-destB", "schemaB")
+                            document.getId() + "-destB", "schemaB")
                             .setPropertyLong("numNewProperty",
                                     document.getPropertyLong("num"))
                             .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                             .build();
                 } else {
                     return new GenericDocument.Builder<>("namespace",
-                            document.getUri() + "-destD", "schemaD")
+                            document.getId() + "-destD", "schemaD")
                             .setPropertyLong("num", document.getPropertyLong("num"))
                             .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                             .build();
@@ -1146,11 +1146,11 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         List<GenericDocument> expectedDocs = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             GenericDocument docAToC = new GenericDocument.Builder<>(
-                    "namespace", "uriA-" + i + "-destC", "schemaC")
+                    "namespace", "idA-" + i + "-destC", "schemaC")
                     .setPropertyLong("num", i)
                     .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
             GenericDocument docBToB = new GenericDocument.Builder<>(
-                    "namespace", "uriB-" + i + "-destB", "schemaB")
+                    "namespace", "idB-" + i + "-destB", "schemaB")
                     .setPropertyLong("numNewProperty", i)
                     .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
             expectedDocs.add(docAToC);
@@ -1159,11 +1159,11 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         for (int i = 50; i < 100; i++) {
             GenericDocument docAToD = new GenericDocument.Builder<>(
-                    "namespace", "uriA-" + i + "-destD", "schemaD")
+                    "namespace", "idA-" + i + "-destD", "schemaD")
                     .setPropertyLong("num", i)
                     .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
             GenericDocument docBToD = new GenericDocument.Builder<>(
-                    "namespace", "uriB-" + i + "-destD", "schemaD")
+                    "namespace", "idB-" + i + "-destD", "schemaD")
                     .setPropertyLong("num", i)
                     .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
             expectedDocs.add(docAToD);
@@ -1197,7 +1197,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         public GenericDocument onUpgrade(int currentVersion, int finalVersion,
                 @NonNull GenericDocument document) {
             GenericDocument.Builder docBuilder =
-                    new GenericDocument.Builder<>("namespace", "uri", "TypeB")
+                    new GenericDocument.Builder<>("namespace", "id", "TypeB")
                             .setCreationTimestampMillis(DOCUMENT_CREATION_TIME);
             if (currentVersion == 2) {
                 docBuilder.setPropertyString("body", document.getPropertyString("body"));
@@ -1227,7 +1227,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         @Override
         public GenericDocument onUpgrade(int currentVersion, int finalVersion,
                 @NonNull GenericDocument document) {
-            return new GenericDocument.Builder<>("namespace", "uri", "TypeB")
+            return new GenericDocument.Builder<>("namespace", "id", "TypeB")
                     .setPropertyString("body", document.getPropertyString("body"))
                     .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                     .build();
@@ -1273,12 +1273,12 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // save a doc to version 1.
         GenericDocument doc = new GenericDocument.Builder<>(
-                "namespace", "uri", "TypeA")
+                "namespace", "id", "TypeA")
                 .setPropertyString("subject", "subject")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
-        assertThat(result.getSuccesses()).containsExactly("uri", null);
+        assertThat(result.getSuccesses()).containsExactly("id", null);
         assertThat(result.getFailures()).isEmpty();
 
         // update to version 4.
@@ -1293,11 +1293,11 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // 2: The type should have been changed from 'TypeA' to 'TypeB'
         // 3: The 'subject' property should have been removed
         GenericDocument expected = new GenericDocument.Builder<>(
-                "namespace", "uri", "TypeB")
+                "namespace", "id", "TypeB")
                 .setPropertyString("body", "new content for the newly added 'body' property")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                 .build();
-        assertThat(doGet(mDb, "namespace", "uri")).containsExactly(expected);
+        assertThat(doGet(mDb, "namespace", "id")).containsExactly(expected);
     }
 
     @Test
@@ -1322,13 +1322,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // save a doc to version 2.
         GenericDocument doc = new GenericDocument.Builder<>(
-                "namespace", "uri", "TypeA")
+                "namespace", "id", "TypeA")
                 .setPropertyString("subject", "subject")
                 .setPropertyString("body", "bodyFromA")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
-        assertThat(result.getSuccesses()).containsExactly("uri", null);
+        assertThat(result.getSuccesses()).containsExactly("id", null);
         assertThat(result.getFailures()).isEmpty();
 
         // update to version 4.
@@ -1339,11 +1339,11 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // create expected doc, body exists in type A of version 2
         GenericDocument expected = new GenericDocument.Builder<>(
-                "namespace", "uri", "TypeB")
+                "namespace", "id", "TypeB")
                 .setPropertyString("body", "bodyFromA")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                 .build();
-        assertThat(doGet(mDb, "namespace", "uri")).containsExactly(expected);
+        assertThat(doGet(mDb, "namespace", "id")).containsExactly(expected);
     }
 
     @Test
@@ -1368,13 +1368,13 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // save a doc to version 2.
         GenericDocument doc = new GenericDocument.Builder<>(
-                "namespace", "uri", "TypeB")
+                "namespace", "id", "TypeB")
                 .setPropertyString("subject", "subject")
                 .setPropertyString("body", "bodyFromB")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME).build();
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb.put(
                 new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
-        assertThat(result.getSuccesses()).containsExactly("uri", null);
+        assertThat(result.getSuccesses()).containsExactly("id", null);
         assertThat(result.getFailures()).isEmpty();
 
         // update to version 4.
@@ -1385,10 +1385,10 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
 
         // create expected doc, body exists in type A of version 3
         GenericDocument expected = new GenericDocument.Builder<>(
-                "namespace", "uri", "TypeB")
+                "namespace", "id", "TypeB")
                 .setPropertyString("body", "bodyFromB")
                 .setCreationTimestampMillis(DOCUMENT_CREATION_TIME)
                 .build();
-        assertThat(doGet(mDb, "namespace", "uri")).containsExactly(expected);
+        assertThat(doGet(mDb, "namespace", "id")).containsExactly(expected);
     }
 }

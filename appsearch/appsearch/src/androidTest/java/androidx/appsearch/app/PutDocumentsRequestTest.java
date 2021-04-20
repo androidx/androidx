@@ -42,8 +42,8 @@ public class PutDocumentsRequestTest {
         PutDocumentsRequest request = new PutDocumentsRequest.Builder().addGenericDocuments(emails)
                 .build();
 
-        assertThat(request.getGenericDocuments().get(0).getUri()).isEqualTo("test1");
-        assertThat(request.getGenericDocuments().get(1).getUri()).isEqualTo("test2");
+        assertThat(request.getGenericDocuments().get(0).getId()).isEqualTo("test1");
+        assertThat(request.getGenericDocuments().get(1).getId()).isEqualTo("test2");
     }
 
 // @exportToFramework:startStrip()
@@ -52,14 +52,14 @@ public class PutDocumentsRequestTest {
         @Document.Namespace
         String mNamespace;
 
-        @Document.Uri
-        String mUri;
+        @Document.Id
+        String mId;
 
         @Document.Property(indexingType = INDEXING_TYPE_PREFIXES)
         String mString;
 
-        Card(String mNamespace, String mUri, String mString) {
-            this.mUri = mUri;
+        Card(String mNamespace, String mId, String mString) {
+            this.mId = mId;
             this.mNamespace = mNamespace;
             this.mString = mString;
         }
@@ -76,11 +76,11 @@ public class PutDocumentsRequestTest {
         ).get();
         session.setSchema(new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build());
 
-        Set<Card> cards = ImmutableSet.of(new Card("cardNamespace", "cardUri", "cardProperty"));
+        Set<Card> cards = ImmutableSet.of(new Card("cardNamespace", "cardId", "cardProperty"));
         PutDocumentsRequest request = new PutDocumentsRequest.Builder().addDocuments(cards)
                 .build();
 
-        assertThat(request.getGenericDocuments().get(0).getUri()).isEqualTo("cardUri");
+        assertThat(request.getGenericDocuments().get(0).getId()).isEqualTo("cardId");
     }
 // @exportToFramework:endStrip()
 }

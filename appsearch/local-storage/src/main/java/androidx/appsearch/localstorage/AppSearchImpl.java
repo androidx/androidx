@@ -38,7 +38,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
@@ -559,23 +559,24 @@ public final class AppSearchImpl implements Closeable {
     }
 
     /**
-     * Retrieves a document from the AppSearch index by URI.
+     * Retrieves a document from the AppSearch index by namespace and document ID.
      *
      * <p>This method belongs to query group.
      *
      * @param packageName       The package that owns this document.
      * @param databaseName      The databaseName this document resides in.
      * @param namespace         The namespace this document resides in.
-     * @param uri               The URI of the document to get.
+     * @param id                The ID of the document to get.
      * @param typePropertyPaths A map of schema type to a list of property paths to return in the
      *                          result.
      * @return The Document contents
      * @throws AppSearchException on IcingSearchEngine error.
      */
     @NonNull
-    public GenericDocument getDocument(@NonNull String packageName, @NonNull String databaseName,
+    public GenericDocument getDocument(
+            @NonNull String packageName, @NonNull String databaseName,
             @NonNull String namespace,
-            @NonNull String uri,
+            @NonNull String id,
             @NonNull Map<String, List<String>> typePropertyPaths) throws AppSearchException {
         mReadWriteLock.readLock().lock();
         try {
@@ -588,10 +589,9 @@ public final class AppSearchImpl implements Closeable {
             for (int i = 0; i < nonPrefixedPropertyMasks.size(); ++i) {
                 TypePropertyMask typePropertyMask = nonPrefixedPropertyMasks.get(i);
                 String nonPrefixedType = typePropertyMask.getSchemaType();
-                String prefixedType =
-                        nonPrefixedType.equals(GetByUriRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)
-                                ? nonPrefixedType :
-                                prefix + nonPrefixedType;
+                String prefixedType = nonPrefixedType.equals(
+                        GetByDocumentIdRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)
+                        ? nonPrefixedType : prefix + nonPrefixedType;
                 prefixedPropertyMasks.add(
                         typePropertyMask.toBuilder().setSchemaType(prefixedType).build());
             }
@@ -600,7 +600,7 @@ public final class AppSearchImpl implements Closeable {
                     ).build();
 
             GetResultProto getResultProto = mIcingSearchEngineLocked.get(
-                    prefix + namespace, uri,
+                    prefix + namespace, id,
                     getResultSpec);
             checkSuccess(getResultProto.getStatus());
 
@@ -861,7 +861,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull String namespace,
-            @NonNull String uri,
+            @NonNull String documentId,
             long usageTimestampMillis,
             boolean systemUsage) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
@@ -873,7 +873,7 @@ public final class AppSearchImpl implements Closeable {
                     ? UsageReport.UsageType.USAGE_TYPE2 : UsageReport.UsageType.USAGE_TYPE1;
             UsageReport report = UsageReport.newBuilder()
                     .setDocumentNamespace(prefixedNamespace)
-                    .setDocumentUri(uri)
+                    .setDocumentUri(documentId)
                     .setUsageTimestampMs(usageTimestampMillis)
                     .setUsageType(usageType)
                     .build();
@@ -886,26 +886,27 @@ public final class AppSearchImpl implements Closeable {
     }
 
     /**
-     * Removes the given document by URI.
+     * Removes the given document by id.
      *
      * <p>This method belongs to mutate group.
      *
      * @param packageName  The package name that owns the document.
      * @param databaseName The databaseName the document is in.
      * @param namespace    Namespace of the document to remove.
-     * @param uri          URI of the document to remove.
+     * @param id           ID of the document to remove.
      * @throws AppSearchException on IcingSearchEngine error.
      */
-    public void remove(@NonNull String packageName, @NonNull String databaseName,
+    public void remove(
+            @NonNull String packageName, @NonNull String databaseName,
             @NonNull String namespace,
-            @NonNull String uri) throws AppSearchException {
+            @NonNull String id) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
 
             String prefixedNamespace = createPrefix(packageName, databaseName) + namespace;
             DeleteResultProto deleteResultProto = mIcingSearchEngineLocked.delete(prefixedNamespace,
-                    uri);
+                    id);
 
             checkSuccess(deleteResultProto.getStatus());
         } finally {

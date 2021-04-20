@@ -25,12 +25,12 @@ import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PutDocumentsRequest;
-import androidx.appsearch.app.RemoveByUriRequest;
+import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
@@ -207,9 +207,9 @@ class SearchSessionImpl implements AppSearchSession {
                 GenericDocument document = request.getGenericDocuments().get(i);
                 try {
                     mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document, mLogger);
-                    resultBuilder.setSuccess(document.getUri(), /*result=*/ null);
+                    resultBuilder.setSuccess(document.getId(), /*result=*/ null);
                 } catch (Throwable t) {
-                    resultBuilder.setResult(document.getUri(), throwableToFailedResult(t));
+                    resultBuilder.setResult(document.getId(), throwableToFailedResult(t));
                 }
             }
             // Now that the batch has been written. Persist the newly written data.
@@ -218,16 +218,16 @@ class SearchSessionImpl implements AppSearchSession {
             return resultBuilder.build();
         });
 
-        // The existing documents with same URI will be deleted, so there maybe some
-        // resources could be released after optimize().
+        // The existing documents with same ID will be deleted, so there may be some resources that
+        // could be released after optimize().
         checkForOptimize(/*mutateBatchSize=*/ request.getGenericDocuments().size());
         return future;
     }
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByUri(
-            @NonNull GetByUriRequest request) {
+    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentId(
+            @NonNull GetByDocumentIdRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         return execute(() -> {
@@ -235,14 +235,14 @@ class SearchSessionImpl implements AppSearchSession {
                     new AppSearchBatchResult.Builder<>();
 
             Map<String, List<String>> typePropertyPaths = request.getProjectionsInternal();
-            for (String uri : request.getUris()) {
+            for (String id : request.getIds()) {
                 try {
                     GenericDocument document =
                             mAppSearchImpl.getDocument(mPackageName, mDatabaseName,
-                                    request.getNamespace(), uri, typePropertyPaths);
-                    resultBuilder.setSuccess(uri, document);
+                                    request.getNamespace(), id, typePropertyPaths);
+                    resultBuilder.setSuccess(id, document);
                 } catch (Throwable t) {
-                    resultBuilder.setResult(uri, throwableToFailedResult(t));
+                    resultBuilder.setResult(id, throwableToFailedResult(t));
                 }
             }
             return resultBuilder.build();
@@ -276,7 +276,7 @@ class SearchSessionImpl implements AppSearchSession {
                     mPackageName,
                     mDatabaseName,
                     request.getNamespace(),
-                    request.getUri(),
+                    request.getDocumentId(),
                     request.getUsageTimestampMillis(),
                     /*systemUsage=*/ false);
             mIsMutated = true;
@@ -287,18 +287,18 @@ class SearchSessionImpl implements AppSearchSession {
     @Override
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> remove(
-            @NonNull RemoveByUriRequest request) {
+            @NonNull RemoveByDocumentIdRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         ListenableFuture<AppSearchBatchResult<String, Void>> future = execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
-            for (String uri : request.getUris()) {
+            for (String id : request.getIds()) {
                 try {
-                    mAppSearchImpl.remove(mPackageName, mDatabaseName, request.getNamespace(), uri);
-                    resultBuilder.setSuccess(uri, /*result=*/null);
+                    mAppSearchImpl.remove(mPackageName, mDatabaseName, request.getNamespace(), id);
+                    resultBuilder.setSuccess(id, /*result=*/null);
                 } catch (Throwable t) {
-                    resultBuilder.setResult(uri, throwableToFailedResult(t));
+                    resultBuilder.setResult(id, throwableToFailedResult(t));
                 }
             }
             // Now that the batch has been written. Persist the newly written data.
@@ -306,7 +306,7 @@ class SearchSessionImpl implements AppSearchSession {
             mIsMutated = true;
             return resultBuilder.build();
         });
-        checkForOptimize(/*mutateBatchSize=*/ request.getUris().size());
+        checkForOptimize(/*mutateBatchSize=*/ request.getIds().size());
         return future;
     }
 

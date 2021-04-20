@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Adapter for displaying a list of {@link GenericDocument} objects.
  *
- * <p>This adapter displays each item as a URI and namespace.
+ * <p>This adapter displays each item as a namespace and document ID.
  *
  * <p>Documents can be manually changed by calling {@link #setDocuments}.
  *
@@ -69,9 +69,9 @@ public class DocumentListItemAdapter extends
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.getUriLabel().setText("URI: " + "\"" + mDocuments.get(position).getUri() + "\"");
         holder.getNamespaceLabel().setText(
                 "Namespace: " + "\"" + mDocuments.get(position).getNamespace() + "\"");
+        holder.getIdLabel().setText("ID: " + "\"" + mDocuments.get(position).getId() + "\"");
     }
 
     @Override
@@ -83,26 +83,26 @@ public class DocumentListItemAdapter extends
      * ViewHolder for {@link DocumentListItemAdapter}.
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final TextView mUriLabel;
         private final TextView mNamespaceLabel;
+        private final TextView mIdLabel;
 
         public ViewHolder(@NonNull View view) {
             super(view);
 
             Preconditions.checkNotNull(view);
 
-            mUriLabel = (TextView) view.findViewById(R.id.doc_item_uri);
             mNamespaceLabel = (TextView) view.findViewById(R.id.doc_item_namespace);
-        }
-
-        @NonNull
-        public TextView getUriLabel() {
-            return mUriLabel;
+            mIdLabel = (TextView) view.findViewById(R.id.doc_item_id);
         }
 
         @NonNull
         public TextView getNamespaceLabel() {
             return mNamespaceLabel;
+        }
+
+        @NonNull
+        public TextView getIdLabel() {
+            return mIdLabel;
         }
     }
 }

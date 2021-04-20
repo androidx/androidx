@@ -24,8 +24,8 @@ public final class EmailDocument {
     @Document.Namespace
     public String namespace;
 
-    @Document.Uri
-    public String uri;
+    @Document.Id
+    public String id;
 
     @Document.Property(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     public String subject;

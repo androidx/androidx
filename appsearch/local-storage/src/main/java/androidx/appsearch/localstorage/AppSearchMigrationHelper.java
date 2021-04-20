@@ -174,7 +174,7 @@ class AppSearchMigrationHelper implements Closeable {
                     responseBuilder.addMigrationFailure(
                             new SetSchemaResponse.MigrationFailure(
                                     document.getNamespace(),
-                                    document.getUri(),
+                                    document.getId(),
                                     document.getSchemaType(),
                                     throwableToFailedResult(t)));
                 }

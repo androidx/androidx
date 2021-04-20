@@ -31,27 +31,27 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Encapsulates a request to retrieve documents by namespace and URIs from the
+ * Encapsulates a request to retrieve documents by namespace and IDs from the
  * {@link AppSearchSession} database.
  *
- * @see AppSearchSession#getByUri
+ * @see AppSearchSession#getByDocumentId
  */
-public final class GetByUriRequest {
+public final class GetByDocumentIdRequest {
     /**
      * Schema type to be used in
-     * {@link androidx.appsearch.app.GetByUriRequest.Builder#addProjection}
+     * {@link GetByDocumentIdRequest.Builder#addProjection}
      * to apply property paths to all results, excepting any types that have had their own, specific
      * property paths set.
      */
     public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
     private final String mNamespace;
-    private final Set<String> mUris;
+    private final Set<String> mIds;
     private final Map<String, List<String>> mTypePropertyPathsMap;
 
-    GetByUriRequest(@NonNull String namespace, @NonNull Set<String> uris, @NonNull Map<String,
+    GetByDocumentIdRequest(@NonNull String namespace, @NonNull Set<String> ids, @NonNull Map<String,
             List<String>> typePropertyPathsMap) {
         mNamespace = Preconditions.checkNotNull(namespace);
-        mUris = Preconditions.checkNotNull(uris);
+        mIds = Preconditions.checkNotNull(ids);
         mTypePropertyPathsMap = Preconditions.checkNotNull(typePropertyPathsMap);
     }
 
@@ -61,10 +61,10 @@ public final class GetByUriRequest {
         return mNamespace;
     }
 
-    /** Returns the set of URIs attached to the request. */
+    /** Returns the set of document IDs attached to the request. */
     @NonNull
-    public Set<String> getUris() {
-        return Collections.unmodifiableSet(mUris);
+    public Set<String> getIds() {
+        return Collections.unmodifiableSet(mIds);
     }
 
     /**
@@ -78,8 +78,8 @@ public final class GetByUriRequest {
     @NonNull
     public Map<String, List<String>> getProjections() {
         Map<String, List<String>> copy = new ArrayMap<>();
-        for (String key : mTypePropertyPathsMap.keySet()) {
-            copy.put(key, new ArrayList<>(mTypePropertyPathsMap.get(key)));
+        for (Map.Entry<String, List<String>> entry : mTypePropertyPathsMap.entrySet()) {
+            copy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
         }
         return copy;
     }
@@ -101,42 +101,42 @@ public final class GetByUriRequest {
     }
 
     /**
-     * Builder for {@link GetByUriRequest} objects.
+     * Builder for {@link GetByDocumentIdRequest} objects.
      *
      * <p>Once {@link #build} is called, the instance can no longer be used.
      */
     public static final class Builder {
         private final String mNamespace;
-        private final Set<String> mUris = new ArraySet<>();
+        private final Set<String> mIds = new ArraySet<>();
         private final Map<String, List<String>> mProjectionTypePropertyPaths = new ArrayMap<>();
         private boolean mBuilt = false;
 
-        /** Creates a {@link GetByUriRequest.Builder} instance. */
+        /** Creates a {@link GetByDocumentIdRequest.Builder} instance. */
         public Builder(@NonNull String namespace) {
             mNamespace = Preconditions.checkNotNull(namespace);
         }
 
         /**
-         * Adds one or more URIs to the request.
+         * Adds one or more document IDs to the request.
          *
          * @throws IllegalStateException if the builder has already been used.
          */
         @NonNull
-        public Builder addUris(@NonNull String... uris) {
-            Preconditions.checkNotNull(uris);
-            return addUris(Arrays.asList(uris));
+        public Builder addIds(@NonNull String... ids) {
+            Preconditions.checkNotNull(ids);
+            return addIds(Arrays.asList(ids));
         }
 
         /**
-         * Adds a collection of URIs to the request.
+         * Adds a collection of IDs to the request.
          *
          * @throws IllegalStateException if the builder has already been used.
          */
         @NonNull
-        public Builder addUris(@NonNull Collection<String> uris) {
+        public Builder addIds(@NonNull Collection<String> ids) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(uris);
-            mUris.addAll(uris);
+            Preconditions.checkNotNull(ids);
+            mIds.addAll(ids);
             return this;
         }
 
@@ -150,9 +150,9 @@ public final class GetByUriRequest {
          * results of that type will be retrieved.
          *
          * <p>If property path is added for the
-         * {@link GetByUriRequest#PROJECTION_SCHEMA_TYPE_WILDCARD}, then those property paths will
-         * apply to all results, excepting any types that have their own, specific property paths
-         * set.
+         * {@link GetByDocumentIdRequest#PROJECTION_SCHEMA_TYPE_WILDCARD}, then those property paths
+         * will apply to all results, excepting any types that have their own, specific property
+         * paths set.
          *
          * @throws IllegalStateException if the builder has already been used.
          *
@@ -174,15 +174,15 @@ public final class GetByUriRequest {
         }
 
         /**
-         * Builds a new {@link GetByUriRequest}.
+         * Builds a new {@link GetByDocumentIdRequest}.
          *
          * @throws IllegalStateException if the builder has already been used.
          */
         @NonNull
-        public GetByUriRequest build() {
+        public GetByDocumentIdRequest build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBuilt = true;
-            return new GetByUriRequest(mNamespace, mUris, mProjectionTypePropertyPaths);
+            return new GetByDocumentIdRequest(mNamespace, mIds, mProjectionTypePropertyPaths);
         }
     }
 }

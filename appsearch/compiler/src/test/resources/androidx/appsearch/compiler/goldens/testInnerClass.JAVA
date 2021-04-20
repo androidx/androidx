@@ -31,7 +31,7 @@ public class $$__AppSearch__Gift$$__InnerGift implements DocumentClassFactory<Gi
   @Override
   public GenericDocument toGenericDocument(Gift.InnerGift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(document.namespace, document.uri, SCHEMA_NAME);
+        new GenericDocument.Builder<>(document.namespace, document.id, SCHEMA_NAME);
     String[] arrStringCopy = document.arrString;
     if (arrStringCopy != null) {
       builder.setPropertyString("arrString", arrStringCopy);
@@ -41,12 +41,12 @@ public class $$__AppSearch__Gift$$__InnerGift implements DocumentClassFactory<Gi
 
   @Override
   public Gift.InnerGift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String uriConv = genericDoc.getUri();
+    String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
     String[] arrStringConv = genericDoc.getPropertyStringArray("arrString");
     Gift.InnerGift document = new Gift.InnerGift();
     document.namespace = namespaceConv;
-    document.uri = uriConv;
+    document.id = idConv;
     document.arrString = arrStringConv;
     return document;
   }

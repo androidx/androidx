@@ -28,12 +28,13 @@ import androidx.core.util.Preconditions;
  */
 public final class ReportUsageRequest {
     private final String mNamespace;
-    private final String mUri;
+    private final String mDocumentId;
     private final long mUsageTimestampMillis;
 
-    ReportUsageRequest(@NonNull String namespace, @NonNull String uri, long usageTimestampMillis) {
+    ReportUsageRequest(
+            @NonNull String namespace, @NonNull String documentId, long usageTimestampMillis) {
         mNamespace = Preconditions.checkNotNull(namespace);
-        mUri = Preconditions.checkNotNull(uri);
+        mDocumentId = Preconditions.checkNotNull(documentId);
         mUsageTimestampMillis = usageTimestampMillis;
     }
 
@@ -43,10 +44,10 @@ public final class ReportUsageRequest {
         return mNamespace;
     }
 
-    /** Returns the URI of document that was used. */
+    /** Returns the ID of document that was used. */
     @NonNull
-    public String getUri() {
-        return mUri;
+    public String getDocumentId() {
+        return mDocumentId;
     }
 
     /**
@@ -63,14 +64,14 @@ public final class ReportUsageRequest {
     /** Builder for {@link ReportUsageRequest} objects. */
     public static final class Builder {
         private final String mNamespace;
-        private String mUri;
+        private String mDocumentId;
         private Long mUsageTimestampMillis;
         private boolean mBuilt = false;
 
         /** Creates a {@link ReportUsageRequest.Builder} instance. */
-        public Builder(@NonNull String namespace, @NonNull String uri) {
+        public Builder(@NonNull String namespace, @NonNull String documentId) {
             mNamespace = Preconditions.checkNotNull(namespace);
-            mUri = Preconditions.checkNotNull(uri);
+            mDocumentId = Preconditions.checkNotNull(documentId);
         }
 
         /** @deprecated This method exists only for dogfooder transition and must be removed */
@@ -80,7 +81,7 @@ public final class ReportUsageRequest {
         }
 
         /**
-         * Sets the URI of the document being used.
+         * Sets the ID of the document being used.
          *
          * <p>This field is required.
          *
@@ -89,10 +90,10 @@ public final class ReportUsageRequest {
          */
         @Deprecated // TODO(b/184667648): Exists only for dogfooder transition and must be removed
         @NonNull
-        public ReportUsageRequest.Builder setUri(@NonNull String uri) {
+        public ReportUsageRequest.Builder setDocumentId(@NonNull String documentId) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(uri);
-            mUri = uri;
+            Preconditions.checkNotNull(documentId);
+            mDocumentId = documentId;
             return this;
         }
 
@@ -118,18 +119,18 @@ public final class ReportUsageRequest {
         /**
          * Builds a new {@link ReportUsageRequest}.
          *
-         * @throws NullPointerException if {@link #setUri} has never been called
+         * @throws NullPointerException if {@link #setDocumentId} has never been called
          * @throws IllegalStateException if the builder has already been used
          */
         @NonNull
         public ReportUsageRequest build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(mUri, "ReportUsageRequest is missing a URI");
+            Preconditions.checkNotNull(mDocumentId, "ReportUsageRequest is missing a document ID");
             if (mUsageTimestampMillis == null) {
                 mUsageTimestampMillis = System.currentTimeMillis();
             }
             mBuilt = true;
-            return new ReportUsageRequest(mNamespace, mUri, mUsageTimestampMillis);
+            return new ReportUsageRequest(mNamespace, mDocumentId, mUsageTimestampMillis);
         }
     }
 }

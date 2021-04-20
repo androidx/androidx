@@ -23,10 +23,10 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PutDocumentsRequest;
-import androidx.appsearch.app.RemoveByUriRequest;
+import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
@@ -120,16 +120,16 @@ public final class RequestToPlatformConverter {
     }
 
     /**
-     * Translates a jetpack {@link GetByUriRequest} into a platform
+     * Translates a jetpack {@link GetByDocumentIdRequest} into a platform
      * {@link android.app.appsearch.GetByUriRequest}.
      */
     @NonNull
-    public static android.app.appsearch.GetByUriRequest toPlatformGetByUriRequest(
-            @NonNull GetByUriRequest jetpackRequest) {
+    public static android.app.appsearch.GetByUriRequest toPlatformGetByDocumentIdRequest(
+            @NonNull GetByDocumentIdRequest jetpackRequest) {
         Preconditions.checkNotNull(jetpackRequest);
         android.app.appsearch.GetByUriRequest.Builder platformBuilder =
                 new android.app.appsearch.GetByUriRequest.Builder(jetpackRequest.getNamespace())
-                        .addUris(jetpackRequest.getUris());
+                        .addUris(jetpackRequest.getIds());
         for (Map.Entry<String, List<String>> projection :
                 jetpackRequest.getProjectionsInternal().entrySet()) {
             platformBuilder.addProjection(projection.getKey(), projection.getValue());
@@ -138,15 +138,15 @@ public final class RequestToPlatformConverter {
     }
 
     /**
-     * Translates a jetpack {@link RemoveByUriRequest} into a platform
+     * Translates a jetpack {@link RemoveByDocumentIdRequest} into a platform
      * {@link android.app.appsearch.RemoveByUriRequest}.
      */
     @NonNull
-    public static android.app.appsearch.RemoveByUriRequest toPlatformRemoveByUriRequest(
-            @NonNull RemoveByUriRequest jetpackRequest) {
+    public static android.app.appsearch.RemoveByUriRequest toPlatformRemoveByDocumentIdRequest(
+            @NonNull RemoveByDocumentIdRequest jetpackRequest) {
         Preconditions.checkNotNull(jetpackRequest);
         return new android.app.appsearch.RemoveByUriRequest.Builder(jetpackRequest.getNamespace())
-                .addUris(jetpackRequest.getUris())
+                .addUris(jetpackRequest.getIds())
                 .build();
     }
 
@@ -159,7 +159,7 @@ public final class RequestToPlatformConverter {
             @NonNull ReportUsageRequest jetpackRequest) {
         Preconditions.checkNotNull(jetpackRequest);
         return new android.app.appsearch.ReportUsageRequest.Builder(jetpackRequest.getNamespace())
-                .setUri(jetpackRequest.getUri())
+                .setUri(jetpackRequest.getDocumentId())
                 .setUsageTimeMillis(jetpackRequest.getUsageTimestampMillis())
                 .build();
     }

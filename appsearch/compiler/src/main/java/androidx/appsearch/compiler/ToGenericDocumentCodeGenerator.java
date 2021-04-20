@@ -76,7 +76,7 @@ class ToGenericDocumentCodeGenerator {
                 .addParameter(classType, "document")
                 .addException(mHelper.getAppSearchExceptionClass());
 
-        // Construct a new GenericDocument.Builder with the namespace, URI, and schema type
+        // Construct a new GenericDocument.Builder with the namespace, id, and schema type
         methodBuilder.addStatement("$T builder =\nnew $T<>($L, $L, SCHEMA_NAME)",
                 ParameterizedTypeName.get(
                         mHelper.getAppSearchClass("GenericDocument", "Builder"),
@@ -85,7 +85,7 @@ class ToGenericDocumentCodeGenerator {
                 createAppSearchFieldRead(
                         mModel.getSpecialFieldName(DocumentModel.SpecialField.NAMESPACE)),
                 createAppSearchFieldRead(
-                        mModel.getSpecialFieldName(DocumentModel.SpecialField.URI)));
+                        mModel.getSpecialFieldName(DocumentModel.SpecialField.ID)));
 
         setSpecialFields(methodBuilder);
 
@@ -674,7 +674,7 @@ class ToGenericDocumentCodeGenerator {
                 continue;  // The document class doesn't have this field, so no need to set it.
             }
             switch (specialField) {
-                case URI:
+                case ID:
                     break;  // Always provided to builder constructor; cannot be set separately.
                 case NAMESPACE:
                     break;  // Always provided to builder constructor; cannot be set separately.

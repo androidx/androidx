@@ -35,7 +35,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(document.namespace, document.uri, SCHEMA_NAME);
+        new GenericDocument.Builder<>(document.namespace, document.id, SCHEMA_NAME);
     builder.setPropertyLong("price", document.price);
     builder.setPropertyBoolean("cat", document.cat);
     builder.setPropertyBoolean("dog", document.getDog());
@@ -44,12 +44,12 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String uriConv = genericDoc.getUri();
+    String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
     int priceConv = (int) genericDoc.getPropertyLong("price");
     boolean catConv = genericDoc.getPropertyBoolean("cat");
     boolean dogConv = genericDoc.getPropertyBoolean("dog");
-    Gift document = new Gift(dogConv, uriConv, namespaceConv);
+    Gift document = new Gift(dogConv, idConv, namespaceConv);
     document.namespace = namespaceConv;
     document.price = priceConv;
     document.cat = catConv;

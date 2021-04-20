@@ -23,10 +23,10 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PutDocumentsRequest;
-import androidx.appsearch.app.RemoveByUriRequest;
+import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
@@ -136,13 +136,13 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByUri(
-            @NonNull GetByUriRequest request) {
+    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentId(
+            @NonNull GetByDocumentIdRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<AppSearchBatchResult<String, GenericDocument>> future =
                 ResolvableFuture.create();
         mPlatformSession.getByUri(
-                RequestToPlatformConverter.toPlatformGetByUriRequest(request),
+                RequestToPlatformConverter.toPlatformGetByDocumentIdRequest(request),
                 mExecutor,
                 new BatchResultCallbackAdapter<>(
                         future, GenericDocumentToPlatformConverter::toJetpackGenericDocument));
@@ -179,11 +179,11 @@ class SearchSessionImpl implements AppSearchSession {
     @Override
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> remove(
-            @NonNull RemoveByUriRequest request) {
+            @NonNull RemoveByDocumentIdRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
         mPlatformSession.remove(
-                RequestToPlatformConverter.toPlatformRemoveByUriRequest(request),
+                RequestToPlatformConverter.toPlatformRemoveByDocumentIdRequest(request),
                 mExecutor,
                 BatchResultCallbackAdapter.forSameValueType(future));
         return future;

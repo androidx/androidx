@@ -67,8 +67,8 @@ public abstract class AnnotationProcessorTestBase {
         @Document.Namespace
         String mNamespace;
 
-        @Document.Uri
-        String mUri;
+        @Document.Id
+        String mId;
 
         @Document.CreationTimestampMillis
         long mCreationTimestampMillis;
@@ -86,7 +86,7 @@ public abstract class AnnotationProcessorTestBase {
                 return false;
             }
             Card otherCard = (Card) other;
-            assertThat(otherCard.mUri).isEqualTo(this.mUri);
+            assertThat(otherCard.mId).isEqualTo(this.mId);
             return true;
         }
     }
@@ -96,8 +96,8 @@ public abstract class AnnotationProcessorTestBase {
         @Document.Namespace
         String mNamespace;
 
-        @Document.Uri
-        String mUri;
+        @Document.Id
+        String mId;
 
         @Document.CreationTimestampMillis
         long mCreationTimestampMillis;
@@ -188,7 +188,7 @@ public abstract class AnnotationProcessorTestBase {
             }
             Gift otherGift = (Gift) other;
             assertThat(otherGift.mNamespace).isEqualTo(this.mNamespace);
-            assertThat(otherGift.mUri).isEqualTo(this.mUri);
+            assertThat(otherGift.mId).isEqualTo(this.mId);
             assertThat(otherGift.mArrBoxBoolean).isEqualTo(this.mArrBoxBoolean);
             assertThat(otherGift.mArrBoxDouble).isEqualTo(this.mArrBoxDouble);
             assertThat(otherGift.mArrBoxFloat).isEqualTo(this.mArrBoxFloat);
@@ -241,7 +241,7 @@ public abstract class AnnotationProcessorTestBase {
         public static Gift createPopulatedGift() {
             Gift gift = new Gift();
             gift.mNamespace = "gift.namespace";
-            gift.mUri = "gift.uri";
+            gift.mId = "gift.id";
 
             gift.mArrBoxBoolean = new Boolean[]{true, false};
             gift.mArrBoxDouble = new Double[]{0.0, 1.0};
@@ -259,10 +259,10 @@ public abstract class AnnotationProcessorTestBase {
 
             Card card1 = new Card();
             card1.mNamespace = "card.namespace";
-            card1.mUri = "card.uri1";
+            card1.mId = "card.id1";
             Card card2 = new Card();
             card2.mNamespace = "card.namespace";
-            card2.mUri = "card.uri2";
+            card2.mId = "card.id2";
             gift.mArrCard = new Card[]{card2, card2};
 
             gift.mCollectLong = Arrays.asList(gift.mArrBoxLong);
@@ -328,12 +328,12 @@ public abstract class AnnotationProcessorTestBase {
         // Create documents and index them
         Gift inputDocument1 = new Gift();
         inputDocument1.mNamespace = "gift.namespace";
-        inputDocument1.mUri = "gift.uri1";
+        inputDocument1.mId = "gift.id1";
         Gift inputDocument2 = new Gift();
         inputDocument2.mNamespace = "gift.namespace";
-        inputDocument2.mUri = "gift.uri2";
+        inputDocument2.mId = "gift.id2";
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("namespace", "uri3")
+                new AppSearchEmail.Builder("namespace", "id3")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")

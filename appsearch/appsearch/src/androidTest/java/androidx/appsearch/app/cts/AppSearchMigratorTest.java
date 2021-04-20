@@ -38,7 +38,7 @@ public class AppSearchMigratorTest {
             @Override
             public GenericDocument onUpgrade(int currentVersion, int finalVersion,
                     @NonNull GenericDocument document) {
-                return new GenericDocument.Builder<>(document.getNamespace(), document.getUri(),
+                return new GenericDocument.Builder<>(document.getNamespace(), document.getId(),
                         document.getSchemaType())
                         .setCreationTimestampMillis(document.getCreationTimestampMillis())
                         .setScore(document.getScore())
@@ -57,13 +57,13 @@ public class AppSearchMigratorTest {
             }
         };
 
-        GenericDocument input = new GenericDocument.Builder<>("namespace", "uri",
+        GenericDocument input = new GenericDocument.Builder<>("namespace", "id",
                 "schemaType")
                 .setCreationTimestampMillis(12345L)
                 .setScore(100)
                 .setTtlMillis(54321L).build();
 
-        GenericDocument expected = new GenericDocument.Builder<>("namespace", "uri",
+        GenericDocument expected = new GenericDocument.Builder<>("namespace", "id",
                 "schemaType")
                 .setCreationTimestampMillis(12345L)
                 .setScore(100)
@@ -96,7 +96,7 @@ public class AppSearchMigratorTest {
             @Override
             public GenericDocument onDowngrade(int currentVersion, int finalVersion,
                     @NonNull GenericDocument document) {
-                return new GenericDocument.Builder<>(document.getNamespace(), document.getUri(),
+                return new GenericDocument.Builder<>(document.getNamespace(), document.getId(),
                         document.getSchemaType())
                         .setCreationTimestampMillis(document.getCreationTimestampMillis())
                         .setScore(document.getScore())
@@ -108,13 +108,13 @@ public class AppSearchMigratorTest {
             }
         };
 
-        GenericDocument input = new GenericDocument.Builder<>("namespace", "uri",
+        GenericDocument input = new GenericDocument.Builder<>("namespace", "id",
                 "schemaType")
                 .setCreationTimestampMillis(12345L)
                 .setScore(100)
                 .setTtlMillis(54321L).build();
 
-        GenericDocument expected = new GenericDocument.Builder<>("namespace", "uri",
+        GenericDocument expected = new GenericDocument.Builder<>("namespace", "id",
                 "schemaType")
                 .setCreationTimestampMillis(12345L)
                 .setScore(100)

@@ -3,32 +3,32 @@
     {
       "noteText": "Don't forget to grab lunch!",
       "namespace": "namespace1",
-      "uri": "note1"
+      "id": "note1"
     },
     {
       "noteText": "I wonder what food I should get.",
       "namespace": "namespace1",
-      "uri": "note2"
+      "id": "note2"
     },
     {
       "noteText": "Apples are my favorite fruit.",
       "namespace": "namespace1",
-      "uri": "note3"
+      "id": "note3"
     },
     {
       "noteText": "The weather is great!",
       "namespace": "namespace2",
-      "uri": "note1"
+      "id": "note1"
     },
     {
       "noteText": "I hope it doesn't rain.",
       "namespace": "namespace2",
-      "uri": "note2"
+      "id": "note2"
     },
     {
       "noteText": "Tomorrow will be hot.",
       "namespace": "namespace2",
-      "uri": "note3"
+      "id": "note3"
     }
   ]
 }

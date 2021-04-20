@@ -125,7 +125,7 @@ public class AppSearchLoggerTest {
                 Collections.emptyList(), /*schemasPackageAccessible=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false, /*version=*/ 0);
         GenericDocument document =
-                new GenericDocument.Builder<>("namespace", "uri", "type").build();
+                new GenericDocument.Builder<>("namespace", "id", "type").build();
 
         mAppSearchImpl.putDocument(testPackageName, testDatabase, document, mLogger);
 

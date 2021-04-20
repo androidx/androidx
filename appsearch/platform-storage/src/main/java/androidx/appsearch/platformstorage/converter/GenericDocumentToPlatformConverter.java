@@ -44,7 +44,7 @@ public final class GenericDocumentToPlatformConverter {
                 android.app.appsearch.GenericDocument.Builder<?>> platformBuilder =
                 new android.app.appsearch.GenericDocument.Builder<>(
                         jetpackDocument.getNamespace(),
-                        jetpackDocument.getUri(),
+                        jetpackDocument.getId(),
                         jetpackDocument.getSchemaType());
         platformBuilder
                 .setScore(jetpackDocument.getScore())

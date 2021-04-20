@@ -32,19 +32,19 @@ public final class ReportSystemUsageRequest {
     private final String mPackageName;
     private final String mDatabase;
     private final String mNamespace;
-    private final String mUri;
+    private final String mDocumentId;
     private final long mUsageTimestampMillis;
 
     ReportSystemUsageRequest(
             @NonNull String packageName,
             @NonNull String database,
             @NonNull String namespace,
-            @NonNull String uri,
+            @NonNull String documentId,
             long usageTimestampMillis) {
         mPackageName = Preconditions.checkNotNull(packageName);
         mDatabase = Preconditions.checkNotNull(database);
         mNamespace = Preconditions.checkNotNull(namespace);
-        mUri = Preconditions.checkNotNull(uri);
+        mDocumentId = Preconditions.checkNotNull(documentId);
         mUsageTimestampMillis = usageTimestampMillis;
     }
 
@@ -66,10 +66,10 @@ public final class ReportSystemUsageRequest {
         return mNamespace;
     }
 
-    /** Returns the URI of document that was used. */
+    /** Returns the ID of document that was used. */
     @NonNull
-    public String getUri() {
-        return mUri;
+    public String getDocumentId() {
+        return mDocumentId;
     }
 
     /**
@@ -88,7 +88,7 @@ public final class ReportSystemUsageRequest {
         private final String mPackageName;
         private final String mDatabase;
         private final String mNamespace;
-        private final String mUri;
+        private final String mDocumentId;
         private Long mUsageTimestampMillis;
         private boolean mBuilt = false;
 
@@ -97,11 +97,11 @@ public final class ReportSystemUsageRequest {
                 @NonNull String packageName,
                 @NonNull String database,
                 @NonNull String namespace,
-                @NonNull String uri) {
+                @NonNull String documentId) {
             mPackageName = Preconditions.checkNotNull(packageName);
             mDatabase = Preconditions.checkNotNull(database);
             mNamespace = Preconditions.checkNotNull(namespace);
-            mUri = Preconditions.checkNotNull(uri);
+            mDocumentId = Preconditions.checkNotNull(documentId);
         }
 
         /**
@@ -136,7 +136,7 @@ public final class ReportSystemUsageRequest {
             }
             mBuilt = true;
             return new ReportSystemUsageRequest(
-                    mPackageName, mDatabase, mNamespace, mUri, mUsageTimestampMillis);
+                    mPackageName, mDatabase, mNamespace, mDocumentId, mUsageTimestampMillis);
         }
     }
 }

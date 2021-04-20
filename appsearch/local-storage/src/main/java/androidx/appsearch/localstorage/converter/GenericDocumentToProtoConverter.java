@@ -56,7 +56,7 @@ public final class GenericDocumentToProtoConverter {
     public static DocumentProto toDocumentProto(@NonNull GenericDocument document) {
         Preconditions.checkNotNull(document);
         DocumentProto.Builder mProtoBuilder = DocumentProto.newBuilder();
-        mProtoBuilder.setUri(document.getUri())
+        mProtoBuilder.setUri(document.getId())
                 .setSchema(document.getSchemaType())
                 .setNamespace(document.getNamespace())
                 .setScore(document.getScore())
