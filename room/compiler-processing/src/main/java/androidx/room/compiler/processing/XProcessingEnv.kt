@@ -134,6 +134,11 @@ interface XProcessingEnv {
         KSP
     }
 
+    /**
+     * The target language for XProcessingEnv.
+     * This value controls certain logic when processing code,
+     * see the documentation for [XProcessingEnv.targetLanguage] for details.
+     */
     enum class Language {
         JAVA,
         KOTLIN
