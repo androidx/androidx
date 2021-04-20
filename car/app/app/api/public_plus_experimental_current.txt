@@ -1126,6 +1126,7 @@ package androidx.car.app.versioning {
     method public static int getLatest();
     method public static int getOldest();
     field public static final int LEVEL_1 = 1; // 0x1
+    field public static final int LEVEL_2 = 2; // 0x2
   }
 
 }

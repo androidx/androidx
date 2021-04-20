@@ -108,6 +108,10 @@ public final class CarAppServiceTest {
                     }
                 };
 
+        AppInfo appInfo = new AppInfo(CarAppApiLevels.getOldest(), CarAppApiLevels.getLatest(),
+                "blah");
+        mCarAppService.setAppInfo(appInfo);
+
         // Sets a default handshake info. OnAppCreate depends on this being non-null.
         String hostPackageName = "com.google.projection.gearhead";
         HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName,
