@@ -393,7 +393,7 @@ public class CarAppActivityTest {
         }
 
         @Override
-        public boolean isVersionSupported(String version) {
+        public boolean isVersionSupported(Bundleable appInfo) {
             return true;
         }
 
