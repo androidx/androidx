@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.emoji2.helpers;
+package androidx.emoji2.viewshelper;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;

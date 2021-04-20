@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.emoji2.helpers;
+package androidx.emoji2.viewshelper;
 
 import android.os.Build;
 import android.text.InputFilter;
@@ -96,8 +96,10 @@ public final class EmojiTextViewHelper {
      * @return same copy if the array already contains EmojiCompat InputFilter. A new array copy if
      * not.
      */
+    @SuppressWarnings("ArrayReturn")
     @NonNull
-    public InputFilter[] getFilters(@NonNull final InputFilter[] filters) {
+    public InputFilter[] getFilters(
+            @SuppressWarnings("ArrayReturn") @NonNull final InputFilter[] filters) {
         return mHelper.getFilters(filters);
     }
 

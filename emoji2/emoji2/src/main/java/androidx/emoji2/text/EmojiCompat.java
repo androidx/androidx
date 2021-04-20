@@ -527,6 +527,7 @@ public class EmojiCompat {
      *
      * @see #unregisterInitCallback(InitCallback)
      */
+    @SuppressWarnings("ExecutorRegistration")
     public void registerInitCallback(@NonNull InitCallback initCallback) {
         Preconditions.checkNotNull(initCallback, "initCallback cannot be null");
 
@@ -946,6 +947,7 @@ public class EmojiCompat {
          *
          * @param loaderCallback callback to signal the loading state
          */
+        @SuppressWarnings("ExecutorRegistration")
         void load(@NonNull MetadataRepoLoaderCallback loaderCallback);
     }
 
@@ -1067,6 +1069,7 @@ public class EmojiCompat {
          *
          * @return EmojiCompat.Config instance
          */
+        @SuppressWarnings("ExecutorRegistration")
         @NonNull
         public Config registerInitCallback(@NonNull InitCallback initCallback) {
             Preconditions.checkNotNull(initCallback, "initCallback cannot be null");

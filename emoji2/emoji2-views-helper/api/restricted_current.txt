@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package androidx.emoji2.widget {
+package androidx.emoji2.viewshelper {
 
   public final class EmojiEditTextHelper {
     ctor public EmojiEditTextHelper(android.widget.EditText);
@@ -9,18 +9,12 @@ package androidx.emoji2.widget {
     method public void setMaxEmojiCount(@IntRange(from=0) int);
   }
 
-
   public final class EmojiTextViewHelper {
     ctor public EmojiTextViewHelper(android.widget.TextView);
     method public android.text.InputFilter![] getFilters(android.text.InputFilter![]);
     method public void setAllCaps(boolean);
     method public void updateTransformationMethod();
     method public android.text.method.TransformationMethod? wrapTransformationMethod(android.text.method.TransformationMethod?);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SpannableBuilder extends android.text.SpannableStringBuilder {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void beginBatchEdit();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void endBatchEdit();
   }
 
 }

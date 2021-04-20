@@ -1,5 +1,6 @@
 // Signature format: 4.0
-package androidx.emoji2.widget {
+package androidx.emoji2.viewshelper {
+
   public final class EmojiEditTextHelper {
     ctor public EmojiEditTextHelper(android.widget.EditText);
     method public android.text.method.KeyListener getKeyListener(android.text.method.KeyListener);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.emoji2.helpers;
+package androidx.emoji2.viewshelper;
 
 import android.os.Build;
 import android.text.method.KeyListener;
@@ -122,6 +122,7 @@ public final class EmojiEditTextHelper {
      *
      * @return a new KeyListener instance that wraps {@code keyListener}.
      */
+    @SuppressWarnings("ExecutorRegistration")
     @NonNull
     public KeyListener getKeyListener(@NonNull final KeyListener keyListener) {
         Preconditions.checkNotNull(keyListener, "keyListener cannot be null");

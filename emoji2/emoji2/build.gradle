@@ -14,7 +14,7 @@ plugins {
 BundleInsideHelper.forInsideAar(
     project,
     /* from = */ "com.google.flatbuffers",
-    /* to =   */ "androidx.text.emoji.flatbuffer"
+    /* to =   */ "androidx.text.emoji2.flatbuffer"
 )
 
 dependencies {
@@ -36,7 +36,7 @@ dependencies {
 
 androidx {
     name = "Android Emoji2 Compat"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.EMOJI2
     mavenGroup = LibraryGroups.EMOJI2
     inceptionYear = "2017"
