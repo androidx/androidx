@@ -47,46 +47,14 @@ internal class GCloudCLIWrapper(
      * Path to the gcloud executable, derived from `which gcloud` call.
      */
     private val gcloud: String by lazy {
-        val output = ByteArrayOutputStream()
-        val result = execOperations.exec {
-            it.commandLine("which", "gcloud")
-            it.standardOutput = output
-            it.isIgnoreExitValue = true
-        }
-        if (result.exitValue != 0) {
-            throw GradleException(
-                """
-                Unable to find gcloud CLI executable.
-                `which gcloud` returned exit code ${result.exitValue}.
-                Make sure gcloud CLI is installed, authenticated and is part of your PATH.
-                See https://cloud.google.com/sdk/gcloud for installation instructions.
-                """.trimIndent()
-            )
-        }
-        output.toString(Charsets.UTF_8).trim()
+        findExecutable("gcloud")
     }
 
     /**
      * Path to the gsutil executable, derived from `which gsutil` call.
      */
     private val gsutil: String by lazy {
-        val output = ByteArrayOutputStream()
-        val result = execOperations.exec {
-            it.commandLine("which", "gsutil")
-            it.standardOutput = output
-            it.isIgnoreExitValue = true
-        }
-        if (result.exitValue != 0) {
-            throw GradleException(
-                """
-                Unable to find gsutil CLI executable.
-                `which gsutil` returned exit code ${result.exitValue}.
-                Make sure gsutil CLI is installed, authenticated and is part of your PATH.
-                See https://cloud.google.com/sdk/gcloud for installation instructions.
-                """.trimIndent()
-            )
-        }
-        output.toString(Charsets.UTF_8).trim()
+        findExecutable("gsutil")
     }
 
     private inline fun <reified T> executeGcloud(
@@ -153,6 +121,29 @@ internal class GCloudCLIWrapper(
             )
         }
         return testResults
+    }
+
+    /**
+     * find the given executable's path in the PATH via `which` command.
+     */
+    private fun findExecutable(name: String): String {
+        val output = ByteArrayOutputStream()
+        val result = execOperations.exec {
+            it.commandLine("which", name)
+            it.standardOutput = output
+            it.isIgnoreExitValue = true
+        }
+        if (result.exitValue != 0) {
+            throw GradleException(
+                """
+                    Unable to find $name CLI executable.
+                    `which $name` returned exit code ${result.exitValue}.
+                    Make sure gcloud CLI is installed, authenticated and is part of your PATH.
+                    See https://cloud.google.com/sdk/gcloud for installation instructions.
+                    """.trimIndent()
+            )
+        }
+        return output.toString(Charsets.UTF_8).trim()
     }
 
     /**
