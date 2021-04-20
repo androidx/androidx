@@ -109,7 +109,7 @@ public class NavBackStackEntry @JvmOverloads internal constructor(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun handleLifecycleEvent(event: Lifecycle.Event) {
-        hostLifecycle = getStateAfter(event)
+        hostLifecycle = event.targetState
         updateState()
     }
 
@@ -170,24 +170,6 @@ public class NavBackStackEntry @JvmOverloads internal constructor(
     }
 
     private class SavedStateViewModel(val handle: SavedStateHandle) : ViewModel()
-
-    internal companion object {
-        /**
-         * Copied from LifecycleRegistry.getStateAfter()
-         * TODO: update to Event.getTargetState() when navigation's lifecycle-core dependency is updated
-         */
-        internal fun getStateAfter(event: Lifecycle.Event): Lifecycle.State {
-            when (event) {
-                Lifecycle.Event.ON_CREATE, Lifecycle.Event.ON_STOP -> return Lifecycle.State.CREATED
-                Lifecycle.Event.ON_START, Lifecycle.Event.ON_PAUSE -> return Lifecycle.State.STARTED
-                Lifecycle.Event.ON_RESUME -> return Lifecycle.State.RESUMED
-                Lifecycle.Event.ON_DESTROY -> return Lifecycle.State.DESTROYED
-                Lifecycle.Event.ON_ANY -> {
-                }
-            }
-            throw IllegalArgumentException("Unexpected event value $event")
-        }
-    }
 
     init {
         savedStateRegistryController.performRestore(savedState)
