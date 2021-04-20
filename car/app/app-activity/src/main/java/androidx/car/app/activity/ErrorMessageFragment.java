@@ -27,12 +27,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
 import java.util.List;
@@ -44,29 +44,27 @@ import java.util.List;
  */
 @RestrictTo(LIBRARY)
 public final class ErrorMessageFragment extends Fragment {
-    private static final String MESSAGE_ARGS_KEY = "message";
     private static final String ERROR_TYPE_ARGS_KEY = "errorType";
     private static final String VENDING_PACKAGE = "com.android.vending";
     static final String ACTION_RENDER = "android.car.template.host.RendererService";
 
     /** Returns an new Instance of {@link ErrorMessageFragment} */
     @NonNull
-    static ErrorMessageFragment newInstance(
-            @NonNull String text,
-            @NonNull CarAppActivity.ErrorActionType type) {
-
+    static ErrorMessageFragment newInstance(@NonNull ErrorHandler.ErrorType errorType) {
         ErrorMessageFragment errorMessageFragment = new ErrorMessageFragment();
-
-        Bundle bundle = new Bundle();
-        bundle.putString(MESSAGE_ARGS_KEY, text);
-        bundle.putSerializable(ERROR_TYPE_ARGS_KEY, type);
-
-        errorMessageFragment.setArguments(bundle);
-
+        errorMessageFragment.setArguments(getBundle(errorType));
         return errorMessageFragment;
     }
 
-    @Nullable
+    @VisibleForTesting
+    @NonNull
+    static Bundle getBundle(ErrorHandler.ErrorType errorType) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(ERROR_TYPE_ARGS_KEY, errorType.ordinal());
+        return bundle;
+    }
+
+    @NonNull
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
@@ -77,31 +75,32 @@ public final class ErrorMessageFragment extends Fragment {
         return rootView;
     }
 
-    private void update(View rootView) {
+    private void update(@NonNull View rootView) {
+        ErrorHandler.ErrorType errorType = getErrorType();
         TextView errorMessage = rootView.findViewById(R.id.error_message);
-        errorMessage.setText(
-                requireArguments().getString(MESSAGE_ARGS_KEY));
-        ImageView errorIcon = rootView.findViewById(R.id.message_icon);
-        errorIcon.setImageDrawable(requireActivity().getDrawable(R.drawable.car_app_icon_error));
-
         Button actionButton = rootView.findViewById(R.id.action_button);
-        CarAppActivity.ErrorActionType errorActionType =
-                (CarAppActivity.ErrorActionType) requireArguments()
-                                                         .getSerializable(ERROR_TYPE_ARGS_KEY);
-        actionButton.setText(getExitString(errorActionType));
-        actionButton.setOnClickListener(
-                v -> {
-                    onClick((CarAppActivity.ErrorActionType)
-                                requireArguments()
-                                            .getSerializable(ERROR_TYPE_ARGS_KEY));
-                });
+        errorMessage.setText(getString(errorType.getMessageResId()));
+        actionButton.setText(getString(errorType.getActionType().getActionResId()));
+        actionButton.setOnClickListener(v -> onClick(errorType.getActionType()));
     }
 
-    private void onClick(@NonNull CarAppActivity.ErrorActionType type) {
-        if (type == CarAppActivity.ErrorActionType.REDIRECT) {
-            startActivity(getVendingIntent());
+    @VisibleForTesting
+    @NonNull
+    ErrorHandler.ErrorType getErrorType() {
+        Bundle args = requireArguments();
+        return ErrorHandler.ErrorType.values()[args.getInt(ERROR_TYPE_ARGS_KEY)];
+    }
+
+    private void onClick(@NonNull ErrorHandler.ActionType actionType) {
+        switch (actionType) {
+            case UPDATE_HOST:
+                startActivity(getVendingIntent());
+                // Fall through
+            case FINISH:
+                requireActivity().finish();
+                return;
         }
-        requireActivity().finish();
+        throw new IllegalArgumentException("Unknown action type: " + actionType);
     }
 
     private Intent getVendingIntent() {
@@ -124,14 +123,6 @@ public final class ErrorMessageFragment extends Fragment {
             return intent;
         } else {
             return requireActivity().getPackageManager().getLaunchIntentForPackage(VENDING_PACKAGE);
-        }
-    }
-
-    private int getExitString(CarAppActivity.ErrorActionType errorActionType) {
-        if (errorActionType == CarAppActivity.ErrorActionType.REDIRECT) {
-            return R.string.redirect;
-        } else {
-            return R.string.exit;
         }
     }
 }
