@@ -64,6 +64,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             addMethod(createCreateInvalidationTracker())
             addMethod(createClearAllTables())
             addMethod(createCreateTypeConvertersMap())
+            addMethod(createCreateAutoMigrationSpecsSet())
             addMethod(getAutoMigrations())
         }
         addDaoImpls(builder)
@@ -122,6 +123,47 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
                 )
             }
             addStatement("return $L", typeConvertersVar)
+        }.build()
+    }
+
+    private fun createCreateAutoMigrationSpecsSet(): MethodSpec {
+        val scope = CodeGenScope(this)
+        return MethodSpec.methodBuilder("getRequiredAutoMigrationSpecs").apply {
+            addAnnotation(Override::class.java)
+            addModifiers(PROTECTED)
+            returns(
+                ParameterizedTypeName.get(
+                    CommonTypeNames.SET,
+                    ParameterizedTypeName.get(
+                        ClassName.get(Class::class.java),
+                        WildcardTypeName.subtypeOf(RoomTypeNames.AUTO_MIGRATION_SPEC)
+                    )
+                )
+            )
+            val autoMigrationSpecsVar = scope.getTmpVar("_autoMigrationSpecsSet")
+            val autoMigrationSpecsTypeName = ParameterizedTypeName.get(
+                ClassName.get(HashSet::class.java),
+                ParameterizedTypeName.get(
+                    ClassName.get(Class::class.java),
+                    WildcardTypeName.subtypeOf(RoomTypeNames.AUTO_MIGRATION_SPEC)
+                )
+            )
+            addStatement(
+                "final $T $L = new $T()",
+                autoMigrationSpecsTypeName,
+                autoMigrationSpecsVar,
+                autoMigrationSpecsTypeName
+            )
+            database.autoMigrations.map { autoMigrationResult ->
+                if (autoMigrationResult.isSpecProvided) {
+                    addStatement(
+                        "$L.add($T.class)",
+                        autoMigrationSpecsVar,
+                        autoMigrationResult.specClassName
+                    )
+                }
+            }
+            addStatement("return $L", autoMigrationSpecsVar)
         }.build()
     }
 
@@ -310,8 +352,16 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             addModifiers(PROTECTED)
             addAnnotation(Override::class.java)
             returns(ParameterizedTypeName.get(CommonTypeNames.LIST, RoomTypeNames.MIGRATION))
-            val autoMigrationsList = database.autoMigrations.map {
-                CodeBlock.of("new $T()", it.implTypeName)
+            val autoMigrationsList = database.autoMigrations.map { autoMigrationResult ->
+                if (autoMigrationResult.isSpecProvided) {
+                    CodeBlock.of(
+                        "new $T(mAutoMigrationSpecs.get($T.class))",
+                        autoMigrationResult.implTypeName,
+                        autoMigrationResult.specClassName
+                    )
+                } else {
+                    CodeBlock.of("new $T()", autoMigrationResult.implTypeName)
+                }
             }
             addStatement(
                 "return $T.asList($L)",

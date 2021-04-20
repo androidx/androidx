@@ -33,6 +33,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.room.migration.AutoMigrationSpec;
 import androidx.room.migration.Migration;
 import androidx.room.util.SneakyThrow;
 import androidx.sqlite.db.SimpleSQLiteQuery;
@@ -100,6 +101,15 @@ public abstract class RoomDatabase {
     @Deprecated
     protected List<Callback> mCallbacks;
 
+    /**
+     * A map of auto migration spec classes to their provided instance.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    protected Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> mAutoMigrationSpecs;
+
     private final ReentrantReadWriteLock mCloseLock = new ReentrantReadWriteLock();
 
     @Nullable
@@ -151,7 +161,6 @@ public abstract class RoomDatabase {
     // Updated later to an unmodifiable map when init is called.
     private final Map<Class<?>, Object> mTypeConverters;
 
-
     /**
      * Gets the instance of the given Type Converter.
      *
@@ -175,6 +184,7 @@ public abstract class RoomDatabase {
     public RoomDatabase() {
         mInvalidationTracker = createInvalidationTracker();
         mTypeConverters = new HashMap<>();
+        mAutoMigrationSpecs = new HashMap<>();
     }
 
     /**
@@ -185,6 +195,39 @@ public abstract class RoomDatabase {
     @CallSuper
     public void init(@NonNull DatabaseConfiguration configuration) {
         mOpenHelper = createOpenHelper(configuration);
+        Set<Class<? extends AutoMigrationSpec>> requiredAutoMigrationSpecs =
+                getRequiredAutoMigrationSpecs();
+        BitSet usedSpecs = new BitSet();
+        for (Class<? extends AutoMigrationSpec> spec : requiredAutoMigrationSpecs) {
+            int foundIndex = -1;
+            for (int providedIndex = configuration.autoMigrationSpecs.size() - 1;
+                    providedIndex >= 0; providedIndex--
+            ) {
+                Object provided = configuration.autoMigrationSpecs.get(providedIndex);
+                if (spec.isAssignableFrom(provided.getClass())) {
+                    foundIndex = providedIndex;
+                    usedSpecs.set(foundIndex);
+                    break;
+                }
+            }
+            if (foundIndex < 0) {
+                throw new IllegalArgumentException(
+                        "A required auto migration spec (" + spec.getCanonicalName()
+                                + ") is missing in the database configuration.");
+            }
+            mAutoMigrationSpecs.put(spec, configuration.autoMigrationSpecs.get(foundIndex));
+        }
+
+        for (int providedIndex = configuration.autoMigrationSpecs.size() - 1;
+                providedIndex >= 0; providedIndex--) {
+            if (!usedSpecs.get(providedIndex)) {
+                throw new IllegalArgumentException("Unexpected auto migration specs found. "
+                        + "Annotate AutoMigrationSpec implementation with "
+                        + "@ProvidedAutoMigrationSpec annotation or remove this spec from the "
+                        + "builder.");
+            }
+        }
+
         List<Migration> autoMigrations = getAutoMigrations();
         for (Migration autoMigration : autoMigrations) {
             boolean migrationExists = configuration.migrationContainer.getMigrations()
@@ -373,6 +416,21 @@ public abstract class RoomDatabase {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected Map<Class<?>, List<Class<?>>> getRequiredTypeConverters() {
         return Collections.emptyMap();
+    }
+
+    /**
+     * Returns a Set of required AutoMigrationSpec classes.
+     * <p>
+     * This is implemented by the generated code.
+     *
+     * @return Creates a set that will include all required auto migration specs for this database.
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected Set<Class<? extends AutoMigrationSpec>> getRequiredAutoMigrationSpecs() {
+        return Collections.emptySet();
     }
 
     /**
@@ -743,6 +801,7 @@ public abstract class RoomDatabase {
         private QueryCallback mQueryCallback;
         private Executor mQueryCallbackExecutor;
         private List<Object> mTypeConverters;
+        private List<AutoMigrationSpec> mAutoMigrationSpecs;
 
         /** The Executor used to run database queries. This should be background-threaded. */
         private Executor mQueryExecutor;
@@ -1011,6 +1070,23 @@ public abstract class RoomDatabase {
             }
 
             mMigrationContainer.addMigrations(migrations);
+            return this;
+        }
+
+        /**
+         * Adds an auto migration spec to the builder.
+         *
+         * @param autoMigrationSpec The auto migration object that is annotated with
+         * {@link AutoMigrationSpec} and is declared in an {@link AutoMigration} annotation.
+         * @return This {@link Builder} instance.
+         */
+        @NonNull
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        public Builder<T> addAutoMigrationSpec(@NonNull AutoMigrationSpec autoMigrationSpec) {
+            if (mAutoMigrationSpecs == null) {
+                mAutoMigrationSpecs = new ArrayList<>();
+            }
+            mAutoMigrationSpecs.add(autoMigrationSpec);
             return this;
         }
 
@@ -1407,7 +1483,8 @@ public abstract class RoomDatabase {
                             mCopyFromFile,
                             mCopyFromInputStream,
                             mPrepackagedDatabaseCallback,
-                            mTypeConverters);
+                            mTypeConverters,
+                            mAutoMigrationSpecs);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;

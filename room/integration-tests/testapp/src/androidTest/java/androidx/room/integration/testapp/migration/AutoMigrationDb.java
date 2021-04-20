@@ -16,9 +16,6 @@
 
 package androidx.room.integration.testapp.migration;
 
-
-import android.database.sqlite.SQLiteDatabase;
-
 import androidx.annotation.NonNull;
 import androidx.room.AutoMigration;
 import androidx.room.ColumnInfo;
@@ -38,6 +35,7 @@ import androidx.room.RenameColumn;
 import androidx.room.RenameTable;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.AutoMigrationSpec;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import java.util.List;
 
@@ -413,7 +411,8 @@ public abstract class AutoMigrationDb extends RoomDatabase {
             toColumnName = "renamedInV2")
     @DeleteColumn(tableName = "Entity15", columnName = "addedInV1")
     static class SimpleAutoMigration1 implements AutoMigrationSpec {
-        void onPostMigrate(SQLiteDatabase db) {
+        @Override
+        public void onPostMigrate(@NonNull SupportSQLiteDatabase db) {
             // Do something
         }
     }

@@ -30,12 +30,13 @@ data class AutoMigrationResult(
     val from: Int?,
     val to: Int?,
     val specElement: XTypeElement?,
-    val schemaDiff: SchemaDiffResult
+    val schemaDiff: SchemaDiffResult,
+    val isSpecProvided: Boolean
 ) {
     val implTypeName: ClassName by lazy {
         ClassName.get(
             element.className.packageName(),
-            "AutoMigration_${from}_${to}_Impl"
+            "${element.className.simpleName()}_AutoMigration_${from}_${to}_Impl"
         )
     }
 
