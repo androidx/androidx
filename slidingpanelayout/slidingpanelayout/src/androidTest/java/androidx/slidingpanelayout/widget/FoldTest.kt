@@ -120,12 +120,12 @@ public class FoldTest {
             )
             slidingPaneLayout.setFoldingFeatureObserver(foldingFeatureObserver)
             val detailView = activity.findViewById<View>(R.id.detail_pane)
-            val window = WindowManager(activity).currentWindowMetrics.bounds
+            val window = WindowManager(activity).getCurrentWindowMetrics().bounds
             detailView.minimumWidth = window.width() / 2 + detailViewExtraWidth
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
-            val window = withActivity { WindowManager(this).currentWindowMetrics.bounds }
+            val window = withActivity { WindowManager(this).getCurrentWindowMetrics().bounds }
             assertThat(findViewById(R.id.detail_pane).width).isEqualTo(window.width())
         }
     }
