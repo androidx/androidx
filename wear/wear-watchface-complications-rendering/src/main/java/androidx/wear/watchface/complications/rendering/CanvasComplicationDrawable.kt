@@ -168,7 +168,7 @@ public open class CanvasComplicationDrawable(
     ): Unit = TraceEvent("CanvasComplicationDrawable.setIdAndData").use {
         _data = complicationData
         drawable.setComplicationData(
-            complicationData?.asWireComplicationData(),
+            complicationData,
             loadDrawablesAsynchronous
         )
     }

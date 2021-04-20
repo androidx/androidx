@@ -16,10 +16,10 @@
 
 package androidx.wear.complications;
 
-import android.support.wearable.complications.ComplicationData;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
+import androidx.wear.complications.data.ComplicationType;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -68,10 +68,9 @@ public class SystemProviders {
      * <p>This is a safe provider, so if a watch face uses this as a default it will be able to
      * receive data from it even before the RECEIVE_COMPLICATION_DATA permission has been granted.
      *
-     * <p>This provider supports the following types: {@link ComplicationData#TYPE_ICON TYPE_ICON},
-     * {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}, {@link
-     * ComplicationData#TYPE_LONG_TEXT TYPE_LONG_TEXT}, {@link ComplicationData#TYPE_RANGED_VALUE
-     * TYPE_RANGED_VALUE}.
+     * <p>This provider supports the following types: {@link ComplicationType#MONOCHROMATIC_IMAGE},
+     * {@link ComplicationType#SHORT_TEXT}, {@link ComplicationType#LONG_TEXT},
+     * {@link ComplicationType#RANGED_VALUE}.
      */
     public static final int PROVIDER_WATCH_BATTERY = 1;
 
@@ -81,7 +80,7 @@ public class SystemProviders {
      * <p>This is a safe provider, so if a watch face uses this as a default it will be able to
      * receive data from it even before the RECEIVE_COMPLICATION_DATA permission has been granted.
      *
-     * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
+     * <p>This provider supports only {@link ComplicationType#SHORT_TEXT}.
      */
     public static final int PROVIDER_DATE = 2;
 
@@ -91,7 +90,7 @@ public class SystemProviders {
      * <p>This is a safe provider, so if a watch face uses this as a default it will be able to
      * receive data from it even before the RECEIVE_COMPLICATION_DATA permission has been granted.
      *
-     * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
+     * <p>This provider supports only {@link ComplicationType#SHORT_TEXT}.
      */
     public static final int PROVIDER_TIME_AND_DATE = 3;
 
@@ -102,7 +101,7 @@ public class SystemProviders {
      * this as a default it will be able to receive data from it even before the
      * RECEIVE_COMPLICATION_DATA permission has been granted.
      *
-     * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
+     * <p>This provider supports only {@link ComplicationType#SHORT_TEXT}.
      */
     public static final int PROVIDER_STEP_COUNT = 4;
 
@@ -112,7 +111,7 @@ public class SystemProviders {
      * <p>This is a safe provider, so if a watch face uses this as a default it will be able to
      * receive data from it even before the RECEIVE_COMPLICATION_DATA permission has been granted.
      *
-     * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
+     * <p>This provider supports only {@link ComplicationType#SHORT_TEXT}.
      */
     public static final int PROVIDER_WORLD_CLOCK = 5;
 
@@ -122,8 +121,8 @@ public class SystemProviders {
      * <p>This is a safe provider, so if a watch face uses this as a default it will be able to
      * receive data from it even before the RECEIVE_COMPLICATION_DATA permission has been granted.
      *
-     * <p>This provider supports the following types: {@link ComplicationData#TYPE_SMALL_IMAGE
-     * TYPE_SMALL_IMAGE}, {@link ComplicationData#TYPE_LONG_TEXT TYPE_LONG_TEXT}.
+     * <p>This provider supports the following types: {@link ComplicationType#SMALL_IMAGE},
+     * {@link ComplicationType#LONG_TEXT}.
      */
     public static final int PROVIDER_APP_SHORTCUT = 6;
 
@@ -133,8 +132,8 @@ public class SystemProviders {
      * <p>This is a safe provider, so if a watch face uses this as a default it will be able to
      * receive data from it even before the RECEIVE_COMPLICATION_DATA permission has been granted.
      *
-     * <p>This provider supports the following types: {@link ComplicationData#TYPE_ICON TYPE_ICON},
-     * {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
+     * <p>This provider supports the following types: {@link ComplicationType#MONOCHROMATIC_IMAGE},
+     * {@link ComplicationType#SHORT_TEXT}.
      */
     public static final int PROVIDER_UNREAD_NOTIFICATION_COUNT = 7;
 
@@ -144,8 +143,8 @@ public class SystemProviders {
      * <p>This is not a safe provider, so if a watch face uses this as a default it will receive
      * data of TYPE_NO_PERMISSION until the user has granted the RECEIVE_COMPLICATION_DATA.
      *
-     * <p>This provider supports the following types: {@link ComplicationData#TYPE_SHORT_TEXT
-     * TYPE_SHORT_TEXT}, {@link ComplicationData#TYPE_LONG_TEXT TYPE_LONG_TEXT}.
+     * <p>This provider supports the following types: {@link ComplicationType#SHORT_TEXT},
+     * {@link ComplicationType#LONG_TEXT}.
      */
     public static final int PROVIDER_NEXT_EVENT = 9;
 
@@ -155,7 +154,7 @@ public class SystemProviders {
      * <p>This provider shows fake step count data, and the tap action launches the retail mode
      * health app. This provider should only be set as a default if the device is in retail mode.
      *
-     * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
+     * <p>This provider supports only {@link ComplicationType#SHORT_TEXT}.
      */
     public static final int PROVIDER_RETAIL_STEP_COUNT = 10;
 
@@ -166,7 +165,7 @@ public class SystemProviders {
      * retail mode chat app. This provider should only be set as a default if the device is in
      * retail mode.
      *
-     * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
+     * <p>This provider supports only {@link ComplicationType#SHORT_TEXT}.
      */
     public static final int PROVIDER_RETAIL_CHAT = 11;
 
@@ -176,7 +175,7 @@ public class SystemProviders {
      * <p>This provider shows next sunrise or sunset time according to current timezone and
      * location.
      *
-     * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
+     * <p>This provider supports only {@link ComplicationType#SHORT_TEXT}.
      */
     public static final int PROVIDER_SUNRISE_SUNSET = 12;
 
@@ -186,7 +185,7 @@ public class SystemProviders {
      * <p>This is a safe provider, so if a watch face uses this as a default it will be able to
      * receive data from it even before the RECEIVE_COMPLICATION_DATA permission has been granted.
      *
-     * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
+     * <p>This provider supports only {@link ComplicationType#SHORT_TEXT}.
      */
     public static final int PROVIDER_DAY_OF_WEEK = 13;
 
@@ -196,7 +195,7 @@ public class SystemProviders {
      * <p>This is not a safe provider, so if a watch face uses this as a default it will receive
      * data of TYPE_NO_PERMISSION until the user has granted the RECEIVE_COMPLICATION_DATA.
      *
-     * <p>This provider supports only {@link ComplicationData#TYPE_SMALL_IMAGE TYPE_SMALL_IMAGE}.
+     * <p>This provider supports only {@link ComplicationType#SMALL_IMAGE}.
      */
     public static final int PROVIDER_FAVORITE_CONTACT = 14;
 
@@ -206,8 +205,8 @@ public class SystemProviders {
      * <p>This is a safe provider, so if a watch face uses this as a default it will be able to
      * receive data from it even before the RECEIVE_COMPLICATION_DATA permission has been granted.
      *
-     * <p>This provider supports {@link ComplicationData#TYPE_SMALL_IMAGE TYPE_SMALL_IMAGE}, {@link
-     * ComplicationData#TYPE_LONG_TEXT TYPE_LONG_TEXT}.
+     * <p>This provider supports {@link ComplicationType#SMALL_IMAGE}, {@link
+     * ComplicationType#LONG_TEXT}.
      */
     public static final int PROVIDER_MOST_RECENT_APP = 15;
 
@@ -217,7 +216,7 @@ public class SystemProviders {
      * <p>This is a safe provider, so if a watch face uses this as a default it will be able to
      * receive data from it even before the RECEIVE_COMPLICATION_DATA permission has been granted.
      *
-     * <p>This provider supports only {@link ComplicationData#TYPE_SHORT_TEXT TYPE_SHORT_TEXT}.
+     * <p>This provider supports only {@link ComplicationType#SHORT_TEXT}.
      */
     public static final int PROVIDER_DAY_AND_DATE = 16;
 }
