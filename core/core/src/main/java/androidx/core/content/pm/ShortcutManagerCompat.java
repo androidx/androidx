@@ -760,6 +760,7 @@ public class ShortcutManagerCompat {
             for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
                 listener.onShortcutAdded(Collections.singletonList(shortcut));
             }
+            reportShortcutUsed(context, shortcut.getId());
         }
         return false;
     }
