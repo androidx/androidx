@@ -1062,8 +1062,8 @@ public abstract class WatchFaceService : WallpaperService() {
             // WallpaperInteractiveWatchFaceInstance request.
             InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()?.let {
                 require(it.params.instanceId == params.instanceId) {
-                    "Miss match between pendingWallpaperInstance id $it.params.instanceId and " +
-                        "constructed instance id $params.instanceId"
+                    "Mismatch between pendingWallpaperInstance id ${it.params.instanceId} and " +
+                        "constructed instance id ${params.instanceId}"
                 }
                 it.callback.onInteractiveWatchFaceCreated(instance)
             }
