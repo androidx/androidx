@@ -46,7 +46,7 @@ internal class OverrideVarianceResolver(
 ) {
     fun resolve(): XMethodType {
         // Look at the true origin to decide whether we need variance resolution or not.
-        val parentTrueOrigin = (methodType.origin.enclosingTypeElement as? KspTypeElement)
+        val parentTrueOrigin = (methodType.origin.enclosingElement as? KspTypeElement)
             ?.trueOrigin
         if (parentTrueOrigin == Origin.JAVA) {
             return methodType
@@ -96,7 +96,7 @@ internal class OverrideVarianceResolver(
             containing = env.wrapClassDeclaration(declaredIn),
             declaration = funDeclaration.findOverridee() ?: funDeclaration
         )
-        val containing = overrideeElm.enclosingTypeElement.type as? KspType ?: return null
+        val containing = overrideeElm.enclosingElement.type as? KspType ?: return null
         return KspMethodType.create(
             env = env,
             origin = overrideeElm,
