@@ -153,7 +153,8 @@ public abstract class ComplicationProviderService : Service() {
      *
      * This will be called on the main thread.
      */
-    @UiThread public open fun onComplicationActivated(complicationId: Int, type: Int) {}
+    @UiThread
+    public open fun onComplicationActivated(complicationId: Int, type: ComplicationType) {}
 
     /**
      * Called when a complication data update is requested for the given complication id.
@@ -253,7 +254,10 @@ public abstract class ComplicationProviderService : Service() {
         @SuppressLint("SyntheticAccessor")
         override fun onComplicationActivated(complicationId: Int, type: Int, manager: IBinder) {
             mainThreadHandler.post {
-                this@ComplicationProviderService.onComplicationActivated(complicationId, type)
+                this@ComplicationProviderService.onComplicationActivated(
+                    complicationId,
+                    fromWireType(type)
+                )
             }
         }
 

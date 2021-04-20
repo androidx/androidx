@@ -5,7 +5,7 @@ package androidx.wear.complications {
     ctor public ComplicationProviderService();
     method public abstract androidx.wear.complications.data.ComplicationData? getPreviewData(androidx.wear.complications.data.ComplicationType type);
     method public final android.os.IBinder? onBind(android.content.Intent intent);
-    method @UiThread public void onComplicationActivated(int complicationId, int type);
+    method @UiThread public void onComplicationActivated(int complicationId, androidx.wear.complications.data.ComplicationType type);
     method @UiThread public void onComplicationDeactivated(int complicationId);
     method @UiThread public abstract void onComplicationRequest(androidx.wear.complications.ComplicationRequest request, androidx.wear.complications.ComplicationProviderService.ComplicationRequestListener listener);
     field public static final String ACTION_COMPLICATION_UPDATE_REQUEST = "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST";
