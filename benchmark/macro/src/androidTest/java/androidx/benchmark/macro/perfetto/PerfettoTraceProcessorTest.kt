@@ -17,6 +17,7 @@
 package androidx.benchmark.macro.perfetto
 
 import androidx.benchmark.macro.device
+import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -34,7 +35,7 @@ import kotlin.test.assertFailsWith
 public class PerfettoTraceProcessorTest {
     @Test
     public fun shellPath() {
-        assumeTrue(PerfettoTraceProcessor.isAbiSupported())
+        assumeTrue(isAbiSupported())
         val shellPath = PerfettoTraceProcessor.shellPath
         val device = InstrumentationRegistry.getInstrumentation().device()
         val out = device.executeShellCommand("$shellPath --version")
@@ -46,7 +47,7 @@ public class PerfettoTraceProcessorTest {
 
     @Test
     public fun getJsonMetrics_tracePathWithSpaces() {
-        assumeTrue(PerfettoTraceProcessor.isAbiSupported())
+        assumeTrue(isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
             PerfettoTraceProcessor.getJsonMetrics("/a b", "ignored")
         }
@@ -54,7 +55,7 @@ public class PerfettoTraceProcessorTest {
 
     @Test
     public fun getJsonMetrics_metricWithSpaces() {
-        assumeTrue(PerfettoTraceProcessor.isAbiSupported())
+        assumeTrue(isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
             PerfettoTraceProcessor.getJsonMetrics("/ignored", "a b")
         }
@@ -62,7 +63,7 @@ public class PerfettoTraceProcessorTest {
 
     @Test
     public fun validateAbiNotSupportedBehavior() {
-        assumeFalse(PerfettoTraceProcessor.isAbiSupported())
+        assumeFalse(isAbiSupported())
         assertFailsWith<IllegalStateException> {
             PerfettoTraceProcessor.shellPath
         }
