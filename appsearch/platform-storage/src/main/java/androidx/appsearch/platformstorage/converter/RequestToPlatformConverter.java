@@ -160,7 +160,7 @@ public final class RequestToPlatformConverter {
         Preconditions.checkNotNull(jetpackRequest);
         return new android.app.appsearch.ReportUsageRequest.Builder(jetpackRequest.getNamespace())
                 .setUri(jetpackRequest.getUri())
-                .setUsageTimeMillis(jetpackRequest.getUsageTimeMillis())
+                .setUsageTimeMillis(jetpackRequest.getUsageTimestampMillis())
                 .build();
     }
 }

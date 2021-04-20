@@ -33,19 +33,19 @@ public final class ReportSystemUsageRequest {
     private final String mDatabase;
     private final String mNamespace;
     private final String mUri;
-    private final long mUsageTimeMillis;
+    private final long mUsageTimestampMillis;
 
     ReportSystemUsageRequest(
             @NonNull String packageName,
             @NonNull String database,
             @NonNull String namespace,
             @NonNull String uri,
-            long usageTimeMillis) {
+            long usageTimestampMillis) {
         mPackageName = Preconditions.checkNotNull(packageName);
         mDatabase = Preconditions.checkNotNull(database);
         mNamespace = Preconditions.checkNotNull(namespace);
         mUri = Preconditions.checkNotNull(uri);
-        mUsageTimeMillis = usageTimeMillis;
+        mUsageTimestampMillis = usageTimestampMillis;
     }
 
     /** Returns the package name of the app which owns the document that was used. */
@@ -78,8 +78,9 @@ public final class ReportSystemUsageRequest {
      *
      * <p>The value is in the {@link System#currentTimeMillis} time base.
      */
-    public long getUsageTimeMillis() {
-        return mUsageTimeMillis;
+    /*@exportToFramework:CurrentTimeMillisLong*/
+    public long getUsageTimestampMillis() {
+        return mUsageTimestampMillis;
     }
 
     /** Builder for {@link ReportSystemUsageRequest} objects. */
@@ -88,7 +89,7 @@ public final class ReportSystemUsageRequest {
         private final String mDatabase;
         private final String mNamespace;
         private final String mUri;
-        private Long mUsageTimeMillis;
+        private Long mUsageTimestampMillis;
         private boolean mBuilt = false;
 
         /** Creates a {@link ReportSystemUsageRequest.Builder} instance. */
@@ -115,9 +116,10 @@ public final class ReportSystemUsageRequest {
          * @throws IllegalStateException if the builder has already been used
          */
         @NonNull
-        public ReportSystemUsageRequest.Builder setUsageTimeMillis(long usageTimeMillis) {
+        public ReportSystemUsageRequest.Builder setUsageTimestampMillis(
+                /*@exportToFramework:CurrentTimeMillisLong*/ long usageTimestampMillis) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mUsageTimeMillis = usageTimeMillis;
+            mUsageTimestampMillis = usageTimestampMillis;
             return this;
         }
 
@@ -129,12 +131,12 @@ public final class ReportSystemUsageRequest {
         @NonNull
         public ReportSystemUsageRequest build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            if (mUsageTimeMillis == null) {
-                mUsageTimeMillis = System.currentTimeMillis();
+            if (mUsageTimestampMillis == null) {
+                mUsageTimestampMillis = System.currentTimeMillis();
             }
             mBuilt = true;
             return new ReportSystemUsageRequest(
-                    mPackageName, mDatabase, mNamespace, mUri, mUsageTimeMillis);
+                    mPackageName, mDatabase, mNamespace, mUri, mUsageTimestampMillis);
         }
     }
 }

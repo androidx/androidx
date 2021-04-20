@@ -290,19 +290,19 @@ package androidx.appsearch.app {
     method public String getNamespace();
     method public String getPackageName();
     method public String getUri();
-    method public long getUsageTimeMillis();
+    method public long getUsageTimestampMillis();
   }
 
   public static final class ReportSystemUsageRequest.Builder {
     ctor public ReportSystemUsageRequest.Builder(String, String, String, String);
     method public androidx.appsearch.app.ReportSystemUsageRequest build();
-    method public androidx.appsearch.app.ReportSystemUsageRequest.Builder setUsageTimeMillis(long);
+    method public androidx.appsearch.app.ReportSystemUsageRequest.Builder setUsageTimestampMillis(long);
   }
 
   public final class ReportUsageRequest {
     method public String getNamespace();
     method public String getUri();
-    method public long getUsageTimeMillis();
+    method public long getUsageTimestampMillis();
   }
 
   public static final class ReportUsageRequest.Builder {
@@ -310,7 +310,7 @@ package androidx.appsearch.app {
     ctor @Deprecated public ReportUsageRequest.Builder(String);
     method public androidx.appsearch.app.ReportUsageRequest build();
     method @Deprecated public androidx.appsearch.app.ReportUsageRequest.Builder setUri(String);
-    method public androidx.appsearch.app.ReportUsageRequest.Builder setUsageTimeMillis(long);
+    method public androidx.appsearch.app.ReportUsageRequest.Builder setUsageTimestampMillis(long);
   }
 
   public final class SearchResult {
