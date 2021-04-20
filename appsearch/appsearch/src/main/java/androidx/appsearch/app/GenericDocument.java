@@ -189,6 +189,7 @@ public class GenericDocument {
      *
      * <p>The value is in the {@link System#currentTimeMillis} time base.
      */
+    /*@exportToFramework:CurrentTimeMillisLong*/
     public long getCreationTimestampMillis() {
         return mCreationTimestampMillis;
     }
@@ -1055,7 +1056,8 @@ public class GenericDocument {
          * @throws IllegalStateException if the builder has already been used.
          */
         @NonNull
-        public BuilderType setCreationTimestampMillis(long creationTimestampMillis) {
+        public BuilderType setCreationTimestampMillis(
+                /*@exportToFramework:CurrentTimeMillisLong*/ long creationTimestampMillis) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBundle.putLong(GenericDocument.CREATION_TIMESTAMP_MILLIS_FIELD,
                     creationTimestampMillis);
