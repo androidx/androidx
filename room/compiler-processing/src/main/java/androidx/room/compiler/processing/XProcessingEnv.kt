@@ -163,12 +163,13 @@ interface XProcessingEnv {
             resolver: Resolver,
             codeGenerator: CodeGenerator,
             logger: KSPLogger,
-            targetLanguage: Language = Language.JAVA
+            targetLanguage: Language
         ): XProcessingEnv = KspProcessingEnv(
             options = options,
             codeGenerator = codeGenerator,
             logger = logger,
-            resolver = resolver
+            resolver = resolver,
+            targetLanguage = targetLanguage
         )
     }
 

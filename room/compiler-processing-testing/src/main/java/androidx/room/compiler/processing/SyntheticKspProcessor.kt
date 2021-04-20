@@ -56,7 +56,8 @@ class SyntheticKspProcessor private constructor(
             options,
             resolver,
             codeGenerator,
-            logger
+            logger,
+            XProcessingEnv.Language.JAVA
         )
         val testInvocation = XTestInvocation(
             processingEnv = xEnv,

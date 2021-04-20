@@ -38,7 +38,8 @@ class RoomKspProcessor(
             options,
             resolver,
             codeGenerator,
-            logger
+            logger,
+            XProcessingEnv.Language.JAVA
         )
 
         return DatabaseProcessingStep().executeInKsp(

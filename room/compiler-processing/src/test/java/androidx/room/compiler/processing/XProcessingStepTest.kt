@@ -327,7 +327,8 @@ class XProcessingStepTest {
                             emptyMap(),
                             resolver,
                             codeGenerator,
-                            logger
+                            logger,
+                            XProcessingEnv.Language.JAVA
                         )
                         return processingStep.executeInKsp(env)
                             .also { returned = it }
