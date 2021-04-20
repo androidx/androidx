@@ -30,6 +30,15 @@ import androidx.car.app.CarContext;
 public final class CarAppApiLevels {
 
     /**
+     * API level 2.
+     *
+     * <p>Includes features such as sign-in template, long-message template, and multi-variant
+     * text support.
+     */
+    @CarAppApiLevel
+    public static final int LEVEL_2 = 2;
+
+    /**
      * Initial API level.
      *
      * <p>Includes core API services and managers, and templates for parking, charging, and
@@ -64,7 +73,7 @@ public final class CarAppApiLevels {
      */
     @CarAppApiLevel
     public static int getLatest() {
-        return LEVEL_1;
+        return LEVEL_2;
     }
 
     /**

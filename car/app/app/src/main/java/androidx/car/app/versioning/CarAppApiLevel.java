@@ -24,7 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@IntDef(value = {CarAppApiLevels.LEVEL_1})
+@IntDef(value = {CarAppApiLevels.UNKNOWN, CarAppApiLevels.LEVEL_1, CarAppApiLevels.LEVEL_2})
 @Retention(RetentionPolicy.SOURCE)
 public @interface CarAppApiLevel {
 }
