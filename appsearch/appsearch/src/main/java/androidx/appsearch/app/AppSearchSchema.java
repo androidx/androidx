@@ -704,7 +704,7 @@ public final class AppSearchSchema {
          * <p>If false, the nested document's properties are not indexed regardless of its own
          * schema.
          */
-        public boolean isIndexNestedProperties() {
+        public boolean shouldIndexNestedProperties() {
             return mBundle.getBoolean(INDEX_NESTED_PROPERTIES_FIELD);
         }
 
@@ -790,7 +790,7 @@ public final class AppSearchSchema {
              * schema.
              */
             @NonNull
-            public DocumentPropertyConfig.Builder setIndexNestedProperties(
+            public DocumentPropertyConfig.Builder setShouldIndexNestedProperties(
                     boolean indexNestedProperties) {
                 Preconditions.checkState(!mBuilt, "Builder has already been used");
                 mBundle.putBoolean(INDEX_NESTED_PROPERTIES_FIELD, indexNestedProperties);

@@ -103,7 +103,7 @@ public final class SchemaToProtoConverter {
                     .setSchemaType(documentProperty.getSchemaType())
                     .setDocumentIndexingConfig(
                             DocumentIndexingConfig.newBuilder().setIndexNestedProperties(
-                                    documentProperty.isIndexNestedProperties()));
+                                    documentProperty.shouldIndexNestedProperties()));
         }
         return builder.build();
     }
@@ -177,7 +177,7 @@ public final class SchemaToProtoConverter {
         return new AppSearchSchema.DocumentPropertyConfig.Builder(
                 proto.getPropertyName(), proto.getSchemaType())
                 .setCardinality(proto.getCardinality().getNumber())
-                .setIndexNestedProperties(
+                .setShouldIndexNestedProperties(
                         proto.getDocumentIndexingConfig().getIndexNestedProperties())
                 .build();
     }

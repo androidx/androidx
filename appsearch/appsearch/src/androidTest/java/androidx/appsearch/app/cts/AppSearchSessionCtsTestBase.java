@@ -2623,4 +2623,55 @@ public abstract class AppSearchSessionCtsTestBase {
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).containsExactly(inEmail4, inEmail2);
     }
+
+    @Test
+    public void testIndexNestedDocuments() throws Exception {
+        // Schema registration
+        mDb1.setSchema(new SetSchemaRequest.Builder()
+                .addSchemas(AppSearchEmail.SCHEMA)
+                .addSchemas(new AppSearchSchema.Builder("YesNestedIndex")
+                        .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                                "prop", AppSearchEmail.SCHEMA_TYPE)
+                                .setShouldIndexNestedProperties(true)
+                                .build())
+                        .build())
+                .addSchemas(new AppSearchSchema.Builder("NoNestedIndex")
+                        .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                                "prop", AppSearchEmail.SCHEMA_TYPE)
+                                .setShouldIndexNestedProperties(false)
+                                .build())
+                        .build())
+                .build())
+                .get();
+
+        // Index the documents.
+        AppSearchEmail email = new AppSearchEmail.Builder("", "")
+                .setSubject("This is the body")
+                .build();
+        GenericDocument yesNestedIndex =
+                new GenericDocument.Builder<>("namespace", "yesNestedIndex", "YesNestedIndex")
+                        .setPropertyDocument("prop", email)
+                        .build();
+        GenericDocument noNestedIndex =
+                new GenericDocument.Builder<>("namespace", "noNestedIndex", "NoNestedIndex")
+                        .setPropertyDocument("prop", email)
+                        .build();
+        checkIsBatchResultSuccess(mDb1.put(new PutDocumentsRequest.Builder()
+                .addGenericDocuments(yesNestedIndex, noNestedIndex).build()));
+
+        // Query.
+        SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setSnippetCount(10)
+                .setSnippetCountPerProperty(10)
+                .build());
+        List<SearchResult> page = searchResults.getNextPage().get();
+        assertThat(page).hasSize(1);
+        assertThat(page.get(0).getGenericDocument()).isEqualTo(yesNestedIndex);
+        List<SearchResult.MatchInfo> matches = page.get(0).getMatches();
+        assertThat(matches).hasSize(1);
+        assertThat(matches.get(0).getPropertyPath()).isEqualTo("prop.subject");
+        assertThat(matches.get(0).getFullText()).isEqualTo("This is the body");
+        assertThat(matches.get(0).getExactMatch()).isEqualTo("body");
+    }
 }

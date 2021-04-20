@@ -95,7 +95,7 @@ package androidx.appsearch.app {
 
   public static final class AppSearchSchema.DocumentPropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
     method public String getSchemaType();
-    method public boolean isIndexNestedProperties();
+    method public boolean shouldIndexNestedProperties();
   }
 
   public static final class AppSearchSchema.DocumentPropertyConfig.Builder {
@@ -103,8 +103,8 @@ package androidx.appsearch.app {
     ctor @Deprecated public AppSearchSchema.DocumentPropertyConfig.Builder(String);
     method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig build();
     method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setCardinality(int);
-    method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setIndexNestedProperties(boolean);
     method @Deprecated public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setSchemaType(String);
+    method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setShouldIndexNestedProperties(boolean);
   }
 
   public static final class AppSearchSchema.DoublePropertyConfig extends androidx.appsearch.app.AppSearchSchema.PropertyConfig {
