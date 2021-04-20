@@ -100,10 +100,8 @@ package androidx.appsearch.app {
 
   public static final class AppSearchSchema.DocumentPropertyConfig.Builder {
     ctor public AppSearchSchema.DocumentPropertyConfig.Builder(String, String);
-    ctor @Deprecated public AppSearchSchema.DocumentPropertyConfig.Builder(String);
     method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig build();
     method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setCardinality(int);
-    method @Deprecated public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setSchemaType(String);
     method public androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig.Builder setShouldIndexNestedProperties(boolean);
   }
 
@@ -307,9 +305,7 @@ package androidx.appsearch.app {
 
   public static final class ReportUsageRequest.Builder {
     ctor public ReportUsageRequest.Builder(String, String);
-    ctor @Deprecated public ReportUsageRequest.Builder(String);
     method public androidx.appsearch.app.ReportUsageRequest build();
-    method @Deprecated public androidx.appsearch.app.ReportUsageRequest.Builder setDocumentId(String);
     method public androidx.appsearch.app.ReportUsageRequest.Builder setUsageTimestampMillis(long);
   }
 
