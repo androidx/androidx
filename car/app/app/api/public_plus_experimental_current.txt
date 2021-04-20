@@ -922,7 +922,9 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.CarColor? getBackgroundColor();
     method public androidx.car.app.navigation.model.TravelEstimate? getDestinationTravelEstimate();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.ActionStrip? getMapActionStrip();
     method public androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo? getNavigationInfo();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public boolean isInPanMode();
   }
 
   public static final class NavigationTemplate.Builder {
@@ -931,6 +933,8 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.NavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.navigation.model.NavigationTemplate.Builder setBackgroundColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.navigation.model.NavigationTemplate.Builder setDestinationTravelEstimate(androidx.car.app.navigation.model.TravelEstimate);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.navigation.model.NavigationTemplate.Builder setInPanMode(boolean);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.navigation.model.NavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.navigation.model.NavigationTemplate.Builder setNavigationInfo(androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo);
   }
 

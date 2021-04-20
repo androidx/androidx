@@ -27,6 +27,7 @@ import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
+import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +42,11 @@ import java.util.concurrent.TimeUnit;
 public class NavigationTemplateTest {
     private final ActionStrip mActionStrip =
             new ActionStrip.Builder().addAction(TestUtils.createAction("test", null)).build();
+    private final ActionStrip mMapActionStrip =
+            new ActionStrip.Builder().addAction(
+                    TestUtils.createAction(null, TestUtils.getTestCarIcon(
+                            ApplicationProvider.getApplicationContext(),
+                            "ic_test_1"))).build();
     private final Maneuver mManeuver =
             new Maneuver.Builder(Maneuver.TYPE_FERRY_BOAT).setIcon(CarIcon.APP_ICON).build();
     private final Step mCurrentStep =
@@ -51,6 +57,12 @@ public class NavigationTemplateTest {
     @Test
     public void noActionStrip_throws() {
         assertThrows(IllegalStateException.class, () -> new NavigationTemplate.Builder().build());
+    }
+
+    @Test
+    public void textButtonInMapActionStrip_throws() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new NavigationTemplate.Builder().setMapActionStrip(mActionStrip));
     }
 
     /** Tests basic construction of a template with a minimal data. */
@@ -94,6 +106,8 @@ public class NavigationTemplateTest {
                         .setBackgroundColor(CarColor.BLUE)
                         .setDestinationTravelEstimate(travelEstimate)
                         .setActionStrip(mActionStrip)
+                        .setMapActionStrip(mMapActionStrip)
+                        .setInPanMode(true)
                         .build();
         RoutingInfo routingInfo = (RoutingInfo) template.getNavigationInfo();
         assertThat(routingInfo.getCurrentStep()).isEqualTo(mCurrentStep);
@@ -102,6 +116,8 @@ public class NavigationTemplateTest {
         assertThat(template.getBackgroundColor()).isEqualTo(CarColor.BLUE);
         assertThat(template.getDestinationTravelEstimate()).isEqualTo(travelEstimate);
         assertThat(template.getActionStrip()).isEqualTo(mActionStrip);
+        assertThat(template.getMapActionStrip()).isEqualTo(mMapActionStrip);
+        assertThat(template.isInPanMode()).isEqualTo(true);
     }
 
     @Test
@@ -127,6 +143,7 @@ public class NavigationTemplateTest {
         NavigationTemplate template =
                 new NavigationTemplate.Builder()
                         .setActionStrip(mActionStrip)
+                        .setMapActionStrip(mMapActionStrip)
                         .setDestinationTravelEstimate(travelEstimate)
                         .setNavigationInfo(
                                 new RoutingInfo.Builder()
@@ -135,12 +152,14 @@ public class NavigationTemplateTest {
                                         .setNextStep(currentStep)
                                         .build())
                         .setBackgroundColor(CarColor.BLUE)
+                        .setInPanMode(true)
                         .build();
 
         assertThat(template)
                 .isEqualTo(
                         new NavigationTemplate.Builder()
                                 .setActionStrip(mActionStrip)
+                                .setMapActionStrip(mMapActionStrip)
                                 .setDestinationTravelEstimate(travelEstimate)
                                 .setNavigationInfo(
                                         new RoutingInfo.Builder()
@@ -149,6 +168,7 @@ public class NavigationTemplateTest {
                                                 .setNextStep(currentStep)
                                                 .build())
                                 .setBackgroundColor(CarColor.BLUE)
+                                .setInPanMode(true)
                                 .build());
     }
 
@@ -163,6 +183,22 @@ public class NavigationTemplateTest {
                                 .setActionStrip(
                                         new ActionStrip.Builder().addAction(
                                                 TestUtils.createAction("title2", null)).build())
+                                .build());
+    }
+
+    @Test
+    public void notEquals_differentMapActionStrip() {
+        NavigationTemplate template = new NavigationTemplate.Builder().setActionStrip(
+                mActionStrip).setMapActionStrip(mMapActionStrip).build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new NavigationTemplate.Builder()
+                                .setActionStrip(mActionStrip)
+                                .setMapActionStrip(new ActionStrip.Builder().addAction(
+                                        TestUtils.createAction(null, TestUtils.getTestCarIcon(
+                                                ApplicationProvider.getApplicationContext(),
+                                                "ic_test_2"))).build())
                                 .build());
     }
 
