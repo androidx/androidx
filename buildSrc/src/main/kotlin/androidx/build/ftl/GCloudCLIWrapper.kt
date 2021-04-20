@@ -113,7 +113,6 @@ internal class GCloudCLIWrapper(
         )
         // finally, write the command response into the folder as well
         val testResultOutput = params.resultsLocalDir.resolve(TEST_OUTPUT_FILE_NAME)
-        val gson = Gson()
         testResultOutput.bufferedWriter(Charsets.UTF_8).use {
             gson.toJson(
                 testResults,
