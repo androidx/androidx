@@ -186,7 +186,7 @@ internal class GCloudCLIWrapper(
         /**
          * The GS Bucket directory where the results will be saved
          */
-        val resultsBucketDir: String = makeResultsDir(projectPath),
+        val resultsBucketDir: String = buildRelativeResultDirPath(projectPath),
         /**
          * The local folder where we will download the test results
          */
@@ -209,13 +209,13 @@ internal class GCloudCLIWrapper(
             const val TEST_OUTPUT_FILE_NAME = "testResults.json"
 
             /**
-             * Generates a folder for test results.
+             * Generates a relative path for test results.
              *
              * If run on Github Actions CI, this method will use the environment variables to
              * create a unique path for the action.
              * If run locally, this will create a random UUID for the folder.
              */
-            fun makeResultsDir(
+            private fun buildRelativeResultDirPath(
                 projectPath: String
             ): String {
                 // github action env variables:
