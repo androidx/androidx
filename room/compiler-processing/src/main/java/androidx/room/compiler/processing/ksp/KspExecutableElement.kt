@@ -46,7 +46,7 @@ internal abstract class KspExecutableElement(
         arrayOf(containing, declaration)
     }
 
-    override val enclosingTypeElement: XTypeElement by lazy {
+    override val enclosingElement: XTypeElement by lazy {
         declaration.requireEnclosingTypeElement(env)
     }
 

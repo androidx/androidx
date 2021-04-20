@@ -38,11 +38,11 @@ internal class JavacConstructorElement(
         }
     }
 
-    override val enclosingTypeElement: XTypeElement by lazy {
+    override val enclosingElement: XTypeElement by lazy {
         element.requireEnclosingType(env)
     }
 
     override val kotlinMetadata: KmConstructor? by lazy {
-        (enclosingTypeElement as? JavacTypeElement)?.kotlinMetadata?.getConstructorMetadata(element)
+        (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getConstructorMetadata(element)
     }
 }
