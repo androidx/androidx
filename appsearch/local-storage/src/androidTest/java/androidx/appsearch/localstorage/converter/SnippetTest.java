@@ -208,7 +208,8 @@ public class SnippetTest {
                                         .addStringValues("Test Name Jr."))
                                 .addProperties(PropertyProto.newBuilder()
                                         .setName("email")
-                                        .addStringValues("TestNameJr@gmail.com"))))
+                                        .addStringValues("TestNameJr@gmail.com")
+                                        .addStringValues("TestNameJr2@gmail.com"))))
                 .build();
         SnippetProto snippetProto = SnippetProto.newBuilder()
                 .addEntries(SnippetProto.EntryProto.newBuilder()
@@ -219,12 +220,12 @@ public class SnippetTest {
                                 .setWindowPosition(0)
                                 .setWindowBytes(9)))
                 .addEntries(SnippetProto.EntryProto.newBuilder()
-                        .setPropertyName("sender.email")
+                        .setPropertyName("sender.email[1]")
                         .addSnippetMatches(SnippetMatchProto.newBuilder()
                                 .setExactMatchPosition(0)
-                                .setExactMatchBytes(20)
+                                .setExactMatchBytes(21)
                                 .setWindowPosition(0)
-                                .setWindowBytes(20)))
+                                .setWindowBytes(21)))
                 .build();
         SearchResultProto searchResultProto = SearchResultProto.newBuilder()
                 .addResults(SearchResultProto.ResultProto.newBuilder()
@@ -250,13 +251,13 @@ public class SnippetTest {
         assertThat(match1.getSnippet()).isEqualTo("Test Name");
 
         SearchResult.MatchInfo match2 = searchResultPage.getResults().get(0).getMatches().get(1);
-        assertThat(match2.getPropertyPath()).isEqualTo("sender.email");
-        assertThat(match2.getFullText()).isEqualTo("TestNameJr@gmail.com");
+        assertThat(match2.getPropertyPath()).isEqualTo("sender.email[1]");
+        assertThat(match2.getFullText()).isEqualTo("TestNameJr2@gmail.com");
         assertThat(match2.getExactMatchRange()).isEqualTo(
-                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/20));
-        assertThat(match2.getExactMatch()).isEqualTo("TestNameJr@gmail.com");
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/21));
+        assertThat(match2.getExactMatch()).isEqualTo("TestNameJr2@gmail.com");
         assertThat(match2.getSnippetRange()).isEqualTo(
-                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/20));
-        assertThat(match2.getSnippet()).isEqualTo("TestNameJr@gmail.com");
+                new SearchResult.MatchRange(/*lower=*/0, /*upper=*/21));
+        assertThat(match2.getSnippet()).isEqualTo("TestNameJr2@gmail.com");
     }
 }

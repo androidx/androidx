@@ -233,7 +233,8 @@ public class GenericDocument {
      *
      * <p>A path can be a simple property name, such as those returned by {@link #getPropertyNames}.
      * It may also be a dot-delimited path through the nested document hierarchy, with nested
-     * {@link GenericDocument} properties accessed via {@code '.'}.
+     * {@link GenericDocument} properties accessed via {@code '.'} and repeated properties
+     * optionally indexed into via {@code [n]}.
      *
      * <p>For example, given the following {@link GenericDocument}:
      * <pre>
@@ -257,6 +258,11 @@ public class GenericDocument {
      *     one element
      *     <li>{@code "to"} returns the two nested documents containing contact information as a
      *     {@link GenericDocument} array with two elements
+     *     <li>{@code "to[1]"} returns the second nested document containing Marie Curie's
+     *     contact information as a {@link GenericDocument} array with one element
+     *     <li>{@code "to[1].email"} returns {@code "curie@example.com"}
+     *     <li>{@code "to[100].email"} returns {@code null} as this particular document does not
+     *     have that many elements in its {@code "to"} array.
      *     <li>{@code "to.email"} aggregates emails across all nested documents that have them,
      *     returning {@code ["einstein@example.com", "curie@example.com"]} as a {@link String}
      *     array with two elements.
@@ -350,7 +356,16 @@ public class GenericDocument {
         Bundle properties = Preconditions.checkNotNull(documentBundle.getBundle(PROPERTIES_FIELD));
 
         // Determine whether the path is just a raw property name with no control characters
-        int controlIdx = path.indexOf('.');
+        int controlIdx = -1;
+        boolean controlIsIndex = false;
+        for (int i = 0; i < path.length(); i++) {
+            char c = path.charAt(i);
+            if (c == '[' || c == '.') {
+                controlIdx = i;
+                controlIsIndex = c == '[';
+                break;
+            }
+        }
 
         // Look up the value of the first path element
         Object firstElementValue;
@@ -361,12 +376,86 @@ public class GenericDocument {
             firstElementValue = properties.get(name);
         }
 
-        // If this path has no further elements, we're done.
+        // If the path has no further elements, we're done.
         if (firstElementValue == null || controlIdx == -1) {
             return firstElementValue;
         }
-        String remainingPath = path.substring(controlIdx + 1);
-        if (remainingPath.isEmpty()) {
+
+        // At this point, for a path like "recipients[0]", firstElementValue contains the value of
+        // "recipients". If the first element of the path is an indexed value, we now update
+        // firstElementValue to contain "recipients[0]" instead.
+        String remainingPath;
+        if (!controlIsIndex) {
+            // Remaining path is everything after the .
+            remainingPath = path.substring(controlIdx + 1);
+        } else {
+            int endBracketIdx = path.indexOf(']', controlIdx);
+            if (endBracketIdx == -1) {
+                throw new IllegalArgumentException("Malformed path (no ending ']'): " + path);
+            }
+            if (endBracketIdx + 1 < path.length() && path.charAt(endBracketIdx + 1) != '.') {
+                throw new IllegalArgumentException(
+                        "Malformed path (']' not followed by '.'): " + path);
+            }
+            String indexStr = path.substring(controlIdx + 1, endBracketIdx);
+            int index = Integer.parseInt(indexStr);
+            if (index < 0) {
+                throw new IllegalArgumentException("Path index less than 0: " + path);
+            }
+
+            // Remaining path is everything after the [n]
+            if (endBracketIdx + 1 < path.length()) {
+                // More path remains, and we've already checked that charAt(endBracketIdx+1) == .
+                remainingPath = path.substring(endBracketIdx + 2);
+            } else {
+                // No more path remains.
+                remainingPath = null;
+            }
+
+            // Extract the right array element
+            Object extractedValue = null;
+            if (firstElementValue instanceof String[]) {
+                String[] stringValues = (String[]) firstElementValue;
+                if (index < stringValues.length) {
+                    extractedValue = Arrays.copyOfRange(stringValues, index, index + 1);
+                }
+            } else if (firstElementValue instanceof long[]) {
+                long[] longValues = (long[]) firstElementValue;
+                if (index < longValues.length) {
+                    extractedValue = Arrays.copyOfRange(longValues, index, index + 1);
+                }
+            } else if (firstElementValue instanceof double[]) {
+                double[] doubleValues = (double[]) firstElementValue;
+                if (index < doubleValues.length) {
+                    extractedValue = Arrays.copyOfRange(doubleValues, index, index + 1);
+                }
+            } else if (firstElementValue instanceof boolean[]) {
+                boolean[] booleanValues = (boolean[]) firstElementValue;
+                if (index < booleanValues.length) {
+                    extractedValue = Arrays.copyOfRange(booleanValues, index, index + 1);
+                }
+            } else if (firstElementValue instanceof List) {
+                @SuppressWarnings("unchecked")
+                List<Bundle> bundles = (List<Bundle>) firstElementValue;
+                if (index < bundles.size()) {
+                    extractedValue = bundles.subList(index, index + 1);
+                }
+            } else if (firstElementValue instanceof Parcelable[]) {
+                // Special optimization: to avoid creating new singleton arrays for traversing paths
+                // we return the bare document Bundle in this particular case.
+                Parcelable[] bundles = (Parcelable[]) firstElementValue;
+                if (index < bundles.length) {
+                    extractedValue = (Bundle) bundles[index];
+                }
+            } else {
+                throw new IllegalStateException("Unsupported value type: " + firstElementValue);
+            }
+            firstElementValue = extractedValue;
+        }
+
+        // If we are at the end of the path or there are no deeper elements in this document, we
+        // have nothing to recurse into.
+        if (firstElementValue == null || remainingPath == null) {
             return firstElementValue;
         }
 
