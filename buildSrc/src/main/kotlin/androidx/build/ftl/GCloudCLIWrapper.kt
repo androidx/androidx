@@ -136,11 +136,11 @@ internal class GCloudCLIWrapper(
         if (result.exitValue != 0) {
             throw GradleException(
                 """
-                    Unable to find $name CLI executable.
-                    `which $name` returned exit code ${result.exitValue}.
-                    Make sure gcloud CLI is installed, authenticated and is part of your PATH.
-                    See https://cloud.google.com/sdk/gcloud for installation instructions.
-                    """.trimIndent()
+                Unable to find $name CLI executable.
+                `which $name` returned exit code ${result.exitValue}.
+                Make sure gcloud CLI is installed, authenticated and is part of your PATH.
+                See https://cloud.google.com/sdk/gcloud for installation instructions.
+                """.trimIndent()
             )
         }
         return output.toString(Charsets.UTF_8).trim()
