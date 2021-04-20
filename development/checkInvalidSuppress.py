@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 #
 # Copyright 2019, The Android Open Source Project
@@ -35,7 +35,7 @@ MATCHERS = {
 
 ## Check a line for any invalid suppressions, and return it if found
 def getReportForLine(filename, i, line, lines):
-  for bad, good in MATCHERS.iteritems():
+  for bad, good in MATCHERS.items():
     if bad in line:
       context = "".join(lines[i:i+3])
       return "\n{}:{}:\nError: unsupported comment suppression\n{}Instead, use: {}\n".format(
