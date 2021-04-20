@@ -50,6 +50,7 @@ class ExportToFramework:
     def __init__(self, jetpack_appsearch_root, framework_appsearch_root):
         self._jetpack_appsearch_root = jetpack_appsearch_root
         self._framework_appsearch_root = framework_appsearch_root
+        self._written_files = []
 
     def _PruneDir(self, dir_to_prune):
         for walk_path, walk_folders, walk_files in os.walk(dir_to_prune):
@@ -74,18 +75,27 @@ class ExportToFramework:
         with open(dest_path, 'w') as fh:
             fh.write(contents)
 
-        # Run formatter
-        google_java_format_cmd = [GOOGLE_JAVA_FORMAT, '--aosp', '-i', dest_path]
-        print('$ ' + ' '.join(google_java_format_cmd))
-        subprocess.check_call(google_java_format_cmd, cwd=self._framework_appsearch_root)
+        # Save file for future formatting
+        self._written_files.append(dest_path)
 
     def _TransformCommonCode(self, contents):
-        # Apply strips
+        # Apply stripping
         contents = re.sub(
                 r'\/\/ @exportToFramework:startStrip\(\).*?\/\/ @exportToFramework:endStrip\(\)',
                 '',
                 contents,
                 flags=re.DOTALL)
+
+        # Add additional imports if required
+        imports_to_add = []
+        if '@exportToFramework:CurrentTimeMillisLong' in contents:
+            imports_to_add.append('android.annotation.CurrentTimeMillisLong')
+        for import_to_add in imports_to_add:
+            contents = re.sub(
+                    r'^(\s*package [^;]+;\s*)$', r'\1\nimport %s;\n' % import_to_add, contents,
+                    flags=re.MULTILINE)
+
+        # Apply in-place replacements
         return (contents
             .replace('androidx.appsearch.app', 'android.app.appsearch')
             .replace(
@@ -114,6 +124,7 @@ class ExportToFramework:
             .replace('@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)', '')
             .replace('Preconditions.checkNotNull(', 'Objects.requireNonNull(')
             .replace('ObjectsCompat.', 'Objects.')
+            .replace('/*@exportToFramework:CurrentTimeMillisLong*/', '@CurrentTimeMillisLong')
             .replace('// @exportToFramework:skipFile()', '')
         )
 
@@ -257,9 +268,15 @@ class ExportToFramework:
         self._TransformAndCopyFolder(
                 impl_test_source_dir, impl_test_dest_dir, transform_func=_TransformImplTestCode)
 
+    def _FormatWrittenFiles(self):
+        google_java_format_cmd = [GOOGLE_JAVA_FORMAT, '--aosp', '-i'] + self._written_files
+        print('$ ' + ' '.join(google_java_format_cmd))
+        subprocess.check_call(google_java_format_cmd, cwd=self._framework_appsearch_root)
+
     def ExportCode(self):
         self._ExportApiCode()
         self._ExportImplCode()
+        self._FormatWrittenFiles()
 
     def WriteChangeIdFile(self, changeid):
         """Copies the changeid of the most recent public CL into a file on the framework side.
