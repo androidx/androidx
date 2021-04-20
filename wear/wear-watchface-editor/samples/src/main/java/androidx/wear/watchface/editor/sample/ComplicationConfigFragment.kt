@@ -16,14 +16,11 @@
 
 package androidx.wear.watchface.editor.sample
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
-import android.support.wearable.watchface.Constants
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -61,15 +58,6 @@ internal class ComplicationConfigFragment : Fragment() {
                     }
                 }
             )
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == Constants.PROVIDER_CHOOSER_REQUEST_CODE &&
-            resultCode == Activity.RESULT_OK
-        ) {
-            // Exit the configuration flow.
-            activity?.finish()
         }
     }
 }
