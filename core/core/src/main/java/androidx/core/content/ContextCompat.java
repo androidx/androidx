@@ -84,11 +84,13 @@ import android.app.usage.UsageStatsManager;
 import android.appwidget.AppWidgetManager;
 import android.bluetooth.BluetoothManager;
 import android.content.ClipboardManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.RestrictionsManager;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherApps;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.hardware.ConsumerIrManager;
@@ -115,6 +117,7 @@ import android.os.DropBoxManager;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.Process;
+import android.os.StatFs;
 import android.os.UserManager;
 import android.os.Vibrator;
 import android.os.storage.StorageManager;
@@ -133,9 +136,11 @@ import android.view.textservice.TextServicesManager;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.os.EnvironmentCompat;
@@ -146,7 +151,7 @@ import java.util.HashMap;
 import java.util.concurrent.Executor;
 
 /**
- * Helper for accessing features in {@link android.content.Context}.
+ * Helper for accessing features in {@link Context}.
  */
 public class ContextCompat {
     private static final String TAG = "ContextCompat";
@@ -173,7 +178,7 @@ public class ContextCompat {
     @Nullable
     public static String getAttributionTag(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 30) {
-            return context.getAttributionTag();
+            return Api30Impl.getAttributionTag(context);
         }
 
         return null;
@@ -232,13 +237,13 @@ public class ContextCompat {
      * @param intents Array of intents defining the activities that will be started. The element
      *                length-1 will correspond to the top activity on the resulting task stack.
      * @param options Additional options for how the Activity should be started.
-     * See {@link android.content.Context#startActivity(Intent, android.os.Bundle)}
+     *                See {@link Context#startActivity(Intent, Bundle)}
      * @return true if the underlying API was available and the call was successful, false otherwise
      */
     public static boolean startActivities(@NonNull Context context, @NonNull Intent[] intents,
             @Nullable Bundle options) {
         if (Build.VERSION.SDK_INT >= 16) {
-            context.startActivities(intents, options);
+            Api16Impl.startActivities(context, intents, options);
         } else {
             context.startActivities(intents);
         }
@@ -255,7 +260,7 @@ public class ContextCompat {
      * not exist the activity will be launched normally.</p>
      *
      * @param context Context to launch activity from.
-     * @param intent The description of the activity to start.
+     * @param intent  The description of the activity to start.
      * @param options Additional options for how the Activity should be started.
      *                May be null if there are no options. See
      *                {@link ActivityOptionsCompat} for how to build the Bundle
@@ -265,7 +270,7 @@ public class ContextCompat {
     public static void startActivity(@NonNull Context context, @NonNull Intent intent,
             @Nullable Bundle options) {
         if (Build.VERSION.SDK_INT >= 16) {
-            context.startActivity(intent, options);
+            Api16Impl.startActivity(context, intent, options);
         } else {
             context.startActivity(intent);
         }
@@ -289,7 +294,7 @@ public class ContextCompat {
     @Nullable
     public static File getDataDir(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
-            return context.getDataDir();
+            return Api24Impl.getDataDir(context);
         } else {
             final String dataDir = context.getApplicationInfo().dataDir;
             return dataDir != null ? new File(dataDir) : null;
@@ -318,9 +323,9 @@ public class ContextCompat {
      * <p>
      * An application may store data on any or all of the returned devices. For
      * example, an app may choose to store large files on the device with the
-     * most available space, as measured by {@link android.os.StatFs}.
+     * most available space, as measured by {@link StatFs}.
      * <p>
-     * Starting in {@link android.os.Build.VERSION_CODES#KITKAT}, no permissions
+     * Starting in {@link Build.VERSION_CODES#KITKAT}, no permissions
      * are required to write to the returned paths; they're always accessible to
      * the calling app. Before then,
      * {@link android.Manifest.permission#WRITE_EXTERNAL_STORAGE} is required to
@@ -342,9 +347,9 @@ public class ContextCompat {
     @NonNull
     public static File[] getObbDirs(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 19) {
-            return context.getObbDirs();
+            return Api19Impl.getObbDirs(context);
         } else {
-            return new File[] { context.getObbDir() };
+            return new File[]{context.getObbDir()};
         }
     }
 
@@ -370,9 +375,9 @@ public class ContextCompat {
      * <p>
      * An application may store data on any or all of the returned devices. For
      * example, an app may choose to store large files on the device with the
-     * most available space, as measured by {@link android.os.StatFs}.
+     * most available space, as measured by {@link StatFs}.
      * <p>
-     * Starting in {@link android.os.Build.VERSION_CODES#KITKAT}, no permissions
+     * Starting in {@link Build.VERSION_CODES#KITKAT}, no permissions
      * are required to write to the returned paths; they're always accessible to
      * the calling app. Before then,
      * {@link android.Manifest.permission#WRITE_EXTERNAL_STORAGE} is required to
@@ -395,9 +400,9 @@ public class ContextCompat {
     @NonNull
     public static File[] getExternalFilesDirs(@NonNull Context context, @Nullable String type) {
         if (Build.VERSION.SDK_INT >= 19) {
-            return context.getExternalFilesDirs(type);
+            return Api19Impl.getExternalFilesDirs(context, type);
         } else {
-            return new File[] { context.getExternalFilesDir(type) };
+            return new File[]{context.getExternalFilesDir(type)};
         }
     }
 
@@ -423,9 +428,9 @@ public class ContextCompat {
      * <p>
      * An application may store data on any or all of the returned devices. For
      * example, an app may choose to store large files on the device with the
-     * most available space, as measured by {@link android.os.StatFs}.
+     * most available space, as measured by {@link StatFs}.
      * <p>
-     * Starting in {@link android.os.Build.VERSION_CODES#KITKAT}, no permissions
+     * Starting in {@link Build.VERSION_CODES#KITKAT}, no permissions
      * are required to write to the returned paths; they're always accessible to
      * the calling app. Before then,
      * {@link android.Manifest.permission#WRITE_EXTERNAL_STORAGE} is required to
@@ -448,16 +453,16 @@ public class ContextCompat {
     @NonNull
     public static File[] getExternalCacheDirs(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 19) {
-            return context.getExternalCacheDirs();
+            return Api19Impl.getExternalCacheDirs(context);
         } else {
-            return new File[] { context.getExternalCacheDir() };
+            return new File[]{context.getExternalCacheDir()};
         }
     }
 
     /**
      * Returns a drawable object associated with a particular resource ID.
      * <p>
-     * Starting in {@link android.os.Build.VERSION_CODES#LOLLIPOP}, the
+     * Starting in {@link Build.VERSION_CODES#LOLLIPOP}, the
      * returned drawable will be styled for the specified Context's theme.
      *
      * @param id The desired resource identifier, as generated by the aapt tool.
@@ -469,7 +474,7 @@ public class ContextCompat {
     @Nullable
     public static Drawable getDrawable(@NonNull Context context, @DrawableRes int id) {
         if (Build.VERSION.SDK_INT >= 21) {
-            return context.getDrawable(id);
+            return Api21Impl.getDrawable(context, id);
         } else if (Build.VERSION.SDK_INT >= 16) {
             return context.getResources().getDrawable(id);
         } else {
@@ -492,14 +497,14 @@ public class ContextCompat {
     /**
      * Returns a color state list associated with a particular resource ID.
      * <p>
-     * Starting in {@link android.os.Build.VERSION_CODES#M}, the returned
+     * Starting in {@link Build.VERSION_CODES#M}, the returned
      * color state list will be styled for the specified Context's theme.
      *
      * @param id The desired resource identifier, as generated by the aapt
      *           tool. This integer encodes the package, type, and resource
      *           entry. The value 0 is an invalid identifier.
      * @return A color state list, or {@code null} if the resource could not be
-     *         resolved.
+     * resolved.
      * @throws android.content.res.Resources.NotFoundException if the given ID
      *         does not exist.
      */
@@ -511,7 +516,7 @@ public class ContextCompat {
     /**
      * Returns a color associated with a particular resource ID
      * <p>
-     * Starting in {@link android.os.Build.VERSION_CODES#M}, the returned
+     * Starting in {@link Build.VERSION_CODES#M}, the returned
      * color will be styled for the specified Context's theme.
      *
      * @param id The desired resource identifier, as generated by the aapt
@@ -525,7 +530,7 @@ public class ContextCompat {
     @ColorInt
     public static int getColor(@NonNull Context context, @ColorRes int id) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return context.getColor(id);
+            return Api23Impl.getColor(context, id);
         } else {
             return context.getResources().getColor(id);
         }
@@ -535,38 +540,35 @@ public class ContextCompat {
      * Determine whether <em>you</em> have been granted a particular permission.
      *
      * @param permission The name of the permission being checked.
-     *
-     * @return {@link android.content.pm.PackageManager#PERMISSION_GRANTED} if you have the
-     * permission, or {@link android.content.pm.PackageManager#PERMISSION_DENIED} if not.
-     *
-     * @see android.content.pm.PackageManager#checkPermission(String, String)
+     * @return {@link PackageManager#PERMISSION_GRANTED} if you have the
+     * permission, or {@link PackageManager#PERMISSION_DENIED} if not.
+     * @see PackageManager#checkPermission(String, String)
      */
     public static int checkSelfPermission(@NonNull Context context, @NonNull String permission) {
         if (permission == null) {
             throw new IllegalArgumentException("permission is null");
         }
 
-        return context.checkPermission(permission, android.os.Process.myPid(), Process.myUid());
+        return context.checkPermission(permission, Process.myPid(), Process.myUid());
     }
 
     /**
      * Returns the absolute path to the directory on the filesystem similar to
      * {@link Context#getFilesDir()}.  The difference is that files placed under this
      * directory will be excluded from automatic backup to remote storage on
-     * devices running {@link android.os.Build.VERSION_CODES#LOLLIPOP} or later.
+     * devices running {@link Build.VERSION_CODES#LOLLIPOP} or later.
      *
      * <p>No permissions are required to read or write to the returned path, since this
      * path is internal storage.
      *
      * @return The path of the directory holding application files that will not be
-     *         automatically backed up to remote storage.
-     *
-     * @see android.content.Context#getFilesDir()
+     * automatically backed up to remote storage.
+     * @see Context#getFilesDir()
      */
     @Nullable
     public static File getNoBackupFilesDir(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 21) {
-            return context.getNoBackupFilesDir();
+            return Api21Impl.getNoBackupFilesDir(context);
         } else {
             ApplicationInfo appInfo = context.getApplicationInfo();
             return createFilesDir(new File(appInfo.dataDir, "no_backup"));
@@ -576,7 +578,7 @@ public class ContextCompat {
     /**
      * Returns the absolute path to the application specific cache directory on
      * the filesystem designed for storing cached code. On devices running
-     * {@link android.os.Build.VERSION_CODES#LOLLIPOP} or later, the system will delete
+     * {@link Build.VERSION_CODES#LOLLIPOP} or later, the system will delete
      * any files stored in this location both when your specific application is
      * upgraded, and when the entire platform is upgraded.
      * <p>
@@ -590,7 +592,7 @@ public class ContextCompat {
      */
     public static File getCodeCacheDir(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 21) {
-            return context.getCodeCacheDir();
+            return Api21Impl.getCodeCacheDir(context);
         } else {
             ApplicationInfo appInfo = context.getApplicationInfo();
             return createFilesDir(new File(appInfo.dataDir, "code_cache"));
@@ -645,7 +647,7 @@ public class ContextCompat {
     @Nullable
     public static Context createDeviceProtectedStorageContext(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
-            return context.createDeviceProtectedStorageContext();
+            return Api24Impl.createDeviceProtectedStorageContext(context);
         } else {
             return null;
         }
@@ -659,7 +661,7 @@ public class ContextCompat {
      */
     public static boolean isDeviceProtectedStorage(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
-            return context.isDeviceProtectedStorage();
+            return Api24Impl.isDeviceProtectedStorage(context);
         } else {
             return false;
         }
@@ -672,7 +674,7 @@ public class ContextCompat {
      */
     public static Executor getMainExecutor(Context context) {
         if (Build.VERSION.SDK_INT >= 28) {
-            return context.getMainExecutor();
+            return Api28Impl.getMainExecutor(context);
         }
         return ExecutorCompat.create(new Handler(context.getMainLooper()));
     }
@@ -682,14 +684,13 @@ public class ContextCompat {
      * for before O.
      *
      * @param context Context to start Service from.
-     * @param intent The description of the Service to start.
-     *
+     * @param intent  The description of the Service to start.
      * @see Context#startForegroundService(Intent)
      * @see Context#startService(Intent)
      */
     public static void startForegroundService(@NonNull Context context, @NonNull Intent intent) {
         if (Build.VERSION.SDK_INT >= 26) {
-            context.startForegroundService(intent);
+            Api26Impl.startForegroundService(context, intent);
         } else {
             // Pre-O behavior.
             context.startService(intent);
@@ -699,17 +700,16 @@ public class ContextCompat {
     /**
      * Return the handle to a system-level service by class.
      *
-     * @param context Context to retrieve service from.
+     * @param context      Context to retrieve service from.
      * @param serviceClass The class of the desired service.
      * @return The service or null if the class is not a supported system service.
-     *
      * @see Context#getSystemService(Class)
      */
     @SuppressWarnings("unchecked")
     @Nullable
     public static <T> T getSystemService(@NonNull Context context, @NonNull Class<T> serviceClass) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return context.getSystemService(serviceClass);
+            return Api23Impl.getSystemService(context, serviceClass);
         }
 
         String serviceName = getSystemServiceName(context, serviceClass);
@@ -719,17 +719,16 @@ public class ContextCompat {
     /**
      * Gets the name of the system-level service that is represented by the specified class.
      *
-     * @param context Context to retrieve service name from.
+     * @param context      Context to retrieve service name from.
      * @param serviceClass The class of the desired service.
      * @return The service name or null if the class is not a supported system service.
-     *
      * @see Context#getSystemServiceName(Class)
      */
     @Nullable
     public static String getSystemServiceName(@NonNull Context context,
             @NonNull Class<?> serviceClass) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return context.getSystemServiceName(serviceClass);
+            return Api23Impl.getSystemServiceName(context, serviceClass);
         }
         return LegacyServiceMapHolder.SERVICES.get(serviceClass);
     }
@@ -802,6 +801,152 @@ public class ContextCompat {
             SERVICES.put(WifiP2pManager.class, WIFI_P2P_SERVICE);
             SERVICES.put(WifiManager.class, WIFI_SERVICE);
             SERVICES.put(WindowManager.class, WINDOW_SERVICE);
+        }
+    }
+
+    @RequiresApi(16)
+    static class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void startActivities(Context obj, Intent[] intents, Bundle options) {
+            obj.startActivities(intents, options);
+        }
+
+        @DoNotInline
+        static void startActivity(Context obj, Intent intent, Bundle options) {
+            obj.startActivity(intent, options);
+        }
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static File[] getExternalCacheDirs(Context obj) {
+            return obj.getExternalCacheDirs();
+        }
+
+        @DoNotInline
+        static File[] getExternalFilesDirs(Context obj, String type) {
+            return obj.getExternalFilesDirs(type);
+        }
+
+        @DoNotInline
+        static File[] getObbDirs(Context obj) {
+            return obj.getObbDirs();
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Drawable getDrawable(Context obj, int id) {
+            return obj.getDrawable(id);
+        }
+
+        @DoNotInline
+        static File getNoBackupFilesDir(Context obj) {
+            return obj.getNoBackupFilesDir();
+        }
+
+        @DoNotInline
+        static File getCodeCacheDir(Context obj) {
+            return obj.getCodeCacheDir();
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static ColorStateList getColorStateList(Context obj, int id) {
+            return obj.getColorStateList(id);
+        }
+
+        @DoNotInline
+        static int getColor(Context obj, int id) {
+            return obj.getColor(id);
+        }
+
+        @DoNotInline
+        static <T> T getSystemService(Context obj, Class<T> serviceClass) {
+            return obj.getSystemService(serviceClass);
+        }
+
+        @DoNotInline
+        static String getSystemServiceName(Context obj, Class<?> serviceClass) {
+            return obj.getSystemServiceName(serviceClass);
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static File getDataDir(Context obj) {
+            return obj.getDataDir();
+        }
+
+        @DoNotInline
+        static Context createDeviceProtectedStorageContext(Context obj) {
+            return obj.createDeviceProtectedStorageContext();
+        }
+
+        @DoNotInline
+        static boolean isDeviceProtectedStorage(Context obj) {
+            return obj.isDeviceProtectedStorage();
+        }
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static ComponentName startForegroundService(Context obj, Intent service) {
+            return obj.startForegroundService(service);
+        }
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Executor getMainExecutor(Context obj) {
+            return obj.getMainExecutor();
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static String getAttributionTag(Context obj) {
+            return obj.getAttributionTag();
         }
     }
 }
