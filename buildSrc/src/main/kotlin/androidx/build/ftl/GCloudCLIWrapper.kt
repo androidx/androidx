@@ -106,12 +106,11 @@ internal class GCloudCLIWrapper(
             "--results-dir=${params.resultsBucketDir}",
             "--results-history-name=${params.projectPath}"
         )
-        // copy the test results from the bucket to the build folder
-        val localFolder = params.resultsLocalDir
+        // copy the test results from the bucket to the build directory
         execGsUtil(
-            "cp", "-r", params.cloudBucketPath() + "/*", localFolder.canonicalPath
+            "cp", "-r", params.cloudBucketPath() + "/*", params.resultsLocalDir.canonicalPath
         )
-        // finally, write the command response into the folder as well
+        // finally, write the command response into the directory as well
         val testResultOutput = params.resultsLocalDir.resolve(TEST_OUTPUT_FILE_NAME)
         testResultOutput.bufferedWriter(Charsets.UTF_8).use {
             gson.toJson(
@@ -188,7 +187,7 @@ internal class GCloudCLIWrapper(
          */
         val resultsBucketDir: String = buildRelativeResultDirPath(projectPath),
         /**
-         * The local folder where we will download the test results
+         * The local directory where we will download the test results
          */
         val resultsLocalDir: File,
     ) {
@@ -213,7 +212,7 @@ internal class GCloudCLIWrapper(
              *
              * If run on Github Actions CI, this method will use the environment variables to
              * create a unique path for the action.
-             * If run locally, this will create a random UUID for the folder.
+             * If run locally, this will create a random UUID for the directory.
              */
             private fun buildRelativeResultDirPath(
                 projectPath: String
