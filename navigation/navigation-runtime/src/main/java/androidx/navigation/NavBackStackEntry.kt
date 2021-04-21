@@ -42,7 +42,7 @@ import java.util.UUID
  * destination is popped off the back stack, the lifecycle will be destroyed, state
  * will no longer be saved, and ViewModels will be cleared.
  */
-public class NavBackStackEntry @JvmOverloads internal constructor(
+public class NavBackStackEntry internal constructor(
     private val context: Context,
     /**
      * Gets the destination associated with this entry
@@ -54,13 +54,13 @@ public class NavBackStackEntry @JvmOverloads internal constructor(
      * @return The arguments used when this entry was created
      */
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var arguments: Bundle?,
-    navControllerLifecycleOwner: LifecycleOwner?,
-    private val navControllerViewModel: NavControllerViewModel?,
+    public var arguments: Bundle? = null,
+    navControllerLifecycleOwner: LifecycleOwner? = null,
+    private val navControllerViewModel: NavControllerViewModel? = null,
     // Internal unique name for this navBackStackEntry;
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val id: UUID = UUID.randomUUID(),
-    savedState: Bundle? = null
+    private val savedState: Bundle? = null
 ) : LifecycleOwner,
     ViewModelStoreOwner,
     HasDefaultViewModelProviderFactory,
@@ -68,7 +68,7 @@ public class NavBackStackEntry @JvmOverloads internal constructor(
 
     private var lifecycle = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
-    private var hostLifecycle = Lifecycle.State.CREATED
+    private var hostLifecycleState = Lifecycle.State.CREATED
     private val defaultFactory by lazy {
         SavedStateViewModelFactory((context.applicationContext as Application), this, arguments)
     }
@@ -79,6 +79,11 @@ public class NavBackStackEntry @JvmOverloads internal constructor(
      * @return the SavedStateHandle for this entry
      */
     public val savedStateHandle: SavedStateHandle by lazy {
+        check(lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+            "You cannot access the NavBackStackEntry's SavedStateHandle until it is added to " +
+                "the NavController's back stack (i.e., the Lifecycle of the NavBackStackEntry " +
+                "reaches the CREATED state)."
+        }
         ViewModelProvider(
             this, NavResultSavedStateFactory(this, null)
         ).get(SavedStateViewModel::class.java).handle
@@ -101,15 +106,19 @@ public class NavBackStackEntry @JvmOverloads internal constructor(
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var maxLifecycle: Lifecycle.State = Lifecycle.State.RESUMED
+    public var maxLifecycle: Lifecycle.State = Lifecycle.State.INITIALIZED
         set(maxState) {
+            if (field == Lifecycle.State.INITIALIZED) {
+                // Perform the restore just when moving from the INITIALIZED state
+                savedStateRegistryController.performRestore(savedState)
+            }
             field = maxState
             updateState()
         }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun handleLifecycleEvent(event: Lifecycle.Event) {
-        hostLifecycle = event.targetState
+        hostLifecycleState = event.targetState
         updateState()
     }
 
@@ -118,8 +127,8 @@ public class NavBackStackEntry @JvmOverloads internal constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun updateState() {
-        if (hostLifecycle.ordinal < maxLifecycle.ordinal) {
-            lifecycle.currentState = hostLifecycle
+        if (hostLifecycleState.ordinal < maxLifecycle.ordinal) {
+            lifecycle.currentState = hostLifecycleState
         } else {
             lifecycle.currentState = maxLifecycle
         }
@@ -128,10 +137,16 @@ public class NavBackStackEntry @JvmOverloads internal constructor(
     /**
      * {@inheritDoc}
      *
-     * @throws IllegalStateException if called before the [NavHost] has called
+     * @throws IllegalStateException if called before the [lifecycle] has moved to
+     * [Lifecycle.State.CREATED] or before the [NavHost] has called
      * [NavHostController.setViewModelStore].
      */
     public override fun getViewModelStore(): ViewModelStore {
+        check(lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+            "You cannot access the NavBackStackEntry's ViewModels until it is added to " +
+                "the NavController's back stack (i.e., the Lifecycle of the NavBackStackEntry " +
+                "reaches the CREATED state)."
+        }
         checkNotNull(navControllerViewModel) {
             "You must call setViewModelStore() on your NavHostController before accessing the " +
                 "ViewModelStore of a navigation graph."
@@ -172,9 +187,8 @@ public class NavBackStackEntry @JvmOverloads internal constructor(
     private class SavedStateViewModel(val handle: SavedStateHandle) : ViewModel()
 
     init {
-        savedStateRegistryController.performRestore(savedState)
         if (navControllerLifecycleOwner != null) {
-            hostLifecycle = navControllerLifecycleOwner.lifecycle.currentState
+            hostLifecycleState = navControllerLifecycleOwner.lifecycle.currentState
         }
     }
 }
