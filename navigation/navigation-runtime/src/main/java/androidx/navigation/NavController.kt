@@ -1363,8 +1363,9 @@ public open class NavController(
         if (owner == lifecycleOwner) {
             return
         }
+        lifecycleOwner?.lifecycle?.removeObserver(lifecycleObserver)
         lifecycleOwner = owner
-        lifecycleOwner!!.lifecycle.addObserver(lifecycleObserver)
+        owner.lifecycle.addObserver(lifecycleObserver)
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
