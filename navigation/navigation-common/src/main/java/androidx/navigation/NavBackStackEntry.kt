@@ -36,13 +36,13 @@ import androidx.savedstate.SavedStateRegistryOwner
 import java.util.UUID
 
 /**
- * Representation of an entry in the back stack of a [NavController]. The
+ * Representation of an entry in the back stack of a [androidx.navigation.NavController]. The
  * [Lifecycle], [ViewModelStore], and [SavedStateRegistry] provided via
  * this object are valid for the lifetime of this destination on the back stack: when this
  * destination is popped off the back stack, the lifecycle will be destroyed, state
  * will no longer be saved, and ViewModels will be cleared.
  */
-public class NavBackStackEntry internal constructor(
+public class NavBackStackEntry private constructor(
     private val context: Context,
     /**
      * Gets the destination associated with this entry
@@ -65,6 +65,29 @@ public class NavBackStackEntry internal constructor(
     ViewModelStoreOwner,
     HasDefaultViewModelProviderFactory,
     SavedStateRegistryOwner {
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public companion object {
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun create(
+            context: Context,
+            destination: NavDestination,
+            arguments: Bundle? = null,
+            navControllerLifecycleOwner: LifecycleOwner? = null,
+            viewModelStoreProvider: NavViewModelStoreProvider? = null,
+            id: UUID = UUID.randomUUID(),
+            savedState: Bundle? = null
+        ): NavBackStackEntry = NavBackStackEntry(
+            context, destination, arguments,
+            navControllerLifecycleOwner, viewModelStoreProvider, id, savedState
+        )
+    }
 
     private var lifecycle = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
@@ -97,7 +120,8 @@ public class NavBackStackEntry internal constructor(
     /**
      * {@inheritDoc}
      *
-     * If the [NavHost] has not called [NavHostController.setLifecycleOwner], the
+     * If the [androidx.navigation.NavHost] has not called
+     * [androidx.navigation.NavHostController.setLifecycleOwner], the
      * Lifecycle will be capped at [Lifecycle.State.CREATED].
      */
     public override fun getLifecycle(): Lifecycle {
@@ -138,8 +162,8 @@ public class NavBackStackEntry internal constructor(
      * {@inheritDoc}
      *
      * @throws IllegalStateException if called before the [lifecycle] has moved to
-     * [Lifecycle.State.CREATED] or before the [NavHost] has called
-     * [NavHostController.setViewModelStore].
+     * [Lifecycle.State.CREATED] or before the [androidx.navigation.NavHost] has called
+     * [androidx.navigation.NavHostController.setViewModelStore].
      */
     public override fun getViewModelStore(): ViewModelStore {
         check(lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {

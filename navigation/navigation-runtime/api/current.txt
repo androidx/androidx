@@ -87,19 +87,6 @@ package androidx.navigation {
     method public static androidx.navigation.ActivityNavigator.Extras ActivityNavigatorExtras(optional androidx.core.app.ActivityOptionsCompat? activityOptions, optional int flags);
   }
 
-  public final class NavBackStackEntry implements androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
-    method public android.os.Bundle? getArguments();
-    method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
-    method public androidx.navigation.NavDestination getDestination();
-    method public androidx.lifecycle.Lifecycle getLifecycle();
-    method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
-    method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
-    method public androidx.lifecycle.ViewModelStore getViewModelStore();
-    property public final android.os.Bundle? arguments;
-    property public final androidx.navigation.NavDestination destination;
-    property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
-  }
-
   public class NavController {
     ctor public NavController(android.content.Context context);
     method public void addOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener listener);
