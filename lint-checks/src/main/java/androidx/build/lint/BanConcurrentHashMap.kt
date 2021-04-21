@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
 import com.android.tools.lint.client.api.UElementHandler
@@ -33,7 +35,7 @@ import org.jetbrains.uast.USimpleNameReferenceExpression
 
 class BanConcurrentHashMap : Detector(), Detector.UastScanner {
 
-    override fun getApplicableUastTypes(): List<Class<out UElement>>? = listOf(
+    override fun getApplicableUastTypes(): List<Class<out UElement>> = listOf(
         UImportStatement::class.java,
         UQualifiedReferenceExpression::class.java
     )
@@ -45,7 +47,7 @@ class BanConcurrentHashMap : Detector(), Detector.UastScanner {
         override fun visitQualifiedReferenceExpression(node: UQualifiedReferenceExpression) {
             if (node.selector is USimpleNameReferenceExpression) {
                 val name = node.selector as USimpleNameReferenceExpression
-                if (CONCURRENT_HASHMAP.equals(name.identifier)) {
+                if (CONCURRENT_HASHMAP == name.identifier) {
                     context.report(
                         ISSUE, node, context.getLocation(node),
                         "Detected " +
@@ -64,8 +66,8 @@ class BanConcurrentHashMap : Detector(), Detector.UastScanner {
                 } else if (resolved is PsiMethod) {
                     resolved = resolved.containingClass
                 }
-                if (resolved is PsiClass && CONCURRENT_HASHMAP_QUALIFIED_NAME
-                    .equals(resolved.qualifiedName)
+                if (resolved is PsiClass &&
+                    CONCURRENT_HASHMAP_QUALIFIED_NAME == resolved.qualifiedName
                 ) {
                     context.report(
                         ISSUE, node, context.getLocation(node),
@@ -89,7 +91,7 @@ class BanConcurrentHashMap : Detector(), Detector.UastScanner {
                 Scope.JAVA_FILE_SCOPE
             )
         )
-        val CONCURRENT_HASHMAP_QUALIFIED_NAME = "java.util.concurrent.ConcurrentHashMap"
-        val CONCURRENT_HASHMAP = "ConcurrentHashMap"
+        const val CONCURRENT_HASHMAP_QUALIFIED_NAME = "java.util.concurrent.ConcurrentHashMap"
+        const val CONCURRENT_HASHMAP = "ConcurrentHashMap"
     }
 }
