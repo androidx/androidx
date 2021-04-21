@@ -199,7 +199,7 @@ class FragmentStateManager {
             maxState = Math.min(maxState, Fragment.CREATED);
         }
         SpecialEffectsController.Operation.LifecycleImpact awaitingEffect = null;
-        if (FragmentManager.USE_STATE_MANAGER && mFragment.mContainer != null) {
+        if (mFragment.mContainer != null) {
             SpecialEffectsController controller = SpecialEffectsController.getOrCreateController(
                     mFragment.mContainer, mFragment.getParentFragmentManager());
             awaitingEffect = controller.getAwaitingCompletionLifecycleImpact(this);
@@ -338,7 +338,7 @@ class FragmentStateManager {
                     }
                 }
             }
-            if (FragmentManager.USE_STATE_MANAGER && mFragment.mHiddenChanged) {
+            if (mFragment.mHiddenChanged) {
                 if (mFragment.mView != null && mFragment.mContainer != null) {
                     // Get the controller and enqueue the show/hide
                     SpecialEffectsController controller = SpecialEffectsController
@@ -436,10 +436,7 @@ class FragmentStateManager {
             targetFragmentStateManager = null;
         }
         if (targetFragmentStateManager != null) {
-            if (FragmentManager.USE_STATE_MANAGER
-                    || targetFragmentStateManager.getFragment().mState < Fragment.CREATED) {
-                targetFragmentStateManager.moveToExpectedState();
-            }
+            targetFragmentStateManager.moveToExpectedState();
         }
         mFragment.mHost = mFragment.mFragmentManager.getHost();
         mFragment.mParentFragment = mFragment.mFragmentManager.getParent();
@@ -534,26 +531,19 @@ class FragmentStateManager {
                     mFragment, mFragment.mView, mFragment.mSavedFragmentState, false);
             int postOnViewCreatedVisibility = mFragment.mView.getVisibility();
             float postOnViewCreatedAlpha = mFragment.mView.getAlpha();
-            if (FragmentManager.USE_STATE_MANAGER) {
-                mFragment.setPostOnViewCreatedAlpha(postOnViewCreatedAlpha);
-                if (mFragment.mContainer != null && postOnViewCreatedVisibility == View.VISIBLE) {
-                    // Save the focused view if one was set via requestFocus()
-                    View focusedView = mFragment.mView.findFocus();
-                    if (focusedView != null) {
-                        mFragment.setFocusedView(focusedView);
-                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                            Log.v(TAG, "requestFocus: Saved focused view " + focusedView
-                                    + " for Fragment " + mFragment);
-                        }
+            mFragment.setPostOnViewCreatedAlpha(postOnViewCreatedAlpha);
+            if (mFragment.mContainer != null && postOnViewCreatedVisibility == View.VISIBLE) {
+                // Save the focused view if one was set via requestFocus()
+                View focusedView = mFragment.mView.findFocus();
+                if (focusedView != null) {
+                    mFragment.setFocusedView(focusedView);
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(TAG, "requestFocus: Saved focused view " + focusedView
+                                + " for Fragment " + mFragment);
                     }
-                    // Set the view alpha to 0
-                    mFragment.mView.setAlpha(0f);
                 }
-            } else {
-                // Only animate the view if it is visible. This is done after
-                // dispatchOnFragmentViewCreated in case visibility is changed
-                mFragment.mIsNewlyAdded = (postOnViewCreatedVisibility == View.VISIBLE)
-                        && mFragment.mContainer != null;
+                // Set the view alpha to 0
+                mFragment.mView.setAlpha(0f);
             }
         }
         mFragment.mState = Fragment.VIEW_CREATED;

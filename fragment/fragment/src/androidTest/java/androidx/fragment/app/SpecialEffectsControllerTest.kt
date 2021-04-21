@@ -16,7 +16,6 @@
 
 package androidx.fragment.app
 
-import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.fragment.app.test.EmptyFragmentTestActivity
@@ -417,11 +416,6 @@ class SpecialEffectsControllerTest {
                 // This moves the Fragment up to STARTED,
                 // calling enqueueAdd() under the hood
                 fragmentStateManager.moveToExpectedState()
-                // Normally this would be done for us in the USE_STATE_MANAGER world
-                // but we need to do it manually if that isn't the case yet.
-                if (!FragmentManager.USE_STATE_MANAGER) {
-                    fragment.mView.visibility = View.INVISIBLE
-                }
             }
             assertThat(controller.operationsToExecute)
                 .isEmpty()
@@ -442,17 +436,8 @@ class SpecialEffectsControllerTest {
             onActivity {
                 fragment.startPostponedEnterTransition()
             }
-            onActivity {
-                // When USE_STATE_MANAGER is true, this second onActivity is enough
-                // to handle the post() that startPostponedEnterTransition() does.
-                // Otherwise, we need to do a little more work at this point
-                if (!FragmentManager.USE_STATE_MANAGER) {
-                    // These are called automatically when USE_STATE_MANAGER is true
-                    // but we need to call them manually if it is false
-                    controller.markPostponedState()
-                    controller.executePendingOperations()
-                }
-            }
+            // Wait for idle thread to handle the post() that startPostponedEnterTransition() does.
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
             // Verify that the operation was sent for execution
             assertThat(controller.operationsToExecute)
