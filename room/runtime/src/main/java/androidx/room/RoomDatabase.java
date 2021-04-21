@@ -45,7 +45,6 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
@@ -265,7 +264,6 @@ public abstract class RoomDatabase {
         }
     }
 
-
     /**
      * Returns a list of {@link Migration} of a database that have been automatically generated.
      *
@@ -273,7 +271,7 @@ public abstract class RoomDatabase {
      */
     @NonNull
     protected List<Migration> getAutoMigrations() {
-        return Arrays.asList();
+        return Collections.emptyList();
     }
 
     /**
@@ -1433,6 +1431,12 @@ public abstract class RoomDatabase {
             }
         }
 
+        /**
+         * Adds the given migrations to the list of available migrations. If 2 migrations have the
+         * same start-end versions, the latter migration overrides the previous one.
+         *
+         * @param migrations List of available migrations.
+         */
         public void addMigrations(@NonNull List<Migration> migrations) {
             for (Migration migration : migrations) {
                 addMigration(migration);
