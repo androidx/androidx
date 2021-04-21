@@ -30,6 +30,7 @@ import android.widget.EdgeEffect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -76,6 +77,7 @@ public final class ViewPagerTest {
         assertTrue(adapter.primaryCalled);
     }
 
+    @FlakyTest(bugId = 186023532)
     @Test
     public void testEdgeEffectType() throws Throwable {
         activityRule.runOnUiThread(new Runnable() {
