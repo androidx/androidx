@@ -358,6 +358,12 @@ package androidx.wear.watchface {
     method public void updateContentDescriptionLabels();
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class WatchFaceImpl {
+    ctor public WatchFaceImpl(androidx.wear.watchface.WatchFace watchface, androidx.wear.watchface.WatchFaceHostApi watchFaceHostApi, androidx.wear.watchface.WatchState watchState);
+    method public long getPreviewReferenceTimeMillis();
+    property public final long previewReferenceTimeMillis;
+  }
+
   public final class WatchFaceKt {
   }
 
