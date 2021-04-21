@@ -18,7 +18,6 @@ package androidx.fragment.app;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
-import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -31,7 +30,6 @@ import android.view.animation.Transformation;
 
 import androidx.annotation.AnimRes;
 import androidx.annotation.NonNull;
-import androidx.core.os.CancellationSignal;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.fragment.R;
 
@@ -131,83 +129,6 @@ class FragmentAnim {
             } else {
                 return fragment.getExitAnim();
             }
-        }
-    }
-
-    /**
-     * Animates the removal of a fragment with the given animator or animation. After animating,
-     * the fragment's view will be removed from the hierarchy.
-     *
-     * @param fragment The fragment to animate out
-     * @param anim The animator or animation to run on the fragment's view
-     */
-    static void animateRemoveFragment(@NonNull final Fragment fragment,
-            @NonNull AnimationOrAnimator anim,
-            @NonNull final FragmentTransition.Callback callback) {
-        final View viewToAnimate = fragment.mView;
-        final ViewGroup container = fragment.mContainer;
-        container.startViewTransition(viewToAnimate);
-        final CancellationSignal signal = new CancellationSignal();
-        signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-            @Override
-            public void onCancel() {
-                if (fragment.getAnimatingAway() != null) {
-                    View v = fragment.getAnimatingAway();
-                    fragment.setAnimatingAway(null);
-                    v.clearAnimation();
-                }
-                fragment.setAnimator(null);
-            }
-        });
-        callback.onStart(fragment, signal);
-        if (anim.animation != null) {
-            Animation animation =
-                    new EndViewTransitionAnimation(anim.animation, container, viewToAnimate);
-            fragment.setAnimatingAway(fragment.mView);
-            animation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    // onAnimationEnd() comes during draw(), so there can still be some
-                    // draw events happening after this call. We don't want to detach
-                    // the view until after the onAnimationEnd()
-                    container.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (fragment.getAnimatingAway() != null) {
-                                fragment.setAnimatingAway(null);
-                                callback.onComplete(fragment, signal);
-                            }
-                        }
-                    });
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
-            });
-            fragment.mView.startAnimation(animation);
-        } else {
-            Animator animator = anim.animator;
-            fragment.setAnimator(anim.animator);
-            animator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator anim) {
-                    container.endViewTransition(viewToAnimate);
-                    // If an animator ends immediately, we can just pretend there is no animation.
-                    // When that happens the the fragment's view won't have been removed yet.
-                    Animator animator = fragment.getAnimator();
-                    fragment.setAnimator(null);
-                    if (animator != null && container.indexOfChild(viewToAnimate) < 0) {
-                        callback.onComplete(fragment, signal);
-                    }
-                }
-            });
-            animator.setTarget(fragment.mView);
-            animator.start();
         }
     }
 

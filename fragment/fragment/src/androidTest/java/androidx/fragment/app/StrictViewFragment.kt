@@ -73,10 +73,7 @@ open class StrictViewFragment(
         assertWithMessage("getView returned null in onDestroyView")
             .that(view)
             .isNotNull()
-        if (requireView().parent != null &&
-            requireView().animation != null &&
-            FragmentManager.USE_STATE_MANAGER
-        ) {
+        if (requireView().parent != null && requireView().animation != null) {
             assertWithMessage("View should be removed from parent if there is no animation")
                 .that((requireView().parent as ViewGroup).layoutTransition)
                 .isNotNull()
