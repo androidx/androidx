@@ -91,6 +91,16 @@ public interface CameraControlInternal extends CameraControl {
     void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
 
     /**
+     * Gets the current SessionConfig.
+     *
+     * <p>When the SessionConfig is changed,
+     * {@link ControlUpdateCallback#onCameraControlUpdateSessionConfig()} will be called to
+     * notify the change.
+     */
+    @NonNull
+    SessionConfig getSessionConfig();
+
+    /**
      * Gets the full sensor rect.
      */
     @NonNull
@@ -158,6 +168,12 @@ public interface CameraControlInternal extends CameraControl {
 
         @NonNull
         @Override
+        public SessionConfig getSessionConfig() {
+            return SessionConfig.defaultEmptySessionConfig();
+        }
+
+        @NonNull
+        @Override
         public Rect getSensorRect() {
             return new Rect();
         }
@@ -205,8 +221,12 @@ public interface CameraControlInternal extends CameraControl {
     /** Listener called when CameraControlInternal need to notify event. */
     interface ControlUpdateCallback {
 
-        /** Called when CameraControlInternal has updated session configuration. */
-        void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig);
+        /**
+         * Called when CameraControlInternal has updated session configuration.
+         *
+         * <p>The latest SessionConfig can be obtained by calling {@link #getSessionConfig()}.
+         */
+        void onCameraControlUpdateSessionConfig();
 
         /** Called when CameraControlInternal need to send capture requests. */
         void onCameraControlCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);

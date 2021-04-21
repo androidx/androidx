@@ -37,6 +37,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
@@ -57,6 +58,7 @@ import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.impl.CameraControlInternal;
+import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -75,6 +77,7 @@ import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
 import org.robolectric.shadows.ShadowLooper;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -172,6 +175,7 @@ public class FocusMeteringControlTest {
         shadowCharacteristics0.set(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE,
                 new Rect(0, 0, SENSOR_WIDTH, SENSOR_HEIGHT));
         shadowCharacteristics0.set(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES, new int[]{
+                CaptureResult.CONTROL_AF_MODE_CONTINUOUS_VIDEO,
                 CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
                 CaptureResult.CONTROL_AF_MODE_AUTO,
                 CaptureResult.CONTROL_AF_MODE_OFF
@@ -294,6 +298,72 @@ public class FocusMeteringControlTest {
 
         return config.getCaptureRequestOption(CaptureRequest.CONTROL_AWB_REGIONS,
                 new MeteringRectangle[]{});
+    }
+
+    @Test
+    public void templatePreview_getAfContinuousPicture() {
+        mFocusMeteringControl.setTemplate(CameraDevice.TEMPLATE_PREVIEW);
+
+        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
+        mFocusMeteringControl.addFocusMeteringOptions(configBuilder);
+        Camera2ImplConfig config = configBuilder.build();
+
+        Integer afMode = config.getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE);
+        assertThat(afMode).isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+    }
+
+    @Test
+    public void templateRecord_getAfContinuousVideo() {
+        mFocusMeteringControl.setTemplate(CameraDevice.TEMPLATE_RECORD);
+
+        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
+        mFocusMeteringControl.addFocusMeteringOptions(configBuilder);
+        Camera2ImplConfig config = configBuilder.build();
+
+        Integer afMode = config.getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE);
+        assertThat(afMode).isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void triggerAfWithTemplate() {
+        mFocusMeteringControl.setTemplate(CameraDevice.TEMPLATE_RECORD);
+        mFocusMeteringControl.triggerAf(null);
+
+        ArgumentCaptor<List<CaptureConfig>> captor = ArgumentCaptor.forClass(List.class);
+        verify(mCamera2CameraControlImpl).submitCaptureRequestsInternal(captor.capture());
+
+        List<CaptureConfig> captureConfigList = captor.getValue();
+        assertThat(captureConfigList.get(0).getTemplateType()).isEqualTo(
+                CameraDevice.TEMPLATE_RECORD);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void triggerAePrecaptureWithTemplate() {
+        mFocusMeteringControl.setTemplate(CameraDevice.TEMPLATE_RECORD);
+        mFocusMeteringControl.triggerAePrecapture(null);
+
+        ArgumentCaptor<List<CaptureConfig>> captor = ArgumentCaptor.forClass(List.class);
+        verify(mCamera2CameraControlImpl).submitCaptureRequestsInternal(captor.capture());
+
+        List<CaptureConfig> captureConfigList = captor.getValue();
+        assertThat(captureConfigList.get(0).getTemplateType()).isEqualTo(
+                CameraDevice.TEMPLATE_RECORD);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void cancelAfAeTriggerWithTemplate() {
+        mFocusMeteringControl.setTemplate(CameraDevice.TEMPLATE_RECORD);
+        mFocusMeteringControl.cancelAfAeTrigger(true, true);
+
+        ArgumentCaptor<List<CaptureConfig>> captor = ArgumentCaptor.forClass(List.class);
+        verify(mCamera2CameraControlImpl).submitCaptureRequestsInternal(captor.capture());
+
+        List<CaptureConfig> captureConfigList = captor.getValue();
+        assertThat(captureConfigList.get(0).getTemplateType()).isEqualTo(
+                CameraDevice.TEMPLATE_RECORD);
     }
 
     @Test
