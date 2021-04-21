@@ -26,6 +26,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
+import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.inputmethod.EditorInfo;
@@ -83,6 +84,9 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
     private final AppCompatTextClassifierHelper mTextClassifierHelper;
+    @SuppressWarnings("NotNullFieldNotInitialized") // initialized in getter
+    @NonNull
+    private AppCompatEmojiTextHelper mEmojiTextViewHelper;
 
     private boolean mIsSetTypefaceProcessing = false;
 
@@ -111,6 +115,21 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
         mTextHelper.applyCompoundDrawablesTints();
 
         mTextClassifierHelper = new AppCompatTextClassifierHelper(this);
+
+        AppCompatEmojiTextHelper emojiTextViewHelper = getEmojiTextViewHelper();
+        emojiTextViewHelper.loadFromAttributes(attrs, defStyleAttr);
+    }
+
+    /**
+     * This may be called from super constructors.
+     */
+    @NonNull
+    private AppCompatEmojiTextHelper getEmojiTextViewHelper() {
+        //noinspection ConstantConditions
+        if (mEmojiTextViewHelper == null) {
+            mEmojiTextViewHelper = new AppCompatEmojiTextHelper(this);
+        }
+        return mEmojiTextViewHelper;
     }
 
     @Override
@@ -191,6 +210,46 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
         if (mTextHelper != null) {
             mTextHelper.onSetTextAppearance(context, resId);
         }
+    }
+
+    @Override
+    public void setFilters(@SuppressWarnings("ArrayReturn") @NonNull InputFilter[] filters) {
+        super.setFilters(getEmojiTextViewHelper().getFilters(filters));
+    }
+
+    @Override
+    public void setAllCaps(boolean allCaps) {
+        super.setAllCaps(allCaps);
+        getEmojiTextViewHelper().setAllCaps(allCaps);
+    }
+
+    /**
+     * Configure emoji fallback behavior using EmojiCompat.
+     *
+     * When enabled, this TextView will attempt to use EmojiCompat to enabled missing emojis.
+     * When disabled, this TextView will not display missing emojis using EmojiCompat.
+     *
+     * EmojiCompat must be correctly configured on a device for this to have an effect, which
+     * will happen by default if a correct downloadable fonts provider is installed on the device.
+     *
+     * If you manually configure EmojiCompat by calling EmojiCompat init after this TextView is
+     * constructed, you may call this method again to enable EmojiCompat on this text view.
+     *
+     * For more information about EmojiCompat configuration see the emoji2 module.
+     *
+     * @param enabled if true, display missing emoji using EmojiCompat, otherwise display
+     *                missing emoji using a fallback glyph "□" (known as tofu)
+     */
+    public void setEmojiCompatEnabled(boolean enabled) {
+        getEmojiTextViewHelper().setEnabled(enabled);
+    }
+
+    /**
+     * @return the current enabled state, set via
+     * {@link AppCompatTextView#setEmojiCompatEnabled(boolean)}
+     */
+    public boolean isEmojiCompatEnabled() {
+        return getEmojiTextViewHelper().isEnabled();
     }
 
     @Override

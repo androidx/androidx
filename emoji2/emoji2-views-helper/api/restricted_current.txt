@@ -11,7 +11,9 @@ package androidx.emoji2.viewshelper {
 
   public final class EmojiTextViewHelper {
     ctor public EmojiTextViewHelper(android.widget.TextView);
+    ctor public EmojiTextViewHelper(android.widget.TextView, boolean);
     method public android.text.InputFilter![] getFilters(android.text.InputFilter![]);
+    method public boolean isEnabled();
     method public void setAllCaps(boolean);
     method public void setEnabled(boolean);
     method public void updateTransformationMethod();
