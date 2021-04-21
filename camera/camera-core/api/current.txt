@@ -303,6 +303,7 @@ package androidx.camera.core {
     method public int getTargetRotation();
     method @UiThread public void setSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.SurfaceProvider?);
     method @UiThread public void setSurfaceProvider(androidx.camera.core.Preview.SurfaceProvider?);
+    method public void setTargetRotation(int);
   }
 
   public static final class Preview.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.Preview> {
@@ -325,8 +326,10 @@ package androidx.camera.core {
 
   public final class SurfaceRequest {
     method public void addRequestCancellationListener(java.util.concurrent.Executor, Runnable);
+    method public void clearTransformationInfoListener();
     method public android.util.Size getResolution();
     method public void provideSurface(android.view.Surface, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.core.SurfaceRequest.Result!>);
+    method public void setTransformationInfoListener(java.util.concurrent.Executor, androidx.camera.core.SurfaceRequest.TransformationInfoListener);
     method public boolean willNotProvideSurface();
   }
 
@@ -340,12 +343,51 @@ package androidx.camera.core {
     field public static final int RESULT_WILL_NOT_PROVIDE_SURFACE = 4; // 0x4
   }
 
+  @com.google.auto.value.AutoValue public abstract static class SurfaceRequest.TransformationInfo {
+    method public abstract android.graphics.Rect getCropRect();
+    method public abstract int getRotationDegrees();
+  }
+
+  public static interface SurfaceRequest.TransformationInfoListener {
+    method public void onTransformationInfoUpdate(androidx.camera.core.SurfaceRequest.TransformationInfo);
+  }
+
   public class TorchState {
     field public static final int OFF = 0; // 0x0
     field public static final int ON = 1; // 0x1
   }
 
   public abstract class UseCase {
+  }
+
+  public final class UseCaseGroup {
+    method public java.util.List<androidx.camera.core.UseCase!> getUseCases();
+    method public androidx.camera.core.ViewPort? getViewPort();
+  }
+
+  public static final class UseCaseGroup.Builder {
+    ctor public UseCaseGroup.Builder();
+    method public androidx.camera.core.UseCaseGroup.Builder addUseCase(androidx.camera.core.UseCase);
+    method public androidx.camera.core.UseCaseGroup build();
+    method public androidx.camera.core.UseCaseGroup.Builder setViewPort(androidx.camera.core.ViewPort);
+  }
+
+  public final class ViewPort {
+    method public android.util.Rational getAspectRatio();
+    method public int getLayoutDirection();
+    method public int getRotation();
+    method public int getScaleType();
+    field public static final int FILL_CENTER = 1; // 0x1
+    field public static final int FILL_END = 2; // 0x2
+    field public static final int FILL_START = 0; // 0x0
+    field public static final int FIT = 3; // 0x3
+  }
+
+  public static final class ViewPort.Builder {
+    ctor public ViewPort.Builder(android.util.Rational, int);
+    method public androidx.camera.core.ViewPort build();
+    method public androidx.camera.core.ViewPort.Builder setLayoutDirection(int);
+    method public androidx.camera.core.ViewPort.Builder setScaleType(int);
   }
 
   public interface ZoomState {
