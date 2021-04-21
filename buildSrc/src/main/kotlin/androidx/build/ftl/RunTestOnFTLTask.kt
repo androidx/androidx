@@ -148,7 +148,7 @@ abstract class RunTestOnFTLTask @Inject constructor(
                 it.from(testResultDir)
                 it.into(
                     project.getDistributionDirectory()
-                        .resolve("ftl-results/${project.relativeResultPath()}/${taskName}")
+                        .resolve("ftl-results/${project.relativeResultPath()}/$taskName")
                 )
             }
             return project.tasks.register(taskName, RunTestOnFTLTask::class.java) { task ->
