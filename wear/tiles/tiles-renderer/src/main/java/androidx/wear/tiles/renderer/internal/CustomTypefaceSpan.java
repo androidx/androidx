@@ -16,32 +16,30 @@
 
 package androidx.wear.tiles.renderer.internal;
 
+import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
 
 import androidx.annotation.NonNull;
 
-/** LetterSpacingSpan class used to apply custom spacing between letters. */
-public class LetterSpacingSpan extends MetricAffectingSpan {
+/**
+ * Stripped down version of TypefaceSpan, which can accept a Typeface argument on API levels under
+ * 28.
+ */
+public class CustomTypefaceSpan extends MetricAffectingSpan {
+    private final Typeface mTypeface;
 
-    private final float mLetterSpacingEm;
-
-    /** @param letterSpacingEm letter-spacing for text. */
-    public LetterSpacingSpan(float letterSpacingEm) {
-        this.mLetterSpacingEm = letterSpacingEm;
-    }
-
-    @Override
-    public void updateDrawState(@NonNull TextPaint textPaint) {
-        updateTextPaint(textPaint);
+    public CustomTypefaceSpan(@NonNull Typeface typeface) {
+        mTypeface = typeface;
     }
 
     @Override
     public void updateMeasureState(@NonNull TextPaint textPaint) {
-        updateTextPaint(textPaint);
+        textPaint.setTypeface(mTypeface);
     }
 
-    private void updateTextPaint(@NonNull TextPaint textPaint) {
-        textPaint.setLetterSpacing(mLetterSpacingEm);
+    @Override
+    public void updateDrawState(@NonNull TextPaint tp) {
+        tp.setTypeface(mTypeface);
     }
 }

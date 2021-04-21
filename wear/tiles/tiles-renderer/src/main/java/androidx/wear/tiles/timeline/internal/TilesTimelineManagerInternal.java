@@ -17,6 +17,7 @@
 package androidx.wear.tiles.timeline.internal;
 
 import static java.lang.Math.max;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 import android.app.AlarmManager;
 import android.app.AlarmManager.OnAlarmListener;
@@ -24,26 +25,23 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-import androidx.wear.tiles.proto.TimelineProto;
+import androidx.wear.tiles.proto.TimelineProto.Timeline;
+import androidx.wear.tiles.proto.TimelineProto.TimelineEntry;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 /**
- * Manager for a single Wear Tiles timeline.
+ * Manager for a single Tiles timeline.
  *
- * <p>This handles the dispatching of single Tile layouts from a full timeline. It will set the
+ * <p>This handles the dispatching of single Tiles layouts from a full timeline. It will set the
  * correct alarms to detect when a layout should be updated, and dispatch it to its listener.
  */
 public class TilesTimelineManagerInternal {
     // 1 minute min delay between tiles.
-    @VisibleForTesting
-    public static final long MIN_TILE_UPDATE_DELAY_MILLIS = TimeUnit.MINUTES.toMillis(1);
+    public static final long MIN_TILE_UPDATE_DELAY_MILLIS = MINUTES.toMillis(1);
 
     /** Interface so this manager can retrieve the current time. */
     public interface Clock {
-        /** Get the current wall-clock time in millis. */
         long getCurrentTimeMillis();
     }
 
@@ -53,10 +51,10 @@ public class TilesTimelineManagerInternal {
         /**
          * Called when a timeline has a new layout to be displayed.
          *
-         * @param token The token originally passed to {@link TilesTimelineManagerInternal}.
-         * @param entry The new timeline entry to use.
+         * @param token The token originally passed to TilesTimelineManagerInternal.
+         * @param entry The new layout entry to use.
          */
-        void onLayoutUpdate(int token, @NonNull TimelineProto.TimelineEntry entry);
+        void onLayoutUpdate(int token, @NonNull TimelineEntry entry);
     }
 
     private static final String TAG = "TimelineManager";
@@ -77,12 +75,13 @@ public class TilesTimelineManagerInternal {
      *     This should be synchronized to the same clock as used by {@code alarmManager}
      * @param timeline The Tiles timeline to use.
      * @param token A token, which will be passed to {@code listener}'s callback.
+     * @param listenerExecutor The {@link Executor} to dispatch listener's calls on.
      * @param listener A listener instance, called when a new timeline entry is available.
      */
     public TilesTimelineManagerInternal(
             @NonNull AlarmManager alarmManager,
             @NonNull Clock clock,
-            @NonNull TimelineProto.Timeline timeline,
+            @NonNull Timeline timeline,
             int token,
             @NonNull Executor listenerExecutor,
             @NonNull Listener listener) {
@@ -90,8 +89,8 @@ public class TilesTimelineManagerInternal {
         this.mClock = clock;
         this.mCache = new TilesTimelineCacheInternal(timeline);
         this.mToken = token;
-        this.mListenerExecutor = listenerExecutor;
         this.mListener = listener;
+        this.mListenerExecutor = listenerExecutor;
     }
 
     /**
@@ -117,7 +116,7 @@ public class TilesTimelineManagerInternal {
         }
 
         long now = mClock.getCurrentTimeMillis();
-        TimelineProto.TimelineEntry entry = mCache.findTimelineEntryForTime(now);
+        TimelineEntry entry = mCache.findTimelineEntryForTime(now);
 
         if (entry == null) {
             Log.d(TAG, "Could not find absolute timeline entry for time " + now);
@@ -154,7 +153,7 @@ public class TilesTimelineManagerInternal {
                     AlarmManager.RTC, expiryTime, TAG, mAlarmListener, /* targetHandler= */ null);
         }
 
-        final TimelineProto.TimelineEntry entryToDispatch = entry;
+        final TimelineEntry entryToDispatch = entry;
         mListenerExecutor.execute(() -> mListener.onLayoutUpdate(mToken, entryToDispatch));
     }
 }

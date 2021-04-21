@@ -23,8 +23,8 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 
 /**
- * {@link TileUpdateRequester} which notifies the viewer app that it should fetch a new version
- * of the Timeline.
+ * {@link TileUpdateRequester} which notifies the viewer that it should fetch a new version of the
+ * Timeline.
  */
 public class ViewerTileUpdateRequester implements TileUpdateRequester {
     /**

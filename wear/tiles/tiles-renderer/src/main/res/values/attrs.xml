@@ -2,9 +2,6 @@
 <resources>
   <attr name="anchorAngleDegrees" format="float"/>
 
-  <attr name="sweepAngleDegrees" format="float" />
-  <attr name="thickness" format="dimension" />
-
   <attr name="anchorPosition" format="enum">
     <enum name="start" value="0" />
     <enum name="center" value="1" />
@@ -12,6 +9,8 @@
   </attr>
 
   <attr name="clockwise" format="boolean"/>
+  <attr name="sweepAngleDegrees" format="float" />
+  <attr name="thickness" format="dimension" />
 
   <declare-styleable name="WearCurvedTextView">
     <!-- supported TextView attributes -->
@@ -38,10 +37,7 @@
   <declare-styleable name="TextAppearance">
     <!-- Text color. -->
     <attr name="android:textColor" />
-    <!--
-      Size of the text. Recommended dimension type for text is "sp" for scaled-pixels
-      (example: 15sp).
-      -->
+    <!-- Size of the text. Recommended dimension type for text is "sp" for scaled-pixels (example: 15sp). -->
     <attr name="android:textSize" />
     <!-- Style (normal, bold, italic, bold|italic) for the text. -->
     <attr name="android:textStyle" />
@@ -90,8 +86,27 @@
     <attr name="thickness" />
   </declare-styleable>
 
+  <declare-styleable name="TilesFontSet">
+    <!-- We need to list the different fonts here too. The "proper" way to do
+         this would be to have multiple TextAppearance entries for each one,
+         which specifies a typeface or a weight. That works for normal Text, but
+         can't work for Spannables as there's no Span which applies
+         TextAppearance properly (TextAppearanceSpan doesn't work with weight).
+
+         Instead, just list the fonts here, and we'll go and put them into a
+         Typeface inside the renderer.
+
+         Note that the regular font should also be set in the TextAppearance
+         above, as this drives the defaults for some elements (Spannable). -->
+    <attr name="tilesNormalFont" format="reference|string" />
+    <attr name="tilesMediumFont" format="reference|string" />
+    <attr name="tilesBoldFont" format="reference|string" />
+  </declare-styleable>
+
   <!-- Tiles theme attributes. -->
   <declare-styleable name="TilesTheme">
-    <attr name="tilesTextAppearance" format="reference" />
+    <attr name="tilesFallbackTextAppearance" format="reference" />
+    <attr name="tilesTitleFont" format="reference" />
+    <attr name="tilesBodyFont" format="reference" />
   </declare-styleable>
 </resources>

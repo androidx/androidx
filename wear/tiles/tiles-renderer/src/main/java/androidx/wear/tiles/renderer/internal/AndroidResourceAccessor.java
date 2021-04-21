@@ -16,22 +16,18 @@
 
 package androidx.wear.tiles.renderer.internal;
 
-import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.wear.tiles.proto.ResourceProto.AndroidImageResourceByResId;
+import androidx.wear.tiles.renderer.internal.ResourceAccessors.AndroidImageResourceByResIdAccessor;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-/**
- * Resource accessor for Android resources.
- */
-public class AndroidResourceAccessor
-        implements ResourceAccessors.AndroidImageResourceByResIdAccessor {
+/** Resource accessor for Android resources. */
+public class AndroidResourceAccessor implements AndroidImageResourceByResIdAccessor {
     private final Resources mAndroidResources;
 
     /**
@@ -46,15 +42,12 @@ public class AndroidResourceAccessor
 
     @Override
     @NonNull
-    @SuppressLint("RestrictedApi") // TODO(b/183006740): Remove when prefix check is fixed.
     public ListenableFuture<Drawable> getDrawable(@NonNull AndroidImageResourceByResId resource) {
-        ResolvableFuture<Drawable> future = ResolvableFuture.create();
         try {
-            future.set(mAndroidResources.getDrawable(resource.getResourceId(), null));
+            return ResourceAccessors.createImmediateFuture(
+                    mAndroidResources.getDrawable(resource.getResourceId(), null));
         } catch (NotFoundException e) {
-            future.setException(e);
+            return ResourceAccessors.createFailedFuture(e);
         }
-
-        return future;
     }
 }
