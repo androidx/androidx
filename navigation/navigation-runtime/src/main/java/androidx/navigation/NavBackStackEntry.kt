@@ -56,7 +56,7 @@ public class NavBackStackEntry internal constructor(
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var arguments: Bundle? = null,
     navControllerLifecycleOwner: LifecycleOwner? = null,
-    private val navControllerViewModel: NavControllerViewModel? = null,
+    private val viewModelStoreProvider: NavViewModelStoreProvider? = null,
     // Internal unique name for this navBackStackEntry;
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val id: UUID = UUID.randomUUID(),
@@ -147,11 +147,11 @@ public class NavBackStackEntry internal constructor(
                 "the NavController's back stack (i.e., the Lifecycle of the NavBackStackEntry " +
                 "reaches the CREATED state)."
         }
-        checkNotNull(navControllerViewModel) {
+        checkNotNull(viewModelStoreProvider) {
             "You must call setViewModelStore() on your NavHostController before accessing the " +
                 "ViewModelStore of a navigation graph."
         }
-        return navControllerViewModel.getViewModelStore(id)
+        return viewModelStoreProvider.getViewModelStore(id)
     }
 
     public override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {

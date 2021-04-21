@@ -235,7 +235,7 @@ class NavBackStackEntryTest {
     fun testGetSavedStateHandleInitializedLifecycle() {
         val entry = NavBackStackEntry(
             ApplicationProvider.getApplicationContext(),
-            NavDestination(TestNavigator()), navControllerViewModel = NavControllerViewModel()
+            NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
         )
 
         try {
