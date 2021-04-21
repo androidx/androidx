@@ -379,6 +379,41 @@ public class EmojiCompat {
     }
 
     /**
+     * Return true if EmojiCompat has been configured by a successful call to
+     * {@link EmojiCompat#init}.
+     *
+     * You can use this to check if {@link EmojiCompat#get()} will return a valid EmojiCompat
+     * instance.
+     *
+     * This function does not check the {@link #getLoadState()} and will return true even if the
+     * font is still loading, or has failed to load.
+     *
+     * @return true if EmojiCompat has been successfully initialized.
+     */
+    @SuppressWarnings("GuardedBy") // same rationale as double-check lock
+    public static boolean isConfigured() {
+        // Note: this is true immediately after calling .init(Config).
+        //
+        // These are three situations this may return false
+        //   1) An app has disabled EmojiCompatInitializer and does not intend to call .init.
+        //   2) EmojiCompatInitializer did not find a configuration
+        //   3) EmojiCompatInitializer was disable or failed, and the app will call .init. In the
+        //   future it will return true.
+        //
+        // In case one and two, this method will always return false for the duration of the
+        // application lifecycle.
+        //
+        // In case three, this will return true at some future point. There is no callback
+        // mechanism to learn about the init call due to the high potential for leaked references
+        // in a static context if it's actually case 2 (when using manual callback registration).
+        //
+        // It is recommended that applications call init prior to creating any screens that
+        // may show emoji or user generated content.
+        return sInstance != null;
+    }
+
+
+    /**
      * Used by the tests to reset EmojiCompat with a new configuration. Every time it is called a
      * new instance is created with the new configuration.
      *

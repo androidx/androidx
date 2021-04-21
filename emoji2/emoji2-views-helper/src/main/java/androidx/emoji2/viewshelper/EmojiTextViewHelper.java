@@ -19,11 +19,13 @@ import android.os.Build;
 import android.text.InputFilter;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.TransformationMethod;
+import android.util.SparseArray;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.emoji2.text.EmojiCompat;
 
@@ -70,9 +72,30 @@ public final class EmojiTextViewHelper {
      * @param textView TextView instance
      */
     public EmojiTextViewHelper(@NonNull TextView textView) {
+        this(textView, true);
+    }
+
+    /**
+     * Allows skipping of all processing until EmojiCompat.init is called.
+     *
+     * @param textView TextView instance
+     * @param expectInitializedEmojiCompat if true, this helper will assume init has been called
+     *                                     and throw if it has not. If false, the methods on this
+     *                                     helper will have no effect until EmojiCompat.init is
+     *                                     called.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public EmojiTextViewHelper(@NonNull TextView textView, boolean expectInitializedEmojiCompat) {
         Preconditions.checkNotNull(textView, "textView cannot be null");
-        mHelper = Build.VERSION.SDK_INT >= 19 ? new HelperInternal19(textView)
-                : new HelperInternal();
+        if (Build.VERSION.SDK_INT < 19) {
+            mHelper = new HelperInternal();
+        } else if (!expectInitializedEmojiCompat) {
+            mHelper = new SkippingHelper19(textView);
+        } else {
+            mHelper = new HelperInternal19(textView);
+        }
     }
 
     /**
@@ -117,6 +140,24 @@ public final class EmojiTextViewHelper {
     }
 
     /**
+     * When enabled, methods will have their documented behavior.
+     *
+     * When disabled, all methods will have no effect and emoji will not be processed.
+     *
+     * Setting this to disable will also have the side effect of setting both the transformation
+     * method and filter if enabled has changed since the last call. By default
+     * EmojiTextViewHelper is enabled.
+     *
+     * You do not need to call {@link EmojiTextViewHelper#updateTransformationMethod()} again after
+     * calling setEnabled.
+     *
+     * @param enabled if this helper should process emoji.
+     */
+    public void setEnabled(boolean enabled) {
+        mHelper.setEnabled(enabled);
+    }
+
+    /**
      * Call when allCaps is set on TextView. When used on devices running API 18 or below, this
      * method does nothing.
      *
@@ -133,16 +174,121 @@ public final class EmojiTextViewHelper {
             // do nothing
         }
 
+        @NonNull
         InputFilter[] getFilters(@NonNull final InputFilter[] filters) {
             return filters;
         }
 
-        TransformationMethod wrapTransformationMethod(TransformationMethod transformationMethod) {
+        @Nullable
+        TransformationMethod wrapTransformationMethod(
+                @Nullable TransformationMethod transformationMethod) {
             return transformationMethod;
         }
 
         void setAllCaps(boolean allCaps) {
             // do nothing
+        }
+
+        void setEnabled(boolean processEmoji) {
+            // do nothing
+        }
+    }
+
+    /**
+     * This helper allows EmojiTextViewHelper to skip all calls to EmojiCompat until
+     * {@link EmojiCompat#isConfigured()} returns true on devices that are 19+.
+     *
+     * When isConfigured returns true, this delegates to {@link HelperInternal19} to provide
+     * EmojiCompat behavior. This has the effect of making EmojiCompat calls a "no-op" when
+     * EmojiCompat is not configured on a device.
+     *
+     * There is no mechanism to be informed when isConfigured becomes true as it will lead to
+     * likely memory leaks in situations where isConfigured never becomes true, and it is the
+     * responsibility of the caller to call
+     * {@link EmojiTextViewHelper#updateTransformationMethod()} after configuring EmojiCompat if
+     * TextView's using EmojiTextViewHelper are already displayed to the user.
+     */
+    @RequiresApi(19)
+    private static class SkippingHelper19 extends HelperInternal {
+        private HelperInternal19 mHelperDelegate;
+
+        SkippingHelper19(TextView textView) {
+            mHelperDelegate = new HelperInternal19(textView);
+        }
+
+
+        private boolean skipBecauseEmojiCompatNotInitialized() {
+            return !EmojiCompat.isConfigured();
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * This method will have no effect if !{@link EmojiCompat#isConfigured()}
+         */
+        @Override
+        void updateTransformationMethod() {
+            if (skipBecauseEmojiCompatNotInitialized()) {
+                return;
+            }
+            mHelperDelegate.updateTransformationMethod();
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * This method will have no effect if !{@link EmojiCompat#isConfigured()}
+         */
+        @NonNull
+        @Override
+        InputFilter[] getFilters(@NonNull InputFilter[] filters) {
+            if (skipBecauseEmojiCompatNotInitialized()) {
+                return filters;
+            }
+            return mHelperDelegate.getFilters(filters);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * This method will have no effect if !{@link EmojiCompat#isConfigured()}
+         */
+        @Nullable
+        @Override
+        TransformationMethod wrapTransformationMethod(
+                @Nullable TransformationMethod transformationMethod) {
+            if (skipBecauseEmojiCompatNotInitialized()) {
+                return transformationMethod;
+            }
+            return mHelperDelegate.wrapTransformationMethod(transformationMethod);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * This method will have no effect if !{@link EmojiCompat#isConfigured()}
+         */
+        @Override
+        void setAllCaps(boolean allCaps) {
+            if (skipBecauseEmojiCompatNotInitialized()) {
+                return;
+            }
+            mHelperDelegate.setAllCaps(allCaps);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * This method will track enabled, but have no other effect if
+         * !{@link EmojiCompat#isConfigured()}
+         */
+        @Override
+        void setEnabled(boolean processEmoji) {
+            if (skipBecauseEmojiCompatNotInitialized()) {
+                mHelperDelegate.setEnabledUnsafe(processEmoji);
+            } else {
+                mHelperDelegate.setEnabled(processEmoji);
+            }
         }
     }
 
@@ -150,25 +296,54 @@ public final class EmojiTextViewHelper {
     private static class HelperInternal19 extends HelperInternal {
         private final TextView mTextView;
         private final EmojiInputFilter mEmojiInputFilter;
+        private boolean mEnabled;
 
         HelperInternal19(TextView textView) {
             mTextView = textView;
+            mEnabled = true;
             mEmojiInputFilter = new EmojiInputFilter(textView);
         }
 
+
         @Override
         void updateTransformationMethod() {
-            final TransformationMethod tm = mTextView.getTransformationMethod();
-            if (tm != null && !(tm instanceof PasswordTransformationMethod)) {
-                mTextView.setTransformationMethod(wrapTransformationMethod(tm));
+            // since this is not a pure function, we need to have a side effect for both enabled
+            // and disabled
+            final TransformationMethod tm =
+                    wrapTransformationMethod(mTextView.getTransformationMethod());
+            mTextView.setTransformationMethod(tm);
+        }
+
+        /**
+         * Call whenever mEnabled changes
+         */
+        private void updateFilters() {
+            InputFilter[] oldFilters = mTextView.getFilters();
+            mTextView.setFilters(getFilters(oldFilters));
+        }
+
+        @NonNull
+        @Override
+        InputFilter[] getFilters(@NonNull final InputFilter[] filters) {
+            if (!mEnabled) {
+                // remove any EmojiInputFilter when disabled
+                return removeEmojiInputFilterIfPresent(filters);
+            } else {
+                return addEmojiInputFilterIfMissing(filters);
             }
         }
 
-        @Override
-        InputFilter[] getFilters(@NonNull final InputFilter[] filters) {
+        /**
+         * Make sure that EmojiInputFilter is present in filters, or add it.
+         *
+         * @param filters to check
+         * @return filters with mEmojiInputFilter added, if not previously present
+         */
+        @NonNull
+        private InputFilter[] addEmojiInputFilterIfMissing(@NonNull InputFilter[] filters) {
             final int count = filters.length;
             for (int i = 0; i < count; i++) {
-                if (filters[i] instanceof EmojiInputFilter) {
+                if (filters[i] == mEmojiInputFilter) {
                     return filters;
                 }
             }
@@ -178,12 +353,88 @@ public final class EmojiTextViewHelper {
             return newFilters;
         }
 
+        /**
+         * Remove all EmojiInputFilter from filters
+         *
+         * @return filters.filter { it !== mEmojiInputFilter }
+         */
+        @NonNull
+        private InputFilter[] removeEmojiInputFilterIfPresent(@NonNull InputFilter[] filters) {
+            // find out the new size after removing (all) EmojiInputFilter
+            SparseArray<InputFilter> filterSet = getEmojiInputFilterPositionArray(filters);
+            if (filterSet.size() == 0) {
+                return filters;
+            }
+
+
+            final int inCount = filters.length;
+            int outCount = filters.length - filterSet.size();
+            InputFilter[] result = new InputFilter[outCount];
+            int destPosition = 0;
+            for (int srcPosition = 0; srcPosition < inCount; srcPosition++) {
+                if (filterSet.indexOfKey(srcPosition) < 0) {
+                    result[destPosition] = filters[srcPosition];
+                    destPosition++;
+                }
+            }
+            return result;
+        }
+
+        /**
+         * Populate a sparse array with true for all indexes that contain an EmojiInputFilter.
+         */
+        private SparseArray<InputFilter> getEmojiInputFilterPositionArray(
+                @NonNull InputFilter[] filters) {
+            SparseArray<InputFilter> result = new SparseArray<>(1);
+            for (int pos = 0; pos < filters.length; pos++) {
+                if (filters[pos] instanceof EmojiInputFilter) {
+                    result.put(pos, filters[pos]);
+                }
+            }
+            return result;
+        }
+
+        @Nullable
         @Override
-        TransformationMethod wrapTransformationMethod(TransformationMethod transformationMethod) {
+        TransformationMethod wrapTransformationMethod(
+                @Nullable TransformationMethod transformationMethod) {
+            if (mEnabled) {
+                return wrapForEnabled(transformationMethod);
+            } else {
+                return unwrapForDisabled(transformationMethod);
+            }
+        }
+
+        /**
+         * Unwrap EmojiTransformationMethods safely.
+         */
+        @Nullable
+        private TransformationMethod unwrapForDisabled(
+                @Nullable TransformationMethod transformationMethod) {
             if (transformationMethod instanceof EmojiTransformationMethod) {
+                EmojiTransformationMethod etm =
+                        (EmojiTransformationMethod) transformationMethod;
+                return etm.getOriginalTransformationMethod();
+            } else {
                 return transformationMethod;
             }
-            return new EmojiTransformationMethod(transformationMethod);
+        }
+
+        /**
+         * Wrap in EmojiTransformationMethod, but don't double wrap.
+         *
+         * This will not wrap {@link PasswordTransformationMethod}.
+         */
+        @NonNull
+        private TransformationMethod wrapForEnabled(
+                @Nullable TransformationMethod transformationMethod) {
+            if (transformationMethod instanceof EmojiTransformationMethod) {
+                return transformationMethod;
+            } else if (transformationMethod instanceof PasswordTransformationMethod) {
+                return transformationMethod;
+            } else {
+                return new EmojiTransformationMethod(transformationMethod);
+            }
         }
 
         @Override
@@ -195,5 +446,26 @@ public final class EmojiTextViewHelper {
             }
         }
 
+        @Override
+        void setEnabled(boolean enabled) {
+            boolean oldValue = mEnabled;
+            mEnabled = enabled;
+            if (oldValue != enabled) {
+                updateTransformationMethod();
+                updateFilters();
+            }
+        }
+
+        /**
+         * Call to set enabled without side effects. Should only be used when EmojiCompat is not
+         * initialized.
+         *
+         * @param processEmoji when true, this helper will process emoji
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        void setEnabledUnsafe(boolean processEmoji) {
+            mEnabled = processEmoji;
+        }
     }
 }

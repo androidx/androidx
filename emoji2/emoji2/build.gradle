@@ -13,8 +13,12 @@ plugins {
 
 BundleInsideHelper.forInsideAar(
     project,
-    /* from = */ "com.google.flatbuffers",
-    /* to =   */ "androidx.text.emoji2.flatbuffer"
+    [
+            new BundleInsideHelper.Relocation("com.google.flatbuffers",
+                    "androidx.emoji2.text.flatbuffer"),
+            new BundleInsideHelper.Relocation("androidx.text.emoji.flatbuffer",
+                    "androidx.emoji2.text.flatbuffer")
+    ]
 )
 
 dependencies {
