@@ -149,7 +149,7 @@ public class WatchFace @JvmOverloads constructor(
         private val componentNameToEditorDelegate = HashMap<ComponentName, EditorDelegate>()
 
         private var pendingComponentName: ComponentName? = null
-        private var pendingEditorDelegateCB: CompletableDeferred<EditorDelegate?>? = null
+        private var pendingEditorDelegateCB: CompletableDeferred<EditorDelegate>? = null
 
         /** @hide */
         @JvmStatic
@@ -160,6 +160,18 @@ public class WatchFace @JvmOverloads constructor(
             editorDelegate: EditorDelegate
         ) {
             componentNameToEditorDelegate[componentName] = editorDelegate
+
+            if (componentName == pendingComponentName) {
+                pendingEditorDelegateCB?.complete(editorDelegate)
+            } else {
+                pendingEditorDelegateCB?.completeExceptionally(
+                    IllegalStateException(
+                        "Expected $pendingComponentName to be created but got $componentName"
+                    )
+                )
+            }
+            pendingComponentName = null
+            pendingEditorDelegateCB = null
         }
 
         internal fun unregisterEditorDelegate(componentName: ComponentName) {
@@ -184,7 +196,7 @@ public class WatchFace @JvmOverloads constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun getOrCreateEditorDelegate(
             componentName: ComponentName
-        ): CompletableDeferred<EditorDelegate?> {
+        ): CompletableDeferred<EditorDelegate> {
             componentNameToEditorDelegate[componentName]?.let {
                 return CompletableDeferred(it)
             }
@@ -194,21 +206,6 @@ public class WatchFace @JvmOverloads constructor(
             pendingComponentName = componentName
             pendingEditorDelegateCB = CompletableDeferred()
             return pendingEditorDelegateCB!!
-        }
-
-        @UiThread
-        internal fun maybeCreatePendingEditorDelegate(watchface: WatchFaceImpl) {
-            if (pendingComponentName != null) {
-                pendingEditorDelegateCB?.complete(
-                    if (watchface.componentName == pendingComponentName) {
-                        watchface.createWFEditorDelegate()
-                    } else {
-                        null
-                    }
-                )
-                pendingComponentName = null
-                pendingEditorDelegateCB = null
-            }
         }
     }
 
@@ -383,13 +380,15 @@ public class WatchFace @JvmOverloads constructor(
     }
 }
 
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("SyntheticAccessor")
-internal class WatchFaceImpl(
+public class WatchFaceImpl(
     watchface: WatchFace,
     private val watchFaceHostApi: WatchFaceHostApi,
     private val watchState: WatchState
 ) {
-    companion object {
+    internal companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
 
         internal const val MOCK_TIME_INTENT = "androidx.wear.watchface.MockTime"
@@ -536,43 +535,6 @@ internal class WatchFaceImpl(
             else -> throw InvalidParameterException("Unrecognized watchFaceType")
         }
 
-    init {
-        // If the system has a stored user style then Home/SysUI is in charge of style
-        // persistence, otherwise we need to do our own.
-        val storedUserStyle = watchFaceHostApi.getInitialUserStyle()
-        if (storedUserStyle != null) {
-            userStyleRepository.userStyle =
-                UserStyle(UserStyleData(storedUserStyle), userStyleRepository.schema)
-        } else {
-            // The system doesn't support preference persistence we need to do it ourselves.
-            val preferencesFile =
-                "watchface_prefs_${watchFaceHostApi.getContext().javaClass.name}.txt"
-
-            userStyleRepository.userStyle = UserStyle(
-                UserStyleData(readPrefs(watchFaceHostApi.getContext(), preferencesFile)),
-                userStyleRepository.schema
-            )
-
-            userStyleRepository.addUserStyleChangeListener(
-                object : CurrentUserStyleRepository.UserStyleChangeListener {
-                    @SuppressLint("SyntheticAccessor")
-                    override fun onUserStyleChanged(userStyle: UserStyle) {
-                        writePrefs(watchFaceHostApi.getContext(), preferencesFile, userStyle)
-                    }
-                })
-        }
-
-        renderer.watchFaceHostApi = watchFaceHostApi
-
-        setIsBatteryLowAndNotChargingFromBatteryStatus(
-            IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
-                watchFaceHostApi.getContext().registerReceiver(null, iFilter)
-            }
-        )
-
-        WatchFace.maybeCreatePendingEditorDelegate(this)
-    }
-
     private var inOnSetStyle = false
 
     private val ambientObserver = Observer<Boolean> {
@@ -619,6 +581,39 @@ internal class WatchFaceImpl(
     }
 
     init {
+        // If the system has a stored user style then Home/SysUI is in charge of style
+        // persistence, otherwise we need to do our own.
+        val storedUserStyle = watchFaceHostApi.getInitialUserStyle()
+        if (storedUserStyle != null) {
+            userStyleRepository.userStyle =
+                UserStyle(UserStyleData(storedUserStyle), userStyleRepository.schema)
+        } else {
+            // The system doesn't support preference persistence we need to do it ourselves.
+            val preferencesFile =
+                "watchface_prefs_${watchFaceHostApi.getContext().javaClass.name}.txt"
+
+            userStyleRepository.userStyle = UserStyle(
+                UserStyleData(readPrefs(watchFaceHostApi.getContext(), preferencesFile)),
+                userStyleRepository.schema
+            )
+
+            userStyleRepository.addUserStyleChangeListener(
+                object : CurrentUserStyleRepository.UserStyleChangeListener {
+                    @SuppressLint("SyntheticAccessor")
+                    override fun onUserStyleChanged(userStyle: UserStyle) {
+                        writePrefs(watchFaceHostApi.getContext(), preferencesFile, userStyle)
+                    }
+                })
+        }
+
+        renderer.watchFaceHostApi = watchFaceHostApi
+
+        setIsBatteryLowAndNotChargingFromBatteryStatus(
+            IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
+                watchFaceHostApi.getContext().registerReceiver(null, iFilter)
+            }
+        )
+
         // We need to inhibit an immediate callback during initialization because members are not
         // fully constructed and it will fail. It's also superfluous because we're going to render
         // anyway.
@@ -967,7 +962,7 @@ internal class WatchFaceImpl(
     }
 
     @UiThread
-    fun dump(writer: IndentingPrintWriter) {
+    internal fun dump(writer: IndentingPrintWriter) {
         writer.println("WatchFaceImpl ($componentName): ")
         writer.increaseIndent()
         writer.println("calendar=$calendar")

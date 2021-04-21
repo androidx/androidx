@@ -216,7 +216,7 @@ public abstract class EditorSession : AutoCloseable {
                     session.setEditorDelegate(
                         WatchFace.getOrCreateEditorDelegate(
                             editorRequest.watchFaceComponentName
-                        ).await()!!
+                        ).await()
                     )
 
                     // Resolve only after init has been completed.
