@@ -57,6 +57,7 @@ import androidx.core.app.BundleCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.R;
 import androidx.media.VolumeProviderCompat;
+import androidx.media.utils.MediaConstants;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 
@@ -1143,9 +1144,13 @@ public final class MediaControllerCompat {
          * {@link #prepareFromMediaId(String, Bundle)} to indicate the stream type to be used by the
          * media player when playing or preparing the specified media id. See {@link AudioManager}
          * for a list of stream types.
+         *
+         * @deprecated Use {@link MediaConstants#TRANSPORT_CONTROLS_EXTRAS_KEY_LEGACY_STREAM_TYPE}
+         * instead.
          */
+        @Deprecated
         public static final String EXTRA_LEGACY_STREAM_TYPE =
-                "android.media.session.extra.LEGACY_STREAM_TYPE";
+                MediaConstants.TRANSPORT_CONTROLS_EXTRAS_KEY_LEGACY_STREAM_TYPE;
 
         TransportControls() {
         }
