@@ -39,9 +39,9 @@ import java.util.Objects;
  * previous one if:
  *
  * <ul>
- *   <li>The template title has not changed, and
- *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or the
- *       number of grid items and the title of each grid item have not changed.
+ *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or
+ *   <li>The template title has not changed, and the number of grid items and the title of each
+ *       grid item have not changed.
  * </ul>
  */
 @CarProtocol
