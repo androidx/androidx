@@ -53,6 +53,7 @@ import androidx.appsearch.localstorage.converter.SearchResultToProtoConverter;
 import androidx.appsearch.localstorage.converter.SearchSpecToProtoConverter;
 import androidx.appsearch.localstorage.converter.SetSchemaResponseToProtoConverter;
 import androidx.appsearch.localstorage.converter.TypePropertyPathToProtoConverter;
+import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -182,21 +183,57 @@ public final class AppSearchImpl implements Closeable {
     /**
      * Creates and initializes an instance of {@link AppSearchImpl} which writes data to the given
      * folder.
+     *
+     * <p>Clients can pass a {@link AppSearchLogger} here through their AppSearchSession, but it
+     * can't be saved inside {@link AppSearchImpl}, because the impl will be shared by all the
+     * sessions for the same package in JetPack.
+     *
+     * <p>Instead, logger instance needs to be passed to each individual method, like create, query
+     * and putDocument.
+     *
+     * @param logger collects stats for initialization if provided.
      */
     @NonNull
     public static AppSearchImpl create(@NonNull File icingDir, @NonNull Context context, int userId,
-            @NonNull String globalQuerierPackage) throws AppSearchException {
+            @NonNull String globalQuerierPackage, @Nullable AppSearchLogger logger)
+            throws AppSearchException {
         Preconditions.checkNotNull(icingDir);
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(globalQuerierPackage);
+
+        long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+        InitializeStats.Builder initStatsBuilder = null;
+        if (logger != null) {
+            initStatsBuilder = new InitializeStats.Builder();
+        }
+
         AppSearchImpl appSearchImpl =
-                new AppSearchImpl(icingDir, context, userId, globalQuerierPackage);
+                new AppSearchImpl(icingDir, context, userId, globalQuerierPackage,
+                        initStatsBuilder);
+
+        long prepareVisibilityStoreLatencyStartMillis = SystemClock.elapsedRealtime();
         appSearchImpl.initializeVisibilityStore();
+        long prepareVisibilityStoreLatencyEndMillis = SystemClock.elapsedRealtime();
+
+        if (logger != null && initStatsBuilder != null) {
+            initStatsBuilder
+                    .setTotalLatencyMillis(
+                            (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis))
+                    .setPrepareVisibilityStoreLatencyMillis(
+                            (int) (prepareVisibilityStoreLatencyEndMillis
+                                    - prepareVisibilityStoreLatencyStartMillis));
+            logger.logStats(initStatsBuilder.build());
+        }
+
         return appSearchImpl;
     }
 
+    /**
+     * @param initStatsBuilder collects stats for initialization if provided.
+     */
     private AppSearchImpl(@NonNull File icingDir, @NonNull Context context, int userId,
-            @NonNull String globalQuerierPackage) throws AppSearchException {
+            @NonNull String globalQuerierPackage,
+            @Nullable InitializeStats.Builder initStatsBuilder) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
 
         try {
@@ -205,13 +242,24 @@ public final class AppSearchImpl implements Closeable {
             IcingSearchEngineOptions options = IcingSearchEngineOptions.newBuilder()
                     .setBaseDir(icingDir.getAbsolutePath()).build();
             mIcingSearchEngineLocked = new IcingSearchEngine(options);
-
             mVisibilityStoreLocked = new VisibilityStore(this, context, userId,
                     globalQuerierPackage);
-
             InitializeResultProto initializeResultProto = mIcingSearchEngineLocked.initialize();
+
+            if (initStatsBuilder != null) {
+                initStatsBuilder
+                        .setStatusCode(
+                                statusProtoToAppSearchException(
+                                        initializeResultProto.getStatus()).getResultCode())
+                        // TODO(b/173532925) how to get DeSyncs value
+                        .setHasDeSync(false);
+                AppSearchLoggerHelper.copyNativeStats(
+                        initializeResultProto.getInitializeStats(), initStatsBuilder);
+            }
+
+            long prepareSchemaAndNamespacesLatencyStartMillis = SystemClock.elapsedRealtime();
             SchemaProto schemaProto;
-            GetAllNamespacesResultProto getAllNamespacesResultProto;
+            GetAllNamespacesResultProto getAllNamespacesResultProto = null;
             try {
                 checkSuccess(initializeResultProto.getStatus());
                 schemaProto = getSchemaProtoLocked();
@@ -219,6 +267,14 @@ public final class AppSearchImpl implements Closeable {
                 checkSuccess(getAllNamespacesResultProto.getStatus());
             } catch (AppSearchException e) {
                 Log.w(TAG, "Error initializing, resetting IcingSearchEngine.", e);
+                if (initStatsBuilder != null && getAllNamespacesResultProto != null) {
+                    initStatsBuilder.setStatusCode(
+                            statusProtoToAppSearchException(
+                                    getAllNamespacesResultProto.getStatus()).getResultCode())
+                            .setPrepareSchemaAndNamespacesLatencyMillis(
+                                    (int) (SystemClock.elapsedRealtime()
+                                            - prepareSchemaAndNamespacesLatencyStartMillis));
+                }
                 // Some error. Reset and see if it fixes it.
                 resetLocked();
                 return;
@@ -235,6 +291,13 @@ public final class AppSearchImpl implements Closeable {
             for (String prefixedNamespace : getAllNamespacesResultProto.getNamespacesList()) {
                 addToMap(mNamespaceMapLocked, getPrefix(prefixedNamespace),
                         prefixedNamespace);
+            }
+
+            // logging prepare_schema_and_namespaces latency
+            if (initStatsBuilder != null) {
+                initStatsBuilder.setPrepareSchemaAndNamespacesLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime()
+                                - prepareSchemaAndNamespacesLatencyStartMillis));
             }
         } finally {
             mReadWriteLock.writeLock().unlock();
@@ -530,7 +593,7 @@ public final class AppSearchImpl implements Closeable {
             addToMap(mNamespaceMapLocked, prefix, documentBuilder.getNamespace());
 
             // Logging stats
-            if (logger != null) {
+            if (logger != null && pStatsBuilder != null) {
                 pStatsBuilder.getGeneralStatsBuilder().setStatusCode(
                         statusProtoToAppSearchException(putResultProto.getStatus())
                                 .getResultCode());
@@ -549,7 +612,7 @@ public final class AppSearchImpl implements Closeable {
         } finally {
             mReadWriteLock.writeLock().unlock();
 
-            if (logger != null) {
+            if (logger != null && pStatsBuilder != null) {
                 long totalEndTimeMillis = SystemClock.elapsedRealtime();
                 pStatsBuilder.getGeneralStatsBuilder().setTotalLatencyMillis(
                         (int) (totalEndTimeMillis - totalStartTimeMillis));

@@ -79,7 +79,8 @@ public class AppSearchImplTest {
         // Give ourselves global query permissions
         mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
                 context, VisibilityStore.NO_OP_USER_ID,
-                /*globalQuerierPackage=*/ context.getPackageName());
+                /*globalQuerierPackage=*/ context.getPackageName(),
+                /*logger=*/ null);
     }
 
     //TODO(b/175430168) add test to verify reset is working properly.
@@ -1185,7 +1186,8 @@ public class AppSearchImplTest {
     public void testThrowsExceptionIfClosed() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
-                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "", /*logger
+                =*/ null);
 
         // Initial check that we could do something at first.
         List<AppSearchSchema> schemas =
@@ -1273,7 +1275,8 @@ public class AppSearchImplTest {
         Context context = ApplicationProvider.getApplicationContext();
         File appsearchDir = mTemporaryFolder.newFolder();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "",
+                /*logger=*/ null);
 
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
@@ -1295,7 +1298,8 @@ public class AppSearchImplTest {
 
         // That document should be visible even from another instance.
         AppSearchImpl appSearchImpl2 = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "",
+                /*logger=*/ null);
         getResult = appSearchImpl2.getDocument("package", "database", "namespace1",
                 "id1",
                 Collections.emptyMap());
@@ -1308,7 +1312,8 @@ public class AppSearchImplTest {
         Context context = ApplicationProvider.getApplicationContext();
         File appsearchDir = mTemporaryFolder.newFolder();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "",
+                /*logger=*/ null);
 
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
@@ -1350,7 +1355,8 @@ public class AppSearchImplTest {
 
         // Only the second document should be retrievable from another instance.
         AppSearchImpl appSearchImpl2 = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "",
+                /*logger=*/ null);
         assertThrows(AppSearchException.class, () -> appSearchImpl2.getDocument("package",
                 "database",
                 "namespace1",
@@ -1368,7 +1374,8 @@ public class AppSearchImplTest {
         Context context = ApplicationProvider.getApplicationContext();
         File appsearchDir = mTemporaryFolder.newFolder();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "",
+                /*logger=*/ null);
 
         List<AppSearchSchema> schemas =
                 Collections.singletonList(new AppSearchSchema.Builder("type").build());
@@ -1412,7 +1419,8 @@ public class AppSearchImplTest {
 
         // Only the second document should be retrievable from another instance.
         AppSearchImpl appSearchImpl2 = AppSearchImpl.create(appsearchDir,
-                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "");
+                context, VisibilityStore.NO_OP_USER_ID, /*globalQuerierPackage=*/ "",
+                /*logger=*/ null);
         assertThrows(AppSearchException.class, () -> appSearchImpl2.getDocument("package",
                 "database",
                 "namespace1",

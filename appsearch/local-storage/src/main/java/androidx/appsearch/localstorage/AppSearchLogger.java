@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.CallStats;
+import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 
 /**
@@ -43,6 +44,11 @@ public interface AppSearchLogger {
      * Logs {@link PutDocumentStats}
      */
     void logStats(@NonNull PutDocumentStats stats) throws AppSearchException;
+
+    /**
+     * Logs {@link InitializeStats}
+     */
+    void logStats(@NonNull InitializeStats stats) throws AppSearchException;
 
     // TODO(b/173532925) Add remaining logStats once we add all the stats.
 }
