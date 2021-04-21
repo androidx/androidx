@@ -233,6 +233,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     /**
      * Set the lock mode that controls how the user can swipe between the panes.
+     *
+     * @param lockMode The new lock mode for the detail pane.
      */
     public final void setLockMode(@LockMode int lockMode) {
         mLockMode = lockMode;
@@ -1475,6 +1477,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
         SavedState ss = new SavedState(superState);
         ss.isOpen = isSlideable() ? isOpen() : mPreservedOpenState;
+        ss.mLockMode = mLockMode;
 
         return ss;
     }
@@ -1495,6 +1498,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             closePane();
         }
         mPreservedOpenState = ss.isOpen;
+
+        setLockMode(ss.mLockMode);
     }
 
     private class DragHelperCallback extends ViewDragHelper.Callback {
@@ -1504,7 +1509,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
         @Override
         public boolean tryCaptureView(View child, int pointerId) {
-            if (mIsUnableToDrag) {
+            if (!isDraggable()) {
                 return false;
             }
 
@@ -1566,20 +1571,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
-            boolean slidingDetailToList = isLayoutRtlSupport() ? dx > 0 : dx < 0;
             int newLeft = left;
-            if (slidingDetailToList) {
-                if (getLockMode() == LOCK_MODE_LOCKED_CLOSED
-                        || getLockMode() == LOCK_MODE_LOCKED) {
-                    newLeft -= dx;
-                }
-            } else {
-                if (getLockMode() == LOCK_MODE_LOCKED_OPEN
-                        || getLockMode() == LOCK_MODE_LOCKED) {
-                    newLeft -= dx;
-                }
-            }
-
             final LayoutParams lp = (LayoutParams) mSlideableView.getLayoutParams();
 
             if (isLayoutRtlSupport()) {
@@ -1604,14 +1596,38 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
         @Override
         public void onEdgeTouched(int edgeFlags, int pointerId) {
+            if (!isDraggable()) {
+                return;
+            }
             mDragHelper.captureChildView(mSlideableView, pointerId);
         }
 
         @Override
         public void onEdgeDragStarted(int edgeFlags, int pointerId) {
+            if (!isDraggable()) {
+                return;
+            }
             mDragHelper.captureChildView(mSlideableView, pointerId);
         }
+
+        private boolean isDraggable() {
+            if (mIsUnableToDrag) {
+                return false;
+            }
+            if (getLockMode() == LOCK_MODE_LOCKED) {
+                return false;
+            }
+            if (isOpen() && getLockMode() == LOCK_MODE_LOCKED_OPEN) {
+                return false;
+            }
+            if (!isOpen() && getLockMode() == LOCK_MODE_LOCKED_CLOSED) {
+                return false;
+            }
+            return true;
+        }
     }
+
+
 
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
         private static final int[] ATTRS = new int[]{
@@ -1670,6 +1686,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
 
     static class SavedState extends AbsSavedState {
         boolean isOpen;
+        @LockMode int mLockMode;
 
         SavedState(Parcelable superState) {
             super(superState);
@@ -1678,12 +1695,14 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         SavedState(Parcel in, ClassLoader loader) {
             super(in, loader);
             isOpen = in.readInt() != 0;
+            mLockMode = in.readInt();
         }
 
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeInt(isOpen ? 1 : 0);
+            out.writeInt(mLockMode);
         }
 
         public static final Creator<SavedState> CREATOR = new ClassLoaderCreator<SavedState>() {
