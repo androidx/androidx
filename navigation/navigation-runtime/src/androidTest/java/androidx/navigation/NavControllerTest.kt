@@ -290,6 +290,22 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testSetNewLifecycleOwner() {
+        val navController = createNavController()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+
+        navController.setLifecycleOwner(lifecycleOwner)
+        assertThat(lifecycleOwner.observerCount).isEqualTo(1)
+
+        val replacementLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+
+        navController.setLifecycleOwner(replacementLifecycleOwner)
+        assertThat(lifecycleOwner.observerCount).isEqualTo(0)
+        assertThat(replacementLifecycleOwner.observerCount).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigate() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
