@@ -99,7 +99,9 @@ public interface CanvasComplication {
     /**
      * Sets the [ComplicationData] to render with and loads any [Drawable]s contained within the
      * ComplicationData. You can choose whether this is done synchronously or asynchronously via
-     * [loadDrawablesAsynchronous].
+     * [loadDrawablesAsynchronous]. When any asynchronous loading has completed
+     * [Complication.invalidate] must be called for the [Complication] instance previously passed
+     * in via [onAttach].
      *
      * @param complicationData The [ComplicationData] to render with
      * @param loadDrawablesAsynchronous Whether or not any drawables should be loaded asynchronously
