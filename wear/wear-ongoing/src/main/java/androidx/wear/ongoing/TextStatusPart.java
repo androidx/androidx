@@ -26,7 +26,7 @@ import java.util.Objects;
 
 /**
  * An Ongoing activity status (or part of it) representing a plain, static text.
- *
+ * <p>
  * Available since wear-ongoing:1.0.0
  */
 @VersionedParcelize
