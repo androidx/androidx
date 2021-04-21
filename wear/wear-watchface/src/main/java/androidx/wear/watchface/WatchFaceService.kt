@@ -137,8 +137,6 @@ public annotation class TapType {
     }
 }
 
-private class PendingComplicationData(val complicationId: Int, val data: ComplicationData)
-
 /**
  * WatchFaceService and [WatchFace] are a pair of classes intended to handle much of
  * the boilerplate needed to implement a watch face without being too opinionated. The suggested
@@ -324,6 +322,230 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
+    /** This is the old pre Android R flow that's needed for backwards compatibility. */
+    internal class WslFlow(private val engineWrapper: EngineWrapper) {
+        class PendingComplicationData(val complicationId: Int, val data: ComplicationData)
+
+        lateinit var iWatchFaceService: IWatchFaceService
+
+        var pendingBackgroundAction: Bundle? = null
+        var pendingProperties: Bundle? = null
+        var pendingSetWatchFaceStyle = false
+        var pendingVisibilityChanged: Boolean? = null
+        var pendingComplicationDataUpdates = ArrayList<PendingComplicationData>()
+        var complicationsActivated = false
+        var watchFaceInitStarted = false
+        var lastActiveComplications: IntArray? = null
+
+        // Only valid after onSetBinder has been called.
+        var systemApiVersion = -1
+
+        fun iWatchFaceServiceInitialized() = this::iWatchFaceService.isInitialized
+
+        fun requestWatchFaceStyle() {
+            try {
+                iWatchFaceService.setStyle(engineWrapper.watchFaceImpl.getWatchFaceStyle())
+            } catch (e: RemoteException) {
+                Log.e(TAG, "Failed to set WatchFaceStyle: ", e)
+            }
+
+            val activeComplications = lastActiveComplications
+            if (activeComplications != null) {
+                engineWrapper.setActiveComplications(activeComplications)
+            }
+
+            if (engineWrapper.contentDescriptionLabels.isNotEmpty()) {
+                engineWrapper.setContentDescriptionLabels(engineWrapper.contentDescriptionLabels)
+            }
+        }
+
+        fun setDefaultComplicationProviderWithFallbacks(
+            watchFaceComplicationId: Int,
+            providers: List<ComponentName>?,
+            @ProviderId fallbackSystemProvider: Int,
+            type: Int
+        ) {
+
+            // For android R flow iWatchFaceService won't have been set.
+            if (!iWatchFaceServiceInitialized()) {
+                return
+            }
+
+            if (systemApiVersion >= 2) {
+                iWatchFaceService.setDefaultComplicationProviderWithFallbacks(
+                    watchFaceComplicationId,
+                    providers,
+                    fallbackSystemProvider,
+                    type
+                )
+            } else {
+                // If the implementation doesn't support the new API we emulate its behavior by
+                // setting complication providers in the reverse order. This works because if
+                // setDefaultComplicationProvider attempts to set a non-existent or incompatible
+                // provider it does nothing, which allows us to emulate the same semantics as
+                // setDefaultComplicationProviderWithFallbacks albeit with more calls.
+                if (fallbackSystemProvider != WatchFaceImpl.NO_DEFAULT_PROVIDER) {
+                    iWatchFaceService.setDefaultSystemComplicationProvider(
+                        watchFaceComplicationId, fallbackSystemProvider, type
+                    )
+                }
+
+                if (providers != null) {
+                    // Iterate in reverse order. This could be O(n^2) but n is expected to be small
+                    // and the list is probably an ArrayList so it's probably O(n) in practice.
+                    for (i in providers.size - 1 downTo 0) {
+                        iWatchFaceService.setDefaultComplicationProvider(
+                            watchFaceComplicationId, providers[i], type
+                        )
+                    }
+                }
+            }
+        }
+
+        fun setActiveComplications(watchFaceComplicationIds: IntArray) {
+            // For android R flow iWatchFaceService won't have been set.
+            if (!iWatchFaceServiceInitialized()) {
+                return
+            }
+
+            lastActiveComplications = watchFaceComplicationIds
+
+            try {
+                iWatchFaceService.setActiveComplications(
+                    watchFaceComplicationIds, /* updateAll= */ !complicationsActivated
+                )
+                complicationsActivated = true
+            } catch (e: RemoteException) {
+                Log.e(TAG, "Failed to set active complications: ", e)
+            }
+        }
+
+        fun onRequestStyle() {
+            // We can't guarantee the binder has been set and onSurfaceChanged called before this
+            // command.
+            if (!engineWrapper.watchFaceCreated()) {
+                pendingSetWatchFaceStyle = true
+                return
+            }
+            requestWatchFaceStyle()
+            pendingSetWatchFaceStyle = false
+        }
+
+        @UiThread
+        fun onBackgroundAction(extras: Bundle) {
+            // We can't guarantee the binder has been set and onSurfaceChanged called before this
+            // command.
+            if (!engineWrapper.watchFaceCreated()) {
+                pendingBackgroundAction = extras
+                return
+            }
+
+            engineWrapper.setWatchUiState(
+                WatchUiState(
+                    extras.getBoolean(
+                        Constants.EXTRA_AMBIENT_MODE,
+                        engineWrapper.mutableWatchState.isAmbient.getValueOr(false)
+                    ),
+                    extras.getInt(
+                        Constants.EXTRA_INTERRUPTION_FILTER,
+                        engineWrapper.mutableWatchState.interruptionFilter.getValueOr(0)
+                    )
+                )
+            )
+
+            pendingBackgroundAction = null
+        }
+
+        fun onComplicationDataUpdate(extras: Bundle) {
+            extras.classLoader = WireComplicationData::class.java.classLoader
+            val complicationData: WireComplicationData =
+                extras.getParcelable(Constants.EXTRA_COMPLICATION_DATA)!!
+            engineWrapper.setComplicationData(
+                extras.getInt(Constants.EXTRA_COMPLICATION_ID),
+                complicationData.toApiComplicationData()
+            )
+        }
+
+        fun onSetBinder(extras: Bundle) {
+            val binder = extras.getBinder(Constants.EXTRA_BINDER)
+            if (binder == null) {
+                Log.w(TAG, "Binder is null.")
+                return
+            }
+
+            iWatchFaceService = IWatchFaceService.Stub.asInterface(binder)
+
+            try {
+                // Note if the implementation doesn't support getVersion this will return zero
+                // rather than throwing an exception.
+                systemApiVersion = iWatchFaceService.apiVersion
+            } catch (e: RemoteException) {
+                Log.w(TAG, "Failed to getVersion: ", e)
+            }
+
+            engineWrapper.coroutineScope.launch { maybeCreateWatchFace() }
+        }
+
+        @UiThread
+        fun onPropertiesChanged(properties: Bundle) {
+            if (!watchFaceInitStarted) {
+                pendingProperties = properties
+                engineWrapper.coroutineScope.launch { maybeCreateWatchFace() }
+                return
+            }
+
+            engineWrapper.setImmutableSystemState(
+                DeviceConfig(
+                    properties.getBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT),
+                    properties.getBoolean(Constants.PROPERTY_BURN_IN_PROTECTION),
+                    ANALOG_WATCHFACE_REFERENCE_TIME_MS,
+                    DIGITAL_WATCHFACE_REFERENCE_TIME_MS
+                )
+            )
+        }
+
+        private suspend fun maybeCreateWatchFace(): Unit = TraceEvent(
+            "EngineWrapper.maybeCreateWatchFace"
+        ).use {
+            // To simplify handling of watch face state, we only construct the [WatchFaceImpl]
+            // once iWatchFaceService have been initialized and pending properties sent.
+            if (iWatchFaceServiceInitialized() &&
+                pendingProperties != null && !engineWrapper.watchFaceCreatedOrPending()
+            ) {
+                watchFaceInitStarted = true
+
+                // Apply immutable properties to mutableWatchState before creating the watch face.
+                onPropertiesChanged(pendingProperties!!)
+                pendingProperties = null
+
+                val watchState = engineWrapper.mutableWatchState.asWatchState()
+                engineWrapper.createWatchFaceInternal(
+                    watchState, engineWrapper.surfaceHolder, "maybeCreateWatchFace"
+                )
+
+                val backgroundAction = pendingBackgroundAction
+                if (backgroundAction != null) {
+                    onBackgroundAction(backgroundAction)
+                    pendingBackgroundAction = null
+                }
+                if (pendingSetWatchFaceStyle) {
+                    onRequestStyle()
+                }
+                val visibility = pendingVisibilityChanged
+                if (visibility != null) {
+                    engineWrapper.onVisibilityChanged(visibility)
+                    pendingVisibilityChanged = null
+                }
+                for (complicationDataUpdate in pendingComplicationDataUpdates) {
+                    engineWrapper.setComplicationData(
+                        complicationDataUpdate.complicationId,
+                        complicationDataUpdate.data
+                    )
+                }
+            }
+        }
+    }
+
     internal inner class EngineWrapper(
         private val uiThreadHandler: Handler,
         headless: Boolean
@@ -331,7 +553,9 @@ public abstract class WatchFaceService : WallpaperService() {
         internal val coroutineScope = CoroutineScope(getHandler().asCoroutineDispatcher().immediate)
         private val _context = this@WatchFaceService as Context
 
-        internal lateinit var iWatchFaceService: IWatchFaceService
+        // State to support the old WSL style interface
+        internal val wslFlow = WslFlow(this)
+
         internal lateinit var watchFaceImpl: WatchFaceImpl
 
         internal val mutableWatchState = getMutableWatchState().apply {
@@ -381,25 +605,12 @@ public abstract class WatchFaceService : WallpaperService() {
         // If non-null then changes to the style must be persisted.
         private var directBootParams: WallpaperInteractiveWatchFaceInstanceParams? = null
 
-        // State to support the old WSL style initialzation flow.
-        private var pendingBackgroundAction: Bundle? = null
-        private var pendingProperties: Bundle? = null
-        private var pendingSetWatchFaceStyle = false
-        private var pendingVisibilityChanged: Boolean? = null
-        private var pendingComplicationDataUpdates = ArrayList<PendingComplicationData>()
-        private var complicationsActivated = false
-        private var watchFaceInitStarted = false
-
-        // Only valid after onSetBinder has been called.
-        private var systemApiVersion = -1
+        internal var contentDescriptionLabels: Array<ContentDescriptionLabel> = emptyArray()
 
         internal var firstSetWatchUiState = true
         internal var immutableSystemStateDone = false
         internal var immutableChinHeightDone = false
         private var ignoreNextOnVisibilityChanged = false
-
-        internal var lastActiveComplications: IntArray? = null
-        internal var contentDescriptionLabels: Array<ContentDescriptionLabel> = emptyArray()
 
         private var firstOnSurfaceChangedReceived = false
         private var asyncWatchFaceConstructionPending = false
@@ -553,8 +764,8 @@ public abstract class WatchFaceService : WallpaperService() {
             if (watchFaceCreated()) {
                 watchFaceImpl.onComplicationDataUpdate(complicationId, data)
             } else {
-                pendingComplicationDataUpdates.add(
-                    PendingComplicationData(complicationId, data)
+                wslFlow.pendingComplicationDataUpdates.add(
+                    WslFlow.PendingComplicationData(complicationId, data)
                 )
             }
         }
@@ -603,30 +814,13 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             } else {
                 for (idAndComplicationData in complicationDatumWireFormats) {
-                    pendingComplicationDataUpdates.add(
-                        PendingComplicationData(
+                    wslFlow.pendingComplicationDataUpdates.add(
+                        WslFlow.PendingComplicationData(
                             idAndComplicationData.id,
                             idAndComplicationData.complicationData.toApiComplicationData()
                         )
                     )
                 }
-            }
-        }
-
-        private fun requestWatchFaceStyle() {
-            try {
-                iWatchFaceService.setStyle(watchFaceImpl.getWatchFaceStyle())
-            } catch (e: RemoteException) {
-                Log.e(TAG, "Failed to set WatchFaceStyle: ", e)
-            }
-
-            val activeComplications = lastActiveComplications
-            if (activeComplications != null) {
-                setActiveComplications(activeComplications)
-            }
-
-            if (contentDescriptionLabels.isNotEmpty()) {
-                setContentDescriptionLabels(contentDescriptionLabels)
             }
         }
 
@@ -857,23 +1051,23 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 Constants.COMMAND_BACKGROUND_ACTION ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_BACKGROUND_ACTION") {
-                        onBackgroundAction(extras!!)
+                        wslFlow.onBackgroundAction(extras!!)
                     }
                 Constants.COMMAND_COMPLICATION_DATA ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_COMPLICATION_DATA") {
-                        onComplicationDataUpdate(extras!!)
+                        wslFlow.onComplicationDataUpdate(extras!!)
                     }
                 Constants.COMMAND_REQUEST_STYLE ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_REQUEST_STYLE") {
-                        onRequestStyle()
+                        wslFlow.onRequestStyle()
                     }
                 Constants.COMMAND_SET_BINDER ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_SET_BINDER") {
-                        onSetBinder(extras!!)
+                        wslFlow.onSetBinder(extras!!)
                     }
                 Constants.COMMAND_SET_PROPERTIES ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_SET_PROPERTIES") {
-                        onPropertiesChanged(extras!!)
+                        wslFlow.onPropertiesChanged(extras!!)
                     }
                 Constants.COMMAND_TAP ->
                     uiThreadHandler.runOnHandlerWithTracing("onCommand COMMAND_TAP") {
@@ -891,51 +1085,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             }
             return null
-        }
-
-        @UiThread
-        fun onBackgroundAction(extras: Bundle) {
-            // We can't guarantee the binder has been set and onSurfaceChanged called before this
-            // command.
-            if (!watchFaceCreated()) {
-                pendingBackgroundAction = extras
-                return
-            }
-
-            setWatchUiState(
-                WatchUiState(
-                    extras.getBoolean(
-                        Constants.EXTRA_AMBIENT_MODE,
-                        mutableWatchState.isAmbient.getValueOr(false)
-                    ),
-                    extras.getInt(
-                        Constants.EXTRA_INTERRUPTION_FILTER,
-                        mutableWatchState.interruptionFilter.getValueOr(0)
-                    )
-                )
-            )
-
-            pendingBackgroundAction = null
-        }
-
-        private fun onSetBinder(extras: Bundle) {
-            val binder = extras.getBinder(Constants.EXTRA_BINDER)
-            if (binder == null) {
-                Log.w(TAG, "Binder is null.")
-                return
-            }
-
-            iWatchFaceService = IWatchFaceService.Stub.asInterface(binder)
-
-            try {
-                // Note if the implementation doesn't support getVersion this will return zero
-                // rather than throwing an exception.
-                systemApiVersion = iWatchFaceService.apiVersion
-            } catch (e: RemoteException) {
-                Log.w(TAG, "Failed to getVersion: ", e)
-            }
-
-            coroutineScope.launch { maybeCreateWatchFace() }
         }
 
         override fun getInitialUserStyle(): UserStyleWireFormat? = initialUserStyle
@@ -1048,12 +1197,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
             params.idAndComplicationDataWireFormats?.let { setComplicationDataList(it) }
 
-            val visibility = pendingVisibilityChanged
-            if (visibility != null) {
-                onVisibilityChanged(visibility)
-                pendingVisibilityChanged = null
-            }
-
             val instance = InteractiveWatchFaceImpl(this, params.instanceId, uiThreadHandler)
             InteractiveInstanceManager.addInstance(instance)
             interactiveInstanceId = params.instanceId
@@ -1083,7 +1226,7 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        private suspend fun createWatchFaceInternal(
+        internal suspend fun createWatchFaceInternal(
             watchState: WatchState,
             surfaceHolder: SurfaceHolder,
             _createdBy: String
@@ -1097,56 +1240,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 WatchFaceImpl(watchface, this, watchState)
             }
             asyncWatchFaceConstructionPending = false
-        }
-
-        private suspend fun maybeCreateWatchFace(): Unit = TraceEvent(
-            "EngineWrapper.maybeCreateWatchFace"
-        ).use {
-            // To simplify handling of watch face state, we only construct the [WatchFaceImpl]
-            // once iWatchFaceService have been initialized and pending properties sent.
-            if (this::iWatchFaceService.isInitialized && pendingProperties != null &&
-                !watchFaceCreatedOrPending()
-            ) {
-                watchFaceInitStarted = true
-
-                // Apply immutable properties to mutableWatchState before creating the watch face.
-                onPropertiesChanged(pendingProperties!!)
-                pendingProperties = null
-
-                val watchState = mutableWatchState.asWatchState()
-                createWatchFaceInternal(watchState, surfaceHolder, "maybeCreateWatchFace")
-
-                val backgroundAction = pendingBackgroundAction
-                if (backgroundAction != null) {
-                    onBackgroundAction(backgroundAction)
-                    pendingBackgroundAction = null
-                }
-                if (pendingSetWatchFaceStyle) {
-                    onRequestStyle()
-                }
-                val visibility = pendingVisibilityChanged
-                if (visibility != null) {
-                    onVisibilityChanged(visibility)
-                    pendingVisibilityChanged = null
-                }
-                for (complicationDataUpdate in pendingComplicationDataUpdates) {
-                    setComplicationData(
-                        complicationDataUpdate.complicationId,
-                        complicationDataUpdate.data
-                    )
-                }
-            }
-        }
-
-        private fun onRequestStyle() {
-            // We can't guarantee the binder has been set and onSurfaceChanged called before this
-            // command.
-            if (!watchFaceCreated()) {
-                pendingSetWatchFaceStyle = true
-                return
-            }
-            requestWatchFaceStyle()
-            pendingSetWatchFaceStyle = false
         }
 
         override fun onVisibilityChanged(visible: Boolean): Unit = TraceEvent(
@@ -1177,13 +1270,13 @@ public abstract class WatchFaceService : WallpaperService() {
                 // We can't guarantee the binder has been set and onSurfaceChanged called before
                 // this command.
                 if (!watchFaceCreated()) {
-                    pendingVisibilityChanged = visible
+                    wslFlow.pendingVisibilityChanged = visible
                     return
                 }
             }
 
             mutableWatchState.isVisible.value = visible
-            pendingVisibilityChanged = null
+            wslFlow.pendingVisibilityChanged = null
         }
 
         override fun invalidate() {
@@ -1222,34 +1315,6 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        private fun onComplicationDataUpdate(extras: Bundle) {
-            extras.classLoader = WireComplicationData::class.java.classLoader
-            val complicationData: WireComplicationData =
-                extras.getParcelable(Constants.EXTRA_COMPLICATION_DATA)!!
-            setComplicationData(
-                extras.getInt(Constants.EXTRA_COMPLICATION_ID),
-                complicationData.toApiComplicationData()
-            )
-        }
-
-        @UiThread
-        internal fun onPropertiesChanged(properties: Bundle) {
-            if (!watchFaceInitStarted) {
-                pendingProperties = properties
-                coroutineScope.launch { maybeCreateWatchFace() }
-                return
-            }
-
-            setImmutableSystemState(
-                DeviceConfig(
-                    properties.getBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT),
-                    properties.getBoolean(Constants.PROPERTY_BURN_IN_PROTECTION),
-                    ANALOG_WATCHFACE_REFERENCE_TIME_MS,
-                    DIGITAL_WATCHFACE_REFERENCE_TIME_MS
-                )
-            )
-        }
-
         internal fun watchFaceCreated() = this::watchFaceImpl.isInitialized
 
         internal fun watchFaceCreatedOrPending() =
@@ -1261,58 +1326,16 @@ public abstract class WatchFaceService : WallpaperService() {
             @ProviderId fallbackSystemProvider: Int,
             type: Int
         ) {
-            // For android R flow iWatchFaceService won't have been set.
-            if (!this::iWatchFaceService.isInitialized) {
-                return
-            }
-
-            if (systemApiVersion >= 2) {
-                iWatchFaceService.setDefaultComplicationProviderWithFallbacks(
-                    watchFaceComplicationId,
-                    providers,
-                    fallbackSystemProvider,
-                    type
-                )
-            } else {
-                // If the implementation doesn't support the new API we emulate its behavior by
-                // setting complication providers in the reverse order. This works because if
-                // setDefaultComplicationProvider attempts to set a non-existent or incompatible
-                // provider it does nothing, which allows us to emulate the same semantics as
-                // setDefaultComplicationProviderWithFallbacks albeit with more calls.
-                if (fallbackSystemProvider != WatchFaceImpl.NO_DEFAULT_PROVIDER) {
-                    iWatchFaceService.setDefaultSystemComplicationProvider(
-                        watchFaceComplicationId, fallbackSystemProvider, type
-                    )
-                }
-
-                if (providers != null) {
-                    // Iterate in reverse order. This could be O(n^2) but n is expected to be small
-                    // and the list is probably an ArrayList so it's probably O(n) in practice.
-                    for (i in providers.size - 1 downTo 0) {
-                        iWatchFaceService.setDefaultComplicationProvider(
-                            watchFaceComplicationId, providers[i], type
-                        )
-                    }
-                }
-            }
+            wslFlow.setDefaultComplicationProviderWithFallbacks(
+                watchFaceComplicationId,
+                providers,
+                fallbackSystemProvider,
+                type
+            )
         }
 
         override fun setActiveComplications(watchFaceComplicationIds: IntArray) {
-            // For android R flow iWatchFaceService won't have been set.
-            if (!this::iWatchFaceService.isInitialized) {
-                return
-            }
-
-            lastActiveComplications = watchFaceComplicationIds
-
-            try {
-                iWatchFaceService.setActiveComplications(
-                    watchFaceComplicationIds, /* updateAll= */ !complicationsActivated
-                )
-                complicationsActivated = true
-            } catch (e: RemoteException) {
-                Log.e(TAG, "Failed to set active complications: ", e)
-            }
+            wslFlow.setActiveComplications(watchFaceComplicationIds)
         }
 
         override fun updateContentDescriptionLabels() {
@@ -1384,13 +1407,13 @@ public abstract class WatchFaceService : WallpaperService() {
         private fun getAccessibilityManager() =
             _context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 
-        private fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>) {
+        fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>) {
             contentDescriptionLabels = labels
 
             // For the old pre-android R flow.
-            if (this::iWatchFaceService.isInitialized) {
+            if (wslFlow.iWatchFaceServiceInitialized()) {
                 try {
-                    iWatchFaceService.setContentDescriptionLabels(contentDescriptionLabels)
+                    wslFlow.iWatchFaceService.setContentDescriptionLabels(contentDescriptionLabels)
                 } catch (e: RemoteException) {
                     Log.e(TAG, "Failed to set accessibility labels: ", e)
                 }
@@ -1405,24 +1428,27 @@ public abstract class WatchFaceService : WallpaperService() {
             writer.println("WatchFaceEngine:")
             writer.increaseIndent()
             when {
-                this::iWatchFaceService.isInitialized -> writer.println("WSL style init flow")
+                wslFlow.iWatchFaceServiceInitialized() -> writer.println("WSL style init flow")
                 this::watchFaceImpl.isInitialized -> writer.println("Androidx style init flow")
                 expectPreRInitFlow() -> writer.println("Expecting WSL style init")
                 else -> writer.println("Expecting androidx style style init")
             }
 
-            if (this::iWatchFaceService.isInitialized) {
+            if (wslFlow.iWatchFaceServiceInitialized()) {
                 writer.println(
                     "iWatchFaceService.asBinder().isBinderAlive=" +
-                        "${iWatchFaceService.asBinder().isBinderAlive}"
+                        "${wslFlow.iWatchFaceService.asBinder().isBinderAlive}"
                 )
-                if (iWatchFaceService.asBinder().isBinderAlive) {
-                    writer.println("iWatchFaceService.apiVersion=${iWatchFaceService.apiVersion}")
+                if (wslFlow.iWatchFaceService.asBinder().isBinderAlive) {
+                    writer.println(
+                        "iWatchFaceService.apiVersion=" +
+                            "${wslFlow.iWatchFaceService.apiVersion}"
+                    )
                 }
             }
             writer.println("createdBy=$createdBy")
             writer.println("firstOnSurfaceChanged=$firstOnSurfaceChangedReceived")
-            writer.println("watchFaceInitStarted=$watchFaceInitStarted")
+            writer.println("watchFaceInitStarted=$wslFlow.watchFaceInitStarted")
             writer.println("asyncWatchFaceConstructionPending=$asyncWatchFaceConstructionPending")
             writer.println("ignoreNextOnVisibilityChanged=$ignoreNextOnVisibilityChanged")
 

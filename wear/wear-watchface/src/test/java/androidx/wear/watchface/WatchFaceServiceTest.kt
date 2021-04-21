@@ -460,7 +460,7 @@ public class WatchFaceServiceTest {
         hasLowBitAmbient: Boolean,
         hasBurnInProtection: Boolean
     ) {
-        engine.onPropertiesChanged(
+        engine.wslFlow.onPropertiesChanged(
             Bundle().apply {
                 putBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT, hasLowBitAmbient)
                 putBoolean(Constants.PROPERTY_BURN_IN_PROTECTION, hasBurnInProtection)
