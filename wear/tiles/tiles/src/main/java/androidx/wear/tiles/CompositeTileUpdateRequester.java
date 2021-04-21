@@ -25,8 +25,8 @@ import java.util.List;
 /**
  * Tile update requester which uses multiple underlying update requesters.
  *
- * This can be used to dispatch a tile update request to both the viewer classes and to SysUI at the
- * same time.
+ * <p>This can be used to dispatch a tile update request to both the viewer classes and to SysUI at
+ * the same time.
  */
 class CompositeTileUpdateRequester implements TileUpdateRequester {
     private final List<TileUpdateRequester> mUpdateRequesters;

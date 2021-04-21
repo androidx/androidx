@@ -28,6 +28,356 @@ import androidx.wear.tiles.proto.ActionProto;
 public final class ActionBuilders {
     private ActionBuilders() {}
 
+    /** Shortcut for building an {@link AndroidStringExtra}. */
+    @NonNull
+    public static AndroidStringExtra stringExtra(@NonNull String value) {
+        return AndroidStringExtra.builder().setValue(value).build();
+    }
+
+    /** Shortcut for building an {@link AndroidIntExtra}. */
+    @NonNull
+    public static AndroidIntExtra intExtra(int value) {
+        return AndroidIntExtra.builder().setValue(value).build();
+    }
+
+    /** Shortcut for building an {@link AndroidLongExtra}. */
+    @NonNull
+    public static AndroidLongExtra longExtra(long value) {
+        return AndroidLongExtra.builder().setValue(value).build();
+    }
+
+    /** Shortcut for building an {@link AndroidDoubleExtra}. */
+    @NonNull
+    public static AndroidDoubleExtra doubleExtra(double value) {
+        return AndroidDoubleExtra.builder().setValue(value).build();
+    }
+
+    /** Shortcut for building an {@link AndroidBooleanExtra}. */
+    @NonNull
+    public static AndroidBooleanExtra booleanExtra(boolean value) {
+        return AndroidBooleanExtra.builder().setValue(value).build();
+    }
+
+    /** A string value that can be added to an Android intent's extras. */
+    public static final class AndroidStringExtra implements AndroidExtra {
+        private final ActionProto.AndroidStringExtra mImpl;
+
+        private AndroidStringExtra(ActionProto.AndroidStringExtra impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AndroidStringExtra fromProto(@NonNull ActionProto.AndroidStringExtra proto) {
+            return new AndroidStringExtra(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        ActionProto.AndroidStringExtra toProto() {
+            return mImpl;
+        }
+
+        /** @hide */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ActionProto.AndroidExtra toAndroidExtraProto() {
+            return ActionProto.AndroidExtra.newBuilder().setStringVal(mImpl).build();
+        }
+
+        /** Builder for {@link AndroidStringExtra}. */
+        public static final class Builder implements AndroidExtra.Builder {
+            private final ActionProto.AndroidStringExtra.Builder mImpl =
+                    ActionProto.AndroidStringExtra.newBuilder();
+
+            Builder() {}
+
+            /** Sets the value. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setValue(@NonNull String value) {
+                mImpl.setValue(value);
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public AndroidStringExtra build() {
+                return AndroidStringExtra.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /** An integer value that can be added to an Android intent's extras. */
+    public static final class AndroidIntExtra implements AndroidExtra {
+        private final ActionProto.AndroidIntExtra mImpl;
+
+        private AndroidIntExtra(ActionProto.AndroidIntExtra impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AndroidIntExtra fromProto(@NonNull ActionProto.AndroidIntExtra proto) {
+            return new AndroidIntExtra(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        ActionProto.AndroidIntExtra toProto() {
+            return mImpl;
+        }
+
+        /** @hide */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ActionProto.AndroidExtra toAndroidExtraProto() {
+            return ActionProto.AndroidExtra.newBuilder().setIntVal(mImpl).build();
+        }
+
+        /** Builder for {@link AndroidIntExtra}. */
+        public static final class Builder implements AndroidExtra.Builder {
+            private final ActionProto.AndroidIntExtra.Builder mImpl =
+                    ActionProto.AndroidIntExtra.newBuilder();
+
+            Builder() {}
+
+            /** Sets the value. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setValue(int value) {
+                mImpl.setValue(value);
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public AndroidIntExtra build() {
+                return AndroidIntExtra.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /** A long value that can be added to an Android intent's extras. */
+    public static final class AndroidLongExtra implements AndroidExtra {
+        private final ActionProto.AndroidLongExtra mImpl;
+
+        private AndroidLongExtra(ActionProto.AndroidLongExtra impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AndroidLongExtra fromProto(@NonNull ActionProto.AndroidLongExtra proto) {
+            return new AndroidLongExtra(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        ActionProto.AndroidLongExtra toProto() {
+            return mImpl;
+        }
+
+        /** @hide */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ActionProto.AndroidExtra toAndroidExtraProto() {
+            return ActionProto.AndroidExtra.newBuilder().setLongVal(mImpl).build();
+        }
+
+        /** Builder for {@link AndroidLongExtra}. */
+        public static final class Builder implements AndroidExtra.Builder {
+            private final ActionProto.AndroidLongExtra.Builder mImpl =
+                    ActionProto.AndroidLongExtra.newBuilder();
+
+            Builder() {}
+
+            /** Sets the value. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setValue(long value) {
+                mImpl.setValue(value);
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public AndroidLongExtra build() {
+                return AndroidLongExtra.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /** A double value that can be added to an Android intent's extras. */
+    public static final class AndroidDoubleExtra implements AndroidExtra {
+        private final ActionProto.AndroidDoubleExtra mImpl;
+
+        private AndroidDoubleExtra(ActionProto.AndroidDoubleExtra impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AndroidDoubleExtra fromProto(@NonNull ActionProto.AndroidDoubleExtra proto) {
+            return new AndroidDoubleExtra(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        ActionProto.AndroidDoubleExtra toProto() {
+            return mImpl;
+        }
+
+        /** @hide */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ActionProto.AndroidExtra toAndroidExtraProto() {
+            return ActionProto.AndroidExtra.newBuilder().setDoubleVal(mImpl).build();
+        }
+
+        /** Builder for {@link AndroidDoubleExtra}. */
+        public static final class Builder implements AndroidExtra.Builder {
+            private final ActionProto.AndroidDoubleExtra.Builder mImpl =
+                    ActionProto.AndroidDoubleExtra.newBuilder();
+
+            Builder() {}
+
+            /** Sets the value. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setValue(double value) {
+                mImpl.setValue(value);
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public AndroidDoubleExtra build() {
+                return AndroidDoubleExtra.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /** A boolean value that can be added to an Android intent's extras. */
+    public static final class AndroidBooleanExtra implements AndroidExtra {
+        private final ActionProto.AndroidBooleanExtra mImpl;
+
+        private AndroidBooleanExtra(ActionProto.AndroidBooleanExtra impl) {
+            this.mImpl = impl;
+        }
+
+        /** Returns a new {@link Builder}. */
+        @NonNull
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AndroidBooleanExtra fromProto(
+                @NonNull ActionProto.AndroidBooleanExtra proto) {
+            return new AndroidBooleanExtra(proto);
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        ActionProto.AndroidBooleanExtra toProto() {
+            return mImpl;
+        }
+
+        /** @hide */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ActionProto.AndroidExtra toAndroidExtraProto() {
+            return ActionProto.AndroidExtra.newBuilder().setBooleanVal(mImpl).build();
+        }
+
+        /** Builder for {@link AndroidBooleanExtra}. */
+        public static final class Builder implements AndroidExtra.Builder {
+            private final ActionProto.AndroidBooleanExtra.Builder mImpl =
+                    ActionProto.AndroidBooleanExtra.newBuilder();
+
+            Builder() {}
+
+            /** Sets the value. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setValue(boolean value) {
+                mImpl.setValue(value);
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public AndroidBooleanExtra build() {
+                return AndroidBooleanExtra.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /**
+     * Interface defining an item that can be included in the extras of an intent that will be sent
+     * to an Android activity. Supports types in android.os.PersistableBundle, excluding arrays.
+     */
+    public interface AndroidExtra {
+        /**
+         * Get the protocol buffer representation of this object.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        ActionProto.AndroidExtra toAndroidExtraProto();
+
+        /** Builder to create {@link AndroidExtra} objects. */
+        @SuppressLint("StaticFinalBuilder")
+        interface Builder {
+
+            /** Builds an instance with values accumulated in this Builder. */
+            @NonNull
+            AndroidExtra build();
+        }
+    }
+
     /** A launch action to send an intent to an Android activity. */
     public static final class AndroidActivity {
         private final ActionProto.AndroidActivity mImpl;
@@ -79,6 +429,23 @@ public final class ActionBuilders {
             @NonNull
             public Builder setClassName(@NonNull String className) {
                 mImpl.setClassName(className);
+                return this;
+            }
+
+            /** Adds an entry into the extras to be included in the intent. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder addKeyToExtraMapping(@NonNull String key, @NonNull AndroidExtra extra) {
+                mImpl.putKeyToExtra(key, extra.toAndroidExtraProto());
+                return this;
+            }
+
+            /** Adds an entry into the extras to be included in the intent. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder addKeyToExtraMapping(
+                    @NonNull String key, @NonNull AndroidExtra.Builder extraBuilder) {
+                mImpl.putKeyToExtra(key, extraBuilder.build().toAndroidExtraProto());
                 return this;
             }
 

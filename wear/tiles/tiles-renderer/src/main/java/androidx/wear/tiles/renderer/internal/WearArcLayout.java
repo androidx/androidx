@@ -31,10 +31,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.AttrRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.StyleRes;
 import androidx.annotation.UiThread;
 import androidx.wear.tiles.renderer.R;
 
@@ -73,7 +75,9 @@ import java.lang.annotation.RetentionPolicy;
  * will lay itself out along the arc.
  */
 // TODO(b/174649543): Replace this with the actual androidx.wear.widget.WearArcLayout when
-// we've reconciled the two.
+// the next stable release of it is ready.
+// TODO(b/177464637): Resolve RestrictToUsage suppression.
+@SuppressWarnings("RestrictToUsage")
 @UiThread
 public class WearArcLayout extends ViewGroup {
 
@@ -117,7 +121,7 @@ public class WearArcLayout extends ViewGroup {
          * @hide
          */
         @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @IntDef({VALIGN_OUTER, VALIGN_CENTER, VALIGN_INNER})
         public @interface VerticalAlignment {}
 
@@ -144,7 +148,7 @@ public class WearArcLayout extends ViewGroup {
          * @param context the application environment
          * @param attrs the set of attributes from which to extract the layout parameters' values
          */
-        public LayoutParams(@NonNull Context context, @Nullable AttributeSet attrs) {
+        public LayoutParams(@NonNull Context context, @NonNull AttributeSet attrs) {
             super(context, attrs);
 
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.WearArcLayout_Layout);
@@ -209,7 +213,7 @@ public class WearArcLayout extends ViewGroup {
      * @hide
      */
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @IntDef({ANCHOR_START, ANCHOR_CENTER, ANCHOR_END})
     public @interface AnchorType {}
 
@@ -263,15 +267,16 @@ public class WearArcLayout extends ViewGroup {
         this(context, attrs, 0);
     }
 
-    public WearArcLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public WearArcLayout(
+            @NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
     public WearArcLayout(
             @NonNull Context context,
             @Nullable AttributeSet attrs,
-            int defStyleAttr,
-            int defStyleRes) {
+            @AttrRes int defStyleAttr,
+            @StyleRes int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         TypedArray a =
@@ -681,13 +686,13 @@ public class WearArcLayout extends ViewGroup {
 
     @Override
     @NonNull
-    public LayoutParams generateLayoutParams(@NonNull AttributeSet attrs) {
+    public ViewGroup.LayoutParams generateLayoutParams(@NonNull AttributeSet attrs) {
         return new LayoutParams(getContext(), attrs);
     }
 
     @Override
     @NonNull
-    protected LayoutParams generateDefaultLayoutParams() {
+    protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
         return new LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }

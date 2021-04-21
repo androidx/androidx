@@ -16,27 +16,26 @@
 
 package androidx.wear.tiles.renderer.internal;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.wear.tiles.proto.ResourceProto.ImageFormat;
 import androidx.wear.tiles.proto.ResourceProto.InlineImageResource;
+import androidx.wear.tiles.renderer.internal.ResourceAccessors.InlineImageResourceAccessor;
+import androidx.wear.tiles.renderer.internal.ResourceAccessors.ResourceAccessException;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.nio.ByteBuffer;
 
-/**
- * Resource accessor for inline resources.
- */
-public class InlineResourceAccessor implements ResourceAccessors.InlineImageResourceAccessor {
+/** Resource accessor for inline resources. */
+public class InlineResourceAccessor implements InlineImageResourceAccessor {
     private static final int RGB565_BYTES_PER_PX = 2;
 
     private final Context mAppContext;
@@ -44,6 +43,36 @@ public class InlineResourceAccessor implements ResourceAccessors.InlineImageReso
     /** Constructor. */
     public InlineResourceAccessor(@NonNull Context appContext) {
         this.mAppContext = appContext;
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<Drawable> getDrawable(@NonNull InlineImageResource inlineImage) {
+        @Nullable Bitmap bitmap = null;
+
+        if (inlineImage.getFormat() == ImageFormat.IMAGE_FORMAT_RGB_565) {
+            try {
+                bitmap = loadRawBitmap(inlineImage);
+            } catch (ResourceAccessException ex) {
+                return ResourceAccessors.createFailedFuture(ex);
+            }
+        } else if (inlineImage.getFormat() == ImageFormat.IMAGE_FORMAT_UNDEFINED) {
+            try {
+                bitmap = loadStructuredBitmap(inlineImage);
+            } catch (RuntimeException ex) {
+                return ResourceAccessors.createFailedFuture(ex);
+            }
+        }
+
+        if (bitmap == null) {
+            return ResourceAccessors.createFailedFuture(
+                    new ResourceAccessException("Unknown image format in image resource."));
+        }
+
+        // The app Context is correct here, as it's just used for display density, so it doesn't
+        // depend on anything from the provider app.
+        return ResourceAccessors.createImmediateFuture(
+                new BitmapDrawable(mAppContext.getResources(), bitmap));
     }
 
     @Nullable
@@ -59,19 +88,14 @@ public class InlineResourceAccessor implements ResourceAccessors.InlineImageReso
         return null;
     }
 
-    @Override
     @NonNull
-    @SuppressLint("RestrictedApi") // TODO(b/183006740): Remove when prefix check is fixed.
-    public ListenableFuture<Drawable> getDrawable(@NonNull InlineImageResource inlineImage) {
+    private Bitmap loadRawBitmap(@NonNull InlineImageResource inlineImage)
+            throws ResourceAccessException {
         Config config = imageFormatToBitmapConfig(inlineImage.getFormat());
-        ResolvableFuture<Drawable> future = ResolvableFuture.create();
 
         // Only handles RGB_565 for now
         if (config != Config.RGB_565) {
-            future.setException(
-                    new ResourceAccessors.ResourceAccessException(
-                            "Unknown image format in image resource."));
-            return future;
+            throw new ResourceAccessException("Unknown image format in image resource.");
         }
 
         int widthPx = inlineImage.getWidthPx();
@@ -79,19 +103,23 @@ public class InlineResourceAccessor implements ResourceAccessors.InlineImageReso
 
         int expectedDataSize = widthPx * heightPx * RGB565_BYTES_PER_PX;
         if (inlineImage.getData().size() != expectedDataSize) {
-            future.setException(
-                    new ResourceAccessors.ResourceAccessException(
-                            "Mismatch between image data size and dimensions in image resource."));
-            return future;
+            throw new ResourceAccessException(
+                    "Mismatch between image data size and dimensions in image resource.");
         }
 
         Bitmap bitmap = Bitmap.createBitmap(widthPx, heightPx, config);
         bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(inlineImage.getData().toByteArray()));
 
-        // The app Context is correct here, as it's just used for display density, so it doesn't
-        // depend
-        // on anything from the provider app.
-        future.set(new BitmapDrawable(mAppContext.getResources(), bitmap));
-        return future;
+        return bitmap;
+    }
+
+    @NonNull
+    private Bitmap loadStructuredBitmap(@NonNull InlineImageResource inlineImage) {
+        Bitmap bitmap =
+                BitmapFactory.decodeByteArray(
+                        inlineImage.getData().toByteArray(), 0, inlineImage.getData().size());
+
+        return Bitmap.createScaledBitmap(
+                bitmap, inlineImage.getWidthPx(), inlineImage.getHeightPx(), /* filter= */ true);
     }
 }
