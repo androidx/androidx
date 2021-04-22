@@ -280,7 +280,7 @@ package androidx.wear.widget {
     method public void checkInvalidAttributeAsChild();
     method public float getSweepAngleDegrees();
     method public int getThicknessPx();
-    method public boolean insideClickArea(float, float);
+    method public boolean isPointInsideClickArea(float, float);
   }
 
   public static class WearArcLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
@@ -317,7 +317,7 @@ package androidx.wear.widget {
     method public float getTextSize();
     method public int getThicknessPx();
     method public android.graphics.Typeface? getTypeface();
-    method public boolean insideClickArea(float, float);
+    method public boolean isPointInsideClickArea(float, float);
     method public void setAnchorAngleDegrees(float);
     method public void setAnchorType(int);
     method public void setClockwise(boolean);

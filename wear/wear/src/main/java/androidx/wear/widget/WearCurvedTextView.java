@@ -227,8 +227,11 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         }
     }
 
+    /**
+     * See {@link WearArcLayout.ArcLayoutWidget#isPointInsideClickArea(float, float)}
+     */
     @Override
-    public boolean insideClickArea(float x, float y) {
+    public boolean isPointInsideClickArea(float x, float y) {
         float radius2 = min(getWidth(), getHeight()) / 2f
                 - (mClockwise ? getPaddingTop() : getPaddingBottom());
         float radius1 =
@@ -446,7 +449,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         x0 = tempX;
 
         // Should we start handling the touch events?
-        if (!mHandlingTouch && insideClickArea(x0, y0)) {
+        if (!mHandlingTouch && isPointInsideClickArea(x0, y0)) {
             mHandlingTouch = true;
         }
 
