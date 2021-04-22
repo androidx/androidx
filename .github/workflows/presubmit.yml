@@ -148,12 +148,12 @@ jobs:
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "./gradlew buildOnServer"
+      - name: "./gradlew buildOnServer test assembleAndroidTest"
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
+          arguments: buildOnServer test assembleAndroidTest ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -205,12 +205,12 @@ jobs:
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "./gradlew buildOnServer"
+      - name: "./gradlew buildOnServer test assembleAndroidTest"
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
+          arguments: buildOnServer test assembleAndroidTest ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -262,12 +262,12 @@ jobs:
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "./gradlew buildOnServer"
+      - name: "./gradlew buildOnServer test assembleAndroidTest"
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
+          arguments: buildOnServer test assembleAndroidTest ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -319,12 +319,12 @@ jobs:
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "./gradlew buildOnServer"
+      - name: "./gradlew buildOnServer test assembleAndroidTest"
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
+          arguments: buildOnServer test assembleAndroidTest ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -376,12 +376,12 @@ jobs:
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "./gradlew buildOnServer"
+      - name: "./gradlew buildOnServer test assembleAndroidTest"
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
+          arguments: buildOnServer test assembleAndroidTest ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -433,12 +433,12 @@ jobs:
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "./gradlew buildOnServer"
+      - name: "./gradlew buildOnServer test assembleAndroidTest"
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
+          arguments: buildOnServer test assembleAndroidTest ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -490,12 +490,12 @@ jobs:
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "./gradlew buildOnServer"
+      - name: "./gradlew buildOnServer test assembleAndroidTest"
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
+          arguments: buildOnServer test assembleAndroidTest ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -547,12 +547,12 @@ jobs:
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "./gradlew buildOnServer"
+      - name: "./gradlew buildOnServer test assembleAndroidTest"
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
+          arguments: buildOnServer test assembleAndroidTest ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
@@ -622,12 +622,12 @@ jobs:
           echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "./gradlew buildOnServer"
+      - name: "./gradlew buildOnServer test assembleAndroidTest"
         uses: eskatos/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: buildOnServer ${{ needs.setup.outputs.gradlew_flags }}
+          arguments: buildOnServer test assembleAndroidTest ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: true
           dependencies-cache-enabled: true
