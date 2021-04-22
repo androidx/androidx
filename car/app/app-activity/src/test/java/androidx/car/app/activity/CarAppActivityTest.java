@@ -392,11 +392,6 @@ public class CarAppActivityTest {
             mService.terminate(serviceName);
         }
 
-        @Override
-        public boolean isVersionSupported(Bundleable appInfo) {
-            return true;
-        }
-
         public ICarAppActivity getCarAppActivity() {
             return mCarAppActivity;
         }
