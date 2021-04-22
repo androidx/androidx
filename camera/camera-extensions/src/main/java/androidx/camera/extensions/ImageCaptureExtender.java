@@ -35,7 +35,6 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
@@ -70,7 +69,6 @@ public abstract class ImageCaptureExtender {
     private int mEffectMode;
     private ExtensionCameraFilter mExtensionCameraFilter;
 
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     void init(ImageCapture.Builder builder, ImageCaptureExtenderImpl implementation,
             @ExtensionMode.Mode int effectMode) {
         mBuilder = builder;
@@ -94,7 +92,6 @@ public abstract class ImageCaptureExtender {
      * Returns the camera specified with the given camera selector and this extension, null if
      * there's no available can be found.
      */
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     private String getCameraWithExtension(@NonNull CameraSelector cameraSelector) {
         CameraSelector.Builder extensionCameraSelectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
@@ -119,7 +116,6 @@ public abstract class ImageCaptureExtender {
      * @param cameraSelector The selector used to determine the camera for which to enable
      *                       extensions.
      */
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     public void enableExtension(@NonNull CameraSelector cameraSelector) {
         String cameraId = getCameraWithExtension(cameraSelector);
         if (cameraId == null) {

@@ -33,7 +33,6 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
@@ -374,7 +373,6 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @SuppressWarnings({"lambdaLast", "unused", "deprecation"})
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ExperimentalUseCaseGroup
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     @NonNull
     public Camera bindToLifecycle(
             @NonNull LifecycleOwner lifecycleOwner,

@@ -28,7 +28,6 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
@@ -492,7 +491,6 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     @Override
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     public void setExtendedConfig(@Nullable CameraConfig cameraConfig) throws CameraException {
         synchronized (mLock) {
             CameraConfig newCameraConfig = cameraConfig == null ? CameraConfigs.emptyConfig() :

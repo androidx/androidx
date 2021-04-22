@@ -23,12 +23,12 @@ package androidx.camera.core {
   public static final class CameraControl.OperationCanceledException extends java.lang.Exception {
   }
 
-  @androidx.camera.core.ExperimentalCameraFilter public interface CameraFilter {
+  public interface CameraFilter {
     method public java.util.List<androidx.camera.core.CameraInfo!> filter(java.util.List<androidx.camera.core.CameraInfo!>);
   }
 
   public interface CameraInfo {
-    method @androidx.camera.core.ExperimentalCameraFilter public androidx.camera.core.CameraSelector getCameraSelector();
+    method public androidx.camera.core.CameraSelector getCameraSelector();
     method public androidx.lifecycle.LiveData<androidx.camera.core.CameraState!> getCameraState();
     method @androidx.camera.core.ExperimentalExposureCompensation public androidx.camera.core.ExposureState getExposureState();
     method public int getSensorRotationDegrees();
@@ -50,7 +50,7 @@ package androidx.camera.core {
 
   public static final class CameraSelector.Builder {
     ctor public CameraSelector.Builder();
-    method @androidx.camera.core.ExperimentalCameraFilter public androidx.camera.core.CameraSelector.Builder addCameraFilter(androidx.camera.core.CameraFilter);
+    method public androidx.camera.core.CameraSelector.Builder addCameraFilter(androidx.camera.core.CameraFilter);
     method public androidx.camera.core.CameraSelector build();
     method public androidx.camera.core.CameraSelector.Builder requireLensFacing(int);
   }
@@ -130,9 +130,6 @@ package androidx.camera.core {
   }
 
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalAvailableCamerasLimiter {
-  }
-
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCameraFilter {
   }
 
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCustomizableThreads {

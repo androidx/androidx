@@ -19,13 +19,11 @@ package androidx.camera.extensions;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.impl.CameraConfigProvider;
 import androidx.camera.core.impl.CameraFilters;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
@@ -80,7 +78,6 @@ public final class ExtensionsInfo {
      * @throws IllegalArgumentException if the base {@link CameraSelector} has contained
      * extension related configuration in it.
      */
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     @NonNull
     public CameraSelector getExtensionCameraSelector(@NonNull CameraSelector baseCameraSelector,
             @ExtensionMode.Mode int mode) {
@@ -128,7 +125,6 @@ public final class ExtensionsInfo {
      * @param baseCameraSelector The base {@link CameraSelector} to find a camera to use.
      * @param mode The target extension mode to support.
      */
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     public boolean isExtensionAvailable(
             @NonNull CameraProvider cameraProvider,
             @NonNull CameraSelector baseCameraSelector,
@@ -146,7 +142,6 @@ public final class ExtensionsInfo {
         return true;
     }
 
-    @OptIn(markerClass = ExperimentalCameraFilter.class)
     private CameraFilter getFilter(@ExtensionMode.Mode int mode) {
         CameraFilter filter;
         String id = getExtendedCameraConfigProviderId(mode);
