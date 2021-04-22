@@ -179,7 +179,7 @@ final class ExtensionWindowBackend implements WindowBackend {
      * Wrapper around {@link Consumer<WindowLayoutInfo>} that also includes the {@link Executor}
      * on which the callback should run and the {@link Activity}.
      */
-    private static class WindowLayoutChangeCallbackWrapper {
+    static class WindowLayoutChangeCallbackWrapper {
         final Executor mExecutor;
         final Consumer<WindowLayoutInfo> mCallback;
         final Activity mActivity;
