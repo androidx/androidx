@@ -45,10 +45,10 @@ import java.util.Objects;
  * previous one if:
  *
  * <ul>
- *   <li>The template title has not changed, and
- *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or the
- *       number of rows and the string contents (title, texts, not counting spans) of each row
- *       between the previous and new {@link ItemList}s have not changed.
+ *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or
+ *   <li>The template title has not changed, and the number of rows and the string contents
+ *       (title, texts, not counting spans) of each rowbetween the previous and new
+ *       {@link ItemList}s have not changed.
  * </ul>
  */
 @CarProtocol
