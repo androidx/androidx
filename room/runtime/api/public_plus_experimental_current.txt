@@ -6,6 +6,7 @@ package androidx.room {
     method @Deprecated public boolean isMigrationRequiredFrom(int);
     field public final boolean allowDestructiveMigrationOnDowngrade;
     field public final boolean allowMainThreadQueries;
+    field public final java.util.List<androidx.room.migration.AutoMigrationSpec!> autoMigrationSpecs;
     field public final java.util.List<androidx.room.RoomDatabase.Callback!>? callbacks;
     field public final android.content.Context context;
     field public final String? copyFromAssetPath;
@@ -75,6 +76,7 @@ package androidx.room {
   }
 
   public static class RoomDatabase.Builder<T extends androidx.room.RoomDatabase> {
+    method public androidx.room.RoomDatabase.Builder<T!> addAutoMigrationSpec(androidx.room.migration.AutoMigrationSpec);
     method public androidx.room.RoomDatabase.Builder<T!> addCallback(androidx.room.RoomDatabase.Callback);
     method public androidx.room.RoomDatabase.Builder<T!> addMigrations(androidx.room.migration.Migration!...);
     method public androidx.room.RoomDatabase.Builder<T!> addTypeConverter(Object);
