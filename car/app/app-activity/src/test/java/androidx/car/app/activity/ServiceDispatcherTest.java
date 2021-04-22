@@ -25,10 +25,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.content.ComponentName;
+import android.content.Intent;
 import android.os.RemoteException;
 
 import androidx.car.app.activity.renderer.IRendererService;
-import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 
 import org.junit.Before;
@@ -65,13 +66,17 @@ public class ServiceDispatcherTest {
     @Test
     public void dispatch_serviceBound_invoked() throws RemoteException {
         IRendererService rendererService = mock(IRendererService.class);
-        Bundleable appInfo = mock(Bundleable.class);
-        ServiceDispatcher.OneWayCall call = () -> rendererService.isVersionSupported(appInfo);
+        Intent intent = mock(Intent.class);
+        ComponentName componentName = mock(ComponentName.class);
+
+
+        ServiceDispatcher.OneWayCall call = () -> rendererService.onNewIntent(intent,
+                componentName, 0);
 
         mServiceDispatcher.setRendererService(rendererService);
         mServiceDispatcher.dispatch(call);
 
-        verify(rendererService, times(1)).isVersionSupported(eq(appInfo));
+        verify(rendererService, times(1)).onNewIntent(intent, componentName, 0);
     }
 
     @Test

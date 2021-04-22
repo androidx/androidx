@@ -19,7 +19,6 @@ package androidx.car.app.activity.renderer;
 import android.content.ComponentName;
 import android.content.Intent;
 import androidx.car.app.activity.renderer.ICarAppActivity;
-import androidx.car.app.serialization.Bundleable;
 
 /**
  * An interface to be used for communicating with the renderer.
@@ -57,11 +56,4 @@ interface IRendererService {
    * @param serviceName the service that is associated with the activity
    */
   void terminate(in ComponentName serviceName) = 3;
-
-  /**
-   * Returns whether the given version is supported.
-   *
-   * @return true if the version is supported
-   */
-  boolean isVersionSupported(in Bundleable appInfo) = 4;
 }
