@@ -53,6 +53,7 @@ import org.junit.After
 import org.junit.Assume
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
@@ -183,6 +184,7 @@ class CameraControllerFragmentTest {
         fragment.assertAnalysisStreaming(true)
     }
 
+    @Ignore
     @Test
     fun analyzerCleared_isNotStreaming() {
         fragment.assertAnalysisStreaming(true)
