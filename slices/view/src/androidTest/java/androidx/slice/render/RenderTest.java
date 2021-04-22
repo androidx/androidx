@@ -32,6 +32,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +57,7 @@ public class RenderTest {
     public ActivityTestRule<SliceRenderActivity> mActivityRule =
             new ActivityTestRule<>(SliceRenderActivity.class);
 
+    @Ignore
     @Test
     public void testRender() throws Exception {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O && Build.MODEL.contains("Nexus 6P")) {
