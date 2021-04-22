@@ -60,12 +60,12 @@ dependencies {
 }
 
 androidx {
-    name = "Navigation Compose Hilt Extension"
+    name = "Navigation Compose Hilt Integration"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.HILT_NAVIGATION_COMPOSE
     mavenGroup = LibraryGroups.HILT
     inceptionYear = "2021"
-    description = "Navigation Compose Hilt Extension"
+    description = "Navigation Compose Hilt Integration"
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
 }
