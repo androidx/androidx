@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.window.sample.backend
-
-import android.app.Activity
-import android.graphics.Point
-import androidx.window.WindowManager
+package androidx.window
 
 /**
- * Return a [Point] whose dimensions match the metrics of the window.
- * @return [Point] whose dimensions match the metrics of the window.
+ * An interface to ensure the same tests are run for translating from value objects in
+ * window.sidecar or window.extensions to window.window.
  */
-internal fun Activity.calculateWindowSizeExt(): Point {
-    val bounds = WindowManager(this).getCurrentWindowMetrics().bounds
-    return Point(bounds.width(), bounds.height())
+internal interface TranslatorTestInterface {
+    fun testTranslate_validFeature()
+    fun testTranslateWindowLayoutInfo_filterRemovesHingeFeatureNotSpanningFullDimension()
+    fun testTranslateWindowLayoutInfo_filterRemovesFoldFeatureNotSpanningFullDimension()
+    fun testTranslateWindowLayoutInfo_filterRemovesUnknownFeature()
 }

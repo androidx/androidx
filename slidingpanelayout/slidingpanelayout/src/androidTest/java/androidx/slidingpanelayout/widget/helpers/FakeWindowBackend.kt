@@ -43,7 +43,7 @@ public class FakeWindowBackend(private val foldAxis: FoldAxis) : WindowBackend {
 
     public companion object {
         public fun getFoldPosition(activity: Activity, foldAxis: FoldAxis, foldWidth: Int): Rect {
-            val windowSize = WindowManager(activity).currentWindowMetrics.bounds
+            val windowSize = WindowManager(activity).getCurrentWindowMetrics().bounds
             return midScreenFold(windowSize, foldAxis, foldWidth)
         }
 
@@ -107,7 +107,7 @@ public class FakeWindowBackend(private val foldAxis: FoldAxis) : WindowBackend {
     }
 
     private fun getWindowLayoutInfo(activity: Activity): WindowLayoutInfo {
-        val windowSize = WindowManager(activity).currentWindowMetrics.bounds
+        val windowSize = WindowManager(activity).getCurrentWindowMetrics().bounds
         val featureRect = midScreenFold(windowSize, foldAxis, foldWidth)
         val displayFeature = FoldingFeature(featureRect, FoldingFeature.TYPE_FOLD, foldState)
         if (foldState == FoldingFeature.STATE_FLAT) {
