@@ -28,8 +28,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.trackPipAnimationHintView
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.addRepeatingJob
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
 class PipActivity : ComponentActivity() {
@@ -61,8 +63,10 @@ class PipActivity : ComponentActivity() {
     @ExperimentalCoroutinesApi
     private fun trackHintView() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            addRepeatingJob(Lifecycle.State.STARTED) {
-                trackPipAnimationHintView(moveButton)
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    trackPipAnimationHintView(moveButton)
+                }
             }
         }
     }
