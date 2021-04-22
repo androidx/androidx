@@ -1,12 +1,15 @@
 name: AndroidX Presubmits
 on:
   push:
+    branches:
+      - androidx-main
   pull_request_target:
-    types: [opened, synchronize, reopened, 'labeled']
-  workflow_dispatch:
+    types: ['labeled']
 
 jobs:
   setup:
+    # Both `run_workflow` and `retry_workflow` will trigger the workflow
+    if: ${{ (github.event_name == 'push' || contains(github.event.issue.labels.*.name, 'workflow')) }}
     runs-on: ubuntu-latest
     outputs:
       gradlew_flags: ${{ steps.global-constants.outputs.gradlew_flags }}
