@@ -18,6 +18,7 @@ package androidx.camera.view
 
 import android.content.Context
 import android.os.Build
+import android.view.Surface
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
@@ -54,6 +55,21 @@ public class CameraControllerTest {
     @After
     public fun shutDown() {
         CameraX.shutdown().get()
+    }
+
+    @UiThreadTest
+    @Test
+    public fun sensorRotationChanges_useCaseTargetRotationUpdated() {
+        // Arrange.
+        val controller = LifecycleCameraController(context)
+
+        // Act.
+        controller.mSensorRotationListener.onRotationChanged(Surface.ROTATION_180)
+
+        // Assert.
+        assertThat(controller.mImageAnalysis.targetRotation).isEqualTo(Surface.ROTATION_180)
+        assertThat(controller.mImageCapture.targetRotation).isEqualTo(Surface.ROTATION_180)
+        // TODO(b/177276479): verify VideoCapture once it supports getTargetRotation().
     }
 
     @UiThreadTest
