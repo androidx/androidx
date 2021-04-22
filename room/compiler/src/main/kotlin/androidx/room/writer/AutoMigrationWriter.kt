@@ -54,16 +54,18 @@ class AutoMigrationWriter(
             superclass(RoomTypeNames.MIGRATION)
 
             if (autoMigrationResult.specClassName != null) {
-                builder.addField(
+                val callbackField =
                     FieldSpec.builder(
-                        autoMigrationResult.specClassName,
+                        RoomTypeNames.AUTO_MIGRATION_SPEC,
                         "callback",
                         Modifier.PRIVATE,
                         Modifier.FINAL
-                    ).initializer(
-                        "new $T()", autoMigrationResult.specClassName
-                    ).build()
-                )
+                    ).apply {
+                        if (!autoMigrationResult.isSpecProvided) {
+                            initializer("new $T()", autoMigrationResult.specClassName)
+                        }
+                    }
+                builder.addField(callbackField.build())
             }
             addMethod(createConstructor())
             addMethod(createMigrateMethod())
@@ -80,6 +82,15 @@ class AutoMigrationWriter(
         return MethodSpec.constructorBuilder().apply {
             addModifiers(Modifier.PUBLIC)
             addStatement("super($L, $L)", autoMigrationResult.from, autoMigrationResult.to)
+            if (autoMigrationResult.isSpecProvided) {
+                addParameter(
+                    ParameterSpec.builder(
+                        RoomTypeNames.AUTO_MIGRATION_SPEC,
+                        "callback"
+                    ).addAnnotation(NonNull::class.java).build()
+                )
+                addStatement("this.callback = callback")
+            }
         }.build()
     }
 
@@ -111,6 +122,8 @@ class AutoMigrationWriter(
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
     private fun addAutoMigrationResultToMigrate(migrateBuilder: MethodSpec.Builder) {
+        // TODO: (b/185934598) Handle views here, the order in which the views themselves are
+        // recreated is important
         addSimpleChangeStatements(migrateBuilder)
         addComplexChangeStatements(migrateBuilder)
     }

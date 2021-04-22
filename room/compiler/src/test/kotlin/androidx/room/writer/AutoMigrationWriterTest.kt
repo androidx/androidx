@@ -73,6 +73,7 @@ class AutoMigrationWriterTest {
                 specElement = invocation.processingEnv.requireTypeElement(
                     "foo.bar.ValidAutoMigrationWithDefault"
                 ),
+                isSpecProvided = false
             )
             AutoMigrationWriter(
                 autoMigrationResultWithNewAddedColumn.element,
@@ -85,7 +86,7 @@ class AutoMigrationWriterTest {
                     loadTestSource(
                         "autoMigrationWriter/output/ValidAutoMigrationWithDefault" +
                             ".java",
-                        "foo.bar.AutoMigration_1_2_Impl"
+                        "foo.bar.ValidAutoMigrationWithDefault_AutoMigration_1_2_Impl"
                     )
                 )
             }
@@ -136,6 +137,7 @@ class AutoMigrationWriterTest {
                 specElement = invocation.processingEnv.requireTypeElement(
                     "foo.bar.ValidAutoMigrationWithoutDefault"
                 ),
+                isSpecProvided = false
             )
             AutoMigrationWriter(
                 autoMigrationResultWithNewAddedColumn.element,
@@ -147,7 +149,7 @@ class AutoMigrationWriterTest {
                 generatedSource(
                     loadTestSource(
                         "autoMigrationWriter/output/ValidAutoMigrationWithoutDefault.java",
-                        "foo.bar.AutoMigration_1_2_Impl"
+                        "foo.bar.ValidAutoMigrationWithoutDefault_AutoMigration_1_2_Impl"
                     )
                 )
             }

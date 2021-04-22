@@ -5,6 +5,7 @@ import androidx.room.InvalidationTracker;
 import androidx.room.RoomOpenHelper;
 import androidx.room.RoomOpenHelper.Delegate;
 import androidx.room.RoomOpenHelper.ValidationResult;
+import androidx.room.migration.AutoMigrationSpec;
 import androidx.room.migration.Migration;
 import androidx.room.util.DBUtil;
 import androidx.room.util.TableInfo;
@@ -184,6 +185,12 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
         final HashMap<Class<?>, List<Class<?>>> _typeConvertersMap = new HashMap<Class<?>, List<Class<?>>>();
         _typeConvertersMap.put(ComplexDao.class, ComplexDao_Impl.getRequiredConverters());
         return _typeConvertersMap;
+    }
+
+    @Override
+    protected Set<Class<? extends AutoMigrationSpec>> getRequiredAutoMigrationSpecs() {
+        final HashSet<Class<? extends AutoMigrationSpec>> _autoMigrationSpecsSet = new HashSet<Class<? extends AutoMigrationSpec>>();
+        return _autoMigrationSpecsSet;
     }
 
     @Override
