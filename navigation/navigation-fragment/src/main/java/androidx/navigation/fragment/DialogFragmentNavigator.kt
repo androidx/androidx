@@ -121,7 +121,8 @@ public class DialogFragmentNavigator(
         }
     }
 
-    init {
+    override fun onAttach() {
+        super.onAttach()
         fragmentManager.addFragmentOnAttachListener { _, childFragment ->
             val needToAddObserver = restoredTagsAwaitingAttach.remove(childFragment.tag)
             if (needToAddObserver) {

@@ -16,6 +16,7 @@
 package androidx.navigation
 
 import android.os.Bundle
+import androidx.annotation.CallSuper
 import androidx.navigation.Navigator.Name
 
 /**
@@ -50,6 +51,23 @@ public abstract class Navigator<D : NavDestination> {
     @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
     @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
     public annotation class Name(val value: String)
+
+    /**
+     * Whether this Navigator is actively being used by a [NavController].
+     *
+     * This is set to `true` when [onAttach] is called.
+     */
+    public var isAttached: Boolean = false
+        private set
+
+    /**
+     * Indicator that this Navigator is actively being used by a [NavController]. This
+     * is called when the NavController's state is ready to be restored.
+     */
+    @CallSuper
+    public open fun onAttach() {
+        isAttached = true
+    }
 
     /**
      * Construct a new NavDestination associated with this Navigator.

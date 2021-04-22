@@ -615,12 +615,17 @@ public open class NavController(
             if (navigatorNames != null) {
                 for (name in navigatorNames) {
                     val navigator = _navigatorProvider.getNavigator<Navigator<*>>(name)
+                    navigator.onAttach()
                     val bundle = navigatorStateToRestore.getBundle(name)
                     if (bundle != null) {
                         navigator.onRestoreState(bundle)
                     }
                 }
             }
+        }
+        // Mark all other Navigators as attached
+        _navigatorProvider.navigators.values.filterNot { it.isAttached }.forEach { navigator ->
+            navigator.onAttach()
         }
         backStackToRestore?.let { backStackToRestore ->
             for (parcelable in backStackToRestore) {
