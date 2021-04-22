@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.BuildOnServerKt
 import androidx.build.BuildServerConfigurationKt
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
@@ -44,16 +45,19 @@ dependencies {
 
 SdkResourceGenerator.generateForHostTest(project)
 
-task buildOnServer(type: Copy) {
-  from {
+def buildOnServer = tasks.register("buildOnServer", Copy.class) {
+  it.from {
     def f = project.file("src/main/resources/scripts/lockClocks.sh")
     if (!f.exists()) {
         throw new GradleException(f.toString() + " does not exist")
     }
     return f
   }
-  destinationDir BuildServerConfigurationKt.getDistributionDirectory(rootProject)
+  it.destinationDir BuildServerConfigurationKt.getDistributionDirectory(rootProject)
+
 }
+
+BuildOnServerKt.addToBuildOnServer(project, buildOnServer)
 
 gradlePlugin {
     plugins {
