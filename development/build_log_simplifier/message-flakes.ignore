@@ -69,8 +69,7 @@ at java\.rmi\/sun\.rmi\.transport\.Transport\$[0-9]+\.run\(Transport\.java\:[0-9
 # > Task :compose:ui:ui-graphics:compileReleaseKotlin
 java\.lang\.Exception: Unknown or invalid session [0-9]+
 at org\.jetbrains\.kotlin\.daemon\.common\.CompileService\$CallResult\$Error\.get\(CompileService\.kt:[0-9]+\)
-at java\.base/java\.util\.concurrent\.FutureTask\.run\(FutureTask\.java:[0-9]+\)
-at java\.base/java\.util\.concurrent\.Executors\$RunnableAdapter\.call\(Executors\.java:[0-9]+\)
+at java.base.*
 warning: ATTENTION!
 # b/185474400
 at org.gradle.*
