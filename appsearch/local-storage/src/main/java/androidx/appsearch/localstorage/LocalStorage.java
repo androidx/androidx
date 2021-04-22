@@ -283,7 +283,7 @@ public class LocalStorage {
 
         // There is no global querier for a local storage instance.
         mAppSearchImpl = AppSearchImpl.create(icingDir, context, VisibilityStore.NO_OP_USER_ID,
-                /*logger=*/ null);
+                /*logger=*/ null, new JetpackOptimizeStrategy());
 
         executor.execute(() -> {
             try {

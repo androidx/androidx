@@ -146,15 +146,13 @@ public final class AppSearchImpl implements Closeable {
     private static final String TAG = "AppSearchImpl";
 
     @VisibleForTesting
-    static final int OPTIMIZE_THRESHOLD_DOC_COUNT = 1000;
-    @VisibleForTesting
-    static final int OPTIMIZE_THRESHOLD_BYTES = 1_000_000; // 1MB
-    @VisibleForTesting
     static final int CHECK_OPTIMIZE_INTERVAL = 100;
 
     private final ReadWriteLock mReadWriteLock = new ReentrantReadWriteLock();
 
     private final LogUtil mLogUtil = new LogUtil(TAG);
+
+    private final OptimizeStrategy mOptimizeStrategy;
 
     @GuardedBy("mReadWriteLock")
     @VisibleForTesting
@@ -203,7 +201,7 @@ public final class AppSearchImpl implements Closeable {
      */
     @NonNull
     public static AppSearchImpl create(@NonNull File icingDir, @NonNull Context context, int userId,
-            @Nullable AppSearchLogger logger)
+            @Nullable AppSearchLogger logger, @NonNull OptimizeStrategy optimizeStrategy)
             throws AppSearchException {
         Preconditions.checkNotNull(icingDir);
         Preconditions.checkNotNull(context);
@@ -215,7 +213,7 @@ public final class AppSearchImpl implements Closeable {
         }
 
         AppSearchImpl appSearchImpl =
-                new AppSearchImpl(icingDir, context, userId, initStatsBuilder);
+                new AppSearchImpl(icingDir, context, userId, initStatsBuilder, optimizeStrategy);
 
         long prepareVisibilityStoreLatencyStartMillis = SystemClock.elapsedRealtime();
         appSearchImpl.initializeVisibilityStore();
@@ -238,7 +236,8 @@ public final class AppSearchImpl implements Closeable {
      * @param initStatsBuilder collects stats for initialization if provided.
      */
     private AppSearchImpl(@NonNull File icingDir, @NonNull Context context, int userId,
-            @Nullable InitializeStats.Builder initStatsBuilder) throws AppSearchException {
+            @Nullable InitializeStats.Builder initStatsBuilder,
+            @NonNull OptimizeStrategy optimizeStrategy) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
 
         try {
@@ -254,6 +253,7 @@ public final class AppSearchImpl implements Closeable {
 
             mVisibilityStoreLocked =
                     new VisibilityStore(this, context, userId);
+            mOptimizeStrategy = optimizeStrategy;
 
             // The core initialization procedure. If any part of this fails, we bail into
             // resetLocked(), deleting all data (but hopefully allowing AppSearchImpl to come up).
@@ -1892,7 +1892,7 @@ public final class AppSearchImpl implements Closeable {
      * resources that could be released.
      *
      * <p>{@link IcingSearchEngine#optimize()} should be called only if
-     * {@link GetOptimizeInfoResultProto} shows there is enough resources could be released.
+     * {@link OptimizeStrategy#shouldOptimize(GetOptimizeInfoResultProto)} return true.
      */
     public void checkForOptimize() throws AppSearchException {
         mReadWriteLock.writeLock().lock();
@@ -1900,10 +1900,7 @@ public final class AppSearchImpl implements Closeable {
             GetOptimizeInfoResultProto optimizeInfo = getOptimizeInfoResultLocked();
             checkSuccess(optimizeInfo.getStatus());
             mOptimizeIntervalCountLocked = 0;
-            // Second threshold, decide when to call optimize().
-            if (optimizeInfo.getOptimizableDocs() >= OPTIMIZE_THRESHOLD_DOC_COUNT
-                    || optimizeInfo.getEstimatedOptimizableBytes()
-                    >= OPTIMIZE_THRESHOLD_BYTES) {
+            if (mOptimizeStrategy.shouldOptimize(optimizeInfo)) {
                 optimize();
             }
         } finally {
@@ -1914,11 +1911,7 @@ public final class AppSearchImpl implements Closeable {
         //  go/icing-library-apis.
     }
 
-    /**
-     * Triggers {@link IcingSearchEngine#optimize()} directly.
-     *
-     * <p>This method should be only called as a scheduled task in AppSearch Platform backend.
-     */
+    /** Triggers {@link IcingSearchEngine#optimize()} directly.   */
     public void optimize() throws AppSearchException {
         mReadWriteLock.writeLock().lock();
         try {

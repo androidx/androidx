@@ -53,6 +53,10 @@ public class AppSearchLoggerTest {
     public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
     private AppSearchImpl mAppSearchImpl;
     private TestLogger mLogger;
+    /**
+     * Always trigger optimize in this class. OptimizeStrategy will be tested in its own test class.
+     */
+    private static final OptimizeStrategy ALWAYS_OPTIMIZE = optimizeInfo -> true;
 
     @Before
     public void setUp() throws Exception {
@@ -60,8 +64,7 @@ public class AppSearchLoggerTest {
 
         // Give ourselves global query permissions
         mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
-                context, VisibilityStore.NO_OP_USER_ID,
-                /*logger=*/ null);
+                context, VisibilityStore.NO_OP_USER_ID, /*logger=*/ null, ALWAYS_OPTIMIZE);
         mLogger = new TestLogger();
     }
 
@@ -259,10 +262,12 @@ public class AppSearchLoggerTest {
     public void testLoggingStats_initialize() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
 
+        // Create an unused AppSearchImpl to generated an InitializeStats.
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder(),
                 context,
                 VisibilityStore.NO_OP_USER_ID,
-                mLogger);
+                mLogger,
+                ALWAYS_OPTIMIZE);
 
         InitializeStats iStats = mLogger.mInitializeStats;
         assertThat(iStats).isNotNull();
