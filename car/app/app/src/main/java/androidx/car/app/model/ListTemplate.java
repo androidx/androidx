@@ -43,12 +43,12 @@ import java.util.Objects;
  * template is considered a refresh of a previous one if:
  *
  * <ul>
- *   <li>The template title has not changed, and
- *   <li>The previous template is in a loading state (see {@link Builder#setLoading}}, or the
- *       {@link ItemList} structure between the templates have not changed. This means that if the
- *       previous template has multiple {@link ItemList} sections, the new template must have the
- *       same number of sections with the same headers. Further, the number of rows and the string
- *       contents (title, texts, not counting spans) of each row must not have changed.
+ *   <li>The previous template is in a loading state (see {@link Builder#setLoading}}, or
+ *   <li>The template title has not changed, and the {@link ItemList} structure between the
+ *       templates have not changed. This means that if the previous template has multiple
+ *       {@link ItemList} sections, the new template must have the same number of sections with
+ *       the same headers. Further, the number of rows and the string contents (title, texts, not
+ *       counting spans) of each row must not have changed.
  *   <li>For rows that contain a {@link Toggle}, updates to the title or texts are also allowed if
  *       the toggle state has changed between the previous and new templates.
  * </ul>
