@@ -156,7 +156,7 @@ class NavControllerTest {
         val navigator = navController.navigatorProvider[TestNavigator::class]
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
-        val foundArgs = navigator.current.second
+        val foundArgs = navigator.current.arguments
         assertThat(foundArgs).isNotNull()
         assertThat(foundArgs?.getString(TEST_ARG)).isEqualTo(TEST_ARG_VALUE)
     }
@@ -188,7 +188,7 @@ class NavControllerTest {
         val navigator = navController.navigatorProvider[TestNavigator::class]
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
-        val foundArgs = navigator.current.second
+        val foundArgs = navigator.current.arguments
         assertThat(foundArgs).isNotNull()
         assertThat(foundArgs?.getString(TEST_ARG)).isEqualTo(TEST_ARG_VALUE)
     }
@@ -350,7 +350,7 @@ class NavControllerTest {
         navController.navigate(deepLink)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
-        val intent = navigator.current.second?.getParcelable<Intent>(
+        val intent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
         )
         assertThat(intent?.data).isEqualTo(deepLink)
@@ -385,7 +385,7 @@ class NavControllerTest {
         navController.navigate(deepLink)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
-        val intent = navigator.current.second?.getParcelable<Intent>(
+        val intent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
         )
         assertThat(intent?.action).isEqualTo(action)
@@ -429,7 +429,7 @@ class NavControllerTest {
         navController.navigate(deepLink)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.forth_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
-        val intent = navigator.current.second?.getParcelable<Intent>(
+        val intent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
         )
         assertThat(intent?.type).isEqualTo(mimeType)
@@ -677,8 +677,7 @@ class NavControllerTest {
         // Explicitly setting a graph then restores the state
         navController.setGraph(R.navigation.nav_simple)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
-        // TODO Have SaveStateTestNavigator restore its backStack appropriately
-        // assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navigator.backStack.size).isEqualTo(2)
         // Save state should be called on the navigator exactly once
         assertThat(navigator.saveStateCount).isEqualTo(1)
     }
@@ -740,8 +739,7 @@ class NavControllerTest {
         // Explicitly setting a graph then restores the state
         navController.graph = graph
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
-        // TODO Have TestNavigator restore its backStack appropriately
-        // assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navigator.backStack.size).isEqualTo(2)
     }
 
     @UiThreadTest
@@ -811,8 +809,7 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_multiple_navigation)
         assertThat(navController.currentDestination?.id ?: 0)
             .isEqualTo(R.id.simple_child_start_test)
-        // TODO Have SaveStateTestNavigator restore its backStack appropriately
-        // assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navigator.backStack.size).isEqualTo(3)
         // Save state should be called on the navigator exactly once
         assertThat(navigator.saveStateCount).isEqualTo(1)
     }
@@ -858,7 +855,7 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_arguments)
 
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs).isNotNull()
         assertThat(returnedArgs!!["test_start_default"])
             .isEqualTo("default")
@@ -918,7 +915,7 @@ class NavControllerTest {
         navController.navigate(R.id.second_test, args)
 
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs).isNotNull()
 
         return returnedArgs!!
@@ -1152,7 +1149,7 @@ class NavControllerTest {
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
 
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(destinationListenerExecuted).isTrue()
     }
@@ -1165,7 +1162,7 @@ class NavControllerTest {
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertThat(navigator.backStack.size).isEqualTo(1)
-        assertThat(navigator.current.second).isNull()
+        assertThat(navigator.current.arguments).isNull()
 
         val args = Bundle()
         val testKey = "testKey"
@@ -1190,7 +1187,7 @@ class NavControllerTest {
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
 
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(destinationListenerExecuted).isTrue()
     }
@@ -1205,8 +1202,8 @@ class NavControllerTest {
             .isEqualTo(R.id.start_test_with_default_arg)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertThat(navigator.backStack.size).isEqualTo(2)
-        assertThat(navigator.current.second).isNotNull()
-        assertThat(navigator.current.second?.getBoolean("defaultArg", false)).isTrue()
+        assertThat(navigator.current.arguments).isNotNull()
+        assertThat(navigator.current.arguments?.getBoolean("defaultArg", false)).isTrue()
 
         val args = Bundle()
         val testKey = "testKey"
@@ -1233,7 +1230,7 @@ class NavControllerTest {
             .isEqualTo(R.id.start_test_with_default_arg)
         assertThat(navigator.backStack.size).isEqualTo(2)
 
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(returnedArgs?.getBoolean("defaultArg", false)).isTrue()
         assertThat(destinationListenerExecuted).isTrue()
@@ -1267,7 +1264,7 @@ class NavControllerTest {
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
 
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
         assertThat(destinationListenerExecuted).isTrue()
     }
@@ -1348,7 +1345,7 @@ class NavControllerTest {
         navController.navigate(R.id.second, args)
 
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        val returnedArgs = navigator.current.second
+        val returnedArgs = navigator.current.arguments
         assertThat(returnedArgs).isNotNull()
 
         // Test that arguments without a default value aren't passed through at all

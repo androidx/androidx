@@ -43,7 +43,7 @@ import java.util.UUID
  * will no longer be saved, and ViewModels will be cleared.
  */
 public class NavBackStackEntry private constructor(
-    private val context: Context,
+    private val context: Context?,
     /**
      * Gets the destination associated with this entry
      * @return The destination that is currently visible to users
@@ -76,7 +76,7 @@ public class NavBackStackEntry private constructor(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun create(
-            context: Context,
+            context: Context?,
             destination: NavDestination,
             arguments: Bundle? = null,
             navControllerLifecycleOwner: LifecycleOwner? = null,
@@ -93,7 +93,7 @@ public class NavBackStackEntry private constructor(
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     private var hostLifecycleState = Lifecycle.State.CREATED
     private val defaultFactory by lazy {
-        SavedStateViewModelFactory((context.applicationContext as Application), this, arguments)
+        SavedStateViewModelFactory((context?.applicationContext as? Application), this, arguments)
     }
 
     /**
