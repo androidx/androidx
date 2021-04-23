@@ -52,6 +52,7 @@ package androidx.car.app {
     field public static final String ACTION_NAVIGATE = "androidx.car.app.action.NAVIGATE";
     field public static final String APP_SERVICE = "app";
     field public static final String CAR_SERVICE = "car";
+    field @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public static final String CONSTRAINT_SERVICE = "constraints";
     field public static final String EXTRA_START_CAR_APP_BINDER_KEY = "androidx.car.app.extra.START_CAR_APP_BINDER_KEY";
     field public static final String NAVIGATION_SERVICE = "navigation";
     field public static final String SCREEN_SERVICE = "screen";
@@ -174,6 +175,19 @@ package androidx.car.app.annotations {
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface RequiresCarApi {
     method public abstract int value();
+  }
+
+}
+
+package androidx.car.app.constraints {
+
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(2) public class ConstraintManager {
+    method public int getContentLimit(int);
+    field public static final int CONTENT_LIMIT_TYPE_GRID = 1; // 0x1
+    field public static final int CONTENT_LIMIT_TYPE_LIST = 0; // 0x0
+    field public static final int CONTENT_LIMIT_TYPE_PANE = 4; // 0x4
+    field public static final int CONTENT_LIMIT_TYPE_PLACE_LIST = 2; // 0x2
+    field public static final int CONTENT_LIMIT_TYPE_ROUTE_LIST = 3; // 0x3
   }
 
 }

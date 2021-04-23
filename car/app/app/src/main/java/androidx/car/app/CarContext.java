@@ -39,10 +39,12 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
@@ -92,8 +94,10 @@ public class CarContext extends ContextWrapper {
      *
      * @hide
      */
-    @StringDef({APP_SERVICE, CAR_SERVICE, NAVIGATION_SERVICE, SCREEN_SERVICE})
+    @StringDef({APP_SERVICE, CAR_SERVICE, NAVIGATION_SERVICE, SCREEN_SERVICE, CONSTRAINT_SERVICE})
     @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY)
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public @interface CarServiceType {
     }
 
@@ -108,6 +112,11 @@ public class CarContext extends ContextWrapper {
 
     /** Manages the screens of the app, including the screen stack. */
     public static final String SCREEN_SERVICE = "screen";
+
+    /** Manages constraints for the app as enforced by the connected host. */
+    @ExperimentalCarApi
+    @RequiresCarApi(2)
+    public static final String CONSTRAINT_SERVICE = "constraints";
 
     /**
      * Internal usage only. Top level binder to host.
@@ -147,6 +156,7 @@ public class CarContext extends ContextWrapper {
     private final AppManager mAppManager;
     private final NavigationManager mNavigationManager;
     private final ScreenManager mScreenManager;
+    private final ConstraintManager mConstraintManager;
     private final OnBackPressedDispatcher mOnBackPressedDispatcher;
     private final HostDispatcher mHostDispatcher;
     private final Lifecycle mLifecycle;
@@ -187,6 +197,7 @@ public class CarContext extends ContextWrapper {
      */
     // This is kept for the testing library.
     @NonNull
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public Object getCarService(@CarServiceType @NonNull String name) {
         switch (requireNonNull(name)) {
             case APP_SERVICE:
@@ -195,6 +206,8 @@ public class CarContext extends ContextWrapper {
                 return mNavigationManager;
             case SCREEN_SERVICE:
                 return mScreenManager;
+            case CONSTRAINT_SERVICE:
+                return mConstraintManager;
             default: // fall out
         }
 
@@ -230,6 +243,7 @@ public class CarContext extends ContextWrapper {
      */
     @NonNull
     @CarServiceType
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public String getCarServiceName(@NonNull Class<?> serviceClass) {
         if (requireNonNull(serviceClass).isInstance(mAppManager)) {
             return APP_SERVICE;
@@ -237,6 +251,8 @@ public class CarContext extends ContextWrapper {
             return NAVIGATION_SERVICE;
         } else if (serviceClass.isInstance(mScreenManager)) {
             return SCREEN_SERVICE;
+        } else if (serviceClass.isInstance(mConstraintManager)) {
+            return CONSTRAINT_SERVICE;
         }
 
         throw new IllegalArgumentException("The class does not correspond to a car service");
@@ -580,6 +596,7 @@ public class CarContext extends ContextWrapper {
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
+    @OptIn(markerClass = ExperimentalCarApi.class)
     @SuppressWarnings({
             "argument.type.incompatible",
             "method.invocation.invalid"
@@ -591,6 +608,7 @@ public class CarContext extends ContextWrapper {
         mAppManager = AppManager.create(this, hostDispatcher, lifecycle);
         mNavigationManager = NavigationManager.create(this, hostDispatcher, lifecycle);
         mScreenManager = ScreenManager.create(this, lifecycle);
+        mConstraintManager = ConstraintManager.create(this, hostDispatcher);
         mOnBackPressedDispatcher =
                 new OnBackPressedDispatcher(() -> getCarService(ScreenManager.class).pop());
         mLifecycle = lifecycle;
