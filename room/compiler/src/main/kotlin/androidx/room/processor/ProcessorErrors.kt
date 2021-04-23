@@ -861,13 +861,13 @@ object ProcessorErrors {
             1) RENAME:
                 @RenameColumn(
                         tableName = "$tableName",
-                        originalColumnName = "$columnName",
-                        newColumnName = <NEW_COLUMN_NAME>
+                        fromColumnName = "$columnName",
+                        toColumnName = <NEW_COLUMN_NAME>
                 )
             2) DELETE:
                 @DeleteColumn=(
                         tableName = "$tableName",
-                        deletedColumnName = "$columnName"
+                        columnName = "$columnName"
                 )
             """
         } else {
@@ -878,13 +878,13 @@ object ProcessorErrors {
             1) RENAME:
                 @RenameColumn(
                         tableName = "$tableName",
-                        originalColumnName = "$columnName",
-                        newColumnName = <NEW_COLUMN_NAME>
+                        fromColumnName = "$columnName",
+                        toColumnName = <NEW_COLUMN_NAME>
                 )
             2) DELETE:
                 @DeleteColumn=(
                         tableName = "$tableName",
-                        deletedColumnName = "$columnName"
+                        columnName = "$columnName"
                 )
             """
         }
@@ -900,8 +900,8 @@ object ProcessorErrors {
             renamed. Please annotate '$className' with the @RenameTable or @RemoveTable
             annotation to specify the change to be performed:
             1) RENAME: @RenameTable.Entries(
-                @RenameTable(originalTableName = "$tableName", newTableName = <NEW_TABLE_NAME>))
-            2) DELETE: @DeleteTable.Entries(@DeleteTable(deletedTableName = "$tableName"))
+                @RenameTable(fromTableName = "$tableName", toTableName = <NEW_TABLE_NAME>))
+            2) DELETE: @DeleteTable.Entries(@DeleteTable(tableName = "$tableName"))
             """
         } else {
             """
@@ -909,8 +909,8 @@ object ProcessorErrors {
             and annotate with the @RenameTable or @RemoveTable
             annotation to specify the change to be performed:
             1) RENAME: @RenameTable.Entries(
-                @RenameTable(originalTableName = "$tableName", newTableName = <NEW_TABLE_NAME>))
-            2) DELETE: @DeleteTable.Entries(@DeleteTable(deletedTableName = "$tableName"))
+                @RenameTable(fromTableName = "$tableName", toTableName = <NEW_TABLE_NAME>))
+            2) DELETE: @DeleteTable.Entries(@DeleteTable(tableName = "$tableName"))
             """
         }
     }

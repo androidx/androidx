@@ -32,7 +32,7 @@ import androidx.room.processor.ProcessorErrors.autoMigrationElementMustImplement
 import androidx.room.processor.ProcessorErrors.autoMigrationToVersionMustBeGreaterThanFrom
 import androidx.room.util.DiffException
 import androidx.room.util.SchemaDiffer
-import androidx.room.vo.AutoMigrationResult
+import androidx.room.vo.AutoMigration
 import java.io.File
 
 // TODO: (b/183435544) Support downgrades in AutoMigrations.
@@ -50,7 +50,7 @@ class AutoMigrationProcessor(
      *
      * @return the AutoMigrationResult containing the schema changes detected
      */
-    fun process(): AutoMigrationResult? {
+    fun process(): AutoMigration? {
         val isSpecProvided = spec.typeElement?.hasAnnotation(
             ProvidedAutoMigrationSpec::class
         ) ?: false
@@ -116,7 +116,7 @@ class AutoMigrationProcessor(
         val specClassName = specElement?.className?.simpleName()
         val deleteColumnEntries = specElement?.let { element ->
             element.getAnnotations(DeleteColumn::class).map {
-                AutoMigrationResult.DeletedColumn(
+                AutoMigration.DeletedColumn(
                     tableName = it.value.tableName,
                     columnName = it.value.columnName
                 )
@@ -125,7 +125,7 @@ class AutoMigrationProcessor(
 
         val deleteTableEntries = specElement?.let { element ->
             element.getAnnotations(DeleteTable::class).map {
-                AutoMigrationResult.DeletedTable(
+                AutoMigration.DeletedTable(
                     deletedTableName = it.value.tableName
                 )
             }
@@ -133,7 +133,7 @@ class AutoMigrationProcessor(
 
         val renameTableEntries = specElement?.let { element ->
             element.getAnnotations(RenameTable::class).map {
-                AutoMigrationResult.RenamedTable(
+                AutoMigration.RenamedTable(
                     originalTableName = it.value.fromTableName,
                     newTableName = it.value.toTableName
                 )
@@ -142,7 +142,7 @@ class AutoMigrationProcessor(
 
         val renameColumnEntries = specElement?.let { element ->
             element.getAnnotations(RenameColumn::class).map {
-                AutoMigrationResult.RenamedColumn(
+                AutoMigration.RenamedColumn(
                     tableName = it.value.tableName,
                     originalColumnName = it.value.fromColumnName,
                     newColumnName = it.value.toColumnName
@@ -165,13 +165,13 @@ class AutoMigrationProcessor(
             return null
         }
 
-        return AutoMigrationResult(
+        return AutoMigration(
             element = element,
             from = fromSchemaBundle.version,
             to = toSchemaBundle.version,
             schemaDiff = schemaDiff,
             specElement = specElement,
-            isSpecProvided = isSpecProvided
+            isSpecProvided = isSpecProvided,
         )
     }
 
