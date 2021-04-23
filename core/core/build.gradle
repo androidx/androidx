@@ -24,15 +24,15 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
+    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(MULTIDEX)
 
     // Including both dexmakers allows support for all API levels plus final mocking support on
     // API 28+. The implementation is swapped based on the finality of the mock type. This
     // delegation is handled manually inside androidx.core.util.mockito.CustomMockMaker.
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO_INLINE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO_INLINE, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0") {
         exclude group: "androidx.core", module: "core"
     }
