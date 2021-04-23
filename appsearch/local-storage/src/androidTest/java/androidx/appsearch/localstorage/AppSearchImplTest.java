@@ -41,6 +41,7 @@ import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.collection.ArrayMap;
+import androidx.collection.ArraySet;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.android.icing.proto.DocumentProto;
@@ -949,6 +950,7 @@ public class AppSearchImplTest {
     public void testClearPackageData() throws AppSearchException {
         List<SchemaTypeConfigProto> existingSchemas =
                 mAppSearchImpl.getSchemaProtoLocked().getTypesList();
+        Map<String, Set<String>> existingDatabases = mAppSearchImpl.getPackageToDatabases();
 
         // Insert package schema
         List<AppSearchSchema> schema =
@@ -983,6 +985,56 @@ public class AppSearchImplTest {
         // Verify the schema is cleared.
         assertThat(mAppSearchImpl.getSchemaProtoLocked().getTypesList())
                 .containsExactlyElementsIn(existingSchemas);
+        assertThat(mAppSearchImpl.getPackageToDatabases())
+                .containsExactlyEntriesIn(existingDatabases);
+    }
+
+    @Test
+    public void testPrunePackageData() throws AppSearchException {
+        List<SchemaTypeConfigProto> existingSchemas =
+                mAppSearchImpl.getSchemaProtoLocked().getTypesList();
+        Map<String, Set<String>> existingDatabases = mAppSearchImpl.getPackageToDatabases();
+
+        Set<String> existingPackages = new ArraySet<>(existingSchemas.size());
+        for (int i = 0; i < existingSchemas.size(); i++) {
+            existingPackages.add(PrefixUtil.getPackageName(existingSchemas.get(i).getSchemaType()));
+        }
+
+        // Insert schema for package A and B.
+        List<AppSearchSchema> schema =
+                ImmutableList.of(new AppSearchSchema.Builder("schema").build());
+        mAppSearchImpl.setSchema("packageA", "database", schema,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false, /*version=*/ 0);
+        mAppSearchImpl.setSchema("packageB", "database", schema,
+                /*schemasNotPlatformSurfaceable=*/ Collections.emptyList(),
+                /*schemasPackageAccessible=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false, /*version=*/ 0);
+
+        // Verify these two packages is stored in AppSearch
+        SchemaProto expectedProto = SchemaProto.newBuilder()
+                .addTypes(
+                        SchemaTypeConfigProto.newBuilder()
+                                .setSchemaType("packageA$database/schema").setVersion(0))
+                .addTypes(
+                        SchemaTypeConfigProto.newBuilder()
+                                .setSchemaType("packageB$database/schema").setVersion(0))
+                .build();
+        List<SchemaTypeConfigProto> expectedTypes = new ArrayList<>();
+        expectedTypes.addAll(existingSchemas);
+        expectedTypes.addAll(expectedProto.getTypesList());
+        assertThat(mAppSearchImpl.getSchemaProtoLocked().getTypesList())
+                .containsExactlyElementsIn(expectedTypes);
+
+        // Prune packages
+        mAppSearchImpl.prunePackageData(existingPackages);
+
+        // Verify the schema is same as beginning.
+        assertThat(mAppSearchImpl.getSchemaProtoLocked().getTypesList())
+                .containsExactlyElementsIn(existingSchemas);
+        assertThat(mAppSearchImpl.getPackageToDatabases())
+                .containsExactlyEntriesIn(existingDatabases);
     }
 
     @Test
