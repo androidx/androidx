@@ -9,7 +9,7 @@ on:
 jobs:
   setup:
     # Both `run_workflow` and `retry_workflow` will trigger the workflow
-    if: ${{ (github.event_name == 'push' || contains(github.event.issue.labels.*.name, 'workflow')) }}
+    if: ${{ (github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'workflow')) }}
     runs-on: ubuntu-latest
     outputs:
       gradlew_flags: ${{ steps.global-constants.outputs.gradlew_flags }}
