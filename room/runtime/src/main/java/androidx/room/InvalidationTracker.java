@@ -422,19 +422,15 @@ public class InvalidationTracker {
                     return;
                 }
 
-                if (mDatabase.mWriteAheadLoggingEnabled) {
-                    // This transaction has to be on the underlying DB rather than the RoomDatabase
-                    // in order to avoid a recursive loop after endTransaction.
-                    SupportSQLiteDatabase db = mDatabase.getOpenHelper().getWritableDatabase();
-                    db.beginTransactionNonExclusive();
-                    try {
-                        invalidatedTableIds = checkUpdatedTable();
-                        db.setTransactionSuccessful();
-                    } finally {
-                        db.endTransaction();
-                    }
-                } else {
+                // This transaction has to be on the underlying DB rather than the RoomDatabase
+                // in order to avoid a recursive loop after endTransaction.
+                SupportSQLiteDatabase db = mDatabase.getOpenHelper().getWritableDatabase();
+                db.beginTransactionNonExclusive();
+                try {
                     invalidatedTableIds = checkUpdatedTable();
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
                 }
             } catch (IllegalStateException | SQLiteException exception) {
                 // may happen if db is closed. just log.
