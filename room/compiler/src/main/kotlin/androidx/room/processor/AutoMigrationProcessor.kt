@@ -25,7 +25,6 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
-import androidx.room.migration.bundle.SchemaBundle.deserialize
 import androidx.room.processor.ProcessorErrors.AUTOMIGRATION_SPEC_MUST_BE_CLASS
 import androidx.room.processor.ProcessorErrors.INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC
 import androidx.room.processor.ProcessorErrors.autoMigrationElementMustImplementSpec
@@ -33,16 +32,14 @@ import androidx.room.processor.ProcessorErrors.autoMigrationToVersionMustBeGreat
 import androidx.room.util.DiffException
 import androidx.room.util.SchemaDiffer
 import androidx.room.vo.AutoMigration
-import java.io.File
 
 // TODO: (b/183435544) Support downgrades in AutoMigrations.
 class AutoMigrationProcessor(
     val element: XTypeElement,
     val context: Context,
-    val from: Int,
-    val to: Int,
     val spec: XType,
-    val latestDbSchema: DatabaseBundle
+    val fromSchemaBundle: DatabaseBundle,
+    val toSchemaBundle: DatabaseBundle
 ) {
     /**
      * Retrieves two schemas of the same database provided in the @AutoMigration annotation,
@@ -92,25 +89,14 @@ class AutoMigrationProcessor(
             null
         }
 
-        if (to <= from) {
+        if (toSchemaBundle.version <= fromSchemaBundle.version) {
             context.logger.e(
-                autoMigrationToVersionMustBeGreaterThanFrom(to, from)
+                autoMigrationToVersionMustBeGreaterThanFrom(
+                    toSchemaBundle.version,
+                    fromSchemaBundle.version
+                )
             )
             return null
-        }
-
-        val validatedFromSchemaFile = getValidatedSchemaFile(from) ?: return null
-        val fromSchemaBundle = validatedFromSchemaFile.inputStream().use {
-            deserialize(it).database
-        }
-
-        val validatedToSchemaFile = getValidatedSchemaFile(to) ?: return null
-        val toSchemaBundle = if (to == latestDbSchema.version) {
-            latestDbSchema
-        } else {
-            validatedToSchemaFile.inputStream().use {
-                deserialize(it).database
-            }
         }
 
         val specClassName = specElement?.className?.simpleName()
@@ -173,24 +159,5 @@ class AutoMigrationProcessor(
             specElement = specElement,
             isSpecProvided = isSpecProvided,
         )
-    }
-
-    // TODO: (b/180389433) Verify auto migration schemas before calling the AutoMigrationProcessor
-    private fun getValidatedSchemaFile(version: Int): File? {
-        val schemaFile = File(
-            context.schemaOutFolder,
-            "${element.className.canonicalName()}/$version.json"
-        )
-        if (!schemaFile.exists()) {
-            context.logger.e(
-                ProcessorErrors.autoMigrationSchemasNotFound(
-                    context.schemaOutFolder.toString(),
-                    "${element.className.canonicalName()}/$version.json"
-                ),
-                element
-            )
-            return null
-        }
-        return schemaFile
     }
 }

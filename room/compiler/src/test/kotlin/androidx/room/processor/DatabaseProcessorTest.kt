@@ -29,6 +29,7 @@ import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
+import androidx.room.processor.ProcessorErrors.autoMigrationSchemasMustBeRoomGenerated
 import androidx.room.solver.query.result.EntityRowAdapter
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.testing.context
@@ -47,11 +48,14 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.sameInstance
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import java.io.File
+import java.io.FileOutputStream
 
 @RunWith(JUnit4::class)
 class DatabaseProcessorTest {
@@ -174,13 +178,19 @@ class DatabaseProcessorTest {
             "foo.bar.MyAutoMigration",
             """
             package foo.bar;
-            import androidx.room.migration.AutoMigrationCallback;
-            import androidx.room.AutoMigration;
+            import androidx.annotation.NonNull;
+            import androidx.room.migration.AutoMigrationSpec;
             import androidx.sqlite.db.SupportSQLiteDatabase;
-            interface MyAutoMigration extends AutoMigrationCallback {}
+            class MyAutoMigration implements AutoMigrationSpec {
+                @Override
+                public void onPostMigrate(@NonNull SupportSQLiteDatabase db) {}
+            }
             """
         )
     }
+
+    @get:Rule
+    var schemaFolder: TemporaryFolder = TemporaryFolder()
 
     @Test
     fun simple() {
@@ -1214,7 +1224,7 @@ class DatabaseProcessorTest {
         singleDb(
             """
                 @Database(entities = {User.class}, version = 42, exportSchema = false,
-                autoMigrations = {@AutoMigration(from = 1, to = 2, callback = MyAutoMigration
+                autoMigrations = {@AutoMigration(from = 1, to = 2, spec = MyAutoMigration
                 .class), @AutoMigration(from = 2, to = 3)})
                 public abstract class MyDb extends RoomDatabase {}
                 """,
@@ -1223,6 +1233,137 @@ class DatabaseProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
+                )
+            }
+        }
+    }
+
+    @Test
+    fun autoMigrationSchemasNotFound() {
+        singleDb(
+            """
+                @Database(entities = {User.class}, version = 42, exportSchema = true,
+                autoMigrations = {@AutoMigration(from = 1, to = 2, spec = MyAutoMigration
+                .class)})
+                public abstract class MyDb extends RoomDatabase {}
+                """,
+            USER, AUTOMIGRATION
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(
+                    ProcessorErrors.autoMigrationSchemasNotFound(
+                        "1.json",
+                        schemaFolder.root.absolutePath + File.separator + "foo.bar.MyDb"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun autoMigrationFromSchemaNotFound() {
+        schemaFolder.newFolder("foo.bar.MyDb")
+        schemaFolder.newFile("foo.bar.MyDb" + File.separator + "2.json")
+        singleDb(
+            """
+                @Database(entities = {User.class}, version = 42, exportSchema = true,
+                autoMigrations = {@AutoMigration(from = 1, to = 2, spec = MyAutoMigration
+                .class)})
+                public abstract class MyDb extends RoomDatabase {}
+                """,
+            USER, AUTOMIGRATION,
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(
+                    ProcessorErrors.autoMigrationSchemasNotFound(
+                        "1.json",
+                        schemaFolder.root.absolutePath + File.separator + "foo.bar.MyDb"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun autoMigrationToSchemaNotFound() {
+        schemaFolder.newFolder("foo.bar.MyDb")
+        val createdFile: File = schemaFolder.newFile("foo.bar.MyDb" + File.separator + "1.json")
+        FileOutputStream(createdFile).bufferedWriter().use {
+            it.write("{}")
+        }
+        singleDb(
+            """
+                @Database(entities = {User.class}, version = 42, exportSchema = true,
+                autoMigrations = {@AutoMigration(from = 1, to = 2, spec = MyAutoMigration
+                .class)})
+                public abstract class MyDb extends RoomDatabase {}
+                """,
+            USER, AUTOMIGRATION
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(
+                    ProcessorErrors.autoMigrationSchemasNotFound(
+                        "2.json",
+                        schemaFolder.root.absolutePath + File.separator + "foo.bar.MyDb"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun autoMigrationEmptySchemaFiles() {
+        schemaFolder.newFolder("foo.bar.MyDb")
+        schemaFolder.newFile("foo.bar.MyDb" + File.separator + "1.json")
+        schemaFolder.newFile("foo.bar.MyDb" + File.separator + "2.json")
+
+        singleDb(
+            """
+                @Database(entities = {User.class}, version = 42, exportSchema = true,
+                autoMigrations = {@AutoMigration(from = 1, to = 2, spec = MyAutoMigration
+                .class)})
+                public abstract class MyDb extends RoomDatabase {}
+                """,
+            USER, AUTOMIGRATION,
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(
+                    ProcessorErrors.autoMigrationSchemaIsEmpty(
+                        "1.json",
+                        schemaFolder.root.absolutePath + File.separator + "foo.bar.MyDb"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun allAutoMigrationSchemasProvidedButNotRoomGenerated() {
+        schemaFolder.newFolder("foo.bar.MyDb")
+        val from: File = schemaFolder.newFile("foo.bar.MyDb" + File.separator + "1.json")
+        val to: File = schemaFolder.newFile("foo.bar.MyDb" + File.separator + "2.json")
+        FileOutputStream(from).bufferedWriter().use {
+            it.write("{}")
+        }
+        FileOutputStream(to).bufferedWriter().use {
+            it.write("{}")
+        }
+        singleDb(
+            """
+                @Database(entities = {User.class}, version = 42, exportSchema = true,
+                autoMigrations = {@AutoMigration(from = 1, to = 2)})
+                public abstract class MyDb extends RoomDatabase {}
+                """,
+            USER, AUTOMIGRATION,
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(
+                    autoMigrationSchemasMustBeRoomGenerated(1, 2)
                 )
             }
         }
@@ -1302,7 +1443,10 @@ class DatabaseProcessorTest {
                     "foo.bar.MyDb",
                     DATABASE_PREFIX + input
                 ),
-            classpath = classpath
+            classpath = classpath,
+            options = mapOf(
+                "room.schemaLocation" to schemaFolder.root.absolutePath
+            )
         ) { invocation ->
             val entity = invocation.roundEnv
                 .getElementsAnnotatedWith(
