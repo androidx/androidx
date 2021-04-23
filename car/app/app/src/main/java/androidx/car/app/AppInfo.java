@@ -48,7 +48,7 @@ import androidx.car.app.versioning.CarAppApiLevels;
  * <manifest ...>
  *   <application ...>
  *     <meta-data
- *         android:name="androidx.car.app.min-api-level"
+ *         android:name="androidx.car.app.minApiLevel"
  *         android:value="1" />
  *     ...
  *   </application>
@@ -62,10 +62,16 @@ public final class AppInfo {
     // TODO(b/174803562): Automatically update the this version using Gradle
     private static final String LIBRARY_VERSION = "1.1.0-alpha01";
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY)
-    @VisibleForTesting
-    public static final String MIN_API_LEVEL_MANIFEST_KEY = "androidx.car.app.min-api-level";
+    /**
+     * Application meta-data tag used to define the minimum Car App API level this application is
+     * able to handle.
+     *
+     * <p>If not specified, the library assumes the application can only handle the Car App API
+     * level designed by {@link CarAppApiLevels#getLatest()} at the time of compiling.
+     *
+     * @see CarContext#getCarAppApiLevel()
+     */
+    public static final String MIN_API_LEVEL_MANIFEST_KEY = "androidx.car.app.minApiLevel";
 
     @Keep
     @Nullable
