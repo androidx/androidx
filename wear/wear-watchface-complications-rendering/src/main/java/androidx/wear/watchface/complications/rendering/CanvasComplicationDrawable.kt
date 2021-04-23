@@ -150,6 +150,17 @@ public open class CanvasComplicationDrawable(
     /** Returns the [ComplicationData] to render with. */
     override fun getData(): ComplicationData? = _data
 
+    /**
+     * Updates the [ComplicationData] used for rendering and loads any [Drawable]s within the
+     * [complicationData].
+     *
+     * @param complicationData The new [ComplicationData] for which any [Drawable]s should be loaded
+     * @param loadDrawablesAsynchronous Whether any [Drawable]s within [complicationData] should be
+     * loaded asynchronously or not. If they are loaded asynchronously then upon completion,
+     * [ComplicationDrawable.setComplicationData] will call [Drawable.Callback.invalidateDrawable]
+     * registered in our init section above, which invalidates the attachedComplication and
+     * ultimately the watch face.
+     */
     @CallSuper
     override fun loadData(
         complicationData: ComplicationData?,
