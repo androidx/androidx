@@ -162,7 +162,7 @@ public abstract class CameraController {
     private ImageAnalysis.Analyzer mAnalysisAnalyzer;
 
     @NonNull
-    private ImageAnalysis mImageAnalysis;
+    ImageAnalysis mImageAnalysis;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -243,6 +243,7 @@ public abstract class CameraController {
         mSensorRotationListener = new SensorRotationListener(mAppContext) {
             @Override
             public void onRotationChanged(int rotation) {
+                mImageAnalysis.setTargetRotation(rotation);
                 mImageCapture.setTargetRotation(rotation);
                 mVideoCapture.setTargetRotation(rotation);
             }
