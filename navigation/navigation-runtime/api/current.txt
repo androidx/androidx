@@ -92,6 +92,7 @@ package androidx.navigation {
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
     method public androidx.navigation.NavBackStackEntry getBackStackEntry(@IdRes int destinationId);
     method public androidx.navigation.NavBackStackEntry? getCurrentBackStackEntry();
+    method public final kotlinx.coroutines.flow.Flow<androidx.navigation.NavBackStackEntry> getCurrentBackStackEntryFlow();
     method public androidx.navigation.NavDestination? getCurrentDestination();
     method @MainThread public androidx.navigation.NavGraph getGraph();
     method public androidx.navigation.NavInflater getNavInflater();
@@ -124,6 +125,7 @@ package androidx.navigation {
     method @CallSuper @MainThread public void setGraph(@NavigationRes int graphResId, android.os.Bundle? startDestinationArgs);
     method @CallSuper @MainThread public void setGraph(androidx.navigation.NavGraph graph, android.os.Bundle? startDestinationArgs);
     property public androidx.navigation.NavBackStackEntry? currentBackStackEntry;
+    property public final kotlinx.coroutines.flow.Flow<androidx.navigation.NavBackStackEntry> currentBackStackEntryFlow;
     property public androidx.navigation.NavDestination? currentDestination;
     property @MainThread public androidx.navigation.NavGraph graph;
     property public androidx.navigation.NavInflater navInflater;
@@ -142,7 +144,6 @@ package androidx.navigation {
 
   public final class NavControllerKt {
     method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
-    method public static kotlinx.coroutines.flow.Flow<androidx.navigation.NavBackStackEntry> getCurrentBackStackEntryFlow(androidx.navigation.NavController);
   }
 
   public final class NavDeepLinkBuilder {

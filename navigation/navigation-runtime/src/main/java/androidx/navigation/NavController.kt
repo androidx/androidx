@@ -37,11 +37,10 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 /**
  * NavController manages app navigation within a [NavHost].
@@ -646,6 +645,7 @@ public open class NavController(
                     backStackEntry.arguments
                 )
             }
+            _currentBackStackEntryFlow.tryEmit(backStackEntry)
             return true
         }
         return false
@@ -1617,6 +1617,16 @@ public open class NavController(
     public open val currentBackStackEntry: NavBackStackEntry?
         get() = backQueue.lastOrNull()
 
+    private val _currentBackStackEntryFlow: MutableSharedFlow<NavBackStackEntry> =
+        MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    /**
+     * Returns a [Flow] that will emit the currently active [NavBackStackEntry] whenever it
+     * changes. If there is no active [NavBackStackEntry], no item will be emitted.
+     */
+    public val currentBackStackEntryFlow: Flow<NavBackStackEntry> =
+        _currentBackStackEntryFlow.asSharedFlow()
+
     /**
      * Gets the previous visible [NavBackStackEntry].
      *
@@ -1675,20 +1685,3 @@ public inline fun NavController.createGraph(
     @IdRes startDestination: Int,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(id, startDestination, builder)
-
-/**
- * Creates and returns a [Flow] that will emit the currently active [NavBackStackEntry] whenever
- * it changes. If there is no active [NavBackStackEntry], no item will be emitted.
- */
-@ExperimentalCoroutinesApi
-public val NavController.currentBackStackEntryFlow: Flow<NavBackStackEntry>
-    get() = callbackFlow {
-        val listener = NavController.OnDestinationChangedListener { controller, _, _ ->
-            controller.currentBackStackEntry?.let { sendBlocking(it) }
-        }
-
-        addOnDestinationChangedListener(listener)
-        awaitClose {
-            removeOnDestinationChangedListener(listener)
-        }
-    }
