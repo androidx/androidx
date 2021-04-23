@@ -25,7 +25,7 @@ import java.util.UUID
  * NavControllerViewModel is the always up to date view of the NavController's
  * non configuration state
  */
-internal class NavControllerViewModel : ViewModel() {
+internal class NavControllerViewModel : ViewModel(), NavViewModelStoreProvider {
     private val viewModelStores = mutableMapOf<UUID, ViewModelStore>()
 
     fun clear(backStackEntryUUID: UUID) {
@@ -41,7 +41,7 @@ internal class NavControllerViewModel : ViewModel() {
         viewModelStores.clear()
     }
 
-    fun getViewModelStore(backStackEntryUUID: UUID): ViewModelStore {
+    override fun getViewModelStore(backStackEntryUUID: UUID): ViewModelStore {
         var viewModelStore = viewModelStores[backStackEntryUUID]
         if (viewModelStore == null) {
             viewModelStore = ViewModelStore()
