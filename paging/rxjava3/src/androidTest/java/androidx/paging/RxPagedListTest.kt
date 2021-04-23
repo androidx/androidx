@@ -17,6 +17,8 @@
 package androidx.paging
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.paging.rxjava3.toFlowable
+import androidx.paging.rxjava3.toObservable
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals

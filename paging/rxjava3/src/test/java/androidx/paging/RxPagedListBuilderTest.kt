@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.paging
 
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.rxjava3.RxPagedListBuilder
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.observers.TestObserver
 import io.reactivex.rxjava3.schedulers.TestScheduler
@@ -29,7 +32,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertTrue
 
-@Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
 class RxPagedListBuilderTest {
     private data class LoadStateEvent(

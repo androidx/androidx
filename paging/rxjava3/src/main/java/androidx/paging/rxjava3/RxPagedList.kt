@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.paging
+package androidx.paging.rxjava3
 
+import androidx.paging.Config
+import androidx.paging.DataSource
+import androidx.paging.PagedList
+import androidx.paging.PagingSource
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
