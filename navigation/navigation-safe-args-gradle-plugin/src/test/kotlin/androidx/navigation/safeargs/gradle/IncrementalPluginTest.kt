@@ -18,11 +18,13 @@ package androidx.navigation.safeargs.gradle
 
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 // Does not work in the Android Studio
+@Ignore // b/186177309
 @RunWith(Parameterized::class)
 class IncrementalPluginTest(private val generateKotlin: Boolean) : BasePluginTest() {
 
