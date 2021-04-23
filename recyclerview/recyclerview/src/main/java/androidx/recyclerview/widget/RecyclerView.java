@@ -67,6 +67,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.os.BuildCompat;
 import androidx.core.os.TraceCompat;
 import androidx.core.util.Preconditions;
 import androidx.core.view.AccessibilityDelegateCompat;
@@ -721,7 +722,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
                 defStyleAttr, 0);
-        mEdgeEffectType = EdgeEffectCompat.getType(EdgeEffectCompat.create(context, attrs));
+        if (BuildCompat.isAtLeastS()) {
+            mEdgeEffectType = EdgeEffectCompat.getType(EdgeEffectCompat.create(context, attrs));
+        }
 
         ViewCompat.saveAttributeDataForStyleable(this, context, R.styleable.RecyclerView,
                 attrs, a, defStyleAttr, 0);
