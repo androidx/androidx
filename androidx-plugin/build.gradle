@@ -1,8 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
-    apply from: "../buildSrc/build_dependencies.gradle"
-
     repositories {
         google()
         jcenter()
@@ -16,10 +14,9 @@ buildscript {
     }
 
     dependencies {
-        classpath build_libs.agp
-        classpath build_libs.kotlin.gradle_plugin
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${build_versions.dokka}"
-        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${build_versions.dokka}"
+        classpath(libs.androidGradlePlugin)
+        classpath(libs.kotlinGradlePlugin)
+        classpath(libs.dokkaGradlePlugin)
     }
 }
 
