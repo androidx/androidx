@@ -65,6 +65,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -318,20 +319,22 @@ final class Camera2CameraImpl implements CameraInternal {
         };
 
         SessionConfig.Builder builder = new SessionConfig.Builder();
-        builder.addNonRepeatingSurface(new ImmediateSurface(surface));
+        DeferrableSurface deferrableSurface = new ImmediateSurface(surface);
+        builder.addNonRepeatingSurface(deferrableSurface);
         builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         debugLog("Start configAndClose.");
         ListenableFuture<Void> openNoOpCaptureSession = noOpSession.open(builder.build(),
                 Preconditions.checkNotNull(mCameraDevice), mCaptureSessionOpenerBuilder.build());
         openNoOpCaptureSession.addListener(() -> {
             // Release the no-op Session and continue closing camera when in correct state.
-            releaseNoOpSession(noOpSession, closeAndCleanupRunner);
+            releaseNoOpSession(noOpSession, deferrableSurface, closeAndCleanupRunner);
         }, mExecutor);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mExecutor")
-    void releaseNoOpSession(CaptureSession noOpSession, Runnable closeAndCleanupRunner) {
+    void releaseNoOpSession(@NonNull CaptureSession noOpSession,
+            @NonNull DeferrableSurface deferrableSurface, @NonNull Runnable closeAndCleanupRunner) {
         // Config complete and remove the noOpSession from the mConfiguringForClose map
         // after resetCaptureSession and before release the noOpSession.
         mConfiguringForClose.remove(noOpSession);
@@ -340,8 +343,11 @@ final class Camera2CameraImpl implements CameraInternal {
         ListenableFuture<Void> releaseFuture = releaseSession(
                 noOpSession, /*abortInFlightCaptures=*/false);
 
+        deferrableSurface.close();
         // Add a listener to clear the no-op surfaces
-        releaseFuture.addListener(closeAndCleanupRunner, CameraXExecutors.directExecutor());
+        Futures.successfulAsList(
+                Arrays.asList(releaseFuture, deferrableSurface.getTerminationFuture())).addListener(
+                closeAndCleanupRunner, CameraXExecutors.directExecutor());
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -1130,8 +1136,12 @@ final class Camera2CameraImpl implements CameraInternal {
                 config.getDeviceStateCallbacks();
         List<CameraDevice.StateCallback> allStateCallbacks =
                 new ArrayList<>(configuredStateCallbacks);
-        allStateCallbacks.add(mStateCallback);
+        // The CaptureSessionRepository is an internal module of the Camera2CameraImpl, it needs
+        // to be updated before Camera2CameraImpl receives the camera status change. Set the
+        // state callback for CaptureSessionRepository before the Camera2CameraImpl, so the
+        // CaptureSessionRepository can update first.
         allStateCallbacks.add(mCaptureSessionRepository.getCameraStateCallback());
+        allStateCallbacks.add(mStateCallback);
         return CameraDeviceStateCallbacks.createComboCallback(allStateCallbacks);
     }
 

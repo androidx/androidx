@@ -589,16 +589,18 @@ public final class Camera2CameraImplTest {
     public void closeCaptureSessionImmediateAfterCreateCaptureSession()
             throws InterruptedException {
         mCamera2CameraImpl.open();
+        // Create another use case to keep the camera open.
+        UseCase useCaseDummy = createUseCase();
         UseCase useCase = createUseCase();
-        mCamera2CameraImpl.attachUseCases(Arrays.asList(useCase));
+        mCamera2CameraImpl.attachUseCases(Arrays.asList(useCase, useCaseDummy));
         mCamera2CameraImpl.onUseCaseActive(useCase);
 
         // Wait a little bit for the camera to open.
-        assertTrue(mSessionStateCallback.waitForOnConfigured(1));
+        assertTrue(mSessionStateCallback.waitForOnConfigured(2));
 
         // Remove the useCase and trigger the CaptureSession#close().
         mCamera2CameraImpl.detachUseCases(Arrays.asList(useCase));
-        assertTrue(mSessionStateCallback.waitForOnClosed(1));
+        assertTrue(mSessionStateCallback.waitForOnClosed(2));
     }
 
     // Blocks the camera thread handler.
