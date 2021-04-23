@@ -1160,7 +1160,7 @@ public open class NavController(
                 do {
                     val parent = destination!!.parent
                     if (parent != null) {
-                        val entry = NavBackStackEntry(
+                        val entry = NavBackStackEntry.create(
                             context, parent,
                             finalArgs, lifecycleOwner, viewModel
                         )
@@ -1180,7 +1180,7 @@ public open class NavController(
             while (destination != null && findDestination(destination.id) == null) {
                 val parent = destination.parent
                 if (parent != null) {
-                    val entry = NavBackStackEntry(
+                    val entry = NavBackStackEntry.create(
                         context, parent, finalArgs, lifecycleOwner, viewModel
                     )
                     hierarchy.addFirst(entry)
@@ -1203,13 +1203,13 @@ public open class NavController(
             backQueue.addAll(hierarchy)
             // The _graph should always be on the back stack after you navigate()
             if (backQueue.isEmpty() || backQueue.first().destination !== _graph) {
-                val entry = NavBackStackEntry(
+                val entry = NavBackStackEntry.create(
                     context, _graph!!, finalArgs, lifecycleOwner, viewModel
                 )
                 backQueue.addFirst(entry)
             }
             // And finally, add the new destination with its default args
-            val newBackStackEntry = NavBackStackEntry(
+            val newBackStackEntry = NavBackStackEntry.create(
                 context, newDest, newDest.addInDefaultArgs(finalArgs), lifecycleOwner, viewModel
             )
             backQueue.add(newBackStackEntry)

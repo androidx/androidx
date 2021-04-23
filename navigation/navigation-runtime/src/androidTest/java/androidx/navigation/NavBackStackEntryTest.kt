@@ -221,7 +221,7 @@ class NavBackStackEntryTest {
     @UiThreadTest
     @Test
     fun testGetSavedStateHandle() {
-        val entry = NavBackStackEntry(
+        val entry = NavBackStackEntry.create(
             ApplicationProvider.getApplicationContext(),
             NavDestination(TestNavigator()), null, TestLifecycleOwner(), NavControllerViewModel()
         )
@@ -233,7 +233,7 @@ class NavBackStackEntryTest {
     @UiThreadTest
     @Test
     fun testGetSavedStateHandleInitializedLifecycle() {
-        val entry = NavBackStackEntry(
+        val entry = NavBackStackEntry.create(
             ApplicationProvider.getApplicationContext(),
             NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
         )
@@ -257,7 +257,7 @@ class NavBackStackEntryTest {
     @UiThreadTest
     @Test
     fun testGetSavedStateHandleNoViewModelSet() {
-        val entry = NavBackStackEntry(
+        val entry = NavBackStackEntry.create(
             ApplicationProvider.getApplicationContext(),
             NavDestination(TestNavigator())
         )

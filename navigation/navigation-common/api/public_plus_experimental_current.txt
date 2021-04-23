@@ -102,6 +102,29 @@ package androidx.navigation {
     property public final androidx.navigation.NavType<?> type;
   }
 
+  public final class NavBackStackEntry implements androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+    method public android.os.Bundle? getArguments();
+    method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
+    method public androidx.navigation.NavDestination getDestination();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.UUID getId();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.lifecycle.Lifecycle.State getMaxLifecycle();
+    method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
+    method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+    method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event event);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void replaceArguments(android.os.Bundle? newArgs);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void saveState(android.os.Bundle outBundle);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setArguments(android.os.Bundle? p);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setMaxLifecycle(androidx.lifecycle.Lifecycle.State maxState);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void updateState();
+    property public final android.os.Bundle? arguments;
+    property public final androidx.navigation.NavDestination destination;
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final java.util.UUID id;
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.lifecycle.Lifecycle.State maxLifecycle;
+    property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
+  }
+
   public final class NavDeepLink {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public NavDeepLink(String uri);
     method public String? getAction();
