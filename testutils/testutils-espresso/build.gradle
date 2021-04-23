@@ -25,7 +25,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
-    implementation(ESPRESSO_CORE, libs.exclude_for_espresso)
+    implementation(ESPRESSO_CORE, excludes.espresso)
     implementation(KOTLIN_STDLIB)
 }
 

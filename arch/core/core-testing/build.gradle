@@ -29,7 +29,7 @@ dependencies {
     api(project(":arch:core:core-runtime"))
     api("androidx.annotation:annotation:1.1.0")
     api(JUNIT)
-    api(MOCKITO_CORE, libs.exclude_bytebuddy)
+    api(MOCKITO_CORE, excludes.bytebuddy)
 
     testImplementation(JUNIT)
 
