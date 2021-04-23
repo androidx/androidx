@@ -779,7 +779,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         @UiThread
         fun getComplicationState(): List<IdAndComplicationStateWireFormat> =
-            uiThreadHandler.runOnHandlerWithTracing("EngineWrapper.getComplicationState") {
+            uiThreadHandler.runBlockingOnHandlerWithTracing("EngineWrapper.getComplicationState") {
                 watchFaceImpl.complicationsManager.complications.map {
                     IdAndComplicationStateWireFormat(
                         it.key,
@@ -1503,7 +1503,7 @@ public abstract class WatchFaceService : WallpaperService() {
  * @param task The task to post on the handler.
  * @return [R] the return value of [task].
  */
-internal fun <R> Handler.runOnHandlerWithTracing(
+internal fun <R> Handler.runBlockingOnHandlerWithTracing(
     traceEventName: String,
     task: () -> R
 ): R = TraceEvent(traceEventName).use {
@@ -1533,5 +1533,25 @@ internal fun <R> Handler.runOnHandlerWithTracing(
         // R might be nullable so we can't assert nullability here.
         @Suppress("UNCHECKED_CAST")
         returnVal as R
+    }
+}
+
+/**
+ * Runs the supplied task on the handler thread. If we're not on the handler thread a task is
+ * posted.
+ *
+ * @param traceEventName The name of the trace event to emit.
+ * @param task The task to post on the handler.
+ */
+internal fun Handler.runOnHandlerWithTracing(
+    traceEventName: String,
+    task: () -> Unit
+) = TraceEvent(traceEventName).use {
+    if (looper == Looper.myLooper()) {
+        task.invoke()
+    } else {
+        post {
+            TraceEvent("$traceEventName invokeTask").use { task.invoke() }
+        }
     }
 }
