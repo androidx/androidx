@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.build.lint
+
 import com.android.SdkConstants.ATTR_VALUE
 import com.android.SdkConstants.DOT_JAVA
 import com.android.tools.lint.checks.ApiDetector.Companion.REQUIRES_API_ANNOTATION
@@ -53,27 +55,40 @@ import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.java.JavaUAnnotation
 import org.jetbrains.uast.util.isConstructorCall
 import org.jetbrains.uast.util.isMethodCall
+
 /**
- * This detects usages of a platform api that are not within a class annotated with RequiresApi(x)
- * where x is equal or higher to that api. It is to encourage developers to move calls to apis
- * higher than minSdk to be within a specialized annotated class (classes with names
- * traditionally ending with ....ApiXImpl.
+ * This check detects references to platform APIs that are likely to cause class verification
+ * failures.
+ * <p>
+ * Specifically, this check looks for references to APIs that were added prior to the library's
+ * minSdkVersion and therefore may not exist on the run-time classpath. If the class verifier
+ * detects such a reference, e.g. while verifying a class containing the reference, it will abort
+ * verification. This will prevent the class from being optimized, resulting in potentially severe
+ * performance losses.
+ * <p>
+ * See Chromium's excellent guide to Class Verification Failures for more information:
+ * https://chromium.googlesource.com/chromium/src/+/HEAD/build/android/docs/class_verification_failures.md
  */
-class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
+class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
     private var apiDatabase: ApiLookup? = null
+
     override fun beforeCheckEachProject(context: Context) {
         apiDatabase = ApiLookup.get(context.client, context.project.buildTarget)
     }
+
     override fun afterCheckEachProject(context: Context) {
         apiDatabase = null
     }
+
     override fun createUastHandler(context: JavaContext): UElementHandler? {
         if (apiDatabase == null) {
             return null
         }
         return ApiVisitor(context)
     }
+
     override fun getApplicableUastTypes() = listOf(UCallExpression::class.java)
+
     // Consider making this a top class and pass in apiDatabase explicitly.
     private inner class ApiVisitor(private val context: JavaContext) : UElementHandler() {
         override fun visitCallExpression(node: UCallExpression) {
@@ -82,6 +97,7 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
                 visitCall(method, node, node)
             }
         }
+
         private fun visitCall(
             method: PsiMethod,
             call: UCallExpression?,
@@ -349,8 +365,7 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
                 return
             }
             val potentialRequiresApiVersion = getRequiresApiFromAnnotations(
-                call
-                    .getContainingUClass()!!.javaPsi
+                call.getContainingUClass()!!.javaPsi
             )
             if (potentialRequiresApiVersion == NO_API_REQUIREMENT ||
                 api > potentialRequiresApiVersion
@@ -358,15 +373,13 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
                 val containingClassName = call.getContainingUClass()!!.qualifiedName.toString()
                 context.report(
                     ISSUE, reference, location,
-                    "This call is to a method from API $api, the call containing " +
-                        "class $containingClassName is not annotated with " +
-                        "@RequiresApi(x) where x is at least $api. Either annotate the " +
-                        "containing class with at least @RequiresApi($api) or move the " +
-                        "call to a static method in a wrapper class annotated with at " +
-                        "least @RequiresApi($api)."
+                    "This call references a method added in API level $api; however, the " +
+                        "containing class $containingClassName is reachable from earlier API " +
+                        "levels and will fail run-time class verification."
                 )
             }
         }
+
         private fun getInheritanceChain(
             derivedClass: PsiClassType,
             baseClass: PsiClassType?
@@ -378,6 +391,7 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
             chain?.reverse()
             return chain
         }
+
         private fun getInheritanceChain(
             derivedClass: PsiClassType,
             baseClass: PsiClassType?,
@@ -398,6 +412,7 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
             }
             return null
         }
+
         private fun getRequiresApiFromAnnotations(modifierListOwner: PsiModifierListOwner): Int {
             for (annotation in context.evaluator.getAllAnnotations(modifierListOwner, false)) {
                 val qualifiedName = annotation.qualifiedName
@@ -453,52 +468,57 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
             return NO_API_REQUIREMENT
         }
     }
+
     companion object {
         const val NO_API_REQUIREMENT = -1
         val ISSUE = Issue.create(
-            "UnsafeNewApiCall",
-            "Calling method with API level higher than minSdk outside a " +
-                "@RequiresApi class or with insufficient required API.",
+            "ClassVerificationFailure",
+            "Even in cases where references to new APIs are gated on SDK_INT " +
+                "checks, run-time class verification will still fail on references to APIs that " +
+                "may not be available at run time, including platform APIs introduced after a " +
+                "library's minSdkVersion.",
             """
-                Even though wrapping a call to a method from an API above minSdk
-                inside an SDK_INT check makes it runtime safe, it is not optimal. When
-                ART tries to optimize a class, it will do so regardless of the execution
-                path, and will fail if it tries to resolve a method at a higher API if
-                that method is being referenced
-                somewhere in the class, even if that method would never be called at runtime
-                due to the SDK_INT check. ART will however only try to optimize a class the
-                first time it's referenced at runtime, this means if we wrap our above
-                minSdk method calls inside classes that are only referenced at runtime at
-                the appropriate API level, then we guarantee the ablity to resolve all the
-                methods. To enforce this we require that all references to methods above
-                minSdk are made inside classes that are annotated with RequiresApi(x) where
-                x is at least the api at which the methods becomes available.
-                For example if our minSdk is 14, and framework method a.x(params...) is
-                available starting sdk 16, then creating the following example class is
-                considered good practice:
+                The Java language requires a virtual machine to verify the class files it
+                loads and executes. A class may fail verification for a wide variety of
+                reasons, but in practice it‘s usually because the class’s code refers to
+                unknown classes or methods.
+                
+                References to APIs added after a library's minSdkVersion -- regardless of
+                any surrounding version checks -- will fail run-time class verification if
+                the API does not exist on the device, leading to reduced run-time
+                performance.
+
+                Gating references on SDK checks alone DOES NOT address class verification
+                failures.
+
+                To prevent class verification failures, references to new APIs must be
+                moved to inner classes that are only initialized inside of an appropriate
+                SDK check.
+
+                For example, if our minimum SDK is 14 and platform method a.x(params...)
+                was added in SDK 16, the method call must be moved to an inner class like:
+
                 @RequiresApi(16)
                 private static class Api16Impl{
+                  @DoNotInline
                   static void callX(params...) {
                     a.x(params...);
                   }
                 }
+
                 The call site is changed from a.x(params...) to Api16Impl.callX(params).
+
                 Since ART will only try to optimize Api16Impl when it's on the execution
                 path, we are guaranteed to have a.x(...) available.
-                In addition, shrinkers like r8/proguard may inline the method in the separate
-                class and replace the wrapper call with the actual call, so you may have to disable
-                inlining the class by using a proguard rule. The following is an example of how to
-                disable inlining methods from Impl classes inside the WindowInsetsCompat class:
-                -keepclassmembernames,allowobfuscation,allowshrinking class 
-                    androidx.core.view.WindowInsetsCompat${'$'}*Impl* {
-                  <methods>;
-                }
-                This will still allow them to be removed, but if they are kept, they will not be
-                inlined.
+
+                In addition, optimizers like R8 or Proguard may inline the method in the
+                separate class and replace the wrapper call with the actual call, so you
+                must disable inlining using the @DoNotInline annotation.
+
                 Failure to do the above may result in overall performance degradation.
             """,
             Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(UnsafeNewApiCallsDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            Implementation(ClassVerificationFailureDetector::class.java, Scope.JAVA_FILE_SCOPE)
         ).setAndroidSpecific(true)
     }
 }
