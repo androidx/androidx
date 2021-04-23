@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.util.SchemaDiffResult
-import androidx.room.vo.AutoMigrationResult
+import androidx.room.vo.AutoMigration
 import loadTestSource
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,7 +42,7 @@ class AutoMigrationWriterTest {
         )
 
         runProcessorTest(listOf(source)) { invocation ->
-            val autoMigrationResultWithNewAddedColumn = AutoMigrationResult(
+            val autoMigrationResultWithNewAddedColumn = AutoMigration(
                 element = invocation.processingEnv.requireTypeElement(
                     "foo.bar.ValidAutoMigrationWithDefault"
                 ),
@@ -52,7 +52,7 @@ class AutoMigrationWriterTest {
                     addedColumns = mapOf(
                         Pair(
                             "artistId",
-                            AutoMigrationResult.AddedColumn(
+                            AutoMigration.AddedColumn(
                                 "Song",
                                 FieldBundle(
                                     "artistId",
@@ -68,7 +68,9 @@ class AutoMigrationWriterTest {
                     addedTables = setOf(),
                     complexChangedTables = mapOf(),
                     renamedTables = mapOf(),
-                    deletedTables = listOf()
+                    deletedTables = listOf(),
+                    fromViews = emptyList(),
+                    toViews = emptyList()
                 ),
                 specElement = invocation.processingEnv.requireTypeElement(
                     "foo.bar.ValidAutoMigrationWithDefault"
@@ -106,7 +108,7 @@ class AutoMigrationWriterTest {
         )
 
         runProcessorTest(listOf(source)) { invocation ->
-            val autoMigrationResultWithNewAddedColumn = AutoMigrationResult(
+            val autoMigrationResultWithNewAddedColumn = AutoMigration(
                 element = invocation.processingEnv.requireTypeElement(
                     "foo.bar.ValidAutoMigrationWithoutDefault"
                 ),
@@ -116,7 +118,7 @@ class AutoMigrationWriterTest {
                     addedColumns = mapOf(
                         Pair(
                             "artistId",
-                            AutoMigrationResult.AddedColumn(
+                            AutoMigration.AddedColumn(
                                 "Song",
                                 FieldBundle(
                                     "artistId",
@@ -132,7 +134,9 @@ class AutoMigrationWriterTest {
                     addedTables = setOf(),
                     complexChangedTables = mapOf(),
                     renamedTables = mapOf(),
-                    deletedTables = listOf()
+                    deletedTables = listOf(),
+                    fromViews = emptyList(),
+                    toViews = emptyList()
                 ),
                 specElement = invocation.processingEnv.requireTypeElement(
                     "foo.bar.ValidAutoMigrationWithoutDefault"

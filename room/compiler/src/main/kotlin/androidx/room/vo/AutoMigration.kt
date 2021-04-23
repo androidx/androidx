@@ -25,13 +25,13 @@ import com.squareup.javapoet.ClassName
 /**
  * Stores the changes detected in a database schema between the old and new versions.
  */
-data class AutoMigrationResult(
+data class AutoMigration(
     val element: XTypeElement,
-    val from: Int?,
-    val to: Int?,
+    val from: Int,
+    val to: Int,
     val specElement: XTypeElement?,
     val schemaDiff: SchemaDiffResult,
-    val isSpecProvided: Boolean
+    val isSpecProvided: Boolean,
 ) {
     val implTypeName: ClassName by lazy {
         ClassName.get(

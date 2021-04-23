@@ -27,7 +27,6 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
-import androidx.room.vo.AutoMigrationResult
 import androidx.room.vo.Dao
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
@@ -126,7 +125,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
     private fun processAutoMigrations(
         element: XTypeElement,
         latestDbSchema: DatabaseBundle
-    ): List<AutoMigrationResult> {
+    ): List<androidx.room.vo.AutoMigration> {
         val dbAnnotation = element.getAnnotation(androidx.room.Database::class)!!
         val autoMigrationList = dbAnnotation
             .getAsAnnotationBoxArray<AutoMigration>("autoMigrations")
