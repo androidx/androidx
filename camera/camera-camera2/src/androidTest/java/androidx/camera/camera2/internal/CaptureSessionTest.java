@@ -247,7 +247,8 @@ public final class CaptureSessionTest {
     }
 
     @Test
-    public void captureSessionIncreasesSurfaceUseCountAfterOpen_andDecreasesAfterRelease() {
+    public void captureSessionIncreasesSurfaceUseCountAfterOpen_andDecreasesAfterCameraIsClosed()
+            throws InterruptedException, ExecutionException, TimeoutException {
         CaptureSession captureSession = createCaptureSession();
 
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
@@ -270,10 +271,75 @@ public final class CaptureSessionTest {
                 CameraXExecutors.mainThreadExecutor());
 
         verify(mockFutureCallback, timeout(3000)).onSuccess(any());
+
+        // Release the CaptureSession will not wait for the CameraCaptureSession close, the use
+        // count of the surface will be decreased after the camera is closed or the new
+        // CaptureSession is created. Close the CameraDevice to verify the surface use count
+        // will actually decrease.
+        CameraUtil.releaseCameraDevice(mCameraDeviceHolder);
+
         int useCountAfterRelease = surface.getUseCount();
 
         assertThat(useCountAfterOpen).isGreaterThan(useCountBeforeOpen);
         assertThat(useCountAfterRelease).isEqualTo(useCountBeforeOpen);
+    }
+
+    @Test
+    public void captureSessionSurfaceUseCount_decreaseAllAfterCameraClose()
+            throws InterruptedException, ExecutionException, TimeoutException {
+
+        DeferrableSurface surface = mTestParameters0.mSessionConfig.getSurfaces().get(0);
+        int useCount0BeforeOpen = surface.getUseCount();
+        CaptureSession captureSession = createSessionAndWaitOpened(mTestParameters0, 3000);
+        int useCount0AfterOpen = surface.getUseCount();
+
+        captureSession.release(false);
+
+        DeferrableSurface surface1 = mTestParameters1.mSessionConfig.getSurfaces().get(0);
+        int useCount1BeforeOpen = surface1.getUseCount();
+        CaptureSession captureSession1 = createSessionAndWaitOpened(mTestParameters1, 3000);
+        int useCount1AfterOpen = surface1.getUseCount();
+
+        captureSession1.release(false);
+
+        CameraUtil.releaseCameraDevice(mCameraDeviceHolder);
+
+        assertThat(useCount0AfterOpen).isGreaterThan(useCount0BeforeOpen);
+        assertThat(useCount1AfterOpen).isGreaterThan(useCount1BeforeOpen);
+
+        assertThat(surface.getUseCount()).isEqualTo(0);
+        assertThat(surface1.getUseCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void captureSessionSurfaceUseCount_decreaseAfterNewCaptureSessionConfigured() {
+        DeferrableSurface surface = mTestParameters0.mSessionConfig.getSurfaces().get(0);
+        int useCountBeforeOpen = surface.getUseCount();
+        CaptureSession captureSession = createSessionAndWaitOpened(mTestParameters0, 3000);
+        int useCountAfterOpen = surface.getUseCount();
+
+        captureSession.release(false);
+
+        createSessionAndWaitOpened(mTestParameters1, 3000);
+        int useCountAfterNewCaptureSessionConfigured = surface.getUseCount();
+
+        assertThat(useCountAfterOpen).isGreaterThan(useCountBeforeOpen);
+        assertThat(useCountAfterNewCaptureSessionConfigured).isEqualTo(useCountBeforeOpen);
+    }
+
+    @NonNull
+    private CaptureSession createSessionAndWaitOpened(
+            @NonNull CaptureSessionTestParameters parameters, long waitTimeout) {
+        CaptureSession captureSession = createCaptureSession();
+        captureSession.setSessionConfig(parameters.mSessionConfig);
+        FutureCallback<Void> mockFutureCallback = mock(FutureCallback.class);
+        Futures.addCallback(captureSession.open(parameters.mSessionConfig,
+                mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build()),
+                mockFutureCallback, CameraXExecutors.mainThreadExecutor());
+
+        verify(mockFutureCallback, timeout(waitTimeout)).onSuccess(any());
+
+        return captureSession;
     }
 
     @Test
@@ -369,7 +435,7 @@ public final class CaptureSessionTest {
         assertThat(captureSession.getState()).isEqualTo(State.RELEASED);
 
         // StateCallback.onClosed() should be called to signal the session is closed.
-        verify(mTestParameters0.mSessionStateCallback, timeout(1000).times(1))
+        verify(mTestParameters0.mSessionStateCallback, timeout(3000).times(1))
                 .onClosed(any(CameraCaptureSession.class));
     }
 
@@ -832,7 +898,7 @@ public final class CaptureSessionTest {
 
         // Open the CameraCaptureSession without waiting for the onConfigured() callback.
         synchronizedCaptureSessionOpener.openCaptureSession(mCameraDeviceHolder.get(),
-                sessionConfigCompat);
+                sessionConfigCompat, mTestParameters0.mSessionConfig.getSurfaces());
 
         // Open the camera again to simulate the cameraDevice is disconnected
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -982,7 +1048,7 @@ public final class CaptureSessionTest {
 
         // Open the CameraCaptureSession without waiting for the onConfigured() callback.
         synchronizedCaptureSessionOpener.openCaptureSession(mCameraDeviceHolder.get(),
-                sessionConfigCompat);
+                sessionConfigCompat, mTestParameters0.mSessionConfig.getSurfaces());
 
         CaptureSession captureSession1 = createCaptureSession();
         captureSession1.open(mTestParameters1.mSessionConfig, mCameraDeviceHolder.get(),
@@ -1047,7 +1113,7 @@ public final class CaptureSessionTest {
 
     @Test
     public void closePreviousClosingCaptureSession_afterNewCaptureSessionCreated_runningRepeating()
-            throws ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException, TimeoutException {
 
         CaptureSession captureSession = createCaptureSession();
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
@@ -1068,7 +1134,11 @@ public final class CaptureSessionTest {
 
         verify(mTestParameters1.mSessionStateCallback, timeout(3000).times(1))
                 .onConfigured(any(CameraCaptureSession.class));
-        assertThat(mCaptureSessionRepository.getCaptureSessions().size()).isEqualTo(1);
+
+        CameraUtil.releaseCameraDevice(mCameraDeviceHolder);
+
+        // Close camera device should close all sessions.
+        assertThat(mCaptureSessionRepository.getCaptureSessions().size()).isEqualTo(0);
         assertThat(captureSession.getState()).isEqualTo(State.RELEASED);
     }
 
