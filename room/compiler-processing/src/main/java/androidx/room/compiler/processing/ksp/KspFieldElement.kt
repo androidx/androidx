@@ -37,7 +37,7 @@ internal class KspFieldElement(
         arrayOf(declaration, containing)
     }
 
-    override val enclosingTypeElement: XTypeElement by lazy {
+    override val enclosingElement: XTypeElement by lazy {
         declaration.requireEnclosingTypeElement(env)
     }
 
