@@ -30,7 +30,7 @@ dependencies {
     api("androidx.annotation:annotation:1.0.0")
     api("androidx.lifecycle:lifecycle-livedata:2.1.0")
     api(GUAVA_LISTENABLE_FUTURE)
-    api("androidx.annotation:annotation-experimental:1.1.0-rc01")
+    api("androidx.annotation:annotation-experimental:1.1.0")
     api(KOTLIN_STDLIB) // Added for annotation-experimental
     implementation("androidx.exifinterface:exifinterface:1.0.0")
     implementation("androidx.core:core:1.1.0")
@@ -62,7 +62,7 @@ dependencies {
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(project(":internal-testutils-truth"))
 }
 
