@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.paging
+package androidx.paging.rxjava3
 
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.schedulers.Schedulers
