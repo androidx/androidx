@@ -1,20 +1,20 @@
 #!/bin/bash
-set -e
+#
+# Script to fetch generated API references docs from the Android build server and stage them.
 
+source gbash.sh || exit
+
+DEFINE_string buildId --required "" "The build ID from the Android build server"
+DEFINE_string db "$USER" "The database used for staging; defaults to your username"
+
+gbash::init_google "$@"
+
+# Change directory to this script's location and store the directory
 cd "$(dirname $0)"
+readonly scriptDirectory=$(pwd)
 
-# Save current working directory
-scriptDirectory=$(pwd)
-
-if [[ -z "$1" ]]; then
-      printf "Please supply a buildID from the android build server\n"
-      exit
-fi
-
-buildId=$1
-
-newDir="reference-docs"
-dackkaNewDir="reference-docs-dackka"
+readonly newDir="reference-docs"
+readonly dackkaNewDir="reference-docs-dackka"
 
 # Remove the existing out directory to avoid conflicts from previous runs
 rm -rf out
@@ -22,20 +22,20 @@ mkdir -p out/$newDir
 mkdir -p out/$dackkaNewDir
 cd out
 
-androidxPublicKotlinDocsZip="dokka-public-docs-${buildId}.zip"
-androidxPublicJavaDocsZip="doclava-public-docs-${buildId}.zip"
-androidxPublicDackkaDocsZip="dackka-public-docs-${buildId}.zip"
+readonly androidxPublicKotlinDocsZip="dokka-public-docs-${FLAGS_buildId}.zip"
+readonly androidxPublicJavaDocsZip="doclava-public-docs-${FLAGS_buildId}.zip"
+readonly androidxPublicDackkaDocsZip="dackka-public-docs-${FLAGS_buildId}.zip"
 
-printf "============================ STEP 1 =============================== \n"
-printf "== Downloading the doc zip files from the build server... \n"
-printf "== If this script hangs, try running glogin or gcert.\n"
+printf "=================================================================== \n"
+printf "== Download the doc zip files from the build server \n"
 printf "=================================================================== \n"
 
-/google/data/ro/projects/android/fetch_artifact --bid $buildId --target androidx $androidxPublicKotlinDocsZip
-/google/data/ro/projects/android/fetch_artifact --bid $buildId --target androidx $androidxPublicJavaDocsZip
-/google/data/ro/projects/android/fetch_artifact --bid $buildId --target androidx $androidxPublicDackkaDocsZip
+/google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxPublicKotlinDocsZip
+/google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxPublicJavaDocsZip
+/google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxPublicDackkaDocsZip
 
-printf "============================ STEP 2 =============================== \n"
+printf "\n"
+printf "=================================================================== \n"
 printf "== Unzip the doc zip files \n"
 printf "=================================================================== \n"
 
@@ -43,7 +43,8 @@ unzip $androidxPublicKotlinDocsZip -d $newDir
 unzip $androidxPublicJavaDocsZip -d $newDir
 unzip $androidxPublicDackkaDocsZip -d $dackkaNewDir
 
-printf "============================ STEP 3 =============================== \n"
+printf "\n"
+printf "=================================================================== \n"
 printf "== Copy over Dackka generated refdocs \n"
 printf "=================================================================== \n"
 
@@ -54,7 +55,8 @@ printf "=================================================================== \n"
 cp -r $dackkaNewDir/reference/androidx/paging $newDir/reference/androidx/
 cp -r $dackkaNewDir/reference/kotlin/androidx/paging $newDir/reference/kotlin/androidx/
 
-printf "============================ STEP 4 =============================== \n"
+printf "\n"
+printf "=================================================================== \n"
 printf "== Format the doc zip files \n"
 printf "=================================================================== \n"
 
@@ -83,7 +85,8 @@ rm -f reference/androidx/_book.yaml
 sed -i "s/  version_added/# version_added/" reference/androidx/_toc.yaml
 sed -i "s/    # version_added/#     version_added/" reference/androidx/_toc.yaml
 
-printf "============================ STEP 5 =============================== \n"
+printf "\n"
+printf "=================================================================== \n"
 printf "== Generate the language switcher \n"
 printf "=================================================================== \n"
 
@@ -91,18 +94,41 @@ printf "=================================================================== \n"
 cd reference
 python2 ./../../../switcher.py --work androidx
 
-printf "============================ STEP 6 =============================== \n"
-printf "== Run the following command to copy the docs into Google3 \n"
+printf "\n"
+printf "=================================================================== \n"
+printf "== Create (if needed) and sync g4 workspace \n"
 printf "=================================================================== \n"
 
-printf "
-\`\`\`
-g4d -f androidx-ref-docs-stage && \
-cd third_party/devsite/android/en/reference && \
-g4 sync && \
-cp -r $(pwd)/* . && \
-/google/data/ro/projects/devsite/two/live/devsite2.par stage androidx && \
-/google/data/ro/projects/devsite/two/live/devsite2.par stage kotlin/androidx
-\`\`\`\n"
+readonly client="$(p4 g4d -f androidx-ref-docs-stage)"
+cd "$client"
 
-exit
+# Revert all local changes to prevent merge conflicts when syncing.
+# This is OK since we always want to start with a fresh CitC client
+g4 revert ...
+g4 sync
+
+# temporarily skipping due to o/128063951
+# printf "\n"
+# printf "=================================================================== \n"
+# printf "== Provision staging database ${FLAGS_db} \n"
+# printf "=================================================================== \n"
+#
+# /google/data/ro/projects/devsite/devsite2 provision --db="${FLAGS_db}"
+
+printf "\n"
+printf "=================================================================== \n"
+printf "== Copy refdocs to CitC client \n"
+printf "=================================================================== \n"
+
+cd third_party/devsite/android/en/reference
+cp -r $scriptDirectory/out/$newDir/reference/* .
+
+printf "\n"
+printf "=================================================================== \n"
+printf "== Stage changes \n"
+printf "=================================================================== \n"
+
+/google/data/ro/projects/devsite/devsite2 stage --db="${FLAGS_db}" \
+  --parallelize_build --use_large_thread_pools --upload_safety_check_mode=ignore \
+  "androidx" \
+  "kotlin/androidx"
