@@ -17,6 +17,7 @@
 package androidx.car.app.navigation.model;
 
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION_MAP;
 import static androidx.car.app.model.constraints.CarColorConstraints.UNCONSTRAINED;
 
 import static java.util.Objects.requireNonNull;
@@ -27,6 +28,8 @@ import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
@@ -87,6 +90,10 @@ public final class NavigationTemplate implements Template {
     @Keep
     @Nullable
     private final ActionStrip mActionStrip;
+    @Keep
+    @Nullable
+    private final ActionStrip mMapActionStrip;
+    private final boolean mIsInPanMode;
 
     /**
      * Returns the {@link ActionStrip} for this template or {@code null} if not set.
@@ -96,6 +103,25 @@ public final class NavigationTemplate implements Template {
     @Nullable
     public ActionStrip getActionStrip() {
         return requireNonNull(mActionStrip);
+    }
+
+    /**
+     * Returns the map {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setMapActionStrip(ActionStrip)
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(2)
+    @Nullable
+    public ActionStrip getMapActionStrip() {
+        return mMapActionStrip;
+    }
+
+    /** Returns whether this template is in the pan mode. */
+    @ExperimentalCarApi
+    @RequiresCarApi(2)
+    public boolean isInPanMode() {
+        return mIsInPanMode;
     }
 
     /**
@@ -134,7 +160,7 @@ public final class NavigationTemplate implements Template {
     @Override
     public int hashCode() {
         return Objects.hash(mNavigationInfo, mBackgroundColor, mDestinationTravelEstimate,
-                mActionStrip);
+                mActionStrip, mMapActionStrip, mIsInPanMode);
     }
 
     @Override
@@ -151,7 +177,9 @@ public final class NavigationTemplate implements Template {
                 && Objects.equals(mBackgroundColor, otherTemplate.mBackgroundColor)
                 && Objects.equals(mDestinationTravelEstimate,
                 otherTemplate.mDestinationTravelEstimate)
-                && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
+                && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
+                && Objects.equals(mMapActionStrip, otherTemplate.mMapActionStrip)
+                && mIsInPanMode == otherTemplate.mIsInPanMode;
     }
 
     NavigationTemplate(Builder builder) {
@@ -159,6 +187,8 @@ public final class NavigationTemplate implements Template {
         mBackgroundColor = builder.mBackgroundColor;
         mDestinationTravelEstimate = builder.mDestinationTravelEstimate;
         mActionStrip = builder.mActionStrip;
+        mMapActionStrip = builder.mMapActionStrip;
+        mIsInPanMode = builder.mIsInPanMode;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -167,6 +197,8 @@ public final class NavigationTemplate implements Template {
         mBackgroundColor = null;
         mDestinationTravelEstimate = null;
         mActionStrip = null;
+        mMapActionStrip = null;
+        mIsInPanMode = false;
     }
 
     /** A builder of {@link NavigationTemplate}. */
@@ -179,6 +211,9 @@ public final class NavigationTemplate implements Template {
         TravelEstimate mDestinationTravelEstimate;
         @Nullable
         ActionStrip mActionStrip;
+        @Nullable
+        ActionStrip mMapActionStrip;
+        boolean mIsInPanMode;
 
         /**
          * Sets the navigation information to display on the template.
@@ -245,6 +280,46 @@ public final class NavigationTemplate implements Template {
             ACTIONS_CONSTRAINTS_NAVIGATION.validateOrThrow(
                     requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
+            return this;
+        }
+
+        /**
+         * Sets an {@link ActionStrip} with a list of map-control related actions for this
+         * template, such as pan or zoom.
+         *
+         * <p>The host will draw the buttons in an area that is associated with map controls.
+         *
+         * <h4>Requirements</h4>
+         *
+         * This template allows up to 4 {@link Action}s in its map {@link ActionStrip}. Only
+         * {@link Action}s with icons set via {@link Action.Builder#setIcon} are allowed.
+         *
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the template's
+         *                                  requirements
+         * @throws NullPointerException     if {@code actionStrip} is {@code null}
+         */
+        @ExperimentalCarApi
+        @RequiresCarApi(2)
+        @NonNull
+        public Builder setMapActionStrip(@NonNull ActionStrip actionStrip) {
+            ACTIONS_CONSTRAINTS_NAVIGATION_MAP.validateOrThrow(
+                    requireNonNull(actionStrip).getActions());
+            mMapActionStrip = actionStrip;
+            return this;
+        }
+
+
+        /**
+         * Sets whether this template is in the pan mode.
+         *
+         * <p>If in the pan mode, the host will show the pan interface, and send the appropriate
+         * callbacks in {@link SurfaceCallback} when the user interacts with the interface.
+         */
+        @ExperimentalCarApi
+        @RequiresCarApi(2)
+        @NonNull
+        public Builder setInPanMode(boolean isInPanMode) {
+            mIsInPanMode = isInPanMode;
             return this;
         }
 
