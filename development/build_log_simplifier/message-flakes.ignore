@@ -15,6 +15,8 @@ kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
 There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\/animation\/animation\-core\/build\/reports\/tests\/testDebugUnitTest\/index\.html
 # > Task :room:integration-tests:room-testapp-autovalue:compileDebugAndroidTestJavaWithJavac
 Stream closed
+# > Task :room:integration-tests:room-testapp:compileDebugJavaWithJavac
+java.io.IOException: Stream closed
 # > Task :compose:compiler:compiler-hosted:integration-tests:testDebugUnitTest
 # If a test fails, we don't want the build to fail, we want to pass the test output to the tests server and for the tests server to report the failure
 [0-9]+ test.*failed.*
