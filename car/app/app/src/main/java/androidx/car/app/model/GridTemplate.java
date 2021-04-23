@@ -257,8 +257,10 @@ public final class GridTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 6 {@link GridItem}s total in the {@link ItemList}(s). The host
-         * will ignore any items over that limit.
+         * The number of items in the {@link ItemList} should be smaller or equal than the limit
+         * provided by
+         * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_GRID}. The
+         * host will ignore any items over that limit.
          *
          * <p>Either a header {@link Action} or title must be set on the template.
          *
@@ -267,6 +269,7 @@ public final class GridTemplate implements Template {
          *                                  have either a title or header {@link Action} set.
          * @throws IllegalArgumentException if the added {@link ItemList} does not meet the
          *                                  template's requirements.
+         * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull
         public GridTemplate build() {
