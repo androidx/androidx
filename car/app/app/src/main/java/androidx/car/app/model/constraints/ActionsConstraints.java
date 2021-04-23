@@ -73,6 +73,17 @@ public final class ActionsConstraints {
                     .addRequiredActionType(Action.TYPE_CUSTOM)
                     .build();
 
+    /**
+     * Constraints for map action buttons in navigation templates.
+     *
+     * <p>Only buttons with icons are allowed.
+     */
+    @NonNull
+    public static final ActionsConstraints ACTIONS_CONSTRAINTS_NAVIGATION_MAP =
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_CONSERVATIVE)
+                    .setMaxActions(4)
+                    .build();
+
     private final int mMaxActions;
     private final int mMaxCustomTitles;
     private final Set<Integer> mRequiredActionTypes;
