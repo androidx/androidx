@@ -32,7 +32,6 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.util.Base64
 import android.view.Gravity
 import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
-import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
@@ -447,8 +446,6 @@ public class WatchFaceImpl(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     public val calendar: Calendar = Calendar.getInstance()
 
-    private val pendingSingleTap: CancellableUniqueTask =
-        CancellableUniqueTask(watchFaceHostApi.getHandler())
     private val pendingUpdateTime: CancellableUniqueTask =
         CancellableUniqueTask(watchFaceHostApi.getHandler())
 
@@ -739,7 +736,6 @@ public class WatchFaceImpl(
     }
 
     internal fun onDestroy() {
-        pendingSingleTap.cancel()
         pendingUpdateTime.cancel()
         renderer.onDestroy()
         watchState.isAmbient.removeObserver(ambientObserver)
@@ -912,7 +908,8 @@ public class WatchFaceImpl(
     ) {
         val tappedComplication = complicationsManager.getComplicationAt(x, y)
         if (tappedComplication == null) {
-            clearGesture()
+            // The event does not belong to any of the complications, pass to the listener.
+            lastTappedComplicationId = null
             tapListener?.onTap(tapType, x, y)
             return
         }
@@ -922,43 +919,21 @@ public class WatchFaceImpl(
                 if (tappedComplication.id != lastTappedComplicationId &&
                     lastTappedComplicationId != null
                 ) {
-                    clearGesture()
+                    // The UP event belongs to a different complication then the DOWN event,
+                    // do not consider this a tap on either of them.
+                    lastTappedComplicationId = null
                     return
                 }
-                if (!pendingSingleTap.isPending()) {
-                    // Give the user immediate visual feedback, the UI feels sluggish if we defer
-                    // this.
-                    complicationsManager.displayPressedAnimation(tappedComplication.id)
-
-                    lastTappedComplicationId = tappedComplication.id
-
-                    // This could either be a single or a double tap, post a task to process the
-                    // single tap which will get canceled if a double tap gets there first
-                    pendingSingleTap.postDelayedUnique(
-                        ViewConfiguration.getDoubleTapTimeout().toLong()
-                    ) {
-                        complicationsManager.onComplicationSingleTapped(tappedComplication.id)
-                        watchFaceHostApi.invalidate()
-                        clearGesture()
-                    }
-                }
+                complicationsManager.displayPressedAnimation(tappedComplication.id)
+                complicationsManager.onComplicationSingleTapped(tappedComplication.id)
+                watchFaceHostApi.invalidate()
+                lastTappedComplicationId = null
             }
             TapType.DOWN -> {
-                // Make sure the user isn't doing a swipe.
-                if (tappedComplication.id != lastTappedComplicationId &&
-                    lastTappedComplicationId != null
-                ) {
-                    clearGesture()
-                }
                 lastTappedComplicationId = tappedComplication.id
             }
-            else -> clearGesture()
+            else -> lastTappedComplicationId = null
         }
-    }
-
-    private fun clearGesture() {
-        lastTappedComplicationId = null
-        pendingSingleTap.cancel()
     }
 
     @UiThread
@@ -971,7 +946,6 @@ public class WatchFaceImpl(
         writer.println("mockTime.speed=${mockTime.speed}")
         writer.println("nextDrawTimeMillis=$nextDrawTimeMillis")
         writer.println("muteMode=$muteMode")
-        writer.println("pendingSingleTap=${pendingSingleTap.isPending()}")
         writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
         writer.println("lastTappedComplicationId=$lastTappedComplicationId")
         writer.println("currentUserStyleRepository.userStyle=${userStyleRepository.userStyle}")
