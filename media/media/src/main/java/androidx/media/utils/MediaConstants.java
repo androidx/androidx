@@ -125,11 +125,13 @@ public final class MediaConstants {
             "androidx.media.MediaMetadatCompat.METADATA_KEY_CONTENT_ID";
 
     /**
-     * Bundle key used for next episode's media content id in {@link MediaMetadataCompat metadata},
-     * should contain the same ID provided to Media Actions Catalog in reference to the next episode
-     * of the current title episode. Google uses this information to allow users to resume watching
-     * the next episode of this title on your app once the current episode ends in the TV's play
-     * next row.
+     * Bundle key used for next episode's media content ID in {@link MediaMetadataCompat metadata},
+     * following the same ID and format provided to
+     * <a href="https://developers.google.com/actions/media">Media Actions Catalog</a> in reference
+     * to the next episode of the current title episode. Google uses this information to allow users
+     * to resume watching the next episode of this title on your app once the current episode ends
+     * across the supported surfaces (e.g., Android TV's Play Next row). This can be left blank for
+     * movies.
      *
      * <p>TYPE: String
      *
