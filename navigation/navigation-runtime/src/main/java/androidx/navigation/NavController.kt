@@ -179,6 +179,30 @@ public open class NavController(
             _navigatorProvider = navigatorProvider
         }
 
+    private val navigatorState = mutableMapOf<Navigator<out NavDestination>, NavigatorState>()
+
+    private inner class NavControllerNavigatorState(
+        val navigator: Navigator<out NavDestination>
+    ) : NavigatorState() {
+        override fun add(backStackEntry: NavBackStackEntry) {
+            val destinationNavigator: Navigator<out NavDestination> =
+                _navigatorProvider[backStackEntry.destination.navigatorName]
+            if (destinationNavigator == navigator) {
+                super.add(backStackEntry)
+            } else {
+                navigatorState[destinationNavigator]!!.add(backStackEntry)
+            }
+        }
+
+        override fun createBackStackEntry(
+            destination: NavDestination,
+            arguments: Bundle?
+        ) = NavBackStackEntry.create(
+            context, destination, arguments,
+            lifecycleOwner, viewModel
+        )
+    }
+
     /**
      * Constructs a new controller for a given [Context]. Controllers should not be
      * used outside of their context and retain a hard reference to the context supplied.
@@ -615,12 +639,23 @@ public open class NavController(
             if (navigatorNames != null) {
                 for (name in navigatorNames) {
                     val navigator = _navigatorProvider.getNavigator<Navigator<*>>(name)
+                    val navigatorBackStack = navigatorState.getOrPut(navigator) {
+                        NavControllerNavigatorState(navigator)
+                    }
+                    navigator.onAttach(navigatorBackStack)
                     val bundle = navigatorStateToRestore.getBundle(name)
                     if (bundle != null) {
                         navigator.onRestoreState(bundle)
                     }
                 }
             }
+        }
+        // Mark all other Navigators as attached
+        _navigatorProvider.navigators.values.filterNot { it.isAttached }.forEach { navigator ->
+            val navigatorBackStack = navigatorState.getOrPut(navigator) {
+                NavControllerNavigatorState(navigator)
+            }
+            navigator.onAttach(navigatorBackStack)
         }
         backStackToRestore?.let { backStackToRestore ->
             for (parcelable in backStackToRestore) {
@@ -637,7 +672,12 @@ public open class NavController(
                     )
                 }
                 val entry = state.instantiate(context, node, lifecycleOwner, viewModel)
+                val navigator = _navigatorProvider.getNavigator<Navigator<*>>(node.navigatorName)
+                val navigatorBackStack = checkNotNull(navigatorState[navigator]) {
+                    "NavigatorBackStack for ${node.navigatorName} should already be created"
+                }
                 backQueue.add(entry)
+                navigatorBackStack.add(entry)
             }
             updateOnBackPressedCallbackEnabled()
             this.backStackToRestore = null

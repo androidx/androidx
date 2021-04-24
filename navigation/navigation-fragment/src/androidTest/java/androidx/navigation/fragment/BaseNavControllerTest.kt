@@ -108,7 +108,7 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
 
         // Test that the deep link Intent was passed through even though we don't pass in any args
 
-        val deepLinkIntent = navigator.current.second?.getParcelable<Intent>(
+        val deepLinkIntent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
         )
         assertNotNull(deepLinkIntent)
@@ -159,10 +159,10 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         val navigator = navController.navigatorProvider[TestNavigator::class]
         assertEquals(expectedStackSize, navigator.backStack.size)
 
-        assertEquals(TEST_ARG_VALUE, navigator.current.second?.getString(TEST_ARG))
+        assertEquals(TEST_ARG_VALUE, navigator.current.arguments?.getString(TEST_ARG))
 
         // Test that the deep link Intent was passed in alongside our args
-        val deepLinkIntent = navigator.current.second?.getParcelable<Intent>(
+        val deepLinkIntent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
         )
         assertNotNull(deepLinkIntent)
@@ -238,10 +238,10 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         assertEquals(destId, navController.currentDestination?.id ?: 0)
         val navigator = navController.navigatorProvider[TestNavigator::class]
         assertEquals(expectedStackSize, navigator.backStack.size)
-        assertEquals(expectedValue, navigator.current.second?.getString(TEST_ARG))
+        assertEquals(expectedValue, navigator.current.arguments?.getString(TEST_ARG))
 
         // Test that the deep link Intent was passed in alongside our args
-        val deepLinkIntent = navigator.current.second?.getParcelable<Intent>(
+        val deepLinkIntent = navigator.current.arguments?.getParcelable<Intent>(
             NavController.KEY_DEEP_LINK_INTENT
         )
         assertNotNull(deepLinkIntent)

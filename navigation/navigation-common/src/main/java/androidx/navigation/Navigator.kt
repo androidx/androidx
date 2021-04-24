@@ -16,6 +16,7 @@
 package androidx.navigation
 
 import android.os.Bundle
+import androidx.annotation.CallSuper
 import androidx.navigation.Navigator.Name
 
 /**
@@ -50,6 +51,41 @@ public abstract class Navigator<D : NavDestination> {
     @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
     @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
     public annotation class Name(val value: String)
+
+    private var _state: NavigatorState? = null
+
+    /**
+     * The state of the Navigator is the communication conduit between the Navigator
+     * and the [NavController] that has called [onAttach].
+     *
+     * It is the responsibility of the Navigator to call [NavigatorState.add]
+     * and [NavigatorState.pop] to in order to update the [NavigatorState.backStack] at
+     * the appropriate times.
+     *
+     * @throws IllegalStateException if [isAttached] is `false`
+     */
+    protected val state: NavigatorState
+        get() = checkNotNull(_state) {
+            "You cannot access the Navigator's state until the Navigator is attached"
+        }
+
+    /**
+     * Whether this Navigator is actively being used by a [NavController].
+     *
+     * This is set to `true` when [onAttach] is called.
+     */
+    public var isAttached: Boolean = false
+        private set
+
+    /**
+     * Indicator that this Navigator is actively being used by a [NavController]. This
+     * is called when the NavController's state is ready to be restored.
+     */
+    @CallSuper
+    public open fun onAttach(state: NavigatorState) {
+        _state = state
+        isAttached = true
+    }
 
     /**
      * Construct a new NavDestination associated with this Navigator.
