@@ -379,7 +379,7 @@ w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-s
 Html results of .* zipped into.*\.zip
 # > Task :annotation:annotation-experimental-lint:test
 WARNING: An illegal reflective access operation has occurred
-WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/com/google/devsite/dackka/[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+/dackka\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
+WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/com/google/devsite/dackka/[0-9]+\.[0-9]+\.[0-9]+/dackka\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$OUT_DIR/androidx/compose/compiler/compiler\-hosted/integration\-tests/kotlin\-compiler\-repackaged/build/repackaged/kotlin\-compiler\-repackaged\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING\: Illegal reflective access using Lookup on org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper \(file\:\$GRADLE_USER_HOME\/caches\/[0-9]+\.[0-9]+\.[0-9]+\/generated\-gradle\-jars\/gradle\-api\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to class java\.lang\.ClassLoader
 WARNING\: Please consider reporting this to the maintainers of org\.gradle\.internal\.classloader\.ClassLoaderUtils\$AbstractClassLoaderLookuper
@@ -640,3 +640,14 @@ Transforming documentation model after merging\: *[0-9]+
 Creating pages\: *[0-9]+
 Transforming pages\: *[0-9]+
 Rendering\: *[0-9]+
+WARNING\: unable to find what is referred to by
+    @param endOfPaginationReached
+in DClass LoadState
+in DClass NotLoading
+    @param error
+in DClass Error
+    @param pagingSourceFactory
+in DClass InvalidatingPagingSourceFactory
+    @param flow
+in DClass LazyPagingItems
+Did you make a typo\? Are you trying to refer to something not visible to users\?
