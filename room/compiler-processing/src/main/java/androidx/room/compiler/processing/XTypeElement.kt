@@ -18,7 +18,7 @@ package androidx.room.compiler.processing
 
 import com.squareup.javapoet.ClassName
 
-interface XTypeElement : XHasModifiers, XElement {
+interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
     /**
      * The qualified name of the Class/Interface.
      */
@@ -39,7 +39,7 @@ interface XTypeElement : XHasModifiers, XElement {
     /**
      * The type represented by this [XTypeElement].
      */
-    val type: XType
+    override val type: XType
 
     /**
      * The super type of this element if it represents a class.
@@ -49,7 +49,7 @@ interface XTypeElement : XHasModifiers, XElement {
     /**
      * Javapoet [ClassName] of the type.
      */
-    val className: ClassName
+    override val className: ClassName
 
     /**
      * The [XTypeElement] that contains this [XTypeElement] if it is an inner class/interface.

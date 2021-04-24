@@ -24,11 +24,17 @@ import com.squareup.javapoet.TypeVariableName
 internal sealed class KspMethodType(
     val env: KspProcessingEnv,
     val origin: KspMethodElement,
-    val containing: KspType
+    val containing: KspType?
 ) : XMethodType {
     override val parameterTypes: List<XType> by lazy {
-        origin.parameters.map {
-            it.asMemberOf(containing)
+        if (containing == null) {
+            origin.parameters.map {
+                it.type
+            }
+        } else {
+            origin.parameters.map {
+                it.asMemberOf(containing)
+            }
         }
     }
 
@@ -56,7 +62,7 @@ internal sealed class KspMethodType(
     private class KspNormalMethodType(
         env: KspProcessingEnv,
         origin: KspMethodElement,
-        containing: KspType
+        containing: KspType?
     ) : KspMethodType(env, origin, containing) {
         override val returnType: XType by lazy {
             // b/160258066
@@ -67,7 +73,7 @@ internal sealed class KspMethodType(
                 originatingReference = (overridee?.returnType ?: origin.declaration.returnType)!!,
                 ksType = origin.declaration.returnTypeAsMemberOf(
                     resolver = env.resolver,
-                    ksType = containing.ksType
+                    ksType = containing?.ksType
                 )
             )
         }
@@ -76,7 +82,7 @@ internal sealed class KspMethodType(
     private class KspSuspendMethodType(
         env: KspProcessingEnv,
         origin: KspMethodElement,
-        containing: KspType
+        containing: KspType?
     ) : KspMethodType(env, origin, containing), XSuspendMethodType {
         override val returnType: XType
             // suspend functions always return Any?, no need to call asMemberOf
@@ -87,7 +93,7 @@ internal sealed class KspMethodType(
             return env.wrap(
                 ksType = origin.declaration.returnTypeAsMemberOf(
                     resolver = env.resolver,
-                    ksType = containing.ksType
+                    ksType = containing?.ksType
                 ),
                 allowPrimitives = false
             )
@@ -98,7 +104,7 @@ internal sealed class KspMethodType(
         fun create(
             env: KspProcessingEnv,
             origin: KspMethodElement,
-            containing: KspType
+            containing: KspType?
         ) = if (origin.isSuspendFunction()) {
             KspSuspendMethodType(env, origin, containing)
         } else {
