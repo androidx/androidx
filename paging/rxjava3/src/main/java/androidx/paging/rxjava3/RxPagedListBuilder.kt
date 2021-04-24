@@ -21,6 +21,7 @@ import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.paging.DataSource
 import androidx.paging.InitialPagedList
 import androidx.paging.InitialPagingSource
+import androidx.paging.LegacyPagingSource
 import androidx.paging.LoadState
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType
@@ -399,6 +400,9 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 currentData.pagingSource.unregisterInvalidatedCallback(callback)
                 val pagingSource = pagingSourceFactory()
                 pagingSource.registerInvalidatedCallback(callback)
+                if (pagingSource is LegacyPagingSource) {
+                    pagingSource.setPageSize(config.pageSize)
+                }
 
                 withContext(notifyDispatcher) {
                     currentData.setInitialLoadState(LoadType.REFRESH, Loading)

@@ -75,6 +75,9 @@ internal class LivePagedList<Key : Any, Value : Any>(
             currentData.pagingSource.unregisterInvalidatedCallback(callback)
             val pagingSource = pagingSourceFactory()
             pagingSource.registerInvalidatedCallback(callback)
+            if (pagingSource is LegacyPagingSource) {
+                pagingSource.setPageSize(config.pageSize)
+            }
 
             withContext(notifyDispatcher) {
                 currentData.setInitialLoadState(REFRESH, Loading)
@@ -83,6 +86,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
             @Suppress("UNCHECKED_CAST")
             val lastKey = currentData.lastKey as Key?
             val params = config.toRefreshLoadParams(lastKey)
+
             when (val initialResult = pagingSource.load(params)) {
                 is PagingSource.LoadResult.Error -> {
                     currentData.setInitialLoadState(
