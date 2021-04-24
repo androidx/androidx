@@ -9,5 +9,10 @@ package androidx.navigation.testing {
     property public final java.util.List<androidx.navigation.NavBackStackEntry> backStack;
   }
 
+  public final class TestNavigatorState extends androidx.navigation.NavigatorState {
+    ctor public TestNavigatorState(optional android.content.Context? context);
+    method public androidx.navigation.NavBackStackEntry createBackStackEntry(androidx.navigation.NavDestination destination, android.os.Bundle? arguments);
+  }
+
 }
 

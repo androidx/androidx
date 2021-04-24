@@ -17,12 +17,11 @@
 package androidx.testutils
 
 import android.os.Bundle
+import androidx.navigation.NavBackStackEntry
 
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
-
-import java.util.ArrayDeque
 
 /**
  * A simple Navigator that doesn't actually navigate anywhere, but does dispatch correctly
@@ -30,10 +29,11 @@ import java.util.ArrayDeque
 @Navigator.Name("test")
 open class TestNavigator : Navigator<TestNavigator.Destination>() {
 
-    val backStack = ArrayDeque<Pair<Destination, Bundle?>>()
+    val backStack: List<NavBackStackEntry>
+        get() = state.backStack.value
 
-    val current
-        get() = backStack.peekLast()
+    val current: NavBackStackEntry
+        get() = backStack.lastOrNull()
             ?: throw IllegalStateException("Nothing on the back stack")
 
     override fun createDestination(): Destination {
@@ -45,19 +45,23 @@ open class TestNavigator : Navigator<TestNavigator.Destination>() {
         args: Bundle?,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
-    ) = if (navOptions != null && navOptions.shouldLaunchSingleTop() && !backStack.isEmpty() &&
-        current.first.id == destination.id
+    ) = if (navOptions != null && navOptions.shouldLaunchSingleTop() &&
+        backStack.isNotEmpty() && current.destination.id == destination.id
     ) {
-        backStack.pop()
-        backStack.add(destination to args)
+        state.pop(current, false)
+        state.add(state.createBackStackEntry(destination, args))
         null
     } else {
-        backStack.add(destination to args)
+        state.add(state.createBackStackEntry(destination, args))
         destination
     }
 
     override fun popBackStack(): Boolean {
-        return backStack.pollLast() != null
+        if (backStack.isEmpty()) {
+            return false
+        }
+        state.pop(backStack.last(), false)
+        return true
     }
 
     /**

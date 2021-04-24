@@ -29,6 +29,7 @@ import androidx.navigation.FloatingWindow
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
+import androidx.navigation.NavigatorState
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.fragment.DialogFragmentNavigator.Destination
 
@@ -121,7 +122,8 @@ public class DialogFragmentNavigator(
         }
     }
 
-    init {
+    override fun onAttach(state: NavigatorState) {
+        super.onAttach(state)
         fragmentManager.addFragmentOnAttachListener { _, childFragment ->
             val needToAddObserver = restoredTagsAwaitingAttach.remove(childFragment.tag)
             if (needToAddObserver) {
