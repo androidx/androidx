@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -795,11 +796,11 @@ class FromGenericDocumentCodeGenerator {
 
     @Nullable
     private CodeBlock createAppSearchFieldWrite(@NonNull String fieldName) {
-        switch (mModel.getFieldWriteKind(fieldName)) {
+        switch (Objects.requireNonNull(mModel.getFieldWriteKind(fieldName))) {
             case FIELD:
                 return CodeBlock.of("document.$N = $NConv", fieldName, fieldName);
             case SETTER:
-                String setter = mModel.getAccessorName(fieldName, /*get=*/ false);
+                String setter = mModel.getSetterForField(fieldName).getSimpleName().toString();
                 return CodeBlock.of("document.$N($NConv)", setter, fieldName);
             default:
                 return null;  // Constructor params should already have been set

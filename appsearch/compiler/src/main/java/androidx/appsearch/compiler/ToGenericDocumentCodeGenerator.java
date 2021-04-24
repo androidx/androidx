@@ -27,6 +27,7 @@ import com.squareup.javapoet.WildcardTypeName;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -696,11 +697,11 @@ class ToGenericDocumentCodeGenerator {
     }
 
     private CodeBlock createAppSearchFieldRead(@NonNull String fieldName) {
-        switch (mModel.getFieldReadKind(fieldName)) {
+        switch (Objects.requireNonNull(mModel.getFieldReadKind(fieldName))) {
             case FIELD:
                 return CodeBlock.of("document.$N", fieldName);
             case GETTER:
-                String getter = mModel.getAccessorName(fieldName, /*get=*/ true);
+                String getter = mModel.getGetterForField(fieldName).getSimpleName().toString();
                 return CodeBlock.of("document.$N()", getter);
         }
         return null;

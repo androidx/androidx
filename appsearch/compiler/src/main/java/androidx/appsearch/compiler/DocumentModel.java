@@ -41,6 +41,7 @@ import javax.lang.model.element.VariableElement;
 
 /**
  * Processes @Document annotations.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -58,6 +59,12 @@ class DocumentModel {
     private final AnnotationMirror mDocumentAnnotation;
     private final Set<ExecutableElement> mConstructors = new LinkedHashSet<>();
     private final Set<ExecutableElement> mMethods = new LinkedHashSet<>();
+    // Key: Name of the field which is accessed through the getter method.
+    // Value: ExecutableElement of the getter method.
+    private final Map<String, ExecutableElement> mGetterMethods = new HashMap<>();
+    // Key: Name of the field whose value is set through the setter method.
+    // Value: ExecutableElement of the setter method.
+    private final Map<String, ExecutableElement> mSetterMethods = new HashMap<>();
     private final Map<String, VariableElement> mAllAppSearchFields = new LinkedHashMap<>();
     private final Map<String, VariableElement> mPropertyFields = new LinkedHashMap<>();
     private final Map<SpecialField, String> mSpecialFieldNames = new EnumMap<>(SpecialField.class);
@@ -92,6 +99,17 @@ class DocumentModel {
 
         scanFields();
         scanConstructors();
+    }
+
+    /**
+     * Tries to create an {@link DocumentModel} from the given {@link Element}.
+     *
+     * @throws ProcessingException if the @{@code Document}-annotated class is invalid.
+     */
+    public static DocumentModel create(
+            @NonNull ProcessingEnvironment env, @NonNull TypeElement clazz)
+            throws ProcessingException {
+        return new DocumentModel(env, clazz);
     }
 
     @NonNull
@@ -135,6 +153,16 @@ class DocumentModel {
     public WriteKind getFieldWriteKind(String fieldName) {
         VariableElement element = mAllAppSearchFields.get(fieldName);
         return mWriteKinds.get(element);
+    }
+
+    @Nullable
+    public ExecutableElement getGetterForField(String fieldName) {
+        return mGetterMethods.get(fieldName);
+    }
+
+    @Nullable
+    public ExecutableElement getSetterForField(String fieldName) {
+        return mSetterMethods.get(fieldName);
     }
 
     /**
@@ -253,7 +281,7 @@ class DocumentModel {
      *
      * <p>For read: visible field, or visible getter
      * <p>For write: visible mutable field, or visible setter, or visible constructor accepting at
-     *   minimum all fields that aren't mutable and have no visible setter.
+     * minimum all fields that aren't mutable and have no visible setter.
      *
      * @throws ProcessingException if no access type is possible for the given field
      */
@@ -263,8 +291,7 @@ class DocumentModel {
         String fieldName = field.getSimpleName().toString();
         Set<Modifier> modifiers = field.getModifiers();
         if (modifiers.contains(Modifier.PRIVATE)) {
-            String getterName = getAccessorName(fieldName, /*get=*/ true);
-            findGetter(field, getterName);
+            findGetter(fieldName);
             mReadKinds.put(field, ReadKind.GETTER);
         } else {
             mReadKinds.put(field, ReadKind.FIELD);
@@ -276,9 +303,8 @@ class DocumentModel {
             // Try to find a setter. If we can't find one, mark the WriteKind as CONSTRUCTOR. We
             // don't know if this is true yet, the constructors will be inspected in a subsequent
             // pass.
-            String setterName = getAccessorName(fieldName, /*get=*/ false);
             try {
-                findSetter(field, setterName);
+                findSetter(fieldName);
                 mWriteKinds.put(field, WriteKind.SETTER);
             } catch (ProcessingException e) {
                 // We'll look for a constructor, so we may still be able to set this field,
@@ -292,69 +318,6 @@ class DocumentModel {
         }
     }
 
-    private void findGetter(@NonNull VariableElement field, @NonNull String getterName)
-            throws ProcessingException {
-        ProcessingException e = new ProcessingException(
-                "Field cannot be read: it is private and we failed to find a suitable getter named "
-                        + "\"" + getterName + "\"",
-                field);
-
-        for (ExecutableElement method : mMethods) {
-            if (!method.getSimpleName().toString().equals(getterName)) {
-                continue;
-            }
-            if (method.getModifiers().contains(Modifier.PRIVATE)) {
-                e.addWarning(new ProcessingException(
-                        "Getter cannot be used: private visibility", method));
-                continue;
-            }
-            if (!method.getParameters().isEmpty()) {
-                e.addWarning(new ProcessingException(
-                        "Getter cannot be used: should take no parameters", method));
-                continue;
-            }
-            // Found one!
-            return;
-        }
-
-        // Broke out of the loop without finding anything.
-        throw e;
-    }
-
-    private void findSetter(@NonNull VariableElement field, @NonNull String setterName)
-            throws ProcessingException {
-        // We can't report setter failure until we've searched the constructors, so this message is
-        // anticipatory and should be buffered by the caller.
-        ProcessingException e = new ProcessingException(
-                "Field cannot be written directly or via setter because it is private, final, or "
-                        + "static, and we failed to find a suitable setter named \""
-                        + setterName + "\". Trying to find a suitable constructor.",
-                field);
-
-        for (ExecutableElement method : mMethods) {
-            if (!method.getSimpleName().toString().equals(setterName)) {
-                continue;
-            }
-            if (method.getModifiers().contains(Modifier.PRIVATE)) {
-                e.addWarning(new ProcessingException(
-                        "Setter cannot be used: private visibility", method));
-                continue;
-            }
-            if (method.getParameters().size() != 1) {
-                e.addWarning(new ProcessingException(
-                        "Setter cannot be used: takes " + method.getParameters().size()
-                                + " parameters instead of 1",
-                        method));
-                continue;
-            }
-            // Found one!
-            return;
-        }
-
-        // Broke out of the loop without finding anything.
-        throw e;
-    }
-
     private void scanConstructors() throws ProcessingException {
         // Maps name to Element
         Map<String, VariableElement> constructorWrittenFields = new LinkedHashMap<>();
@@ -366,7 +329,8 @@ class DocumentModel {
         }
 
         Map<ExecutableElement, String> whyNotConstructor = new HashMap<>();
-        constructorSearch: for (ExecutableElement constructor : mConstructors) {
+        constructorSearch:
+        for (ExecutableElement constructor : mConstructors) {
             if (constructor.getModifiers().contains(Modifier.PRIVATE)) {
                 whyNotConstructor.put(constructor, "Constructor is private");
                 continue constructorSearch;
@@ -422,28 +386,73 @@ class DocumentModel {
         throw e;
     }
 
-    public String getAccessorName(String fieldName, boolean get) {
-        char fieldNameFirst = fieldName.charAt(0);
-        StringBuilder methodNameBuilder = new StringBuilder();
-        methodNameBuilder.append(Character.toUpperCase(fieldNameFirst));
-        if (fieldName.length() > 1) {
-            methodNameBuilder.append(fieldName.subSequence(1, fieldName.length()));
+    /** Finds getter function for a private field. */
+    private void findGetter(String fieldName) throws ProcessingException {
+        ProcessingException e = new ProcessingException(
+                "Field cannot be read: it is private and we failed to find a suitable getter "
+                        + "for field \"" + fieldName + "\"",
+                mAllAppSearchFields.get(fieldName));
+        String getFieldName = "get" + fieldName.substring(0, 1).toUpperCase()
+                + fieldName.substring(1);
+
+        for (ExecutableElement method : mMethods) {
+            String methodName = method.getSimpleName().toString();
+            if (methodName.equals(getFieldName) || methodName.equals(fieldName)) {
+                if (method.getModifiers().contains(Modifier.PRIVATE)) {
+                    e.addWarning(new ProcessingException(
+                            "Getter cannot be used: private visibility", method));
+                    continue;
+                }
+                if (!method.getParameters().isEmpty()) {
+                    e.addWarning(new ProcessingException(
+                            "Getter cannot be used: should take no parameters", method));
+                    continue;
+                }
+                // Found one!
+                mGetterMethods.put(fieldName, method);
+                return;
+            }
         }
-        if (get) {
-            return "get" + methodNameBuilder;
-        } else {
-            return "set" + methodNameBuilder;
-        }
+
+        // Broke out of the loop without finding anything.
+        throw e;
     }
 
-    /**
-     * Tries to create an {@link DocumentModel} from the given {@link Element}.
-     *
-     * @throws ProcessingException if the @{@code Document}-annotated class is invalid.
-     */
-    public static DocumentModel create(
-            @NonNull ProcessingEnvironment env, @NonNull TypeElement clazz)
-            throws ProcessingException {
-        return new DocumentModel(env, clazz);
+    /** Finds setter function for a private field. */
+    private void findSetter(String fieldName) throws ProcessingException {
+        // We can't report setter failure until we've searched the constructors, so this message is
+        // anticipatory and should be buffered by the caller.
+        ProcessingException e = new ProcessingException(
+                "Field cannot be written directly or via setter because it is private, final, or "
+                        + "static, and we failed to find a suitable setter for field \""
+                        + fieldName
+                        + "\". Trying to find a suitable constructor.",
+                mAllAppSearchFields.get(fieldName));
+        String setFieldName = "set" + fieldName.substring(0, 1).toUpperCase()
+                + fieldName.substring(1);
+
+        for (ExecutableElement method : mMethods) {
+            String methodName = method.getSimpleName().toString();
+            if (methodName.equals(setFieldName) || methodName.equals(fieldName)) {
+                if (method.getModifiers().contains(Modifier.PRIVATE)) {
+                    e.addWarning(new ProcessingException(
+                            "Setter cannot be used: private visibility", method));
+                    continue;
+                }
+                if (method.getParameters().size() != 1) {
+                    e.addWarning(new ProcessingException(
+                            "Setter cannot be used: takes " + method.getParameters().size()
+                                    + " parameters instead of 1",
+                            method));
+                    continue;
+                }
+                // Found one!
+                mSetterMethods.put(fieldName, method);
+                return;
+            }
+        }
+
+        // Broke out of the loop without finding anything.
+        throw e;
     }
 }
