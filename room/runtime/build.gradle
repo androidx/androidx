@@ -73,7 +73,7 @@ android.libraryVariants.all { variant ->
     project.tasks.create(name: "jar${suffix}", type: Jar){
         dependsOn(variant.javaCompileProvider.get())
         from(variant.javaCompileProvider.get().destinationDir)
-        destinationDir(new File(project.buildDir, "libJar"))
+        destinationDirectory.fileValue(new File(project.buildDir, "libJar"))
     }
 }
 
