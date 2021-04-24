@@ -15,9 +15,12 @@
  */
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.compiler.IntrospectionHelper.PropertyClass;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +57,7 @@ class DocumentModel {
     /** Determines how the annotation processor has decided to write the value of a field. */
     enum WriteKind { FIELD, SETTER, CONSTRUCTOR }
 
-    private final IntrospectionHelper mIntrospectionHelper;
+    private final IntrospectionHelper mHelper;
     private final TypeElement mClass;
     private final AnnotationMirror mDocumentAnnotation;
     private final Set<ExecutableElement> mConstructors = new LinkedHashSet<>();
@@ -77,14 +80,13 @@ class DocumentModel {
             @NonNull ProcessingEnvironment env,
             @NonNull TypeElement clazz)
             throws ProcessingException {
-        mIntrospectionHelper = new IntrospectionHelper(env);
+        mHelper = new IntrospectionHelper(env);
         mClass = clazz;
         if (mClass.getModifiers().contains(Modifier.PRIVATE)) {
             throw new ProcessingException("@Document annotated class is private", mClass);
         }
 
-        mDocumentAnnotation = mIntrospectionHelper.getAnnotation(
-                mClass, IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
+        mDocumentAnnotation = getDocumentAnnotation(mClass);
 
         // Scan methods and constructors. AppSearch doesn't define any annotations that apply to
         // these, but we will need this info when processing fields to make sure the fields can
@@ -120,7 +122,7 @@ class DocumentModel {
     @NonNull
     public String getSchemaName() {
         Map<String, Object> params =
-                mIntrospectionHelper.getAnnotationParams(mDocumentAnnotation);
+                mHelper.getAnnotationParams(mDocumentAnnotation);
         String name = params.get("name").toString();
         if (name.isEmpty()) {
             return mClass.getSimpleName().toString();
@@ -173,9 +175,8 @@ class DocumentModel {
      */
     @NonNull
     public String getPropertyName(@NonNull VariableElement property) throws ProcessingException {
-        AnnotationMirror annotation =
-                mIntrospectionHelper.getAnnotation(property, IntrospectionHelper.PROPERTY_CLASS);
-        Map<String, Object> params = mIntrospectionHelper.getAnnotationParams(annotation);
+        AnnotationMirror annotation = IntrospectionHelper.getPropertyAnnotation(property);
+        Map<String, Object> params = mHelper.getAnnotationParams(annotation);
         String propertyName = params.get("name").toString();
         if (propertyName.isEmpty()) {
             propertyName = property.getSimpleName().toString();
@@ -243,11 +244,14 @@ class DocumentModel {
                     scoreField = child;
                     mSpecialFieldNames.put(SpecialField.SCORE, fieldName);
 
-                } else if (IntrospectionHelper.PROPERTY_CLASS.equals(annotationFq)) {
-                    mPropertyFields.put(fieldName, child);
-
                 } else {
-                    isAppSearchField = false;
+                    PropertyClass propertyClass = getPropertyClass(annotationFq);
+                    if (propertyClass != null) {
+                        checkFieldTypeForPropertyAnnotation(child, propertyClass);
+                        mPropertyFields.put(fieldName, child);
+                    } else {
+                        isAppSearchField = false;
+                    }
                 }
 
                 if (isAppSearchField) {
@@ -273,6 +277,73 @@ class DocumentModel {
         for (VariableElement appSearchField : mAllAppSearchFields.values()) {
             chooseAccessKinds(appSearchField);
         }
+    }
+
+    /**
+     * Checks whether property's data type matches the {@code androidx.appsearch.annotation
+     * .Document} property annotation's requirement.
+     *
+     * @throws ProcessingException if data type doesn't match property annotation's requirement.
+     */
+    void checkFieldTypeForPropertyAnnotation(@NonNull VariableElement property,
+            PropertyClass propertyClass) throws ProcessingException {
+        switch (propertyClass) {
+            case BOOLEAN_PROPERTY_CLASS:
+                if (mHelper.isFieldOfExactType(property, mHelper.mBooleanBoxType,
+                        mHelper.mBooleanPrimitiveType)) {
+                    return;
+                }
+                break;
+            case BYTES_PROPERTY_CLASS:
+                if (mHelper.isFieldOfExactType(property, mHelper.mByteBoxType,
+                        mHelper.mBytePrimitiveType, mHelper.mByteBoxArrayType,
+                        mHelper.mBytePrimitiveArrayType)) {
+                    return;
+                }
+                break;
+            case DOCUMENT_PROPERTY_CLASS:
+                if (mHelper.isFieldOfDocumentType(property)) {
+                    return;
+                }
+                break;
+            case DOUBLE_PROPERTY_CLASS:
+                if (mHelper.isFieldOfExactType(property, mHelper.mDoubleBoxType,
+                        mHelper.mDoublePrimitiveType, mHelper.mFloatBoxType,
+                        mHelper.mFloatPrimitiveType)) {
+                    return;
+                }
+                break;
+            case INT64_PROPERTY_CLASS:
+                if (mHelper.isFieldOfExactType(property, mHelper.mIntegerBoxType,
+                        mHelper.mIntPrimitiveType, mHelper.mLongBoxType,
+                        mHelper.mLongPrimitiveType)) {
+                    return;
+                }
+                break;
+            case STRING_PROPERTY_CLASS:
+                if (mHelper.isFieldOfExactType(property, mHelper.mStringType)) {
+                    return;
+                }
+                break;
+            default:
+                // do nothing
+        }
+        throw new ProcessingException(
+                "Property Annotation " + propertyClass.getClassFullPath() + " doesn't accept the "
+                        + "data type of property field " + property.getSimpleName(), property);
+    }
+
+    /**
+     * Returns the {@link PropertyClass} with {@code annotationFq} as full class path, and {@code
+     * null} if failed to find such a {@link PropertyClass}.
+     */
+    private @Nullable PropertyClass getPropertyClass(@Nullable String annotationFq) {
+        for (PropertyClass propertyClass : PropertyClass.values()) {
+            if (propertyClass.isPropertyClass(annotationFq)) {
+                return propertyClass;
+            }
+        }
+        return null;
     }
 
     /**

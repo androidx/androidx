@@ -16,6 +16,8 @@
 
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
+
 import androidx.annotation.NonNull;
 
 import com.squareup.javapoet.CodeBlock;
@@ -171,8 +173,6 @@ class ToGenericDocumentCodeGenerator {
         //       Field is of a class which is annotated with @Document.
         //       We have to convert this into a GenericDocument through the standard conversion
         //       machinery.
-        //
-        //   3x: Field is of any other kind of class. This is unsupported and compilation fails.
         String propertyName = mModel.getPropertyName(property);
         if (tryConvertFromCollection(method, fieldName, propertyName, property)) {
             return;
@@ -326,7 +326,7 @@ class ToGenericDocumentCodeGenerator {
             return false;
         }
         try {
-            mHelper.getAnnotation(element, IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
+            getDocumentAnnotation(element);
         } catch (ProcessingException e) {
             // The propertyType doesn't have @Document annotation, this is not a type 1c
             // list.
@@ -505,7 +505,7 @@ class ToGenericDocumentCodeGenerator {
             return false;
         }
         try {
-            mHelper.getAnnotation(element, IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
+            getDocumentAnnotation(element);
         } catch (ProcessingException e) {
             // The propertyType doesn't have @Document annotation, this is not a type 1c
             // list.
@@ -546,9 +546,7 @@ class ToGenericDocumentCodeGenerator {
                 body, fieldName, propertyName, property.asType())  // 3b
                 && !tryFieldCallToGenericDocument(
                 body, fieldName, propertyName, property.asType())) {  // 3c
-            // Scenario 3x
-            throw new ProcessingException(
-                    "Unhandled out property type (3x): " + property.asType().toString(), property);
+            throw new ProcessingException("Unhandled property type.", property);
         }
         method.addCode(body.build());
     }
@@ -646,7 +644,7 @@ class ToGenericDocumentCodeGenerator {
             return false;
         }
         try {
-            mHelper.getAnnotation(element, IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
+            getDocumentAnnotation(element);
         } catch (ProcessingException e) {
             // The propertyType doesn't have @Document annotation, this is not a type 3c
             // field.

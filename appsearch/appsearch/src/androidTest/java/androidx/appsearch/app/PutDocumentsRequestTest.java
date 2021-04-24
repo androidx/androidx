@@ -55,7 +55,7 @@ public class PutDocumentsRequestTest {
         @Document.Id
         String mId;
 
-        @Document.Property(indexingType = INDEXING_TYPE_PREFIXES)
+        @Document.StringProperty(indexingType = INDEXING_TYPE_PREFIXES)
         String mString;
 
         Card(String mNamespace, String mId, String mString) {

@@ -27,9 +27,9 @@ public final class EmailDocument {
     @Document.Id
     public String id;
 
-    @Document.Property(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+    @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     public String subject;
 
-    @Document.Property(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+    @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     public String body;
 }
