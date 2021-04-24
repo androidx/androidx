@@ -194,6 +194,7 @@ dependencies {
     docs(project(":preference:preference"))
     docs(project(":preference:preference-ktx"))
     docs(project(":print:print"))
+    docs(project(":profileinstaller:profileinstaller"))
     docs(project(":recommendation:recommendation"))
     docs(project(":recyclerview:recyclerview"))
     docs(project(":recyclerview:recyclerview-selection"))
