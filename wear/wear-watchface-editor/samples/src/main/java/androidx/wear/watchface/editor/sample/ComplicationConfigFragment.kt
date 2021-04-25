@@ -85,19 +85,28 @@ internal class ConfigView(
     private val complicationButtons =
         watchFaceConfigActivity.editorSession.complicationsState.mapValues { stateEntry ->
             // TODO(alexclarke): This button is a Rect which makes the tap animation look bad.
-            Button(context).apply {
-                // Make the button transparent unless tapped upon.
-                setBackgroundResource(
-                    TypedValue().apply {
-                        context.theme.resolveAttribute(
-                            android.R.attr.selectableItemBackground,
-                            this,
-                            true
-                        )
-                    }.resourceId
-                )
-                setOnClickListener { onComplicationButtonClicked(stateEntry.key) }
-                addView(this)
+            if (stateEntry.value.fixedComplicationProvider ||
+                !stateEntry.value.isEnabled ||
+                stateEntry.key == watchFaceConfigActivity.editorSession.backgroundComplicationId
+            ) {
+                // Do not create a button for fixed complications, disabled complications, or
+                // background complications.
+                null
+            } else {
+                Button(context).apply {
+                    // Make the button transparent unless tapped upon.
+                    setBackgroundResource(
+                        TypedValue().apply {
+                            context.theme.resolveAttribute(
+                                android.R.attr.selectableItemBackground,
+                                this,
+                                true
+                            )
+                        }.resourceId
+                    )
+                    setOnClickListener { onComplicationButtonClicked(stateEntry.key) }
+                    addView(this)
+                }
             }
         }
 
@@ -113,7 +122,7 @@ internal class ConfigView(
         super.onLayout(changed, left, top, right, bottom)
         for ((id, view) in complicationButtons) {
             val rect = watchFaceConfigActivity.editorSession.complicationsState[id]!!.bounds
-            view.layout(
+            view?.layout(
                 rect.left,
                 rect.top,
                 rect.right,
