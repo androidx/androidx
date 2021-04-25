@@ -91,9 +91,8 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
         """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
-                // Composable calls in the result blocks, so we can determine static number of
-                // groups executed. This means we put a group around the "then" and the implicit
-                // "else" blocks
+                // Only one composable call in the result blocks, so we can just generate 
+                // a single group around the whole expression. 
                 if (x > 0) {
                     A()
                 }
@@ -521,8 +520,9 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
         """
             @NonRestartableComposable @Composable
             fun Example(x: Int?) {
-                // the composable call is made conditionally, which means it is like an if, but one
-                // with static groups, so no wrapping group needed.
+                // The composable call is made conditionally, which means it is like an if with 
+                // only one result having a composable call, so we just generate a single group 
+                // around the whole expression.
                 x?.A()
             }
         """,
@@ -542,8 +542,9 @@ class ControlFlowTransformTests : AbstractControlFlowTransformTests() {
         """
             @NonRestartableComposable @Composable
             fun Example(x: Int?) {
-                // the composable call is made conditionally, which means it is like an if, but one
-                // with static groups, so no wrapping group needed.
+                // The composable call is made conditionally, which means it is like an if, but with 
+                // only one result having a composable call, so we just generate a single group 
+                // around the whole expression.
                 val y = x ?: R()
             }
         """,
