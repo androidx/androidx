@@ -666,7 +666,7 @@ internal class ComplicationProviderChooserRequest(
 )
 
 internal class ComplicationProviderChooserResult(
-    /** The updated [ComplicationProviderInfo] or `null` if the operation was canceled. */
+    /** The updated [ComplicationProviderInfo] or `null` if the empty provider was chosen. */
     internal val providerInfo: ComplicationProviderInfo?
 )
 
