@@ -29,7 +29,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
-import androidx.wear.tiles.ViewerTileUpdateRequester
 import androidx.wear.tiles.builders.LayoutElementBuilders
 import androidx.wear.tiles.builders.ResourceBuilders
 import androidx.wear.tiles.builders.TimelineBuilders
@@ -63,6 +62,11 @@ public class TileClient(
     component: ComponentName,
     private val parentView: ViewGroup
 ) : AutoCloseable {
+    private companion object {
+        private const val ACTION_REQUEST_TILE_UPDATE =
+            "androidx.wear.tiles.action.REQUEST_TILE_UPDATE"
+    }
+
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Main + job)
 
@@ -194,7 +198,7 @@ public class TileClient(
     }
 
     private fun registerBroadcastReceiver() {
-        val i = IntentFilter(ViewerTileUpdateRequester.ACTION_REQUEST_TILE_UPDATE)
+        val i = IntentFilter(Companion.ACTION_REQUEST_TILE_UPDATE)
         context.registerReceiver(updateReceiver, i)
     }
 

@@ -18,12 +18,17 @@ package androidx.wear.tiles;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.concurrent.futures.ResolvableFuture;
+import androidx.wear.tiles.builders.ResourceBuilders;
+import androidx.wear.tiles.builders.TileBuilders;
+import androidx.wear.tiles.readers.RequestReaders;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -60,15 +65,33 @@ public class CompositeTileUpdateRequesterTest {
     }
 
     private class FakeUpdateRequester implements TileUpdateRequester {
-        @Nullable Class<? extends Service> mCalledService = null;
+        @Nullable Class<? extends TileProviderService> mCalledService = null;
 
         @Override
-        public void requestUpdate(@NonNull Class<? extends Service> tileProvider) {
+        public void requestUpdate(@NonNull Class<? extends TileProviderService> tileProvider) {
             this.mCalledService = tileProvider;
         }
     }
 
-    private class FakeService extends Service {
+    private class FakeService extends TileProviderService {
+        @NonNull
+        @Override
+        protected ListenableFuture<TileBuilders.Tile> onTileRequest(
+                @NonNull RequestReaders.TileRequest requestParams) {
+            ResolvableFuture<TileBuilders.Tile> f = ResolvableFuture.create();
+            f.set(null);
+            return f;
+        }
+
+        @NonNull
+        @Override
+        protected ListenableFuture<ResourceBuilders.Resources> onResourcesRequest(
+                @NonNull RequestReaders.ResourcesRequest requestParams) {
+            ResolvableFuture<ResourceBuilders.Resources> f = ResolvableFuture.create();
+            f.set(null);
+            return f;
+        }
+
         @Nullable
         @Override
         public IBinder onBind(Intent intent) {

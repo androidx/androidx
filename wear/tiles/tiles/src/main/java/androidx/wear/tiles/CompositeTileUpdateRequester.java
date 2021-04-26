@@ -16,8 +16,6 @@
 
 package androidx.wear.tiles;
 
-import android.app.Service;
-
 import androidx.annotation.NonNull;
 
 import java.util.List;
@@ -36,7 +34,7 @@ class CompositeTileUpdateRequester implements TileUpdateRequester {
     }
 
     @Override
-    public void requestUpdate(@NonNull Class<? extends Service> tileProvider) {
+    public void requestUpdate(@NonNull Class<? extends TileProviderService> tileProvider) {
         for (TileUpdateRequester requester : mUpdateRequesters) {
             requester.requestUpdate(tileProvider);
         }
