@@ -23,14 +23,16 @@ import androidx.window.FoldingFeature.Companion.ORIENTATION_VERTICAL as ORIENTAT
  * A feature that describes a fold in the flexible display
  * or a hinge between two physical display panels.
  *
- * @param [bounds] The bounding rectangle of the feature within the application window in the
- * window coordinate space.
  * @param [type] that is either [FoldingFeature.TYPE_FOLD] or [FoldingFeature.TYPE_HINGE]
  * @param [state] the physical state of the hinge that is either [FoldingFeature.STATE_FLAT] or
  * [FoldingFeature.STATE_HALF_OPENED]
  */
-public class FoldingFeature(
-    bounds: Rect,
+public class FoldingFeature internal constructor(
+    /**
+     * The bounding rectangle of the feature within the application window in the window
+     * coordinate space.
+     */
+    private val featureBounds: Bounds,
     @Type internal val type: Int,
     @State public val state: Int
 ) : DisplayFeature {
@@ -51,21 +53,20 @@ public class FoldingFeature(
     @IntDef(STATE_HALF_OPENED, STATE_FLAT)
     internal annotation class State
 
-    /**
-     * The bounding rectangle of the feature within the application window in the window
-     * coordinate space.
-     */
-    private val _bounds: Rect
+    override val bounds: Rect
+        get() = featureBounds.toRect()
 
     init {
         validateState(state)
         validateType(type)
-        validateFeatureBounds(bounds)
-        _bounds = Rect(bounds)
+        validateFeatureBounds(featureBounds)
     }
 
-    override val bounds: Rect
-        get() = Rect(_bounds)
+    public constructor(
+        bounds: Rect,
+        type: Int,
+        state: Int
+    ) : this(Bounds(bounds), type, state)
 
     /**
      * Calculates if a [FoldingFeature] should be thought of as splitting the window into
@@ -114,7 +115,7 @@ public class FoldingFeature(
      */
     @get:OcclusionType
     public val occlusionMode: Int
-        get() = if (_bounds.width() == 0 || _bounds.height() == 0) {
+        get() = if (featureBounds.width == 0 || featureBounds.height == 0) {
             OCCLUSION_NONE
         } else {
             OCCLUSION_FULL
@@ -127,7 +128,7 @@ public class FoldingFeature(
     @get:Orientation
     public val orientation: Int
         get() {
-            return if (_bounds.width() > _bounds.height()) {
+            return if (featureBounds.width > featureBounds.height) {
                 ORIENTATION_HORIZONTAL
             } else {
                 ORIENTATION_VERTICAL
@@ -136,19 +137,26 @@ public class FoldingFeature(
 
     override fun toString(): String {
         return (
-            "${FoldingFeature::class.java.simpleName} { $_bounds, type=${typeToString(type)}, " +
-                "state=${stateToString(state)} }"
+            "${FoldingFeature::class.java.simpleName} { $featureBounds, " +
+                "type=${typeToString(type)}, state=${stateToString(state)} }"
             )
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is FoldingFeature) return false
-        return type == other.type && state == other.state && _bounds == other._bounds
+        if (javaClass != other?.javaClass) return false
+
+        other as FoldingFeature
+
+        if (featureBounds != other.featureBounds) return false
+        if (type != other.type) return false
+        if (state != other.state) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        var result = _bounds.hashCode()
+        var result = featureBounds.hashCode()
         result = 31 * result + type
         result = 31 * result + state
         return result
@@ -248,8 +256,8 @@ public class FoldingFeature(
         /**
          * Verifies the bounds of the folding feature.
          */
-        internal fun validateFeatureBounds(bounds: Rect) {
-            require(!(bounds.width() == 0 && bounds.height() == 0)) { "Bounds must be non zero" }
+        internal fun validateFeatureBounds(bounds: Bounds) {
+            require(!(bounds.width == 0 && bounds.height == 0)) { "Bounds must be non zero" }
             require(!(bounds.left != 0 && bounds.top != 0)) {
                 "Bounding rectangle must start at the top or left window edge for folding features"
             }
