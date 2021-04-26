@@ -27,6 +27,7 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.activity.Camera2TestActivity
 import androidx.camera.testing.activity.CameraXTestActivity
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingPolicies
@@ -35,7 +36,6 @@ import androidx.test.espresso.IdlingResource
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import com.google.common.truth.Truth
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -65,19 +65,8 @@ class CameraDisconnectTest(
         )
     }
 
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val cameraXTestActivityRule = androidx.test.rule.ActivityTestRule(
-        CameraXTestActivity::class.java, true, false
-    )
-
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val camera2ActivityRule = androidx.test.rule.ActivityTestRule(
-        Camera2TestActivity::class.java, true, false
-    )
-
     private val context: Context = ApplicationProvider.getApplicationContext()
+    private lateinit var cameraXActivityScenario: ActivityScenario<CameraXTestActivity>
 
     @Before
     fun setUp() {
@@ -95,12 +84,8 @@ class CameraDisconnectTest(
 
     @After
     fun tearDown() {
-        if (cameraXTestActivityRule.activity != null) {
-            cameraXTestActivityRule.finishActivity()
-        }
-
-        if (camera2ActivityRule.activity != null) {
-            camera2ActivityRule.finishActivity()
+        if (::cameraXActivityScenario.isInitialized) {
+            cameraXActivityScenario.close()
         }
 
         runBlocking {
@@ -112,38 +97,49 @@ class CameraDisconnectTest(
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     fun testCameraDisconnect() {
 
-        // TODO(b/184603071): Migrate the ActivityTestRule to ActivityScenario
         // Launch CameraX test activity
-        with(cameraXTestActivityRule.launchActivity(Intent())) {
+        cameraXActivityScenario = ActivityScenario.launch(CameraXTestActivity::class.java)
+        with(cameraXActivityScenario) {
 
             // Wait for preview to become active
             waitForCameraXPreview()
-
-            // Get id of camera opened by CameraX test activity
-            Truth.assertThat(cameraId).isNotNull()
 
             // Launch Camera2 test activity. It should cause the camera to disconnect from CameraX.
             val intent = Intent(
                 context,
                 Camera2TestActivity::class.java
             ).apply {
-                putExtra(Camera2TestActivity.EXTRA_CAMERA_ID, cameraId)
+                putExtra(Camera2TestActivity.EXTRA_CAMERA_ID, getCameraId())
             }
-            camera2ActivityRule.launchActivity(intent)
 
-            // Wait for preview to become active
-            camera2ActivityRule.activity.waitForCamera2Preview()
+            CoreAppTestUtil.launchActivity(
+                InstrumentationRegistry.getInstrumentation(),
+                Camera2TestActivity::class.java,
+                intent
+            )?.apply {
+                // Wait for preview to become active
+                waitForCamera2Preview()
 
-            // Close Camera2 test activity, and verify the CameraX Preview resumes successfully.
-            camera2ActivityRule.finishActivity()
+                // Close Camera2 test activity, and verify the CameraX Preview resumes successfully.
+                finish()
+            }
 
             // Verify the CameraX Preview can resume successfully.
             waitForCameraXPreview()
         }
     }
 
-    private fun CameraXTestActivity.waitForCameraXPreview() {
-        waitFor(previewReady)
+    private fun ActivityScenario<CameraXTestActivity>.getCameraId(): String {
+        var cameraId: String? = null
+        onActivity { cameraId = it.cameraId }
+        return cameraId!!
+    }
+
+    private fun ActivityScenario<CameraXTestActivity>.waitForCameraXPreview() {
+        var idlingResource: IdlingResource? = null
+        onActivity { idlingResource = it.previewReady }
+
+        waitFor(idlingResource!!)
     }
 
     private fun Camera2TestActivity.waitForCamera2Preview() {
