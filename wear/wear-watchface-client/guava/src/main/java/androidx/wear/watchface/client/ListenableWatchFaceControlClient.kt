@@ -29,6 +29,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.guava.asListenableFuture
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -46,7 +47,7 @@ public open class ListenableWatchFaceControlClient(
         watchFaceControlClient.getInteractiveWatchFaceClientInstance(instanceId)
 
     public companion object {
-        private val immediateCoroutineScope = CoroutineScope(
+        internal fun createImmediateCoroutineScope() = CoroutineScope(
             object : CoroutineDispatcher() {
                 override fun dispatch(context: CoroutineContext, block: Runnable) {
                     block.run()
@@ -72,7 +73,17 @@ public open class ListenableWatchFaceControlClient(
                 "ListenableWatchFaceControlClient.createWatchFaceControlClient"
             )
             val future = ResolvableFuture.create<ListenableWatchFaceControlClient>()
+            val immediateCoroutineScope = createImmediateCoroutineScope()
             immediateCoroutineScope.launch {
+                // Propagate future cancellation.
+                future.addListener(
+                    {
+                        if (future.isCancelled) {
+                            immediateCoroutineScope.cancel()
+                        }
+                    },
+                    { runner -> runner.run() }
+                )
                 try {
                     future.set(
                         ListenableWatchFaceControlClient(
@@ -116,15 +127,28 @@ public open class ListenableWatchFaceControlClient(
         watchUiState: WatchUiState,
         userStyle: UserStyleData?,
         idToComplicationData: Map<Int, ComplicationData>?
-    ): ListenableFuture<InteractiveWatchFaceClient> = immediateCoroutineScope.async {
-        watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
-            id,
-            deviceConfig,
-            watchUiState,
-            userStyle,
-            idToComplicationData
-        )
-    }.asListenableFuture()
+    ): ListenableFuture<InteractiveWatchFaceClient> {
+        val immediateCoroutineScope = createImmediateCoroutineScope()
+        return immediateCoroutineScope.async {
+            watchFaceControlClient.getOrCreateInteractiveWatchFaceClient(
+                id,
+                deviceConfig,
+                watchUiState,
+                userStyle,
+                idToComplicationData
+            )
+        }.asListenableFuture().apply {
+            // Propagate future cancellation.
+            addListener(
+                {
+                    if (isCancelled) {
+                        immediateCoroutineScope.cancel()
+                    }
+                },
+                { runner -> runner.run() }
+            )
+        }
+    }
 
     override suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
