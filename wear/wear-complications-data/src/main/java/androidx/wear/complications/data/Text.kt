@@ -232,11 +232,25 @@ public class TimeDifferenceComplicationText internal constructor(
         private var displayAsNow: Boolean? = null
         private var minimumUnit: TimeUnit? = null
 
+        /**
+         * Constructs a [TimeDifferenceComplicationText.Builder] where the complication is counting
+         * up until [countUpTimeReference].
+         *
+         * @param style The [TimeDifferenceStyle] to use when rendering the time difference.
+         * @param countUpTimeReference The [CountUpTimeReference] to count up until.
+         */
         public constructor(
             style: TimeDifferenceStyle,
             countUpTimeReference: CountUpTimeReference
         ) : this(style, null, countUpTimeReference.dateTimeMillis)
 
+        /**
+         * Constructs a [TimeDifferenceComplicationText.Builder] where the complication is counting
+         * down until [countDownTimeReference].
+         *
+         * @param style The [TimeDifferenceStyle] to use when rendering the time difference.
+         * @param countDownTimeReference The [CountDownTimeReference] to count down until.
+         */
         public constructor(
             style: TimeDifferenceStyle,
             countDownTimeReference: CountDownTimeReference
