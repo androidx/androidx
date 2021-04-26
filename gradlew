@@ -235,7 +235,7 @@ for compact in "--ci" "--strict"; do
   if [ "$compact" == "--strict" ]; then
     expanded="-Pandroidx.allWarningsAsErrors\
      -Pandroidx.validateNoUnrecognizedMessages\
-     -PverifyUpToDate\
+     -Pandroidx.verifyUpToDate\
      --no-watch-fs\
      --no-daemon\
      --offline"
@@ -306,14 +306,19 @@ function runGradle() {
 }
 
 if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
-  echo "Passing '-PdisallowExecution' directly is forbidden. Did you mean -PverifyUpToDate ?"
+  echo "Passing '-PdisallowExecution' directly is forbidden. Did you mean -Pandroidx.verifyUpToDate ?"
   echo "See TaskUpToDateValidator.java for more information"
   exit 1
 fi
 
-runGradle "$@"
-# Check whether we were given the "-PverifyUpToDate" argument
 if [[ " ${@} " =~ " -PverifyUpToDate " ]]; then
+  echo "-PverifyUpToDate has been renamed to -Pandroidx.verifyUpToDate"
+  exit 1
+fi
+
+runGradle "$@"
+# Check whether we were given the "-Pandroidx.verifyUpToDate" argument
+if [[ " ${@} " =~ " -Pandroidx.verifyUpToDate " ]]; then
   # Re-run Gradle, and find all tasks that are unexpectly out of date
   if ! runGradle "$@" -PdisallowExecution --continue; then
     echo >&2
