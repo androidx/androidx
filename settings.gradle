@@ -63,6 +63,7 @@ private Set<BuildType> createRequestedFilter() {
                 break
             case "MEDIA":
                 filter.add(BuildType.MEDIA)
+                break
             case "WEAR":
                 filter.add(BuildType.WEAR)
                 break
