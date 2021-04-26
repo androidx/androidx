@@ -73,8 +73,8 @@ dependencies {
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(TRUTH)
     androidTestImplementation("androidx.camera:camera-camera2:${VIEW_ATOMIC_GROUP_PINNED_VER}")
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy) // DexMaker has it's own MockMaker
 }
 android {
     defaultConfig {

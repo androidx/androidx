@@ -33,8 +33,8 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
+    androidTestImplementation(MOCKITO_CORE, excludes.bytebuddy)
+    androidTestImplementation(DEXMAKER_MOCKITO, excludes.bytebuddy)
 
     annotationProcessor (project(":versionedparcelable:versionedparcelable-compiler"))
 }

@@ -18,7 +18,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
     androidTestImplementation(project(":core:core-animation-testing"))
 }
 
