@@ -162,8 +162,8 @@ public class ListenableEditorSession(
     /** [ListenableFuture] wrapper around [EditorSession.openComplicationProviderChooser]. */
     public fun listenableOpenComplicationProviderChooser(
         complicationId: Int
-    ): ListenableFuture<Boolean> {
-        val future = ResolvableFuture.create<Boolean>()
+    ): ListenableFuture<ChosenComplicationProvider?> {
+        val future = ResolvableFuture.create<ChosenComplicationProvider?>()
         getCoroutineScope().launch {
             try {
                 future.set(
@@ -176,8 +176,9 @@ public class ListenableEditorSession(
         return future
     }
 
-    override suspend fun openComplicationProviderChooser(complicationId: Int): Boolean =
-        wrappedEditorSession.openComplicationProviderChooser(complicationId)
+    override suspend fun openComplicationProviderChooser(complicationId: Int):
+        ChosenComplicationProvider? =
+            wrappedEditorSession.openComplicationProviderChooser(complicationId)
 
     override fun close() {
         wrappedEditorSession.close()
