@@ -25,7 +25,8 @@ plugins {
 
 dependencies {
     annotationProcessor(NULLAWAY)
-    // Add dependencies here
+    api("androidx.startup:startup-runtime:1.0.0")
+    implementation("androidx.annotation:annotation:1.2.0")
 }
 
 androidx {
@@ -34,6 +35,6 @@ androidx {
     mavenVersion = LibraryVersions.PROFILEINSTALLER
     mavenGroup = LibraryGroups.PROFILEINSTALLER
     inceptionYear = "2021"
-    description = "Allows libraries to preopoulate ahead of time compilation traces to be read by" +
+    description = "Allows libraries to prepopulate ahead of time compilation traces to be read by" +
             " ART"
 }
