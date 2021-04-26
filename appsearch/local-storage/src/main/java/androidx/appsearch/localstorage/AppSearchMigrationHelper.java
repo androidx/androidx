@@ -130,10 +130,14 @@ class AppSearchMigrationHelper implements Closeable {
                                         + ". But the schema types doesn't exist in the request");
                     }
                     Bundle bundle = newDocument.getBundle();
+                    byte[] serializedMessage;
                     Parcel parcel = Parcel.obtain();
-                    parcel.writeBundle(bundle);
-                    byte[] serializedMessage = parcel.marshall();
-                    parcel.recycle();
+                    try {
+                        parcel.writeBundle(bundle);
+                        serializedMessage = parcel.marshall();
+                    } finally {
+                        parcel.recycle();
+                    }
                     codedOutputStream.writeByteArrayNoTag(serializedMessage);
                 }
                 codedOutputStream.flush();
@@ -196,11 +200,15 @@ class AppSearchMigrationHelper implements Closeable {
             @NonNull CodedInputStream codedInputStream) throws IOException {
         byte[] serializedMessage = codedInputStream.readByteArray();
 
+        Bundle bundle;
         Parcel parcel = Parcel.obtain();
-        parcel.unmarshall(serializedMessage, 0, serializedMessage.length);
-        parcel.setDataPosition(0);
-        Bundle bundle = parcel.readBundle();
-        parcel.recycle();
+        try {
+            parcel.unmarshall(serializedMessage, 0, serializedMessage.length);
+            parcel.setDataPosition(0);
+            bundle = parcel.readBundle();
+        } finally {
+            parcel.recycle();
+        }
 
         return new GenericDocument(bundle);
     }
