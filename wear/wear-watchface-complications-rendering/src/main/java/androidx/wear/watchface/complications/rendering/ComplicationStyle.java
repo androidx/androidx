@@ -20,7 +20,6 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.support.wearable.complications.ComplicationData;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
@@ -28,13 +27,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
+import androidx.wear.complications.data.SmallImageType;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * Defines attributes to customize appearance of rendered {@link
- * android.support.wearable.complications.ComplicationData}.
+ * androidx.wear.complications.data.ComplicationData}.
  */
 public class ComplicationStyle {
 
@@ -347,7 +347,7 @@ public class ComplicationStyle {
 
     /**
      * Sets the color filter used in active mode when rendering large images and small images
-     * with style {@link ComplicationData#IMAGE_STYLE_PHOTO}.
+     * with style {@link SmallImageType#PHOTO}.
      *
      * @param colorFilter The {@link ColorFilter} to use
      */

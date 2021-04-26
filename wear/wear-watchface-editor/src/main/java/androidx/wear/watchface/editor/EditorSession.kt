@@ -451,7 +451,14 @@ public abstract class BaseEditorSession internal constructor(
                     // Parallel fetch preview ComplicationData.
                     providerInfoArray?.associateBy(
                         { it.watchFaceComplicationId },
-                        { async { getPreviewData(providerInfoRetriever, it.info) } }
+                        {
+                            async {
+                                getPreviewData(
+                                    providerInfoRetriever,
+                                    it.info?.toWireComplicationProviderInfo()
+                                )
+                            }
+                        }
                         // Coerce to a Map<Int, ComplicationData> omitting null values.
                         // If mapNotNullValues existed we would use it here.
                     )?.mapValues {
