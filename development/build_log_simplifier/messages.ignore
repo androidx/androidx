@@ -923,3 +923,7 @@ in DClass LazyPagingItems
 @param density
 in DClass SplineBasedFloatDecayAnimationSpec
 Did you make a typo\? Are you trying to refer to something not visible to users\?
+# Wire proto generation, task :generateDebugProtos
+Writing .* to \$OUT_DIR/.*/build/generated/source/wire
+# > Task :benchmark:benchmark-macro:lintDebug
+Error processing \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar:META\-INF/versions/[0-9]+/module\-info\.class: broken class file\? \(This feature requires ASM[0-9]+\)
