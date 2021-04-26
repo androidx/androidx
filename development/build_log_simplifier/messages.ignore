@@ -641,13 +641,285 @@ Creating pages\: *[0-9]+
 Transforming pages\: *[0-9]+
 Rendering\: *[0-9]+
 WARNING\: unable to find what is referred to by
-    @param endOfPaginationReached
+@param initVal
+in DClass AnimationVector[0-9]+D
+@param a,
+@param b,
+@param c,
+@param d
+in DClass CubicBezierEasing
+@param v[0-9]+,
+@param v[0-9]+
+@param frictionMultiplier,
+@param absVelocityThreshold
+in DClass FloatExponentialDecaySpec
+@param duration,
+@param delay,
+@param easing
+in DClass FloatTweenSpec
+@param dampingRatio,
+@param stiffness,
+@param visibilityThreshold
+in DClass SpringSpec
+@param durationMillis,
+in DClass TweenSpec
+in DClass FloatSpringSpec
+@param iterations,
+@param animation,
+@param repeatMode
+in DClass RepeatableSpec
+in DClass VectorizedInfiniteRepeatableSpec
+@param keyframes,
+@param delayMillis
+in DClass VectorizedKeyframesSpec
+@param delayMillis,
+in DClass VectorizedTweenSpec
+@param animationSpec,
+@param initialValue,
+@param targetValue,
+@param typeConverter,
+@param initialVelocityVector
+in DClass TargetBasedAnimation
+@param delay
+in DClass SnapSpec
+in DClass InfiniteRepeatableSpec
+in DClass VectorizedRepeatableSpec
+@param initialVelocityVector,
+@param lastFrameTimeNanos,
+@param finishedTimeNanos,
+@param isRunning
+in DClass AnimationState
+in DClass VectorizedSnapSpec
+in DClass Animatable
+@param width,
+@param brush
+in DClass BorderStroke
+@param initial
+in DClass ScrollState
+@param firstVisibleItemIndex,
+@param firstVisibleItemScrollOffset
+in DClass LazyListState
+@param builder
+in DClass GenericShape
+@param topLeft,
+@param topRight,
+@param bottomRight,
+@param bottomLeft
+in DClass AbsoluteCutCornerShape
+@param topStart,
+@param topEnd,
+@param bottomEnd,
+@param bottomStart
+in DClass RoundedCornerShape
+in DClass CutCornerShape
+in DClass AbsoluteRoundedCornerShape
+in DClass CornerBasedShape
+@param capitalization,
+@param autoCorrect,
+@param keyboardType,
+@param imeAction
+in DClass KeyboardOptions
+@param drawerState,
+@param bottomSheetState,
+@param snackbarHostState
+in DClass BottomSheetScaffoldState
+@param confirmStateChange,
+in DClass BackdropScaffoldState
+@param confirmStateChange
+in DClass DismissState
+in DClass BottomDrawerState
+in DClass ScaffoldState
+@param basis,
+@param factorAtMin,
+@param factorAtMax
+in DClass ResistanceConfig
+in DClass BottomSheetState
+in DClass DrawerState
+@param offset
+in DClass FixedThreshold
+@param fraction
+in DClass FractionalThreshold
+in DClass ModalBottomSheetState
+@param from,
+@param to,
+in DClass SwipeProgress
+in DClass SwipeableState
+@param file
+in DAnnotation LiveLiteralFileInfo
+@param name,
+@param id
+in DAnnotation DecoyImplementation
+@param key,
+in DAnnotation LiveLiteralInfo
+@param parameters
+in DAnnotation StabilityInferred
+@param targetName,
+@param signature
+in DAnnotation Decoy
+@param left,
+@param top,
+@param right,
+@param bottom
+in DClass MutableRect
+@param buffer,
+@param bufferOffset,
+@param height,
+@param stride
+in DClass PixelMap
+@param image,
+@param srcOffset,
+@param srcSize
+in DClass BitmapPainter
+@param imageVector
+in DClass AnimatedImageVector
+@param keyCode
+in DClass Key
+@param value
+in DClass PointerId
+@param positionChange,
+@param downChange
+in DClass ConsumedData
+@param id,
+@param uptimeMillis,
+@param position,
+@param pressed,
+@param previousUptimeMillis,
+@param previousPosition,
+@param previousPressed,
+@param consumed,
+@param type
+in DClass PointerInputChange
+@param merger
+in DClass VerticalAlignmentLine
+in DClass HorizontalAlignmentLine
+@param value,
+@param maxValue,
+@param reverseScrolling
+in DClass ScrollAxisRange
+@param current,
+@param range,
+@param steps
+in DClass ProgressBarRangeInfo
+@param label,
+@param action
+in DClass AccessibilityAction
+in DClass CustomAccessibilityAction
+@param selectedNodes,
+@param customErrorOnNoMatch
+in DClass SelectionResult
+@param description,
+@param requiresExactlyOneNode,
+@param chainedInputSelector,
+@param selector
+in DClass SemanticsSelector
+@param activityRule,
+@param activityProvider
+in DClass AndroidComposeTestRule
+@param placeholderVerticalAlign
+in DClass Placeholder
+@param item,
+@param start,
+@param end,
+@param tag
+in DClass Range
+@param verbatim
+in DClass VerbatimTtsAnnotation
+@param annotatedString,
+@param style,
+@param placeholders,
+@param density,
+@param resourceLoader
+in DClass MultiParagraphIntrinsics
+@param textAlign,
+@param textDirection,
+@param textIndent,
+@param lineHeight
+in DClass ParagraphStyle
+@param color,
+@param fontSize,
+@param fontWeight,
+@param fontStyle,
+@param fontSynthesis,
+@param fontFamily,
+@param fontFeatureSettings,
+@param letterSpacing,
+@param baselineShift,
+@param textGeometricTransform,
+@param localeList,
+@param background,
+@param textDecoration,
+@param shadow
+in DClass SpanStyle
+@param shadow,
+in DClass TextStyle
+@param intrinsics,
+@param maxLines,
+@param ellipsis,
+@param width
+in DClass MultiParagraph
+@param capacity
+in DClass Builder
+@param typeface
+in DClass LoadedFontFamily
+@param resId,
+@param weight,
+@param style
+in DClass ResourceFont
+@param name
+in DClass GenericFontFamily
+@param weight
+in DClass FontWeight
+@param singleLine,
+in DClass ImeOptions
+@param selection,
+@param composition
+in DClass TextFieldValue
+@param mask
+in DClass PasswordVisualTransformation
+@param multiplier
+in DClass BaselineShift
+@param firstLine,
+@param restLine
+in DClass TextIndent
+@param scaleX,
+@param skewX
+in DClass TextGeometricTransform
+@param provider,
+@param limit
+in DAnnotation PreviewParameter
+@param group,
+@param apiLevel,
+@param widthDp,
+@param heightDp,
+@param locale,
+@param fontScale,
+@param showSystemUi,
+@param showBackground,
+@param backgroundColor,
+@param uiMode,
+@param device
+in DAnnotation Preview
+@param words
+in DClass LoremIpsum
+@param securePolicy
+in DClass PopupProperties
+@param rowCount,
+@param columnCount
+in DClass CollectionInfo
+@param rowIndex,
+@param rowSpan,
+@param columnIndex,
+@param columnSpan
+in DClass CollectionItemInfo
+@param endOfPaginationReached
 in DClass LoadState
 in DClass NotLoading
-    @param error
+@param error
 in DClass Error
-    @param pagingSourceFactory
+@param pagingSourceFactory
 in DClass InvalidatingPagingSourceFactory
-    @param flow
+@param flow
 in DClass LazyPagingItems
+@param density
+in DClass SplineBasedFloatDecayAnimationSpec
 Did you make a typo\? Are you trying to refer to something not visible to users\?
