@@ -639,6 +639,8 @@ package androidx.wear.tiles.builders {
 
   public static final class ModifiersBuilders.Padding.Builder {
     method public androidx.wear.tiles.builders.ModifiersBuilders.Padding build();
+    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setAll(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setAll(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
     method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setBottom(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
     method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setBottom(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
     method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setEnd(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
