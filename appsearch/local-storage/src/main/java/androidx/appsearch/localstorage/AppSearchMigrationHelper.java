@@ -104,7 +104,8 @@ class AppSearchMigrationHelper implements Closeable {
                     new SearchSpec.Builder()
                             .addFilterSchemas(migrators.keySet())
                             .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                            .build());
+                            .build(),
+                    /*logger=*/ null);
             while (!searchResultPage.getResults().isEmpty()) {
                 for (int i = 0; i < searchResultPage.getResults().size(); i++) {
                     GenericDocument document =

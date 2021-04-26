@@ -87,11 +87,12 @@ class SearchResultsImpl implements SearchResults {
                 } else if (mDatabaseName == null) {
                     // Global queries aren't restricted to a single database
                     searchResultPage = mAppSearchImpl.globalQuery(mQueryExpression, mSearchSpec,
-                            mPackageName, Process.myUid());
+                            mPackageName, Process.myUid(), /*logger=*/ null);
                 } else {
                     // Normal local query, pass in specified database.
                     searchResultPage = mAppSearchImpl.query(
-                            mPackageName, mDatabaseName, mQueryExpression, mSearchSpec);
+                            mPackageName, mDatabaseName, mQueryExpression, mSearchSpec, /*logger
+                            =*/ null);
                 }
             } else {
                 searchResultPage = mAppSearchImpl.getNextPage(mNextPageToken);
