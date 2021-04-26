@@ -25,13 +25,17 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /**
  * Holder of details of a complication provider, for use by watch faces (for example, to show the
  * current provider in settings). A {@link androidx.wear.complications.ProviderInfoRetriever} can be
  * used to obtain instances of this class for each of a watch face's complications.
+ *
+ * @hide
  */
 @SuppressLint("BanParcelableUsage")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ComplicationProviderInfo implements Parcelable {
 
     @NonNull

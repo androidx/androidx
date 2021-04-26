@@ -49,8 +49,11 @@ import java.lang.annotation.RetentionPolicy;
  * <p>When rendering the complication data for a given time, the watch face should first call {@link
  * #isActiveAt} to determine whether the data is valid at that time. See the documentation for each
  * of the complication types below for details of which fields are expected to be displayed.
+ *
+ * @hide
  */
 @SuppressLint("BanParcelableUsage")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ComplicationData implements Parcelable {
 
     private static final String TAG = "ComplicationData";

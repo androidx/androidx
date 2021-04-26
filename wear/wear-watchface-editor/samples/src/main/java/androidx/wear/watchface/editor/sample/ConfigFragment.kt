@@ -154,7 +154,7 @@ internal class ConfigFragment : Fragment() {
             )
             infoArray?.let {
                 it[0].info?.apply {
-                    backgroundConfigOption.summary = providerName!!
+                    backgroundConfigOption.summary = name
                 }
                 configViewAdapter.notifyDataSetChanged()
             }

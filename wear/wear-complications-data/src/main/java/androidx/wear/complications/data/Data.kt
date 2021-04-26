@@ -48,7 +48,7 @@ public sealed class ComplicationData constructor(
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract fun asWireComplicationData(): WireComplicationData
 
     internal fun createWireComplicationDataBuilder(): WireComplicationDataBuilder =
@@ -64,7 +64,7 @@ public sealed class ComplicationData constructor(
  */
 public class NoDataComplicationData : ComplicationData(TYPE, null, null) {
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
 
     /** @hide */
@@ -82,7 +82,7 @@ public class NoDataComplicationData : ComplicationData(TYPE, null, null) {
  */
 public class EmptyComplicationData : ComplicationData(TYPE, null, null) {
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
 
     /** @hide */
@@ -101,7 +101,7 @@ public class EmptyComplicationData : ComplicationData(TYPE, null, null) {
  */
 public class NotConfiguredComplicationData : ComplicationData(TYPE, null, null) {
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
 
     /** @hide */
@@ -187,7 +187,7 @@ public class ShortTextComplicationData internal constructor(
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData =
         createWireComplicationDataBuilder().apply {
             setShortText(text.toWireComplicationText())
@@ -296,7 +296,7 @@ public class LongTextComplicationData internal constructor(
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData =
         createWireComplicationDataBuilder().apply {
             setLongText(text.toWireComplicationText())
@@ -412,7 +412,7 @@ public class RangedValueComplicationData internal constructor(
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun asWireComplicationData(): WireComplicationData =
         createWireComplicationDataBuilder().apply {
             setRangedValue(value)
@@ -499,7 +499,8 @@ public class MonochromaticImageComplicationData internal constructor(
             )
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData =
         createWireComplicationDataBuilder().apply {
             monochromaticImage.addToWireComplicationData(this)
@@ -581,7 +582,8 @@ public class SmallImageComplicationData internal constructor(
             )
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData =
         createWireComplicationDataBuilder().apply {
             smallImage.addToWireComplicationData(this)
@@ -668,7 +670,8 @@ public class PhotoImageComplicationData internal constructor(
             )
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData =
         createWireComplicationDataBuilder().apply {
             setLargeImage(photoImage)
@@ -748,7 +751,7 @@ public class NoPermissionComplicationData internal constructor(
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData =
         createWireComplicationDataBuilder().apply {
             setShortText(text?.toWireComplicationText())
@@ -764,6 +767,9 @@ public class NoPermissionComplicationData internal constructor(
     }
 }
 
+/**
+ * @hide
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun WireComplicationData.toApiComplicationData(): ComplicationData {
     val wireComplicationData = this
