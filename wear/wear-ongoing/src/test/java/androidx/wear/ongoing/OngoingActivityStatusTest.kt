@@ -25,7 +25,7 @@ open class OngoingActivityStatusTest {
 
     @Test
     fun testTextOngoingActivityStatusText() {
-        val status = OngoingActivityStatus.Builder()
+        val status = Status.Builder()
             .addPart("1", TextStatusPart("First Text"))
             .addPart("2", TextStatusPart("Second Text"))
             .build()
@@ -37,7 +37,7 @@ open class OngoingActivityStatusTest {
 
     @Test
     fun testTextOngoingActivityStatusTextAndTemplate() {
-        val status = OngoingActivityStatus.Builder()
+        val status = Status.Builder()
             .addPart("one", TextStatusPart("First Text"))
             .addPart("two", TextStatusPart("Second Text"))
             .addTemplate("#one# | #two#").build()
@@ -52,7 +52,7 @@ open class OngoingActivityStatusTest {
 
     @Test
     fun testTextOngoingActivityStatusTextAndTemplate2() {
-        val status = OngoingActivityStatus.Builder()
+        val status = Status.Builder()
             .addPart("a", TextStatusPart("A"))
             .addPart("b", TextStatusPart("B"))
             .addTemplate("#a##b#").build()
@@ -68,7 +68,7 @@ open class OngoingActivityStatusTest {
     @Test
     fun testTextOngoingActivityStatusMixed() {
         val t0 = 123456L
-        val status = OngoingActivityStatus.Builder()
+        val status = Status.Builder()
             .addPart("type", TextStatusPart("Workout"))
             .addPart("time", TimerStatusPart(t0, /* countDown = */ false))
             .addTemplate("The time on your #type# is #time#")
@@ -103,12 +103,12 @@ open class OngoingActivityStatusTest {
         ).forEach { (template, expected) ->
             assertEquals(
                 expected,
-                OngoingActivityStatus.processTemplate(template, values).toString()
+                Status.processTemplate(template, values).toString()
             )
         }
 
         // Check that when undefined values are used, returns null
-        assertNull(OngoingActivityStatus.processTemplate("#NOT#", values))
+        assertNull(Status.processTemplate("#NOT#", values))
     }
 
     @Test
@@ -127,7 +127,7 @@ open class OngoingActivityStatusTest {
             listOf("#5#", "#4#", "#3#", "#2#") to "Three",
             listOf("#1##11#", "2=#2#") to "2=Two",
         ).forEach { (templates, expected) ->
-            val status = OngoingActivityStatus(
+            val status = Status(
                 templates,
                 values.map { (k, v) ->
                     k to TextStatusPart(v)
@@ -141,7 +141,7 @@ open class OngoingActivityStatusTest {
     @Test(expected = IllegalStateException::class)
     fun testVerifyBuildCheckBaseTemplate() {
         // We verify on build() that the last template uses only base parts (Text & Timer)
-        OngoingActivityStatus.Builder()
+        Status.Builder()
             .addTemplate("#1#")
             .addTemplate("#2#")
             .addPart("1", TextStatusPart("text"))
@@ -152,14 +152,14 @@ open class OngoingActivityStatusTest {
     @Test(expected = IllegalStateException::class)
     fun testVerifyBuildCheckTemplates() {
         // We verify on build() that all parts used on templates are present
-        OngoingActivityStatus.Builder()
+        Status.Builder()
             .addTemplate("#1##2##3#")
             .addPart("1", TextStatusPart("text"))
             .addPart("2", TimerStatusPart(12345L))
             .build()
     }
 
-    class SampleStatusPart : StatusPart() {
+    private class SampleStatusPart : StatusPart() {
         override fun getText(context: Context, timeNowMillis: Long) = "Sample"
         override fun getNextChangeTimeMillis(fromTimeMillis: Long) = Long.MAX_VALUE
     }
