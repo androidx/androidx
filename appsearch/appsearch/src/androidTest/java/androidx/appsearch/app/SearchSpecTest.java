@@ -105,7 +105,7 @@ public class SearchSpecTest {
         @Document.Id
         String mId;
 
-        @Document.Property
+        @Document.StringProperty
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;
     }

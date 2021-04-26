@@ -27,13 +27,12 @@ import java.lang.annotation.Target;
 /**
  * Marks a class as an entity known to AppSearch containing a data record.
  *
- * <p>Each field annotated with {@link Property @Property} will become an AppSearch searchable
+ * <p>Each field annotated with one of the Property annotations will become an AppSearch searchable
  * property. Fields annotated with other annotations included here (like {@link Id @Id}) will have
  * the special behaviour described in that annotation. All other members (those which do not have
  * any of these annotations) will be ignored by AppSearch and will not be persisted or set.
  *
- * <p>Each AppSearch field, whether marked by {@link Property @Property} or by one of the other
- * annotations here, must meet at least one the following conditions:
+ * <p>Each AppSearch annotated field must meet at least one the following conditions:
  * <ol>
  *     <li>There must be a getter named get&lt;Fieldname&gt; in the class (with package-private
  *     visibility or greater), or
@@ -53,11 +52,26 @@ import java.lang.annotation.Target;
  * </ol>
  *
  * <p>The class must also have exactly one member annotated with {@link Id @Id}.
+ *
+ * <p>Properties contain the document's data. They may be indexed or non-indexed (the default).
+ * Only indexed properties can be searched for in queries. There is a limit of
+ * {@link androidx.appsearch.app.GenericDocument#getMaxIndexedProperties} indexed properties in
+ * one document.
  */
 @Documented
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
 public @interface Document {
+    /**
+     * The schema name of this type.
+     *
+     * <p>This string is the key to which the complete schema definition is associated in the
+     * AppSearch database. It can be specified to replace an existing type with a new definition.
+     *
+     * <p>If not specified, it will be automatically set to the simple name of the annotated class.
+     */
+    String name() default "";
+
     /**
      * Marks a member field of a document as the document's unique identifier (ID).
      *
@@ -152,18 +166,11 @@ public @interface Document {
     @Target(ElementType.FIELD)
     @interface Score {}
 
-    /**
-     * Configures a member field of a class as a property known to AppSearch.
-     *
-     * <p>Properties contain the document's data. They may be indexed or non-indexed (the default).
-     * Only indexed properties can be searched for in queries. There is a limit of
-     * {@link androidx.appsearch.app.GenericDocument#getMaxIndexedProperties} indexed properties in
-     * one document.
-     */
+    /** Configures a string member field of a class as a property known to AppSearch. */
     @Documented
     @Retention(RetentionPolicy.CLASS)
     @Target(ElementType.FIELD)
-    @interface Property {
+    @interface StringProperty {
         /**
          * The name of this property. This string is used to query against this property.
          *
@@ -205,12 +212,137 @@ public @interface Document {
     }
 
     /**
-     * The schema name of this type.
+     * Configures a member field of a class as a property known to AppSearch.
      *
-     * <p>This string is the key to which the complete schema definition is associated in the
-     * AppSearch database. It can be specified to replace an existing type with a new definition.
-     *
-     * <p>If not specified, it will be automatically set to the simple name of the annotated class.
+     * <p>Field's data class is required to be annotated with {@link Document}.
      */
-    String name() default "";
+    @Documented
+    @Retention(RetentionPolicy.CLASS)
+    @Target(ElementType.FIELD)
+    @interface DocumentProperty {
+        /**
+         * The name of this property. This string is used to query against this property.
+         *
+         * <p>If not specified, the name of the field in the code will be used instead.
+         */
+        String name() default "";
+
+        /**
+         * Configures whether fields in the nested document should be indexed.
+         *
+         * <p>If false, the nested document's properties are not indexed regardless of its own
+         * schema.
+         */
+        boolean indexNestedProperties() default false;
+
+        /**
+         * Configures whether this property must be specified for the document to be valid.
+         *
+         * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
+         *
+         * <p>Please make sure you understand the consequences of required fields on
+         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
+         * this attribute to {@code true}.
+         */
+        boolean required() default false;
+    }
+
+    /** Configures a 64-bit integer field of a class as a property known to AppSearch. */
+    @Documented
+    @Retention(RetentionPolicy.CLASS)
+    @Target(ElementType.FIELD)
+    @interface Int64Property {
+        /**
+         * The name of this property. This string is used to query against this property.
+         *
+         * <p>If not specified, the name of the field in the code will be used instead.
+         */
+        String name() default "";
+
+        /**
+         * Configures whether this property must be specified for the document to be valid.
+         *
+         * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
+         *
+         * <p>Please make sure you understand the consequences of required fields on
+         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
+         * this attribute to {@code true}.
+         */
+        boolean required() default false;
+    }
+
+    /**
+     * Configures a double-precision decimal number field of a class as a property known to
+     * AppSearch.
+     */
+    @Documented
+    @Retention(RetentionPolicy.CLASS)
+    @Target(ElementType.FIELD)
+    @interface DoubleProperty {
+        /**
+         * The name of this property. This string is used to query against this property.
+         *
+         * <p>If not specified, the name of the field in the code will be used instead.
+         */
+        String name() default "";
+
+        /**
+         * Configures whether this property must be specified for the document to be valid.
+         *
+         * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
+         *
+         * <p>Please make sure you understand the consequences of required fields on
+         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
+         * this attribute to {@code true}.
+         */
+        boolean required() default false;
+    }
+
+    /** Configures a boolean member field of a class as a property known to AppSearch. */
+    @Documented
+    @Retention(RetentionPolicy.CLASS)
+    @Target(ElementType.FIELD)
+    @interface BooleanProperty {
+        /**
+         * The name of this property. This string is used to query against this property.
+         *
+         * <p>If not specified, the name of the field in the code will be used instead.
+         */
+        String name() default "";
+
+        /**
+         * Configures whether this property must be specified for the document to be valid.
+         *
+         * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
+         *
+         * <p>Please make sure you understand the consequences of required fields on
+         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
+         * this attribute to {@code true}.
+         */
+        boolean required() default false;
+    }
+
+    /** Configures a byte array member field of a class as a property known to AppSearch. */
+    @Documented
+    @Retention(RetentionPolicy.CLASS)
+    @Target(ElementType.FIELD)
+    @interface BytesProperty {
+        /**
+         * The name of this property. This string is used to query against this property.
+         *
+         * <p>If not specified, the name of the field in the code will be used instead.
+         */
+        String name() default "";
+
+        /**
+         * Configures whether this property must be specified for the document to be valid.
+         *
+         * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
+         *
+         * <p>Please make sure you understand the consequences of required fields on
+         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
+         * this attribute to {@code true}.
+         */
+        boolean required() default false;
+    }
 }

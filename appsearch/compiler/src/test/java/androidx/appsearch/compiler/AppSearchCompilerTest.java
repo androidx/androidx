@@ -173,7 +173,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property private int getPrice() { return 0; }\n"
+                        + "  @Document.Int64Property private int getPrice() { return 0; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "annotation type not applicable to this kind of declaration");
@@ -186,7 +186,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property private int price;\n"
+                        + "  @Document.Int64Property private int price;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Field cannot be read: it is private and we failed to find a suitable getter "
@@ -200,7 +200,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property private int price;\n"
+                        + "  @Document.Int64Property private int price;\n"
                         + "  private int getPrice() { return 0; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
@@ -217,7 +217,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property private int price;\n"
+                        + "  @Document.Int64Property private int price;\n"
                         + "  int getPrice(int n) { return 0; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
@@ -234,7 +234,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property private int price;\n"
+                        + "  @Document.Int64Property private int price;\n"
                         + "  int getPrice(int n) { return 0; }\n"
                         + "  int getPrice() { return 0; }\n"
                         + "  void setPrice(int n) {}\n"
@@ -250,7 +250,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property private int price;\n"
+                        + "  @Document.Int64Property private int price;\n"
                         + "  int price() { return 0; }\n"
                         + "  void price(int n) {}\n"
                         + "}\n");
@@ -272,7 +272,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property private int price;\n"
+                        + "  @Document.Int64Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
@@ -291,7 +291,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property private int price;\n"
+                        + "  @Document.Int64Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "  private void setPrice(int n) {}\n"
                         + "}\n");
@@ -313,7 +313,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property private int price;\n"
+                        + "  @Document.Int64Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "  void setPrice() {}\n"
                         + "}\n");
@@ -335,7 +335,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property private int price;\n"
+                        + "  @Document.Int64Property private int price;\n"
                         + "  int getPrice() { return price; }\n"
                         + "  void setPrice() {}\n"
                         + "  void setPrice(int n) {}\n"
@@ -352,7 +352,7 @@ public class AppSearchCompilerTest {
                         + "  private Gift() {}\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property int price;\n"
+                        + "  @Document.Int64Property int price;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Failed to find any suitable constructors to build this class");
@@ -368,7 +368,7 @@ public class AppSearchCompilerTest {
                         + "  Gift(int price) {}\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id final String id;\n"
-                        + "  @Document.Property int price;\n"
+                        + "  @Document.Int64Property int price;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Failed to find any suitable constructors to build this class");
@@ -388,7 +388,7 @@ public class AppSearchCompilerTest {
                         + "  }\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id final String id;\n"
-                        + "  @Document.Property int price;\n"
+                        + "  @Document.Int64Property int price;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Failed to find any suitable constructors to build this class");
@@ -409,10 +409,10 @@ public class AppSearchCompilerTest {
                         + "  }\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id final String id;\n"
-                        + "  @Document.Property int price;\n"
-                        + "  @Document.Property boolean cat = false;\n"
+                        + "  @Document.Int64Property int price;\n"
+                        + "  @Document.BooleanProperty boolean cat = false;\n"
                         + "  public void setCat(boolean cat) {}\n"
-                        + "  @Document.Property private final boolean dog;\n"
+                        + "  @Document.BooleanProperty private final boolean dog;\n"
                         + "  public boolean getDog() { return dog; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
@@ -439,10 +439,10 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property List<String> listOfString;\n"
-                        + "  @Document.Property Collection<Integer> setOfInt;\n"
-                        + "  @Document.Property byte[][] repeatedByteArray;\n"
-                        + "  @Document.Property byte[] byteArray;\n"
+                        + "  @Document.StringProperty List<String> listOfString;\n"
+                        + "  @Document.Int64Property Collection<Integer> setOfInt;\n"
+                        + "  @Document.BytesProperty byte[][] repeatedByteArray;\n"
+                        + "  @Document.BytesProperty byte[] byteArray;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -456,10 +456,10 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property(required=true) List<String> repeatReq;\n"
-                        + "  @Document.Property(required=false) List<String> repeatNoReq;\n"
-                        + "  @Document.Property(required=true) Float req;\n"
-                        + "  @Document.Property(required=false) Float noReq;\n"
+                        + "  @Document.StringProperty(required=true) List<String> repeatReq;\n"
+                        + "  @Document.StringProperty(required=false) List<String> repeatNoReq;\n"
+                        + "  @Document.DoubleProperty(required=true) Float req;\n"
+                        + "  @Document.DoubleProperty(required=false) Float noReq;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -474,13 +474,13 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property String stringProp;\n"
-                        + "  @Document.Property Integer integerProp;\n"
-                        + "  @Document.Property Long longProp;\n"
-                        + "  @Document.Property Float floatProp;\n"
-                        + "  @Document.Property Double doubleProp;\n"
-                        + "  @Document.Property Boolean booleanProp;\n"
-                        + "  @Document.Property byte[] bytesProp;\n"
+                        + "  @Document.StringProperty String stringProp;\n"
+                        + "  @Document.Int64Property Integer integerProp;\n"
+                        + "  @Document.Int64Property Long longProp;\n"
+                        + "  @Document.DoubleProperty Float floatProp;\n"
+                        + "  @Document.DoubleProperty Double doubleProp;\n"
+                        + "  @Document.BooleanProperty Boolean booleanProp;\n"
+                        + "  @Document.BytesProperty byte[] bytesProp;\n"
                         //+ "  @Document.Property Gift documentProp;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
@@ -497,8 +497,8 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property(tokenizerType=0) String tokNone;\n"
-                        + "  @Document.Property(tokenizerType=1) String tokPlain;\n"
+                        + "  @Document.StringProperty(tokenizerType=0) String tokNone;\n"
+                        + "  @Document.StringProperty(tokenizerType=1) String tokPlain;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -514,7 +514,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property(indexingType=1, tokenizerType=100)\n"
+                        + "  @Document.StringProperty(indexingType=1, tokenizerType=100)\n"
                         + "  String str;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining("Unknown tokenizer type 100");
@@ -530,9 +530,9 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property(indexingType=0) String indexNone;\n"
-                        + "  @Document.Property(indexingType=1) String indexExact;\n"
-                        + "  @Document.Property(indexingType=2) String indexPrefix;\n"
+                        + "  @Document.StringProperty(indexingType=0) String indexNone;\n"
+                        + "  @Document.StringProperty(indexingType=1) String indexExact;\n"
+                        + "  @Document.StringProperty(indexingType=2) String indexPrefix;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -548,7 +548,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property(indexingType=100, tokenizerType=1)\n"
+                        + "  @Document.StringProperty(indexingType=100, tokenizerType=1)\n"
                         + "  String str;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining("Unknown indexing type 100");
@@ -562,7 +562,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.Property(name=\"newName\") String oldName;\n"
+                        + "  @Document.StringProperty(name=\"newName\") String oldName;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
@@ -580,48 +580,63 @@ public class AppSearchCompilerTest {
                         + "  @Id String id;\n"
                         + "\n"
                         + "  // Collections\n"
-                        + "  @Property Collection<Long> collectLong;\n"         // 1a
-                        + "  @Property Collection<Integer> collectInteger;\n"   // 1a
-                        + "  @Property Collection<Double> collectDouble;\n"     // 1a
-                        + "  @Property Collection<Float> collectFloat;\n"       // 1a
-                        + "  @Property Collection<Boolean> collectBoolean;\n"   // 1a
-                        + "  @Property Collection<byte[]> collectByteArr;\n"    // 1a
-                        + "  @Property Collection<String> collectString;\n"     // 1b
-                        + "  @Property Collection<Gift> collectGift;\n"         // 1c
+                        + "  @Int64Property Collection<Long> collectLong;\n"         // 1a
+                        + "  @Int64Property Collection<Integer> collectInteger;\n"   // 1a
+                        + "  @DoubleProperty Collection<Double> collectDouble;\n"     // 1a
+                        + "  @DoubleProperty Collection<Float> collectFloat;\n"       // 1a
+                        + "  @BooleanProperty Collection<Boolean> collectBoolean;\n"   // 1a
+                        + "  @BytesProperty Collection<byte[]> collectByteArr;\n"    // 1a
+                        + "  @StringProperty Collection<String> collectString;\n"     // 1b
+                        + "  @DocumentProperty Collection<Gift> collectGift;\n"         // 1c
                         + "\n"
                         + "  // Arrays\n"
-                        + "  @Property Long[] arrBoxLong;\n"         // 2a
-                        + "  @Property long[] arrUnboxLong;\n"       // 2b
-                        + "  @Property Integer[] arrBoxInteger;\n"   // 2a
-                        + "  @Property int[] arrUnboxInt;\n"         // 2a
-                        + "  @Property Double[] arrBoxDouble;\n"     // 2a
-                        + "  @Property double[] arrUnboxDouble;\n"   // 2b
-                        + "  @Property Float[] arrBoxFloat;\n"       // 2a
-                        + "  @Property float[] arrUnboxFloat;\n"     // 2a
-                        + "  @Property Boolean[] arrBoxBoolean;\n"   // 2a
-                        + "  @Property boolean[] arrUnboxBoolean;\n" // 2b
-                        + "  @Property byte[][] arrUnboxByteArr;\n"  // 2b
-                        + "  @Property Byte[] boxByteArr;\n"         // 2a
-                        + "  @Property String[] arrString;\n"        // 2b
-                        + "  @Property Gift[] arrGift;\n"            // 2c
+                        + "  @Int64Property Long[] arrBoxLong;\n"         // 2a
+                        + "  @Int64Property long[] arrUnboxLong;\n"       // 2b
+                        + "  @Int64Property Integer[] arrBoxInteger;\n"   // 2a
+                        + "  @Int64Property int[] arrUnboxInt;\n"         // 2a
+                        + "  @DoubleProperty Double[] arrBoxDouble;\n"     // 2a
+                        + "  @DoubleProperty double[] arrUnboxDouble;\n"   // 2b
+                        + "  @DoubleProperty Float[] arrBoxFloat;\n"       // 2a
+                        + "  @DoubleProperty float[] arrUnboxFloat;\n"     // 2a
+                        + "  @BooleanProperty Boolean[] arrBoxBoolean;\n"   // 2a
+                        + "  @BooleanProperty boolean[] arrUnboxBoolean;\n" // 2b
+                        + "  @BytesProperty byte[][] arrUnboxByteArr;\n"  // 2b
+                        + "  @BytesProperty Byte[] boxByteArr;\n"         // 2a
+                        + "  @StringProperty String[] arrString;\n"        // 2b
+                        + "  @DocumentProperty Gift[] arrGift;\n"            // 2c
                         + "\n"
                         + "  // Single values\n"
-                        + "  @Property String string;\n"        // 3a
-                        + "  @Property Long boxLong;\n"         // 3a
-                        + "  @Property long unboxLong;\n"       // 3b
-                        + "  @Property Integer boxInteger;\n"   // 3a
-                        + "  @Property int unboxInt;\n"         // 3b
-                        + "  @Property Double boxDouble;\n"     // 3a
-                        + "  @Property double unboxDouble;\n"   // 3b
-                        + "  @Property Float boxFloat;\n"       // 3a
-                        + "  @Property float unboxFloat;\n"     // 3b
-                        + "  @Property Boolean boxBoolean;\n"   // 3a
-                        + "  @Property boolean unboxBoolean;\n" // 3b
-                        + "  @Property byte[] unboxByteArr;\n"  // 3a
-                        + "  @Property Gift gift;\n"            // 3c
+                        + "  @StringProperty String string;\n"        // 3a
+                        + "  @Int64Property Long boxLong;\n"         // 3a
+                        + "  @Int64Property long unboxLong;\n"       // 3b
+                        + "  @Int64Property Integer boxInteger;\n"   // 3a
+                        + "  @Int64Property int unboxInt;\n"         // 3b
+                        + "  @DoubleProperty Double boxDouble;\n"     // 3a
+                        + "  @DoubleProperty double unboxDouble;\n"   // 3b
+                        + "  @DoubleProperty Float boxFloat;\n"       // 3a
+                        + "  @DoubleProperty float unboxFloat;\n"     // 3b
+                        + "  @BooleanProperty Boolean boxBoolean;\n"   // 3a
+                        + "  @BooleanProperty boolean unboxBoolean;\n" // 3b
+                        + "  @BytesProperty byte[] unboxByteArr;\n"  // 3a
+                        + "  @DocumentProperty Gift gift;\n"            // 3c
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testPropertyAnnotation_invalidType() {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Namespace String namespace;\n"
+                        + "  @Id String id;\n"
+                        + "  @BooleanProperty String[] arrString;\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).hadErrorContaining(
+                "Property Annotation androidx.appsearch.annotation.Document.BooleanProperty "
+                        + "doesn't accept the data type of property field arrString");
     }
 
     @Test
@@ -632,7 +647,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Namespace String namespace;\n"
                         + "  @Id String id;\n"
-                        + "  @Property Collection<Byte[]> collectBoxByteArr;\n" // 1x
+                        + "  @BytesProperty Collection<Byte[]> collectBoxByteArr;\n" // 1x
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Unhandled out property type (1x): java.util.Collection<java.lang.Byte[]>");
@@ -643,7 +658,7 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Namespace String namespace;\n"
                         + "  @Id String id;\n"
-                        + "  @Property Collection<Byte> collectByte;\n" // 1x
+                        + "  @BytesProperty Collection<Byte> collectByte;\n" // 1x
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Unhandled out property type (1x): java.util.Collection<java.lang.Byte>");
@@ -654,43 +669,10 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Namespace String namespace;\n"
                         + "  @Id String id;\n"
-                        + "  @Property Collection<Object> collectObject;\n" // 1x
-                        + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Unhandled out property type (1x): java.util.Collection<java.lang.Object>");
-
-        compilation = compile(
-                "import java.util.*;\n"
-                        + "@Document\n"
-                        + "public class Gift {\n"
-                        + "  @Namespace String namespace;\n"
-                        + "  @Id String id;\n"
-                        + "  @Property Byte[][] arrBoxByteArr;\n" // 2x
+                        + "  @BytesProperty Byte[][] arrBoxByteArr;\n" // 2x
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining(
                 "Unhandled out property type (2x): java.lang.Byte[][]");
-
-        compilation = compile(
-                "import java.util.*;\n"
-                        + "@Document\n"
-                        + "public class Gift {\n"
-                        + "  @Namespace String namespace;\n"
-                        + "  @Id String id;\n"
-                        + "  @Property Object[] arrObject;\n" // 2x
-                        + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Unhandled out property type (2x): java.lang.Object[]");
-
-        compilation = compile(
-                "import java.util.*;\n"
-                        + "@Document\n"
-                        + "public class Gift {\n"
-                        + "  @Namespace String namespace;\n"
-                        + "  @Id String id;\n"
-                        + "  @Property Object object;\n" // 3x
-                        + "}\n");
-        CompilationSubject.assertThat(compilation).hadErrorContaining(
-                "Unhandled out property type (3x): java.lang.Object");
     }
 
     @Test
@@ -702,7 +684,7 @@ public class AppSearchCompilerTest {
                         + "  @Document.Id String id;\n"
                         + "  @Document.CreationTimestampMillis long creationTs;\n"
                         + "  @Document.TtlMillis int ttlMs;\n"
-                        + "  @Document.Property int price;\n"
+                        + "  @Document.Int64Property int price;\n"
                         + "  @Document.Score int score;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
@@ -719,7 +701,7 @@ public class AppSearchCompilerTest {
                         + "  @Document.Score private int score;\n"
                         + "  @Document.CreationTimestampMillis private long creationTs;\n"
                         + "  @Document.TtlMillis private int ttlMs;\n"
-                        + "  @Document.Property private int price;\n"
+                        + "  @Document.Int64Property private int price;\n"
                         + "  public String getId() { return id; }\n"
                         + "  public void setId(String id) { this.id = id; }\n"
                         + "  public String getNamespace() { return namespace; }\n"
@@ -751,7 +733,7 @@ public class AppSearchCompilerTest {
                         + "  public static class InnerGift{\n"
                         + "    @Document.Namespace String namespace;\n"
                         + "    @Document.Id String id;\n"
-                        + "    @Property String[] arrString;\n"        // 2b
+                        + "    @StringProperty String[] arrString;\n"        // 2b
                         + "  }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();

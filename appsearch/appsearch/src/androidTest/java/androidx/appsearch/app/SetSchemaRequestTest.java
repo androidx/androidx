@@ -46,7 +46,7 @@ public class SetSchemaRequestTest {
         @Document.Id
         String mId;
 
-        @Document.Property
+        @Document.StringProperty
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;
 
@@ -75,7 +75,7 @@ public class SetSchemaRequestTest {
         @Document.Namespace
         String mNamespace;
 
-        @Document.Property
+        @Document.StringProperty
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;
     }
@@ -88,7 +88,7 @@ public class SetSchemaRequestTest {
         @Document.Id
         String mId;
 
-        @Document.Property
+        @Document.StringProperty
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;
     }

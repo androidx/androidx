@@ -73,7 +73,7 @@ public abstract class AnnotationProcessorTestBase {
         @Document.CreationTimestampMillis
         long mCreationTimestampMillis;
 
-        @Document.Property
+        @Document.StringProperty
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;        // 3a
 
@@ -103,79 +103,79 @@ public abstract class AnnotationProcessorTestBase {
         long mCreationTimestampMillis;
 
         // Collections
-        @Document.Property
+        @Document.Int64Property
         Collection<Long> mCollectLong;         // 1a
-        @Document.Property
+        @Document.Int64Property
         Collection<Integer> mCollectInteger;   // 1a
-        @Document.Property
+        @Document.DoubleProperty
         Collection<Double> mCollectDouble;     // 1a
-        @Document.Property
+        @Document.DoubleProperty
         Collection<Float> mCollectFloat;       // 1a
-        @Document.Property
+        @Document.BooleanProperty
         Collection<Boolean> mCollectBoolean;   // 1a
-        @Document.Property
+        @Document.BytesProperty
         Collection<byte[]> mCollectByteArr;    // 1a
-        @Document.Property
+        @Document.StringProperty
         Collection<String> mCollectString;     // 1b
-        @Document.Property
+        @Document.DocumentProperty
         Collection<Card> mCollectCard;         // 1c
 
         // Arrays
-        @Document.Property
+        @Document.Int64Property
         Long[] mArrBoxLong;         // 2a
-        @Document.Property
+        @Document.Int64Property
         long[] mArrUnboxLong;       // 2b
-        @Document.Property
+        @Document.Int64Property
         Integer[] mArrBoxInteger;   // 2a
-        @Document.Property
+        @Document.Int64Property
         int[] mArrUnboxInt;         // 2a
-        @Document.Property
+        @Document.DoubleProperty
         Double[] mArrBoxDouble;     // 2a
-        @Document.Property
+        @Document.DoubleProperty
         double[] mArrUnboxDouble;   // 2b
-        @Document.Property
+        @Document.DoubleProperty
         Float[] mArrBoxFloat;       // 2a
-        @Document.Property
+        @Document.DoubleProperty
         float[] mArrUnboxFloat;     // 2a
-        @Document.Property
+        @Document.BooleanProperty
         Boolean[] mArrBoxBoolean;   // 2a
-        @Document.Property
+        @Document.BooleanProperty
         boolean[] mArrUnboxBoolean; // 2b
-        @Document.Property
+        @Document.BytesProperty
         byte[][] mArrUnboxByteArr;  // 2b
-        @Document.Property
+        @Document.BytesProperty
         Byte[] mBoxByteArr;         // 2a
-        @Document.Property
+        @Document.StringProperty
         String[] mArrString;        // 2b
-        @Document.Property
+        @Document.DocumentProperty
         Card[] mArrCard;            // 2c
 
         // Single values
-        @Document.Property
+        @Document.StringProperty
         String mString;        // 3a
-        @Document.Property
+        @Document.Int64Property
         Long mBoxLong;         // 3a
-        @Document.Property
+        @Document.Int64Property
         long mUnboxLong;       // 3b
-        @Document.Property
+        @Document.Int64Property
         Integer mBoxInteger;   // 3a
-        @Document.Property
+        @Document.Int64Property
         int mUnboxInt;         // 3b
-        @Document.Property
+        @Document.DoubleProperty
         Double mBoxDouble;     // 3a
-        @Document.Property
+        @Document.DoubleProperty
         double mUnboxDouble;   // 3b
-        @Document.Property
+        @Document.DoubleProperty
         Float mBoxFloat;       // 3a
-        @Document.Property
+        @Document.DoubleProperty
         float mUnboxFloat;     // 3b
-        @Document.Property
+        @Document.BooleanProperty
         Boolean mBoxBoolean;   // 3a
-        @Document.Property
+        @Document.BooleanProperty
         boolean mUnboxBoolean; // 3b
-        @Document.Property
+        @Document.BytesProperty
         byte[] mUnboxByteArr;  // 3a
-        @Document.Property
+        @Document.DocumentProperty
         Card mCard;            // 3c
 
         @Override

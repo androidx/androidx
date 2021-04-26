@@ -38,7 +38,7 @@ public class Note {
 
     @Document.Namespace private final String namespace;
 
-    @Document.Property(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+    @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     private final String text;
 
     /** Returns the ID of the {@link Note} object. */

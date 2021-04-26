@@ -16,6 +16,8 @@
 
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -43,26 +45,26 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
 /**
- * Generates java code for a translator from a {@link androidx.appsearch.app.GenericDocument} to
- * an instance of a class annotated with {@link androidx.appsearch.annotation.Document}.
+ * Generates java code for a translator from a {@code androidx.appsearch.app.GenericDocument} to
+ * an instance of a class annotated with {@code androidx.appsearch.annotation.Document}.
  */
 class FromGenericDocumentCodeGenerator {
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
     private final DocumentModel mModel;
 
-    public static void generate(
-            @NonNull ProcessingEnvironment env,
-            @NonNull DocumentModel model,
-            @NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
-        new FromGenericDocumentCodeGenerator(env, model).generate(classBuilder);
-    }
-
     private FromGenericDocumentCodeGenerator(
             @NonNull ProcessingEnvironment env, @NonNull DocumentModel model) {
         mEnv = env;
         mHelper = new IntrospectionHelper(env);
         mModel = model;
+    }
+
+    public static void generate(
+            @NonNull ProcessingEnvironment env,
+            @NonNull DocumentModel model,
+            @NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
+        new FromGenericDocumentCodeGenerator(env, model).generate(classBuilder);
     }
 
     private void generate(TypeSpec.Builder classBuilder) throws ProcessingException {
@@ -103,7 +105,7 @@ class FromGenericDocumentCodeGenerator {
     }
 
     /**
-     * Converts a field from a {@link androidx.appsearch.app.GenericDocument} into a format suitable
+     * Converts a field from a {@code androidx.appsearch.app.GenericDocument} into a format suitable
      * for the document class.
      */
     private void fieldFromGenericDoc(
@@ -171,8 +173,6 @@ class FromGenericDocumentCodeGenerator {
         //       Field is of a class which is annotated with @Document.
         //       We have to convert this from a GenericDocument through the standard conversion
         //       machinery.
-        //
-        //   3x: Field is of any other kind of class. This is unsupported and compilation fails.
 
         String propertyName = mModel.getPropertyName(property);
         if (tryConvertToList(builder, fieldName, propertyName, property)) {
@@ -207,9 +207,9 @@ class FromGenericDocumentCodeGenerator {
         CodeBlock.Builder builder = CodeBlock.builder();
         if (!tryListForLoopAssign(builder, fieldName, propertyName, propertyType, listTypeName)// 1a
                 && !tryListCallArraysAsList(
-                        builder, fieldName, propertyName, propertyType, listTypeName)          // 1b
+                builder, fieldName, propertyName, propertyType, listTypeName)          // 1b
                 && !tryListForLoopCallFromGenericDocument(
-                        builder, fieldName, propertyName, propertyType, listTypeName)) {       // 1c
+                builder, fieldName, propertyName, propertyType, listTypeName)) {       // 1c
             // Scenario 1x
             throw new ProcessingException(
                     "Unhandled in property type (1x): " + property.asType().toString(), property);
@@ -331,7 +331,7 @@ class FromGenericDocumentCodeGenerator {
             @NonNull String fieldName,
             @NonNull String propertyName,
             @NonNull TypeMirror propertyType,
-            @NonNull ParameterizedTypeName listTypeName)  {
+            @NonNull ParameterizedTypeName listTypeName) {
         Types typeUtil = mEnv.getTypeUtils();
         CodeBlock.Builder body = CodeBlock.builder();
 
@@ -341,7 +341,7 @@ class FromGenericDocumentCodeGenerator {
             return false;
         }
         try {
-            mHelper.getAnnotation(element, IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
+            getDocumentAnnotation(element);
         } catch (ProcessingException e) {
             // The propertyType doesn't have @Document annotation, this is not a type 1c
             // list.
@@ -396,7 +396,7 @@ class FromGenericDocumentCodeGenerator {
         if (!tryArrayForLoopAssign(builder, fieldName, propertyName, propertyType)             // 2a
                 && !tryArrayUseDirectly(builder, fieldName, propertyName, propertyType)        // 2b
                 && !tryArrayForLoopCallFromGenericDocument(
-                        builder, fieldName, propertyName, propertyType)) {                     // 2c
+                builder, fieldName, propertyName, propertyType)) {                     // 2c
             // Scenario 2x
             throw new ProcessingException(
                     "Unhandled in property type (2x): " + property.asType().toString(), property);
@@ -541,7 +541,7 @@ class FromGenericDocumentCodeGenerator {
             return false;
         }
         try {
-            mHelper.getAnnotation(element, IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
+            getDocumentAnnotation(element);
         } catch (ProcessingException e) {
             // The propertyType doesn't have @Document annotation, this is not a type 2c
             // array.
@@ -589,12 +589,10 @@ class FromGenericDocumentCodeGenerator {
         if (!tryFieldUseDirectlyWithNullCheck(
                 builder, fieldName, propertyName, property.asType())  // 3a
                 && !tryFieldUseDirectlyWithoutNullCheck(
-                        builder, fieldName, propertyName, property.asType()) // 3b
+                builder, fieldName, propertyName, property.asType()) // 3b
                 && !tryFieldCallFromGenericDocument(
-                        builder, fieldName, propertyName, property.asType())) {   // 3c
-            // Scenario 3x
-            throw new ProcessingException(
-                    "Unhandled in property type (3x): " + property.asType().toString(), property);
+                builder, fieldName, propertyName, property.asType())) {   // 3c
+            throw new ProcessingException("Unhandled property type.", property);
         }
         method.addCode(builder.build());
     }
@@ -730,7 +728,7 @@ class FromGenericDocumentCodeGenerator {
             return false;
         }
         try {
-            mHelper.getAnnotation(element, IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
+            getDocumentAnnotation(element);
         } catch (ProcessingException e) {
             // The propertyType doesn't have @Document annotation, this is not a type 3c
             // field.
