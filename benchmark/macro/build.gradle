@@ -23,6 +23,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    id("com.squareup.wire")
 }
 
 android {
@@ -51,6 +52,13 @@ android {
     }
 }
 
+wire {
+    kotlin {}
+    sourcePath {
+        srcDir 'src/main/proto'
+    }
+}
+
 dependencies {
     api(JUNIT)
     api(KOTLIN_STDLIB)
@@ -59,6 +67,7 @@ dependencies {
     implementation(project(":benchmark:benchmark-common"))
     implementation(ANDROIDX_TEST_CORE)
     implementation(ANDROIDX_TEST_UIAUTOMATOR)
+    implementation(WIRE_RUNTIME)
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
