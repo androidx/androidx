@@ -1,5 +1,6 @@
 package foo.bar;
 
+import androidx.annotation.NonNull;
 import androidx.room.DatabaseConfiguration;
 import androidx.room.InvalidationTracker;
 import androidx.room.RoomOpenHelper;
@@ -188,13 +189,14 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     }
 
     @Override
-    protected Set<Class<? extends AutoMigrationSpec>> getRequiredAutoMigrationSpecs() {
+    public Set<Class<? extends AutoMigrationSpec>> getRequiredAutoMigrationSpecs() {
         final HashSet<Class<? extends AutoMigrationSpec>> _autoMigrationSpecsSet = new HashSet<Class<? extends AutoMigrationSpec>>();
         return _autoMigrationSpecsSet;
     }
 
     @Override
-    protected List<Migration> getAutoMigrations() {
+    public List<Migration> getAutoMigrations(
+            @NonNull Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> autoMigrationSpecsMap) {
         return Arrays.asList();
     }
 

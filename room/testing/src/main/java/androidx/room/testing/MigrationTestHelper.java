@@ -23,12 +23,15 @@ import android.database.Cursor;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.room.AutoMigration;
 import androidx.room.DatabaseConfiguration;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomOpenHelper;
 import androidx.room.RoomOpenHelper.ValidationResult;
+import androidx.room.migration.AutoMigrationSpec;
 import androidx.room.migration.Migration;
 import androidx.room.migration.bundle.DatabaseBundle;
 import androidx.room.migration.bundle.DatabaseViewBundle;
@@ -91,14 +94,27 @@ public class MigrationTestHelper extends TestWatcher {
     private List<WeakReference<RoomDatabase>> mManagedRoomDatabases = new ArrayList<>();
     private boolean mTestStarted;
     private Instrumentation mInstrumentation;
+    @Nullable
+    private List<AutoMigrationSpec> mSpecs;
+    @Nullable
+    private Class<? extends RoomDatabase> mDatabaseClass;
 
     /**
      * Creates a new migration helper. It uses the Instrumentation context to load the schema
      * (falls back to the app resources) and the target context to create the database.
      *
+     * @deprecated Cannot be used to run migration tests involving {@link AutoMigration}.
+     * <p>
+     * To test {@link AutoMigration}, you must use
+     * {@link #MigrationTestHelper(Instrumentation, Class, List, SupportSQLiteOpenHelper.Factory)}
+     * for tests containing a {@link androidx.room.ProvidedAutoMigrationSpec}, or use
+     * {@link #MigrationTestHelper(Instrumentation, Class, List)}
+     * otherwise.
+     *
      * @param instrumentation The instrumentation instance.
      * @param assetsFolder    The asset folder in the assets directory.
      */
+    @Deprecated
     public MigrationTestHelper(Instrumentation instrumentation, String assetsFolder) {
         this(instrumentation, assetsFolder, new FrameworkSQLiteOpenHelperFactory());
     }
@@ -107,18 +123,88 @@ public class MigrationTestHelper extends TestWatcher {
      * Creates a new migration helper. It uses the Instrumentation context to load the schema
      * (falls back to the app resources) and the target context to create the database.
      *
+     * @deprecated Cannot be used to run migration tests involving {@link AutoMigration}.
+     * <p>
+     * To test {@link AutoMigration}, you must use
+     * {@link #MigrationTestHelper(Instrumentation, Class, List, SupportSQLiteOpenHelper.Factory)}
+     * for tests containing a {@link androidx.room.ProvidedAutoMigrationSpec}, or use
+     * {@link #MigrationTestHelper(Instrumentation, Class, List)}
+     * otherwise.
+     *
      * @param instrumentation The instrumentation instance.
      * @param assetsFolder    The asset folder in the assets directory.
      * @param openFactory     Factory class that allows creation of {@link SupportSQLiteOpenHelper}
      */
+    @Deprecated
     public MigrationTestHelper(Instrumentation instrumentation, String assetsFolder,
             SupportSQLiteOpenHelper.Factory openFactory) {
+        mInstrumentation = instrumentation;
+        mAssetsFolder = assetsFolder;
+        mOpenFactory = openFactory;
+        mDatabaseClass = null;
+        mSpecs = new ArrayList<>();
+    }
+
+    /**
+     * Creates a new migration helper. It uses the Instrumentation context to load the schema
+     * (falls back to the app resources) and the target context to create the database.
+     *
+     * @param instrumentation The instrumentation instance.
+     * @param databaseClass   The Database class to be tested.
+     */
+    public MigrationTestHelper(@NonNull Instrumentation instrumentation,
+            @NonNull Class<? extends RoomDatabase> databaseClass) {
+        this(instrumentation, databaseClass, new ArrayList<>(),
+                new FrameworkSQLiteOpenHelperFactory());
+    }
+
+    /**
+     * Creates a new migration helper. It uses the Instrumentation context to load the schema
+     * (falls back to the app resources) and the target context to create the database.
+     * <p>
+     * An instance of a class annotated with {@link androidx.room.ProvidedAutoMigrationSpec} has
+     * to be provided to Room using this constructor. MigrationTestHelper will map auto migration
+     * spec classes to their provided instances before running and validatingt the Migrations.
+     *
+     * @param instrumentation The instrumentation instance.
+     * @param databaseClass   The Database class to be tested.
+     * @param specs           The list of available auto migration specs that will be provided to
+     *                        Room at runtime.
+     */
+    public MigrationTestHelper(@NonNull Instrumentation instrumentation,
+            @NonNull Class<? extends RoomDatabase> databaseClass,
+            @NonNull List<AutoMigrationSpec> specs) {
+        this(instrumentation, databaseClass, specs, new FrameworkSQLiteOpenHelperFactory());
+    }
+
+    /**
+     * Creates a new migration helper. It uses the Instrumentation context to load the schema
+     * (falls back to the app resources) and the target context to create the database.
+     * <p>
+     * An instance of a class annotated with {@link androidx.room.ProvidedAutoMigrationSpec} has
+     * to be provided to Room using this constructor. MigrationTestHelper will map auto migration
+     * spec classes to their provided instances before running and validatingt the Migrations.
+     *
+     * @param instrumentation The instrumentation instance.
+     * @param databaseClass   The Database class to be tested.
+     * @param specs           The list of available auto migration specs that will be provided to
+     *                        Room at runtime.
+     * @param openFactory     Factory class that allows creation of {@link SupportSQLiteOpenHelper}
+     */
+    public MigrationTestHelper(@NonNull Instrumentation instrumentation,
+            @NonNull Class<? extends RoomDatabase> databaseClass,
+            @NonNull List<AutoMigrationSpec> specs,
+            @NonNull SupportSQLiteOpenHelper.Factory openFactory
+    ) {
+        String assetsFolder = databaseClass.getCanonicalName();
         mInstrumentation = instrumentation;
         if (assetsFolder.endsWith("/")) {
             assetsFolder = assetsFolder.substring(0, assetsFolder.length() - 1);
         }
         mAssetsFolder = assetsFolder;
         mOpenFactory = openFactory;
+        mDatabaseClass = databaseClass;
+        mSpecs = specs;
     }
 
     @Override
@@ -144,7 +230,7 @@ public class MigrationTestHelper extends TestWatcher {
         if (dbPath.exists()) {
             Log.d(TAG, "deleting database file " + name);
             if (!dbPath.delete()) {
-                throw new IllegalStateException("there is a database file and i could not delete"
+                throw new IllegalStateException("There is a database file and I could not delete"
                         + " it. Make sure you don't have any open connections to that database"
                         + " before calling this method.");
             }
@@ -214,6 +300,7 @@ public class MigrationTestHelper extends TestWatcher {
         }
         SchemaBundle schemaBundle = loadSchema(version);
         RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
+        container.addMigrations(getAutoMigrations(mSpecs));
         container.addMigrations(migrations);
         DatabaseConfiguration configuration = new DatabaseConfiguration(
                 mInstrumentation.getTargetContext(),
@@ -243,6 +330,75 @@ public class MigrationTestHelper extends TestWatcher {
                 schemaBundle.getDatabase().getIdentityHash());
         return openDatabase(name, roomOpenHelper);
     }
+
+    /**
+     * Returns a list of {@link Migration} of a database that has been generated using
+     * {@link AutoMigration}.
+     */
+    @NonNull
+    private List<Migration> getAutoMigrations(List<AutoMigrationSpec> userProvidedSpecs) {
+        if (mDatabaseClass == null) {
+            if (userProvidedSpecs.isEmpty()) {
+                // TODO: Detect that there are auto migrations to test when a deprecated
+                //  constructor is used.
+                Log.e(TAG, "If you have any AutoMigrations in your implementation, you must use "
+                        + "a non-deprecated MigrationTestHelper constructor to provide the "
+                        + "Database class in order to test them. If you do not have any "
+                        + "AutoMigrations to test, you may ignore this warning.");
+                return new ArrayList<>();
+            } else {
+                throw new IllegalStateException("You must provide the database class in the "
+                        + "MigrationTestHelper constructor in order to test auto migrations.");
+            }
+        }
+
+        RoomDatabase db = Room.getGeneratedImplementation(mDatabaseClass, "_Impl");
+        Set<Class<? extends AutoMigrationSpec>> requiredAutoMigrationSpecs =
+                db.getRequiredAutoMigrationSpecs();
+        return db.getAutoMigrations(
+                createAutoMigrationSpecMap(requiredAutoMigrationSpecs, userProvidedSpecs)
+        );
+    }
+
+    /**
+     * Maps auto migration spec classes to their provided instance.
+     */
+    private Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> createAutoMigrationSpecMap(
+            Set<Class<? extends AutoMigrationSpec>> requiredAutoMigrationSpecs,
+            List<AutoMigrationSpec> userProvidedSpecs) {
+        Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> specMap = new HashMap<>();
+        if (requiredAutoMigrationSpecs.isEmpty()) {
+            return specMap;
+        }
+
+        if (userProvidedSpecs == null) {
+            throw new IllegalStateException(
+                    "You must provide all required auto migration specs in the "
+                            + "MigrationTestHelper constructor."
+            );
+        }
+
+        for (Class<? extends AutoMigrationSpec> spec : requiredAutoMigrationSpecs) {
+            boolean found = false;
+            AutoMigrationSpec match = null;
+            for (AutoMigrationSpec provided : userProvidedSpecs) {
+                if (spec.isAssignableFrom(provided.getClass())) {
+                    found = true;
+                    match = provided;
+                    break;
+                }
+            }
+            if (!found) {
+                throw new IllegalArgumentException(
+                        "A required auto migration spec (" + spec.getCanonicalName() + ") has not"
+                                + " been provided."
+                );
+            }
+            specMap.put(spec, match);
+        }
+        return specMap;
+    }
+
 
     private SupportSQLiteDatabase openDatabase(String name, RoomOpenHelper roomOpenHelper) {
         SupportSQLiteOpenHelper.Configuration config =
