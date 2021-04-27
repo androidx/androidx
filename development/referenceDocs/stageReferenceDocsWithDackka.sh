@@ -4,8 +4,9 @@
 
 source gbash.sh || exit
 
+readonly defaultDb=""
 DEFINE_string buildId --required "" "The build ID from the Android build server"
-DEFINE_string db "$USER" "The database used for staging; defaults to your username"
+DEFINE_string db "$defaultDb" "The database used for staging. Omitting this value will stage changes to the staging DB."
 
 gbash::init_google "$@"
 
@@ -26,6 +27,7 @@ readonly dackkaNewDir="reference-docs-dackka"
 # https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/docs/AndroidXDocsPlugin.kt;l=568
 readonly libraryDirs=(
   "benchmark"
+  "compose"
   "collection"
   "paging"
 )
@@ -40,12 +42,12 @@ printf "=================================================================== \n"
 printf "== Download the doc zip files from the build server \n"
 printf "=================================================================== \n"
 
-readonly androidxPublicKotlinDocsZip="dokka-public-docs-${FLAGS_buildId}.zip"
 readonly androidxPublicJavaDocsZip="doclava-public-docs-${FLAGS_buildId}.zip"
+readonly androidxPublicKotlinDocsZip="dokka-public-docs-${FLAGS_buildId}.zip"
 readonly androidxPublicDackkaDocsZip="dackka-public-docs-${FLAGS_buildId}.zip"
 
-/google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxPublicKotlinDocsZip
 /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxPublicJavaDocsZip
+/google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxPublicKotlinDocsZip
 /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxPublicDackkaDocsZip
 
 printf "\n"
@@ -53,8 +55,8 @@ printf "=================================================================== \n"
 printf "== Unzip the doc zip files \n"
 printf "=================================================================== \n"
 
-unzip $androidxPublicKotlinDocsZip -d $newDir
 unzip $androidxPublicJavaDocsZip -d $newDir
+unzip $androidxPublicKotlinDocsZip -d $newDir
 unzip $androidxPublicDackkaDocsZip -d $dackkaNewDir
 
 printf "\n"
@@ -121,12 +123,17 @@ g4 revert ...
 g4 sync
 
 # temporarily skipping due to o/128063951
-# printf "\n"
-# printf "=================================================================== \n"
-# printf "== Provision staging database ${FLAGS_db} \n"
-# printf "=================================================================== \n"
+# TODO: check this logic when uncommenting
 #
-# /google/data/ro/projects/devsite/devsite2 provision --db="${FLAGS_db}"
+# Provision database if the target DB is not the default staging DB.
+# if [ "${FLAGS_db}" != "$defaultDb" ]; then
+#   printf "\n"
+#   printf "=================================================================== \n"
+#   printf "== Provision staging database ${FLAGS_db} \n"
+#   printf "=================================================================== \n"
+#
+#   /google/data/ro/projects/devsite/devsite2 provision --db="${FLAGS_db}"
+# fi
 
 printf "\n"
 printf "=================================================================== \n"
@@ -138,10 +145,31 @@ cp -r $scriptDirectory/out/$newDir/reference/* .
 
 printf "\n"
 printf "=================================================================== \n"
+printf "== Create a changelist of pending refdoc changes \n"
+printf "=================================================================== \n"
+
+# Grab the CL number generated from running `g4 change`.
+readonly clNum=$(g4 change --desc "Update AndroidX refdocs from build ${FLAGS_buildId}" | tail -1 | awk '{print $2}')
+printf "View pending changes at http://cl/${clNum} \n"
+
+printf "\n"
+printf "=================================================================== \n"
 printf "== Stage changes \n"
 printf "=================================================================== \n"
 
-/google/data/ro/projects/devsite/devsite2 stage --db="${FLAGS_db}" \
-  --parallelize_build --use_large_thread_pools --upload_safety_check_mode=ignore \
+# Add the --db flag if the target database is not the default staging DB.
+if [ "${FLAGS_db}" != "$defaultDb" ]; then
+  /google/data/ro/projects/devsite/devsite2 stage --parallelize_build \
+    --use_large_thread_pools --upload_safety_check_mode=ignore \
+    --db="${FLAGS_db}" \
   "androidx" \
   "kotlin/androidx"
+else
+  /google/data/ro/projects/devsite/devsite2 stage --parallelize_build \
+    --use_large_thread_pools --upload_safety_check_mode=ignore \
+  "androidx" \
+  "kotlin/androidx"
+fi
+
+# Print CL link again in case it scrolled off the screen or scrollback buffer
+printf "View pending changes at http://cl/${clNum} \n"
