@@ -830,7 +830,7 @@ public class ShortcutManagerCompat {
     private static List<ShortcutInfoChangeListener> getShortcutInfoListeners(Context context) {
         if (sShortcutInfoChangeListeners == null) {
             List<ShortcutInfoChangeListener> result = new ArrayList<>();
-            if (Build.VERSION.SDK_INT >= 21) {
+            if (Build.VERSION.SDK_INT >= 23) {
                 PackageManager packageManager = context.getPackageManager();
                 Intent activityIntent = new Intent(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
                 activityIntent.setPackage(context.getPackageName());
