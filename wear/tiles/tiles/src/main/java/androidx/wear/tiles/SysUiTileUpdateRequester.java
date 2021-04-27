@@ -40,7 +40,7 @@ import java.util.Set;
 
 /** Variant of {@link TileUpdateRequester} which requests an update from the Wear SysUI app. */
 // TODO(b/173688156): Renovate this whole class, and especially work around all the locks.
-public class SysUiTileUpdateRequester implements TileUpdateRequester {
+class SysUiTileUpdateRequester implements TileUpdateRequester {
     private static final String TAG = "HTUpdateRequester";
 
     private static final String DEFAULT_TARGET_SYSUI = "com.google.android.wearable.app";
@@ -64,7 +64,7 @@ public class SysUiTileUpdateRequester implements TileUpdateRequester {
     }
 
     @Override
-    public void requestUpdate(@NonNull Class<? extends Service> tileProvider) {
+    public void requestUpdate(@NonNull Class<? extends TileProviderService> tileProvider) {
         synchronized (mLock) {
             mPendingServices.add(tileProvider);
 

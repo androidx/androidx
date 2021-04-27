@@ -368,6 +368,33 @@ public final class ActionBuilders {
         @NonNull
         ActionProto.AndroidExtra toAndroidExtraProto();
 
+        /**
+         * Return an instance of one of this object's subtypes, from the protocol buffer
+         * representation.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static AndroidExtra fromAndroidExtraProto(@NonNull ActionProto.AndroidExtra proto) {
+            if (proto.hasStringVal()) {
+                return AndroidStringExtra.fromProto(proto.getStringVal());
+            }
+            if (proto.hasIntVal()) {
+                return AndroidIntExtra.fromProto(proto.getIntVal());
+            }
+            if (proto.hasLongVal()) {
+                return AndroidLongExtra.fromProto(proto.getLongVal());
+            }
+            if (proto.hasDoubleVal()) {
+                return AndroidDoubleExtra.fromProto(proto.getDoubleVal());
+            }
+            if (proto.hasBooleanVal()) {
+                return AndroidBooleanExtra.fromProto(proto.getBooleanVal());
+            }
+            throw new IllegalStateException("Proto was not a recognised instance of AndroidExtra");
+        }
+
         /** Builder to create {@link AndroidExtra} objects. */
         @SuppressLint("StaticFinalBuilder")
         interface Builder {
@@ -614,6 +641,24 @@ public final class ActionBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.Action toActionProto();
+
+        /**
+         * Return an instance of one of this object's subtypes, from the protocol buffer
+         * representation.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Action fromActionProto(@NonNull ActionProto.Action proto) {
+            if (proto.hasLaunchAction()) {
+                return LaunchAction.fromProto(proto.getLaunchAction());
+            }
+            if (proto.hasLoadAction()) {
+                return LoadAction.fromProto(proto.getLoadAction());
+            }
+            throw new IllegalStateException("Proto was not a recognised instance of Action");
+        }
 
         /** Builder to create {@link Action} objects. */
         @SuppressLint("StaticFinalBuilder")

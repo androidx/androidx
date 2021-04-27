@@ -16,7 +16,6 @@
 
 package androidx.wear.tiles;
 
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 
@@ -26,7 +25,7 @@ import androidx.annotation.NonNull;
  * {@link TileUpdateRequester} which notifies the viewer that it should fetch a new version of the
  * Timeline.
  */
-public class ViewerTileUpdateRequester implements TileUpdateRequester {
+class ViewerTileUpdateRequester implements TileUpdateRequester {
     /**
      * The intent action used so a Tile Provider can request that the platform fetches a new
      * Timeline from it.
@@ -41,7 +40,7 @@ public class ViewerTileUpdateRequester implements TileUpdateRequester {
     }
 
     @Override
-    public void requestUpdate(@NonNull Class<? extends Service> tileProvider) {
+    public void requestUpdate(@NonNull Class<? extends TileProviderService> tileProvider) {
         mContext.sendBroadcast(buildUpdateIntent(mContext.getPackageName()));
     }
 
