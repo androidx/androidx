@@ -30,7 +30,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="605"
+            line="602"
             column="5"/>
     </issue>
 
@@ -228,7 +228,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="553"
+            line="679"
             column="29"/>
     </issue>
 
@@ -239,7 +239,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="605"
+            line="625"
             column="25"/>
     </issue>
 
@@ -2958,193 +2958,6 @@
             file="src/main/java/androidx/core/content/ContentResolverCompat.java"
             line="81"
             column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            context.startActivities(intents, options);"
-        errorLine2="                    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="240"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            context.startActivity(intent, options);"
-        errorLine2="                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="267"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getDataDir();"
-        errorLine2="                           ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="291"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getObbDirs();"
-        errorLine2="                           ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="344"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getExternalFilesDirs(type);"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="397"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getExternalCacheDirs();"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="450"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getDrawable(id);"
-        errorLine2="                           ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="471"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getColorStateList(id);"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="510"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getColor(id);"
-        errorLine2="                           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="533"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getNoBackupFilesDir();"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="574"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getCodeCacheDir();"
-        errorLine2="                           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="598"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.createDeviceProtectedStorageContext();"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="653"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.isDeviceProtectedStorage();"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="667"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getMainExecutor();"
-        errorLine2="                           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="680"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            context.startForegroundService(intent);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="697"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getSystemService(serviceClass);"
-        errorLine2="                           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="717"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.content.ContextCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getSystemServiceName(serviceClass);"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="737"
-            column="28"/>
     </issue>
 
     <issue
@@ -8467,7 +8280,7 @@
         errorLine2="                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="95"
+            line="104"
             column="24"/>
     </issue>
 
@@ -8478,7 +8291,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="128"
+            line="137"
             column="24"/>
     </issue>
 
@@ -8489,7 +8302,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="130"
+            line="139"
             column="24"/>
     </issue>
 
@@ -8500,7 +8313,7 @@
         errorLine2="                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="158"
+            line="167"
             column="24"/>
     </issue>
 
@@ -8511,7 +8324,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="188"
+            line="195"
             column="24"/>
     </issue>
 
@@ -9908,7 +9721,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="695"
+            line="715"
             column="22"/>
     </issue>
 
@@ -9919,7 +9732,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="704"
+            line="724"
             column="29"/>
     </issue>
 
@@ -9930,7 +9743,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="745"
+            line="765"
             column="29"/>
     </issue>
 
@@ -9941,7 +9754,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="816"
+            line="836"
             column="62"/>
     </issue>
 
@@ -9952,7 +9765,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="821"
+            line="841"
             column="51"/>
     </issue>
 
@@ -9963,7 +9776,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="822"
+            line="842"
             column="58"/>
     </issue>
 
@@ -9974,7 +9787,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="843"
+            line="863"
             column="22"/>
     </issue>
 
@@ -9985,7 +9798,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="866"
+            line="886"
             column="22"/>
     </issue>
 
@@ -9996,7 +9809,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="867"
+            line="887"
             column="22"/>
     </issue>
 
@@ -10007,7 +9820,7 @@
         errorLine2="                                                                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="919"
+            line="939"
             column="67"/>
     </issue>
 
@@ -10018,7 +9831,7 @@
         errorLine2="                                             ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="919"
+            line="939"
             column="46"/>
     </issue>
 
@@ -10029,7 +9842,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="920"
+            line="940"
             column="45"/>
     </issue>
 
@@ -10040,7 +9853,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="935"
+            line="955"
             column="48"/>
     </issue>
 
@@ -10051,7 +9864,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="938"
+            line="958"
             column="26"/>
     </issue>
 
@@ -10062,7 +9875,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="995"
+            line="1015"
             column="22"/>
     </issue>
 
@@ -10073,7 +9886,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="1011"
+            line="1031"
             column="29"/>
     </issue>
 
@@ -10084,7 +9897,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="1029"
+            line="1049"
             column="22"/>
     </issue>
 
@@ -10095,7 +9908,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/TextViewCompat.java"
-            line="1046"
+            line="1066"
             column="29"/>
     </issue>
 
@@ -11745,7 +11558,7 @@
         errorLine2="             ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="150"
+            line="156"
             column="14"/>
     </issue>
 
@@ -14626,7 +14439,7 @@
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="596"
+            line="593"
             column="19"/>
     </issue>
 
@@ -14637,7 +14450,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="678"
+            line="675"
             column="19"/>
     </issue>
 
@@ -14648,7 +14461,7 @@
         errorLine2="                                           ~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/ContextCompat.java"
-            line="678"
+            line="675"
             column="44"/>
     </issue>
 
@@ -18135,7 +17948,7 @@
         errorLine2="                                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="307"
+            line="433"
             column="54"/>
     </issue>
 
@@ -18146,7 +17959,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="376"
+            line="502"
             column="19"/>
     </issue>
 
@@ -18157,7 +17970,7 @@
         errorLine2="                                                                              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="376"
+            line="502"
             column="79"/>
     </issue>
 
