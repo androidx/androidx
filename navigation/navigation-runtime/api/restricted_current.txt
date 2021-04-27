@@ -14,7 +14,6 @@ package androidx.navigation {
     method public static final void applyPopAnimationsToPendingTransition(android.app.Activity activity);
     method public androidx.navigation.ActivityNavigator.Destination createDestination();
     method public androidx.navigation.NavDestination? navigate(androidx.navigation.ActivityNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
-    method public boolean popBackStack();
     field public static final androidx.navigation.ActivityNavigator.Companion Companion;
   }
 

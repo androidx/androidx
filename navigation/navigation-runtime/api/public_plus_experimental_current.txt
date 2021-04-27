@@ -15,7 +15,6 @@ package androidx.navigation {
     method public androidx.navigation.ActivityNavigator.Destination createDestination();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final android.content.Context getContext();
     method public androidx.navigation.NavDestination? navigate(androidx.navigation.ActivityNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
-    method public boolean popBackStack();
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final android.content.Context context;
     field public static final androidx.navigation.ActivityNavigator.Companion Companion;
   }

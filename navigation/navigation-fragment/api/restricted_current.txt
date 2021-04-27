@@ -13,7 +13,6 @@ package androidx.navigation.fragment {
     ctor public DialogFragmentNavigator(android.content.Context context, androidx.fragment.app.FragmentManager fragmentManager);
     method public androidx.navigation.fragment.DialogFragmentNavigator.Destination createDestination();
     method public androidx.navigation.NavDestination? navigate(androidx.navigation.fragment.DialogFragmentNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
-    method public boolean popBackStack();
   }
 
   @androidx.navigation.NavDestination.ClassType(DialogFragment::class) public static class DialogFragmentNavigator.Destination extends androidx.navigation.NavDestination implements androidx.navigation.FloatingWindow {
@@ -47,7 +46,6 @@ package androidx.navigation.fragment {
     method public androidx.navigation.fragment.FragmentNavigator.Destination createDestination();
     method @Deprecated public androidx.fragment.app.Fragment instantiateFragment(android.content.Context context, androidx.fragment.app.FragmentManager fragmentManager, String className, android.os.Bundle? args);
     method public androidx.navigation.NavDestination? navigate(androidx.navigation.fragment.FragmentNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
-    method public boolean popBackStack();
   }
 
   @androidx.navigation.NavDestination.ClassType(Fragment::class) public static class FragmentNavigator.Destination extends androidx.navigation.NavDestination {
