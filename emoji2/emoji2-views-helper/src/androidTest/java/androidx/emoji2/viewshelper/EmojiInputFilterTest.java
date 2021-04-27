@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.emoji2.helpers;
+package androidx.emoji2.viewshelper;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
