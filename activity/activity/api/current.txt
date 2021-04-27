@@ -153,6 +153,13 @@ package androidx.activity.result.contract {
   public final class ActivityResultContracts {
   }
 
+  public static class ActivityResultContracts.CaptureVideo extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,java.lang.Boolean> {
+    ctor public ActivityResultContracts.CaptureVideo();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context, android.net.Uri);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.lang.Boolean!>? getSynchronousResult(android.content.Context, android.net.Uri);
+    method public final Boolean parseResult(int, android.content.Intent?);
+  }
+
   public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
     ctor public ActivityResultContracts.CreateDocument();
     method @CallSuper public android.content.Intent createIntent(android.content.Context, String);
@@ -248,11 +255,11 @@ package androidx.activity.result.contract {
     method public final android.graphics.Bitmap? parseResult(int, android.content.Intent?);
   }
 
-  public static class ActivityResultContracts.TakeVideo extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.graphics.Bitmap> {
-    ctor public ActivityResultContracts.TakeVideo();
-    method @CallSuper public android.content.Intent createIntent(android.content.Context, android.net.Uri);
-    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.graphics.Bitmap!>? getSynchronousResult(android.content.Context, android.net.Uri);
-    method public final android.graphics.Bitmap? parseResult(int, android.content.Intent?);
+  @Deprecated public static class ActivityResultContracts.TakeVideo extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.graphics.Bitmap> {
+    ctor @Deprecated public ActivityResultContracts.TakeVideo();
+    method @Deprecated @CallSuper public android.content.Intent createIntent(android.content.Context, android.net.Uri);
+    method @Deprecated public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.graphics.Bitmap!>? getSynchronousResult(android.content.Context, android.net.Uri);
+    method @Deprecated public final android.graphics.Bitmap? parseResult(int, android.content.Intent?);
   }
 
 }
