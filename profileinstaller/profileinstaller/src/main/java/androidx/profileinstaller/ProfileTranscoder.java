@@ -56,9 +56,6 @@ class ProfileTranscoder {
     private static final int INLINE_CACHE_MISSING_TYPES_ENCODING = 6;
     private static final int INLINE_CACHE_MEGAMORPHIC_ENCODING = 7;
 
-    private static final byte[] V010_P = new byte[]{'0', '1', '0', '\u0000'};
-    private static final byte[] V005_O = new byte[]{'0', '0', '5', '\u0000'};
-    private static final byte[] V001_N = new byte[]{'0', '0', '1', '\u0000'};
     private static final byte[] MAGIC = new byte[]{'p', 'r', 'o', '\u0000'};
 
     /**
@@ -86,8 +83,8 @@ class ProfileTranscoder {
         }
         os.write(MAGIC);
 
-        byte[] version = read(is, V010_P.length);
-        if (!Arrays.equals(V010_P, version)) {
+        byte[] version = read(is, ProfileVersion.V010_P.length);
+        if (!Arrays.equals(ProfileVersion.V010_P, version)) {
             // Right now, we only ever expect these profiles to be in the P+ format. If we ever
             // see anything else, we fail as we don't know how to interpret it.
 
@@ -97,7 +94,7 @@ class ProfileTranscoder {
             throw error("Can only read P profiles");
         }
 
-        if (Arrays.equals(desiredVersion, V010_P)) {
+        if (Arrays.equals(desiredVersion, ProfileVersion.V010_P)) {
             // no transcoding necessary, we can just stream the bytes directly from the input
             // stream to the output stream. This is more efficient than loading the profile into
             // memory and then rewriting it to the outputstream, especially because the bulk of
@@ -107,14 +104,14 @@ class ProfileTranscoder {
             return true;
         }
 
-        if (Arrays.equals(desiredVersion, V005_O)) {
-            os.write(V005_O);
+        if (Arrays.equals(desiredVersion, ProfileVersion.V005_O)) {
+            os.write(ProfileVersion.V005_O);
             writeProfileForO(os, readProfile(is));
             return true;
         }
 
-        if (Arrays.equals(desiredVersion, V001_N)) {
-            os.write(V001_N);
+        if (Arrays.equals(desiredVersion, ProfileVersion.V001_N)) {
+            os.write(ProfileVersion.V001_N);
             writeProfileForN(os, readProfile(is));
             return true;
         }

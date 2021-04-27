@@ -2,7 +2,7 @@
 package androidx.profileinstaller {
 
   public class ProfileInstaller {
-    method @WorkerThread public static void tryInstallProfile(android.content.Context);
+    method @WorkerThread public static void tryInstallSync(android.content.Context);
   }
 
   public class ProfileInstallerInitializer implements androidx.startup.Initializer<androidx.profileinstaller.ProfileInstallerInitializer.Result> {
