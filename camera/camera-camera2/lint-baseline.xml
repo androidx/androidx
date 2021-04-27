@@ -140,7 +140,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbacks.java"
-            line="117"
+            line="124"
             column="48"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbacks.java"
-            line="136"
+            line="143"
             column="48"/>
     </issue>
 

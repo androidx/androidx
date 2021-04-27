@@ -168,17 +168,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.content.res.AppCompatResources is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return context.getColorStateList(resId);"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/content/res/AppCompatResources.java"
-            line="69"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 29; however, the containing class androidx.appcompat.widget.DrawableUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            final android.graphics.Insets insets = drawable.getOpticalInsets();"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~">
@@ -331,7 +320,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/content/res/AppCompatResources.java"
-            line="66"
+            line="47"
             column="19"/>
     </issue>
 

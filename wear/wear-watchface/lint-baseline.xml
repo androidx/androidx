@@ -63,7 +63,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/watchface/Renderer.kt"
-            line="304"
+            line="325"
             column="35"/>
     </issue>
 
