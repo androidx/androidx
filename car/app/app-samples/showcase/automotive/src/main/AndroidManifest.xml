@@ -40,7 +40,7 @@
       android:icon="@drawable/ic_launcher">
 
     <meta-data
-        android:name="com.google.android.gms.car.application"
+        android:name="com.android.automotive"
         android:resource="@xml/automotive_app_desc"
         tools:ignore="MetadataTagInsideApplicationTag" />
 

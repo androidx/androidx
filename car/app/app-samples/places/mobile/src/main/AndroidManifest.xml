@@ -35,14 +35,18 @@
       android:resource="@xml/automotive_app_desc"
         tools:ignore="MetadataTagInsideApplicationTag" />
 
+    <meta-data
+        android:name="androidx.car.app.theme"
+        android:resource= "@style/CarAppTheme"
+        tools:ignore="MetadataTagInsideApplicationTag" />
+
+    <meta-data android:name="androidx.car.app.minApiLevel"
+        android:value="1"
+        tools:ignore="MetadataTagInsideApplicationTag" />
+
     <service
         android:name="androidx.car.app.sample.places.common.PlacesCarAppService"
         android:exported="true">
-
-      <meta-data
-          android:name="androidx.car.app.theme"
-          android:resource= "@style/CarAppTheme" />
-
       <intent-filter>
         <action android:name="androidx.car.app.CarAppService" />
       </intent-filter>
