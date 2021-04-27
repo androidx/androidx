@@ -59,7 +59,7 @@ public class ProviderInfoRetrieverTest {
     private val providerInfoRetriever = ProviderInfoRetriever(mockService)
 
     @Test
-    public fun requestPreviewComplicationData() {
+    public fun retrievePreviewComplicationData() {
         runBlocking {
             val component = ComponentName("provider.package", "provider.class")
             val type = ComplicationType.LONG_TEXT
@@ -93,7 +93,7 @@ public class ProviderInfoRetrieverTest {
     }
 
     @Test
-    public fun requestPreviewComplicationDataProviderReturnsNull() {
+    public fun retrievePreviewComplicationDataProviderReturnsNull() {
         runBlocking {
             val component = ComponentName("provider.package", "provider.class")
             val type = ComplicationType.LONG_TEXT
@@ -116,7 +116,7 @@ public class ProviderInfoRetrieverTest {
     }
 
     @Test
-    public fun requestPreviewComplicationDataApiNotSupported() {
+    public fun retrievePreviewComplicationDataApiNotSupported() {
         runBlocking {
             val component = ComponentName("provider.package", "provider.class")
             val type = ComplicationType.LONG_TEXT
@@ -129,7 +129,7 @@ public class ProviderInfoRetrieverTest {
     }
 
     @Test
-    public fun requestPreviewComplicationDataApiReturnsFalse() {
+    public fun retrievePreviewComplicationDataApiReturnsFalse() {
         runBlocking {
             val component = ComponentName("provider.package", "provider.class")
             val type = ComplicationType.LONG_TEXT
