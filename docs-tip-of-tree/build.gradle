@@ -248,8 +248,6 @@ dependencies {
     docs(project(":wear:wear-complications-data"))
     docs(project(":wear:wear-complications-provider"))
     samples(project(":wear:wear-complications-provider-samples"))
-    docs(project(":wear:compose:compose-foundation"))
-    docs(project(":wear:compose:compose-material"))
     docs(project(":wear:wear-input"))
     docs(project(":wear:wear-input-testing"))
     docs(project(":wear:wear-ongoing"))
