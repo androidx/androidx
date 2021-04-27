@@ -339,8 +339,7 @@ class ExampleOpenGLRenderer(
             complication.renderer,
             128,
             128,
-            GLES20.GL_TEXTURE_2D,
-            EXAMPLE_OPENGL_COMPLICATION_ID
+            GLES20.GL_TEXTURE_2D
         )
     }
 

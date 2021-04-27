@@ -25,7 +25,6 @@ import android.opengl.GLES20
 import android.opengl.GLUtils
 import androidx.annotation.Px
 import androidx.wear.watchface.CanvasComplication
-import androidx.wear.watchface.Complication
 import androidx.wear.watchface.RenderParameters
 
 /**
@@ -36,14 +35,12 @@ import androidx.wear.watchface.RenderParameters
  * @param textureWidth The width of the texture in pixels to create.
  * @param textureHeight The height of the texture in pixels to create.
  * @param textureType The texture type, e.g. [GLES20.GL_TEXTURE_2D].
- * @param id The id of the associated [Complication].
  */
 public class GlesTextureComplication(
     public val canvasComplication: CanvasComplication,
     @Px textureWidth: Int,
     @Px textureHeight: Int,
-    private val textureType: Int,
-    public val id: Int
+    private val textureType: Int
 ) {
     private val texture = createTexture(textureType)
     private val bitmap = Bitmap.createBitmap(
