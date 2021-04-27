@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
-  Copyright 2020 The Android Open Source Project
+  Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,13 +14,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.car.app">
-    <application>
-        <activity
-            android:name=".CarAppInternalActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:exported="false"/>
-        <receiver android:name=".notification.CarAppNotificationBroadcastReceiver" />
-    </application>
-</manifest>
+<resources>
+    <style name="CarAppTheme">
+        <item name="carColorPrimary">#7F39FB</item>
+        <item name="carColorPrimaryDark">#5904DF</item>
+        <item name="carColorSecondary">#328E10</item>
+        <item name="carColorSecondaryDark">#1A6004</item>
+    </style>
+</resources>

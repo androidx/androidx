@@ -48,11 +48,11 @@
         tools:ignore="MetadataTagInsideApplicationTag" />
 
     <service
-        android:name="androidx.car.app.sample.showcase.common.ShowcaseService"
+        android:name=".common.ShowcaseService"
         android:exported="true">
       <intent-filter>
-        <action android:name="androidx.car.app.CarAppService"/>
-        <category android:name="androidx.car.app.category.NAVIGATION"/>
+          <action android:name="androidx.car.app.CarAppService"/>
+          <category android:name="androidx.car.app.category.NAVIGATION"/>
       </intent-filter>
     </service>
 
@@ -61,29 +61,8 @@
         android:exported="true">
     </service>
 
-    <activity
-        android:name="androidx.car.app.sample.showcase.common.misc.OnPhoneActivity"
-        android:label="@string/app_name"
-        android:excludeFromRecents="true"
-        android:noHistory="true"
-        android:launchMode="singleTask"
-        android:showWhenLocked="true"
-        android:turnScreenOn="true"
-        android:exported="false"/>
-
-    <receiver
-        android:name="androidx.car.app.sample.showcase.common.DeepLinkNotificationReceiver"
-        android:enabled="true"
-        android:exported="true">
-      <intent-filter>
-        <action android:name="com.showcase.INTENT_ACTION_PHONE"/>
-        <action android:name="com.showcase.INTENT_ACTION_CANCEL_RESERVATION"/>
-        <action android:name="com.showcase.INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP"/>
-      </intent-filter>
-    </receiver>
-
     <provider
-        android:name="androidx.car.app.sample.showcase.common.textandicons.DelayedFileProvider"
+        android:name=".common.textandicons.DelayedFileProvider"
         android:authorities="com.showcase.fileprovider"
         android:exported="false"
         android:grantUriPermissions="true">

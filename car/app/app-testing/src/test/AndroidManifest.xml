@@ -16,12 +16,11 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.car.app">
+    package="androidx.car.app.testing">
     <application>
-        <activity
-            android:name=".CarAppInternalActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:exported="false"/>
-        <receiver android:name=".notification.CarAppNotificationBroadcastReceiver" />
+        <service android:name="androidx.car.app.CarAppService" >
+            <meta-data android:name="androidx.car.app.CAR_APP_ACTIVITY"
+                android:value="androidx.car.app.CarAppActivity" />
+        </service>
     </application>
 </manifest>

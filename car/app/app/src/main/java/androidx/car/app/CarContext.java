@@ -46,6 +46,7 @@ import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.navigation.NavigationManager;
+import androidx.car.app.notification.CarPendingIntent;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.car.app.versioning.CarAppApiLevel;
@@ -133,7 +134,8 @@ public class CarContext extends ContextWrapper {
     /**
      * Standard action for navigating to a location.
      *
-     * <p>Used as the {@link Intent}'s action for starting a navigation via {@link #startCarApp}.
+     * <p>Used as the {@link Intent}'s action for starting a navigation via
+     * {@link #startCarApp(Intent)}.
      */
     public static final String ACTION_NAVIGATE = "androidx.car.app.action.NAVIGATE";
 
@@ -318,7 +320,10 @@ public class CarContext extends ContextWrapper {
      *                                   user in the car
      * @throws NullPointerException      if either {@code notificationIntent} or {@code appIntent
      *                                   } are {@code null}
+     * @deprecated use {@link CarPendingIntent#getCarApp(Context, int, Intent, int)} to create
+     * the pending intent for the notification action.  This API will NOT work for Automotive OS.
      */
+    @Deprecated
     public static void startCarApp(@NonNull Intent notificationIntent, @NonNull Intent appIntent) {
         requireNonNull(notificationIntent);
         requireNonNull(appIntent);
