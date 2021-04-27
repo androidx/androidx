@@ -16,7 +16,7 @@ dependencies {
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE, excludes.espresso)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(TRUTH)
     androidTestImplementation(project(':internal-testutils-runtime'))

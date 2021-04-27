@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    api(MOCKITO_CORE, libs.exclude_bytebuddy)
+    api(MOCKITO_CORE, excludes.bytebuddy)
 
     implementation(KOTLIN_STDLIB)
 }
