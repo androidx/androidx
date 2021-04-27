@@ -49,6 +49,10 @@
         android:resource="@style/CarAppTheme"
         tools:ignore="MetadataTagInsideApplicationTag" />
 
+    <meta-data android:name="androidx.car.app.minApiLevel"
+        android:value="1"
+        tools:ignore="MetadataTagInsideApplicationTag" />
+
     <service
         android:name="androidx.car.app.sample.showcase.common.ShowcaseService"
         android:exported="true">
