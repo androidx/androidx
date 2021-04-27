@@ -216,7 +216,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @NonNull
     @Override
-    public ListenableFuture<Void> maybeFlush() {
+    public ListenableFuture<Void> requestFlush() {
         ResolvableFuture<Void> future = ResolvableFuture.create();
         // The data in platform will be flushed by scheduled task. This api won't do anything extra
         // flush.

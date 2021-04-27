@@ -2549,8 +2549,8 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
 
-        // The future returned from maybeFlush will be set as a void or an Exception on error.
-        mDb1.maybeFlush().get();
+        // The future returned from requestFlush will be set as a void or an Exception on error.
+        mDb1.requestFlush().get();
     }
 
     @Test
