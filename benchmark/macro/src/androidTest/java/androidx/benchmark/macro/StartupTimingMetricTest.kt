@@ -19,10 +19,12 @@ package androidx.benchmark.macro
 import android.content.Intent
 import androidx.benchmark.macro.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.macro.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.macro.perfetto.createTempFileFromAsset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,7 +40,7 @@ public class StartupTimingMetricTest {
         val metrics = measureStartup(packageName) {
             // Do nothing
         }
-        assertEquals(metrics.isEmpty(), true)
+        assertEquals(metrics.metrics.isEmpty(), true)
     }
 
     @LargeTest
@@ -58,12 +60,32 @@ public class StartupTimingMetricTest {
                     "androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY"
             }
         }
-        val hasStartupMetrics = "startupMs" in metrics
+        val hasStartupMetrics = "startupMs" in metrics.metrics
         assertEquals(hasStartupMetrics, true)
+        assertNotNull(metrics.timelineStart)
+        assertNotNull(metrics.timelineEnd)
+    }
+
+    @LargeTest
+    @Test
+    public fun fixedStartupTraceMetrics() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("WarmStartup", ".trace")
+        val metric = StartupTimingMetric()
+        val packageName = "androidx.benchmark.integration.macrobenchmark.target"
+        metric.configure(packageName)
+        val metrics = metric.getMetrics(packageName, traceFile.absolutePath)
+
+        // check known values
+        val hasStartupMetrics = "startupMs" in metrics.metrics
+        assertEquals(hasStartupMetrics, true)
+        assertEquals(54L, metrics.metrics["startupMs"])
+        assertEquals(4131145997215L, metrics.timelineStart)
+        assertEquals(4131200817585L, metrics.timelineEnd)
     }
 }
 
-public fun measureStartup(packageName: String, measureBlock: () -> Unit): Map<String, Long> {
+internal fun measureStartup(packageName: String, measureBlock: () -> Unit): MetricsWithUiState {
     val wrapper = PerfettoCaptureWrapper()
     val metric = StartupTimingMetric()
     metric.configure(packageName)

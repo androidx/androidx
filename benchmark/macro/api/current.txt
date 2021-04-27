@@ -46,6 +46,9 @@ package androidx.benchmark.macro {
   public abstract sealed class Metric {
   }
 
+  public final class MetricKt {
+  }
+
   public final class MetricResultExtensionsKt {
   }
 
@@ -67,6 +70,9 @@ package androidx.benchmark.macro {
 package androidx.benchmark.macro.perfetto {
 
   public final class ShellUtilsKt {
+  }
+
+  public final class UiStateKt {
   }
 
 }

@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-syntax = "proto2";
+/**
+ * Hide the perfetto.protos package, as it's an implementation detail of benchmark.macro
+ *
+ * Note: other attempts to use these protos in the macrobench process will clash with our
+ * definitions. If this becomes an issue, we can move ours to a separate, internal package.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+package perfetto.protos;
 
-package androidx.benchmark.macro.protos;
-
-// placeholder proto used to test wire integration
-message TestProto {
-    optional int64 value = 1;
-}
+import androidx.annotation.RestrictTo;
