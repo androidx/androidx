@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-class WearCurvedTextViewTest {
+class CurvedTextViewTest {
 
     private val bitmap = Bitmap.createBitmap(SCREEN_WIDTH, SCREEN_HEIGHT, Bitmap.Config.ARGB_8888)
     private val canvas = Canvas(bitmap)
@@ -63,36 +63,40 @@ class WearCurvedTextViewTest {
     }
 
     private fun createThree(centerStr: String, leftStr: String, rightStr: String) = listOf(
-        WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-            text = centerStr
-            textColor = Color.BLUE
-            setBackgroundColor(Color.rgb(100, 100, 0))
-            anchorType = WearArcLayout.ANCHOR_CENTER
-            anchorAngleDegrees = 0f
-        },
-        WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-            text = leftStr
-            textColor = Color.RED
-            setBackgroundColor(Color.rgb(0, 100, 100))
-            anchorAngleDegrees = 240f
-            anchorType = WearArcLayout.ANCHOR_START
-        },
-        WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-            text = rightStr
-            textColor = Color.GREEN
-            setBackgroundColor(Color.rgb(100, 0, 100))
-            anchorType = WearArcLayout.ANCHOR_END
-            anchorAngleDegrees = 120f
-        }
+        CurvedTextView(ApplicationProvider.getApplicationContext())
+            .apply {
+                text = centerStr
+                textColor = Color.BLUE
+                setBackgroundColor(Color.rgb(100, 100, 0))
+                anchorType = ArcLayout.ANCHOR_CENTER
+                anchorAngleDegrees = 0f
+            },
+        CurvedTextView(ApplicationProvider.getApplicationContext())
+            .apply {
+                text = leftStr
+                textColor = Color.RED
+                setBackgroundColor(Color.rgb(0, 100, 100))
+                anchorAngleDegrees = 240f
+                anchorType = ArcLayout.ANCHOR_START
+            },
+        CurvedTextView(ApplicationProvider.getApplicationContext())
+            .apply {
+                text = rightStr
+                textColor = Color.GREEN
+                setBackgroundColor(Color.rgb(100, 0, 100))
+                anchorType = ArcLayout.ANCHOR_END
+                anchorAngleDegrees = 120f
+            }
     )
 
-    private fun createThree(): List<WearCurvedTextView> =
+    private fun createThree(): List<CurvedTextView> =
         createThree("Center", "Left", "Right")
 
     @Test
     @Throws(Exception::class)
     fun testDefaults() {
-        val textView = WearCurvedTextView(ApplicationProvider.getApplicationContext())
+        val textView =
+            CurvedTextView(ApplicationProvider.getApplicationContext())
         textView.text = "Hello World!"
         doOneTest("hello_world_screenshot", listOf(textView))
     }
@@ -167,7 +171,7 @@ class WearCurvedTextViewTest {
     fun testCounterClockwise() {
         doOneTest(
             "counter_clockwise_screenshot",
-            createThree().apply { forEach { it.clockwise = false } }
+            createThree().apply { forEach { it.isClockwise = false } }
         )
     }
 
@@ -227,20 +231,22 @@ class WearCurvedTextViewTest {
         doOneTest(
             "cw_text_background_screenshot",
             listOf(
-                WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-                    text = "This is a clockwise text for testing background"
-                    clockwise = true
-                    anchorAngleDegrees = 170.0f
-                    anchorType = WearArcLayout.ANCHOR_START
-                    setBackgroundColor(Color.rgb(0, 100, 100))
-                },
-                WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-                    text = "Another clockwise text"
-                    clockwise = true
-                    anchorAngleDegrees = 70.0f
-                    anchorType = WearArcLayout.ANCHOR_START
-                    setBackgroundColor(Color.rgb(0, 100, 100))
-                }
+                CurvedTextView(ApplicationProvider.getApplicationContext())
+                    .apply {
+                        text = "This is a clockwise text for testing background"
+                        isClockwise = true
+                        anchorAngleDegrees = 170.0f
+                        anchorType = ArcLayout.ANCHOR_START
+                        setBackgroundColor(Color.rgb(0, 100, 100))
+                    },
+                CurvedTextView(ApplicationProvider.getApplicationContext())
+                    .apply {
+                        text = "Another clockwise text"
+                        isClockwise = true
+                        anchorAngleDegrees = 70.0f
+                        anchorType = ArcLayout.ANCHOR_START
+                        setBackgroundColor(Color.rgb(0, 100, 100))
+                    }
             )
         )
     }
@@ -251,20 +257,22 @@ class WearCurvedTextViewTest {
         doOneTest(
             "ccw_text_background_screenshot",
             listOf(
-                WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-                    text = "This is a counterclockwise text for testing background"
-                    clockwise = false
-                    anchorAngleDegrees = 100.0f
-                    anchorType = WearArcLayout.ANCHOR_START
-                    setBackgroundColor(Color.rgb(0, 100, 100))
-                },
-                WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-                    text = "Another counterclockwise text"
-                    clockwise = false
-                    anchorAngleDegrees = 230.0f
-                    anchorType = WearArcLayout.ANCHOR_START
-                    setBackgroundColor(Color.rgb(0, 100, 100))
-                }
+                CurvedTextView(ApplicationProvider.getApplicationContext())
+                    .apply {
+                        text = "This is a counterclockwise text for testing background"
+                        isClockwise = false
+                        anchorAngleDegrees = 100.0f
+                        anchorType = ArcLayout.ANCHOR_START
+                        setBackgroundColor(Color.rgb(0, 100, 100))
+                    },
+                CurvedTextView(ApplicationProvider.getApplicationContext())
+                    .apply {
+                        text = "Another counterclockwise text"
+                        isClockwise = false
+                        anchorAngleDegrees = 230.0f
+                        anchorType = ArcLayout.ANCHOR_START
+                        setBackgroundColor(Color.rgb(0, 100, 100))
+                    }
             )
         )
     }
