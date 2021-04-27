@@ -216,6 +216,46 @@ class XRoundEnvTest {
         }
     }
 
+    @Test
+    fun getElementsFromPackageIncludesSources() {
+        val source = Source.kotlin(
+            "foo/Baz.kt",
+            """
+            package foo
+            class Baz 
+            """.trimIndent()
+        )
+
+        runProcessorTest(listOf(source)) { testInvocation ->
+            val elements = testInvocation.processingEnv.getTypeElementsFromPackage("foo")
+
+            val targetElement = testInvocation.processingEnv.requireTypeElement(
+                "foo.Baz"
+            )
+
+            assertThat(
+                elements
+            ).contains(targetElement)
+        }
+    }
+
+    @Test
+    fun getElementsFromPackageIncludesBinaries() {
+        runProcessorTest { testInvocation ->
+            val kspElements = testInvocation.processingEnv.getTypeElementsFromPackage(
+                "com.google.devtools.ksp.processing"
+            )
+
+            val symbolProcessorType = testInvocation.processingEnv.requireTypeElement(
+                "com.google.devtools.ksp.processing.SymbolProcessor"
+            )
+
+            assertThat(
+                kspElements
+            ).contains(symbolProcessorType)
+        }
+    }
+
     annotation class TopLevelAnnotation
 
     @Suppress("unused") // used in tests
