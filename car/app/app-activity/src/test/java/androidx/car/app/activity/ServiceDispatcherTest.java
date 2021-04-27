@@ -48,19 +48,7 @@ public class ServiceDispatcherTest {
     @Before
     public void setup() {
         mErrorHandler = mock(ErrorHandler.class);
-        mServiceDispatcher = new ServiceDispatcher(mErrorHandler);
-    }
-
-    @Test
-    public void isBound_serviceNotNull_returnsTrue() {
-        mServiceDispatcher.setRendererService(mock(IRendererService.class));
-        assertThat(mServiceDispatcher.isBound()).isTrue();
-    }
-
-    @Test
-    public void isBound_serviceIsNull_returnsFalse() {
-        mServiceDispatcher.setRendererService(null);
-        assertThat(mServiceDispatcher.isBound()).isFalse();
+        mServiceDispatcher = new ServiceDispatcher(mErrorHandler, () -> false);
     }
 
     @Test
@@ -73,7 +61,7 @@ public class ServiceDispatcherTest {
         ServiceDispatcher.OneWayCall call = () -> rendererService.onNewIntent(intent,
                 componentName, 0);
 
-        mServiceDispatcher.setRendererService(rendererService);
+        mServiceDispatcher.setOnBindingListener(() -> true);
         mServiceDispatcher.dispatch(call);
 
         verify(rendererService, times(1)).onNewIntent(intent, componentName, 0);
@@ -83,7 +71,7 @@ public class ServiceDispatcherTest {
     public void dispatch_serviceNotBound_notInvoked() throws BundlerException, RemoteException {
         ServiceDispatcher.OneWayCall call = mock(ServiceDispatcher.OneWayCall.class);
 
-        mServiceDispatcher.setRendererService(null);
+        mServiceDispatcher.setOnBindingListener(() -> false);
         mServiceDispatcher.dispatch(call);
 
         verify(call, never()).invoke();
@@ -95,7 +83,7 @@ public class ServiceDispatcherTest {
             throw new RemoteException();
         };
 
-        mServiceDispatcher.setRendererService(mock(IRendererService.class));
+        mServiceDispatcher.setOnBindingListener(() -> true);
         mServiceDispatcher.dispatch(call);
 
         verify(mErrorHandler, times(1))
@@ -104,10 +92,9 @@ public class ServiceDispatcherTest {
 
     @Test
     public void fetch_serviceBound_valueReturned() {
-        IRendererService rendererService = mock(IRendererService.class);
         ServiceDispatcher.ReturnCall<Integer> call = () -> 123;
 
-        mServiceDispatcher.setRendererService(rendererService);
+        mServiceDispatcher.setOnBindingListener(() -> true);
         Integer result = mServiceDispatcher.fetch(234, call);
 
         assertThat(result).isEqualTo(123);
@@ -119,7 +106,7 @@ public class ServiceDispatcherTest {
             throws BundlerException, RemoteException {
         ServiceDispatcher.ReturnCall<Integer> call = mock(ServiceDispatcher.ReturnCall.class);
 
-        mServiceDispatcher.setRendererService(null);
+        mServiceDispatcher.setOnBindingListener(() -> false);
         Integer result = mServiceDispatcher.fetch(234, call);
 
         verify(call, never()).invoke();
@@ -132,7 +119,7 @@ public class ServiceDispatcherTest {
             throw new RemoteException();
         };
 
-        mServiceDispatcher.setRendererService(mock(IRendererService.class));
+        mServiceDispatcher.setOnBindingListener(() -> true);
         Integer result = mServiceDispatcher.fetch(234, call);
 
         verify(mErrorHandler, times(1))
