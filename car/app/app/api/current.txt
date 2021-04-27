@@ -47,7 +47,7 @@ package androidx.car.app {
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public boolean isDarkMode();
     method public void startCarApp(android.content.Intent);
-    method public static void startCarApp(android.content.Intent, android.content.Intent);
+    method @Deprecated public static void startCarApp(android.content.Intent, android.content.Intent);
     field public static final String ACTION_NAVIGATE = "androidx.car.app.action.NAVIGATE";
     field public static final String APP_SERVICE = "app";
     field public static final String CAR_SERVICE = "car";
@@ -930,6 +930,7 @@ package androidx.car.app.notification {
     ctor public CarAppExtender(android.app.Notification);
     method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
     method public java.util.List<android.app.Notification.Action!> getActions();
+    method public String? getChannelId();
     method public androidx.car.app.model.CarColor? getColor();
     method public android.app.PendingIntent? getContentIntent();
     method public CharSequence? getContentText();
@@ -945,6 +946,7 @@ package androidx.car.app.notification {
     ctor public CarAppExtender.Builder();
     method public androidx.car.app.notification.CarAppExtender.Builder addAction(@DrawableRes int, CharSequence, android.app.PendingIntent);
     method public androidx.car.app.notification.CarAppExtender build();
+    method public androidx.car.app.notification.CarAppExtender.Builder setChannelId(String);
     method public androidx.car.app.notification.CarAppExtender.Builder setColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.notification.CarAppExtender.Builder setContentIntent(android.app.PendingIntent);
     method public androidx.car.app.notification.CarAppExtender.Builder setContentText(CharSequence);
@@ -953,6 +955,34 @@ package androidx.car.app.notification {
     method public androidx.car.app.notification.CarAppExtender.Builder setImportance(int);
     method public androidx.car.app.notification.CarAppExtender.Builder setLargeIcon(android.graphics.Bitmap);
     method public androidx.car.app.notification.CarAppExtender.Builder setSmallIcon(int);
+  }
+
+  public final class CarNotificationManager {
+    method public boolean areNotificationsEnabled();
+    method public void cancel(int);
+    method public void cancel(String?, int);
+    method public void cancelAll();
+    method public void createNotificationChannel(androidx.core.app.NotificationChannelCompat);
+    method public void createNotificationChannelGroup(androidx.core.app.NotificationChannelGroupCompat);
+    method public void createNotificationChannelGroups(java.util.List<androidx.core.app.NotificationChannelGroupCompat!>);
+    method public void createNotificationChannels(java.util.List<androidx.core.app.NotificationChannelCompat!>);
+    method public void deleteNotificationChannel(String);
+    method public void deleteNotificationChannelGroup(String);
+    method public void deleteUnlistedNotificationChannels(java.util.Collection<java.lang.String!>);
+    method public static androidx.car.app.notification.CarNotificationManager from(android.content.Context);
+    method public static java.util.Set<java.lang.String!> getEnabledListenerPackages(android.content.Context);
+    method public int getImportance();
+    method public androidx.core.app.NotificationChannelCompat? getNotificationChannel(String);
+    method public androidx.core.app.NotificationChannelCompat? getNotificationChannel(String, String);
+    method public androidx.core.app.NotificationChannelGroupCompat? getNotificationChannelGroup(String);
+    method public java.util.List<androidx.core.app.NotificationChannelGroupCompat!> getNotificationChannelGroups();
+    method public java.util.List<androidx.core.app.NotificationChannelCompat!> getNotificationChannels();
+    method public void notify(int, androidx.core.app.NotificationCompat.Builder);
+    method public void notify(String?, int, androidx.core.app.NotificationCompat.Builder);
+  }
+
+  public final class CarPendingIntent {
+    method public static android.app.PendingIntent getCarApp(android.content.Context, int, android.content.Intent, int);
   }
 
 }

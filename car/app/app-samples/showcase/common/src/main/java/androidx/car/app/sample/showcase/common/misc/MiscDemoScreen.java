@@ -23,7 +23,6 @@ import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
-import androidx.car.app.model.ParkedOnlyOnClickListener;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 
@@ -46,19 +45,6 @@ public final class MiscDemoScreen extends Screen {
                         .setTitle("Notification Demo")
                         .setOnClickListener(() -> getScreenManager().push(
                                 new NotificationDemoScreen(getCarContext())))
-                        .setBrowsable(true)
-                        .build());
-
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setTitle("Go-to-Phone Demo")
-                        .setOnClickListener(
-                                ParkedOnlyOnClickListener.create(
-                                        () ->
-                                                getScreenManager()
-                                                        .push(
-                                                                new GoToPhoneScreen(
-                                                                        getCarContext()))))
                         .setBrowsable(true)
                         .build());
 

@@ -18,8 +18,6 @@ package androidx.car.app.sample.navigation.common.nav;
 
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
-import static androidx.car.app.sample.navigation.common.nav.DeepLinkNotificationReceiver.INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP;
-
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -54,8 +52,10 @@ import androidx.car.app.navigation.model.Step;
 import androidx.car.app.navigation.model.TravelEstimate;
 import androidx.car.app.navigation.model.Trip;
 import androidx.car.app.notification.CarAppExtender;
+import androidx.car.app.notification.CarPendingIntent;
 import androidx.car.app.sample.navigation.common.R;
 import androidx.car.app.sample.navigation.common.app.MainActivity;
+import androidx.car.app.sample.navigation.common.car.NavigationCarAppService;
 import androidx.car.app.sample.navigation.common.model.Instruction;
 import androidx.car.app.sample.navigation.common.model.Script;
 import androidx.core.app.NotificationCompat;
@@ -69,6 +69,8 @@ import java.util.List;
 public class NavigationService extends Service {
     private static final String TAG = "NavigationService";
 
+    public static final String DEEP_LINK_ACTION = "androidx.car.app.samples.navigation.car"
+            + ".NavigationDeepLinkAction";
     public static final String CHANNEL_ID = "NavigationServiceChannel";
 
     /** The identifier for the navigation notification displayed for the foreground service. */
@@ -537,23 +539,15 @@ public class NavigationService extends Service {
             builder.setPriority(NotificationManager.IMPORTANCE_HIGH);
         }
         if (showInCar) {
+            Intent intent = new Intent(Intent.ACTION_VIEW)
+                    .setComponent(new ComponentName(this, NavigationCarAppService.class))
+                    .setData(NavigationCarAppService.createDeepLinkUri(Intent.ACTION_VIEW));
             builder.extend(
                     new CarAppExtender.Builder()
                             .setImportance(NotificationManagerCompat.IMPORTANCE_HIGH)
                             .setContentIntent(
-
-                                    // Set an intent to open the car app. The app receives this
-                                    // intent when the
-                                    // user taps the heads-up notification or the rail widget.
-                                    PendingIntent.getBroadcast(
-                                            this,
-                                            INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP.hashCode(),
-                                            new Intent(INTENT_ACTION_NAV_NOTIFICATION_OPEN_APP)
-                                                    .setComponent(
-                                                            new ComponentName(
-                                                                    mCarContext,
-                                                                    DeepLinkNotificationReceiver
-                                                                            .class)),
+                                    CarPendingIntent.getCarApp(this, intent.hashCode(),
+                                            intent,
                                             0))
                             .build());
         }
