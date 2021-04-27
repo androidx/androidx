@@ -105,10 +105,10 @@ public final class LayoutElementBuilders {
      *
      * @hide
      */
-    @OptIn(markerClass = TilesExperimental.class)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({FONT_WEIGHT_UNDEFINED, FONT_WEIGHT_NORMAL, FONT_WEIGHT_MEDIUM, FONT_WEIGHT_BOLD})
     @Retention(RetentionPolicy.SOURCE)
+    @OptIn(markerClass = TilesExperimental.class)
     public @interface FontWeight {}
 
     /** Font weight is undefined. */
@@ -1309,6 +1309,24 @@ public final class LayoutElementBuilders {
         @NonNull
         LayoutElementProto.Span toSpanProto();
 
+        /**
+         * Return an instance of one of this object's subtypes, from the protocol buffer
+         * representation.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Span fromSpanProto(@NonNull LayoutElementProto.Span proto) {
+            if (proto.hasText()) {
+                return SpanText.fromProto(proto.getText());
+            }
+            if (proto.hasImage()) {
+                return SpanImage.fromProto(proto.getImage());
+            }
+            throw new IllegalStateException("Proto was not a recognised instance of Span");
+        }
+
         /** Builder to create {@link Span} objects. */
         @SuppressLint("StaticFinalBuilder")
         interface Builder {
@@ -2379,6 +2397,43 @@ public final class LayoutElementBuilders {
         @NonNull
         LayoutElementProto.LayoutElement toLayoutElementProto();
 
+        /**
+         * Return an instance of one of this object's subtypes, from the protocol buffer
+         * representation.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static LayoutElement fromLayoutElementProto(
+                @NonNull LayoutElementProto.LayoutElement proto) {
+            if (proto.hasColumn()) {
+                return Column.fromProto(proto.getColumn());
+            }
+            if (proto.hasRow()) {
+                return Row.fromProto(proto.getRow());
+            }
+            if (proto.hasBox()) {
+                return Box.fromProto(proto.getBox());
+            }
+            if (proto.hasSpacer()) {
+                return Spacer.fromProto(proto.getSpacer());
+            }
+            if (proto.hasText()) {
+                return Text.fromProto(proto.getText());
+            }
+            if (proto.hasImage()) {
+                return Image.fromProto(proto.getImage());
+            }
+            if (proto.hasArc()) {
+                return Arc.fromProto(proto.getArc());
+            }
+            if (proto.hasSpannable()) {
+                return Spannable.fromProto(proto.getSpannable());
+            }
+            throw new IllegalStateException("Proto was not a recognised instance of LayoutElement");
+        }
+
         /** Builder to create {@link LayoutElement} objects. */
         @SuppressLint("StaticFinalBuilder")
         interface Builder {
@@ -2402,6 +2457,32 @@ public final class LayoutElementBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.ArcLayoutElement toArcLayoutElementProto();
+
+        /**
+         * Return an instance of one of this object's subtypes, from the protocol buffer
+         * representation.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static ArcLayoutElement fromArcLayoutElementProto(
+                @NonNull LayoutElementProto.ArcLayoutElement proto) {
+            if (proto.hasText()) {
+                return ArcText.fromProto(proto.getText());
+            }
+            if (proto.hasLine()) {
+                return ArcLine.fromProto(proto.getLine());
+            }
+            if (proto.hasSpacer()) {
+                return ArcSpacer.fromProto(proto.getSpacer());
+            }
+            if (proto.hasAdapter()) {
+                return ArcAdapter.fromProto(proto.getAdapter());
+            }
+            throw new IllegalStateException(
+                    "Proto was not a recognised instance of ArcLayoutElement");
+        }
 
         /** Builder to create {@link ArcLayoutElement} objects. */
         @SuppressLint("StaticFinalBuilder")

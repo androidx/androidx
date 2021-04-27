@@ -287,6 +287,23 @@ public final class ModifiersBuilders {
                 return this;
             }
 
+            /** Sets the padding for all sides of the content, in DP. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setAll(@NonNull DpProp value) {
+                return setStart(value).setEnd(value).setTop(value).setBottom(value);
+            }
+
+            /** Sets the padding for all sides of the content, in DP. */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setAll(@NonNull DpProp.Builder valueBuilder) {
+                return setStart(valueBuilder)
+                        .setEnd(valueBuilder)
+                        .setTop(valueBuilder)
+                        .setBottom(valueBuilder);
+            }
+
             /** Builds an instance from accumulated values. */
             @NonNull
             public Padding build() {

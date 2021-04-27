@@ -39,6 +39,7 @@ dependencies {
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(ANDROIDX_TEST_RULES)
+    testImplementation("androidx.concurrent:concurrent-futures:1.1.0")
     testImplementation(ROBOLECTRIC)
     testImplementation(MOCKITO_CORE)
 }

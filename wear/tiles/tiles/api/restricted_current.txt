@@ -1,12 +1,6 @@
 // Signature format: 4.0
 package androidx.wear.tiles {
 
-  public class SysUiTileUpdateRequester implements androidx.wear.tiles.TileUpdateRequester {
-    ctor public SysUiTileUpdateRequester(android.content.Context);
-    method public void requestUpdate(Class<? extends android.app.Service>);
-    field public static final String ACTION_BIND_UPDATE_REQUESTER = "androidx.wear.tiles.action.BIND_UPDATE_REQUESTER";
-  }
-
   public abstract class TileProviderService extends android.app.Service {
     ctor public TileProviderService();
     method public static androidx.wear.tiles.TileUpdateRequester getUpdater(android.content.Context);
@@ -23,13 +17,7 @@ package androidx.wear.tiles {
   }
 
   public interface TileUpdateRequester {
-    method public void requestUpdate(Class<? extends android.app.Service>);
-  }
-
-  public class ViewerTileUpdateRequester implements androidx.wear.tiles.TileUpdateRequester {
-    ctor public ViewerTileUpdateRequester(android.content.Context);
-    method public void requestUpdate(Class<? extends android.app.Service>);
-    field public static final String ACTION_REQUEST_TILE_UPDATE = "androidx.wear.tiles.action.REQUEST_TILE_UPDATE";
+    method public void requestUpdate(Class<? extends androidx.wear.tiles.TileProviderService>);
   }
 
 }
@@ -651,6 +639,8 @@ package androidx.wear.tiles.builders {
 
   public static final class ModifiersBuilders.Padding.Builder {
     method public androidx.wear.tiles.builders.ModifiersBuilders.Padding build();
+    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setAll(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setAll(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
     method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setBottom(androidx.wear.tiles.builders.DimensionBuilders.DpProp);
     method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setBottom(androidx.wear.tiles.builders.DimensionBuilders.DpProp.Builder);
     method public androidx.wear.tiles.builders.ModifiersBuilders.Padding.Builder setEnd(androidx.wear.tiles.builders.DimensionBuilders.DpProp);

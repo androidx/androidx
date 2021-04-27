@@ -16,8 +16,6 @@
 
 package androidx.wear.tiles;
 
-import android.app.Service;
-
 import androidx.annotation.NonNull;
 
 /**
@@ -26,5 +24,5 @@ import androidx.annotation.NonNull;
  */
 public interface TileUpdateRequester {
     /** Notify the Tile Renderer that it should fetch a new Timeline from this Tile Provider. */
-    void requestUpdate(@NonNull Class<? extends Service> tileProvider);
+    void requestUpdate(@NonNull Class<? extends TileProviderService> tileProvider);
 }
