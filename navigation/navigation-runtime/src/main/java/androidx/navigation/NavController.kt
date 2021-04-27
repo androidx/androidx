@@ -179,7 +179,39 @@ public open class NavController(
             _navigatorProvider = navigatorProvider
         }
 
-    private val navigatorState = mutableMapOf<Navigator<out NavDestination>, NavigatorState>()
+    private val navigatorState =
+        mutableMapOf<Navigator<out NavDestination>, NavControllerNavigatorState>()
+    private var addToBackStackHandler: ((backStackEntry: NavBackStackEntry) -> Unit)? = null
+    private var popFromBackStackHandler: ((popUpTo: NavBackStackEntry) -> Unit)? = null
+
+    /**
+     * Call [Navigator.navigate] while setting up a [handler] that receives callbacks
+     * when [NavigatorState.add] is called.
+     */
+    private fun Navigator<out NavDestination>.navigateInternal(
+        entries: List<NavBackStackEntry>,
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?,
+        handler: (backStackEntry: NavBackStackEntry) -> Unit = {}
+    ) {
+        addToBackStackHandler = handler
+        navigate(entries, navOptions, navigatorExtras)
+        addToBackStackHandler = null
+    }
+
+    /**
+     * Call [Navigator.popBackStack] while setting up a [handler] that receives callbacks
+     * when [NavigatorState.pop] is called.
+     */
+    private fun Navigator<out NavDestination>.popBackStackInternal(
+        popUpTo: NavBackStackEntry,
+        saveState: Boolean,
+        handler: (popUpTo: NavBackStackEntry) -> Unit = {}
+    ) {
+        popFromBackStackHandler = handler
+        popBackStack(popUpTo, saveState)
+        popFromBackStackHandler = null
+    }
 
     private inner class NavControllerNavigatorState(
         val navigator: Navigator<out NavDestination>
@@ -188,10 +220,29 @@ public open class NavController(
             val destinationNavigator: Navigator<out NavDestination> =
                 _navigatorProvider[backStackEntry.destination.navigatorName]
             if (destinationNavigator == navigator) {
-                super.add(backStackEntry)
+                val handler = addToBackStackHandler
+                if (handler != null) {
+                    handler(backStackEntry)
+                    addInternal(backStackEntry)
+                } else {
+                    // TODO handle the Navigator calling add() outside of a call to navigate()
+                    Log.i(
+                        TAG,
+                        "Ignoring add of destination ${backStackEntry.destination} " +
+                            "outside of the call to navigate(). "
+                    )
+                }
             } else {
-                navigatorState[destinationNavigator]!!.add(backStackEntry)
+                val navigatorBackStack = checkNotNull(navigatorState[destinationNavigator]) {
+                    "NavigatorBackStack for ${backStackEntry.destination.navigatorName} should " +
+                        "already be created"
+                }
+                navigatorBackStack.add(backStackEntry)
             }
+        }
+
+        fun addInternal(backStackEntry: NavBackStackEntry) {
+            super.add(backStackEntry)
         }
 
         override fun createBackStackEntry(
@@ -201,6 +252,27 @@ public open class NavController(
             context, destination, arguments,
             lifecycleOwner, viewModel
         )
+
+        override fun pop(popUpTo: NavBackStackEntry, saveState: Boolean) {
+            val destinationNavigator: Navigator<out NavDestination> =
+                _navigatorProvider[popUpTo.destination.navigatorName]
+            if (destinationNavigator == navigator) {
+                val handler = popFromBackStackHandler
+                if (handler != null) {
+                    handler(popUpTo)
+                    super.pop(popUpTo, saveState)
+                } else {
+                    // TODO handle the Navigator calling pop() outside of a call to popBackStack()
+                    Log.i(
+                        TAG,
+                        "Ignoring pop of destination ${popUpTo.destination} " +
+                            "outside of the call to popBackStack(). "
+                    )
+                }
+            } else {
+                navigatorState[destinationNavigator]!!.pop(popUpTo, saveState)
+            }
+        }
     }
 
     /**
@@ -370,22 +442,13 @@ public open class NavController(
         var popped = false
         val savedState = ArrayDeque<NavBackStackEntryState>()
         for (navigator in popOperations) {
-            if (navigator.popBackStack()) {
-                val entry = backQueue.removeLast()
-                if (entry.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
-                    if (saveState) {
-                        // Move the state through STOPPED
-                        entry.maxLifecycle = Lifecycle.State.CREATED
-                        // Then save the state of the NavBackStackEntry
-                        savedState.addFirst(NavBackStackEntryState(entry))
-                    }
-                    entry.maxLifecycle = Lifecycle.State.DESTROYED
-                }
-                if (!saveState) {
-                    viewModel?.clear(entry.id)
-                }
+            var receivedPop = false
+            navigator.popBackStackInternal(backQueue.last(), saveState) { entry ->
+                receivedPop = true
                 popped = true
-            } else {
+                popEntryFromBackStack(entry, saveState, savedState)
+            }
+            if (!receivedPop) {
                 // The pop did not complete successfully, so stop immediately
                 break
             }
@@ -395,6 +458,31 @@ public open class NavController(
         }
         updateOnBackPressedCallbackEnabled()
         return popped
+    }
+
+    private fun popEntryFromBackStack(
+        popUpTo: NavBackStackEntry,
+        saveState: Boolean,
+        savedState: ArrayDeque<NavBackStackEntryState>
+    ) {
+        val entry = backQueue.last()
+        check(entry == popUpTo) {
+            "Attempted to pop ${popUpTo.destination}, which is not the top of the back stack " +
+                "(${entry.destination})"
+        }
+        backQueue.removeLast()
+        if (entry.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+            if (saveState) {
+                // Move the state through STOPPED
+                entry.maxLifecycle = Lifecycle.State.CREATED
+                // Then save the state of the NavBackStackEntry
+                savedState.addFirst(NavBackStackEntryState(entry))
+            }
+            entry.maxLifecycle = Lifecycle.State.DESTROYED
+        }
+        if (!saveState) {
+            viewModel?.clear(entry.id)
+        }
     }
 
     /**
@@ -677,7 +765,7 @@ public open class NavController(
                     "NavigatorBackStack for ${node.navigatorName} should already be created"
                 }
                 backQueue.add(entry)
-                navigatorBackStack.add(entry)
+                navigatorBackStack.addInternal(entry)
             }
             updateOnBackPressedCallbackEnabled()
             this.backStackToRestore = null
@@ -1162,6 +1250,7 @@ public open class NavController(
     ) {
         var popped = false
         var launchSingleTop = false
+        var navigated = false
         if (navOptions != null) {
             if (navOptions.popUpTo != -1) {
                 popped = popBackStackInternal(
@@ -1175,93 +1264,123 @@ public open class NavController(
             node.navigatorName
         )
         val finalArgs = node.addInDefaultArgs(args)
-        val newDest = navigator.navigate(
-            node, finalArgs,
-            navOptions, navigatorExtras
-        )
-        if (newDest != null) {
-            if (newDest !is FloatingWindow) {
-                // We've successfully navigating to the new destination, which means
-                // we should pop any FloatingWindow destination off the back stack
-                // before updating the back stack with our new destination
-                while (!backQueue.isEmpty() &&
-                    backQueue.last().destination is FloatingWindow &&
-                    popBackStackInternal(backQueue.last().destination.id, true)
-                ) {
-                    // Keep popping
-                }
+        val currentBackStackEntry = currentBackStackEntry
+        if (navOptions?.shouldLaunchSingleTop() == true &&
+            node.id == currentBackStackEntry?.destination?.id
+        ) {
+            // Single top operations don't change the back stack, they just update arguments
+            launchSingleTop = true
+            currentBackStackEntry.replaceArguments(finalArgs)
+            navigator.onLaunchSingleTop(currentBackStackEntry)
+        } else {
+            // Not a single top operation, so we're looking to add the node to the back stack
+            val backStackEntry = NavBackStackEntry.create(
+                context, node, finalArgs, lifecycleOwner, viewModel
+            )
+            navigator.navigateInternal(listOf(backStackEntry), navOptions, navigatorExtras) {
+                navigated = true
+                addEntryToBackStack(node, finalArgs, it)
             }
+        }
+        updateOnBackPressedCallbackEnabled()
+        if (popped || navigated || launchSingleTop) {
+            dispatchOnDestinationChanged()
+        }
+    }
 
-            // When you navigate() to a NavGraph, we need to ensure that a new instance
-            // is always created vs reusing an existing copy of that destination
-            val hierarchy = ArrayDeque<NavBackStackEntry>()
-            var destination = newDest
-            if (node is NavGraph) {
-                do {
-                    val parent = destination!!.parent
-                    if (parent != null) {
-                        val entry = NavBackStackEntry.create(
-                            context, parent,
-                            finalArgs, lifecycleOwner, viewModel
-                        )
-                        hierarchy.addFirst(entry)
-                        // Pop any orphaned copy of that navigation graph off the back stack
-                        if (backQueue.isNotEmpty() && backQueue.last().destination === parent) {
-                            popBackStackInternal(parent.id, true)
-                        }
-                    }
-                    destination = parent
-                } while (destination != null && destination !== node)
-            }
-
-            // Now collect the set of all intermediate NavGraphs that need to be put onto
-            // the back stack
-            destination = if (hierarchy.isEmpty()) newDest else hierarchy.first().destination
-            while (destination != null && findDestination(destination.id) == null) {
-                val parent = destination.parent
-                if (parent != null) {
-                    val entry = NavBackStackEntry.create(
-                        context, parent, finalArgs, lifecycleOwner, viewModel
-                    )
-                    hierarchy.addFirst(entry)
-                }
-                destination = parent
-            }
-            val overlappingDestination: NavDestination =
-                if (hierarchy.isEmpty())
-                    newDest
-                else
-                    hierarchy.last().destination
-            // Pop any orphaned navigation graphs that don't connect to the new destinations
-            while (!backQueue.isEmpty() && backQueue.last().destination is NavGraph &&
-                (backQueue.last().destination as NavGraph).findNode(
-                        overlappingDestination.id, false
-                    ) == null && popBackStackInternal(backQueue.last().destination.id, true)
+    private fun addEntryToBackStack(
+        node: NavDestination,
+        finalArgs: Bundle?,
+        backStackEntry: NavBackStackEntry
+    ) {
+        val newDest = backStackEntry.destination
+        if (newDest !is FloatingWindow) {
+            // We've successfully navigating to the new destination, which means
+            // we should pop any FloatingWindow destination off the back stack
+            // before updating the back stack with our new destination
+            while (!backQueue.isEmpty() &&
+                backQueue.last().destination is FloatingWindow &&
+                popBackStackInternal(backQueue.last().destination.id, true)
             ) {
                 // Keep popping
             }
-            backQueue.addAll(hierarchy)
-            // The _graph should always be on the back stack after you navigate()
-            if (backQueue.isEmpty() || backQueue.first().destination !== _graph) {
+        }
+
+        // When you navigate() to a NavGraph, we need to ensure that a new instance
+        // is always created vs reusing an existing copy of that destination
+        val hierarchy = ArrayDeque<NavBackStackEntry>()
+        var destination: NavDestination? = newDest
+        if (node is NavGraph) {
+            do {
+                val parent = destination!!.parent
+                if (parent != null) {
+                    val entry = NavBackStackEntry.create(
+                        context, parent,
+                        finalArgs, lifecycleOwner, viewModel
+                    )
+                    hierarchy.addFirst(entry)
+                    // Pop any orphaned copy of that navigation graph off the back stack
+                    if (backQueue.isNotEmpty() && backQueue.last().destination === parent) {
+                        popBackStackInternal(parent.id, true)
+                    }
+                }
+                destination = parent
+            } while (destination != null && destination !== node)
+        }
+
+        // Now collect the set of all intermediate NavGraphs that need to be put onto
+        // the back stack
+        destination = if (hierarchy.isEmpty()) newDest else hierarchy.first().destination
+        while (destination != null && findDestination(destination.id) == null) {
+            val parent = destination.parent
+            if (parent != null) {
                 val entry = NavBackStackEntry.create(
-                    context, _graph!!, finalArgs, lifecycleOwner, viewModel
+                    context, parent, parent.addInDefaultArgs(finalArgs), lifecycleOwner, viewModel
                 )
-                backQueue.addFirst(entry)
+                hierarchy.addFirst(entry)
             }
-            // And finally, add the new destination with its default args
-            val newBackStackEntry = NavBackStackEntry.create(
-                context, newDest, newDest.addInDefaultArgs(finalArgs), lifecycleOwner, viewModel
+            destination = parent
+        }
+        val overlappingDestination: NavDestination =
+            if (hierarchy.isEmpty())
+                newDest
+            else
+                hierarchy.last().destination
+        // Pop any orphaned navigation graphs that don't connect to the new destinations
+        while (!backQueue.isEmpty() && backQueue.last().destination is NavGraph &&
+            (backQueue.last().destination as NavGraph).findNode(
+                    overlappingDestination.id, false
+                ) == null && popBackStackInternal(backQueue.last().destination.id, true)
+        ) {
+            // Keep popping
+        }
+        // Now add the parent hierarchy to the NavigatorStates and back stack
+        hierarchy.forEach { entry ->
+            val navigator = _navigatorProvider.getNavigator<Navigator<*>>(
+                entry.destination.navigatorName
             )
-            backQueue.add(newBackStackEntry)
-        } else if (navOptions != null && navOptions.shouldLaunchSingleTop()) {
-            launchSingleTop = true
-            val singleTopBackStackEntry = backQueue.last()
-            singleTopBackStackEntry.replaceArguments(finalArgs)
+            val navigatorBackStack = checkNotNull(navigatorState[navigator]) {
+                "NavigatorBackStack for ${node.navigatorName} should already be created"
+            }
+            navigatorBackStack.addInternal(entry)
         }
-        updateOnBackPressedCallbackEnabled()
-        if (popped || newDest != null || launchSingleTop) {
-            dispatchOnDestinationChanged()
+        backQueue.addAll(hierarchy)
+        // The _graph should always be on the back stack after you navigate()
+        if (backQueue.isEmpty() || backQueue.first().destination !== _graph) {
+            val entry = NavBackStackEntry.create(
+                context, _graph!!, _graph!!.addInDefaultArgs(finalArgs), lifecycleOwner, viewModel
+            )
+            val navigator = _navigatorProvider.getNavigator<Navigator<*>>(
+                entry.destination.navigatorName
+            )
+            val navigatorBackStack = checkNotNull(navigatorState[navigator]) {
+                "NavigatorBackStack for ${node.navigatorName} should already be created"
+            }
+            navigatorBackStack.addInternal(entry)
+            backQueue.addFirst(entry)
         }
+        // And finally, add the new destination
+        backQueue.add(backStackEntry)
     }
 
     /**

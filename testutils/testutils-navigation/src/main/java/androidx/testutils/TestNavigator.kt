@@ -16,11 +16,8 @@
 
 package androidx.testutils
 
-import android.os.Bundle
 import androidx.navigation.NavBackStackEntry
-
 import androidx.navigation.NavDestination
-import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 
 /**
@@ -38,30 +35,6 @@ open class TestNavigator : Navigator<TestNavigator.Destination>() {
 
     override fun createDestination(): Destination {
         return Destination(this)
-    }
-
-    override fun navigate(
-        destination: Destination,
-        args: Bundle?,
-        navOptions: NavOptions?,
-        navigatorExtras: Extras?
-    ) = if (navOptions != null && navOptions.shouldLaunchSingleTop() &&
-        backStack.isNotEmpty() && current.destination.id == destination.id
-    ) {
-        state.pop(current, false)
-        state.add(state.createBackStackEntry(destination, args))
-        null
-    } else {
-        state.add(state.createBackStackEntry(destination, args))
-        destination
-    }
-
-    override fun popBackStack(): Boolean {
-        if (backStack.isEmpty()) {
-            return false
-        }
-        state.pop(backStack.last(), false)
-        return true
     }
 
     /**
