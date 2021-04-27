@@ -26,9 +26,6 @@ plugins {
 
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
-
 dependencies {
     api("com.google.code.gson:gson:2.8.0")
     api(KOTLIN_STDLIB)
