@@ -329,7 +329,6 @@ package androidx.navigation {
     ctor public NavGraphNavigator(androidx.navigation.NavigatorProvider navigatorProvider);
     method public androidx.navigation.NavGraph createDestination();
     method public androidx.navigation.NavDestination? navigate(androidx.navigation.NavGraph destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
-    method public boolean popBackStack();
   }
 
   public final class NavOptions {
@@ -462,11 +461,14 @@ package androidx.navigation {
     method public abstract D createDestination();
     method protected final androidx.navigation.NavigatorState getState();
     method public final boolean isAttached();
-    method public abstract androidx.navigation.NavDestination? navigate(D destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
+    method public void navigate(java.util.List<androidx.navigation.NavBackStackEntry> entries, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
+    method public androidx.navigation.NavDestination? navigate(D destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
     method @CallSuper public void onAttach(androidx.navigation.NavigatorState state);
+    method public void onLaunchSingleTop(androidx.navigation.NavBackStackEntry backStackEntry);
     method public void onRestoreState(android.os.Bundle savedState);
     method public android.os.Bundle? onSaveState();
-    method public abstract boolean popBackStack();
+    method public void popBackStack(androidx.navigation.NavBackStackEntry popUpTo, boolean savedState);
+    method public boolean popBackStack();
     property public final boolean isAttached;
     property protected final androidx.navigation.NavigatorState state;
   }

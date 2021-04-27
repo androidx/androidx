@@ -29,10 +29,11 @@ class TestNavigatorTest {
     @Test
     fun backStack() {
         val testNavigator = TestNavigator()
-        testNavigator.onAttach(TestNavigatorState())
+        val state = TestNavigatorState()
+        testNavigator.onAttach(state)
         val destination = testNavigator.createDestination()
         val args = Bundle()
-        testNavigator.navigate(destination, args, null, null)
+        testNavigator.navigate(listOf(state.createBackStackEntry(destination, args)), null, null)
         assertEquals(
             "TestNavigator back stack size is 1 after navigate",
             1,
