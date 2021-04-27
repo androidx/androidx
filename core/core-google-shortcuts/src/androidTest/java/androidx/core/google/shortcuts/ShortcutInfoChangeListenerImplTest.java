@@ -23,13 +23,10 @@ import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.content.Intent;
@@ -41,8 +38,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.common.collect.ImmutableList;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.Mac;
@@ -82,7 +77,6 @@ public class ShortcutInfoChangeListenerImplTest {
     @SmallTest
     public void onShortcutUpdated_publicIntent_savesToAppIndex() throws Exception {
         ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
-        when(mFirebaseAppIndex.update(any())).thenReturn(Tasks.forResult(null));
 
         Intent intent = Intent.parseUri("http://www.google.com", 0);
         ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "publicIntent")
@@ -111,61 +105,8 @@ public class ShortcutInfoChangeListenerImplTest {
 
     @Test
     @SmallTest
-    public void onShortcutAdded_updateSuccess_reportUsage() throws Exception {
-        ArgumentCaptor<Action> actionCaptor = ArgumentCaptor.forClass(Action.class);
-        Task<Void> result = Tasks.forResult(null);
-        when(mFirebaseAppIndex.update(any())).thenReturn(result);
-
-        Intent intent = Intent.parseUri("http://www.google.com", 0);
-        ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "publicIntent")
-                .setShortLabel("short label")
-                .setLongLabel("long label")
-                .setIntent(intent)
-                .setIcon(IconCompat.createWithContentUri("content://abc"))
-                .build();
-
-        mShortcutInfoChangeListener.onShortcutAdded(Collections.singletonList(shortcut));
-
-        // Sleep to make sure the asynchronous call finishes. Since the method is mocked this
-        // should be really quick.
-        Thread.sleep(100);
-        verify(mFirebaseUserActions).end(actionCaptor.capture());
-
-        Action action = actionCaptor.getValue();
-        Action expectedAction = new Action.Builder(Action.Builder.VIEW_ACTION)
-                .setObject("", ShortcutUtils.getIndexableUrl(mContext, "publicIntent"))
-                .setMetadata(new Action.Metadata.Builder().setUpload(false))
-                .build();
-        assertThat(action.toString()).isEqualTo(expectedAction.toString());
-    }
-
-    @Test
-    @SmallTest
-    public void onShortcutAdded_updateError_doNotReportUsage() throws Exception {
-        when(mFirebaseAppIndex.update(any()))
-                .thenReturn(Tasks.forException(new RuntimeException()));
-
-        Intent intent = Intent.parseUri("http://www.google.com", 0);
-        ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "publicIntent")
-                .setShortLabel("short label")
-                .setLongLabel("long label")
-                .setIntent(intent)
-                .setIcon(IconCompat.createWithContentUri("content://abc"))
-                .build();
-
-        mShortcutInfoChangeListener.onShortcutAdded(Collections.singletonList(shortcut));
-
-        // Sleep to make sure the asynchronous call finishes. Since the method is mocked this
-        // should be really quick.
-        Thread.sleep(100);
-        verify(mFirebaseUserActions, never()).end(any());
-    }
-
-    @Test
-    @SmallTest
     public void onShortcutUpdated_withCapabilityBinding_savesToAppIndex() throws Exception {
         ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
-        when(mFirebaseAppIndex.update(any())).thenReturn(Tasks.forResult(null));
 
         Intent intent = Intent.parseUri("http://www.google.com", 0);
         ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "publicIntent")
@@ -223,7 +164,6 @@ public class ShortcutInfoChangeListenerImplTest {
     @SmallTest
     public void onShortcutUpdated_withCapabilityBindingNoParams_savesToAppIndex() throws Exception {
         ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
-        when(mFirebaseAppIndex.update(any())).thenReturn(Tasks.forResult(null));
 
         Intent intent = Intent.parseUri("http://www.google.com", 0);
         ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "publicIntent")
@@ -254,7 +194,6 @@ public class ShortcutInfoChangeListenerImplTest {
     @SmallTest
     public void onShortcutUpdated_privateIntent_savesToAppIndex() throws Exception {
         ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
-        when(mFirebaseAppIndex.update(any())).thenReturn(Tasks.forResult(null));
 
         String privateIntentUri = "#Intent;component=androidx.core.google.shortcuts.test/androidx"
                 + ".core.google.shortcuts.TrampolineActivity;end";
@@ -284,7 +223,6 @@ public class ShortcutInfoChangeListenerImplTest {
     @SmallTest
     public void onShortcutAdded_savesToAppIndex() throws Exception {
         ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
-        when(mFirebaseAppIndex.update(any())).thenReturn(Tasks.forResult(null));
 
         Intent intent = Intent.parseUri("http://www.google.com", 0);
         ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "intent")
@@ -315,7 +253,6 @@ public class ShortcutInfoChangeListenerImplTest {
     @Test
     public void onShortcutAdded_withMacSignature_canVerifySignature() throws Exception {
         ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
-        when(mFirebaseAppIndex.update(any())).thenReturn(Tasks.forResult(null));
 
         KeysetHandle keysetHandle = ShortcutUtils.getOrCreateShortcutKeysetHandle(mContext);
         // Make sure keyset can be created.

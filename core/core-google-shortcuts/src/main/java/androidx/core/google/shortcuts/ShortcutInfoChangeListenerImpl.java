@@ -24,7 +24,6 @@ import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_LABEL_KEY;
 import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,8 +51,6 @@ import java.util.List;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
-    private static final String TAG = "ShortcutInfoChangeListe";
-
     private final Context mContext;
     private final FirebaseAppIndex mFirebaseAppIndex;
     private final FirebaseUserActions mFirebaseUserActions;
@@ -88,7 +85,7 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
      */
     @Override
     public void onShortcutAdded(@NonNull List<ShortcutInfoCompat> shortcuts) {
-        updateAndReportUsage(shortcuts);
+        mFirebaseAppIndex.update(buildIndexables(shortcuts));
     }
 
     /**
@@ -98,7 +95,7 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
      */
     @Override
     public void onShortcutUpdated(@NonNull List<ShortcutInfoCompat> shortcuts) {
-        updateAndReportUsage(shortcuts);
+        mFirebaseAppIndex.update(buildIndexables(shortcuts));
     }
 
     /**
@@ -137,25 +134,6 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
     @Override
     public void onAllShortcutsRemoved() {
         mFirebaseAppIndex.removeAll();
-    }
-
-    private void updateAndReportUsage(@NonNull List<ShortcutInfoCompat> shortcuts) {
-        mFirebaseAppIndex.update(buildIndexables(shortcuts))
-                .continueWithTask((task) -> {
-                    if (task.isSuccessful()) {
-                        reportUsages(shortcuts);
-                    } else {
-                        Log.e(TAG, "failed to update shortcuts to firebase", task.getException());
-                    }
-                    return null;
-                });
-    }
-
-    private void reportUsages(@NonNull List<ShortcutInfoCompat> shortcuts) {
-        for (ShortcutInfoCompat shortcut : shortcuts) {
-            String url = ShortcutUtils.getIndexableUrl(mContext, shortcut.getId());
-            mFirebaseUserActions.end(buildAction(url));
-        }
     }
 
     @NonNull
