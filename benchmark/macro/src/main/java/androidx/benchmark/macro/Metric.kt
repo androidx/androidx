@@ -17,7 +17,7 @@
 package androidx.benchmark.macro
 
 import androidx.annotation.RequiresApi
-import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseResult
+import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -37,7 +37,7 @@ public sealed class Metric {
      * TODO: takes package for package level filtering, but probably want a
      *  general config object coming into [start].
      */
-    internal abstract fun getMetrics(packageName: String, tracePath: String): Map<String, Long>
+    internal abstract fun getMetrics(packageName: String, tracePath: String): MetricsWithUiState
 }
 
 public class FrameTimingMetric : Metric() {
@@ -114,8 +114,8 @@ public class FrameTimingMetric : Metric() {
         "totalFrameCount"
     )
 
-    internal override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
-        return helper.metrics
+    internal override fun getMetrics(packageName: String, tracePath: String) = MetricsWithUiState(
+        metrics = helper.metrics
             .map {
                 val prefix = "gfxinfo_${packageName}_"
                 val keyWithoutPrefix = it.key.removePrefix(prefix)
@@ -131,7 +131,7 @@ public class FrameTimingMetric : Metric() {
             }
             .toMap()
             .filterKeys { keyAllowList.contains(it) }
-    }
+    )
 }
 
 /**
@@ -149,8 +149,36 @@ public class StartupTimingMetric : Metric() {
     internal override fun stop() {
     }
 
-    internal override fun getMetrics(packageName: String, tracePath: String): Map<String, Long> {
+    internal override fun getMetrics(packageName: String, tracePath: String): MetricsWithUiState {
         val json = PerfettoTraceProcessor.getJsonMetrics(tracePath, "android_startup")
-        return parseResult(json, packageName)
+        return parseStartupResult(json, packageName)
     }
+}
+
+internal data class MetricsWithUiState(
+    val metrics: Map<String, Long>,
+    val timelineStart: Long? = null,
+    val timelineEnd: Long? = null
+) {
+    operator fun plus(element: MetricsWithUiState) = MetricsWithUiState(
+        metrics = metrics + element.metrics,
+        timelineStart = minOfNullable(timelineStart, element.timelineStart),
+        timelineEnd = maxOfNullable(timelineEnd, element.timelineEnd)
+    )
+
+    companion object {
+        val EMPTY = MetricsWithUiState(mapOf())
+    }
+}
+
+internal fun minOfNullable(a: Long?, b: Long?): Long? {
+    if (a == null) return b
+    if (b == null) return a
+    return minOf(a, b)
+}
+
+internal fun maxOfNullable(a: Long?, b: Long?): Long? {
+    if (a == null) return b
+    if (b == null) return a
+    return maxOf(a, b)
 }
