@@ -36,6 +36,7 @@ import java.util.Objects;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
@@ -88,9 +89,16 @@ class FromGenericDocumentCodeGenerator {
             fieldFromGenericDoc(methodBuilder, entry.getKey(), entry.getValue());
         }
 
-        // Create an instance of the document class via the chosen constructor
-        methodBuilder.addStatement(
-                "$T document = new $T($L)", classType, classType, getConstructorParams());
+        // Create an instance of the document class via the chosen create method.
+        if (mModel.getChosenCreationMethod().getKind() == ElementKind.CONSTRUCTOR) {
+            methodBuilder.addStatement(
+                    "$T document = new $T($L)", classType, classType, getCreationMethodParams());
+        } else {
+            methodBuilder.addStatement(
+                    "$T document = $T.$L($L)", classType, classType,
+                    mModel.getChosenCreationMethod().getSimpleName().toString(),
+                    getCreationMethodParams());
+        }
 
         // Assign all fields which weren't set in the constructor
         for (String field : mModel.getAllFields().keySet()) {
@@ -752,9 +760,9 @@ class FromGenericDocumentCodeGenerator {
         return true;
     }
 
-    private CodeBlock getConstructorParams() {
+    private CodeBlock getCreationMethodParams() {
         CodeBlock.Builder builder = CodeBlock.builder();
-        List<String> params = mModel.getChosenConstructorParams();
+        List<String> params = mModel.getChosenCreationMethodParams();
         if (params.size() > 0) {
             builder.add("$NConv", params.get(0));
         }

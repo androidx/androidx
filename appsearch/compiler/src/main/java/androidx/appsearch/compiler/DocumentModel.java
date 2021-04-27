@@ -55,12 +55,12 @@ class DocumentModel {
     /** Determines how the annotation processor has decided to read the value of a field. */
     enum ReadKind { FIELD, GETTER }
     /** Determines how the annotation processor has decided to write the value of a field. */
-    enum WriteKind { FIELD, SETTER, CONSTRUCTOR }
+    enum WriteKind { FIELD, SETTER, CREATION_METHOD }
 
     private final IntrospectionHelper mHelper;
     private final TypeElement mClass;
     private final AnnotationMirror mDocumentAnnotation;
-    private final Set<ExecutableElement> mConstructors = new LinkedHashSet<>();
+    private final Set<ExecutableElement> mCreationMethods = new LinkedHashSet<>();
     private final Set<ExecutableElement> mMethods = new LinkedHashSet<>();
     // Key: Name of the field which is accessed through the getter method.
     // Value: ExecutableElement of the getter method.
@@ -73,8 +73,10 @@ class DocumentModel {
     private final Map<SpecialField, String> mSpecialFieldNames = new EnumMap<>(SpecialField.class);
     private final Map<VariableElement, ReadKind> mReadKinds = new HashMap<>();
     private final Map<VariableElement, WriteKind> mWriteKinds = new HashMap<>();
-    private final Map<VariableElement, ProcessingException> mWriteWhyConstructor = new HashMap<>();
-    private List<String> mChosenConstructorParams = null;
+    // Contains the reason why that field couldn't be written either by field or by setter.
+    private final Map<VariableElement, ProcessingException> mWritePendingFields = new HashMap<>();
+    private ExecutableElement mChosenCreationMethod = null;
+    private List<String> mChosenCreationMethodParams = null;
 
     private DocumentModel(
             @NonNull ProcessingEnvironment env,
@@ -93,14 +95,19 @@ class DocumentModel {
         // be get and set.
         for (Element child : mClass.getEnclosedElements()) {
             if (child.getKind() == ElementKind.CONSTRUCTOR) {
-                mConstructors.add((ExecutableElement) child);
+                mCreationMethods.add((ExecutableElement) child);
             } else if (child.getKind() == ElementKind.METHOD) {
-                mMethods.add((ExecutableElement) child);
+                ExecutableElement method = (ExecutableElement) child;
+                if (isFactoryMethod(method)) {
+                    mCreationMethods.add(method);
+                } else {
+                    mMethods.add((ExecutableElement) child);
+                }
             }
         }
 
         scanFields();
-        scanConstructors();
+        scanCreationMethods(mCreationMethods);
     }
 
     /**
@@ -185,8 +192,20 @@ class DocumentModel {
     }
 
     @NonNull
-    public List<String> getChosenConstructorParams() {
-        return Collections.unmodifiableList(mChosenConstructorParams);
+    public ExecutableElement getChosenCreationMethod() {
+        return mChosenCreationMethod;
+    }
+
+    @NonNull
+    public List<String> getChosenCreationMethodParams() {
+        return Collections.unmodifiableList(mChosenCreationMethodParams);
+    }
+
+    private boolean isFactoryMethod(ExecutableElement method) {
+        Set<Modifier> methodModifiers = method.getModifiers();
+        return methodModifiers.contains(Modifier.STATIC)
+                && !methodModifiers.contains(Modifier.PRIVATE)
+                && method.getReturnType() == mClass.asType();
     }
 
     private void scanFields() throws ProcessingException {
@@ -351,8 +370,9 @@ class DocumentModel {
      * AppSearch-managed class fields:
      *
      * <p>For read: visible field, or visible getter
-     * <p>For write: visible mutable field, or visible setter, or visible constructor accepting at
-     * minimum all fields that aren't mutable and have no visible setter.
+     *
+     * <p>For write: visible mutable field, or visible setter, or visible creation method
+     * accepting at minimum all fields that aren't mutable and have no visible setter.
      *
      * @throws ProcessingException if no access type is possible for the given field
      */
@@ -371,85 +391,87 @@ class DocumentModel {
         // Choose set access
         if (modifiers.contains(Modifier.PRIVATE) || modifiers.contains(Modifier.FINAL)
                 || modifiers.contains(Modifier.STATIC)) {
-            // Try to find a setter. If we can't find one, mark the WriteKind as CONSTRUCTOR. We
-            // don't know if this is true yet, the constructors will be inspected in a subsequent
-            // pass.
+            // Try to find a setter. If we can't find one, mark the WriteKind as {@code
+            // CREATION_METHOD}. We don't know if this is true yet, the creation methods will be
+            // inspected in a subsequent pass.
             try {
                 findSetter(fieldName);
                 mWriteKinds.put(field, WriteKind.SETTER);
             } catch (ProcessingException e) {
-                // We'll look for a constructor, so we may still be able to set this field,
+                // We'll look for a creation method, so we may still be able to set this field,
                 // but it's more likely the developer configured the setter incorrectly. Keep
-                // the exception around to include it in the report if no constructor is found.
-                mWriteWhyConstructor.put(field, e);
-                mWriteKinds.put(field, WriteKind.CONSTRUCTOR);
+                // the exception around to include it in the report if no creation method is found.
+                mWritePendingFields.put(field, e);
+                mWriteKinds.put(field, WriteKind.CREATION_METHOD);
             }
         } else {
             mWriteKinds.put(field, WriteKind.FIELD);
         }
     }
 
-    private void scanConstructors() throws ProcessingException {
+    private void scanCreationMethods(Set<ExecutableElement> creationMethods)
+            throws ProcessingException {
         // Maps name to Element
-        Map<String, VariableElement> constructorWrittenFields = new LinkedHashMap<>();
+        Map<String, VariableElement> creationMethodWrittenFields = new LinkedHashMap<>();
         for (Map.Entry<VariableElement, WriteKind> it : mWriteKinds.entrySet()) {
-            if (it.getValue() == WriteKind.CONSTRUCTOR) {
+            if (it.getValue() == WriteKind.CREATION_METHOD) {
                 String name = it.getKey().getSimpleName().toString();
-                constructorWrittenFields.put(name, it.getKey());
+                creationMethodWrittenFields.put(name, it.getKey());
             }
         }
 
-        Map<ExecutableElement, String> whyNotConstructor = new HashMap<>();
-        constructorSearch:
-        for (ExecutableElement constructor : mConstructors) {
-            if (constructor.getModifiers().contains(Modifier.PRIVATE)) {
-                whyNotConstructor.put(constructor, "Constructor is private");
-                continue constructorSearch;
+        Map<ExecutableElement, String> whyNotCreationMethod = new HashMap<>();
+        creationMethodSearch:
+        for (ExecutableElement method : creationMethods) {
+            if (method.getModifiers().contains(Modifier.PRIVATE)) {
+                whyNotCreationMethod.put(method, "Creation method is private");
+                continue creationMethodSearch;
             }
-            List<String> constructorParamFields = new ArrayList<>();
-            Set<String> remainingFields = new HashSet<>(constructorWrittenFields.keySet());
-            for (VariableElement parameter : constructor.getParameters()) {
+            List<String> creationMethodParamFields = new ArrayList<>();
+            Set<String> remainingFields = new HashSet<>(creationMethodWrittenFields.keySet());
+            for (VariableElement parameter : method.getParameters()) {
                 String name = parameter.getSimpleName().toString();
                 if (!mAllAppSearchFields.containsKey(name)) {
-                    whyNotConstructor.put(
-                            constructor,
+                    whyNotCreationMethod.put(
+                            method,
                             "Parameter \"" + name + "\" is not an AppSearch parameter; don't know "
                                     + "how to supply it.");
-                    continue constructorSearch;
+                    continue creationMethodSearch;
                 }
                 remainingFields.remove(name);
-                constructorParamFields.add(name);
+                creationMethodParamFields.add(name);
             }
             if (!remainingFields.isEmpty()) {
-                whyNotConstructor.put(
-                        constructor,
-                        "This constructor doesn't have parameters for the following fields: "
+                whyNotCreationMethod.put(
+                        method,
+                        "This method doesn't have parameters for the following fields: "
                                 + remainingFields);
-                continue constructorSearch;
+                continue creationMethodSearch;
             }
             // Found one!
-            mChosenConstructorParams = constructorParamFields;
+            mChosenCreationMethod = method;
+            mChosenCreationMethodParams = creationMethodParamFields;
             return;
         }
 
-        // If we got here, we couldn't find any constructors.
+        // If we got here, we couldn't find any creation methods.
         ProcessingException e =
                 new ProcessingException(
-                        "Failed to find any suitable constructors to build this class. See "
+                        "Failed to find any suitable creation methods to build this class. See "
                                 + "warnings for details.", mClass);
 
-        // Inform the developer why we started looking for constructors in the first place
-        for (VariableElement field : constructorWrittenFields.values()) {
-            ProcessingException warning = mWriteWhyConstructor.get(field);
+        // Inform the developer why we started looking for creation methods in the first place.
+        for (VariableElement field : creationMethodWrittenFields.values()) {
+            ProcessingException warning = mWritePendingFields.get(field);
             if (warning != null) {
                 e.addWarning(warning);
             }
         }
 
-        // Inform the developer about why each constructor we considered was rejected
-        for (Map.Entry<ExecutableElement, String> it : whyNotConstructor.entrySet()) {
+        // Inform the developer about why each creation method we considered was rejected.
+        for (Map.Entry<ExecutableElement, String> it : whyNotCreationMethod.entrySet()) {
             ProcessingException warning = new ProcessingException(
-                    "Cannot use this constructor to construct the class: " + it.getValue(),
+                    "Cannot use this creation method to construct the class: " + it.getValue(),
                     it.getKey());
             e.addWarning(warning);
         }
@@ -491,13 +513,13 @@ class DocumentModel {
 
     /** Finds setter function for a private field. */
     private void findSetter(String fieldName) throws ProcessingException {
-        // We can't report setter failure until we've searched the constructors, so this message is
-        // anticipatory and should be buffered by the caller.
+        // We can't report setter failure until we've searched the creation methods, so this
+        // message is anticipatory and should be buffered by the caller.
         ProcessingException e = new ProcessingException(
                 "Field cannot be written directly or via setter because it is private, final, or "
                         + "static, and we failed to find a suitable setter for field \""
                         + fieldName
-                        + "\". Trying to find a suitable constructor.",
+                        + "\". Trying to find a suitable creation method.",
                 mAllAppSearchFields.get(fieldName));
         String setFieldName = "set" + fieldName.substring(0, 1).toUpperCase()
                 + fieldName.substring(1);
