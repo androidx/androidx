@@ -81,10 +81,11 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     private int mLastUsedTextAlignment = -1;
     private float mLocalRotateAngle = 0f;
 
-    private int mAnchorType = UNSET_ANCHOR_TYPE;
-    private float mAnchorAngleDegrees = UNSET_ANCHOR_DEGREE;
-    private float mMinSweepDegrees = MIN_SWEEP_DEGREE;
-    private float mMaxSweepDegrees = MAX_SWEEP_DEGREE;
+    @WearArcLayout.AnchorType
+    private int mAnchorType;
+    private float mAnchorAngleDegrees;
+    private float mMinSweepDegrees;
+    private float mMaxSweepDegrees;
     private String mText = "";
     private float mTextSize = DEFAULT_TEXT_SIZE;
     @Nullable
@@ -709,7 +710,8 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         postInvalidate();
     }
 
-    /** returns the anchor type for positioning the curved text */
+    /** Returns the anchor type for positioning the curved text */
+    @WearArcLayout.AnchorType
     public int getAnchorType() {
         return mAnchorType;
     }
@@ -724,69 +726,67 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     }
 
     /** Returns the anchor angle used for positioning the text, in degrees. */
+    @FloatRange(from = 0f, to = 360f, toInclusive = true)
     public float getAnchorAngleDegrees() {
         return mAnchorAngleDegrees;
     }
 
     /** Sets the anchor angle used for positioning the text, in degrees. */
-    public void setAnchorAngleDegrees(float value) {
+    public void setAnchorAngleDegrees(
+            @FloatRange(from = 0f, to = 360f, toInclusive = true) float value) {
         mAnchorAngleDegrees = value;
         doRedraw();
     }
 
-    /** returns the maximum sweep angle in degrees for rendering the text */
-    @FloatRange(from = 0f, to = 360f, toInclusive = false)
-    public float getMaxSweepDegrees() {
-        return mMaxSweepDegrees;
-    }
-
-    /** sets the maximum sweep angle in degrees for rendering the text */
-    public void setMaxSweepDegrees(
-            @FloatRange(from = 0f, to = 360f, toInclusive = false) float value) {
-        if (value < mMinSweepDegrees) {
+    /** Sets the minimum and maximum sweep angle in degrees for rendering the text.
+     * @param minSweep ensure the text takes at least this angle (in degrees) in the arc. Use 0f if
+     *                 you don't want to specify a minimum.
+     * @param maxSweep limit the maximum angle (in degrees) that this curved text can take. Use
+     *                 360f if you don't want to specify a maximum.
+     */
+    public void setSweepRangeDegrees(
+            @FloatRange(from = 0f, to = 360f, toInclusive = true) float minSweep,
+            @FloatRange(from = 0f, to = 360f, toInclusive = true) float maxSweep) {
+        if (minSweep > maxSweep) {
             throw new IllegalArgumentException(
                     "MaxSweepDegrees cannot be smaller than MinSweepDegrees"
             );
         }
-        mMaxSweepDegrees = min(value, MAX_SWEEP_DEGREE);
+        mMinSweepDegrees = min(max(minSweep, MIN_SWEEP_DEGREE), MAX_SWEEP_DEGREE);
+        mMaxSweepDegrees = min(maxSweep, MAX_SWEEP_DEGREE);
         doUpdate();
     }
-    /** returns the sweep angle in degrees for rendering the text */
-    @FloatRange(from = 0f, to = 360f, toInclusive = false)
+
+    /** Returns the sweep angle in degrees for rendering the text */
+    @FloatRange(from = 0f, to = 360f, toInclusive = true)
     public float getMinSweepDegrees() {
         return mMinSweepDegrees;
     }
 
-    /** sets the sweep angle in degrees for rendering the text */
-    public void setMinSweepDegrees(
-            @FloatRange(from = 0f, to = 360f, toInclusive = false) float value) {
-        if (value > mMaxSweepDegrees) {
-            throw new IllegalArgumentException(
-                    "MinSweepDegrees cannot be bigger than MaxSweepDegrees"
-            );
-        }
-        mMinSweepDegrees = max(value, 0f);
-        doUpdate();
+    /** Returns the maximum sweep angle in degrees for rendering the text */
+    @FloatRange(from = 0f, to = 360f, toInclusive = true)
+    public float getMaxSweepDegrees() {
+        return mMaxSweepDegrees;
     }
 
-    /**  returns the text to be rendered */
+    /** Returns the text to be rendered */
     @Nullable
     public String getText() {
         return mText;
     }
 
-    /** sets the text to be rendered */
+    /** Sets the text to be rendered */
     public void setText(@Nullable String value) {
         mText = value == null ? "" : value;
         doUpdate();
     }
 
-    /** returns the text size for rendering the text */
+    /** Returns the text size for rendering the text */
     public float getTextSize() {
         return mTextSize;
     }
 
-    /** sets the text size for rendering the text */
+    /** Sets the text size for rendering the text */
     public void setTextSize(float value) {
         mTextSize = value;
         mPaint.setTextSize(mTextSize);
@@ -808,24 +808,24 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         doUpdate();
     }
 
-    /** returns the curved text layout direction */
+    /** Returns the curved text layout direction */
     public boolean getClockwise() {
         return mClockwise;
     }
 
-    /** sets the curved text layout direction */
+    /** Sets the curved text layout direction */
     public void setClockwise(boolean value) {
         mClockwise = value;
         doUpdate();
     }
 
-    /** returns the color for rendering the text */
+    /** Returns the color for rendering the text */
     @ColorInt
     public int getTextColor() {
         return mTextColor;
     }
 
-    /** sets the color for rendering the text */
+    /** Sets the color for rendering the text */
     public void setTextColor(@ColorInt int value) {
         mTextColor = value;
         doRedraw();
