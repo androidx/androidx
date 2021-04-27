@@ -41,6 +41,7 @@ import androidx.car.app.model.signin.ProviderSignInMethod;
 import androidx.car.app.model.signin.SignInTemplate;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.common.Utils;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.UUID;
@@ -108,6 +109,12 @@ public class SignInTemplateDemoScreen extends Screen {
     @NonNull
     @Override
     public Template onGetTemplate() {
+        if (getCarContext().getCarAppApiLevel() < CarAppApiLevels.LEVEL_2) {
+            return new MessageTemplate.Builder("Your host doesn't support Sign In template")
+                    .setTitle("Incompatible host")
+                    .setHeaderAction(Action.BACK)
+                    .build();
+        }
         switch (mState) {
             case USERNAME:
                 return getUsernameSignInTemplate();
