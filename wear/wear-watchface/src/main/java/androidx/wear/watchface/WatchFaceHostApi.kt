@@ -22,7 +22,7 @@ import android.os.Handler
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.SystemProviders.Companion.ProviderId
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
@@ -107,7 +107,7 @@ public interface WatchFaceHostApi {
     public fun setDefaultComplicationProviderWithFallbacks(
         watchFaceComplicationId: Int,
         providers: List<ComponentName>?,
-        @SystemProviders.ProviderId fallbackSystemProvider: Int,
+        @ProviderId fallbackSystemProvider: Int,
         type: Int
     )
 
