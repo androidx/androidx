@@ -555,8 +555,10 @@ public final class ComplicationDrawable extends Drawable {
         // No op.
     }
 
+    // TODO(b/186499115): In follow up patch, when this class is converted to Kotlin, make link
+    //  working.
     /**
-     * Does nothing. Use {@link ComplicationStyle#setImageColorFilter(ColorFilter)} instead to apply
+     * Does nothing. Use {link ComplicationStyle#setImageColorFilter(ColorFilter)} instead to apply
      * color filter to small and large images.
      */
     @Override
