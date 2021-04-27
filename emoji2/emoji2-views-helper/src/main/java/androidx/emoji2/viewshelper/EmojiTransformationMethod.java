@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.emoji2.helpers;
+package androidx.emoji2.viewshelper;
 
 import android.graphics.Rect;
 import android.text.method.TransformationMethod;
@@ -33,9 +33,10 @@ import androidx.emoji2.text.EmojiCompat;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 class EmojiTransformationMethod implements TransformationMethod {
+    @Nullable
     private final TransformationMethod mTransformationMethod;
 
-    EmojiTransformationMethod(TransformationMethod transformationMethod) {
+    EmojiTransformationMethod(@Nullable TransformationMethod transformationMethod) {
         mTransformationMethod = transformationMethod;
     }
 
@@ -70,5 +71,13 @@ class EmojiTransformationMethod implements TransformationMethod {
             mTransformationMethod.onFocusChanged(view, sourceText, focused, direction,
                     previouslyFocusedRect);
         }
+    }
+
+    /**
+     * Get the original transformation method that this is wrapping
+     * @return any transformation methods this emoji transformation method was wrapping
+     */
+    public TransformationMethod getOriginalTransformationMethod() {
+        return mTransformationMethod;
     }
 }
