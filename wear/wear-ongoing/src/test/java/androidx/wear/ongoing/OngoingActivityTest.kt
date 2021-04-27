@@ -125,12 +125,12 @@ open class OngoingActivityTest {
     @Test
     fun testCreateFromExistingOngoingActivityNull() {
         // Nothing to see here.
-        assertNull(OngoingActivity.fromExistingOngoingActivity(context))
+        assertNull(OngoingActivity.recoverOngoingActivity(context))
 
         // Same, with a normal notification posted.
         val builder = NotificationCompat.Builder(context, ChannelId)
         notificationManager.notify(NotificationId, builder.build())
-        assertNull(OngoingActivity.fromExistingOngoingActivity(context))
+        assertNull(OngoingActivity.recoverOngoingActivity(context))
 
         // Clean up.
         notificationManager.cancel(NotificationId)
@@ -158,7 +158,7 @@ open class OngoingActivityTest {
         for (i in 1..n) {
             val status = "New Status $i"
             statuses.add(status)
-            OngoingActivity.fromExistingOngoingActivity(context, i)!!
+            OngoingActivity.recoverOngoingActivity(context, i)!!
                 .update(context, OngoingActivityStatus.forPart(TextStatusPart(status)))
         }
         assertEquals(n, statuses.size) // Just in case.
@@ -219,7 +219,7 @@ open class OngoingActivityTest {
 
         // After posting, send an update.
         val newStatus = OngoingActivityStatus.forPart(TimerStatusPart(12345))
-        OngoingActivity.fromExistingOngoingActivity(context)!!.update(context, newStatus)
+        OngoingActivity.recoverOngoingActivity(context)!!.update(context, newStatus)
 
         // Get the notification and check that the status, and only the status has been updated.
         val notifications = notificationManager.activeNotifications
@@ -341,7 +341,7 @@ open class OngoingActivityTest {
 
         // After posting, send an update to the second OA and check the statuses.
         val newStatus2 = OngoingActivityStatus.forPart(TextStatusPart("update2"))
-        OngoingActivity.fromExistingOngoingActivity(context, 2)?.update(context, newStatus2)
+        OngoingActivity.recoverOngoingActivity(context, 2)?.update(context, newStatus2)
 
         assertEquals("status1, update2", getStatuses())
 

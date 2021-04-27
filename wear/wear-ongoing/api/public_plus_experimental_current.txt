@@ -3,9 +3,19 @@ package androidx.wear.ongoing {
 
   @RequiresApi(24) public final class OngoingActivity {
     method public void apply(android.content.Context);
-    method public static androidx.wear.ongoing.OngoingActivity? fromExistingOngoingActivity(android.content.Context, java.util.function.Predicate<androidx.wear.ongoing.OngoingActivityData!>);
-    method public static androidx.wear.ongoing.OngoingActivity? fromExistingOngoingActivity(android.content.Context);
-    method public static androidx.wear.ongoing.OngoingActivity? fromExistingOngoingActivity(android.content.Context, int);
+    method public android.graphics.drawable.Icon? getAnimatedIcon();
+    method public String? getCategory();
+    method public androidx.core.content.LocusIdCompat? getLocusId();
+    method public int getNotificationId();
+    method public int getOngoingActivityId();
+    method public android.graphics.drawable.Icon getStaticIcon();
+    method public androidx.wear.ongoing.OngoingActivityStatus? getStatus();
+    method public String? getTag();
+    method public long getTimestamp();
+    method public android.app.PendingIntent getTouchIntent();
+    method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context, java.util.function.Predicate<androidx.wear.ongoing.OngoingActivityData!>);
+    method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context);
+    method public static androidx.wear.ongoing.OngoingActivity? recoverOngoingActivity(android.content.Context, int);
     method public void update(android.content.Context, androidx.wear.ongoing.OngoingActivityStatus);
   }
 
