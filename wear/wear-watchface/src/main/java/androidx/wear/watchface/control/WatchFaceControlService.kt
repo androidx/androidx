@@ -30,6 +30,7 @@ import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.WatchFaceService
+import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.editor.EditorService
@@ -170,6 +171,11 @@ private class IWatchFaceInstanceServiceStub(
                         ) {
                             asyncTraceEvent.close()
                             callback.onInteractiveWatchFaceCreated(iInteractiveWatchFaceWcs)
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel) {
+                            asyncTraceEvent.close()
+                            callback.onInteractiveWatchFaceCrashed(exception)
                         }
                     }
                 )

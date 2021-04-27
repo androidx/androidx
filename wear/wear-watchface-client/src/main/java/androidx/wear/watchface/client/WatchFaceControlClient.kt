@@ -30,6 +30,7 @@ import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.IWatchFaceControlService
 import androidx.wear.watchface.control.WatchFaceControlService
+import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
@@ -105,7 +106,7 @@ public interface WatchFaceControlClient : AutoCloseable {
     public class ServiceNotBoundException : Exception()
 
     /** Exception thrown by [WatchFaceControlClient] methods if the service dies during start up. */
-    public class ServiceStartFailureException : Exception()
+    public class ServiceStartFailureException(message: String = "") : Exception(message)
 
     /**
      * Returns the [InteractiveWatchFaceClient] for the given instance id, or null if no such
@@ -264,6 +265,16 @@ internal class WatchFaceControlClientImpl internal constructor(
                         traceEvent.close()
                         continuation.resume(
                             InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
+                        )
+                    }
+
+                    override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel) {
+                        serviceBinder.unlinkToDeath(deathObserver, 0)
+                        traceEvent.close()
+                        continuation.resumeWithException(
+                            WatchFaceControlClient.ServiceStartFailureException(
+                                "Watchface crashed during init: $exception"
+                            )
                         )
                     }
                 }
