@@ -221,6 +221,7 @@ package androidx.wear.watchface {
     method public final android.opengl.EGLContext? getEglContext();
     method public final android.opengl.EGLDisplay? getEglDisplay();
     method @UiThread public final void initOpenGlContext();
+    method public final void makeContextCurrent();
     method @UiThread public void onGlContextCreated();
     method @UiThread public void onGlSurfaceCreated(@Px int width, @Px int height);
     method @UiThread public abstract void render(android.icu.util.Calendar calendar);
