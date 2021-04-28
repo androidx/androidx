@@ -59,7 +59,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
@@ -82,7 +81,6 @@ import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.lifecycle.ExperimentalUseCaseGroupLifecycle;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
@@ -842,21 +840,10 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     /**
-     * Workaround method for an AndroidX issue where {@link UseExperimental} doesn't support 2 or
-     * more annotations.
-     */
-    @OptIn(markerClass = ExperimentalUseCaseGroupLifecycle.class)
-    private Camera bindToLifecycleSafely(List<UseCase> useCases) {
-        Log.e(TAG, "Binding use cases " + useCases);
-        return bindToLifecycleSafelyWithExperimental(useCases);
-    }
-
-    /**
      * Binds use cases to the current lifecycle.
      */
     @OptIn(markerClass = ExperimentalUseCaseGroup.class)
-    @ExperimentalUseCaseGroupLifecycle
-    private Camera bindToLifecycleSafelyWithExperimental(List<UseCase> useCases) {
+    private Camera bindToLifecycleSafely(List<UseCase> useCases) {
         ViewPort viewPort = new ViewPort.Builder(new Rational(mViewFinder.getWidth(),
                 mViewFinder.getHeight()),
                 mViewFinder.getDisplay().getRotation())
