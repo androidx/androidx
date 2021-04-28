@@ -216,6 +216,13 @@ public final class FragmentContainerView extends FrameLayout {
         mApplyWindowInsetsListener = listener;
     }
 
+    @NonNull
+    @RequiresApi(20)
+    @Override
+    public WindowInsets onApplyWindowInsets(@NonNull WindowInsets insets) {
+        return insets;
+    }
+
     /**
      * {@inheritDoc}
      *

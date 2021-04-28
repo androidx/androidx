@@ -27,6 +27,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.animation.Animation
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -209,6 +210,28 @@ class FragmentContainerViewTest {
 
         assertThat(dispatchedToChild).isEqualTo(1)
         assertThat(dispatchedToChild2).isEqualTo(1)
+    }
+
+    @Suppress("DEPRECATION") /* systemWindowInsets */
+    @SdkSuppress(minSdkVersion = 29) // WindowInsets.Builder requires API 29
+    @Test
+    fun onApplyWindowInsets() {
+        val fragmentContainerView = FragmentContainerView(context)
+        var calledListener = false
+        fragmentContainerView.fitsSystemWindows = true
+
+        val sentInsets = WindowInsets.Builder()
+            .setSystemWindowInsets(Insets.of(4, 3, 2, 1))
+            .build()
+
+        ViewCompat.setOnApplyWindowInsetsListener(fragmentContainerView) { _, insets ->
+            calledListener = true
+            insets
+        }
+
+        fragmentContainerView.onApplyWindowInsets(sentInsets)
+
+        assertThat(calledListener).isFalse()
     }
 
     @Test
