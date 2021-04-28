@@ -337,7 +337,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @NonNull
     @Override
-    public ListenableFuture<Void> maybeFlush() {
+    public ListenableFuture<Void> requestFlush() {
         return execute(() -> {
             mAppSearchImpl.persistToDisk(PersistType.Code.FULL);
             return null;
