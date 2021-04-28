@@ -30,9 +30,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.os.Parcel
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
 import android.view.Surface
@@ -43,6 +40,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.complications.ComplicationBounds
+import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.ProviderChooserIntent
 import androidx.wear.complications.ProviderInfoRetriever
@@ -112,6 +110,9 @@ private const val TIMEOUT_MILLIS = 500L
 private const val PROVIDER_CHOOSER_EXTRA_KEY = "PROVIDER_CHOOSER_EXTRA_KEY"
 private const val PROVIDER_CHOOSER_EXTRA_VALUE = "PROVIDER_CHOOSER_EXTRA_VALUE"
 
+private typealias WireComplicationProviderInfo =
+    android.support.wearable.complications.ComplicationProviderInfo
+
 /** Trivial "editor" which exposes the EditorSession for testing. */
 public open class OnWatchFaceEditingTestActivity : ComponentActivity() {
     public lateinit var editorSession: EditorSession
@@ -158,14 +159,14 @@ public open class TestProviderInfoRetrieverProvider :
             "ProviderApp1",
             "Provider1",
             providerIcon1,
-            ComplicationType.SHORT_TEXT.toWireComplicationType(),
+            ComplicationType.SHORT_TEXT,
             provider1
         ),
         RIGHT_COMPLICATION_ID to ComplicationProviderInfo(
             "ProviderApp2",
             "Provider2",
             providerIcon2,
-            ComplicationType.LONG_TEXT.toWireComplicationType(),
+            ComplicationType.LONG_TEXT,
             provider2
         )
     )
@@ -192,13 +193,13 @@ public open class TestProviderInfoRetrieverProvider :
     override fun getProviderInfos(
         watchFaceComponent: ComponentName,
         ids: IntArray
-    ): Array<ComplicationProviderInfo>? {
+    ): Array<WireComplicationProviderInfo?>? {
         if (watchFaceComponent != this.watchFaceComponent) {
             return null
         }
-        return ArrayList<ComplicationProviderInfo>().apply {
+        return ArrayList<WireComplicationProviderInfo?>().apply {
             for (id in ids) {
-                providerData[id]?.let { add(it) }
+                add(providerData[id]?.toWireComplicationProviderInfo())
             }
         }.toTypedArray()
     }
@@ -605,7 +606,7 @@ public class EditorSessionTest {
             runBlocking {
                 val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
                 val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
-                val complicationType = ComplicationData.TYPE_SHORT_TEXT
+                val complicationType = ComplicationType.SHORT_TEXT
                 val complicationText = "TestText"
                 val mockBinder = Mockito.mock(IBinder::class.java)
 
@@ -623,7 +624,7 @@ public class EditorSessionTest {
                     true
                 }.`when`(mockProviderInfoService).requestPreviewComplicationData(
                     eq(providerComponentName),
-                    eq(complicationType),
+                    eq(complicationType.toWireComplicationType()),
                     any()
                 )
 
@@ -665,24 +666,18 @@ public class EditorSessionTest {
             runBlocking {
                 val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
                 val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
-                val complicationType = ComplicationData.TYPE_SHORT_TEXT
+                val complicationType = ComplicationType.SHORT_TEXT
 
                 val providerInfoRetriever = ProviderInfoRetriever(mockProviderInfoService)
                 val previewComplication = editorSession.getPreviewData(
                     providerInfoRetriever,
                     // Construct a ComplicationProviderInfo with null providerComponentName.
                     ComplicationProviderInfo(
-                        Parcel.obtain().apply {
-                            writeBundle(
-                                Bundle().apply {
-                                    putString("app_name", "provider.app")
-                                    putString("provider_name", "provider")
-                                    putParcelable("provider_icon", providerIcon)
-                                    putInt("complication_type", complicationType)
-                                }
-                            )
-                            setDataPosition(0)
-                        }
+                        "provider.app",
+                        "provider",
+                        providerIcon,
+                        complicationType,
+                        null,
                     )
                 ) as ShortTextComplicationData
 
@@ -708,13 +703,13 @@ public class EditorSessionTest {
             runBlocking {
                 val editorSession = it.editorSession as OnWatchFaceEditorSessionImpl
                 val mockProviderInfoService = Mockito.mock(IProviderInfoService::class.java)
-                val complicationType = ComplicationData.TYPE_SHORT_TEXT
+                val complicationType = ComplicationType.SHORT_TEXT
 
                 `when`(mockProviderInfoService.apiVersion).thenReturn(1)
                 `when`(
                     mockProviderInfoService.requestPreviewComplicationData(
                         eq(providerComponentName),
-                        eq(complicationType),
+                        eq(complicationType.toWireComplicationType()),
                         any(IPreviewComplicationDataCallback::class.java)
                     )
                 ).thenReturn(false) // Triggers the ExecutionException.
@@ -752,9 +747,9 @@ public class EditorSessionTest {
                     Icon.createWithBitmap(
                         Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
                     ),
-                    ComplicationType.LONG_TEXT.toWireComplicationType(),
+                    ComplicationType.LONG_TEXT,
                     provider3
-                )
+                ).toWireComplicationProviderInfo()
             )
         }
 
@@ -856,9 +851,9 @@ public class EditorSessionTest {
                     Icon.createWithBitmap(
                         Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
                     ),
-                    ComplicationType.LONG_TEXT.toWireComplicationType(),
+                    ComplicationType.LONG_TEXT,
                     provider3
-                )
+                ).toWireComplicationProviderInfo()
             )
         }
 
@@ -1189,7 +1184,7 @@ public class EditorSessionTest {
                         "provider.app",
                         "provider",
                         providerIcon,
-                        ComplicationData.TYPE_SHORT_TEXT,
+                        ComplicationType.SHORT_TEXT,
                         providerComponentName
                     )
                 )

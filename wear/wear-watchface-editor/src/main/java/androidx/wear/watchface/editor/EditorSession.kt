@@ -25,7 +25,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.support.wearable.complications.ComplicationProviderInfo
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.Px
@@ -33,15 +32,16 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.complications.ComplicationHelperActivity
+import androidx.wear.complications.ComplicationProviderInfo
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationText
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.EmptyComplicationData
-import androidx.wear.complications.data.LongTextComplicationData
 import androidx.wear.complications.data.MonochromaticImage
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
+import androidx.wear.complications.toApiComplicationProviderInfo
 import androidx.wear.utility.AsyncTraceEvent
 import androidx.wear.utility.TraceEvent
 import androidx.wear.utility.launchWithTracing
@@ -403,11 +403,11 @@ public abstract class BaseEditorSession internal constructor(
             return null
         }
         // Fetch preview ComplicationData if possible.
-        return providerInfo.providerComponentName?.let {
+        providerInfo.componentName?.let {
             try {
                 providerInfoRetriever.retrievePreviewComplicationData(
                     it,
-                    ComplicationType.fromWireType(providerInfo.complicationType)
+                    providerInfo.type
                 )
             } catch (e: Exception) {
                 // Something went wrong, so use fallback preview data.
@@ -418,23 +418,13 @@ public abstract class BaseEditorSession internal constructor(
 
     private fun makeFallbackPreviewData(
         providerInfo: ComplicationProviderInfo
-    ) = when {
-        providerInfo.providerName == null -> null
-
-        providerInfo.providerIcon == null ->
-            LongTextComplicationData.Builder(
-                PlainComplicationText.Builder(providerInfo.providerName!!).build(),
-                ComplicationText.EMPTY
-            ).build()
-
-        else ->
-            ShortTextComplicationData.Builder(
-                PlainComplicationText.Builder(providerInfo.providerName!!).build(),
-                ComplicationText.EMPTY
-            ).setMonochromaticImage(
-                MonochromaticImage.Builder(providerInfo.providerIcon!!).build()
-            ).build()
-    }
+    ) =
+        ShortTextComplicationData.Builder(
+            PlainComplicationText.Builder(providerInfo.name).build(),
+            ComplicationText.EMPTY
+        ).setMonochromaticImage(
+            MonochromaticImage.Builder(providerInfo.icon).build()
+        ).build()
 
     protected fun fetchComplicationPreviewData() {
         val providerInfoRetriever = providerInfoRetrieverProvider.getProviderInfoRetriever()
@@ -453,10 +443,7 @@ public abstract class BaseEditorSession internal constructor(
                         { it.watchFaceComplicationId },
                         {
                             async {
-                                getPreviewData(
-                                    providerInfoRetriever,
-                                    it.info?.toWireComplicationProviderInfo()
-                                )
+                                getPreviewData(providerInfoRetriever, it.info)
                             }
                         }
                         // Coerce to a Map<Int, ComplicationData> omitting null values.
@@ -711,6 +698,10 @@ internal class ComplicationProviderChooserContract : ActivityResultContract<
     }
 
     override fun parseResult(resultCode: Int, intent: Intent?) = intent?.let {
-        ComplicationProviderChooserResult(it.getParcelableExtra(EXTRA_PROVIDER_INFO))
+        ComplicationProviderChooserResult(
+            it.getParcelableExtra<android.support.wearable.complications.ComplicationProviderInfo>(
+                EXTRA_PROVIDER_INFO
+            )?.toApiComplicationProviderInfo()
+        )
     }
 }
