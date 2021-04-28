@@ -19,21 +19,27 @@ package androidx.navigation.compose
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.Navigator
+import androidx.navigation.get
 import java.util.UUID
 
 /**
@@ -116,27 +122,27 @@ public fun NavHost(
 
     val saveableStateHolder = rememberSaveableStateHolder()
 
-    // state from the navController back stack
-    val currentNavBackStackEntry = navController.currentBackStackEntryAsState().value
+    // Find the ComposeNavigator, returning early if it isn't found
+    // (such as is the case when using TestNavHostController)
+    val composeNavigator = navController.navigatorProvider.get<Navigator<out NavDestination>>(
+        ComposeNavigator.NAME
+    ) as? ComposeNavigator ?: return
+    val backStack by composeNavigator.backStack.collectAsState()
 
-    // If the currentNavBackStackEntry is null, we have popped all of the destinations
-    // off of the navController back stack and have nothing to show.
-    if (currentNavBackStackEntry != null) {
-        val destination = currentNavBackStackEntry.destination
-        // If the destination is not a compose destination, (e.i. activity, dialog, view, etc)
-        // then we do nothing and rely on Navigation to show the proper destination
-        if (destination is ComposeNavigator.Destination) {
-            // while in the scope of the composable, we provide the navBackStackEntry as the
-            // ViewModelStoreOwner and LifecycleOwner
-            Box(modifier, propagateMinConstraints = true) {
-                CompositionLocalProvider(
-                    LocalViewModelStoreOwner provides currentNavBackStackEntry,
-                    LocalLifecycleOwner provides currentNavBackStackEntry,
-                    LocalSavedStateRegistryOwner provides currentNavBackStackEntry
-                ) {
-                    saveableStateHolder.SaveableStateProvider {
-                        destination.content(currentNavBackStackEntry)
-                    }
+    backStack.filter { backStackEntry ->
+        backStackEntry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+    }.forEach { backStackEntry ->
+        val destination = backStackEntry.destination as ComposeNavigator.Destination
+        // while in the scope of the composable, we provide the navBackStackEntry as the
+        // ViewModelStoreOwner and LifecycleOwner
+        Box(modifier, propagateMinConstraints = true) {
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner provides backStackEntry,
+                LocalLifecycleOwner provides backStackEntry,
+                LocalSavedStateRegistryOwner provides backStackEntry
+            ) {
+                saveableStateHolder.SaveableStateProvider {
+                    destination.content(backStackEntry)
                 }
             }
         }
