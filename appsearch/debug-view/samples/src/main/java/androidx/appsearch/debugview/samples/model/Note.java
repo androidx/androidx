@@ -27,42 +27,42 @@ import androidx.core.util.Preconditions;
 public class Note {
 
     Note(@NonNull String namespace, @NonNull String id, @NonNull String text) {
-        this.id = Preconditions.checkNotNull(id);
-        this.namespace = Preconditions.checkNotNull(namespace);
-        this.text = Preconditions.checkNotNull(text);
+        mId = Preconditions.checkNotNull(id);
+        mNamespace = Preconditions.checkNotNull(namespace);
+        mText = Preconditions.checkNotNull(text);
     }
 
-    // TODO (b/181623824): Add m-prefix to fields.
     @Document.Id
-    private final String id;
+    private final String mId;
 
-    @Document.Namespace private final String namespace;
+    @Document.Namespace
+    private final String mNamespace;
 
     @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-    private final String text;
+    private final String mText;
 
     /** Returns the ID of the {@link Note} object. */
     @NonNull
     public String getId() {
-        return id;
+        return mId;
     }
 
     /** Returns the namespace of the {@link Note} object. */
     @NonNull
     public String getNamespace() {
-        return namespace;
+        return mNamespace;
     }
 
     /** Returns the text of the {@link Note} object. */
     @NonNull
     public String getText() {
-        return text;
+        return mText;
     }
 
     @Override
     @NonNull
     public String toString() {
-        return text;
+        return mText;
     }
 
     /**

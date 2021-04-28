@@ -58,10 +58,10 @@ public class PutDocumentsRequestTest {
         @Document.StringProperty(indexingType = INDEXING_TYPE_PREFIXES)
         String mString;
 
-        Card(String mNamespace, String mId, String mString) {
-            this.mId = mId;
-            this.mNamespace = mNamespace;
-            this.mString = mString;
+        Card(String namespace, String id, String string) {
+            mId = id;
+            mNamespace = namespace;
+            mString = string;
         }
     }
 
