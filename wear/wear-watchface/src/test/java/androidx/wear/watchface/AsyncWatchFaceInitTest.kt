@@ -24,6 +24,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
+import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.WatchUiState
@@ -37,6 +38,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -237,6 +239,12 @@ public class AsyncWatchFaceInitTest {
                                 iInteractiveWatchFaceWcs: IInteractiveWatchFace?
                             ) {
                                 pendingInteractiveWatchFaceWcs = iInteractiveWatchFaceWcs
+                            }
+
+                            override fun onInteractiveWatchFaceCrashed(
+                                exception: CrashInfoParcel?
+                            ) {
+                                fail("WatchFace crashed: $exception")
                             }
                         }
                     )
