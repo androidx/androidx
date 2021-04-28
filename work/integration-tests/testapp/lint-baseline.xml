@@ -150,7 +150,7 @@
         errorLine1="    &lt;integer name=&quot;channel_importance&quot;>3&lt;/integer>"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values/strings.xml"
+            file="src/main/res/values/donottranslate-strings.xml"
             line="45"
             column="14"/>
     </issue>
@@ -161,7 +161,7 @@
         errorLine1="    &lt;integer name=&quot;notification_id&quot;>1&lt;/integer>"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values/strings.xml"
+            file="src/main/res/values/donottranslate-strings.xml"
             line="48"
             column="14"/>
     </issue>

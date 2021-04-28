@@ -107,7 +107,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="190"
+            line="205"
             column="54"/>
     </issue>
 

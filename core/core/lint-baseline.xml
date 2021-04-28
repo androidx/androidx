@@ -2450,7 +2450,7 @@
         errorLine2="                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/AlarmManagerCompat.java"
-            line="60"
+            line="62"
             column="26"/>
     </issue>
 
@@ -2461,7 +2461,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/AlarmManagerCompat.java"
-            line="60"
+            line="62"
             column="40"/>
     </issue>
 
@@ -2472,7 +2472,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/AlarmManagerCompat.java"
-            line="118"
+            line="120"
             column="26"/>
     </issue>
 
@@ -2483,7 +2483,7 @@
         errorLine2="                         ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/AlarmManagerCompat.java"
-            line="163"
+            line="165"
             column="26"/>
     </issue>
 
@@ -2494,7 +2494,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/AlarmManagerCompat.java"
-            line="223"
+            line="225"
             column="26"/>
     </issue>
 
@@ -3341,7 +3341,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
-            line="153"
+            line="238"
             column="24"/>
     </issue>
 
@@ -4635,45 +4635,45 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.core.widget.NestedScrollView is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP || getClipToPadding()) {"
-        errorLine2="                                                                            ~~~~~~~~~~~~~~~~">
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP || getClipToPadding()) {"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="2008"
-            column="77"/>
+            line="2075"
+            column="73"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.core.widget.NestedScrollView is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &amp;&amp; getClipToPadding()) {"
-        errorLine2="                                                                             ~~~~~~~~~~~~~~~~">
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &amp;&amp; getClipToPadding()) {"
+        errorLine2="                                                                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="2012"
-            column="78"/>
+            line="2079"
+            column="74"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.core.widget.NestedScrollView is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP || getClipToPadding()) {"
-        errorLine2="                                                                            ~~~~~~~~~~~~~~~~">
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP || getClipToPadding()) {"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="2029"
-            column="77"/>
+            line="2096"
+            column="73"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.core.widget.NestedScrollView is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &amp;&amp; getClipToPadding()) {"
-        errorLine2="                                                                             ~~~~~~~~~~~~~~~~">
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &amp;&amp; getClipToPadding()) {"
+        errorLine2="                                                                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="2033"
-            column="78"/>
+            line="2100"
+            column="74"/>
     </issue>
 
     <issue
@@ -14736,7 +14736,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
-            line="47"
+            line="67"
             column="29"/>
     </issue>
 
@@ -14747,7 +14747,7 @@
         errorLine2="                        ~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
-            line="207"
+            line="337"
             column="25"/>
     </issue>
 
@@ -16408,7 +16408,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="247"
+            line="272"
             column="31"/>
     </issue>
 
@@ -16419,7 +16419,7 @@
         errorLine2="                                                           ~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="253"
+            line="278"
             column="60"/>
     </issue>
 
@@ -16430,7 +16430,7 @@
         errorLine2="                                                                           ~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="253"
+            line="278"
             column="76"/>
     </issue>
 
@@ -16441,7 +16441,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="287"
+            line="312"
             column="31"/>
     </issue>
 
@@ -16452,7 +16452,7 @@
         errorLine2="                                                           ~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="293"
+            line="318"
             column="60"/>
     </issue>
 
@@ -16463,7 +16463,7 @@
         errorLine2="                                                                           ~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="293"
+            line="318"
             column="76"/>
     </issue>
 
@@ -16474,7 +16474,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="472"
+            line="497"
             column="25"/>
     </issue>
 
@@ -16485,7 +16485,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="481"
+            line="506"
             column="25"/>
     </issue>
 
@@ -16496,7 +16496,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="490"
+            line="515"
             column="25"/>
     </issue>
 
@@ -16507,7 +16507,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="490"
+            line="515"
             column="37"/>
     </issue>
 
@@ -16518,7 +16518,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="499"
+            line="524"
             column="25"/>
     </issue>
 
@@ -16529,7 +16529,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="499"
+            line="524"
             column="48"/>
     </issue>
 
@@ -16540,7 +16540,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="620"
+            line="645"
             column="37"/>
     </issue>
 
@@ -16551,7 +16551,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="717"
+            line="742"
             column="42"/>
     </issue>
 
@@ -16562,7 +16562,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="828"
+            line="854"
             column="33"/>
     </issue>
 
@@ -16573,7 +16573,7 @@
         errorLine2="                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="1011"
+            line="1061"
             column="41"/>
     </issue>
 
@@ -16584,7 +16584,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="1574"
+            line="1624"
             column="33"/>
     </issue>
 
@@ -16595,7 +16595,7 @@
         errorLine2="                                           ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="1590"
+            line="1640"
             column="44"/>
     </issue>
 
@@ -16606,7 +16606,7 @@
         errorLine2="                                                           ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="1725"
+            line="1808"
             column="60"/>
     </issue>
 
@@ -16617,7 +16617,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="1791"
+            line="1874"
             column="35"/>
     </issue>
 
@@ -16628,7 +16628,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="1791"
+            line="1874"
             column="47"/>
     </issue>
 
@@ -16639,7 +16639,7 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="1811"
+            line="1894"
             column="13"/>
     </issue>
 
@@ -16650,7 +16650,7 @@
         errorLine2="                                                 ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="1838"
+            line="1921"
             column="50"/>
     </issue>
 
@@ -16661,7 +16661,7 @@
         errorLine2="                                                             ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="1838"
+            line="1921"
             column="62"/>
     </issue>
 
@@ -16672,7 +16672,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="1998"
+            line="2066"
             column="22"/>
     </issue>
 
@@ -16683,7 +16683,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="2079"
+            line="2145"
             column="43"/>
     </issue>
 
@@ -16694,7 +16694,7 @@
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="2092"
+            line="2158"
             column="15"/>
     </issue>
 

@@ -95,7 +95,7 @@
         errorLine1="    &lt;string name=&quot;preview&quot;>Preview&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values/strings.xml"
+            file="src/main/res/values/donottranslate-strings.xml"
             line="20"
             column="13"/>
     </issue>
@@ -106,7 +106,7 @@
         errorLine1="    &lt;string name=&quot;btn_confirm&quot;>Confirm&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values/strings.xml"
+            file="src/main/res/values/donottranslate-strings.xml"
             line="42"
             column="13"/>
     </issue>
@@ -117,7 +117,7 @@
         errorLine1="    &lt;string name=&quot;btn_cancel&quot;>Cancel&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values/strings.xml"
+            file="src/main/res/values/donottranslate-strings.xml"
             line="43"
             column="13"/>
     </issue>

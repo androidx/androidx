@@ -107,7 +107,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaController.java"
-            line="1368"
+            line="1377"
             column="29"/>
     </issue>
 
