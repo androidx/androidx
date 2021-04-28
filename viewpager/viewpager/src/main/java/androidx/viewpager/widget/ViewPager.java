@@ -2519,7 +2519,7 @@ public class ViewPager extends ViewGroup {
 
                 canvas.rotate(270);
                 canvas.translate(-height + getPaddingTop(), mFirstOffset * width);
-                mLeftEdge.setSize(height, width);
+                mLeftEdge.setSize(/* width= */height, /* height= */width);
                 needsInvalidate |= mLeftEdge.draw(canvas);
                 canvas.restoreToCount(restoreCount);
             }
@@ -2530,7 +2530,7 @@ public class ViewPager extends ViewGroup {
 
                 canvas.rotate(90);
                 canvas.translate(-getPaddingTop(), -(mLastOffset + 1) * width);
-                mRightEdge.setSize(height, width);
+                mRightEdge.setSize(/* width= */height, /* height= */width);
                 needsInvalidate |= mRightEdge.draw(canvas);
                 canvas.restoreToCount(restoreCount);
             }
