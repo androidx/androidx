@@ -20586,7 +20586,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="156"
+            line="148"
             column="26"/>
     </issue>
 
@@ -20597,7 +20597,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="160"
+            line="152"
             column="26"/>
     </issue>
 
@@ -20608,7 +20608,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="160"
+            line="152"
             column="43"/>
     </issue>
 
@@ -20619,7 +20619,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="165"
+            line="157"
             column="26"/>
     </issue>
 
@@ -20630,7 +20630,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="165"
+            line="157"
             column="43"/>
     </issue>
 
@@ -20641,7 +20641,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="230"
+            line="223"
             column="25"/>
     </issue>
 
@@ -20652,7 +20652,7 @@
         errorLine2="                                                                    ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="250"
+            line="243"
             column="69"/>
     </issue>
 
@@ -20663,7 +20663,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="266"
+            line="260"
             column="28"/>
     </issue>
 
@@ -20674,7 +20674,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="275"
+            line="270"
             column="12"/>
     </issue>
 
@@ -20685,7 +20685,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="283"
+            line="279"
             column="41"/>
     </issue>
 
@@ -20696,7 +20696,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="319"
+            line="317"
             column="30"/>
     </issue>
 
@@ -20707,7 +20707,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="333"
+            line="331"
             column="12"/>
     </issue>
 

@@ -9479,7 +9479,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="800"
+            line="801"
             column="64"/>
     </issue>
 
@@ -11613,7 +11613,7 @@
         errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="874"
+            line="875"
             column="26"/>
     </issue>
 

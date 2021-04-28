@@ -8,7 +8,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/benchmark/macro/Macrobenchmark.kt"
-            line="45"
+            line="49"
             column="26"/>
     </issue>
 

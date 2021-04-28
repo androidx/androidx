@@ -7,7 +7,7 @@
         errorLine1="    &lt;string name=&quot;error_occurred&quot;>An error occurred while loading.&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values/strings.xml"
+            file="src/main/res/values/donottranslate-strings.xml"
             line="22"
             column="13"/>
     </issue>

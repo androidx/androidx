@@ -8,7 +8,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="357"
+            line="355"
             column="39"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="369"
+            line="367"
             column="35"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="184"
+            line="182"
             column="13"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="187"
+            line="185"
             column="22"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="188"
+            line="186"
             column="21"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="386"
+            line="384"
             column="25"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="389"
+            line="387"
             column="25"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="398"
+            line="396"
             column="33"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="407"
+            line="405"
             column="45"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="429"
+            line="427"
             column="45"/>
     </issue>
 
