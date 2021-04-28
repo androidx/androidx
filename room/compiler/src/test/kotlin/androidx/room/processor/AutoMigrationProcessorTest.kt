@@ -48,12 +48,11 @@ class AutoMigrationProcessorTest {
                     "foo.bar.MyAutoMigration"
                 ),
                 context = invocation.context,
-                from = 1,
-                to = 2,
                 spec = invocation.processingEnv.requireType(
                     "foo.bar.MyAutoMigration"
                 ),
-                latestDbSchema = from.database
+                fromSchemaBundle = fromSchemaBundle.database,
+                toSchemaBundle = toSchemaBundle.database
             ).process()
             invocation.assertCompilationResult {
                 hasError(AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR)
@@ -76,10 +75,9 @@ class AutoMigrationProcessorTest {
             AutoMigrationProcessor(
                 element = invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
                 context = invocation.context,
-                from = 1,
-                to = 2,
                 spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
-                latestDbSchema = from.database
+                fromSchemaBundle = fromSchemaBundle.database,
+                toSchemaBundle = toSchemaBundle.database
             ).process()
             invocation.assertCompilationResult {
                 hasError(ProcessorErrors.AUTOMIGRATION_SPEC_MUST_BE_CLASS)
@@ -106,12 +104,11 @@ class AutoMigrationProcessorTest {
                     "foo.bar.MyAutoMigrationDb.MyAutoMigration"
                 ),
                 context = invocation.context,
-                from = 1,
-                to = 2,
                 spec = invocation.processingEnv.requireType(
                     "foo.bar.MyAutoMigrationDb.MyAutoMigration"
                 ),
-                latestDbSchema = from.database
+                fromSchemaBundle = fromSchemaBundle.database,
+                toSchemaBundle = toSchemaBundle.database
             ).process()
             invocation.assertCompilationResult {
                 hasError(INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC)
@@ -136,10 +133,9 @@ class AutoMigrationProcessorTest {
             AutoMigrationProcessor(
                 element = invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
                 context = invocation.context,
-                from = 1,
-                to = 2,
                 spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
-                latestDbSchema = from.database
+                fromSchemaBundle = fromSchemaBundle.database,
+                toSchemaBundle = toSchemaBundle.database
             ).process()
             invocation.assertCompilationResult {
                 hasError(
@@ -152,10 +148,56 @@ class AutoMigrationProcessorTest {
     /**
      * Schemas for processor testing.
      */
-    val from = SchemaBundle(
+    val fromSchemaBundle = SchemaBundle(
         1,
         DatabaseBundle(
             1,
+            "",
+            mutableListOf(
+                EntityBundle(
+                    "Song",
+                    "CREATE TABLE IF NOT EXISTS `Song` (`id` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                    listOf(
+                        FieldBundle(
+                            "id",
+                            "id",
+                            "INTEGER",
+                            true,
+                            "1"
+                        ),
+                        FieldBundle(
+                            "title",
+                            "title",
+                            "TEXT",
+                            true,
+                            ""
+                        ),
+                        FieldBundle(
+                            "length",
+                            "length",
+                            "INTEGER",
+                            true,
+                            "1"
+                        )
+                    ),
+                    PrimaryKeyBundle(
+                        false,
+                        mutableListOf("id")
+                    ),
+                    mutableListOf(),
+                    mutableListOf()
+                )
+            ),
+            mutableListOf(),
+            mutableListOf()
+        )
+    )
+
+    val toSchemaBundle = SchemaBundle(
+        2,
+        DatabaseBundle(
+            2,
             "",
             mutableListOf(
                 EntityBundle(

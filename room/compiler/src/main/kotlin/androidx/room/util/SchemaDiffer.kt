@@ -297,7 +297,6 @@ class SchemaDiffer(
             )
             // Make sure there are no conflicts in the new version of the table with the
             // temporary new table name
-            // TODO: (b/183975119) Use another prefix automatically in these cases
             if (toSchemaBundle.entitiesByTableName.containsKey(toTable.newTableName)) {
                 diffError(tableWithConflictingPrefixFound(toTable.newTableName))
             }
@@ -320,7 +319,6 @@ class SchemaDiffer(
             if (columnChanged && !complexChangedTables.containsKey(fromTable.tableName)) {
                 // Make sure there are no conflicts in the new version of the table with the
                 // temporary new table name
-                // TODO: (b/183975119) Use another prefix automatically in these cases
                 if (toSchemaBundle.entitiesByTableName.containsKey(toTable.newTableName)) {
                     diffError(tableWithConflictingPrefixFound(toTable.newTableName))
                 }
