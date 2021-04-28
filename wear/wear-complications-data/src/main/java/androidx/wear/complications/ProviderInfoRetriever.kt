@@ -138,7 +138,7 @@ public class ProviderInfoRetriever : AutoCloseable {
         awaitDeferredService().getProviderInfos(
             watchFaceComponent, watchFaceComplicationIds
         )?.mapIndexed { index, info ->
-            ProviderInfo(watchFaceComplicationIds[index], info.toApiComplicationProviderInfo())
+            ProviderInfo(watchFaceComplicationIds[index], info?.toApiComplicationProviderInfo())
         }?.toTypedArray()
     }
 
