@@ -637,12 +637,12 @@ public final class HintConstants {
      *
      * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
      * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
-     * should be <code>{@value #AUTOFILL_HINT_TFA_APP_OTP}</code>).
+     * should be <code>{@value #AUTOFILL_HINT_2FA_APP_OTP}</code>).
      *
      * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
      * hints.
      */
-    public static final String AUTOFILL_HINT_TFA_APP_OTP = "tfaAppOTPCode";
+    public static final String AUTOFILL_HINT_2FA_APP_OTP = "2faAppOTPCode";
 
     /**
      * Hint indicating that this view is not eligible for autofill.
@@ -669,7 +669,8 @@ public final class HintConstants {
     public static final String AUTOFILL_HINT_PROMO_CODE = "promoCode";
 
     /**
-     * Hint indicating that this view can be autofilled with an UPI Virtual Payment Address.
+     * Hint indicating that this view can be autofilled with an Unified Payments Interface (UPI)
+     * Virtual Payment Address.
      *
      * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
      * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
