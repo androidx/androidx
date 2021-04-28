@@ -61,6 +61,7 @@ import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.InteractiveWatchFaceImpl
 import androidx.wear.watchface.control.data.ComplicationRenderParams
+import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
@@ -244,12 +245,17 @@ public abstract class WatchFaceService : WallpaperService() {
         // The index of the watch element in the content description labels. Usually it will be
         // first.
         private const val WATCH_ELEMENT_ACCESSIBILITY_TRAVERSAL_INDEX = -1
+
+        // The maximum permitted duration of [WatchFaceService.MAX_CREATE_WATCHFACE_TIME_MILLIS].
+        private const val MAX_CREATE_WATCHFACE_TIME_MILLIS = 5000
     }
 
     /**
      * Override this factory method to create your WatchFaceImpl. This method will be called by the
      * library on the UiThread. If possible any expensive initialization should be done on a
-     * background thread.
+     * background thread to avoid blocking the UiThread.
+     *
+     * Warning watch face initialization will fail if createWatchFace takes longer than 5 seconds.
      *
      * @param surfaceHolder The [SurfaceHolder] to pass to the [Renderer]'s constructor.
      * @param watchState The [WatchState] for the watch face.
@@ -633,16 +639,33 @@ public abstract class WatchFaceService : WallpaperService() {
 
             // In a direct boot scenario attempt to load the previously serialized parameters.
             if (pendingWallpaperInstance == null && !expectPreRInitFlow()) {
-                directBootParams = readDirectBootPrefs(_context, DIRECT_BOOT_PREFS)
-                if (directBootParams != null) {
+                val params = readDirectBootPrefs(_context, DIRECT_BOOT_PREFS)
+                directBootParams = params
+                // In tests a watchface may already have been created.
+                if (params != null && !watchFaceCreatedOrPending()) {
                     val asyncTraceEvent = AsyncTraceEvent("DirectBoot")
                     coroutineScope.launch {
-                        // In tests a watchface may already have been created.
-                        if (!watchFaceCreatedOrPending()) {
-                            createInteractiveInstance(
-                                directBootParams!!,
-                                "DirectBoot"
-                            )
+                        try {
+                            val instance = createInteractiveInstance(params, "DirectBoot")
+                            // WatchFace init is async so its possible we now have a pending
+                            // WallpaperInteractiveWatchFaceInstance request.
+                            InteractiveInstanceManager
+                                .takePendingWallpaperInteractiveWatchFaceInstance()?.let {
+                                    require(it.params.instanceId == params.instanceId) {
+                                        "Mismatch between pendingWallpaperInstance id " +
+                                            "${it.params.instanceId} and constructed instance id " +
+                                            "${params.instanceId}"
+                                    }
+                                    it.callback.onInteractiveWatchFaceCreated(instance)
+                                }
+                        } catch (e: Exception) {
+                            InteractiveInstanceManager
+                                .takePendingWallpaperInteractiveWatchFaceInstance()?.let {
+                                    it.callback.onInteractiveWatchFaceCrashed(
+                                        CrashInfoParcel(e)
+                                    )
+                                }
+                        } finally {
                             asyncTraceEvent.close()
                         }
                     }
@@ -660,12 +683,18 @@ public abstract class WatchFaceService : WallpaperService() {
                 // workaround the workaround...
                 ignoreNextOnVisibilityChanged = true
                 coroutineScope.launch {
-                    pendingWallpaperInstance.callback.onInteractiveWatchFaceCreated(
-                        createInteractiveInstance(
-                            pendingWallpaperInstance.params,
-                            "Boot with pendingWallpaperInstance"
+                    try {
+                        pendingWallpaperInstance.callback.onInteractiveWatchFaceCreated(
+                            createInteractiveInstance(
+                                pendingWallpaperInstance.params,
+                                "Boot with pendingWallpaperInstance"
+                            )
                         )
-                    )
+                    } catch (e: Exception) {
+                        pendingWallpaperInstance.callback.onInteractiveWatchFaceCrashed(
+                            CrashInfoParcel(e)
+                        )
+                    }
                     asyncTraceEvent.close()
                     val params = pendingWallpaperInstance.params
                     directBootParams = params
@@ -1200,17 +1229,6 @@ public abstract class WatchFaceService : WallpaperService() {
             val instance = InteractiveWatchFaceImpl(this, params.instanceId, uiThreadHandler)
             InteractiveInstanceManager.addInstance(instance)
             interactiveInstanceId = params.instanceId
-
-            // WatchFace init is async so its possible we have a pending
-            // WallpaperInteractiveWatchFaceInstance request.
-            InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()?.let {
-                require(it.params.instanceId == params.instanceId) {
-                    "Mismatch between pendingWallpaperInstance id ${it.params.instanceId} and " +
-                        "constructed instance id ${params.instanceId}"
-                }
-                it.callback.onInteractiveWatchFaceCreated(instance)
-            }
-
             return instance
         }
 
@@ -1233,8 +1251,15 @@ public abstract class WatchFaceService : WallpaperService() {
         ) {
             asyncWatchFaceConstructionPending = true
             createdBy = _createdBy
+            val timeBefore = System.currentTimeMillis()
             val watchface = TraceEvent("WatchFaceService.createWatchFace").use {
                 createWatchFace(surfaceHolder, watchState)
+            }
+            val timeAfter = System.currentTimeMillis()
+            val timeTaken = timeAfter - timeBefore
+            require(timeTaken < MAX_CREATE_WATCHFACE_TIME_MILLIS) {
+                "createWatchFace should complete in less than $MAX_CREATE_WATCHFACE_TIME_MILLIS " +
+                    "milliseconds"
             }
             watchFaceImpl = TraceEvent("WatchFaceImpl.init").use {
                 WatchFaceImpl(watchface, this, watchState)

@@ -41,6 +41,7 @@ import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
@@ -70,6 +71,7 @@ import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -838,6 +840,41 @@ public class WatchFaceControlClientTest {
         )
         interactiveInstance.close()
     }
+
+    @Test
+    public fun crashingWatchFace(): Unit = runBlocking {
+        val wallpaperService = TestCrashingWatchFaceService(context)
+
+        // Create the engine which triggers the crashing watchface
+        async {
+            handler.post {
+                engine = wallpaperService.onCreateEngine()
+                engine.onSurfaceChanged(
+                    surfaceHolder,
+                    0,
+                    surfaceHolder.surfaceFrame.width(),
+                    surfaceHolder.surfaceFrame.height()
+                )
+            }
+        }
+
+        try {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+            fail("Expected an exception to be thrown because the watchface crashed on init")
+        } catch (e: Exception) {
+            assertThat(e).isInstanceOf(
+                WatchFaceControlClient.ServiceStartFailureException::class.java
+            )
+            assertThat(e).hasMessageThat().contains("Watchface crashed during init")
+            assertThat(e).hasMessageThat().contains("exceptionMessage: Deliberately crashing")
+        }
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
@@ -858,5 +895,21 @@ internal class TestExampleCanvasAnalogWatchFaceService(
     ): WatchFace {
         watchFace = super.createWatchFace(surfaceHolder, watchState)
         return watchFace
+    }
+}
+
+internal class TestCrashingWatchFaceService(
+    testContext: Context
+) : WatchFaceService() {
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState
+    ): WatchFace {
+        throw Exception("Deliberately crashing")
     }
 }
