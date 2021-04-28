@@ -45,6 +45,10 @@
         android:resource="@xml/automotive_app_desc"
         tools:ignore="MetadataTagInsideApplicationTag" />
 
+    <meta-data android:name="androidx.car.app.minApiLevel"
+        android:value="1"
+        tools:ignore="MetadataTagInsideApplicationTag" />
+
     <service
         android:name="androidx.car.app.sample.navigation.common.car.NavigationCarAppService"
         android:foregroundServiceType="location"
