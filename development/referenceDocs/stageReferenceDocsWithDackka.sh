@@ -61,17 +61,6 @@ unzip $androidxPublicDackkaDocsZip -d $dackkaNewDir
 
 printf "\n"
 printf "=================================================================== \n"
-printf "== Copy over Dackka generated refdocs \n"
-printf "=================================================================== \n"
-
-for dir in "${libraryDirs[@]}"
-do
-  cp -r $dackkaNewDir/reference/androidx/$dir $newDir/reference/androidx/
-  cp -r $dackkaNewDir/reference/kotlin/androidx/$dir $newDir/reference/kotlin/androidx/
-done
-
-printf "\n"
-printf "=================================================================== \n"
 printf "== Format the doc zip files \n"
 printf "=================================================================== \n"
 
@@ -108,6 +97,23 @@ printf "=================================================================== \n"
 # The switcher script still requires python2 to run correctly
 cd reference
 python2 ./../../../switcher.py --work androidx
+
+printf "\n"
+printf "=================================================================== \n"
+printf "== Copy over Dackka generated refdocs \n"
+printf "=================================================================== \n"
+
+# Dackka adds the language switcher during generation, so the Dackka directories
+# should be copied over after the switcher.py runs - otherwise the contents in
+# the Dackka directories will contain a duplicate language switcher.
+
+cd $scriptDirectory/out
+for dir in "${libraryDirs[@]}"
+do
+  printf "Copying $dir\n"
+  cp -r $dackkaNewDir/reference/androidx/$dir $newDir/reference/androidx/
+  cp -r $dackkaNewDir/reference/kotlin/androidx/$dir $newDir/reference/kotlin/androidx/
+done
 
 printf "\n"
 printf "=================================================================== \n"
