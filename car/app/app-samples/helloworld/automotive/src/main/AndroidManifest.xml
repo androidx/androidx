@@ -25,31 +25,39 @@
     <application
       android:label="@string/app_name"
       android:icon="@drawable/ic_launcher">
-    <meta-data android:name="com.google.android.gms.car.application"
-        android:resource="@xml/automotive_app_desc"
-        tools:ignore="MetadataTagInsideApplicationTag" />
-    <service
-        android:name="androidx.car.app.sample.helloworld.common.HelloWorldService"
-        android:exported="true">
-      <intent-filter>
-        <action android:name="androidx.car.app.CarAppService" />
-      </intent-filter>
-      <meta-data android:name="androidx.car.app.CAR_APP_ACTIVITY"
-          android:value="androidx.car.app.sample.helloworld.common.HelloWorld" />
-    </service>
-    <activity-alias
-        android:enabled="true"
-        android:exported="true"
-        android:label="Hello World"
-        android:name="HelloWorld"
-        android:targetActivity="androidx.car.app.activity.CarAppActivity" >
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-      <meta-data android:name="androidx.car.app.CAR_APP_SERVICE"
-          android:value="androidx.car.app.sample.helloworld.common.HelloWorldService" />
-      <meta-data android:name="distractionOptimized" android:value="true"/>
-    </activity-alias>
-  </application>
+
+        <meta-data
+            android:name="com.android.automotive"
+            android:resource="@xml/automotive_app_desc"
+            tools:ignore="MetadataTagInsideApplicationTag" />
+
+        <meta-data android:name="androidx.car.app.minApiLevel"
+            android:value="1"
+            tools:ignore="MetadataTagInsideApplicationTag" />
+
+        <service
+            android:name="androidx.car.app.sample.helloworld.common.HelloWorldService"
+            android:exported="true">
+          <intent-filter>
+            <action android:name="androidx.car.app.CarAppService" />
+          </intent-filter>
+          <meta-data android:name="androidx.car.app.CAR_APP_ACTIVITY"
+              android:value="androidx.car.app.sample.helloworld.common.HelloWorld" />
+        </service>
+
+        <activity-alias
+            android:enabled="true"
+            android:exported="true"
+            android:label="Hello World"
+            android:name="HelloWorld"
+            android:targetActivity="androidx.car.app.activity.CarAppActivity" >
+          <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+          </intent-filter>
+          <meta-data android:name="androidx.car.app.CAR_APP_SERVICE"
+              android:value="androidx.car.app.sample.helloworld.common.HelloWorldService" />
+          <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity-alias>
+    </application>
 </manifest>
