@@ -246,9 +246,20 @@ public class ComplicationProviderInfo(
     /** The type of the complication provided by the provider. */
     public val type: ComplicationType,
 
-    /** The provider's {@link ComponentName}. */
-    public val componentName: ComponentName,
+    /**
+     * The provider's {@link ComponentName}.
+     *
+     * This field is populated only on Android R and above and it is `null` otherwise.
+     */
+    public val componentName: ComponentName?,
 ) {
+    init {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            require(componentName != null) {
+                "ComponentName is required on Android R and above"
+            }
+        }
+    }
     /**
      * Converts this value to [WireComplicationProviderInfo] object used for serialization.
      *
@@ -269,5 +280,5 @@ public class ComplicationProviderInfo(
 public fun WireComplicationProviderInfo.toApiComplicationProviderInfo(): ComplicationProviderInfo =
     ComplicationProviderInfo(
         appName!!, providerName!!, providerIcon!!, fromWireType(complicationType),
-        providerComponentName!!
+        providerComponentName
     )
