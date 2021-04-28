@@ -17,8 +17,10 @@
 package androidx.appsearch.util;
 
 import android.os.Bundle;
+import android.os.Parcel;
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -224,5 +226,27 @@ public final class BundleUtil {
             }
         }
         return Arrays.hashCode(hashCodes);
+    }
+
+    /**
+     * Deeply clones a Bundle.
+     *
+     * <p>Values which are Bundles, Lists or Arrays are deeply copied themselves.
+     */
+    @NonNull
+    public static Bundle deepCopy(@NonNull Bundle bundle) {
+        // Write bundle to bytes
+        Parcel parcel = Parcel.obtain();
+        try {
+            parcel.writeBundle(bundle);
+            byte[] serializedMessage = parcel.marshall();
+
+            // Read bundle from bytes
+            parcel.unmarshall(serializedMessage, 0, serializedMessage.length);
+            parcel.setDataPosition(0);
+            return parcel.readBundle();
+        } finally {
+            parcel.recycle();
+        }
     }
 }

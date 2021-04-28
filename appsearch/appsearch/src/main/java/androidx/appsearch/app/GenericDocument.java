@@ -888,6 +888,18 @@ public class GenericDocument {
     }
 // @exportToFramework:endStrip()
 
+    /**
+     * Copies the contents of this {@link GenericDocument} into a new
+     * {@link GenericDocument.Builder}.
+     *
+     * <p>The returned builder is a deep copy whose data is separate from this document.
+     */
+    @NonNull
+    public GenericDocument.Builder<GenericDocument.Builder<?>> toBuilder() {
+        Bundle clonedBundle = BundleUtil.deepCopy(mBundle);
+        return new GenericDocument.Builder<GenericDocument.Builder<?>>(clonedBundle);
+    }
+
     @Override
     public boolean equals(@Nullable Object other) {
         if (this == other) {
@@ -981,8 +993,8 @@ public class GenericDocument {
     @SuppressLint("StaticFinalBuilder")
     public static class Builder<BuilderType extends Builder> {
 
-        private final Bundle mProperties = new Bundle();
-        private final Bundle mBundle = new Bundle();
+        private final Bundle mBundle;
+        private final Bundle mProperties;
         private final BuilderType mBuilderTypeInstance;
         private boolean mBuilt = false;
 
@@ -1012,6 +1024,8 @@ public class GenericDocument {
             Preconditions.checkNotNull(namespace);
             Preconditions.checkNotNull(id);
             Preconditions.checkNotNull(schemaType);
+
+            mBundle = new Bundle();
             mBuilderTypeInstance = (BuilderType) this;
             mBundle.putString(GenericDocument.NAMESPACE_FIELD, namespace);
             mBundle.putString(GenericDocument.ID_FIELD, id);
@@ -1021,7 +1035,67 @@ public class GenericDocument {
                     System.currentTimeMillis());
             mBundle.putLong(GenericDocument.TTL_MILLIS_FIELD, DEFAULT_TTL_MILLIS);
             mBundle.putInt(GenericDocument.SCORE_FIELD, DEFAULT_SCORE);
+
+            mProperties = new Bundle();
             mBundle.putBundle(PROPERTIES_FIELD, mProperties);
+        }
+
+        /** Creates a new {@link GenericDocument.Builder} from the given Bundle. */
+        @SuppressWarnings("unchecked")
+        Builder(@NonNull Bundle bundle) {
+            mBundle = Preconditions.checkNotNull(bundle);
+            mProperties = mBundle.getBundle(PROPERTIES_FIELD);
+            mBuilderTypeInstance = (BuilderType) this;
+        }
+
+        /**
+         * Sets the app-defined namespace this document resides in, changing the value provided
+         * in the constructor. No special values are reserved or understood by the infrastructure.
+         *
+         * <p>Document IDs are unique within a namespace.
+         *
+         * <p>The number of namespaces per app should be kept small for efficiency reasons.
+         *
+         * @throws IllegalStateException if the builder has already been used.
+         */
+        @NonNull
+        public BuilderType setNamespace(@NonNull String namespace) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(namespace);
+            mBundle.putString(GenericDocument.NAMESPACE_FIELD, namespace);
+            return mBuilderTypeInstance;
+        }
+
+        /**
+         * Sets the ID of this document, changing the value provided in the constructor. No
+         * special values are reserved or understood by the infrastructure.
+         *
+         * <p>Document IDs are unique within a namespace.
+         *
+         * @throws IllegalStateException if the builder has already been used.
+         */
+        @NonNull
+        public BuilderType setId(@NonNull String id) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(id);
+            mBundle.putString(GenericDocument.ID_FIELD, id);
+            return mBuilderTypeInstance;
+        }
+
+        /**
+         * Sets the schema type of this document, changing the value provided in the constructor.
+         *
+         * <p>To successfully index a document, the schema type must match the name of an
+         * {@link AppSearchSchema} object previously provided to {@link AppSearchSession#setSchema}.
+         *
+         * @throws IllegalStateException if the builder has already been used.
+         */
+        @NonNull
+        public BuilderType setSchemaType(@NonNull String schemaType) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(schemaType);
+            mBundle.putString(GenericDocument.SCHEMA_TYPE_FIELD, schemaType);
+            return mBuilderTypeInstance;
         }
 
         /**
@@ -1215,6 +1289,21 @@ public class GenericDocument {
             Preconditions.checkNotNull(name);
             Preconditions.checkNotNull(values);
             putInPropertyBundle(name, values);
+            return mBuilderTypeInstance;
+        }
+
+        /**
+         * Clears the value for the property with the given name.
+         *
+         * <p>Note that this method does not support property paths.
+         *
+         * @param name The name of the property to clear.
+         */
+        @NonNull
+        public BuilderType clearProperty(@NonNull String name) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(name);
+            mProperties.remove(name);
             return mBuilderTypeInstance;
         }
 
