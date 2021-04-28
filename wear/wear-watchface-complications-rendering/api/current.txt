@@ -107,13 +107,11 @@ package androidx.wear.watchface.complications.rendering {
   }
 
   public final class GlesTextureComplication {
-    ctor public GlesTextureComplication(androidx.wear.watchface.CanvasComplication canvasComplication, @Px int textureWidth, @Px int textureHeight, int textureType, int id);
+    ctor public GlesTextureComplication(androidx.wear.watchface.CanvasComplication canvasComplication, @Px int textureWidth, @Px int textureHeight, int textureType);
     method public void bind();
     method public androidx.wear.watchface.CanvasComplication getCanvasComplication();
-    method public int getId();
     method public void renderToTexture(android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
     property public final androidx.wear.watchface.CanvasComplication canvasComplication;
-    property public final int id;
   }
 
 }
