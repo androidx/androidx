@@ -1924,6 +1924,80 @@ public class WatchFaceServiceTest {
         assertFalse(rightComplication.enabled)
     }
 
+    public fun UserStyleManager_init_applies_ComplicationsUserStyleSetting() {
+        val complicationId1 = 101
+        val complicationId2 = 102
+
+        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+            UserStyleSetting.Id("ID"),
+            "",
+            "",
+            icon = null,
+            complicationConfig = listOf(
+                ComplicationsOption(
+                    Option.Id("one"),
+                    "one",
+                    null,
+                    listOf(
+                        ComplicationOverlay(
+                            complicationId1,
+                            enabled = true
+                        ),
+                    )
+                ),
+                ComplicationsOption(
+                    Option.Id("two"),
+                    "teo",
+                    null,
+                    listOf(
+                        ComplicationOverlay(
+                            complicationId2,
+                            enabled = true
+                        ),
+                    )
+                )
+            ),
+            listOf(WatchFaceLayer.COMPLICATIONS)
+        )
+
+        val currentUserStyleRepository =
+            CurrentUserStyleRepository(UserStyleSchema(listOf(complicationsStyleSetting)))
+
+        val manager = ComplicationsManager(
+            listOf(
+                Complication.createRoundRectComplicationBuilder(
+                    complicationId1,
+                    CanvasComplicationDrawable(complicationDrawableLeft, watchState.asWatchState()),
+                    listOf(
+                        ComplicationType.RANGED_VALUE,
+                    ),
+                    DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+                    ComplicationBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+                ).setDefaultProviderType(ComplicationType.RANGED_VALUE)
+                    .setEnabled(false)
+                    .build(),
+
+                Complication.createRoundRectComplicationBuilder(
+                    complicationId2,
+                    CanvasComplicationDrawable(
+                        complicationDrawableRight, watchState.asWatchState()
+                    ),
+                    listOf(
+                        ComplicationType.LONG_TEXT,
+                    ),
+                    DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_DAY_OF_WEEK),
+                    ComplicationBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+                ).setDefaultProviderType(ComplicationType.LONG_TEXT)
+                    .setEnabled(false)
+                    .build()
+            ),
+            currentUserStyleRepository
+        )
+
+        // The init function of ComplicationsManager should enable complicationId1.
+        assertThat(manager[complicationId1]!!.enabled).isTrue()
+    }
+
     @Test
     public fun observeComplicationData() {
         initWallpaperInteractiveWatchFaceInstance(

@@ -107,6 +107,33 @@ public class ComplicationsManager(
         this.renderer = renderer
     }
 
+    init {
+        val complicationsStyleCategory =
+            currentUserStyleRepository.schema.userStyleSettings.firstOrNull {
+                it is ComplicationsUserStyleSetting
+            }
+
+        // Add a listener if we have a ComplicationsUserStyleSetting so we can track changes and
+        // automatically apply them.
+        if (complicationsStyleCategory != null) {
+            // Ensure we apply any initial StyleCategoryOption overlay by initializing with null.
+            var previousOption: ComplicationsOption? = null
+            currentUserStyleRepository.addUserStyleChangeListener(
+                object : CurrentUserStyleRepository.UserStyleChangeListener {
+                    override fun onUserStyleChanged(userStyle: UserStyle) {
+                        val newlySelectedOption =
+                            userStyle[complicationsStyleCategory]!! as ComplicationsOption
+                        if (previousOption != newlySelectedOption) {
+                            previousOption = newlySelectedOption
+                            applyComplicationsStyleCategoryOption(newlySelectedOption)
+                        }
+                    }
+                }
+            )
+        }
+    }
+
+    /** Finish initialization. */
     internal fun init(
         watchFaceHostApi: WatchFaceHostApi,
         calendar: Calendar,
@@ -122,37 +149,11 @@ public class ComplicationsManager(
             complication.init(this, complicationInvalidateListener)
         }
 
-        val complicationsStyleCategory =
-            currentUserStyleRepository.schema.userStyleSettings.firstOrNull {
-                it is ComplicationsUserStyleSetting
-            }
-
-        // Add a listener if we have a ComplicationsUserStyleSetting so we can track changes and
-        // automatically apply them.
-        if (complicationsStyleCategory != null) {
-            // Ensure we apply any initial StyleCategoryOption overlay by initializing with null.
-            var previousOption: ComplicationsUserStyleSetting.ComplicationsOption? = null
-            currentUserStyleRepository.addUserStyleChangeListener(
-                object : CurrentUserStyleRepository.UserStyleChangeListener {
-                    override fun onUserStyleChanged(userStyle: UserStyle) {
-                        val newlySelectedOption =
-                            userStyle[complicationsStyleCategory]!! as ComplicationsOption
-                        if (previousOption != newlySelectedOption) {
-                            previousOption = newlySelectedOption
-                            applyComplicationsStyleCategoryOption(newlySelectedOption)
-                        }
-                    }
-                }
-            )
-        }
-
         // Activate complications.
         scheduleUpdate()
     }
 
-    internal fun applyComplicationsStyleCategoryOption(
-        styleOption: ComplicationsUserStyleSetting.ComplicationsOption
-    ) {
+    internal fun applyComplicationsStyleCategoryOption(styleOption: ComplicationsOption) {
         for ((id, complication) in complications) {
             val override = styleOption.complicationOverlays.find { it.complicationId == id }
             val initialConfig = initialComplicationConfigs[id]!!
