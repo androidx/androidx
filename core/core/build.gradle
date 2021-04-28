@@ -52,10 +52,6 @@ android {
         aidl = true
     }
     testOptions.unitTests.includeAndroidResources = true
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
     aaptOptions {
         noCompress "ttf"
     }

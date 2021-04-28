@@ -26,11 +26,6 @@ dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_7
-    targetCompatibility = JavaVersion.VERSION_1_7
-}
-
 androidx {
     name = "Android Resource Inspection - Annotations"
     type = LibraryType.PUBLISHED_LIBRARY

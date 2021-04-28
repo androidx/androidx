@@ -55,12 +55,6 @@ android {
         // studio pipeline works only starting with Android O
         minSdkVersion 26
     }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
-
     sourceSets {
         main.resources.srcDirs += "src/main/proto"
     }

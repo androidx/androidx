@@ -31,9 +31,4 @@ android {
     lintOptions {
         disable "InvalidPackage" // Lint is unhappy about mockito package
     }
-
-    compileOptions {
-        sourceCompatibility(JavaVersion.VERSION_1_7)
-        targetCompatibility(JavaVersion.VERSION_1_7)
-    }
 }
