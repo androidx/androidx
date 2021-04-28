@@ -354,7 +354,7 @@ package androidx.wear.watchface {
     method @UiThread public void invalidate();
     method public void onUserStyleChanged();
     method public void setActiveComplications(int[] watchFaceComplicationIds);
-    method public void setDefaultComplicationProviderWithFallbacks(int watchFaceComplicationId, java.util.List<android.content.ComponentName>? providers, @androidx.wear.complications.SystemProviders.ProviderId int fallbackSystemProvider, int type);
+    method public void setDefaultComplicationProviderWithFallbacks(int watchFaceComplicationId, java.util.List<android.content.ComponentName>? providers, @androidx.wear.complications.SystemProviders.Companion.ProviderId int fallbackSystemProvider, int type);
     method public void updateContentDescriptionLabels();
   }
 

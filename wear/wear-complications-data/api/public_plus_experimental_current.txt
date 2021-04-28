@@ -57,7 +57,8 @@ package androidx.wear.complications {
   public final class ProviderInfoRetrieverKt {
   }
 
-  public class SystemProviders {
+  public final class SystemProviders {
+    field public static final androidx.wear.complications.SystemProviders.Companion Companion;
     field public static final int NO_PROVIDER = -1; // 0xffffffff
     field public static final int PROVIDER_APP_SHORTCUT = 6; // 0x6
     field public static final int PROVIDER_DATE = 2; // 0x2
@@ -74,6 +75,9 @@ package androidx.wear.complications {
     field public static final int PROVIDER_UNREAD_NOTIFICATION_COUNT = 7; // 0x7
     field public static final int PROVIDER_WATCH_BATTERY = 1; // 0x1
     field public static final int PROVIDER_WORLD_CLOCK = 5; // 0x5
+  }
+
+  public static final class SystemProviders.Companion {
   }
 
 }
