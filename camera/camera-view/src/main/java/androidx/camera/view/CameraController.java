@@ -372,17 +372,6 @@ public abstract class CameraController {
         return (mEnabledUseCases & useCaseMask) != 0;
     }
 
-    /**
-     * Same as {@link #isVideoCaptureEnabled()}.
-     *
-     * <p> This wrapper method is to workaround the limitation that currently only one
-     * UseExperimental mark class is allowed per method.
-     */
-    @OptIn(markerClass = ExperimentalVideo.class)
-    private boolean isVideoCaptureEnabledInternal() {
-        return isVideoCaptureEnabled();
-    }
-
     // ------------------
     // Preview use case.
     // ------------------
@@ -1142,7 +1131,7 @@ public abstract class CameraController {
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
+    @OptIn(markerClass = {ExperimentalUseCaseGroup.class, ExperimentalVideo.class})
     protected UseCaseGroup createUseCaseGroup() {
         if (!isCameraInitialized()) {
             Logger.d(TAG, CAMERA_NOT_INITIALIZED);
@@ -1168,7 +1157,7 @@ public abstract class CameraController {
             mCameraProvider.unbind(mImageAnalysis);
         }
 
-        if (isVideoCaptureEnabledInternal()) {
+        if (isVideoCaptureEnabled()) {
             builder.addUseCase(mVideoCapture);
         } else {
             mCameraProvider.unbind(mVideoCapture);
